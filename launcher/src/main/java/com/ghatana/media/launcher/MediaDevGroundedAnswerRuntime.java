@@ -1,5 +1,6 @@
 package com.ghatana.media.launcher;
 
+import com.ghatana.media.runtime.MediaRequestLedgerContracts.OutputRef;
 import com.ghatana.media.runtime.MediaRightsConsentContracts.Resolution;
 import com.ghatana.media.runtime.MediaRightsConsentContracts.ResolutionRequest;
 import com.ghatana.media.runtime.MediaRightsConsentContracts.RightsConsentResolver;
@@ -169,14 +170,28 @@ public final class MediaDevGroundedAnswerRuntime {
     private final Children children;
     private final MediaDevProjectRenderRuntime.OutputRegistrar registrar;
     private final RightsConsentResolver rights;
+    private final MediaDevRequestLedger ledger;
+    static final String LANE = "grounded.answer";
 
     MediaDevGroundedAnswerRuntime(MediaRuntime runtime, Probe probe, Children children,
                                   RightsConsentResolver rights) {
         this(runtime, probe, children, rights, MediaDevProjectRenderRuntime.canonicalRegistrar(runtime));
     }
 
+    MediaDevGroundedAnswerRuntime(MediaRuntime runtime, Probe probe, Children children,
+                                  RightsConsentResolver rights, MediaDevRequestLedger ledger) {
+        this(runtime, probe, children, rights, MediaDevProjectRenderRuntime.canonicalRegistrar(runtime), ledger);
+    }
+
     MediaDevGroundedAnswerRuntime(MediaRuntime runtime, Probe probe, Children children, RightsConsentResolver rights,
                                   MediaDevProjectRenderRuntime.OutputRegistrar registrar) {
+        this(runtime, probe, children, rights, registrar, MediaDevRequestLedger.inMemory());
+    }
+
+    MediaDevGroundedAnswerRuntime(MediaRuntime runtime, Probe probe, Children children, RightsConsentResolver rights,
+                                  MediaDevProjectRenderRuntime.OutputRegistrar registrar,
+                                  MediaDevRequestLedger ledger) {
+        this.ledger = Objects.requireNonNull(ledger, "ledger");
         this.runtime = Objects.requireNonNull(runtime, "runtime");
         this.probe = Objects.requireNonNull(probe, "probe");
         this.children = Objects.requireNonNull(children, "children");
@@ -217,6 +232,29 @@ public final class MediaDevGroundedAnswerRuntime {
         if (artifact.sizeBytes() > MAX_SOURCE_BYTES) {
             throw new GroundedRefusedException(422, "GROUNDED_LIMIT_EXCEEDED", "source exceeds the byte ceiling");
         }
+        // Rights were re-checked above on every call (a revoked source refuses even a replay). The ledger maps the
+        // requestId to its registered answer, so the (nondeterministic) children and answering model run at most
+        // once per request.
+        String fingerprint = MediaDevRequestLedger.fingerprint("media.dev.grounded.answer.v1", artifact.artifactId(),
+                artifact.version().value(), artifact.sha256(), request.question(), request.language(),
+                request.allowPartial());
+        return ledger.run(tenantId, principalId, LANE, request.requestId(), fingerprint,
+                outputs -> {
+                    OutputRef ref = outputs.getFirst();
+                    return reopen(tenantId, principalId, ref.artifactId())
+                            .filter(found -> found.artifact().version().value().equals(ref.versionId()))
+                            .map(found -> new GroundedResult(found.artifact(), found.lineage(), found.document(), true,
+                                    admission))
+                            .orElseThrow(() -> MediaDevRequestLedger.outputUnavailable(LANE));
+                },
+                () -> produceAnswer(tenantId, principalId, request, artifact, admission),
+                result -> List.of(new OutputRef("answer", result.artifact().artifactId(),
+                        result.artifact().version().value())),
+                () -> new GroundedRequestReusedException(new IllegalArgumentException("requestId used with a different request")));
+    }
+
+    private GroundedResult produceAnswer(String tenantId, String principalId, AskRequest request,
+                                         MediaArtifact artifact, Resolution admission) {
         ByteArrayOutputStream staged = new ByteArrayOutputStream((int) Math.min(artifact.sizeBytes(), 1 << 26));
         try {
             runtime.copyArtifactContent(tenantId, principalId, artifact.artifactId(), artifact.version(), staged,

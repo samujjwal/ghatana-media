@@ -258,7 +258,7 @@ class Ip06LegacyMigrationCompatibilityTest {
         assertSnapshotBaselineRows(schema);
 
         // The snapshot carries a manifest-backed history projection, not Flyway's runtime
-        // history table. Baseline at V016, then exercise checked-in V017-V029 and additive V031-V033, V035, V036 and the PostgreSQL V037 append-only guard.
+        // history table. Baseline at V016, then exercise checked-in V017-V029 and additive V031-V033, V035, V036, the PostgreSQL V037 append-only guard and V038 (DEV request ledger).
         var forward = Flyway.configure()
                 .dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
                 .locations(MediaRuntimeMigrations.locations(MediaRuntimeMigrations.POSTGRESQL))
@@ -268,7 +268,7 @@ class Ip06LegacyMigrationCompatibilityTest {
                 .baselineVersion("16")
                 .validateMigrationNaming(true)
                 .load();
-        assertThat(forward.migrate().migrationsExecuted).isEqualTo(19);
+        assertThat(forward.migrate().migrationsExecuted).isEqualTo(20);
         assertSnapshotBaselineRows(schema);
         assertForwardSnapshotSchema(schema);
         assertThat(forward.migrate().migrationsExecuted).isZero();
@@ -348,7 +348,7 @@ class Ip06LegacyMigrationCompatibilityTest {
              ResultSet rows = statement.executeQuery(
                      "SELECT version::integer, success FROM " + schema
                              + ".flyway_schema_history WHERE version IS NOT NULL ORDER BY version::integer")) {
-            int[] expectedVersions = {16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 35, 36, 37};
+            int[] expectedVersions = {16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 35, 36, 37, 38};
             int count = 0;
             while (rows.next()) {
                 assertThat(count).isLessThan(expectedVersions.length);
@@ -356,7 +356,7 @@ class Ip06LegacyMigrationCompatibilityTest {
                 assertThat(rows.getBoolean("success")).isTrue();
                 count++;
             }
-            // Flyway records a baseline at V016, V017-V029, then additive V031-V033, V035, V036 and the PostgreSQL V037 append-only guard.
+            // Flyway records a baseline at V016, V017-V029, then additive V031-V033, V035, V036, the PostgreSQL V037 append-only guard and V038 (DEV request ledger).
             assertThat(count).isEqualTo(expectedVersions.length);
         }
     }
@@ -376,6 +376,7 @@ class Ip06LegacyMigrationCompatibilityTest {
             assertThat(hasTable(connection, schema, "media_review_idempotency")).isTrue();
             assertThat(hasTable(connection, schema, "media_rights_attestations")).isTrue();
             assertThat(hasTable(connection, schema, "media_rights_attestation_events")).isTrue();
+            assertThat(hasTable(connection, schema, "media_dev_request_ledger")).isTrue();
             // Pre-existing revisions remain explicitly unresolved for fields introduced later.
             assertThat(stringValue(connection, "SELECT processing_purpose FROM " + schema
                     + ".media_transcript_revisions WHERE transcript_id='ip06-transcript'"))

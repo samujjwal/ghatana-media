@@ -270,6 +270,49 @@ class MediaDevGroundedAnswerTest {
     }
 
     @Test
+    void aRetryAfterSuccessReplaysTheStoredAnswerWithoutRunningTheModelsAndRightsAreRecheckedOnReplay() throws Exception {
+        Fixture f = new Fixture(Verdict.ADMITTED);
+        try {
+            HttpResponse<byte[]> created = f.ask("replay-1", false);
+            assertThat(created.statusCode()).as(new String(created.body())).isEqualTo(201);
+            String outputId = (String) map(created).get("outputId");
+            int speech = f.children.speechCalls.get();
+            int vision = f.children.visionCalls.get();
+            int answers = f.children.answerCalls.get();
+
+            // The answering model is nondeterministic: a re-run would now produce different bytes. The ledger
+            // replays the first registered answer instead of re-running anything.
+            f.children.reply = "{\"claims\":[{\"text\":\"A different wording\",\"evidence\":[\"T0\"]}]}";
+            HttpResponse<byte[]> replay = f.ask("replay-1", false);
+            assertThat(replay.statusCode()).as(new String(replay.body())).isEqualTo(200);
+            assertThat(map(replay)).containsEntry("replayed", true).containsEntry("outputId", outputId);
+            assertThat(castMap(castMap(map(replay).get("document")).get("answer")).get("claims").toString())
+                    .doesNotContain("A different wording");
+            assertThat(f.children.speechCalls.get()).isEqualTo(speech);
+            assertThat(f.children.visionCalls.get()).isEqualTo(vision);
+            assertThat(f.children.answerCalls.get()).isEqualTo(answers);
+            assertThat(f.registrations.get()).isEqualTo(1);
+
+            // A different request under the same requestId is a conflict; nothing runs.
+            f.question.set("a different question?");
+            HttpResponse<byte[]> reused = f.ask("replay-1", false);
+            assertThat(reused.statusCode()).isEqualTo(409);
+            assertThat(new String(reused.body())).contains("GROUNDED_REQUEST_ID_REUSED");
+            assertThat(f.children.answerCalls.get()).isEqualTo(answers);
+            f.question.set("What does the speaker say and what is on screen?");
+
+            // Rights are re-resolved on every call: a revoked source refuses even a replay.
+            f.verdict.set(Verdict.REVOKED);
+            HttpResponse<byte[]> revoked = f.ask("replay-1", false);
+            assertThat(revoked.statusCode()).isEqualTo(403);
+            assertThat(new String(revoked.body())).contains("RIGHTS_REVOKED");
+            assertThat(f.children.answerCalls.get()).isEqualTo(answers);
+        } finally {
+            f.close();
+        }
+    }
+
+    @Test
     void rightsMissingRevokedOrUnavailableRefuseBeforeAnyChildRunsOrAnythingIsRegistered() throws Exception {
         for (var entry : Map.of(Verdict.UNAVAILABLE, 503, Verdict.DENIED, 403, Verdict.REVOKED, 403,
                 Verdict.STALE, 403, Verdict.MISMATCH, 403).entrySet()) {

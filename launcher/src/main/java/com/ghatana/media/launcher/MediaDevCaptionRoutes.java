@@ -59,6 +59,8 @@ final class MediaDevCaptionRoutes {
         } catch (MediaDevCaptionRuntime.CaptionRefusedException failure) {
             if (failure.status() == 403) runtime.recordDeniedRequest();
             out.error(exchange, failure.status(), failure.code(), failure.getMessage(), failure.details());
+        } catch (MediaDevRequestLedger.LedgerRefusedException failure) {
+            out.error(exchange, failure.status(), failure.code(), failure.getMessage(), failure.details());
         } catch (MediaDevCaptionRuntime.CaptionRegistrationFailedException failure) {
             out.error(exchange, 502, "CAPTION_REGISTRATION_FAILED",
                     "The corrected caption was not registered; retry with the same requestId to resume", Map.of());

@@ -58,6 +58,8 @@ final class MediaDevSpeechRoutes {
         } catch (MediaDevSpeechRuntime.SpeechRefusedException failure) {
             if (failure.status() == 403) runtime.recordDeniedRequest();
             out.error(exchange, failure.status(), failure.code(), failure.getMessage(), failure.details());
+        } catch (MediaDevRequestLedger.LedgerRefusedException failure) {
+            out.error(exchange, failure.status(), failure.code(), failure.getMessage(), failure.details());
         } catch (MediaDevSpeechRuntime.SpeechRequestReusedException failure) {
             out.error(exchange, 409, "SPEECH_REQUEST_ID_REUSED",
                     "requestId was already used with a different speech request", Map.of());

@@ -15,19 +15,18 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 /**
- * Bounded, owner-only DEV_ONLY spool of synthesized speech keyed by (tenant, principal, requestId).
+ * Bounded, owner-only DEV_ONLY byte cache of synthesized speech keyed by (tenant, principal, requestId).
  *
- * <p>Local neural synthesis is not byte-stable, so re-running it for the same requestId would produce different
- * audio and an idempotent registration could never replay. The spool keeps the exact bytes and lineage of the first
- * successful synthesis for a requestId (together with the digest of the request that produced it) so a retry, also
- * after a restart or a crash between synthesis and registration, registers the SAME bytes (a replay or a resume)
- * and never runs the model again. A retry with a different request is detected here and refused by the caller. The
- * spool holds user content, is created owner-read-write only, is bounded by entry count (oldest evicted first) and
- * is never an evidence record: the registered artifact is the durable record.</p>
+ * <p>This is only a byte cache; the requestId to output mapping is the durable {@link MediaDevRequestLedger}.
+ * Local neural synthesis is not byte-stable, so a crash between synthesis and artifact registration would otherwise
+ * make the retry synthesize different audio that the idempotent upload registration refuses. The cache keeps the exact
+ * bytes and lineage of the first synthesis (with the digest of the request that produced it) so that retry registers
+ * the SAME bytes instead of running the model again. It holds user content, is created owner-read-write only, is
+ * bounded by entry count (oldest evicted first) and is never an evidence record. Eviction loses nothing that matters
+ * for replay: a completed request replays the registered artifact through the ledger, not these bytes.</p>
  */
 final class MediaDevSpeechSpool {
     static final String ENV_DIR = "MEDIA_DEV_SPEECH_SPOOL_DIR";
@@ -37,7 +36,6 @@ final class MediaDevSpeechSpool {
     record Entry(String fingerprint, byte[] wav, Map<String, Object> lineage) { }
 
     private final Path directory;
-    private final ConcurrentHashMap<String, Object> locks = new ConcurrentHashMap<>();
 
     MediaDevSpeechSpool(Path directory) {
         this.directory = directory;
@@ -49,11 +47,6 @@ final class MediaDevSpeechSpool {
                 : Path.of(System.getProperty("java.io.tmpdir"), "media-dev-speech-spool-" + System.getProperty("user.name", "user"));
         if (!directory.isAbsolute()) throw new IllegalArgumentException(ENV_DIR + " must be an absolute path");
         return new MediaDevSpeechSpool(directory);
-    }
-
-    /** Serializes work for one key so two concurrent retries cannot synthesize twice. */
-    Object lockFor(String key) {
-        return locks.computeIfAbsent(key, ignored -> new Object());
     }
 
     Optional<Entry> find(String key) {

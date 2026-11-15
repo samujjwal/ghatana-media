@@ -65,6 +65,8 @@ final class MediaDevGroundedRoutes {
                     Map.of("detail", failure.getMessage()));
         } catch (MediaDevGroundedAnswerRuntime.GroundedRefusedException failure) {
             out.error(exchange, failure.status(), failure.code(), failure.getMessage(), failure.details());
+        } catch (MediaDevRequestLedger.LedgerRefusedException failure) {
+            out.error(exchange, failure.status(), failure.code(), failure.getMessage(), failure.details());
         } catch (MediaDevGroundedAnswerRuntime.GroundedRequestReusedException failure) {
             out.error(exchange, 409, "GROUNDED_REQUEST_ID_REUSED",
                     "requestId was already used with a different grounded-answer request or result", Map.of());

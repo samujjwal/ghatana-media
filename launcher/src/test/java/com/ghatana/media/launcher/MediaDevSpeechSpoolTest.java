@@ -71,10 +71,4 @@ class MediaDevSpeechSpoolTest {
         assertThat(MediaDevSpeechSpool.fromEnvironment(Map.of(MediaDevSpeechSpool.ENV_DIR, directory.toString()))).isNotNull();
         assertThat(MediaDevSpeechSpool.fromEnvironment(Map.of())).isNotNull();
     }
-
-    @Test
-    void oneKeyHasOneLock() {
-        MediaDevSpeechSpool spool = new MediaDevSpeechSpool(directory);
-        assertThat(spool.lockFor("a")).isSameAs(spool.lockFor("a")).isNotSameAs(spool.lockFor("b"));
-    }
 }

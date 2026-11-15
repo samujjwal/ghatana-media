@@ -340,9 +340,12 @@ REVOKED | STALE | MISMATCH` unless the exact version carries a second-person-con
 `422 VOICE_CLONING_NOT_SUPPORTED`. Rights are re-evaluated on every call, so a retry after a revocation is refused. If the
 synthesis process ends without a verified result (killed or crashed) the response is `503 SPEECH_OUTCOME_UNKNOWN`
 and nothing is registered; retrying the same `requestId` creates exactly one artifact and later retries replay it
-(`200`, `replayed=true`; local synthesis is not byte-stable, so the first synthesis for a `requestId` is kept in a bounded,
-owner-only spool (`MEDIA_DEV_SPEECH_SPOOL_DIR`, default under the temp directory, 256 entries) and a retry registers those same
-bytes instead of running the model again; a different request under the same `requestId` is `409 SPEECH_REQUEST_ID_REUSED`). Altering any pinned weight file withdraws the profile at once (`ready=false`, no voices,
+(`200`, `replayed=true`; local synthesis is not byte-stable, so the requestId-to-output mapping is the durable request ledger
+(see "DEV_ONLY durable request ledger" below): a retry after success re-reads the registered artifact and never runs the model
+again, also after a restart; a different request under the same `requestId` is `409 SPEECH_REQUEST_ID_REUSED`). The bounded,
+owner-only spool (`MEDIA_DEV_SPEECH_SPOOL_DIR`, default under the temp directory, 256 entries) is now only a byte cache that
+lets a retry after a crash between synthesis and registration register the SAME bytes instead of synthesizing again; its
+eviction loses no replay. Altering any pinned weight file withdraws the profile at once (`ready=false`, no voices,
 `503 SPEECH_RUNTIME_UNAVAILABLE`). The output is a mono 24 kHz PCM16 WAV artifact whose lineage records voice, locale,
 model/runtime digests and the input text digest only. The Explorer page `dev-voice-synthesis.html` (panel
 `VoiceSynthesisPanel` in `@audio-video/ui`) proxies only the synthesis routes of this lane; transcription is not proxied.
@@ -367,7 +370,9 @@ observations[{frameIndex,pts,ptsMicros,box{x,y,width,height}}]}]` in source-fram
 orientation is not applied to stills), and the model identity. Boxes up to one pixel outside the raster are clamped;
 anything further out is dropped and counted in `rejectedDetections`. Lineage (`source`, `models`, `video`, `tracking`,
 `rightsDecision`, `resultSha256`) binds the exact source version digest and the digest-qualified model. A retry with the
-same requestId re-derives identical bytes and replays (`200`); it is never a second registration.
+same requestId replays the registered tracks (`200`) from the durable request ledger without re-running the detector; it
+is never a second registration, and the same requestId with different parameters is `409 VISION_REQUEST_ID_REUSED`. ROI
+analysis (`vision.roi` ledger lane) behaves the same way.
 A sidecar that fails or is killed mid-run is `503 VISION_OUTCOME_UNKNOWN` (`outcome:"UNKNOWN"`, `framesCompleted`,
 `framesPlanned`): never success, nothing registered, retry the same requestId. A withdrawn model (digest changed) is
 `503 LOCAL_MODEL_NOT_ADMITTED` before any byte is read.
@@ -400,7 +405,8 @@ inferred by the digest-qualified model, and the structured result is registered 
 artifact through the canonical idempotent upload path (`201`, replay `200`, requestId reuse with a different request
 `409 VISION_REQUEST_ID_REUSED`). Lineage metadata binds the source artifact id/version/SHA-256, the frame position and
 frame digest for video, and the model identity (id, upstream revision, SPDX licence, file-set digest). Inference is
-greedy and the registered JSON carries no timestamps, so a replay re-derives identical bytes. Typed refusals:
+greedy and the registered JSON carries no timestamps; the requestId is not made idempotent by re-deriving bytes but by the
+durable request ledger (see "DEV_ONLY durable request ledger"), so the model is never re-run for a completed request. Typed refusals:
 `404 SOURCE_VERSION_NOT_FOUND` (stale/foreign/unknown version), `403 ARTIFACT_PERMISSION_REQUIRED`,
 `422 SOURCE_FORMAT_NOT_SUPPORTED | FRAME_EXTRACTION_UNAVAILABLE | FRAME_EXTRACTION_FAILED`,
 `503 LOCAL_MODEL_NOT_ADMITTED` (manifest missing or digest/licence/identity mismatch; nothing is dispatched) and
@@ -440,8 +446,9 @@ vision evidence remains); a child or answerer whose outcome is unknown (sidecar 
 with nothing registered, and retrying the same `requestId` resumes. Rights are re-resolved after inference and before
 registration, so a revocation during the run leaves no artifact. The typed document is registered as an immutable
 `application/json` artifact (`201`; replay `200`; a different request under the same `requestId`
-`409 GROUNDED_REQUEST_ID_REUSED`); `GET /dev/v1/grounded-answers/{outputId}` reads the registered document back after a
-restart. The Document Intelligence child is always reported `UNAVAILABLE` (no DI v1 gateway client is wired here;
+`409 GROUNDED_REQUEST_ID_REUSED`; a retry after success replays the registered answer from the durable request ledger and
+re-runs neither the evidence children nor the answering model); `GET /dev/v1/grounded-answers/{outputId}` reads the
+registered document back after a restart. The Document Intelligence child is always reported `UNAVAILABLE` (no DI v1 gateway client is wired here;
 on-screen text is the local Florence-2 reader, not DI). Evidence beyond the prompt budget is not citable
 (`evidenceOmittedForPromptBudget`). Local open-model output: no quality, entailment, rights or production claim.
 
@@ -469,14 +476,35 @@ exact artifact version is a DEV_ONLY caption version with a current ACCEPT from 
 rights are still admitted; otherwise `422 CAPTION_NOT_REVIEWED | CAPTION_RIGHTS_NOT_ADMITTED`. Recognizer worker
 failures on `POST /dev/v1/speech/transcriptions` (process killed, crashed or no valid output) are `503
 SPEECH_OUTCOME_UNKNOWN` (never success, nothing registered, `retrySafe:true`); retrying the same requestId registers the
-outputs exactly once. Known limit: a retry AFTER a completed registration re-runs the recognizer and registers through the
-same idempotency key, so it replays the first outputs (`200`) only when the new recognizer bytes are identical; real
-Whisper output was observed to differ intermittently under GPU contention, and then the host answers `409
-SPEECH_REQUEST_ID_REUSED` (never a second output; the first outputs stay readable by id). A durable requestId-to-output
-index would remove this and is not implemented.
+outputs exactly once. A retry AFTER a completed registration (also after a restart) replays the first transcript and WebVTT
+outputs (`200`, `replayed=true`) from the durable request ledger without re-running the recognizer, whatever real Whisper
+would now produce under GPU contention; the same requestId for a different source version or language is `409
+SPEECH_REQUEST_ID_REUSED`. A caption correction (`captions.correct` ledger lane) replays the same way, and the same
+requestId with different cues is `409 CAPTION_REQUEST_ID_REUSED`.
 A correction is a statement by a DEV_ONLY principal, not a verified human, a quality claim or an approval. The Explorer
 page is `/dev-caption-correction.html`. Tests: `MediaDevCaptionCorrectionHttpTest`, `MediaDevCaptionJourneyIT` (real
 launcher, real Whisper, faults), `MediaDevExplorerCaptionCorrectionLiveIT` (real Chromium).
+
+DEV_ONLY durable request ledger (`MediaDevRequestLedger`, V038 `media_dev_request_ledger`; used by the speech STT/TTS,
+caption correction, vision tracking/ROI and grounded-answer lanes). Local model output is not byte-reproducible, so
+idempotency is not "re-run and compare bytes": the ledger is keyed by `(tenant, principal, lane, requestId)` and stores the
+SHA-256 fingerprint of the canonical request (exact input artifact id/version/digest plus every parameter) and, once the lane
+completes, the registered output artifact ids and versions. Each lane first validates the request and re-checks rights
+(a revoked source refuses even a replay; each lane keeps its existing rights semantics), then consults the ledger BEFORE any
+model runs: COMPLETED with the same fingerprint replays the registered output (`200`, artifact re-read, no model run); a
+different fingerprint is the lane's `409 *_REQUEST_ID_REUSED`; IN_PROGRESS under a live lease waits up to
+`MEDIA_DEV_REQUEST_LEDGER_WAIT_SECONDS` (default 20) and then answers `409 REQUEST_IN_PROGRESS`; a stale lease (the owner
+crashed, outcome UNKNOWN) is taken over under a higher fencing token, and the superseded owner's late completion is refused;
+a run that failed with nothing registered releases the claim so a retry runs again. `503 REQUEST_LEDGER_UNAVAILABLE` and
+`409 REQUEST_OUTPUT_UNAVAILABLE` (a completed request whose artifact is no longer readable) are typed refusals. Configuration:
+`MEDIA_DEV_REQUEST_LEDGER=postgresql|memory|auto` (default `auto`: PostgreSQL through the canonical runtime datasource when
+`MEDIA_POSTGRES_JDBC_URL` is set, otherwise a process-local ledger that is logged as non-durable), and
+`MEDIA_DEV_REQUEST_LEDGER_LEASE_SECONDS` (default 900, 30-86400). Remaining limits: the lease is not renewed, so a model run
+longer than the lease may be taken over (the late owner is fenced and registration stays idempotent by its upload key); a
+crash between artifact registration and ledger completion leaves the row IN_PROGRESS until the lease expires and the
+takeover re-runs the model, which can be refused as `409 *_REQUEST_ID_REUSED` when a nondeterministic model produced
+different bytes than the already registered artifact (never a second artifact; speech synthesis is covered by its byte
+cache); ledger rows are not pruned.
 
 DEV_ONLY exact-byte artifact read (`GET /dev/v1/artifacts/{artifactId}/content`, in-process HTTP plus a real-process
 PostgreSQL/S3 restart IT with Range; outside the canonical manifest/OpenAPI): the caller names the exact immutable

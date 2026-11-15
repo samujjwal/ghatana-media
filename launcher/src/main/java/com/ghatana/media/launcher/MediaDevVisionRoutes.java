@@ -81,6 +81,8 @@ final class MediaDevVisionRoutes {
                     "The loopback local vision sidecar is unavailable; retry the same requestId", Map.of());
         } catch (MediaDevVisionRuntime.VisionUnsupportedException failure) {
             out.error(exchange, 422, failure.code(), failure.getMessage(), Map.of());
+        } catch (MediaDevRequestLedger.LedgerRefusedException failure) {
+            out.error(exchange, failure.status(), failure.code(), failure.getMessage(), failure.details());
         } catch (MediaDevVisionRuntime.VisionRequestReusedException failure) {
             out.error(exchange, 409, "VISION_REQUEST_ID_REUSED",
                     "requestId was already used with a different vision request", Map.of());

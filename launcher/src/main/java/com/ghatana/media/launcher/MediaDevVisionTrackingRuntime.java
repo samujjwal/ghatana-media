@@ -8,6 +8,7 @@ import com.ghatana.audio.video.vision.tracking.RegionOfInterest;
 import com.ghatana.audio.video.vision.tracking.SourceBox;
 import com.ghatana.audio.video.vision.tracking.VideoTimeline;
 import com.ghatana.media.production.rendering.BoundedProcessRunner;
+import com.ghatana.media.runtime.MediaRequestLedgerContracts.OutputRef;
 import com.ghatana.media.runtime.MediaRightsConsentContracts.Resolution;
 import com.ghatana.media.runtime.MediaRightsConsentContracts.ResolutionRequest;
 import com.ghatana.media.runtime.MediaRightsConsentContracts.Scope;
@@ -135,9 +136,18 @@ public final class MediaDevVisionTrackingRuntime {
     private final MediaDevVisionRuntime vision;
     private final Path ffmpeg;
     private final Path ffprobe;
+    private final MediaDevRequestLedger ledger;
+    static final String LANE_TRACK = "vision.track";
+    static final String LANE_ROI = "vision.roi";
 
     /** {@code ffmpeg} and {@code ffprobe} must be absolute; either may be null, in which case video is unavailable. */
     public MediaDevVisionTrackingRuntime(MediaRuntime runtime, MediaDevVisionRuntime vision, Path ffmpeg, Path ffprobe) {
+        this(runtime, vision, ffmpeg, ffprobe, MediaDevRequestLedger.inMemory());
+    }
+
+    MediaDevVisionTrackingRuntime(MediaRuntime runtime, MediaDevVisionRuntime vision, Path ffmpeg, Path ffprobe,
+                                  MediaDevRequestLedger ledger) {
+        this.ledger = Objects.requireNonNull(ledger, "ledger");
         this.runtime = Objects.requireNonNull(runtime, "runtime");
         this.vision = Objects.requireNonNull(vision, "vision");
         if ((ffmpeg != null && !ffmpeg.isAbsolute()) || (ffprobe != null && !ffprobe.isAbsolute())) {
@@ -150,11 +160,16 @@ public final class MediaDevVisionTrackingRuntime {
     /** Null when no absolute FFmpeg and FFprobe path pair is configured; tools are never resolved through PATH. */
     static MediaDevVisionTrackingRuntime compose(MediaRuntime runtime, MediaDevVisionRuntime vision,
                                                  Map<String, String> environment) {
+        return compose(runtime, vision, environment, MediaDevRequestLedger.inMemory());
+    }
+
+    static MediaDevVisionTrackingRuntime compose(MediaRuntime runtime, MediaDevVisionRuntime vision,
+                                                 Map<String, String> environment, MediaDevRequestLedger ledger) {
         String ffmpeg = environment.get(MediaDevProjectRenderRuntime.FFMPEG_ENV);
         String ffprobe = environment.get(MediaDevProjectRenderRuntime.FFPROBE_ENV);
         return new MediaDevVisionTrackingRuntime(runtime, vision,
                 ffmpeg == null || ffmpeg.isBlank() ? null : Path.of(ffmpeg),
-                ffprobe == null || ffprobe.isBlank() ? null : Path.of(ffprobe));
+                ffprobe == null || ffprobe.isBlank() ? null : Path.of(ffprobe), ledger);
     }
 
     boolean videoAvailable() { return ffmpeg != null && ffprobe != null; }
@@ -178,6 +193,31 @@ public final class MediaDevVisionTrackingRuntime {
             throw new MediaDevVisionRuntime.VisionUnsupportedException("FRAME_EXTRACTION_UNAVAILABLE",
                     "video tracking requires MEDIA_DEV_RENDER_FFMPEG and MEDIA_DEV_RENDER_FFPROBE");
         }
+        // Rights were re-checked above on every call (a revoked source refuses even a replay). The ledger maps the
+        // requestId to its registered tracks, so the (nondeterministic) detector runs at most once per request.
+        String fingerprint = MediaDevRequestLedger.fingerprint("media.dev.vision.track.v1", source.artifactId(),
+                source.version().value(), source.sha256(), request.maxFrames(), request.strideFrames(),
+                request.minIou(), request.maxMissedFrames());
+        return ledger.run(tenantId, principalId, LANE_TRACK, request.requestId(), fingerprint,
+                outputs -> replay(tenantId, principalId, outputs, resolution, LANE_TRACK),
+                () -> produceTrack(tenantId, principalId, request, source, resolution),
+                result -> List.of(new OutputRef("result", result.artifact().artifactId(),
+                        result.artifact().version().value())),
+                () -> new MediaDevVisionRuntime.VisionRequestReusedException(
+                        new IllegalArgumentException("requestId used with a different request")));
+    }
+
+    private MediaDevVisionRuntime.VisionResult replay(String tenantId, String principalId, List<OutputRef> outputs,
+                                                      Resolution resolution, String lane) {
+        OutputRef ref = outputs.getFirst();
+        return vision.reopen(tenantId, principalId, ref.artifactId())
+                .filter(found -> found.artifact().version().value().equals(ref.versionId()))
+                .map(found -> new MediaDevVisionRuntime.VisionResult(found.artifact(), found.lineage(), true, resolution))
+                .orElseThrow(() -> MediaDevRequestLedger.outputUnavailable(lane));
+    }
+
+    private MediaDevVisionRuntime.VisionResult produceTrack(String tenantId, String principalId, TrackRequest request,
+                                                            MediaArtifact source, Resolution resolution) {
         LocalVisionEngine engine = vision.engine();
         requireAdmitted(engine);
         Path dir = privateTempDirectory();
@@ -357,6 +397,22 @@ public final class MediaDevVisionTrackingRuntime {
             throw new MediaDevVisionRuntime.VisionUnsupportedException("VISION_LIMIT_EXCEEDED",
                     "source exceeds the byte ceiling");
         }
+        String fingerprint = MediaDevRequestLedger.fingerprint("media.dev.vision.roi.v1", source.artifactId(),
+                source.version().value(), source.sha256(), request.tasks().stream().sorted().toList(),
+                request.roi().x(), request.roi().y(), request.roi().width(), request.roi().height(),
+                request.frameIndex());
+        return ledger.run(tenantId, principalId, LANE_ROI, request.requestId(), fingerprint,
+                outputs -> replay(tenantId, principalId, outputs, resolution, LANE_ROI),
+                () -> produceRoi(tenantId, principalId, request, source, resolution, isVideo),
+                result -> List.of(new OutputRef("result", result.artifact().artifactId(),
+                        result.artifact().version().value())),
+                () -> new MediaDevVisionRuntime.VisionRequestReusedException(
+                        new IllegalArgumentException("requestId used with a different request")));
+    }
+
+    private MediaDevVisionRuntime.VisionResult produceRoi(String tenantId, String principalId, RoiRequest request,
+                                                          MediaArtifact source, Resolution resolution,
+                                                          boolean isVideo) {
         LocalVisionEngine engine = vision.engine();
         requireAdmitted(engine);
         Path dir = privateTempDirectory();

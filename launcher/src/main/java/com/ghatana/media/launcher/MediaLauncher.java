@@ -35,6 +35,7 @@ public final class MediaLauncher {
         MediaDevReviewRuntime devReview = null;
         MediaDevDeliveryRuntime devDelivery = null;
         MediaDevRightsRuntime devRights = null;
+        MediaDevRequestLedger devLedger = null;
         try {
             privacyMaintenance = MediaPrivacyMaintenanceRuntime.compose(environment);
             consentAdministration = MediaConsentAdministrationRuntime.compose(environment);
@@ -44,6 +45,11 @@ public final class MediaLauncher {
             devRights = MediaDevRightsRuntime.compose(environment, runtime);
             devDelivery = MediaDevDeliveryRuntime.compose(environment, runtime,
                     devRights == null ? null : devRights.resolver());
+            // One durable request ledger for every DEV_ONLY model lane (speech, captions, vision tracking/ROI, grounded).
+            boolean devModelLanes = devProjectTimeline != null
+                    || !environment.getOrDefault(MediaLocalVisionComposition.MODELS_ROOT_ENV, "").isBlank();
+            devLedger = devModelLanes ? MediaDevRequestLedger.compose(environment) : null;
+            MediaDevRequestLedger finalDevLedger = devLedger;
             MediaPrivacyMaintenanceRuntime finalPrivacyMaintenance = privacyMaintenance;
             MediaConsentAdministrationRuntime finalConsentAdministration = consentAdministration;
             MediaCaptionRuntime finalCaptions = captions;
@@ -53,6 +59,10 @@ public final class MediaLauncher {
             MediaDevRightsRuntime finalDevRights = devRights;
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 RuntimeException failure = null;
+                if (finalDevLedger != null) {
+                    try { finalDevLedger.close(); }
+                    catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
+                }
                 if (finalDevDelivery != null) {
                     try { finalDevDelivery.close(); }
                     catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
@@ -114,13 +124,15 @@ public final class MediaLauncher {
                                     finalDevProjectTimeline == null ? null : new MediaDevCreativeOutputRuntime(runtime)).withDevDelivery(finalDevDelivery).withDevRights(finalDevRights)
                                     .withDevSpeech(finalDevProjectTimeline == null ? null
                                             : MediaDevSpeechRuntime.compose(runtime, System.getenv(),
-                                                    finalDevRights == null ? null : finalDevRights.resolver()))
+                                                    finalDevRights == null ? null : finalDevRights.resolver(),
+                                                    finalDevLedger))
                                     .withDevGrounded(MediaDevGroundedComposition.compose(runtime, environment,
-                                            System.getenv(), finalDevRights == null ? null : finalDevRights.resolver()))
+                                            System.getenv(), finalDevRights == null ? null : finalDevRights.resolver(),
+                                            finalDevLedger))
                                     .withDevCaptions(finalDevProjectTimeline == null ? null
                                             : MediaDevCaptionRuntime.compose(runtime,
                                                     finalDevRights == null ? null : finalDevRights.resolver(),
-                                                    finalDevReview),
+                                                    finalDevReview, finalDevLedger),
                                             "true".equalsIgnoreCase(environment.getOrDefault(
                                                     MediaDevCaptionRuntime.REVIEW_REQUIRED_ENV, "false")))
                                     .withDevVision(MediaLocalVisionComposition.engineFrom(environment)
@@ -129,10 +141,15 @@ public final class MediaLauncher {
                                                         MediaDevFfmpegFrameExtractor.from(environment),
                                                         finalDevRights == null ? null : finalDevRights.resolver());
                                                 return devVision.withTracking(
-                                                        MediaDevVisionTrackingRuntime.compose(runtime, devVision, environment));
+                                                        MediaDevVisionTrackingRuntime.compose(runtime, devVision, environment,
+                                                                finalDevLedger));
                                             }).orElse(null)),
                             config.profile()));
         } catch (RuntimeException failure) {
+            if (devLedger != null) {
+                try { devLedger.close(); }
+                catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
+            }
             if (devDelivery != null) {
                 try { devDelivery.close(); }
                 catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }

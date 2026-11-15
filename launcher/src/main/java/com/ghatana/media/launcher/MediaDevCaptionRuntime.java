@@ -1,5 +1,6 @@
 package com.ghatana.media.launcher;
 
+import com.ghatana.media.runtime.MediaRequestLedgerContracts.OutputRef;
 import com.ghatana.media.runtime.MediaRightsConsentContracts.Resolution;
 import com.ghatana.media.runtime.MediaRightsConsentContracts.ResolutionRequest;
 import com.ghatana.media.runtime.MediaRightsConsentContracts.RightsConsentResolver;
@@ -97,9 +98,18 @@ public final class MediaDevCaptionRuntime {
     private final MediaDevProjectRenderRuntime.OutputRegistrar registrar;
     private final RightsConsentResolver rights;
     private final MediaDevReviewRuntime reviews;
+    private final MediaDevRequestLedger ledger;
+    static final String LANE_CORRECT = "captions.correct";
 
     MediaDevCaptionRuntime(MediaRuntime runtime, MediaDevProjectRenderRuntime.OutputRegistrar registrar,
                            RightsConsentResolver rights, MediaDevReviewRuntime reviews) {
+        this(runtime, registrar, rights, reviews, MediaDevRequestLedger.inMemory());
+    }
+
+    MediaDevCaptionRuntime(MediaRuntime runtime, MediaDevProjectRenderRuntime.OutputRegistrar registrar,
+                           RightsConsentResolver rights, MediaDevReviewRuntime reviews,
+                           MediaDevRequestLedger ledger) {
+        this.ledger = Objects.requireNonNull(ledger, "ledger");
         this.runtime = Objects.requireNonNull(runtime, "runtime");
         this.registrar = Objects.requireNonNull(registrar, "registrar");
         this.rights = rights == null ? RightsConsentResolver.unavailable() : rights;
@@ -108,8 +118,13 @@ public final class MediaDevCaptionRuntime {
 
     static MediaDevCaptionRuntime compose(MediaRuntime runtime, RightsConsentResolver rights,
                                           MediaDevReviewRuntime reviews) {
+        return compose(runtime, rights, reviews, MediaDevRequestLedger.inMemory());
+    }
+
+    static MediaDevCaptionRuntime compose(MediaRuntime runtime, RightsConsentResolver rights,
+                                          MediaDevReviewRuntime reviews, MediaDevRequestLedger ledger) {
         return new MediaDevCaptionRuntime(runtime, MediaDevProjectRenderRuntime.canonicalRegistrar(runtime), rights,
-                reviews);
+                reviews, ledger);
     }
 
     // ---- read ----
@@ -201,6 +216,34 @@ public final class MediaDevCaptionRuntime {
         lineage.put("note", "Human-edited caption text and timing registered as a new version by a DEV_ONLY "
                 + "authenticated principal; not reviewed until an assigned reviewer decides, and not a quality, "
                 + "approval or delivery claim.");
+        // Rights were re-resolved above on every call (a revoked source refuses even a replay). The ledger maps the
+        // requestId to the registered correction, so a retry of the same correction replays it (200) and the same
+        // requestId with different cues is refused.
+        StringBuilder cueCanonical = new StringBuilder();
+        for (MediaDevWebVtt.Cue cue : cues) {
+            cueCanonical.append(cue.startMillis()).append('>').append(cue.endMillis()).append('=')
+                    .append(cue.text().length()).append(':').append(cue.text()).append('|');
+        }
+        String fingerprint = MediaDevRequestLedger.fingerprint("media.dev.caption.correct.v1", base.artifactId(),
+                base.version().value(), base.sha256(), cueCanonical.toString());
+        return ledger.run(tenantId, principalId, LANE_CORRECT, request.requestId(), fingerprint,
+                outputs -> {
+                    OutputRef ref = outputs.getFirst();
+                    return reopen(tenantId, principalId, ref.artifactId())
+                            .filter(found -> found.artifact().version().value().equals(ref.versionId()))
+                            .orElseThrow(() -> MediaDevRequestLedger.outputUnavailable(LANE_CORRECT));
+                },
+                () -> registerCorrection(tenantId, principalId, request, base, lineage, cues, bytes),
+                version -> List.of(new OutputRef("caption", version.artifact().artifactId(),
+                        version.artifact().version().value())),
+                () -> new CaptionRefusedException(409, "CAPTION_REQUEST_ID_REUSED",
+                        "this requestId was already used with a different caption correction",
+                        Map.of("expectedVersionId", request.expectedVersionId())));
+    }
+
+    private CaptionVersion registerCorrection(String tenantId, String principalId, CorrectionRequest request,
+                                              MediaArtifact base, Map<String, Object> lineage,
+                                              List<MediaDevWebVtt.Cue> cues, byte[] bytes) {
         Map<String, Object> metadata = new LinkedHashMap<>(lineage);
         metadata.put("purpose", "caption-correction");
         UploadRequest upload = new UploadRequest(tenantId, principalId,

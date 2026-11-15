@@ -313,16 +313,14 @@ class MediaDevGroundedAnswerRestartIT {
             JsonNode resumed = JSON.readTree(resumedResponse.body());
             assertGroundingInvariants(resumed.path("document"), a, version, sha256(mp4), sourceId);
             assertThat(groundedRows(tenant)).isEqualTo(4);
-            // Re-sending the first request: a replay (same bytes) or a typed refusal if the models were not
-            // bit-identical; either way, never a second artifact for that requestId.
+            // Re-sending the first request after the restart: the durable request ledger maps the requestId to the
+            // registered answer, so this is a replay (HTTP 200, same artifact) without re-running the models, whatever
+            // the nondeterministic models would answer now. Never a 409 and never a second artifact.
             HttpResponse<String> replay = send(port, tenant, token, "POST", ANSWERS, JSON.writeValueAsString(body));
             System.out.println("GROUNDED-IT replay after restart -> " + replay.statusCode());
-            assertThat(replay.statusCode()).isIn(200, 409);
-            if (replay.statusCode() == 200) {
-                assertThat(JSON.readTree(replay.body()).path("outputId").asString()).isEqualTo(answerId);
-            } else {
-                assertThat(replay.body()).contains("GROUNDED_REQUEST_ID_REUSED");
-            }
+            assertThat(replay.statusCode()).as(replay.body()).isEqualTo(200);
+            assertThat(JSON.readTree(replay.body()).path("replayed").asBoolean()).isTrue();
+            assertThat(JSON.readTree(replay.body()).path("outputId").asString()).isEqualTo(answerId);
             assertThat(groundedRows(tenant)).isEqualTo(4);
 
             // ---- the hosted UI: real Chromium, real launcher, the REAL registered answer ----

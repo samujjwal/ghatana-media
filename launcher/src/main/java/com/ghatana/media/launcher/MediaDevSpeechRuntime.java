@@ -4,6 +4,7 @@ import com.ghatana.media.production.rendering.BoundedProcessRunner;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
+import com.ghatana.media.runtime.MediaRequestLedgerContracts.OutputRef;
 import com.ghatana.media.runtime.MediaRightsConsentContracts;
 import com.ghatana.media.runtime.MediaRightsConsentContracts.RightsConsentResolver;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
@@ -57,6 +58,8 @@ public final class MediaDevSpeechRuntime {
     public static final String KIND_CAPTIONS = "LOCAL_STT_WEBVTT_UNREVIEWED";
     public static final String KIND_SYNTHESIS = "LOCAL_TTS_AUDIO";
     static final int MAX_SOURCE_BYTES = 4 * 1024 * 1024;
+    static final String LANE_TRANSCRIBE = "speech.transcribe";
+    static final String LANE_SYNTHESIZE = "speech.synthesize";
     private static final Set<String> WAV_TYPES = Set.of("audio/wav", "audio/x-wav", "audio/wave", "audio/vnd.wave");
     private static final List<String> LINEAGE_KEYS = List.of("speechSchema", "scope", "kind", "requestId", "engine",
             "source", "language", "locale", "model", "runtime", "rightsDecision", "voice", "speakingRate", "inputTextSha256",
@@ -179,6 +182,7 @@ public final class MediaDevSpeechRuntime {
     private final SpeechRightsGate ttsGate;
     private final RightsConsentResolver referenceResolver;
     private final MediaDevSpeechSpool spool;
+    private final MediaDevRequestLedger ledger;
 
     MediaDevSpeechRuntime(MediaRuntime runtime, MediaDevProjectRenderRuntime.OutputRegistrar registrar,
                           LocalWhisperCppSttProvider stt, LocalKokoroTtsProvider tts,
@@ -198,6 +202,14 @@ public final class MediaDevSpeechRuntime {
                           LocalWhisperCppSttProvider stt, LocalKokoroTtsProvider tts,
                           SpeechRightsGate sttGate, SpeechRightsGate ttsGate, RightsConsentResolver referenceResolver,
                           MediaDevSpeechSpool spool) {
+        this(runtime, registrar, stt, tts, sttGate, ttsGate, referenceResolver, spool, MediaDevRequestLedger.inMemory());
+    }
+
+    MediaDevSpeechRuntime(MediaRuntime runtime, MediaDevProjectRenderRuntime.OutputRegistrar registrar,
+                          LocalWhisperCppSttProvider stt, LocalKokoroTtsProvider tts,
+                          SpeechRightsGate sttGate, SpeechRightsGate ttsGate, RightsConsentResolver referenceResolver,
+                          MediaDevSpeechSpool spool, MediaDevRequestLedger ledger) {
+        this.ledger = Objects.requireNonNull(ledger, "ledger");
         this.referenceResolver = Objects.requireNonNull(referenceResolver, "referenceResolver");
         this.spool = Objects.requireNonNull(spool, "spool");
         this.runtime = Objects.requireNonNull(runtime, "runtime");
@@ -220,12 +232,17 @@ public final class MediaDevSpeechRuntime {
      */
     static MediaDevSpeechRuntime compose(MediaRuntime runtime, Map<String, String> environment,
                                          RightsConsentResolver resolver) {
+        return compose(runtime, environment, resolver, MediaDevRequestLedger.inMemory());
+    }
+
+    static MediaDevSpeechRuntime compose(MediaRuntime runtime, Map<String, String> environment,
+                                         RightsConsentResolver resolver, MediaDevRequestLedger ledger) {
         RightsConsentResolver effective = resolver == null ? RightsConsentResolver.unavailable() : resolver;
         return new MediaDevSpeechRuntime(runtime, MediaDevProjectRenderRuntime.canonicalRegistrar(runtime),
                 LocalWhisperCppSttProvider.fromEnvironment(environment),
                 LocalKokoroTtsProvider.fromEnvironment(environment),
                 resolverGate(effective), canonicalJobLaneTtsGate(runtime), effective,
-                MediaDevSpeechSpool.fromEnvironment(environment));
+                MediaDevSpeechSpool.fromEnvironment(environment), ledger);
     }
 
     static MediaDevSpeechRuntime compose(MediaRuntime runtime, Map<String, String> environment) {
@@ -368,6 +385,49 @@ public final class MediaDevSpeechRuntime {
         SpeechRightsGate.Decision rights = sttGate.authorize(tenantId, principalId, Operation.SPEECH_TO_TEXT, source);
         requireAllowed(rights, Operation.SPEECH_TO_TEXT);
 
+        // Rights were re-checked above on every call, so a revoked source refuses even a replay. The ledger maps the
+        // requestId to its registered outputs and runs the (nondeterministic) recognizer at most once per request.
+        String fingerprint = MediaDevRequestLedger.fingerprint("media.dev.speech.transcribe.v1", source.artifactId(),
+                source.version().value(), source.sha256(), request.language());
+        return ledger.run(tenantId, principalId, LANE_TRANSCRIBE, request.requestId(), fingerprint,
+                outputs -> replayTranscription(tenantId, principalId, outputs),
+                () -> produceTranscription(tenantId, principalId, request, runner, source, rights),
+                result -> List.of(
+                        new OutputRef("transcript", result.transcript().artifact().artifactId(),
+                                result.transcript().artifact().version().value()),
+                        new OutputRef("captions", result.captions().artifact().artifactId(),
+                                result.captions().artifact().version().value())),
+                () -> new SpeechRequestReusedException(new IllegalArgumentException("requestId used with a different request")));
+    }
+
+    private TranscriptionResult replayTranscription(String tenantId, String principalId, List<OutputRef> outputs) {
+        SpeechOutput transcript = reopenExact(tenantId, principalId, outputs, "transcript");
+        SpeechOutput captions = reopenExact(tenantId, principalId, outputs, "captions");
+        ByteArrayOutputStream content = new ByteArrayOutputStream();
+        try {
+            runtime.copyArtifactContent(tenantId, principalId, transcript.artifact().artifactId(),
+                    transcript.artifact().version(), content, MAX_SOURCE_BYTES)
+                    .orElseThrow(() -> MediaDevRequestLedger.outputUnavailable(LANE_TRANSCRIBE));
+            tools.jackson.databind.JsonNode document = JSON.readTree(content.toByteArray());
+            return new TranscriptionResult(transcript, captions, document.path("text").asString(""),
+                    document.path("segments").size());
+        } catch (IOException | RuntimeException unreadable) {
+            if (unreadable instanceof MediaDevRequestLedger.LedgerRefusedException refused) throw refused;
+            throw MediaDevRequestLedger.outputUnavailable(LANE_TRANSCRIBE);
+        }
+    }
+
+    private SpeechOutput reopenExact(String tenantId, String principalId, List<OutputRef> outputs, String role) {
+        OutputRef ref = outputs.stream().filter(candidate -> candidate.role().equals(role)).findFirst()
+                .orElseThrow(() -> MediaDevRequestLedger.outputUnavailable(LANE_TRANSCRIBE));
+        return reopen(tenantId, principalId, ref.artifactId())
+                .filter(found -> found.artifact().version().value().equals(ref.versionId()))
+                .orElseThrow(() -> MediaDevRequestLedger.outputUnavailable(LANE_TRANSCRIBE));
+    }
+
+    private TranscriptionResult produceTranscription(String tenantId, String principalId, TranscribeRequest request,
+                                                     LocalWhisperCppRunner runner, MediaArtifact source,
+                                                     SpeechRightsGate.Decision rights) {
         ByteArrayOutputStream staged = new ByteArrayOutputStream((int) source.sizeBytes());
         try {
             runtime.copyArtifactContent(tenantId, principalId, source.artifactId(), source.version(), staged,
@@ -477,54 +537,73 @@ public final class MediaDevSpeechRuntime {
         }
         SpeechRightsGate.Decision rights = ttsGate.authorize(tenantId, principalId, Operation.TEXT_TO_SPEECH, null);
         requireAllowed(rights, Operation.TEXT_TO_SPEECH);
-        String key = MediaDevProjectRenderRuntime.sha256Hex(
+        // Rights were re-checked above on every call. The ledger maps the requestId to its registered output, so a
+        // retry after success replays that output (also after a restart or after the byte cache evicted it) and a
+        // different request under the same requestId is refused. The spool below is only the byte cache that lets a
+        // retry after a crash between synthesis and registration register the SAME bytes without synthesizing again.
+        String spoolKey = MediaDevProjectRenderRuntime.sha256Hex(
                 (tenantId + "\u0000" + principalId + "\u0000" + request.requestId()).getBytes(StandardCharsets.UTF_8));
-        String fingerprint = MediaDevProjectRenderRuntime.sha256Hex((request.voice() + "\u0000" + request.locale() + "\u0000"
-                + request.speakingRate() + "\u0000" + request.text()).getBytes(StandardCharsets.UTF_8));
-        // One requestId runs the model at most once: a retry (also after a restart or a crash between synthesis and
-        // registration) registers the SAME bytes, so the idempotent registration replays or resumes.
-        synchronized (spool.lockFor(key)) {
-            MediaDevSpeechSpool.Entry entry = spool.find(key).orElse(null);
-            if (entry != null && !entry.fingerprint().equals(fingerprint)) {
-                throw new SpeechRequestReusedException(new IllegalArgumentException("requestId used with a different request"));
-            }
-            if (entry == null) {
-                final LocalKokoroSynthesizer.Synthesis result;
-                try {
-                    result = synthesizer.synthesize(request.text(), request.voice(), request.speakingRate(),
-                            Duration.ofMinutes(3), BoundedProcessRunner.CancellationToken.NEVER);
-                } catch (LocalTtsException failure) {
-                    throw speechFailure(failure);
-                }
-                if (!tts.install().stillCurrent()) {
-                    throw new SpeechRefusedException(503, "SPEECH_RUNTIME_UNAVAILABLE",
-                            "the local model changed during synthesis; the output was discarded");
-                }
-                Map<String, Object> lineage = new LinkedHashMap<>();
-                lineage.put("speechSchema", SCHEMA);
-                lineage.put("scope", "DEV_ONLY");
-                lineage.put("kind", KIND_SYNTHESIS);
-                lineage.put("requestId", request.requestId());
-                lineage.put("engine", "kokoro/" + tts.providerVersion());
-                lineage.put("model", modelRef(tts.install(), result.modelSha256()));
-                lineage.put("runtime", runtimeRef(tts.install()));
-                lineage.put("rightsDecision", rights.evidenceRef());
-                lineage.put("voice", result.voice());
-                lineage.put("locale", request.locale());
-                lineage.put("speakingRate", request.speakingRate());
-                // The input text is user content: only its digest and length are recorded, never the text itself.
-                lineage.put("inputTextSha256", MediaDevProjectRenderRuntime.sha256Hex(
-                        request.text().getBytes(StandardCharsets.UTF_8)));
-                lineage.put("inputTextChars", request.text().length());
-                lineage.put("audio", Map.of("sampleRate", result.sampleRate(), "channels", 1, "bitsPerSample", 16,
-                        "durationMillis", result.durationMillis(), "voiceCloning", "NOT_SUPPORTED"));
-                lineage.put("note", "Synthesized with a stock Kokoro voice pack; no voice cloning. Synthesized-speech "
-                        + "disclosure applies to downstream use; not a quality or approval claim.");
-                entry = spool.put(key, fingerprint, result.wav(), lineage);
-            }
-            return register(tenantId, principalId, "INTERNAL", "tts-audio", request.requestId(), entry.wav(),
-                    "audio/wav", "wav", "speech-" + request.voice(), entry.lineage());
+        String spoolFingerprint = MediaDevProjectRenderRuntime.sha256Hex((request.voice() + "\u0000" + request.locale()
+                + "\u0000" + request.speakingRate() + "\u0000" + request.text()).getBytes(StandardCharsets.UTF_8));
+        String fingerprint = MediaDevRequestLedger.fingerprint("media.dev.speech.synthesize.v1", request.voice(),
+                request.locale(), request.speakingRate(), request.text());
+        return ledger.run(tenantId, principalId, LANE_SYNTHESIZE, request.requestId(), fingerprint,
+                outputs -> {
+                    OutputRef ref = outputs.stream().filter(candidate -> candidate.role().equals("audio")).findFirst()
+                            .orElseThrow(() -> MediaDevRequestLedger.outputUnavailable(LANE_SYNTHESIZE));
+                    return reopen(tenantId, principalId, ref.artifactId())
+                            .filter(found -> found.artifact().version().value().equals(ref.versionId()))
+                            .orElseThrow(() -> MediaDevRequestLedger.outputUnavailable(LANE_SYNTHESIZE));
+                },
+                () -> produceSynthesis(tenantId, principalId, request, synthesizer, rights, spoolKey, spoolFingerprint),
+                output -> List.of(new OutputRef("audio", output.artifact().artifactId(),
+                        output.artifact().version().value())),
+                () -> new SpeechRequestReusedException(new IllegalArgumentException("requestId used with a different request")));
+    }
+
+    private SpeechOutput produceSynthesis(String tenantId, String principalId, SynthesizeRequest request,
+                                          LocalKokoroSynthesizer synthesizer, SpeechRightsGate.Decision rights,
+                                          String key, String fingerprint) {
+        MediaDevSpeechSpool.Entry entry = spool.find(key).orElse(null);
+        if (entry != null && !entry.fingerprint().equals(fingerprint)) {
+            throw new SpeechRequestReusedException(new IllegalArgumentException("requestId used with a different request"));
         }
+        if (entry == null) {
+            final LocalKokoroSynthesizer.Synthesis result;
+            try {
+                result = synthesizer.synthesize(request.text(), request.voice(), request.speakingRate(),
+                        Duration.ofMinutes(3), BoundedProcessRunner.CancellationToken.NEVER);
+            } catch (LocalTtsException failure) {
+                throw speechFailure(failure);
+            }
+            if (!tts.install().stillCurrent()) {
+                throw new SpeechRefusedException(503, "SPEECH_RUNTIME_UNAVAILABLE",
+                        "the local model changed during synthesis; the output was discarded");
+            }
+            Map<String, Object> lineage = new LinkedHashMap<>();
+            lineage.put("speechSchema", SCHEMA);
+            lineage.put("scope", "DEV_ONLY");
+            lineage.put("kind", KIND_SYNTHESIS);
+            lineage.put("requestId", request.requestId());
+            lineage.put("engine", "kokoro/" + tts.providerVersion());
+            lineage.put("model", modelRef(tts.install(), result.modelSha256()));
+            lineage.put("runtime", runtimeRef(tts.install()));
+            lineage.put("rightsDecision", rights.evidenceRef());
+            lineage.put("voice", result.voice());
+            lineage.put("locale", request.locale());
+            lineage.put("speakingRate", request.speakingRate());
+            // The input text is user content: only its digest and length are recorded, never the text itself.
+            lineage.put("inputTextSha256", MediaDevProjectRenderRuntime.sha256Hex(
+                    request.text().getBytes(StandardCharsets.UTF_8)));
+            lineage.put("inputTextChars", request.text().length());
+            lineage.put("audio", Map.of("sampleRate", result.sampleRate(), "channels", 1, "bitsPerSample", 16,
+                    "durationMillis", result.durationMillis(), "voiceCloning", "NOT_SUPPORTED"));
+            lineage.put("note", "Synthesized with a stock Kokoro voice pack; no voice cloning. Synthesized-speech "
+                    + "disclosure applies to downstream use; not a quality or approval claim.");
+            entry = spool.put(key, fingerprint, result.wav(), lineage);
+        }
+        return register(tenantId, principalId, "INTERNAL", "tts-audio", request.requestId(), entry.wav(),
+                "audio/wav", "wav", "speech-" + request.voice(), entry.lineage());
     }
 
     /**
