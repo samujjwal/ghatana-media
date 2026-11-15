@@ -78,4 +78,7 @@ public interface ReviewAssignmentStore {
 
     /** Current state of every assignment on the case, oldest first. */
     List<ReviewAssignment> assignments(ReviewCaseRef reviewCase);
+
+    /** Ids of the cases in which this principal was ever assigned as reviewer (any status), sorted. */
+    List<String> casesAssignedTo(String tenantId, String reviewerPrincipalId);
 }

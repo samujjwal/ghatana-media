@@ -161,6 +161,13 @@ public final class InMemoryReviewStore implements ManagedReviewStore, ReviewAssi
         return List.copyOf(exactCase(reviewCase).assignments);
     }
 
+    @Override
+    public synchronized List<String> casesAssignedTo(String tenantId, String reviewerPrincipalId) {
+        return cases.entrySet().stream().filter(e -> e.getKey().tenantId().equals(tenantId)
+                        && e.getValue().assignments.stream().anyMatch(a -> a.reviewerPrincipalId().equals(reviewerPrincipalId)))
+                .map(e -> e.getKey().caseId()).sorted().toList();
+    }
+
     private CaseState exactCase(ReviewCaseRef reviewCase) {
         Objects.requireNonNull(reviewCase, "reviewCase");
         CaseState state = cases.get(new CaseKey(reviewCase.tenantId(), reviewCase.reviewCaseId()));

@@ -25,7 +25,9 @@ final class MediaDevOnlyRoutePermissions {
         if ("POST".equals(method) && path.matches("^/dev/v1/projects/[^/]+/renders$")) return PROJECT_WRITE;
         if ("GET".equals(method) && path.matches("^/dev/v1/projects/[^/]+/renders/[^/]+$")) return PROJECT_READ;
         if ("POST".equals(method) && path.matches("^/dev/v1/reviews$")) return PROJECT_WRITE;
-        if ("GET".equals(method) && path.matches("^/dev/v1/reviews/[^/]+$")) return PROJECT_READ;
+        if ("GET".equals(method) && path.matches("^/dev/v1/reviews/[^/]+(/versions|/content)?$")) return PROJECT_READ;
+        if ("GET".equals(method) && path.matches("^/dev/v1/reviews$")) return PROJECT_READ;
+        if ("GET".equals(method) && path.matches("^/dev/v1/review-lineages/[^/]+$")) return PROJECT_READ;
         if ("POST".equals(method) && path.matches("^/dev/v1/reviews/[^/]+/(comments|decisions|assignments)$")) return PROJECT_WRITE;
         if ("POST".equals(method) && path.matches("^/dev/v1/reviews/[^/]+/assignments/[^/]+/revoke$")) return PROJECT_WRITE;
         // Rights and consent authority; the route additionally requires media:artifact:read to attest an exact version.

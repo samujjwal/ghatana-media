@@ -72,6 +72,8 @@ final class MediaDevIntakeRuntime implements AutoCloseable {
     private final long maxBytes;
     private final Duration probeTimeout;
     private final AtomicBoolean closed = new AtomicBoolean();
+    private final java.util.concurrent.ConcurrentHashMap<String, java.util.concurrent.locks.ReentrantLock> lineageLocks =
+            new java.util.concurrent.ConcurrentHashMap<>();
 
     MediaDevIntakeRuntime(MediaRuntime runtime, VersionLedger ledger, RightsConsentResolver rights, Path ffprobe,
                           long maxBytes, Duration probeTimeout) {
@@ -134,14 +136,63 @@ final class MediaDevIntakeRuntime implements AutoCloseable {
         }
         String probeJson = probe(tenantId, principalId, artifact);
         try {
-            Registration registration = ledger.register(tenantId, principalId, lineageId, artifact.artifactId(),
-                    artifact.version().value(), artifact.sha256(), artifact.sizeBytes(), probeJson);
+            // Serialised with review decisions on the same lineage (single launcher process): a decision either commits
+            // before the new head exists or is refused as stale, never both.
+            Registration registration = withLineageLock(tenantId, principalId, lineageId, () -> ledger.register(
+                    tenantId, principalId, lineageId, artifact.artifactId(), artifact.version().value(),
+                    artifact.sha256(), artifact.sizeBytes(), probeJson));
             return new Registered(registration.version(), registration.deduplicated());
         } catch (LineageOwnershipException concealed) {
             throw new IntakeRefusedException(404, "INTAKE_LINEAGE_NOT_FOUND", "No such lineage for this principal");
         } catch (IllegalStateException failure) {
             throw new IntakeRefusedException(503, "INTAKE_LEDGER_UNAVAILABLE", "The version ledger could not be updated");
         }
+    }
+
+    /**
+     * Where one exact artifact version stands in its lineage. {@code superseded} is true when a later version of the
+     * same lineage exists; {@code head} is that lineage's newest version. Used by review to make approvals of a
+     * superseded version STALE (never transferred to the head).
+     */
+    record Standing(String lineageId, int versionNumber, Version head) {
+        boolean superseded() { return head.versionNumber() > versionNumber; }
+    }
+
+    /** The most-superseded standing of this owner's lineages that hold the exact version; empty when in none. */
+    Optional<Standing> standing(String tenantId, String ownerPrincipalId, String artifactId, String artifactVersionId) {
+        ensureOpen();
+        Standing worst = null;
+        for (String lineageId : ledger.lineagesHolding(tenantId, ownerPrincipalId, artifactId, artifactVersionId)) {
+            List<Version> all = ledger.versions(tenantId, ownerPrincipalId, lineageId);
+            Version mine = all.stream().filter(v -> v.artifactVersionId().equals(artifactVersionId)).findFirst()
+                    .orElse(null);
+            if (mine == null) continue;
+            Standing candidate = new Standing(lineageId, mine.versionNumber(), all.get(all.size() - 1));
+            if (worst == null || candidate.superseded() && !worst.superseded()) worst = candidate;
+        }
+        return Optional.ofNullable(worst);
+    }
+
+    /** Runs {@code action} while holding the lineage lock that serialises registration against review decisions. */
+    <T> T withLineageLock(String tenantId, String principalId, String lineageId, java.util.function.Supplier<T> action) {
+        java.util.concurrent.locks.ReentrantLock lock = lineageLocks.computeIfAbsent(
+                tenantId + "\u0000" + principalId + "\u0000" + lineageId, key -> new java.util.concurrent.locks.ReentrantLock());
+        lock.lock();
+        try { return action.get(); } finally { lock.unlock(); }
+    }
+
+    /** Locks every lineage holding the exact version (sorted, so concurrent callers cannot deadlock). */
+    <T> T withVersionLock(String tenantId, String ownerPrincipalId, String artifactId, String artifactVersionId,
+                          java.util.function.Supplier<T> action) {
+        List<String> lineages = ledger.lineagesHolding(tenantId, ownerPrincipalId, artifactId, artifactVersionId)
+                .stream().sorted().toList();
+        java.util.function.Supplier<T> chain = action;
+        for (int index = lineages.size() - 1; index >= 0; index--) {
+            String lineageId = lineages.get(index);
+            java.util.function.Supplier<T> inner = chain;
+            chain = () -> withLineageLock(tenantId, ownerPrincipalId, lineageId, inner);
+        }
+        return chain.get();
     }
 
     List<Version> versions(String tenantId, String principalId, String lineageId) {

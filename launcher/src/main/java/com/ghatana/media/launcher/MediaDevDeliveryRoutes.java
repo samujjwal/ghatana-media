@@ -152,6 +152,16 @@ final class MediaDevDeliveryRoutes {
             runtime.recordDeniedRequest();
             error(exchange, 404, "ARTIFACT_VERSION_NOT_FOUND",
                     "The exact artifact version is not available to this DEV_ONLY principal");
+        } catch (MediaDevDeliveryRuntime.ReviewNotAdmittedException failure) {
+            exportOutcome("review_not_admitted");
+            runtime.recordDeniedRequest();
+            var admission = failure.admission();
+            Map<String, Object> review = new LinkedHashMap<>();
+            review.put("verdict", admission.code());
+            review.put("reviewCaseId", admission.reviewCaseId());
+            review.put("establishesApproval", false);
+            error(exchange, 409, "EXPORT_" + admission.code(),
+                    admission.message() + "; nothing was exported", Map.of("review", review));
         } catch (MediaDevDeliveryRuntime.RightsNotAdmittedException failure) {
             exportOutcome("rights_not_admitted");
             runtime.recordDeniedRequest();

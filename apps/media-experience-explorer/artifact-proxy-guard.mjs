@@ -22,6 +22,12 @@ const devProjectRoutes = [
   { method: "POST", path: new RegExp(`^/dev/v1/projects/${OPAQUE_ID}/renders$`, "u") },
   { method: "GET", path: new RegExp(`^/dev/v1/projects/${OPAQUE_ID}/renders/${OPAQUE_ID}$`, "u") },
   { method: "POST", path: /^\/dev\/v1\/reviews$/u },
+  // DEV_ONLY version-specific review (J-21): assigned-to-me list, per-version approval state of a lineage, and the exact
+  // immutable version bytes for the assigned reviewer's player. Reads only.
+  { method: "GET", path: /^\/dev\/v1\/reviews$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/reviews/${OPAQUE_ID}/versions$`, "u") },
+  { method: "GET", path: new RegExp(`^/dev/v1/reviews/${OPAQUE_ID}/content$`, "u") },
+  { method: "GET", path: new RegExp(`^/dev/v1/review-lineages/${OPAQUE_ID}$`, "u") },
   { method: "GET", path: new RegExp(`^/dev/v1/reviews/${OPAQUE_ID}$`, "u") },
   { method: "POST", path: new RegExp(`^/dev/v1/reviews/${OPAQUE_ID}/comments$`, "u") },
   { method: "POST", path: new RegExp(`^/dev/v1/reviews/${OPAQUE_ID}/decisions$`, "u") },

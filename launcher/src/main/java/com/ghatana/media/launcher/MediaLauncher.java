@@ -64,6 +64,16 @@ public final class MediaLauncher {
             devRegionEdit = devLedger == null ? null : MediaDevRegionEditRuntime.compose(runtime, environment,
                     devRights == null ? null : devRights.resolver(), devLedger);
             MediaDevRegionEditRuntime finalDevRegionEdit = devRegionEdit;
+            if (devReview != null && devIntake != null) devReview.attachLineages(devIntake);
+            if (devDelivery != null && "true".equalsIgnoreCase(environment.getOrDefault(
+                    MediaDevReviewRuntime.DELIVERY_REVIEW_REQUIRED_ENV, "false"))) {
+                if (devReview == null) {
+                    throw new IllegalArgumentException(MediaDevReviewRuntime.DELIVERY_REVIEW_REQUIRED_ENV
+                            + " requires " + MediaDevReviewRuntime.ENABLED + "=true");
+                }
+                MediaDevReviewRuntime gateReview = devReview;
+                devDelivery.requireReview(gateReview::deliveryAdmission);
+            }
             devErasure = MediaDevErasureRuntime.compose(environment, devLedger, devDelivery, null);
             MediaDevErasureRuntime finalDevErasure = devErasure;
             MediaPrivacyMaintenanceRuntime finalPrivacyMaintenance = privacyMaintenance;

@@ -71,6 +71,31 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
         Resolution resolution() { return resolution; }
     }
 
+    /** Review has not admitted delivery of the exact version (no case, not accepted, stale or superseded). */
+    static final class ReviewNotAdmittedException extends RuntimeException {
+        private final MediaDevReviewRuntime.DeliveryAdmission admission;
+
+        ReviewNotAdmittedException(MediaDevReviewRuntime.DeliveryAdmission admission) {
+            super(admission.message());
+            this.admission = admission;
+        }
+
+        MediaDevReviewRuntime.DeliveryAdmission admission() { return admission; }
+    }
+
+    /** Optional review gate: delivery of an exact version needs a current assigned-reviewer APPROVAL-scope ACCEPT. */
+    @FunctionalInterface
+    interface ReviewGate {
+        MediaDevReviewRuntime.DeliveryAdmission check(String tenantId, String principalId, String artifactId,
+                                                      String versionId);
+    }
+
+    private final java.util.concurrent.atomic.AtomicReference<ReviewGate> reviewGate =
+            new java.util.concurrent.atomic.AtomicReference<>();
+
+    /** Requires a current accepted review for every export (and every retry/reconcile) of an exact version. */
+    void requireReview(ReviewGate gate) { reviewGate.set(gate); }
+
     /** Request to export one exact artifact version. */
     record Export(String requestId, String artifactId, String artifactVersionId, String destinationId) { }
 
@@ -125,7 +150,7 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
         this.router = new MediaDevDestinationRouter(registered);
         MediaDeliveryEngine.FencedDestinationPort port = destinationWrapper == null ? router
                 : destinationWrapper.apply(router);
-        this.engine = new MediaDeliveryEngine(new OwnerReadAuthorization(runtime, clock, this.rights), port, clock, store,
+        this.engine = new MediaDeliveryEngine(new OwnerReadAuthorization(runtime, clock, this.rights, reviewGate), port, clock, store,
                 dispatchClaimLease);
     }
 
@@ -182,6 +207,12 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
         boolean alreadyConfirmed = existing.map(found -> found.status() == MediaDeliveryEngine.Status.DESTINATION_CONFIRMED)
                 .orElse(false);
         if (!alreadyConfirmed) {
+            ReviewGate gate = reviewGate.get();
+            if (gate != null) {
+                var admission = gate.check(tenantId, principalId, exportRequest.artifact().artifactId(),
+                        exportRequest.artifact().versionRef());
+                if (!admission.admitted()) throw new ReviewNotAdmittedException(admission);
+            }
             Resolution resolution = externalDelivery(rights, tenantId, exportRequest.artifact().artifactId(),
                     exportRequest.artifact().versionRef(), exportRequest.artifact().digest());
             if (!resolution.admitted()) throw new RightsNotAdmittedException(resolution);
@@ -290,10 +321,20 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
      * DEV_ONLY host grant: the principal passed the permission check and can read exactly this artifact
      * version. It is short-lived and re-validated per chunk; it is not a production transfer authority.
      */
-    private record OwnerReadAuthorization(MediaRuntime runtime, Supplier<Instant> clock, RightsConsentResolver rights)
+    private record OwnerReadAuthorization(MediaRuntime runtime, Supplier<Instant> clock, RightsConsentResolver rights,
+                                          java.util.concurrent.atomic.AtomicReference<ReviewGate> reviewGate)
             implements MediaDeliveryEngine.AuthorizationPort {
+        private boolean reviewAdmits(String tenantId, String principalId, String artifactId, String versionId) {
+            ReviewGate gate = reviewGate.get();
+            if (gate == null) return true;
+            try { return gate.check(tenantId, principalId, artifactId, versionId).admitted(); }
+            catch (RuntimeException unavailable) { return false; }
+        }
+
         @Override public TransferAuthorization authorize(ExportRequest request) {
             if (!readable(request)) return null;
+            if (!reviewAdmits(request.tenantId(), request.principalId(), request.artifact().artifactId(),
+                    request.artifact().versionRef())) return null;
             // Re-resolved for every operation (including retries and reconciliation): a revocation stops the transfer.
             if (!externalDelivery(rights, request.tenantId(), request.artifact().artifactId(),
                     request.artifact().versionRef(), request.artifact().digest()).admitted()) {
@@ -306,6 +347,7 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
         }
 
         @Override public Boolean isCurrent(TransferAuthorization grant, Instant now) {
+            if (!reviewAdmits(grant.tenantId(), grant.principalId(), grant.artifactId(), grant.versionRef())) return false;
             return runtime.artifact(grant.tenantId(), grant.principalId(), grant.artifactId())
                     .map(found -> found.version().value().equals(grant.versionRef())).orElse(false)
                     && externalDelivery(rights, grant.tenantId(), grant.artifactId(), grant.versionRef(),

@@ -160,6 +160,32 @@ and stable terminal reads — **no second writer**.
   per-record `recordedAs`/`scope` and the `assignments` list. Assignment rows are
   immutable versions in `media_review_assignment_versions` (migration
   `media-project-timeline-dev/V003`, isolated dev location only).
+- **Version-specific review (J-21, DEV_ONLY).** With `MEDIA_DEV_REVIEW_ENABLED=true` and the intake lane
+  (`MEDIA_DEV_INTAKE_ENABLED=true`) an `ARTIFACT_VERSION` review follows the intake lineage: once a later version of the
+  same lineage is registered, the earlier version is superseded, so its decisions read `STALE` (`DEV_ASSIGNED_REVIEWER_ACCEPT_STALE`,
+  `currentness` `STALE`, `lineage.superseded=true`), a new decision on it is `409 REVIEW_SUBJECT_STALE`, and a fresh case on it is
+  `409 REVIEW_SUBJECT_SUPERSEDED` (an existing case stays readable as history). An acceptance is never transferred to the new
+  version: the new head starts `NOT_REVIEWED` and needs its own case, assignment and decision. Registration and decisions on the
+  same lineage are serialised by one in-process lock, so an approve-versus-revise race ends in exactly one of two outcomes: the
+  approval commits first (then reads `STALE`) or the revision commits first (the approval is `409 REVIEW_SUBJECT_STALE`).
+  The lock is single-process only; a second launcher process would need a database-level compare-and-set (not provided, no
+  migration was added). `GET /dev/v1/reviews/{caseId}/versions` (owner or assigned reviewer) and
+  `GET /dev/v1/review-lineages/{lineageId}` (owner) list every version of the lineage with its review state
+  (`NOT_REVIEWED`, `IN_REVIEW`, `{DECISION}_CURRENT`, `{DECISION}_STALE`, or `NOT_ASSIGNED` for a reviewer who holds no assignment on
+  that version), `head`, `superseded`, `acceptedForHead` and the comment count. `GET /dev/v1/reviews` lists the cases the caller was
+  assigned to. `GET /dev/v1/reviews/{caseId}/content` serves the case's exact immutable version bytes (same verification and
+  `Range` support as the artifact content route, no query) to the owner or an assigned, unexpired reviewer, so a reviewer who does not own the
+  artifact can play exactly what they decide on; revoked or expired reviewers get `403`. The uploader cannot decide
+  (`403 REVIEWER_NOT_ASSIGNED`); a principal with no assignment or another tenant gets `404 REVIEW_CASE_NOT_FOUND`.
+  **Delivery gate.** With `MEDIA_DEV_REVIEW_REQUIRED_FOR_DELIVERY=true` (requires review and delivery) every export, retry and
+  reconcile of an exact version needs the case's latest decision to be an `ACCEPT` within the `APPROVAL` scope from an assigned
+  reviewer, current on the lineage head; otherwise `409 EXPORT_REVIEW_REQUIRED`, `EXPORT_REVIEW_SUPERSEDED`,
+  `EXPORT_REVIEW_STALE`, `EXPORT_REVIEW_NOT_ACCEPTED` or `EXPORT_REVIEW_APPROVAL_SCOPE_REQUIRED`, and nothing is exported. The
+  gate is in addition to the rights gate and is never an approval (`establishesApproval=false`). Retention: erasure of a version
+  (J-26) deletes its case, comments, decisions and assignments and removes it from the lineage (erasing the head would make the previous version the head
+  again with its own earlier decisions current again; this follows from the lineage ledger and is not exercised by a test); an active legal hold blocks erasure and leaves the review readable.
+  Not covered: a trusted human identity (every decision is a DEV_ONLY test-principal statement), multi-process atomicity, retention
+  expiry by time, and the J-11/J-19 head ledgers (only the J-02 intake lineage defines "source revision" for review).
 - **Hosted export with destination acknowledgment (DEV_ONLY).**
   `POST /dev/v1/exports` takes `{requestId, artifactId, artifactVersionId, destinationId}` and
   requires `media:delivery:dev:export` plus `media:artifact:read`;
@@ -332,6 +358,10 @@ handlers additionally require the artifact permissions noted, so access is never
 | GET | `/dev/v1/reviews/{caseId}` | `media:project:dev:read` | — | review |
 | POST | `/dev/v1/reviews/{caseId}/comments` | `media:project:dev:write` | — | review |
 | POST | `/dev/v1/reviews/{caseId}/decisions` | `media:project:dev:write` | — | review (assigned reviewer, `scope` required) |
+| GET | `/dev/v1/reviews` | `media:project:dev:read` | `media:artifact:read` is not needed; lists the caller's assigned cases | review |
+| GET | `/dev/v1/reviews/{caseId}/versions` | `media:project:dev:read` | `media:artifact:read` for an artifact subject | review + intake (owner or assigned reviewer; per-version review state) |
+| GET | `/dev/v1/reviews/{caseId}/content` | `media:project:dev:read` | `media:artifact:read` | review (owner or assigned unexpired reviewer; exact immutable version bytes, `Range` supported) |
+| GET | `/dev/v1/review-lineages/{lineageId}` | `media:project:dev:read` | `media:artifact:read` | review + intake (owner; per-version review state of the lineage) |
 | POST | `/dev/v1/reviews/{caseId}/assignments` | `media:project:dev:write` | — | review (owner only) |
 | POST | `/dev/v1/reviews/{caseId}/assignments/{assignmentId}/revoke` | `media:project:dev:write` | — | review (owner only) |
 | POST | `/dev/v1/creative-outputs/audio-repairs` | `media:project:dev:write` | `media:artifact:{read,create}` | timeline |

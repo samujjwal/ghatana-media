@@ -81,6 +81,10 @@ class PostgresqlDevReviewAssignmentStoreTest {
                     "req-4", FP, () -> "assignment-2", NOW.plusSeconds(120));
             assertThat(fresh.assignment().assignmentVersion()).isEqualTo(1);
             assertThat(store.assignments(CASE)).hasSize(2);
+            // Reviewer discovery: durable, per tenant and reviewer, any assignment status.
+            assertThat(store.casesAssignedTo(CASE.tenantId(), "reviewer")).containsExactly(CASE.reviewCaseId());
+            assertThat(store.casesAssignedTo(CASE.tenantId(), "nobody")).isEmpty();
+            assertThat(store.casesAssignedTo("other-" + CASE.tenantId(), "reviewer")).isEmpty();
         }
     }
 }

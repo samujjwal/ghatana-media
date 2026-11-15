@@ -177,7 +177,7 @@ public final class MediaHttpHandler implements HttpHandler {
         this.devArtifactContent = new MediaDevArtifactContentRoutes(runtime,
                 MediaDevArtifactContentRoutes.ceilingFrom(System.getenv()));
         this.devCreative = devCreative == null ? null : new MediaDevCreativeOutputRoutes(devCreative, runtime);
-        this.devReview = devReview == null ? null : new MediaDevReviewRoutes(devReview);
+        this.devReview = devReview == null ? null : new MediaDevReviewRoutes(devReview, () -> this.devArtifactContent);
         this.runtime = java.util.Objects.requireNonNull(runtime, "runtime");
         this.consentAdministration = consentAdministration;
         this.captions = captions;

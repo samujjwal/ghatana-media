@@ -353,6 +353,18 @@ public final class PostgresqlReviewStore implements ManagedReviewStore, ReviewAs
         } catch (SQLException failure) { throw persistence("review assignment read", failure); }
     }
 
+    @Override public List<String> casesAssignedTo(String tenantId, String reviewerPrincipalId) {
+        ensureAssignments();
+        try (Connection c = state.connection();
+             PreparedStatement q = c.prepareStatement("SELECT DISTINCT review_case_id FROM media_review_assignment_versions "
+                     + "WHERE tenant_id=? AND reviewer_principal_id=? ORDER BY review_case_id")) {
+            q.setString(1, tenantId); q.setString(2, reviewerPrincipalId);
+            List<String> out = new ArrayList<>();
+            try (ResultSet r = q.executeQuery()) { while (r.next()) out.add(r.getString(1)); }
+            return List.copyOf(out);
+        } catch (SQLException failure) { throw persistence("review assignment read", failure); }
+    }
+
     private interface AssignmentWork { AssignmentChange run(Connection c) throws SQLException; }
 
     private AssignmentChange assignmentTx(ReviewCaseRef ref, AssignmentWork work) {

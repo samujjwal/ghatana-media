@@ -37,6 +37,9 @@ final class MediaDevReviewRoutes {
     private static final Pattern CASE = Pattern.compile("^/dev/v1/reviews/([^/]+)$");
     private static final Pattern COMMENTS = Pattern.compile("^/dev/v1/reviews/([^/]+)/comments$");
     private static final Pattern DECISIONS = Pattern.compile("^/dev/v1/reviews/([^/]+)/decisions$");
+    private static final Pattern VERSIONS = Pattern.compile("^/dev/v1/reviews/([^/]+)/versions$");
+    private static final Pattern CONTENT = Pattern.compile("^/dev/v1/reviews/([^/]+)/content$");
+    private static final Pattern LINEAGE = Pattern.compile("^/dev/v1/review-lineages/([^/]+)$");
     private static final Pattern ASSIGNMENTS = Pattern.compile("^/dev/v1/reviews/([^/]+)/assignments$");
     private static final Pattern REVOKE = Pattern.compile("^/dev/v1/reviews/([^/]+)/assignments/([^/]+)/revoke$");
     private static final ObjectMapper JSON = JsonMapper.builder(JsonFactory.builder()
@@ -50,11 +53,19 @@ final class MediaDevReviewRoutes {
     }
 
     private final MediaDevReviewRuntime reviews;
+    private final java.util.function.Supplier<MediaDevArtifactContentRoutes> content;
 
-    MediaDevReviewRoutes(MediaDevReviewRuntime reviews) { this.reviews = reviews; }
+    MediaDevReviewRoutes(MediaDevReviewRuntime reviews) { this(reviews, () -> null); }
+
+    MediaDevReviewRoutes(MediaDevReviewRuntime reviews,
+                         java.util.function.Supplier<MediaDevArtifactContentRoutes> content) {
+        this.reviews = reviews;
+        this.content = content;
+    }
 
     static boolean handles(String path) {
-        return path.equals("/dev/v1/reviews") || path.startsWith("/dev/v1/reviews/");
+        return path.equals("/dev/v1/reviews") || path.startsWith("/dev/v1/reviews/")
+                || path.startsWith("/dev/v1/review-lineages/");
     }
 
     void handle(HttpExchange exchange, String path, String method, String tenantId, String principalId,
@@ -75,6 +86,10 @@ final class MediaDevReviewRoutes {
         } catch (ReviewDeniedException failure) {
             out.error(exchange, 403, "REVIEW_ACCESS_DENIED",
                     "Principal is not authorized for this review case or its exact subject", Map.of());
+        } catch (MediaDevReviewRuntime.SubjectSupersededException failure) {
+            out.error(exchange, 409, "REVIEW_SUBJECT_SUPERSEDED",
+                    "A later version of this lineage supersedes the exact version; review the newer version",
+                    Map.of("establishesApproval", false));
         } catch (MediaDevReviewRuntime.SubjectNotFoundException failure) {
             out.error(exchange, 404, "REVIEW_SUBJECT_NOT_FOUND",
                     "The exact subject version is not available to this DEV_ONLY owner", Map.of());
@@ -103,8 +118,43 @@ final class MediaDevReviewRoutes {
 
     private void dispatch(HttpExchange exchange, String path, String method, String tenantId, String principalId,
                           int maxBody, Responder out) throws IOException {
+        Matcher lineage = LINEAGE.matcher(path);
+        if (lineage.matches()) {
+            if (!"GET".equals(method)) { notAllowed(exchange, "GET", out); return; }
+            if (!artifactRead(exchange, out)) return;
+            var found = reviews.lineage(tenantId, principalId, pathSegment(lineage.group(1)));
+            if (found.isEmpty()) {
+                out.error(exchange, 404, "REVIEW_LINEAGE_NOT_FOUND", "No such lineage for this principal", Map.of());
+                return;
+            }
+            out.json(exchange, 200, lineageView(found.get(), "OWNER"));
+            return;
+        }
+        if (OPEN.matcher(path).matches() && "GET".equals(method)) {
+            List<Map<String, Object>> mine = new ArrayList<>();
+            for (ReviewCaseRef assigned : reviews.casesAssignedTo(tenantId, principalId)) {
+                if (assigned.reviewSubjectRef().kind() != SubjectKind.ARTIFACT_VERSION) continue;
+                Map<String, Object> row = new LinkedHashMap<>();
+                row.put("reviewCaseId", assigned.reviewCaseId());
+                row.put("subject", subject(assigned.reviewSubjectRef()));
+                List<Map<String, Object>> own = new ArrayList<>();
+                for (ReviewAssignment assignment : reviews.assignments(assigned)) {
+                    if (assignment.reviewerPrincipalId().equals(principalId)) {
+                        own.add(assignmentView(assignment, java.time.Instant.now()));
+                    }
+                }
+                row.put("myAssignments", own);
+                mine.add(row);
+            }
+            Map<String, Object> view = new LinkedHashMap<>();
+            view.put("schema", SCHEMA);
+            view.put("assignedToMe", mine);
+            view.put("scope", "DEV_ONLY");
+            out.json(exchange, 200, view);
+            return;
+        }
         if (OPEN.matcher(path).matches()) {
-            if (!"POST".equals(method)) { notAllowed(exchange, "POST", out); return; }
+            if (!"POST".equals(method)) { notAllowed(exchange, "GET, POST", out); return; }
             Map<String, Object> body = body(exchange, maxBody);
             requireKeys(body, Set.of("subject"), Set.of(), "review open request");
             Map<String, Object> subject = object(body.get("subject"), "subject");
@@ -138,15 +188,19 @@ final class MediaDevReviewRoutes {
         Matcher comments = COMMENTS.matcher(path);
         Matcher decisions = DECISIONS.matcher(path);
         Matcher single = CASE.matcher(path);
+        Matcher versions = VERSIONS.matcher(path);
+        Matcher contentMatch = CONTENT.matcher(path);
         String caseId;
-        if (assignments.matches()) caseId = pathSegment(assignments.group(1));
+        if (versions.matches()) caseId = pathSegment(versions.group(1));
+        else if (contentMatch.matches()) caseId = pathSegment(contentMatch.group(1));
+        else if (assignments.matches()) caseId = pathSegment(assignments.group(1));
         else if (revoke.matches()) caseId = pathSegment(revoke.group(1));
         else if (comments.matches()) caseId = pathSegment(comments.group(1));
         else if (decisions.matches()) caseId = pathSegment(decisions.group(1));
         else if (single.matches()) caseId = pathSegment(single.group(1));
         else { out.error(exchange, 404, "NOT_FOUND", "Review route not found", Map.of()); return; }
 
-        String allow = single.matches() ? "GET" : "POST";
+        String allow = single.matches() || versions.matches() || contentMatch.matches() ? "GET" : "POST";
         if (!allow.equals(method)) { notAllowed(exchange, allow, out); return; }
         ReviewCaseRef reviewCase = reviews.find(tenantId, principalId, caseId).orElse(null);
         if (reviewCase == null) {
@@ -157,8 +211,43 @@ final class MediaDevReviewRoutes {
         if (reviewCase.reviewSubjectRef().kind() == SubjectKind.ARTIFACT_VERSION && !artifactRead(exchange, out)) return;
 
         if (single.matches()) {
-            out.json(exchange, 200, caseView(reviews.inspect(tenantId, principalId, reviewCase),
-                    reviews.assignments(reviewCase)));
+            Map<String, Object> view = caseView(reviews.inspect(tenantId, principalId, reviewCase),
+                    reviews.assignments(reviewCase));
+            view.put("role", reviews.isOwner(tenantId, principalId, reviewCase) ? "OWNER" : "REVIEWER");
+            reviews.lineageOf(tenantId, principalId, reviewCase).ifPresent(found -> {
+                ExactVersionRef ref = reviewCase.reviewSubjectRef();
+                var mine = found.versions().stream().filter(v -> v.artifactVersionId().equals(ref.versionId()))
+                        .findFirst().orElse(null);
+                if (mine != null) {
+                    Map<String, Object> lineageInfo = new LinkedHashMap<>();
+                    lineageInfo.put("lineageId", found.lineageId());
+                    lineageInfo.put("versionNumber", mine.versionNumber());
+                    lineageInfo.put("headVersionNumber", found.headVersionNumber());
+                    lineageInfo.put("superseded", mine.superseded());
+                    view.put("lineage", lineageInfo);
+                }
+            });
+            out.json(exchange, 200, view);
+            return;
+        }
+        if (versions.matches()) {
+            var found = reviews.lineageOf(tenantId, principalId, reviewCase);
+            if (found.isEmpty()) {
+                Map<String, Object> view = new LinkedHashMap<>();
+                view.put("schema", SCHEMA);
+                view.put("lineageId", null);
+                view.put("versions", List.of());
+                view.put("note", "The subject is not registered in a versioned lineage; it is its own head");
+                view.put("scope", "DEV_ONLY");
+                out.json(exchange, 200, view);
+            } else {
+                out.json(exchange, 200, lineageView(found.get(),
+                        reviews.isOwner(tenantId, principalId, reviewCase) ? "OWNER" : "REVIEWER"));
+            }
+            return;
+        }
+        if (contentMatch.matches()) {
+            serveContent(exchange, tenantId, principalId, reviewCase, out);
             return;
         }
         Map<String, Object> body = body(exchange, maxBody);
@@ -211,6 +300,64 @@ final class MediaDevReviewRoutes {
                 verified == null ? com.ghatana.media.runtime.MediaVerifiedIdentityContracts.AssuranceSource.UNSPECIFIED
                         : verified.assurance());
         out.json(exchange, outcome.replayed() ? 200 : 201, appendView(outcome));
+    }
+
+    /** Streams the case's exact immutable artifact version to the owner or an assigned reviewer (supports Range). */
+    private void serveContent(HttpExchange exchange, String tenantId, String principalId, ReviewCaseRef reviewCase,
+                              Responder out) throws IOException {
+        MediaDevArtifactContentRoutes routes = content.get();
+        if (routes == null) {
+            out.error(exchange, 404, "NOT_FOUND", "Review content is not available", Map.of());
+            return;
+        }
+        if (exchange.getRequestURI().getRawQuery() != null) {
+            out.error(exchange, 400, "ARTIFACT_CONTENT_QUERY_INVALID", "No query parameters are supported", Map.of());
+            return;
+        }
+        var access = reviews.contentAccess(tenantId, principalId, reviewCase);
+        routes.serve(exchange, tenantId, access.ownerPrincipalId(), access.subject().objectId(),
+                new com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion(access.subject().versionId()),
+                new MediaDevCreativeOutputRoutes.Responder() {
+                    @Override public void json(HttpExchange e, int status, Object body) throws IOException {
+                        out.json(e, status, body);
+                    }
+                    @Override public void error(HttpExchange e, int status, String code, String message,
+                                                Map<String, ?> details) throws IOException {
+                        out.error(e, status, code, message, details);
+                    }
+                });
+    }
+
+    private static Map<String, Object> lineageView(MediaDevReviewRuntime.LineageReview lineage, String role) {
+        Map<String, Object> view = new LinkedHashMap<>();
+        view.put("schema", SCHEMA);
+        view.put("lineageId", lineage.lineageId());
+        view.put("headVersionNumber", lineage.headVersionNumber());
+        view.put("role", role);
+        List<Map<String, Object>> rows = new ArrayList<>();
+        for (var version : lineage.versions()) {
+            Map<String, Object> row = new LinkedHashMap<>();
+            row.put("versionNumber", version.versionNumber());
+            row.put("artifactId", version.artifactId());
+            row.put("artifactVersionId", version.artifactVersionId());
+            row.put("head", version.head());
+            row.put("superseded", version.superseded());
+            row.put("state", version.state());
+            row.put("reviewCaseId", version.reviewCaseId());
+            row.put("latestDecision", version.latestDecision());
+            row.put("latestScope", version.latestScope());
+            row.put("latestDecisionBy", version.latestDecisionBy());
+            row.put("commentCount", version.commentCount());
+            row.put("acceptedForHead", version.acceptedForHead());
+            row.put("establishesApproval", false);
+            row.put("humanReviewApproval", false);
+            rows.add(row);
+        }
+        view.put("versions", rows);
+        view.put("note", "A decision applies to its exact version only; it is never transferred to a newer version. "
+                + APPROVAL_NOTE);
+        view.put("scope", "DEV_ONLY");
+        return view;
     }
 
     private static boolean artifactRead(HttpExchange exchange, Responder out) throws IOException {

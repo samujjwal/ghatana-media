@@ -90,6 +90,16 @@ final class MediaDevArtifactContentRoutes {
                     "An explicit expected version (query version=sha256:<hex> or If-Match) is required", Map.of());
             return;
         }
+        serve(exchange, tenantId, principalId, artifactId, expected.get(), out);
+    }
+
+    /**
+     * Verifies and releases the exact version's bytes (or one range) for {@code principalId}. Review uses it to serve
+     * the case's immutable subject to an assigned reviewer by reading as the case owner.
+     */
+    void serve(HttpExchange exchange, String tenantId, String principalId, String artifactId,
+               ArtifactVersion expectedVersion, MediaDevCreativeOutputRoutes.Responder out) throws IOException {
+        Optional<ArtifactVersion> expected = Optional.of(expectedVersion);
         Optional<MediaArtifact> found;
         try {
             found = runtime.artifact(tenantId, principalId, artifactId);

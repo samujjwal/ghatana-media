@@ -67,6 +67,12 @@ public final class MediaArtifactVersionLedgerContracts {
         /** The version holding {@code artifactVersionId} in the lineage, if registered. */
         Optional<Version> find(String tenantId, String principalId, String lineageId, String artifactVersionId);
 
+        /**
+         * Ids of this owner's lineages that hold the exact artifact version (usually zero or one). A review of an
+         * artifact version uses it to learn whether a later version of the same lineage has superseded it.
+         */
+        List<String> lineagesHolding(String tenantId, String principalId, String artifactId, String artifactVersionId);
+
         @Override void close();
     }
 

@@ -117,6 +117,28 @@ public final class PostgresqlMediaArtifactVersionLedger implements VersionLedger
                 .filter(version -> version.artifactVersionId().equals(artifactVersionId)).findFirst();
     }
 
+    @Override
+    public List<String> lineagesHolding(String tenantId, String principalId, String artifactId,
+                                        String artifactVersionId) {
+        ensureOpen();
+        try (Connection connection = state.connection();
+             PreparedStatement select = connection.prepareStatement("SELECT DISTINCT lineage_id FROM "
+                     + "media_dev_artifact_versions WHERE tenant_id=? AND principal_id=? AND artifact_id=? "
+                     + "AND artifact_version_id=? ORDER BY lineage_id")) {
+            select.setString(1, tenantId);
+            select.setString(2, principalId);
+            select.setString(3, artifactId);
+            select.setString(4, artifactVersionId);
+            List<String> out = new ArrayList<>();
+            try (ResultSet rows = select.executeQuery()) {
+                while (rows.next()) out.add(rows.getString(1));
+            }
+            return out;
+        } catch (SQLException failure) {
+            throw new IllegalStateException("artifact version ledger read failed", failure);
+        }
+    }
+
     private static List<Version> load(Connection connection, String tenantId, String lineageId) throws SQLException {
         List<Version> out = new ArrayList<>();
         try (PreparedStatement select = connection.prepareStatement("SELECT " + COLUMNS
