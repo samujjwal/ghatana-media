@@ -35,6 +35,10 @@ public interface ReviewAssignmentStore {
             Objects.requireNonNull(expiresAt, "expiresAt");
             Objects.requireNonNull(status, "status");
             if (assignmentVersion < 1) throw new IllegalArgumentException("assignmentVersion must be positive");
+            if ((status == AssignmentStatus.ACTIVE && assignmentVersion != 1)
+                    || (status == AssignmentStatus.REVOKED && assignmentVersion != 2)) {
+                throw new IllegalArgumentException("assignment status and version do not match the DEV_ONLY schema");
+            }
             Objects.requireNonNull(createdAt, "createdAt");
             Objects.requireNonNull(changedAt, "changedAt");
             Objects.requireNonNull(requestId, "requestId");

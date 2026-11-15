@@ -40,6 +40,32 @@ class VersionedReviewEngineTest {
     }
 
     @Test
+    void reviewAssignmentStatusMustMatchItsPersistedVersion() {
+        Instant expiry = NOW.plusSeconds(60);
+        var active = new ReviewAssignmentStore.ReviewAssignment("assignment-1", "tenant-a", "owner-case-1",
+                "reviewer-2", "owner-1", java.util.Set.of(ReviewAssignmentStore.ReviewScope.QUALITY), expiry,
+                ReviewAssignmentStore.AssignmentStatus.ACTIVE, 1, NOW, NOW, "assign-request-1");
+        var revoked = new ReviewAssignmentStore.ReviewAssignment("assignment-1", "tenant-a", "owner-case-1",
+                "reviewer-2", "owner-1", java.util.Set.of(ReviewAssignmentStore.ReviewScope.QUALITY), expiry,
+                ReviewAssignmentStore.AssignmentStatus.REVOKED, 2, NOW, NOW.plusSeconds(1), "revoke-request-1");
+
+        assertThat(active.assignmentVersion()).isEqualTo(1);
+        assertThat(revoked.assignmentVersion()).isEqualTo(2);
+        assertThatThrownBy(() -> new ReviewAssignmentStore.ReviewAssignment("assignment-1", "tenant-a", "owner-case-1",
+                "reviewer-2", "owner-1", java.util.Set.of(ReviewAssignmentStore.ReviewScope.QUALITY), expiry,
+                ReviewAssignmentStore.AssignmentStatus.ACTIVE, 2, NOW, NOW, "assign-request-1"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("status and version");
+        assertThatThrownBy(() -> new ReviewAssignmentStore.ReviewAssignment("assignment-1", "tenant-a", "owner-case-1",
+                "reviewer-2", "owner-1", java.util.Set.of(ReviewAssignmentStore.ReviewScope.QUALITY), expiry,
+                ReviewAssignmentStore.AssignmentStatus.REVOKED, 1, NOW, NOW, "revoke-request-1"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("status and version");
+        assertThatThrownBy(() -> new ReviewAssignmentStore.ReviewAssignment("assignment-1", "tenant-a", "owner-case-1",
+                "reviewer-2", "owner-1", java.util.Set.of(ReviewAssignmentStore.ReviewScope.QUALITY), expiry,
+                ReviewAssignmentStore.AssignmentStatus.ACTIVE, 0, NOW, NOW, "assign-request-1"))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("must be positive");
+    }
+
+    @Test
     void authorityVersionUsesTheSameBoundedOpaqueContractOnReadbackAndPersistence() {
         String maximumAuthorityVersion = "a".repeat(256);
         assertThat(new AuthorizationDecision(AuthorizationStatus.ALLOW, REVIEWER.tenantId(),
