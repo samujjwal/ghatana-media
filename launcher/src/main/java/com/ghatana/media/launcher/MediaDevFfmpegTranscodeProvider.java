@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
@@ -43,6 +44,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.BiPredicate;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
@@ -68,6 +71,11 @@ import java.util.stream.Stream;
 final class MediaDevFfmpegTranscodeProvider implements MediaProcessingProvider {
     static final String PROVIDER_ID = "local-ffmpeg-transcode";
     static final String SPOOL_ENV = "MEDIA_DEV_FFMPEG_JOB_SPOOL";
+    /** Days a terminal attempt directory is kept before pruning; positive integer, default 7. */
+    static final String RETENTION_ENV = "MEDIA_DEV_FFMPEG_JOB_SPOOL_RETENTION_DAYS";
+    static final int DEFAULT_RETENTION_DAYS = 7;
+    static final int MAXIMUM_RETENTION_DAYS = 3650;
+    private static final Pattern ATTEMPT_DIRECTORY = Pattern.compile("[0-9a-f]{40}");
     /** Test-only fault gate directory: a {@code hold-<phase>-<first 16 hex of the source SHA-256>} file pauses that run at that phase. */
     static final String GATE_ENV = "MEDIA_DEV_FFMPEG_JOB_FAULT_GATE_DIR";
     static final String PHASE_BEFORE_EFFECT = "before-effect";
@@ -87,6 +95,7 @@ final class MediaDevFfmpegTranscodeProvider implements MediaProcessingProvider {
     private final Path ffprobe;
     private final Path spool;
     private final Path gateDir;
+    private final Duration retention;
     private final String owner = MediaDevRequestLedger.localOwner();
     private final ConcurrentHashMap<String, Active> active = new ConcurrentHashMap<>();
 
@@ -98,14 +107,22 @@ final class MediaDevFfmpegTranscodeProvider implements MediaProcessingProvider {
     }
 
     MediaDevFfmpegTranscodeProvider(Path ffmpeg, Path ffprobe, Path spool, Path gateDir) {
+        this(ffmpeg, ffprobe, spool, gateDir, Duration.ofDays(DEFAULT_RETENTION_DAYS));
+    }
+
+    MediaDevFfmpegTranscodeProvider(Path ffmpeg, Path ffprobe, Path spool, Path gateDir, Duration retention) {
         if (!ffmpeg.isAbsolute() || !ffprobe.isAbsolute() || !spool.isAbsolute()
                 || (gateDir != null && !gateDir.isAbsolute())) {
             throw new IllegalArgumentException("ffmpeg, ffprobe, spool and gate paths must be absolute");
+        }
+        if (retention.isNegative() || retention.isZero()) {
+            throw new IllegalArgumentException("spool retention must be positive");
         }
         this.ffmpeg = ffmpeg;
         this.ffprobe = ffprobe;
         this.spool = spool;
         this.gateDir = gateDir;
+        this.retention = retention;
         try {
             Files.createDirectories(spool);
         } catch (IOException failure) {
@@ -121,7 +138,23 @@ final class MediaDevFfmpegTranscodeProvider implements MediaProcessingProvider {
         if (spool.isBlank() || ffmpeg.isBlank() || ffprobe.isBlank()) return Optional.empty();
         String gate = environment.getOrDefault(GATE_ENV, "");
         return Optional.of(new MediaDevFfmpegTranscodeProvider(Path.of(ffmpeg), Path.of(ffprobe), Path.of(spool),
-                gate.isBlank() ? null : Path.of(gate)));
+                gate.isBlank() ? null : Path.of(gate), retention(environment)));
+    }
+
+    /** Parses {@link #RETENTION_ENV}; an absent value is the default, a malformed or out-of-range value fails startup. */
+    static Duration retention(Map<String, String> environment) {
+        String raw = environment.getOrDefault(RETENTION_ENV, "").strip();
+        if (raw.isEmpty()) return Duration.ofDays(DEFAULT_RETENTION_DAYS);
+        int days;
+        try {
+            days = Integer.parseInt(raw);
+        } catch (NumberFormatException malformed) {
+            throw new IllegalArgumentException(RETENTION_ENV + " must be an integer number of days", malformed);
+        }
+        if (days < 1 || days > MAXIMUM_RETENTION_DAYS) {
+            throw new IllegalArgumentException(RETENTION_ENV + " must be within [1, " + MAXIMUM_RETENTION_DAYS + "] days");
+        }
+        return Duration.ofDays(days);
     }
 
     @Override public String providerId() { return PROVIDER_ID; }
@@ -169,6 +202,11 @@ final class MediaDevFfmpegTranscodeProvider implements MediaProcessingProvider {
     }
 
     @Override
+    public void validateSubmission(ProcessingJobRequest request) {
+        params(request.parameters());
+    }
+
+    @Override
     public Optional<ProviderAttemptIdentity> prepareAttemptIdentity(
             ProcessingJobRequest request, MediaArtifact artifact, ProviderAttemptContext attempt) {
         params(request.parameters());
@@ -213,8 +251,8 @@ final class MediaDevFfmpegTranscodeProvider implements MediaProcessingProvider {
         gate(PHASE_BEFORE_EFFECT, context, run);
         // Effect start marker: after this point a crash may leave an uncommitted partial output behind.
         writeAtomically(dir.resolve("begin.json"), JSON.writeValueAsBytes(Map.of(
-                "owner", owner, "operationId", attempt.providerOperationId(),
-                "startedAt", Instant.now().toString())));
+                "owner", owner, "tenantId", attempt.tenantId(), "jobId", attempt.jobId(),
+                "operationId", attempt.providerOperationId(), "startedAt", Instant.now().toString())));
         Path source = dir.resolve("source.bin");
         Path part = dir.resolve("out.part");
         try {
@@ -391,6 +429,66 @@ final class MediaDevFfmpegTranscodeProvider implements MediaProcessingProvider {
         }
         if (!result.succeeded() || codec.isBlank()) throw new IOException("transcode output is not decodable audio");
         return Map.of("codec", codec, "durationMillis", millis);
+    }
+
+    /**
+     * Removes attempt directories that restart reconciliation can no longer need, and returns how many were removed.
+     *
+     * <p>A directory is pruned only when every condition holds: its name is exactly the hash of the operation its own
+     * marker names; its job is terminal according to {@code jobTerminal} (the job store, which is the authority; a
+     * committed receipt alone is not enough, because a launcher that died after the commit still has to reconcile
+     * the job to SUCCEEDED); no attempt for that job is active in this process; and the directory has not changed
+     * within the retention window. Anything unreadable, unidentifiable, or still referenced is kept. At most
+     * {@code maximumDirectories} candidates are examined per call, so one pass stays bounded.</p>
+     */
+    int pruneTerminalAttempts(BiPredicate<String, String> jobTerminal, Instant now, int maximumDirectories)
+            throws IOException {
+        if (!Files.isDirectory(spool)) return 0;
+        Instant cutoff = now.minus(retention);
+        int examined = 0;
+        int pruned = 0;
+        List<Path> entries;
+        try (Stream<Path> listing = Files.list(spool)) {
+            entries = listing.sorted().toList();
+        }
+        for (Path entry : entries) {
+            if (examined >= maximumDirectories) break;
+            String name = entry.getFileName().toString();
+            if (!ATTEMPT_DIRECTORY.matcher(name).matches() || !Files.isDirectory(entry, LinkOption.NOFOLLOW_LINKS)) {
+                continue;
+            }
+            examined++;
+            try {
+                if (Files.getLastModifiedTime(entry, LinkOption.NOFOLLOW_LINKS).toInstant().isAfter(cutoff)) continue;
+                Optional<String[]> identity = attemptIdentity(entry, name);
+                if (identity.isEmpty()) continue;
+                String tenantId = identity.get()[0];
+                String jobId = identity.get()[1];
+                if (active.containsKey(key(tenantId, jobId))) continue;
+                if (!jobTerminal.test(tenantId, jobId)) continue;
+                discard(entry);
+                pruned++;
+            } catch (IOException | RuntimeException unreadable) {
+                // Keep anything whose identity or terminality cannot be proven.
+            }
+        }
+        return pruned;
+    }
+
+    /** {tenantId, jobId} of the attempt that owns this directory, or empty when it cannot be proven from its markers. */
+    private static Optional<String[]> attemptIdentity(Path dir, String name) throws IOException {
+        Path marker = Files.isRegularFile(dir.resolve("receipt.json"), LinkOption.NOFOLLOW_LINKS)
+                ? dir.resolve("receipt.json") : dir.resolve("begin.json");
+        if (!Files.isRegularFile(marker, LinkOption.NOFOLLOW_LINKS)) return Optional.empty();
+        Map<String, Object> fields = JSON.readValue(Files.readAllBytes(marker), new TypeReference<>() { });
+        if (!(fields.get("tenantId") instanceof String tenantId) || tenantId.isBlank()
+                || !(fields.get("jobId") instanceof String jobId) || jobId.isBlank()
+                || !(fields.get("operationId") instanceof String operationId)) {
+            return Optional.empty();
+        }
+        if (!operationId.startsWith(PROVIDER_ID + ":" + jobId + ":")) return Optional.empty();
+        if (!sha256(operationId).substring(0, 40).equals(name)) return Optional.empty();
+        return Optional.of(new String[] {tenantId, jobId});
     }
 
     private Path operationDir(String operationId) {

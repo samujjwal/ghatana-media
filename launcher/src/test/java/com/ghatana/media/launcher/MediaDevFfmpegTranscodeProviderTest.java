@@ -1,6 +1,8 @@
 package com.ghatana.media.launcher;
 
 import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptObservation;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptQuery;
 import org.junit.jupiter.api.Test;
@@ -10,6 +12,10 @@ import tools.jackson.databind.ObjectMapper;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Set;
 import java.security.MessageDigest;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
@@ -180,5 +186,138 @@ class MediaDevFfmpegTranscodeProviderTest {
                 MediaDevFfmpegTranscodeProvider.SPOOL_ENV, "relative/spool",
                 MediaDevProjectRenderRuntime.FFMPEG_ENV, "/bin/true",
                 MediaDevProjectRenderRuntime.FFPROBE_ENV, "/bin/true"))).isInstanceOf(IllegalArgumentException.class);
+    }
+
+    private static ProcessingJobRequest transcodeRequest(Map<String, Object> parameters) {
+        return new ProcessingJobRequest("request-validate", "tenant-a", "principal-a", "corr-validate", "artifact-1",
+                "sha256:" + "a".repeat(64), JobType.TRANSCODE, MediaDevFfmpegTranscodeProvider.PROVIDER_ID,
+                parameters, null);
+    }
+
+    @Test
+    void anInvalidTranscodeParameterIsRefusedAtSubmissionBeforeAnyEffect() {
+        // The runtime calls this hook before creating a job, an attempt or a spool directory.
+        MediaDevFfmpegTranscodeProvider provider = provider();
+        assertThatThrownBy(() -> provider.validateSubmission(transcodeRequest(Map.of("container", "mp3"))))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("container");
+        assertThatThrownBy(() -> provider.validateSubmission(transcodeRequest(Map.of("sampleRateHz", 96_000))))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("sampleRateHz");
+        assertThatThrownBy(() -> provider.validateSubmission(transcodeRequest(Map.of("channels", 6))))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("channels");
+        provider.validateSubmission(transcodeRequest(Map.of("container", "wav", "sampleRateHz", 16_000, "channels", 2)));
+        try (java.util.stream.Stream<Path> spooled = Files.list(spool)) {
+            assertThat(spooled.count()).as("validation never touches the spool").isZero();
+        } catch (java.io.IOException failure) {
+            throw new IllegalStateException(failure);
+        }
+    }
+
+    @Test
+    void retentionDefaultsToSevenDaysAndRejectsMalformedOrOutOfRangeValues() {
+        assertThat(MediaDevFfmpegTranscodeProvider.retention(Map.of())).isEqualTo(Duration.ofDays(7));
+        assertThat(MediaDevFfmpegTranscodeProvider.retention(Map.of(
+                MediaDevFfmpegTranscodeProvider.RETENTION_ENV, " 30 "))).isEqualTo(Duration.ofDays(30));
+        for (String bad : new String[] {"0", "-1", "3651", "soon", "1.5"}) {
+            assertThatThrownBy(() -> MediaDevFfmpegTranscodeProvider.retention(Map.of(
+                    MediaDevFfmpegTranscodeProvider.RETENTION_ENV, bad)))
+                    .as(bad).isInstanceOf(IllegalArgumentException.class);
+        }
+    }
+
+    /** Writes a marked attempt the provider itself would write; {@code committed} adds the receipt. */
+    private ProviderAttemptQuery markedAttempt(String jobId, boolean committed) throws Exception {
+        ProviderAttemptQuery query = query(jobId, FINGERPRINT);
+        Files.createDirectories(dir(query));
+        Map<String, Object> marker = new java.util.LinkedHashMap<>();
+        marker.put("owner", deadLocalOwner());
+        marker.put("tenantId", "tenant-a");
+        marker.put("jobId", jobId);
+        marker.put("operationId", query.providerOperationId());
+        Files.write(dir(query).resolve("begin.json"), JSON.writeValueAsBytes(marker));
+        if (committed) {
+            writeCommit(query, ("out-" + jobId).getBytes(StandardCharsets.UTF_8), "tenant-a");
+        }
+        return query;
+    }
+
+    private static void age(Path directory, Duration by) throws Exception {
+        Files.setLastModifiedTime(directory, FileTime.from(Instant.now().minus(by)));
+    }
+
+    private int prune(Set<String> terminalJobs, int maximum) throws Exception {
+        return provider().pruneTerminalAttempts((tenant, jobId) -> terminalJobs.contains(jobId),
+                Instant.now(), maximum);
+    }
+
+    @Test
+    void aTerminalJobsOldAttemptIsPrunedWhetherItCommittedOrNeverFinished() throws Exception {
+        ProviderAttemptQuery committed = markedAttempt("job-prune-committed", true);
+        ProviderAttemptQuery begun = markedAttempt("job-prune-begun", false);
+        age(dir(committed), Duration.ofDays(8));
+        age(dir(begun), Duration.ofDays(8));
+
+        assertThat(prune(Set.of("job-prune-committed", "job-prune-begun"), 10)).isEqualTo(2);
+        assertThat(dir(committed)).doesNotExist();
+        assertThat(dir(begun)).doesNotExist();
+    }
+
+    @Test
+    void aCommittedAttemptWhoseJobIsStillRunningIsKeptBecauseItStillNeedsReconciliation() throws Exception {
+        // A launcher can die after the commit; reconciliation must still see the receipt to report SUCCEEDED.
+        ProviderAttemptQuery running = markedAttempt("job-still-running", true);
+        age(dir(running), Duration.ofDays(30));
+        assertThat(prune(Set.of("job-other-terminal"), 10)).isZero();
+        assertThat(dir(running).resolve("receipt.json")).exists();
+        assertThat(observe(running).finality()).isEqualTo(AttemptFinality.SUCCEEDED);
+    }
+
+    @Test
+    void recentOrUnprovableDirectoriesAreKeptEvenForTerminalJobs() throws Exception {
+        ProviderAttemptQuery recent = markedAttempt("job-recent", true);
+        ProviderAttemptQuery mismatched = markedAttempt("job-mismatch", true);
+        age(dir(mismatched), Duration.ofDays(30));
+        Files.move(dir(mismatched), spool.resolve("0".repeat(40)));
+        Path unidentifiable = spool.resolve("1".repeat(40));
+        Files.createDirectories(unidentifiable);
+        Files.writeString(unidentifiable.resolve("out.part"), "partial");
+        age(unidentifiable, Duration.ofDays(30));
+        Path notAnAttempt = spool.resolve("not-an-attempt");
+        Files.createDirectories(notAnAttempt);
+        age(notAnAttempt, Duration.ofDays(30));
+
+        assertThat(prune(Set.of("job-recent", "job-mismatch"), 10)).isZero();
+        assertThat(dir(recent)).exists();
+        assertThat(unidentifiable).exists();
+        assertThat(notAnAttempt).exists();
+    }
+
+    @Test
+    void theExaminationBoundLimitsOnePassAndTheRemainderIsPrunedLater() throws Exception {
+        for (int index = 0; index < 3; index++) {
+            age(dir(markedAttempt("job-bound-" + index, true)), Duration.ofDays(8));
+        }
+        Set<String> terminal = Set.of("job-bound-0", "job-bound-1", "job-bound-2");
+        assertThat(prune(terminal, 2)).isEqualTo(2);
+        assertThat(prune(terminal, 2)).isEqualTo(1);
+        assertThat(prune(terminal, 2)).isZero();
+    }
+
+    @Test
+    void theJobStoreIsConsultedForEveryCandidateAndAFailingLookupKeepsTheDirectory() throws Exception {
+        ProviderAttemptQuery query = markedAttempt("job-lookup-fails", true);
+        age(dir(query), Duration.ofDays(8));
+        assertThat(provider().pruneTerminalAttempts((tenant, jobId) -> {
+            throw new IllegalStateException("store unavailable");
+        }, Instant.now(), 10)).isZero();
+        assertThat(dir(query)).exists();
+    }
+
+    @Test
+    void aSpoolThatHasNoDirectoryYetPrunesNothing() throws Exception {
+        Path empty = spool.resolve("not-yet-created");
+        MediaDevFfmpegTranscodeProvider provider = new MediaDevFfmpegTranscodeProvider(
+                Path.of("/bin/true"), Path.of("/bin/true"), empty, null);
+        Files.delete(empty);
+        assertThat(provider.pruneTerminalAttempts((tenant, jobId) -> true, Instant.now(), 10)).isZero();
     }
 }

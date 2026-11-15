@@ -2488,6 +2488,13 @@ public final class MediaRuntimeContracts {
         default MediaModalityContracts.ExecutionBounds executionBounds() {
             return MediaModalityContracts.ExecutionBounds.defaults();
         }
+        /**
+         * Opt-in validation of a job request's parameters against the provider contract. Runs synchronously on the
+         * provider that will own the job, before any job, attempt, source read or provider effect is created. An
+         * invalid request must throw {@link IllegalArgumentException}, which the job-create route reports as a typed
+         * 400 INVALID_REQUEST. The default accepts every request, so existing providers are unaffected.
+         */
+        default void validateSubmission(ProcessingJobRequest request) { }
         boolean ready();
         boolean productionEligible();
         /**

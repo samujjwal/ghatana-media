@@ -743,9 +743,17 @@ After a launcher crash the job stays `RUNNING` (its owner lease is `MEDIA_JOB_TI
 its exact attempt: a receipt whose output digest re-verifies completes the job (`providerOutcome SUCCEEDED`, never re-run);
 a dead owner with no receipt proves `NO_EFFECT_PROVEN` and fails the job `RESTART_NO_EFFECT_PROVEN`; a live or unprovable
 owner, a missing provider, or any doubt records `OUTCOME_UNKNOWN`, which is terminal and never rewritten. The finalization
-is one PostgreSQL transaction (`resolveExpiredAttempt`: attempt finality, job state, lifecycle outbox). Spool files are not
-pruned and nothing is served from the spool (no download route); `MEDIA_DEV_FFMPEG_JOB_FAULT_GATE_DIR` is a test-only
-fault-injection hook that pauses a run at `before-effect`, `after-ffmpeg` or `after-commit`.
+is one PostgreSQL transaction (`resolveExpiredAttempt`: attempt finality, job state, lifecycle outbox). Invalid transcode
+parameters are refused with HTTP 400 `INVALID_REQUEST` at submission, before the job, attempt or spool directory exists
+(the provider's opt-in `validateSubmission` hook; other providers are unaffected). Nothing is served from the spool (no
+download route). **Spool retention:** `MEDIA_DEV_FFMPEG_JOB_SPOOL_RETENTION_DAYS` (integer 1-3650, default `7`; malformed
+values fail startup) sets how long an attempt directory is kept. At startup and on every recovery pass (every 30 s) the
+launcher examines at most 256 directories and removes one only when all hold: its marker identifies the attempt and the
+directory name matches that identity; its job is terminal (`COMPLETED`, `FAILED` or `CANCELLED`) in the job store, so a
+committed receipt that a restart still has to reconcile is never removed; no attempt for that job is active in this
+process; and the directory has not changed within the retention window. Anything unidentifiable, non-terminal or recent is
+kept. `MEDIA_DEV_FFMPEG_JOB_FAULT_GATE_DIR` is a test-only fault-injection hook that pauses a run at `before-effect`,
+`after-ffmpeg` or `after-commit`.
 
 DEV_ONLY exact-byte artifact read (`GET /dev/v1/artifacts/{artifactId}/content`, in-process HTTP plus a real-process
 PostgreSQL/S3 restart IT with Range; outside the canonical manifest/OpenAPI): the caller names the exact immutable

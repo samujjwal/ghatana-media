@@ -86,7 +86,8 @@ class MediaDevJobRestartRecoveryIT {
             // A parameter outside the provider contract is refused before any attempt or spool effect exists.
             HttpResponse<String> refusedResponse = submitRaw(f, owner, refused, "refused-" + f.run,
                     "{\"container\":\"mp3\"}");
-            assertThat(refusedResponse.statusCode()).as(refusedResponse.body()).isIn(400, 409, 422);
+            assertThat(refusedResponse.statusCode()).as(refusedResponse.body()).isEqualTo(400);
+            assertThat(refusedResponse.body()).contains("INVALID_REQUEST");
             try (Stream<Path> spooled = Files.list(f.spool)) {
                 assertThat(spooled.count()).as("a refused transcode has no spool effect").isZero();
             }

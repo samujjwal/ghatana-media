@@ -294,12 +294,14 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         this.concurrency = new Semaphore(config.maximumConcurrentJobs(), true);
         bindDelegatedProviderCapabilities(this.processingProviders, config.productionLike());
         reconcileJobsAfterRestart();
+        pruneDevFfmpegSpool();
         recoveryScheduler.scheduleWithFixedDelay(() -> {
             if (closed.get()) return;
             try { reconcileJobsAfterRestart(); }
             catch (RuntimeException failure) {
                 audit.error("MEDIA_JOB_RECOVERY_PASS_FAILED failureType={}", failure.getClass().getSimpleName());
             }
+            pruneDevFfmpegSpool();
             if (lifecyclePublisher.ready()) {
                 for (MediaLifecycleOutboxSource source : lifecycleOutboxSources) {
                     try { source.publishConfirmed(lifecyclePublisher, 100); }
@@ -310,6 +312,26 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 }
             }
         }, 30, 30, TimeUnit.SECONDS);
+    }
+
+    /**
+     * Bounded DEV ffmpeg spool pruning, run at startup and on every recovery pass. A directory is removed only when
+     * its job is terminal in the job store; see {@link MediaDevFfmpegTranscodeProvider#pruneTerminalAttempts}.
+     */
+    private void pruneDevFfmpegSpool() {
+        for (MediaProcessingProvider provider : processingProviders) {
+            if (!(provider instanceof MediaDevFfmpegTranscodeProvider transcode)) continue;
+            try {
+                int pruned = transcode.pruneTerminalAttempts((tenantId, jobId) -> jobStore.find(tenantId, jobId)
+                                .map(job -> job.status() == JobStatus.COMPLETED || job.status() == JobStatus.FAILED
+                                        || job.status() == JobStatus.CANCELLED)
+                                .orElse(false),
+                        Instant.now(), 256);
+                if (pruned > 0) audit.info("MEDIA_DEV_FFMPEG_SPOOL_PRUNED directories={}", pruned);
+            } catch (java.io.IOException | RuntimeException failure) {
+                audit.error("MEDIA_DEV_FFMPEG_SPOOL_PRUNE_FAILED failureType={}", failure.getClass().getSimpleName());
+            }
+        }
     }
 
     public static MediaRuntime compose(Map<String, String> environment) {
@@ -1077,6 +1099,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         requireProductionSourceRightsAuthority(request.jobType());
         List<MediaProcessingProvider> providers = selectProcessingProviders(request);
         MediaProcessingProvider provider = providers.getFirst();
+        // Opt-in provider contract check: refuse invalid parameters before any job, attempt or effect exists.
+        provider.validateSubmission(request);
         MediaSourceAuthorizationContracts.Evidence sourceAuthorization = null;
         if (request.jobType() == com.ghatana.media.runtime.MediaRuntimeContracts.JobType.SPEECH_TO_TEXT) {
             sourceAuthorization = admitSpeechToTextOrThrow(request, artifact, provider, authenticated);
