@@ -118,6 +118,7 @@
     "test:ocr-single-authority": "node --test tests/media-ocr-ownership-hygiene.test.mjs tests/media-core-independence.test.mjs tests/media-ocr-consumer-inventory.test.mjs tests/media-di-gateway-consumer.test.mjs",
     "test:optional-provider-outage": "node --test tests/media-optional-provider-outage-independence.test.mjs",
     "test:optional-provider-installed-consumers": "node scripts/optional-providers/installed-consumer.mjs",
+    "test:installed-stt-profile-consumer": "node scripts/optional-providers/installed-stt-profile-consumer.mjs",
     "bench:optional-providers-synthetic": "node scripts/optional-providers/synthetic-benchmark.mjs",
     "test:provider-qualification-gate": "node --test tests/media-provider-qualification-gate.test.mjs",
     "qualify:providers": "node scripts/optional-providers/qualify.mjs",

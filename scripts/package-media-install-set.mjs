@@ -106,4 +106,6 @@ writeFileSync(path.join(OUT, MANIFEST_NAME + '.sha256'), `${sha256Hex(readFileSy
 
 const v = verifyInstallSet(OUT);
 if (!v.ok) { for (const e of v.errors) console.error(`REFUSED ${e}`); process.exit(1); }
+// Exercise STT profile/language binding through the built, verified artifact rather than source classes.
+run(process.execPath, [path.join(ROOT, 'scripts/optional-providers/installed-stt-profile-consumer.mjs'), OUT]);
 console.log(`PASS ${OUT}\n${manifest.manifestFingerprint}${dirty ? '\nWARNING: uncommitted changes in packaged paths' : ''}`);
