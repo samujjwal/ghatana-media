@@ -334,8 +334,12 @@ final class MediaDevRegionEditRuntime implements AutoCloseable {
         MediaArtifact headArtifact = exact(tenantId, principalId, head.artifactId(), head.artifactVersionId());
         // Rights are re-resolved on every call, a replay included: a revoked or missing statement refuses before anything runs.
         MediaDevDubSupport.Rights decision = requireProcessing(tenantId, principalId, headArtifact);
+        // The fingerprint names the version the caller edited (its base), not the current head, so a replay of a completed
+        // request still replays after the head has moved on.
+        String baseArtifactVersion = request.baseVersion() <= rows.size()
+                ? rows.get(request.baseVersion() - 1).artifactVersionId() : "none";
         String fingerprint = MediaDevRequestLedger.fingerprint("media.dev.region.edit.v1", lineageId, request.baseVersion(),
-                head.artifactVersionId(), request.track().artifactId(), request.track().artifactVersionId(),
+                baseArtifactVersion, request.track().artifactId(), request.track().artifactVersionId(),
                 request.track().trackId(), effectCanonical(request.effect()), request.paddingPx(), request.holdEnds(),
                 request.maxDriftPx(), request.crf());
         return requestLedger.run(tenantId, principalId, LANE_EDIT, request.requestId(), fingerprint,

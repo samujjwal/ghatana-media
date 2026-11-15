@@ -347,6 +347,12 @@ handlers additionally require the artifact permissions noted, so access is never
 | GET | `/dev/v1/simulations/status` | `media:project:dev:read` | — | the shared request ledger; MP4 animation needs `MEDIA_DEV_RENDER_FFMPEG`/`MEDIA_DEV_RENDER_FFPROBE` |
 | POST | `/dev/v1/simulations` | `media:project:dev:write` | `media:artifact:{read,create}` | J-14/J-15 (`MediaDevSimulationRuntime`); a `render.video` request also needs FFmpeg/FFprobe |
 | GET | `/dev/v1/simulations/{simulationId}` | `media:project:dev:read` | `media:artifact:read` (the simulation id is the result artifact id) | — |
+
+| GET | `/dev/v1/region-edits/status` | `media:project:dev:read` | — | `MEDIA_DEV_REGION_EDIT_ENABLED=true` + absolute `MEDIA_DEV_RENDER_FFMPEG`/`MEDIA_DEV_RENDER_FFPROBE` + the shared request ledger (J-11) |
+| POST | `/dev/v1/region-edits/lineages` | `media:project:dev:write` | `media:artifact:{read,create}`; the caller owns the exact video version | names a stored video as version 1 (BASE) of a lineage (201, or 200 when the same owner names the same version again; another video or owner under the same id is `409 LINEAGE_EXISTS`) |
+| GET | `/dev/v1/region-edits/lineages/{lineageId}` | `media:project:dev:read` | `media:artifact:read` | the version history, the head, `undoAvailable` (another principal or tenant: `404 LINEAGE_NOT_FOUND`) |
+| POST | `/dev/v1/region-edits/lineages/{lineageId}/edits` | `media:project:dev:write` | `media:artifact:{read,create}`; `PROCESSING` rights admission of the lineage's root video on every call | tracked region edit rendered as a NEW version (V042 compare-and-set) |
+| POST | `/dev/v1/region-edits/lineages/{lineageId}/undo` | `media:project:dev:write` | `media:artifact:{read,create}`; `PROCESSING` rights admission of the root video | appends a version that points at the exact artifact of the version being restored |
 | GET | `/dev/v1/audio/status` | `media:project:dev:read` | — | `MEDIA_DEV_RENDER_FFMPEG` (absolute path); Whisper optional |
 | POST | `/dev/v1/audio/restorations` | `media:project:dev:write` | `media:artifact:{read,create}` | `MEDIA_DEV_RENDER_FFMPEG`; PROCESSING rights on the exact source; J-07 (`MediaDevAudioRestorationRuntime`) |
 | POST | `/dev/v1/audio/comparisons` | `media:project:dev:write` | `media:artifact:{read,create}` | measured source/restored(/reference) report; optional Whisper transcript diff |
@@ -608,6 +614,41 @@ LINEAGE_HEAD_MOVED`, undoing the base is `409 NOTHING_TO_UNDO`, a version that i
 HEAD_VERSION_UNAVAILABLE`, and the same requestId replays. The head log is append-only, owner scoped, never a rights
 authority, and a lineage whose events name an erased artifact is dropped in the erasure transaction. Measured luma only: no
 perceptual, rights, approval or production claim.
+
+DEV_ONLY tracked region edit with exact version compare-and-set and undo (J-11, `media.dev.outcome-reversible-tracked-edit`;
+`MediaDevRegionEditRuntime`, `MediaDevRegionMask`, `MediaDevRegionPixels`, `MediaDevRegionEditRoutes`; composed only when
+`MEDIA_DEV_REGION_EDIT_ENABLED=true` with profile dev, the DEV identity, an absolute executable FFmpeg/FFprobe pair and the
+shared request ledger; the history is PostgreSQL (V042 `media_dev_region_edit_versions`) when the canonical datasource is
+configured, else a process-local non-durable ledger that is logged). `POST .../edits` takes
+`{requestId, baseVersion, track{artifactId, artifactVersionId, trackId}, effect{type: BLUR(radius 1-32, default 8) |
+PIXELATE(blockSize even 2-64, default 16) | FILL(color #RRGGBB, default #000000)}, paddingPx? (0-64, default 4), holdEnds?
+(false), maxDriftPx? (0.5-500), encoder?{crf 0-30, default 0}}`; `baseVersion` is the head the caller last saw. The track
+must be a `LOCAL_VISION_TRACKS` artifact that THIS launcher produced for THIS principal: the durable `vision.track` request
+ledger row of its requestId must be COMPLETED and name exactly that artifact version (an uploaded JSON that merely claims to
+be a track is `422 TRACK_PROVENANCE_UNVERIFIED`); it must have been computed on the lineage's original video
+(`TRACK_SOURCE_MISMATCH`) and agree with the video's own frame timeline (geometry, time base, every sampled frame's PTS:
+`TRACK_TIMELINE_MISMATCH`). The per-frame mask is the observed box interpolated LINEARLY IN PTS (not frame index, so
+variable frame rate is exact) between observations, padded and snapped outward to even pixel coordinates; frames outside the
+observed span are not edited unless `holdEnds`. The manifest reports the tracker's own drift (leave-one-out interpolation
+error: max/mean centre error px, min IoU, largest gap) and `maxDriftPx` refuses a track whose max error is larger
+(`TRACK_DRIFT_EXCEEDED`). Rendering decodes every frame to raw `yuv420p` (sources must have exactly one video stream,
+`yuv420p`, even geometry, at most 600 frames and 1280x720 pixels; audio is not supported), applies the effect only inside
+the mask and encodes with FFmpeg libx264 (`-qp 0` lossless for crf 0, High 4:4:4 Predictive profile; lossy crf otherwise),
+single threaded and bit-exact, with a generated `setpts` table so EVERY frame's source PTS is restored exactly. Before
+registration the output is re-probed (codec, pixel format, geometry, time base, frame count, every PTS) and decoded again
+beside the source: for a lossless edit every sample outside the masks must be bit-identical, for a lossy edit the outside
+PSNR must be at least 30 dB, and the inside must have changed (`REGION_EDIT_NO_VISIBLE_CHANGE` otherwise); the measured
+numbers are in the manifest. Two NEW artifacts are registered per edit (the `video/mp4` and the
+`media.dev.region-edit-manifest.v1` JSON with the per-frame masks); the source bytes never change. An edit against a head that
+moved is `409 STALE_BASE_VERSION` with `details{expectedVersion, headVersion}`; of two concurrent editors of one head exactly
+one appends (the loser's rendered artifacts stay registered but are not referenced by the lineage). `POST .../undo`
+(`{requestId, baseVersion}`) appends an UNDO version whose artifact is the exact artifact of the version restored (same bytes,
+digest and metadata), one edit at a time; at the original video it is `409 NOTHING_TO_UNDO`. Rights: the lineage's root video
+must resolve ADMITTED for PROCESSING on every edit and undo, a replay included (`403 RIGHTS_DECISION_DENIED|REVOKED`; reads
+stay available). The request ledger (`region.edit`, `region.undo`) makes a retry exactly-once: same body replays (`200`),
+a different body under the same requestId is `409 REGION_EDIT_REQUEST_ID_REUSED`, an FFmpeg process killed or timed out is
+`503 REGION_EDIT_OUTCOME_UNKNOWN` with nothing registered, and a retry after a launcher kill mid-render registers exactly
+once. The mask follows the detector's boxes, not ground truth; no quality, rights, approval or production claim.
 
 DEV_ONLY video enhancement and independent measured comparison (J-08, `media.dev.outcome-video-enhancement`;
 `MediaDevVideoRuntime`, `MediaDevVideoRoutes`, `MediaDevVideoQualityMetrics`; composed only when both absolute

@@ -212,6 +212,15 @@ class MediaDevRegionEditHttpTest {
             assertThat(send(h.base(), "POST", LINEAGES + "/line-1/undo", "{\"requestId\":\"undo-1\",\"baseVersion\":2}",
                     OWNER, PERMISSIONS).statusCode()).as("undo replay").isEqualTo(200);
 
+            // A completed request still replays after the head moved (the fingerprint names the base, not the head).
+            HttpResponse<String> second = send(h.base(), "POST", LINEAGES + "/line-1/edits",
+                    editBody("edit-2", 3, h, Map.of("type", "BLUR", "radius", 4), 4, 0), OWNER, PERMISSIONS);
+            assertThat(second.statusCode()).as(second.body()).isEqualTo(201);
+            HttpResponse<String> replayAfterMove = send(h.base(), "POST", LINEAGES + "/line-1/edits",
+                    editBody("edit-1", 1, h, Map.of("type", "PIXELATE", "blockSize", 8), 4, 0), OWNER, PERMISSIONS);
+            assertThat(replayAfterMove.statusCode()).as(replayAfterMove.body()).isEqualTo(200);
+            assertThat(read(replayAfterMove.body())).containsEntry("replayed", true);
+
             // Versions are owner scoped: another principal sees no lineage at all.
             assertThat(send(h.base(), "GET", LINEAGES + "/line-1", null, OTHER, PERMISSIONS).statusCode()).isEqualTo(404);
             assertThat(send(h.base(), "POST", LINEAGES + "/line-1/edits", editBody("edit-o", 3, h, Map.of("type", "FILL"), 4, 0),
