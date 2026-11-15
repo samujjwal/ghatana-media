@@ -95,6 +95,15 @@ const CAPTURE_SOURCE_KINDS: ReadonlySet<string> = new Set([
   "BROWSER", "DESKTOP", "MOBILE", "TERMINAL", "HTTP_API", "GRPC_API", "CAMERA", "MEDIA_FILE",
 ]);
 
+/** Freeze the newly-created plain data graph so its identity cannot drift after planning. */
+function deepFreezePlan<T>(value: T): T {
+  if (value === null || typeof value !== "object" || Object.isFrozen(value)) return value;
+  for (const child of Object.values(value as Record<string, unknown>)) {
+    deepFreezePlan(child);
+  }
+  return Object.freeze(value);
+}
+
 function requireText(value: string | undefined, field: string): string {
   if (value === undefined || typeof value !== "string"
     || value.trim().length === 0 || value.length > 384 || value !== value.trim()) {
@@ -265,7 +274,7 @@ export function orchestrateScenario(scenario: Scenario): OrchestrationResult {
     sceneDescriptors.push(descriptor);
   }
   const planIdentity = `${identityPrefix}${sceneDescriptors.join(",")}${identitySuffix}`;
-  return { scenarioId, revision, planIdentity, sceneRuns, dryRunOnly: true };
+  return deepFreezePlan({ scenarioId, revision, planIdentity, sceneRuns, dryRunOnly: true });
 }
 
 /**

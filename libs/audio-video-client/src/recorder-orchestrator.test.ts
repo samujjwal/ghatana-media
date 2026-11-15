@@ -89,6 +89,32 @@ describe("orchestrateScenario", () => {
     expect(a.sceneRuns[0]!.narration[0]!.atMillis).toBe(500);
   });
 
+  it("freezes the complete planned data graph after computing its identity", () => {
+    const plan = orchestrateScenario(scenario());
+    const identity = plan.planIdentity;
+    const scene = plan.sceneRuns[0]!;
+
+    expect(Object.isFrozen(plan)).toBe(true);
+    expect(Object.isFrozen(plan.sceneRuns)).toBe(true);
+    expect(Object.isFrozen(scene)).toBe(true);
+    expect(Object.isFrozen(scene.capturePlan)).toBe(true);
+    expect(Object.isFrozen(scene.actorBindings)).toBe(true);
+    expect(Object.isFrozen(scene.actorBindings[0])).toBe(true);
+    expect(Object.isFrozen(scene.narration)).toBe(true);
+    expect(Object.isFrozen(scene.narration[0])).toBe(true);
+    expect(Object.isFrozen(scene.captionRefs)).toBe(true);
+
+    expect(() => { (scene.capturePlan as { sourceIdentity: string }).sourceIdentity = "changed"; })
+      .toThrow(TypeError);
+    expect(() => { (scene.narration[0] as { atMillis: number }).atMillis = 1; }).toThrow(TypeError);
+    expect(() => { (scene.captionRefs as string[]).push("captions/changed@v1"); }).toThrow(TypeError);
+    expect(() => { (plan.sceneRuns as unknown[]).push(scene); }).toThrow(TypeError);
+    expect(plan.planIdentity).toBe(identity);
+    expect(scene.capturePlan.sourceIdentity).toBe("browser/demo/intro");
+    expect(scene.narration[0]!.atMillis).toBe(500);
+    expect(scene.captionRefs).toEqual(["captions/intro@v1"]);
+  });
+
   it("a changed scene revision re-plans only that scene's lineage", () => {
     const prior = orchestrateScenario(scenario());
     const next = orchestrateScenario(scenario({
