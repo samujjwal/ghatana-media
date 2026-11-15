@@ -19,7 +19,7 @@ const createToken = () => {
   const claims = {
     sub: 'principal-a', tenant_id: 'tenant-a', iss: 'urn:ghatana:media:dev-only', aud: 'ghatana-media-dev',
     dev_only: true, iat, exp: iat + 120,
-    permissions: ['media:project:dev:read', 'media:project:dev:write', 'media:artifact:read', 'media:artifact:create',
+    permissions: ['media:project:dev:read', 'media:project:dev:write', 'media:artifact:read', 'media:artifact:create', 'media:artifact:write',
       'media:delivery:dev:export', 'media:delivery:dev:read'],
   };
   return `test.${Buffer.from(JSON.stringify(claims)).toString('base64url')}.fixture`;
@@ -52,7 +52,8 @@ const seen = new Set();
 globalThis.fetch = async (input, init = {}) => {
   const url = new URL(String(input));
   const body = init.body ? JSON.parse(String(init.body)) : undefined;
-  appendFileSync(process.env.FIXTURE_LOG, JSON.stringify({ method: init.method ?? 'GET', path: url.pathname, requestId: body?.requestId }) + '\\n');
+  appendFileSync(process.env.FIXTURE_LOG, JSON.stringify({ method: init.method ?? 'GET', path: url.pathname, requestId: body?.requestId, fileName: body?.fileName }) + '\\n');
+  if (url.pathname === '/dev/v1/artifact-upload-policy') return json({ schemaVersion: 'media.dev.artifact-upload-policy.v1', scope: 'DEV_ONLY', maxChunkBytes: 1024 });
   const id = body?.requestId ?? url.pathname.split('/').at(-1);
   if (id?.startsWith('lost-')) return json({ nope: true }, 502);
   if (id?.startsWith('bad-')) return err(404, 'PROJECT_NOT_FOUND');
@@ -86,9 +87,11 @@ const renderItem = (id: string, requestId: string) => ({ id, command: 'project r
 const exportItem = (id: string, requestId: string) => ({ id, command: 'export create', options: {
   'request-id': requestId, 'artifact-id': 'artifact-a', 'artifact-version-id': 'sha256:' + sha, 'destination-id': 'dev-local-directory' } });
 const getItem = (id: string, requestId: string) => ({ id, command: 'export get', options: { 'request-id': requestId } });
+const uploadItem = (id: string, file: string) => ({ id, command: 'artifact upload', options: {
+  file, 'content-type': 'audio/wav', classification: 'PUBLIC', retention: 'P1D', 'idempotency-key': `upload-${id}` } });
 
 let counter = 0;
-async function batch(items: unknown[] | Record<string, unknown>, extra: string[] = [], raw?: string) {
+async function batch(items: unknown[] | Record<string, unknown>, extra: string[] = [], raw?: string | Buffer) {
   await rm(logPath, { force: true });
   const file = join(directory, `batch-${counter++}.json`);
   await writeFile(file, raw ?? JSON.stringify(Array.isArray(items) ? { schemaVersion: 'media.dev.batch.v1', items } : items));
@@ -192,6 +195,38 @@ describe('ghatanamedia-api-dev batch run', () => {
     const topLevel = await batch({ schemaVersion: 'media.dev.batch.v1', items: [getItem('g', 'e')], extra: 1 });
     expect(topLevel.status).toBe(2);
     expect(topLevel.requests).toEqual([]);
+  });
+
+  it('preserves valid UTF-8 in command values and rejects malformed UTF-8 before dispatch', async () => {
+    const validPath = join(directory, 'source-é.wav');
+    await writeFile(validPath, Buffer.from([0, 0]));
+    const valid = await batch([uploadItem('valid', validPath)]);
+    expect(valid.requests).toHaveLength(2);
+    expect(valid.requests[1]).toMatchObject({ method: 'POST', path: '/api/v1/artifacts/uploads', fileName: 'source-é.wav' });
+
+    // This is the path replacement-decoding would produce from the malformed
+    // bytes below, ensuring the former behavior would proceed to host dispatch.
+    const replacementPath = join(directory, 'source-\uFFFD\uFFFD.wav');
+    await writeFile(replacementPath, Buffer.from([0, 0]));
+    const sourceBytes = Buffer.from(JSON.stringify({
+      schemaVersion: 'media.dev.batch.v1',
+      items: [uploadItem('invalid', validPath)],
+    }), 'utf8');
+    const malformed = Buffer.from(sourceBytes);
+    const marker = malformed.indexOf(Buffer.from('é', 'utf8'));
+    expect(marker).toBeGreaterThanOrEqual(0);
+    malformed[marker] = 0xff;
+    malformed[marker + 1] = 0xfe;
+    const rejected = await batch([], [], malformed);
+    expect(rejected.status).toBe(2);
+    expect(rejected.stdout).toBe('');
+    expect(JSON.parse(rejected.stderr).code).toBe('BATCH_SCHEMA_INVALID');
+    expect(rejected.requests).toEqual([]);
+
+    const oversizedMalformed = await batch([], [], Buffer.alloc(262_145, 0xff));
+    expect(oversizedMalformed.status).toBe(2);
+    expect(JSON.parse(oversizedMalformed.stderr).code).toBe('BATCH_FILE_TOO_LARGE');
+    expect(oversizedMalformed.requests).toEqual([]);
   });
 
   it('rejects an oversize batch file and a non-local or missing file', async () => {

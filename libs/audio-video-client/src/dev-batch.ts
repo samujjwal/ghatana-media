@@ -18,6 +18,7 @@
  * code. The production channel continues to reject `batch` and `job batch`."
  */
 import { open } from 'node:fs/promises';
+import { TextDecoder } from 'node:util';
 
 export const BATCH_SCHEMA_VERSION = 'media.dev.batch.v1';
 export const BATCH_RESULT_SCHEMA_VERSION = 'media.cli-batch-result.v1';
@@ -106,7 +107,14 @@ export async function readBatchFile(path: string): Promise<string> {
       length += bytesRead;
       if (length > MAX_BATCH_FILE_BYTES) fail('BATCH_FILE_TOO_LARGE', `Batch file must not exceed ${MAX_BATCH_FILE_BYTES} bytes.`);
     }
-    return buffer.subarray(0, length).toString('utf8');
+    try {
+      // Preserve the prior BOM behavior while rejecting replacement-decoded bytes:
+      // parsing altered command identities or paths would not be an exact batch read.
+      return new TextDecoder('utf-8', { fatal: true, ignoreBOM: true })
+        .decode(buffer.subarray(0, length));
+    } catch {
+      return fail('BATCH_SCHEMA_INVALID', 'Batch file must contain valid UTF-8.');
+    }
   } finally {
     try { await handle.close(); } catch { /* cleanup does not alter the result */ }
   }
