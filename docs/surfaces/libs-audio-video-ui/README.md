@@ -79,6 +79,7 @@ entrypoint is [libs/audio-video-ui/README.md](../../../libs/audio-video-ui/READM
   with no seek control; the page re-checks every citation against the response's own evidence. Page:
   `apps/media-experience-explorer/dev-grounded-answer.html`; live Chromium test
   `test/dev-grounded-answer-live-browser.mjs` (driven by `MediaDevGroundedAnswerRestartIT`).
+- `DevProviderStatusPanel` (`catalog: DevProviderCatalogPort`, `refreshIntervalMs?`, `live?`, DEV_ONLY) shows the observed readiness of the local providers from `GET /dev/v1/providers/catalog`: one row per provider with the state as text (`READY`, `DEGRADED`, `UNAVAILABLE`, `NOT_ADMITTED`, `WITHDRAWN`), the stable reason code and its explanation, licence, reported device and check time, plus a disclosure with model, languages, voices, digests and licence notice. It refreshes live (one request at a time), announces state changes politely, marks the last view stale on a failed refresh, and `parseDevProviderCatalog` refuses an unknown state instead of showing it as ready. Production eligibility is always shown as "No".
 - `DevCreativeOutputsPanel` (`outputs: DevCreativeOutputsPort`, DEV_ONLY) drives
   the host creative lanes: audio repair (`POST /dev/v1/creative-outputs/audio-repairs`,
   one exact owner artifact version plus an explicit threshold/maxRunFrames

@@ -140,6 +140,10 @@ class MediaDevVisionOutageClassificationTest {
         assertThat(MediaDevOutage.classify("RENDER_OUTCOME_UNKNOWN")).get().extracting(c -> c.lane().name()).isEqualTo("RENDER");
         assertThat(MediaDevOutage.classify("VISION_TIMEOUT")).get().extracting(c -> c.outcome().name()).isEqualTo("TIMEOUT");
         assertThat(MediaDevOutage.classify("GROUNDED_UNAVAILABLE")).isPresent();
+        assertThat(MediaDevOutage.classify("/dev/v1/speech/syntheses", "SPEECH_OUTCOME_UNKNOWN")).get()
+                .extracting(c -> c.lane().name()).isEqualTo("SPEECH_SYNTHESIZE");
+        assertThat(MediaDevOutage.classify("/dev/v1/speech/transcriptions", "SPEECH_TIMEOUT")).get()
+                .extracting(c -> c.lane().name()).isEqualTo("SPEECH_TRANSCRIBE");
         assertThat(MediaDevOutage.classify("RIGHTS_DENIED")).isEmpty();
         assertThat(MediaDevOutage.classify("LOCAL_MODEL_NOT_ADMITTED")).as("not admitted is a refusal, not an outage").isEmpty();
         assertThat(MediaDevOutage.classify(null)).isEmpty();

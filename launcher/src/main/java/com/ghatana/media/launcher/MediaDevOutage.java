@@ -31,11 +31,21 @@ final class MediaDevOutage {
 
     /** Which lane and outcome an error code denotes, or empty when the code is not a provider outage. */
     static Optional<Classified> classify(String code) {
+        return classify(null, code);
+    }
+
+    /**
+     * As {@link #classify(String)}; the speech codes are shared by recognition and synthesis, so the request path
+     * ({@code /dev/v1/speech/syntheses} or {@code /dev/v1/speech/transcriptions}) names the lane.
+     */
+    static Optional<Classified> classify(String path, String code) {
         if (code == null) return Optional.empty();
+        OutageLane speech = path != null && path.startsWith("/dev/v1/speech/syntheses")
+                ? OutageLane.SPEECH_SYNTHESIZE : OutageLane.SPEECH_TRANSCRIBE;
         return switch (code) {
-            case "SPEECH_RUNTIME_UNAVAILABLE" -> of(OutageLane.SPEECH_TRANSCRIBE, OutageOutcome.UNAVAILABLE);
-            case "SPEECH_OUTCOME_UNKNOWN" -> of(OutageLane.SPEECH_TRANSCRIBE, OutageOutcome.UNKNOWN);
-            case "SPEECH_TIMEOUT" -> of(OutageLane.SPEECH_TRANSCRIBE, OutageOutcome.TIMEOUT);
+            case "SPEECH_RUNTIME_UNAVAILABLE" -> of(speech, OutageOutcome.UNAVAILABLE);
+            case "SPEECH_OUTCOME_UNKNOWN" -> of(speech, OutageOutcome.UNKNOWN);
+            case "SPEECH_TIMEOUT" -> of(speech, OutageOutcome.TIMEOUT);
             case "LOCAL_VISION_UNAVAILABLE" -> of(OutageLane.VISION, OutageOutcome.UNAVAILABLE);
             case "VISION_OUTCOME_UNKNOWN" -> of(OutageLane.VISION, OutageOutcome.UNKNOWN);
             case "VISION_TIMEOUT" -> of(OutageLane.VISION, OutageOutcome.TIMEOUT);

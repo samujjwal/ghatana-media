@@ -1465,7 +1465,7 @@ public final class MediaHttpHandler implements HttpHandler {
         exchange.getResponseHeaders().set("X-Request-ID", requestId);
         exchange.getResponseHeaders().set("X-Correlation-ID", correlationId);
         if (status == 429) exchange.getResponseHeaders().set("Retry-After", "1");
-        var outage = MediaDevOutage.classify(code);
+        var outage = MediaDevOutage.classify(exchange.getRequestURI().getRawPath(), code);
         if (outage.isPresent()) {
             // DEV lane provider outage: shared outcome vocabulary, the no-fallback policy and a bounded-label counter.
             details = MediaDevOutage.enrich(outage.get(), details);
