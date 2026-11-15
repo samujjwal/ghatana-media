@@ -37,6 +37,7 @@ public final class MediaLauncher {
         MediaDevRightsRuntime devRights = null;
         MediaDevIntakeRuntime devIntake = null;
         MediaDevRequestLedger devLedger = null;
+        MediaDevQualityOptimizationRuntime devQuality = null;
         MediaDevErasureRuntime devErasure = null;
         try {
             privacyMaintenance = MediaPrivacyMaintenanceRuntime.compose(environment);
@@ -56,6 +57,9 @@ public final class MediaLauncher {
                     || !environment.getOrDefault(MediaDevProjectRenderRuntime.FFMPEG_ENV, "").isBlank();
             devLedger = devModelLanes ? MediaDevRequestLedger.compose(environment) : null;
             MediaDevRequestLedger finalDevLedger = devLedger;
+            devQuality = devLedger == null ? null : MediaDevQualityOptimizationRuntime.compose(runtime, environment,
+                    devRights == null ? null : devRights.resolver(), devLedger);
+            MediaDevQualityOptimizationRuntime finalDevQuality = devQuality;
             devErasure = MediaDevErasureRuntime.compose(environment, devLedger, devDelivery, null);
             MediaDevErasureRuntime finalDevErasure = devErasure;
             MediaPrivacyMaintenanceRuntime finalPrivacyMaintenance = privacyMaintenance;
@@ -72,6 +76,10 @@ public final class MediaLauncher {
                 RuntimeException failure = null;
                 if (finalDevErasure != null) {
                     try { finalDevErasure.close(); }
+                    catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
+                }
+                if (finalDevQuality != null) {
+                    try { finalDevQuality.close(); }
                     catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
                 }
                 if (finalDevLedger != null) {
@@ -168,6 +176,7 @@ public final class MediaLauncher {
                                                     finalDevLedger))
                                     .withDevSimulation(finalDevLedger == null ? null
                                             : MediaDevSimulationRuntime.compose(runtime, environment, finalDevLedger))
+                                    .withDevQuality(finalDevQuality)
                                     .withDevAnimation(finalDevLedger == null ? null
                                             : MediaDevAnimationRuntime.compose(runtime, environment,
                                                     finalDevRights == null ? null : finalDevRights.resolver(),
@@ -186,6 +195,10 @@ public final class MediaLauncher {
         } catch (RuntimeException failure) {
             if (devErasure != null) {
                 try { devErasure.close(); }
+                catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
+            }
+            if (devQuality != null) {
+                try { devQuality.close(); }
                 catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
             }
             if (devLedger != null) {

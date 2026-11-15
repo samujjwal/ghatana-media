@@ -501,6 +501,9 @@ public final class PostgresqlMediaErasureAuthority implements ErasureAuthority {
         records.put("UPLOAD_SESSION", deleteByIds(connection, "media_upload_sessions", "artifact_id", tenantId, ids));
         // DEV_ONLY versioned-intake rows (ids, digest, media probe) must not outlive their erased artifact.
         deleteByIds(connection, "media_dev_artifact_versions", "artifact_id", tenantId, ids);
+        // DEV_ONLY head-pointer logs (J-19): a lineage whose log names an erased artifact is dropped whole, so no
+        // surviving head can point at erased content and no log can be replayed over a missing event.
+        eraseHeadLineages(connection, tenantId, ids);
 
         // Artifacts last: lineage, transcripts and verifications no longer reference them.
         int removed = 0;
@@ -537,6 +540,19 @@ public final class PostgresqlMediaErasureAuthority implements ErasureAuthority {
             try (ResultSet rows = count.executeQuery()) {
                 rows.next();
                 return rows.getLong(1) > inTree;
+            }
+        }
+    }
+
+    private void eraseHeadLineages(Connection connection, String tenantId, Collection<String> ids) throws SQLException {
+        try (PreparedStatement delete = connection.prepareStatement(
+                "DELETE FROM media_dev_head_events WHERE tenant_id=? AND lineage_id IN ("
+                        + "SELECT lineage_id FROM media_dev_head_events WHERE tenant_id=? "
+                        + "AND (artifact_id=? OR report_artifact_id=?))")) {
+            for (String id : ids) {
+                delete.setString(1, tenantId); delete.setString(2, tenantId);
+                delete.setString(3, id); delete.setString(4, id);
+                delete.executeUpdate();
             }
         }
     }

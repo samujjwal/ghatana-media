@@ -321,11 +321,32 @@ public final class MediaDevVideoRuntime {
     interface ProcessPort {
         BoundedProcessRunner.Result run(List<String> command, Path dir, Duration timeout, int maxStdout,
                                         Path watchedFile, long watchedMaxBytes) throws IOException;
+
+        /** Cancellable variant (J-19 search); a port that ignores the token simply cannot be cancelled. */
+        default BoundedProcessRunner.Result run(List<String> command, Path dir, Duration timeout, int maxStdout,
+                                                Path watchedFile, long watchedMaxBytes,
+                                                BoundedProcessRunner.CancellationToken cancellation)
+                throws IOException {
+            return run(command, dir, timeout, maxStdout, watchedFile, watchedMaxBytes);
+        }
     }
 
-    private static final ProcessPort BOUNDED = (command, dir, timeout, maxStdout, watched, watchedMax) ->
-            BoundedProcessRunner.run(command, dir, Map.of(), timeout, maxStdout, 8192,
-                    BoundedProcessRunner.CancellationToken.NEVER, watched, watchedMax);
+    private static final ProcessPort BOUNDED = new ProcessPort() {
+        @Override
+        public BoundedProcessRunner.Result run(List<String> command, Path dir, Duration timeout, int maxStdout,
+                                               Path watched, long watchedMax) throws IOException {
+            return run(command, dir, timeout, maxStdout, watched, watchedMax,
+                    BoundedProcessRunner.CancellationToken.NEVER);
+        }
+
+        @Override
+        public BoundedProcessRunner.Result run(List<String> command, Path dir, Duration timeout, int maxStdout,
+                                               Path watched, long watchedMax,
+                                               BoundedProcessRunner.CancellationToken cancellation) throws IOException {
+            return BoundedProcessRunner.run(command, dir, Map.of(), timeout, maxStdout, 8192, cancellation, watched,
+                    watchedMax);
+        }
+    };
 
     private final MediaRuntime runtime;
     private final Path ffmpeg;
@@ -362,6 +383,12 @@ public final class MediaDevVideoRuntime {
         return new MediaDevVideoRuntime(runtime, Path.of(ffmpeg), Path.of(ffprobe), rights,
                 MediaDevProjectRenderRuntime.canonicalRegistrar(runtime), ledger, null, null);
     }
+
+    Path ffmpegPath() { return ffmpeg; }
+
+    Duration encodeTimeout() { return encodeTimeout; }
+
+    MediaRuntime mediaRuntime() { return runtime; }
 
     Map<String, Object> status() {
         Map<String, Object> out = new LinkedHashMap<>();
@@ -517,7 +544,7 @@ public final class MediaDevVideoRuntime {
         return left.equals(right);
     }
 
-    private Map<String, Object> verifyAudio(Path in, Path out, Probe before, Probe after, Path dir) throws IOException {
+    Map<String, Object> verifyAudio(Path in, Path out, Probe before, Probe after, Path dir) throws IOException {
         Map<String, Object> audio = new LinkedHashMap<>();
         if (before.audio.size() != after.audio.size() || !before.audio.equals(after.audio)) {
             throw new VideoRefusedException(422, "ENHANCEMENT_AUDIO_MISMATCH",
@@ -632,7 +659,7 @@ public final class MediaDevVideoRuntime {
     }
 
     /** One decoded luma sequence on disk: raw 8-bit grey frames in PTS order. */
-    private record Decoded(Probe probe, Path raw) { }
+    record Decoded(Probe probe, Path raw) { }
 
     private VideoResult produceComparison(String tenantId, String principalId, CompareRequest request,
                                           List<MediaArtifact> subjectSources, MediaArtifact referenceSource,
@@ -675,13 +702,21 @@ public final class MediaDevVideoRuntime {
         Path in = dir.resolve(name + ".bin");
         stage(tenantId, principalId, source, in);
         Probe probe = probe(in, dir, MAX_COMPARE_PIXELS, MAX_COMPARE_FRAMES);
+        Decoded decoded = decodeLuma(in, probe, dir, name, BoundedProcessRunner.CancellationToken.NEVER);
+        Files.deleteIfExists(in);
+        return decoded;
+    }
+
+    /** Decodes the Y plane of an already staged and probed file into raw 8-bit grey frames in PTS order. */
+    Decoded decodeLuma(Path in, Probe probe, Path dir, String name, BoundedProcessRunner.CancellationToken cancel)
+            throws IOException {
         Path raw = dir.resolve(name + ".gray");
         long frameBytes = (long) probe.width * probe.height;
         long expected = frameBytes * probe.timeline.frames().size();
         BoundedProcessRunner.Result result = runProcess(List.of(ffmpeg.toString(), "-nostdin", "-hide_banner", "-v",
                 "error", "-xerror", "-i", in.toString(), "-map", "0:v:0", "-vf", "extractplanes=y", "-pix_fmt", "gray",
                 "-f", "rawvideo", "-fps_mode", "passthrough", "-y", raw.toString()), dir, DECODE_TIMEOUT, 1024, raw,
-                expected + frameBytes, "decode");
+                expected + frameBytes, "decode", cancel);
         if (result.end() == BoundedProcessRunner.End.WATCHED_FILE_TOO_LARGE) {
             throw new VideoRefusedException(422, "SOURCE_VIDEO_CORRUPT",
                     "the decoded frame data is larger than the probed timeline");
@@ -691,12 +726,11 @@ public final class MediaDevVideoRuntime {
             throw new VideoRefusedException(422, "SOURCE_VIDEO_CORRUPT",
                     "the decoded frame count differs from the probed timeline");
         }
-        Files.deleteIfExists(in);
         return new Decoded(probe, raw);
     }
 
     /** Reference frame position by exact rational instant, e.g. {@code "1/25"}. */
-    private static String instantKey(long pts, Probe probe) {
+    static String instantKey(long pts, Probe probe) {
         BigInteger numerator = BigInteger.valueOf(pts).multiply(BigInteger.valueOf(probe.timeBaseNum));
         BigInteger denominator = BigInteger.valueOf(probe.timeBaseDen);
         BigInteger gcd = numerator.gcd(denominator);
@@ -935,7 +969,7 @@ public final class MediaDevVideoRuntime {
     // ------------------------------------------------------------------ probing
 
     /** Everything the enhancement and comparison need to know about one video file. */
-    private static final class Probe {
+    static final class Probe {
         int width;
         int height;
         long timeBaseNum;
@@ -946,9 +980,14 @@ public final class MediaDevVideoRuntime {
     }
 
     private Probe probe(Path file, Path dir, long maxPixels, int maxFrames) throws IOException {
+        return probe(file, dir, maxPixels, maxFrames, BoundedProcessRunner.CancellationToken.NEVER);
+    }
+
+    Probe probe(Path file, Path dir, long maxPixels, int maxFrames, BoundedProcessRunner.CancellationToken cancel)
+            throws IOException {
         BoundedProcessRunner.Result streams = runProcess(List.of(ffprobe.toString(), "-v", "error", "-show_entries",
                 "stream=index,codec_type,codec_name,sample_rate,channels:stream_side_data=rotation:format=duration",
-                "-of", "json", file.toString()), dir, PROBE_TIMEOUT, 4 * 1024 * 1024, null, 0, "probe");
+                "-of", "json", file.toString()), dir, PROBE_TIMEOUT, 4 * 1024 * 1024, null, 0, "probe", cancel);
         if (!streams.succeeded()) {
             if (streams.end() != BoundedProcessRunner.End.EXITED || streams.exitCode() >= 128) {
                 throw new VideoOutcomeUnknownException("probe");
@@ -957,7 +996,7 @@ public final class MediaDevVideoRuntime {
         }
         BoundedProcessRunner.Result frames = runProcess(List.of(ffprobe.toString(), "-v", "error", "-select_streams",
                 "v:0", "-show_entries", "frame=pts,best_effort_timestamp:stream=width,height,time_base:stream_side_data=rotation",
-                "-of", "json", file.toString()), dir, PROBE_TIMEOUT, 24 * 1024 * 1024, null, 0, "probe");
+                "-of", "json", file.toString()), dir, PROBE_TIMEOUT, 24 * 1024 * 1024, null, 0, "probe", cancel);
         if (!frames.succeeded()) {
             if (frames.end() != BoundedProcessRunner.End.EXITED || frames.exitCode() >= 128) {
                 throw new VideoOutcomeUnknownException("probe");
@@ -1017,8 +1056,14 @@ public final class MediaDevVideoRuntime {
         return processes.run(command, dir, timeout, maxStdout, watched, watchedMax);
     }
 
+    BoundedProcessRunner.Result runProcess(List<String> command, Path dir, Duration timeout, int maxStdout,
+                                           Path watched, long watchedMax, String phase,
+                                           BoundedProcessRunner.CancellationToken cancellation) throws IOException {
+        return processes.run(command, dir, timeout, maxStdout, watched, watchedMax, cancellation);
+    }
+
     /** Throws unless FFmpeg exited 0. A signal exit or a timeout is UNKNOWN; any other exit is a typed failure. */
-    private static void classify(BoundedProcessRunner.Result result, String phase, String failureCode) {
+    static void classify(BoundedProcessRunner.Result result, String phase, String failureCode) {
         if (result.succeeded()) return;
         boolean signalled = result.end() == BoundedProcessRunner.End.EXITED && (result.exitCode() >= 128
                 || result.exitCode() < 0);
@@ -1030,7 +1075,7 @@ public final class MediaDevVideoRuntime {
                 "the " + phase + " step failed on this input; nothing was registered");
     }
 
-    private String ffmpegVersion() {
+    String ffmpegVersion() {
         String known = ffmpegVersion;
         if (known != null) return known;
         try {
@@ -1045,13 +1090,13 @@ public final class MediaDevVideoRuntime {
         return known;
     }
 
-    private MediaArtifact source(String tenantId, String principalId, String artifactId, String versionId) {
+    MediaArtifact source(String tenantId, String principalId, String artifactId, String versionId) {
         return runtime.artifact(tenantId, principalId, artifactId)
                 .filter(found -> found.version().value().equals(versionId))
                 .orElseThrow(MediaDevProjectRenderRuntime.SourceVersionUnavailableException::new);
     }
 
-    private Resolution admit(String tenantId, MediaArtifact source) {
+    Resolution admit(String tenantId, MediaArtifact source) {
         Resolution resolution;
         try {
             resolution = rights.resolve(new ResolutionRequest(tenantId, source.artifactId(), source.version().value(),
@@ -1067,21 +1112,21 @@ public final class MediaDevVideoRuntime {
         return resolution;
     }
 
-    private static void requireVideo(MediaArtifact source) {
+    static void requireVideo(MediaArtifact source) {
         if (!source.contentType().toLowerCase(Locale.ROOT).startsWith("video/")) {
             throw new VideoRefusedException(422, "SOURCE_FORMAT_NOT_SUPPORTED",
                     "a video/* artifact version is required");
         }
     }
 
-    private void stage(String tenantId, String principalId, MediaArtifact source, Path target) throws IOException {
+    void stage(String tenantId, String principalId, MediaArtifact source, Path target) throws IOException {
         try (OutputStream out = Files.newOutputStream(target)) {
             runtime.copyArtifactContent(tenantId, principalId, source.artifactId(), source.version(), out,
                     MAX_SOURCE_BYTES).orElseThrow(MediaDevProjectRenderRuntime.SourceVersionUnavailableException::new);
         }
     }
 
-    private static Map<String, Object> sourceRef(MediaArtifact source) {
+    static Map<String, Object> sourceRef(MediaArtifact source) {
         Map<String, Object> ref = new LinkedHashMap<>();
         ref.put("artifactId", source.artifactId());
         ref.put("artifactVersionId", source.version().value());
@@ -1090,7 +1135,7 @@ public final class MediaDevVideoRuntime {
         return ref;
     }
 
-    private static Map<String, Object> baseLineage(String schema, String kind, String requestId, Resolution resolution,
+    static Map<String, Object> baseLineage(String schema, String kind, String requestId, Resolution resolution,
                                                    byte[] bytes) {
         Map<String, Object> lineage = new LinkedHashMap<>();
         lineage.put("videoSchema", schema);
@@ -1108,7 +1153,7 @@ public final class MediaDevVideoRuntime {
         return lineage;
     }
 
-    private VideoResult register(String tenantId, String principalId, String fileName, String contentType, String kind,
+    VideoResult register(String tenantId, String principalId, String fileName, String contentType, String kind,
                                  String requestId, byte[] bytes, Map<String, Object> lineage, Resolution resolution) {
         String sha256 = MediaDevProjectRenderRuntime.sha256Hex(bytes);
         Map<String, Object> metadata = new LinkedHashMap<>(lineage);
@@ -1124,8 +1169,10 @@ public final class MediaDevVideoRuntime {
             if (conflict.getMessage() != null && conflict.getMessage().contains("Idempotency-Key")) {
                 throw new VideoRequestReusedException();
             }
+            logRegistrationFailure(kind, conflict);
             throw new VideoRegistrationFailedException(conflict);
         } catch (RuntimeException failure) {
+            logRegistrationFailure(kind, failure);
             throw new VideoRegistrationFailedException(failure);
         }
         MediaArtifact artifact = registered.artifact();
@@ -1136,7 +1183,15 @@ public final class MediaDevVideoRuntime {
         return new VideoResult(artifact, lineage, registered.replayed(), resolution);
     }
 
-    private static byte[] jsonBytes(Object document) {
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(MediaDevVideoRuntime.class);
+
+    private static void logRegistrationFailure(String kind, RuntimeException failure) {
+        String message = String.valueOf(failure.getMessage());
+        LOG.warn("DEV video output registration failed kind={} cause={} message={}", kind,
+                failure.getClass().getSimpleName(), message.length() > 200 ? message.substring(0, 200) : message);
+    }
+
+    static byte[] jsonBytes(Object document) {
         try {
             return JSON.writeValueAsString(document).getBytes(StandardCharsets.UTF_8);
         } catch (RuntimeException failure) {
@@ -1144,15 +1199,15 @@ public final class MediaDevVideoRuntime {
         }
     }
 
-    private static double round(double value) { return Math.round(value * 10_000.0) / 10_000.0; }
+    static double round(double value) { return Math.round(value * 10_000.0) / 10_000.0; }
 
-    private static double round6(double value) { return Math.round(value * 1_000_000.0) / 1_000_000.0; }
+    static double round6(double value) { return Math.round(value * 1_000_000.0) / 1_000_000.0; }
 
-    private static String shortHash(String value) {
+    static String shortHash(String value) {
         return MediaDevProjectRenderRuntime.sha256Hex(value).substring(0, 12);
     }
 
-    private static Path privateTempDirectory() {
+    static Path privateTempDirectory() {
         try {
             return Files.createTempDirectory("media-dev-video-",
                     PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
@@ -1161,7 +1216,7 @@ public final class MediaDevVideoRuntime {
         }
     }
 
-    private static void deleteTree(Path dir) {
+    static void deleteTree(Path dir) {
         try (Stream<Path> walk = Files.walk(dir)) {
             walk.sorted(Comparator.reverseOrder()).forEach(path -> path.toFile().delete());
         } catch (IOException ignored) {
@@ -1169,7 +1224,7 @@ public final class MediaDevVideoRuntime {
         }
     }
 
-    private static String boundedId(String value) {
+    static String boundedId(String value) {
         if (value == null || !value.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,127}")) {
             throw new IllegalArgumentException("requestId must be a 1-128 character opaque id");
         }

@@ -66,6 +66,12 @@ final class MediaDevOnlyRoutePermissions {
         // Video enhancement and measured comparison (J-08); the routes additionally require media:artifact:read/create.
         if ("POST".equals(method) && path.matches("^/dev/v1/video/(enhancements|comparisons)$")) return PROJECT_WRITE;
         if ("GET".equals(method) && path.matches("^/dev/v1/video/(enhancements|comparisons)/[^/]+$")) return PROJECT_READ;
+        // Bounded quality optimization with measured report, reversible head and undo (J-19); the routes additionally
+        // require media:artifact:read (and create for the optimization POST).
+        if ("GET".equals(method) && "/dev/v1/quality/status".equals(path)) return PROJECT_READ;
+        if ("POST".equals(method) && path.matches("^/dev/v1/quality/optimizations(/[^/]+/cancel)?$")) return PROJECT_WRITE;
+        if ("GET".equals(method) && path.matches("^/dev/v1/quality/(optimizations|lineages)/[^/]+$")) return PROJECT_READ;
+        if ("POST".equals(method) && path.matches("^/dev/v1/quality/lineages/[^/]+/undo$")) return PROJECT_WRITE;
         // Deterministic 2D animation render (J-12); the routes additionally require media:artifact:{read,create}.
         if ("GET".equals(method) && "/dev/v1/animations/status".equals(path)) return PROJECT_READ;
         if ("POST".equals(method) && "/dev/v1/animations/renders".equals(path)) return PROJECT_WRITE;
