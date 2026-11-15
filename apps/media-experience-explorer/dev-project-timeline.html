@@ -73,6 +73,12 @@
         </form>
       </section>
 
+      <section id="offline-restore-panel" class="panel" aria-labelledby="offline-restore-heading" hidden>
+        <div class="section-heading"><div><p class="step">02d · Offline</p><h2 id="offline-restore-heading">Offline drafts on this device</h2></div></div>
+        <p class="help">Drafts you saved while the host was unreachable survive a reload. They are encrypted in this browser and are never sent automatically. To replay one, connect with a fresh token above and use Review and replay; the host re-checks your access and the project head first.</p>
+        <div id="offline-restore-root"></div>
+      </section>
+
       <section id="reviewer-panel" class="panel" aria-labelledby="reviewer-heading" hidden>
         <div class="section-heading"><div><p class="step">02c · Review</p><h2 id="reviewer-heading">Review a case as an assigned reviewer</h2></div></div>
         <p class="help">A reviewer connects with their own DEV_ONLY token (forget the owner's token first, or use another browser profile) and opens the owner's review case by its id. The reviewer needs no access to the project. The decision form is enabled only when this connected identity is an assigned, unexpired reviewer for the chosen scope; the owner cannot decide. A DEV_ONLY decision is not human approval. The same panel also lets a second person open an uploader's rights statement by its id and confirm or revoke it as themselves: external delivery and voice or likeness use need that second person.</p>

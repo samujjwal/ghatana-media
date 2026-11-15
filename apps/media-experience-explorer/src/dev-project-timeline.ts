@@ -3,9 +3,16 @@ import { OidcLoginError, beginLogin, browserDeps, completeLogin, isCallback, rea
 import { openExistingProject } from "./dev-open-project";
 import { createDevProjectOutputsClient } from "./dev-project-outputs-client";
 import type { DevProjectOutputsPort } from "@audio-video/ui/screens";
+import { readOfflineWorkspacePointer, restoredRevision, writeOfflineWorkspacePointer, type OfflineWorkspacePointer } from "./dev-offline-workspace";
 import {
   MediaDevProjectTimelineError,
   MediaDevProjectTimelineClient,
+  type DevProject,
+  type DevProjectTimelineClientOptions,
+  type DevRevisionRead,
+  type CreateDevTimelineRequest,
+  type EditDevTimelineRequest,
+  type RestoreDevProjectRevisionRequest,
   type DevProjectContext,
   type DevProjectCreated,
   type DevProjectRead,
@@ -17,6 +24,23 @@ const byId = <T extends HTMLElement>(id: string): T => {
   if (!element) throw new Error(`Missing page element: ${id}`);
   return element as T;
 };
+
+/** Reports every head the page observes so offline drafts are always authored against the last known head. */
+class ObservingClient extends MediaDevProjectTimelineClient {
+  constructor(options: DevProjectTimelineClientOptions, private readonly observe: (revision: DevProjectRevision) => void) { super(options); }
+  override async getProject(projectId: string, signal?: AbortSignal): Promise<DevProjectRead> {
+    const read = await super.getProject(projectId, signal); this.observe(read.currentRevision); return read;
+  }
+  override async createTimeline(projectId: string, request: CreateDevTimelineRequest, signal?: AbortSignal): Promise<DevRevisionRead> {
+    const read = await super.createTimeline(projectId, request, signal); this.observe(read.revision); return read;
+  }
+  override async editTimeline(projectId: string, timelineId: string, request: EditDevTimelineRequest, signal?: AbortSignal): Promise<DevRevisionRead> {
+    const read = await super.editTimeline(projectId, timelineId, request, signal); this.observe(read.revision); return read;
+  }
+  override async restoreRevision(projectId: string, request: RestoreDevProjectRevisionRequest, signal?: AbortSignal): Promise<DevRevisionRead> {
+    const read = await super.restoreRevision(projectId, request, signal); this.observe(read.revision); return read;
+  }
+}
 
 type ProjectRequest = { selectedAuthorizedWorkspaceId: string; title: string; requestId: string };
 type WorkspaceDetail = { readonly client: MediaDevProjectTimelineClient; readonly project: DevProjectRead["project"]; readonly revision: DevProjectRevision; readonly outputs: DevProjectOutputsPort; readonly principalId: string };
@@ -42,6 +66,8 @@ const workspacePanel = byId<HTMLElement>("timeline-workspace-panel");
 const workspaceRoot = byId<HTMLDivElement>("timeline-workspace-root");
 const reviewerPanel = byId<HTMLElement>("reviewer-panel");
 const reviewerRoot = byId<HTMLDivElement>("review-workspace-root");
+const restorePanel = byId<HTMLElement>("offline-restore-panel");
+const restoreRoot = byId<HTMLDivElement>("offline-restore-root");
 if (!connectButton) throw new Error("Missing connect button.");
 
 let bearerToken: string | null = null;
@@ -52,6 +78,51 @@ let unresolvedProjectCreate = false;
 
 hostChip.textContent = origin;
 
+// ---- offline drafts: last-opened-project pointer, head observation, offline reload restore ----
+let openProject: DevProject | null = null;
+let openTimelineIds: readonly string[] = [];
+const restoreClient = new ObservingClient({ baseUrl: origin, bearerToken: () => bearerToken ?? "" }, observeHead);
+
+function observeHead(revision: DevProjectRevision): void {
+  const pointer = readOfflineWorkspacePointer();
+  const project = openProject ?? pointer?.project ?? null;
+  if (!project || project.projectId !== revision.projectId || project.tenantId !== revision.tenantId) return;
+  openProject = openProject ? { ...openProject, headRevisionId: revision.revisionId } : null;
+  const timelineIds = revision.timelines.map((item) => item.graph.timelineId);
+  if (openProject) openTimelineIds = timelineIds;
+  const principalId = context?.principalId ?? pointer?.principalId;
+  if (principalId) {
+    writeOfflineWorkspacePointer({ v: 1, principalId, project: { ...project, headRevisionId: revision.revisionId }, timelineIds });
+  }
+  for (const root of [workspaceRoot, restoreRoot]) {
+    root.dispatchEvent(new CustomEvent<DevProjectRevision>("media-dev-head-observed", { detail: revision }));
+  }
+}
+
+function showRestorePanel(): void {
+  const pointer: OfflineWorkspacePointer | null = openProject ? null : readOfflineWorkspacePointer();
+  restorePanel.hidden = pointer === null;
+  restoreRoot.dispatchEvent(new CustomEvent<WorkspaceDetail | null>("media-dev-offline-restore", {
+    detail: pointer ? { client: restoreClient, project: pointer.project, revision: restoredRevision(pointer),
+      outputs: null as unknown as DevProjectOutputsPort, principalId: pointer.principalId } : null,
+  }));
+}
+
+function rememberOpenedWorkspace(project: DevProject, revision: DevProjectRevision): void {
+  openProject = project;
+  openTimelineIds = revision.timelines.map((item) => item.graph.timelineId);
+  if (context) {
+    writeOfflineWorkspacePointer({ v: 1, principalId: context.principalId, project, timelineIds: openTimelineIds });
+  }
+  showRestorePanel(); // the live workspace carries its own drafts panel; never mount two
+}
+
+// App-shell worker: lets a reload while offline still open this page (and its encrypted drafts). Best effort.
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/dev-offline-sw.js", { scope: "/" }).catch(() => undefined);
+}
+showRestorePanel();
+
 connectForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const token = tokenInput.value.trim();
@@ -61,7 +132,7 @@ connectForm.addEventListener("submit", async (event) => {
 
 /** Shared by the pasted DEV_ONLY token and the OIDC sign-in: the host decides what the token is worth. */
 async function connectWithToken(token: string): Promise<void> {
-  try { client = new MediaDevProjectTimelineClient({ baseUrl: origin, bearerToken: () => bearerToken ?? "" }); }
+  try { client = new ObservingClient({ baseUrl: origin, bearerToken: () => bearerToken ?? "" }, observeHead); }
   catch (error) { announce(errorMessage(error), "error"); return; }
   bearerToken = token;
   tokenInput.value = "";
@@ -116,6 +187,8 @@ forgetButton.addEventListener("click", () => {
   openProjectIdInput.value = "";
   workspaceRoot.dispatchEvent(new CustomEvent<WorkspaceDetail | null>("media-dev-project-timeline", { detail: null }));
   workspacePanel.hidden = true;
+  openProject = null;
+  showRestorePanel();
   reviewerPanel.hidden = true;
   reviewerRoot.dispatchEvent(new CustomEvent<DevProjectOutputsPort | null>("media-dev-reviewer", { detail: null }));
   tokenInput.value = "";
@@ -174,6 +247,7 @@ async function createProject(request: ProjectRequest, replay: boolean): Promise<
     renderJson(projectResult, projectJson, result);
     workspacePanel.hidden = false;
     hideReviewerPanel();
+    rememberOpenedWorkspace(result.project, exactRevision.revision);
     workspaceRoot.dispatchEvent(new CustomEvent<WorkspaceDetail>("media-dev-project-timeline", {
       detail: { client, project: result.project, revision: exactRevision.revision, outputs: createDevProjectOutputsClient({ origin, bearerToken: () => bearerToken ?? "", principalId: context?.principalId }), principalId: context?.principalId ?? "" },
     }));
@@ -199,6 +273,7 @@ openProjectForm.addEventListener("submit", async (event) => {
     renderJson(projectResult, projectJson, result.read);
     workspacePanel.hidden = false;
     hideReviewerPanel();
+    rememberOpenedWorkspace(project, currentRevision);
     workspaceRoot.dispatchEvent(new CustomEvent<WorkspaceDetail>("media-dev-project-timeline", {
       detail: { client, project, revision: currentRevision, outputs: createDevProjectOutputsClient({ origin, bearerToken: () => bearerToken ?? "", principalId: context?.principalId }), principalId: context?.principalId ?? "" },
     }));

@@ -57,23 +57,35 @@ describe("DevOfflineDraftsPanel", () => {
     await screen.findByText(/APPLIED \(201\)/);
   });
 
-  it("shows REVISION_CONFLICT with the current head instead of merging", async () => {
+  it("shows both versions on a stale review; keep-mine rebases without sending, take-theirs discards", async () => {
     const { client, setHead } = setup();
     await save("scene-stale");
     setHead("rev-7");
     await clickEnabled("Review and replay");
-    await screen.findByText(/project head now/);
-    expect(screen.getByLabelText("Draft review").textContent).toContain("rev-7");
-    await clickEnabled("Confirm replay");
-    await waitFor(() => expect(screen.getAllByRole("status").map((e) => e.textContent).join(" ")).toMatch(/REVISION_CONFLICT.*rev-1.*rev-7/));
+    const conflict = await screen.findByTestId("offline-conflict");
+    expect(screen.getByTestId("conflict-mine").textContent).toContain("Add scene scene-stale");
+    expect(screen.getByTestId("conflict-theirs").textContent).toContain("rev-7");
+    expect(conflict.textContent).toContain("rev-1");
+    expect(screen.queryByRole("button", { name: "Confirm replay" })).toBeNull(); // a stale draft is never blindly replayed
+    fireEvent.click(screen.getByRole("button", { name: "Keep mine (rebase onto current head)" }));
+    await screen.findByText(/Kept mine: the edit was rebased onto the current head with a new requestId/);
     expect(client.editTimeline).not.toHaveBeenCalled();
     await clickEnabled("Review and replay");
-    fireEvent.click(await screen.findByRole("button", { name: "Rebase onto current head" }));
-    await screen.findByText(/rebased onto the current head with a new requestId/);
-    expect(client.editTimeline).not.toHaveBeenCalled();
+    await screen.findByLabelText("Draft review");
+    expect(screen.getByLabelText("Draft review").textContent).toContain("unchanged");
+    await clickEnabled("Confirm replay");
+    await waitFor(() => expect(client.editTimeline).toHaveBeenCalledTimes(1));
+    expect(client.editTimeline.mock.calls[0]![2]).toMatchObject({ expectedHeadRevisionId: "rev-7" });
+    await save("scene-theirs");
+    setHead("rev-9");
+    await clickEnabled("Review and replay");
+    await screen.findByTestId("offline-conflict");
+    fireEvent.click(screen.getByRole("button", { name: "Take theirs (discard my draft)" }));
+    await screen.findByText(/Took theirs: my draft was discarded; the server version rev-9 stands/);
+    await screen.findByText("No offline drafts.");
   });
 
-  it("marks the link offline after a failed request and discards on 403", async () => {
+  it("refuses typed on 403 and keeps the draft; marks the link offline after a transport failure", async () => {
     const { client } = setup();
     await save("scene-x");
     client.getProject.mockRejectedValueOnce(new MediaDevProjectTimelineError("TRANSPORT_ERROR", 0, "down"));
@@ -84,7 +96,45 @@ describe("DevOfflineDraftsPanel", () => {
     await screen.findByLabelText("Draft review");
     client.getProject.mockRejectedValue(new MediaDevProjectTimelineError("FORBIDDEN", 403, "no"));
     await clickEnabled("Confirm replay");
-    await screen.findByText(/DISCARDED \(403 ACCESS_REVOKED\)/);
+    expect((await screen.findAllByText(/REFUSED \(403 ACCESS_DENIED\)/)).length).toBeGreaterThan(0);
+    expect(client.editTimeline).not.toHaveBeenCalled();
+    expect(await screen.findByText(/Add scene scene-x/)).toBeTruthy(); // the draft is still listed
+    expect(screen.queryByText("No offline drafts.")).toBeNull();
+  });
+
+  it("asks for a fresh token with a typed message when none is available", async () => {
+    const { client } = setup();
+    await save("scene-y");
+    client.getProject.mockRejectedValue(Object.assign(new MediaDevProjectTimelineError("INVALID_CONFIGURATION", 0, "A raw DEV_ONLY bearer token is required."), {}));
+    await clickEnabled("Review and replay");
+    await screen.findByText(/AUTH_REQUIRED: connect with a fresh DEV_ONLY token/);
+    expect(client.editTimeline).not.toHaveBeenCalled();
+  });
+
+  it("fails closed on an undecryptable draft: typed alert, no remote call, send controls disabled until an explicit discard", async () => {
+    const idb = new IDBFactory(); let n = 0;
+    const client = { getProject: vi.fn(async () => readOf("rev-1")), editTimeline: vi.fn() };
+    const mount = () => render(React.createElement(DevOfflineDraftsPanel, { client: client as never, project, revision, principalId: "principal-a", indexedDB: idb, newId: () => `id-${++n}` }));
+    const first = mount();
+    await save("scene-corrupt");
+    first.unmount();
+    const name = (await idb.databases()).map((db) => db.name!).find((x) => x.startsWith("ghatana-media-offline-drafts-v1:"))!;
+    const db = await new Promise<IDBDatabase>((resolve) => { const r = idb.open(name); r.onsuccess = () => resolve(r.result); });
+    const storeName = Array.from(db.objectStoreNames)[0]!;
+    await new Promise<void>((resolve) => {
+      const tx = db.transaction(storeName, "readwrite"); const os = tx.objectStore(storeName); const all = os.getAll();
+      all.onsuccess = () => { for (const row of all.result) { const bytes = new Uint8Array(row.ciphertext); bytes[3] = bytes[3]! ^ 0x55; os.put({ ...row, ciphertext: bytes }); } };
+      tx.oncomplete = () => resolve();
+    });
+    db.close();
+    mount();
+    const alert = await screen.findByTestId("offline-drafts-unreadable", undefined, { timeout: 10_000 });
+    expect(alert.textContent).toContain("DRAFTS_UNREADABLE");
+    expect((screen.getByRole("button", { name: "Save as offline draft" }) as HTMLButtonElement).disabled).toBe(true);
+    expect(client.getProject).not.toHaveBeenCalled();
+    expect(client.editTimeline).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Discard unreadable local drafts" }));
+    await screen.findByText(/Discarded 1 unreadable local draft row/);
     await screen.findByText("No offline drafts.");
   });
 });

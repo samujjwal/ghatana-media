@@ -1,9 +1,10 @@
 import { IndexedDbOfflineEditStore } from "@audio-video/client/offline-edit-store";
-import { OfflineEditQueue, type OfflineEdit, type OfflineEditState } from "@audio-video/client/offline-edit-queue";
+import { OfflineEditQueue, OfflineEditQueueError, type OfflineEdit, type OfflineEditState } from "@audio-video/client/offline-edit-queue";
 import { OfflineReconnectCoordinator, type OfflineReconnectOperations } from "@audio-video/client/offline-reconnect";
 import {
   MediaDevProjectTimelineError,
   type DevProjectRead,
+  type DevProjectRevision,
   type DevRevisionRead,
   type DevTimelineEdit,
   type EditDevTimelineRequest,
@@ -53,6 +54,8 @@ export interface TimelineDraft {
 export type OfflineDraftsPort = {
   getProject(projectId: string, signal?: AbortSignal): Promise<DevProjectRead>;
   editTimeline(projectId: string, timelineId: string, request: EditDevTimelineRequest, signal?: AbortSignal): Promise<DevRevisionRead>;
+  /** Exact revision reads let a review show the other version and reconcile an unknown outcome. */
+  getRevision?(projectId: string, revisionId: string, signal?: AbortSignal): Promise<DevRevisionRead>;
 };
 
 export interface OfflineDraftsControllerOptions {
@@ -69,8 +72,17 @@ export interface DraftReview {
   readonly headRevisionId: string;
   /** True when the project head moved past the draft's base revision. */
   readonly stale: boolean;
-  /** For OUTCOME_UNKNOWN drafts: what the head readback proves. */
-  readonly reconciliation?: "NOT_APPLIED_CONFIRMED" | "POSSIBLY_APPLIED";
+  /**
+   * For OUTCOME_UNKNOWN drafts: what the head readback proves.
+   * APPLIED_CONFIRMED: the child of the base revision holds this draft's exact effects (never re-send).
+   * NOT_APPLIED_CONFIRMED: the head still is the base. NOT_APPLIED_STALE: the base's only child lacks the effects
+   * (compare-and-set means this draft lost), so it can only be rebased. POSSIBLY_APPLIED: not provable.
+   */
+  readonly reconciliation?: "NOT_APPLIED_CONFIRMED" | "POSSIBLY_APPLIED" | "APPLIED_CONFIRMED" | "NOT_APPLIED_STALE";
+  /** Set with APPLIED_CONFIRMED: the revision that already carries the draft's effects. */
+  readonly appliedRevisionId?: string;
+  /** For a stale draft: what changed on the server between the draft's base and the current head ("theirs"). */
+  readonly theirs?: RevisionChanges;
   /** Exact queue readback the host presented; replay fails closed if it changed. */
   readonly reviewedQueue: readonly OfflineEditReviewEntry<TimelineDraftPayload>[];
 }
@@ -80,10 +92,34 @@ export type DraftReplayOutcome =
   /** Same requestId re-sent after an unknown outcome and accepted. */
   | { readonly kind: "REPLAYED"; readonly editId: string; readonly requestId: string; readonly revisionId: string }
   | { readonly kind: "REVISION_CONFLICT"; readonly editId: string; readonly baseRevisionId: string; readonly currentHeadRevisionId: string; readonly message: string }
-  | { readonly kind: "DISCARDED"; readonly editId: string; readonly status: number; readonly reason: "ACCESS_REVOKED" | "NOT_FOUND" | "REJECTED"; readonly message: string }
+  /** A typed host refusal. The draft is KEPT (never discarded by a refusal); the user decides what to do with it. */
+  | { readonly kind: "REFUSED"; readonly editId: string; readonly status: number; readonly code: string; readonly reason: RefusalReason; readonly draftKept: true; readonly message: string }
   | { readonly kind: "OUTCOME_UNKNOWN"; readonly editId: string; readonly requestId: string; readonly message: string }
   | { readonly kind: "RETRYABLE"; readonly editId: string; readonly reason: "AUTHORIZATION_UNKNOWN" | "VERSION_UNKNOWN" | "OFFLINE"; readonly message: string }
-  | { readonly kind: "REVIEW_REQUIRED"; readonly editId: string; readonly message: string };
+  | { readonly kind: "REVIEW_REQUIRED"; readonly editId: string; readonly message: string }
+  /** The local encrypted store could not be read: nothing was sent. */
+  | { readonly kind: "UNREADABLE"; readonly editId: string; readonly message: string };
+
+export type RefusalReason = "AUTH_EXPIRED" | "ACCESS_DENIED" | "PROJECT_UNAVAILABLE" | "REJECTED";
+
+export interface RevisionChanges {
+  readonly baseRevisionId: string;
+  readonly headRevisionId: string;
+  /** Human-readable structural differences; empty when none are visible. */
+  readonly changes: readonly string[];
+  /** True when the exact base revision could not be read, so no comparison is shown. */
+  readonly unavailable?: true;
+}
+
+/** Typed fail-closed error for a corrupt, tampered or key-orphaned local draft store. Nothing was sent. */
+export class OfflineDraftsUnreadableError extends Error {
+  public readonly code = "DRAFTS_UNREADABLE";
+  public constructor() {
+    super("A stored offline draft could not be decrypted or authenticated (it may be corrupted, or its browser key was lost). "
+      + "Nothing was sent to the host. You can discard the unreadable local drafts to continue.");
+    this.name = "OfflineDraftsUnreadableError";
+  }
+}
 
 type OfflineEditReviewEntry<T> = { readonly edit: OfflineEdit<T>; readonly state: OfflineEditState };
 const ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/u;
@@ -97,7 +133,7 @@ export function isConnectivityFailure(error: unknown): boolean {
 
 export class OfflineTimelineDrafts {
   private readonly retried = new Set<string>();
-  private readonly denials = new Map<string, { status: number; reason: "ACCESS_REVOKED" | "NOT_FOUND" | "REJECTED"; message: string }>();
+  private readonly denials = new Map<string, Refusal>();
   private observedHead?: string;
   private conflictHead?: string;
   private readonly editScope: { readonly tenantId: string; readonly projectId: string };
@@ -125,6 +161,19 @@ export class OfflineTimelineDrafts {
 
   public async close(): Promise<void> { await this.store.close(); }
 
+  /** Local-store failures are typed and fail closed: no remote call is ever made on their behalf. */
+  private async guard<T>(work: () => Promise<T>): Promise<T> {
+    try { return await work(); }
+    catch (error) {
+      if (error instanceof OfflineEditQueueError
+        && (error.code === "STORE_RECORD_INVALID" || error.code === "STORE_SCOPE_MISMATCH")) throw new OfflineDraftsUnreadableError();
+      if (error instanceof SyntaxError || (typeof DOMException !== "undefined" && error instanceof DOMException && error.name === "OperationError")) {
+        throw new OfflineDraftsUnreadableError();
+      }
+      throw error;
+    }
+  }
+
   /** Stores an inert encrypted draft bound to the exact base head revision. Never sends anything. */
   public async capture(input: { timelineId: string; edits: readonly DevTimelineEdit[]; baseRevisionId: string }): Promise<TimelineDraft> {
     if (!ID.test(input.timelineId) || !ID.test(input.baseRevisionId) || !Array.isArray(input.edits) || input.edits.length < 1) {
@@ -135,14 +184,24 @@ export class OfflineTimelineDrafts {
     const editId = `draft-${newId()}`;
     const capturedAt = (this.options.now?.() ?? new Date()).toISOString();
     const payload: TimelineDraftPayload = { requestId, timelineId: input.timelineId, edits: input.edits, capturedAt };
-    await this.queue.enqueue<TimelineDraftPayload>({
+    await this.guard(() => this.queue.enqueue<TimelineDraftPayload>({
       ...this.editScope, editId, idempotencyKey: requestId, expectedVersion: input.baseRevisionId, payload,
-    });
+    }));
     return { editId, requestId, timelineId: input.timelineId, edits: input.edits, baseRevisionId: input.baseRevisionId, capturedAt, state: "PENDING" };
   }
 
   public async list(): Promise<readonly TimelineDraft[]> {
-    return (await this.queue.readEdits<TimelineDraftPayload>(this.editScope)).map(toDraft);
+    return (await this.guard(() => this.queue.readEdits<TimelineDraftPayload>(this.editScope))).map(toDraft);
+  }
+
+  /**
+   * Explicit user action after DRAFTS_UNREADABLE: removes every local row of this scope without decrypting it.
+   * Rows are never removed by any automatic path.
+   */
+  public async discardUnreadableLocalDrafts(): Promise<number> {
+    const rows = await this.store.list(this.editScope);
+    for (const row of rows) await this.store.remove(this.editScope, row.editId);
+    return rows.length;
   }
 
   /** Records a head observation (for the base revision of future drafts). */
@@ -154,7 +213,7 @@ export class OfflineTimelineDrafts {
    * when the head cannot be read.
    */
   public async review(editId: string): Promise<DraftReview> {
-    const entries = await this.queue.readEdits<TimelineDraftPayload>(this.editScope);
+    const entries = await this.guard(() => this.queue.readEdits<TimelineDraftPayload>(this.editScope));
     const entry = entries.find((candidate) => candidate.edit.editId === editId);
     if (!entry) throw new Error("The draft no longer exists.");
     const draft = toDraft(entry);
@@ -162,12 +221,57 @@ export class OfflineTimelineDrafts {
     this.assertScope(read);
     const headRevisionId = read.project.headRevisionId;
     this.observedHead = headRevisionId;
+    const stale = headRevisionId !== draft.baseRevisionId;
     let reconciliation: DraftReview["reconciliation"];
+    let appliedRevisionId: string | undefined;
+    let baseRevision: DevProjectRevision | undefined;
+    if (stale) baseRevision = await this.readRevision(draft.baseRevisionId);
     if (draft.state === "OUTCOME_UNKNOWN") {
-      // The CAS base is still the head: the unknown request cannot have committed.
-      reconciliation = headRevisionId === draft.baseRevisionId ? "NOT_APPLIED_CONFIRMED" : "POSSIBLY_APPLIED";
+      if (!stale) {
+        // The CAS base is still the head: the unknown request cannot have committed.
+        reconciliation = "NOT_APPLIED_CONFIRMED";
+      } else {
+        const verdict = await this.reconcile(draft, read.currentRevision, baseRevision);
+        reconciliation = verdict.kind;
+        appliedRevisionId = verdict.revisionId;
+      }
     }
-    return { draft, headRevisionId, stale: headRevisionId !== draft.baseRevisionId, ...(reconciliation ? { reconciliation } : {}), reviewedQueue: entries };
+    const theirs: RevisionChanges | undefined = stale ? baseRevision
+      ? { baseRevisionId: draft.baseRevisionId, headRevisionId, changes: summarizeRevisionChanges(baseRevision, read.currentRevision) }
+      : { baseRevisionId: draft.baseRevisionId, headRevisionId, changes: [], unavailable: true } : undefined;
+    return { draft, headRevisionId, stale, ...(reconciliation ? { reconciliation } : {}),
+      ...(appliedRevisionId ? { appliedRevisionId } : {}), ...(theirs ? { theirs } : {}), reviewedQueue: entries };
+  }
+
+  private async readRevision(revisionId: string): Promise<DevProjectRevision | undefined> {
+    const getRevision = this.options.port.getRevision;
+    if (!getRevision) return undefined;
+    try {
+      const read = await getRevision.call(this.options.port, this.editScope.projectId, revisionId);
+      return read.revision.projectId === this.editScope.projectId && read.revision.revisionId === revisionId ? read.revision : undefined;
+    } catch { return undefined; }
+  }
+
+  /**
+   * Decides, from exact revision readbacks, whether an unknown-outcome draft committed. The edit route is a
+   * compare-and-set on the head, so at most one revision is a child of the draft's base: the draft either is that
+   * child or lost.
+   */
+  private async reconcile(draft: TimelineDraft, head: DevProjectRevision, base: DevProjectRevision | undefined):
+    Promise<{ kind: "APPLIED_CONFIRMED" | "NOT_APPLIED_STALE" | "POSSIBLY_APPLIED"; revisionId?: string }> {
+    if (!base) return { kind: "POSSIBLY_APPLIED" };
+    let child: DevProjectRevision | undefined = head;
+    for (let step = 0; step < 25 && child && child.parentRevisionId !== draft.baseRevisionId; step += 1) {
+      const parentId: string | null = child.parentRevisionId;
+      child = parentId ? await this.readRevision(parentId) : undefined;
+    }
+    if (!child || child.parentRevisionId !== draft.baseRevisionId) return { kind: "POSSIBLY_APPLIED" };
+    const before = base.timelines.find((item) => item.graph.timelineId === draft.timelineId)?.graph;
+    const after = child.timelines.find((item) => item.graph.timelineId === draft.timelineId)?.graph;
+    const flags = draft.edits.map((edit) => ({ now: effectPresent(edit, after), was: effectPresent(edit, before) }));
+    if (flags.every((flag) => flag.now && !flag.was)) return { kind: "APPLIED_CONFIRMED", revisionId: child.revisionId };
+    if (flags.every((flag) => !flag.now || flag.was)) return { kind: "NOT_APPLIED_STALE" };
+    return { kind: "POSSIBLY_APPLIED" };
   }
 
   /**
@@ -178,18 +282,33 @@ export class OfflineTimelineDrafts {
     if (review.draft.state !== "OUTCOME_UNKNOWN" || review.reconciliation !== "NOT_APPLIED_CONFIRMED") {
       throw new Error("Only an unknown-outcome draft whose base head is still current can be re-armed.");
     }
-    const { draft } = review;
+    await this.rearmSame(review.draft);
+    this.retried.add(review.draft.editId);
+  }
+
+  private async rearmSame(draft: TimelineDraft): Promise<void> {
     await this.queue.discardUnknown(this.editScope, draft.editId, true);
     await this.queue.enqueue<TimelineDraftPayload>({
       ...this.editScope, editId: draft.editId, idempotencyKey: draft.requestId, expectedVersion: draft.baseRevisionId,
       payload: { requestId: draft.requestId, timelineId: draft.timelineId, edits: draft.edits, capturedAt: draft.capturedAt },
     });
-    this.retried.add(draft.editId);
+  }
+
+  /**
+   * An unknown-outcome draft whose effects the head readback PROVES are already committed: the local copy is
+   * removed without re-sending anything (a re-send could only conflict or duplicate).
+   */
+  public async acknowledgeApplied(review: DraftReview): Promise<string> {
+    if (review.draft.state !== "OUTCOME_UNKNOWN" || review.reconciliation !== "APPLIED_CONFIRMED" || !review.appliedRevisionId) {
+      throw new Error("Only an unknown-outcome draft whose effects are confirmed in the head history can be acknowledged.");
+    }
+    await this.queue.discardUnknown(this.editScope, review.draft.editId, true);
+    return review.appliedRevisionId;
   }
 
   /** After a REVISION_CONFLICT the user may rebase the same edit onto the shown head (new requestId); still not sent. */
   public async rebaseConflict(editId: string, currentHeadRevisionId: string): Promise<TimelineDraft> {
-    const entry = (await this.queue.readEdits<TimelineDraftPayload>(this.editScope)).find((candidate) => candidate.edit.editId === editId);
+    const entry = (await this.guard(() => this.queue.readEdits<TimelineDraftPayload>(this.editScope))).find((candidate) => candidate.edit.editId === editId);
     if (!entry || entry.state !== "CONFLICT") throw new Error("Only a conflicted draft can be rebased.");
     const requestId = (this.options.newId ?? randomId)();
     await this.queue.resolveConflict<TimelineDraftPayload>({
@@ -199,6 +318,31 @@ export class OfflineTimelineDrafts {
     return { ...toDraft(entry), requestId, baseRevisionId: currentHeadRevisionId, state: "PENDING" };
   }
 
+  /**
+   * "Keep mine": re-bases the user's own edit onto the reviewed head under a NEW requestId and base, as a new
+   * PENDING draft. The new draft is stored before the old one is removed, so a crash never loses the edit. Nothing is
+   * sent; the user still reviews and confirms the new compare-and-set.
+   */
+  public async rebase(review: DraftReview): Promise<TimelineDraft> {
+    const { draft } = review;
+    if (!review.stale) throw new Error("Only a draft whose base is no longer the head needs a rebase.");
+    if (draft.state === "CONFLICT") return this.rebaseConflict(draft.editId, review.headRevisionId);
+    const rebasable = draft.state === "PENDING" || (draft.state === "OUTCOME_UNKNOWN" && review.reconciliation === "NOT_APPLIED_STALE");
+    if (!rebasable) throw new Error("This draft cannot be rebased: its outcome is not known to be a no-effect.");
+    const newId = this.options.newId ?? randomId;
+    const requestId = newId();
+    const editId = `draft-${newId()}`;
+    await this.guard(() => this.queue.enqueue<TimelineDraftPayload>({
+      ...this.editScope, editId, idempotencyKey: requestId, expectedVersion: review.headRevisionId,
+      payload: { requestId, timelineId: draft.timelineId, edits: draft.edits, capturedAt: draft.capturedAt },
+    }));
+    if (draft.state === "OUTCOME_UNKNOWN") await this.queue.discardUnknown(this.editScope, draft.editId, true);
+    else await this.store.remove(this.editScope, draft.editId);
+    return { editId, requestId, timelineId: draft.timelineId, edits: draft.edits, baseRevisionId: review.headRevisionId,
+      capturedAt: draft.capturedAt, state: "PENDING" };
+  }
+
+  /** "Take theirs": the user explicitly gives up this draft. */
   public async discard(editId: string): Promise<void> {
     await this.store.remove(this.editScope, editId);
   }
@@ -215,20 +359,13 @@ export class OfflineTimelineDrafts {
     const port = this.options.port;
     const scope = this.editScope;
     const assertScope = (read: DevProjectRead): void => this.assertScope(read);
-    const classify = (error: unknown): "REVOKED" | "UNKNOWN" => {
-      if (error instanceof MediaDevProjectTimelineError && (error.status === 403 || error.status === 404)) {
-        this.denials.set(editId, error.status === 403
-          ? { status: 403, reason: "ACCESS_REVOKED", message: "Access to this project was revoked or is no longer permitted for this principal; the draft was discarded." }
-          : { status: 404, reason: "NOT_FOUND", message: "The project or timeline no longer exists for this principal; the draft was discarded." });
-        return "REVOKED";
-      }
-      return "UNKNOWN";
-    };
+    const note = (error: unknown): void => { const refusal = refusalFor(error); if (refusal) this.denials.set(editId, refusal); };
     const operations: OfflineReconnectOperations<TimelineDraftPayload> = {
       reauthorize: async (edit) => {
         if (edit.editId !== editId) return { ...scope, disposition: "UNKNOWN" };
+        // A fresh read with the CURRENT token. A 401/403/404 is a typed refusal, never a reason to drop the draft.
         try { assertScope(await port.getProject(scope.projectId)); return { ...scope, disposition: "AUTHORIZED" }; }
-        catch (error) { return { ...scope, disposition: classify(error) === "REVOKED" ? "REVOKED" : "UNKNOWN" }; }
+        catch (error) { note(error); return { ...scope, disposition: "UNKNOWN" }; }
       },
       readProjectVersion: async () => {
         try {
@@ -237,7 +374,7 @@ export class OfflineTimelineDrafts {
           this.observedHead = read.project.headRevisionId;
           this.conflictHead = read.project.headRevisionId;
           return { ...scope, disposition: "CURRENT", version: read.project.headRevisionId };
-        } catch { return { ...scope, disposition: "UNKNOWN" }; }
+        } catch (error) { note(error); return { ...scope, disposition: "UNKNOWN" }; }
       },
       applyEdit: async (edit) => {
         const base = { ...scope, editId: edit.editId, idempotencyKey: edit.idempotencyKey, expectedVersion: edit.expectedVersion };
@@ -248,31 +385,31 @@ export class OfflineTimelineDrafts {
           this.observedHead = applied.revision.revisionId;
           return { ...base, outcome: "APPLIED", receipt: applied.revision.revisionId };
         } catch (error) {
-          if (error instanceof MediaDevProjectTimelineError) {
-            if (error.code === "REVISION_CONFLICT") {
-              const head = error.details?.currentHeadRevisionId;
-              if (typeof head === "string") this.conflictHead = head;
-              return { ...base, outcome: "CONFLICT" };
-            }
-            if (error.status === 403 || error.status === 404) { classify(error); return { ...base, outcome: "OUTCOME_UNKNOWN" }; }
-            if (error.status >= 400 && error.status < 500 && error.status !== 408 && error.status !== 425 && error.status !== 429) {
-              this.denials.set(editId, { status: error.status, reason: "REJECTED", message: `The host rejected the edit (${error.code}): ${error.message} The draft was discarded.` });
-            }
+          if (error instanceof MediaDevProjectTimelineError && error.code === "REVISION_CONFLICT") {
+            const head = error.details?.currentHeadRevisionId;
+            if (typeof head === "string") this.conflictHead = head;
+            return { ...base, outcome: "CONFLICT" };
           }
+          note(error);
           return { ...base, outcome: "OUTCOME_UNKNOWN" };
         }
       },
     };
     const coordinator = new OfflineReconnectCoordinator<TimelineDraftPayload, string>(this.queue, scope, operations);
-    const result = await coordinator.reconnect(true, { reviewedQueue: review.reviewedQueue });
+    const result = await this.guard(() => coordinator.reconnect(true, { reviewedQueue: review.reviewedQueue }));
     if (result.status === "REVIEW_REQUIRED") {
       return { kind: "REVIEW_REQUIRED", editId, message: "The draft queue changed after review. Review the draft again before replaying." };
+    }
+    if (result.status === "UNAVAILABLE" && result.reason === "OFFLINE_EDIT_STORE_UNAVAILABLE") {
+      return { kind: "UNREADABLE", editId, message: new OfflineDraftsUnreadableError().message };
     }
     if (result.status !== "RECONNECTED") {
       return { kind: "RETRYABLE", editId, reason: "OFFLINE", message: "Replay is unavailable in this browser (compare-and-set storage is required)." };
     }
     const mine = result.results.find((entry) => entry.editId === editId);
     const denial = this.denials.get(editId);
+    const refused = (refusal: Refusal): DraftReplayOutcome => ({ kind: "REFUSED", editId, status: refusal.status, code: refusal.code,
+      reason: refusal.reason, draftKept: true, message: refusal.message });
     switch (mine?.state) {
       case "APPLIED": {
         const revisionId = mine.receipt ?? "";
@@ -283,24 +420,23 @@ export class OfflineTimelineDrafts {
       case "CONFLICT":
         return { kind: "REVISION_CONFLICT", editId, baseRevisionId: review.draft.baseRevisionId,
           currentHeadRevisionId: this.conflictHead ?? this.observedHead ?? "unknown",
-          message: "The project head changed since this draft was authored. Nothing was merged or sent; rebase or discard the draft." };
-      case "REVOKED": {
-        const d = denial ?? { status: 403, reason: "ACCESS_REVOKED" as const, message: "Access was revoked; the draft was discarded." };
-        await this.store.remove(scope, editId);
-        return { kind: "DISCARDED", editId, ...d };
-      }
+          message: "The project head changed since this draft was authored. Nothing was merged or overwritten; choose to keep yours (rebase) or take theirs." };
+      case "REVOKED":
+        return refused(denial ?? { status: 403, code: "FORBIDDEN", reason: "ACCESS_DENIED", message: "Access was revoked. The draft is kept; nothing was sent." });
       case "OUTCOME_UNKNOWN": {
         if (denial) {
-          // 4xx before commit: provably not applied, so the fenced draft can be dropped.
-          await this.queue.discardUnknown(scope, editId, true);
-          return { kind: "DISCARDED", editId, ...denial };
+          // A 4xx before commit is provably not applied: re-arm the very same draft (same requestId) so it is kept PENDING.
+          try { await this.rearmSame(review.draft); return refused(denial); }
+          catch { /* fall through: stay fenced, never lost */ }
         }
         return { kind: "OUTCOME_UNKNOWN", editId, requestId: review.draft.requestId,
-          message: "The host did not confirm whether the edit committed. Review again to reconcile against the head, then retry the same requestId." };
+          message: "The host did not confirm whether the edit committed. Review again to reconcile against the head history; the draft stays on this device." };
       }
       case "AUTHORIZATION_UNKNOWN":
+        if (denial) return refused(denial);
         return { kind: "RETRYABLE", editId, reason: "AUTHORIZATION_UNKNOWN", message: "Current authorization could not be confirmed; the draft is unchanged." };
       case "VERSION_UNKNOWN":
+        if (denial) return refused(denial);
         return { kind: "RETRYABLE", editId, reason: "VERSION_UNKNOWN", message: "The project head could not be read; the draft is unchanged." };
       default:
         return { kind: "REVIEW_REQUIRED", editId, message: "The draft is not pending. Review its state first." };
@@ -312,6 +448,71 @@ export class OfflineTimelineDrafts {
       throw new MediaDevProjectTimelineError("INVALID_RESPONSE", 0, "Project read did not match the draft scope.");
     }
   }
+}
+
+interface Refusal { readonly status: number; readonly code: string; readonly reason: RefusalReason; readonly message: string }
+
+/** Maps a typed host refusal to a message. Only definite 4xx answers qualify: transport loss and 5xx are not refusals. */
+export function refusalFor(error: unknown): Refusal | undefined {
+  if (!(error instanceof MediaDevProjectTimelineError)) return undefined;
+  const { status, code } = error;
+  if (status === 401) {
+    return { status, code, reason: "AUTH_EXPIRED",
+      message: "The host rejected the access token (expired or invalid). The draft is kept and nothing was sent; connect with a fresh token and review again." };
+  }
+  if (status === 403) {
+    return { status, code, reason: "ACCESS_DENIED",
+      message: "The host denied this principal on the project (project access or a required right was revoked). The draft is kept and nothing was sent." };
+  }
+  if (status === 404) {
+    return { status, code, reason: "PROJECT_UNAVAILABLE",
+      message: "The project or timeline is not available to this principal any more. The draft is kept and nothing was sent." };
+  }
+  if (status >= 400 && status < 500 && status !== 408 && status !== 425 && status !== 429 && code !== "REVISION_CONFLICT") {
+    return { status, code, reason: "REJECTED", message: `The host rejected the edit (${code}): ${error.message} The draft is kept.` };
+  }
+  return undefined;
+}
+
+type Graph = DevProjectRevision["timelines"][number]["graph"];
+const idOf = (record: Readonly<Record<string, unknown>>, key: string): string => String(record[key] ?? "");
+
+/** Whether an edit's effect is visible in a timeline graph (an absent timeline shows no added element). */
+function effectPresent(edit: DevTimelineEdit, graph: Graph | undefined): boolean {
+  const scenes = graph?.scenes ?? [], tracks = graph?.tracks ?? [], clips = graph?.clips ?? [];
+  switch (edit.type) {
+    case "addScene": return scenes.some((scene) => idOf(scene, "sceneId") === edit.sceneId);
+    case "removeScene": return graph !== undefined && !scenes.some((scene) => idOf(scene, "sceneId") === edit.sceneId);
+    case "addTrack": return tracks.some((track) => idOf(track, "trackId") === edit.trackId);
+    case "removeTrack": return graph !== undefined && !tracks.some((track) => idOf(track, "trackId") === edit.trackId);
+    case "putClip": return clips.some((clip) => clip.clipId === edit.clip.clipId && clip.sceneId === edit.clip.sceneId && clip.trackId === edit.clip.trackId);
+    case "removeClip": return graph !== undefined && !clips.some((clip) => clip.clipId === edit.clipId);
+  }
+}
+
+/** Structural differences between two revisions ("theirs" relative to a draft's base). Deterministic order. */
+export function summarizeRevisionChanges(base: DevProjectRevision, head: DevProjectRevision): readonly string[] {
+  const changes: string[] = [];
+  const ids = (items: readonly Readonly<Record<string, unknown>>[], key: string) => new Map(items.map((item) => [idOf(item, key), JSON.stringify(item)]));
+  const diff = (label: string, key: string, before: readonly Readonly<Record<string, unknown>>[], after: readonly Readonly<Record<string, unknown>>[], where: string): void => {
+    const was = ids(before, key), now = ids(after, key);
+    for (const id of [...now.keys()].sort()) {
+      if (!was.has(id)) changes.push(`Added ${label} ${id} in ${where}`);
+      else if (was.get(id) !== now.get(id)) changes.push(`Changed ${label} ${id} in ${where}`);
+    }
+    for (const id of [...was.keys()].sort()) if (!now.has(id)) changes.push(`Removed ${label} ${id} in ${where}`);
+  };
+  const before = new Map(base.timelines.map((item) => [item.graph.timelineId, item.graph]));
+  for (const { graph } of head.timelines) {
+    const prior = before.get(graph.timelineId);
+    if (!prior) { changes.push(`Added timeline ${graph.timelineId}`); continue; }
+    diff("scene", "sceneId", prior.scenes, graph.scenes, graph.timelineId);
+    diff("track", "trackId", prior.tracks, graph.tracks, graph.timelineId);
+    diff("clip", "clipId", prior.clips as never, graph.clips as never, graph.timelineId);
+  }
+  const after = new Set(head.timelines.map((item) => item.graph.timelineId));
+  for (const id of [...before.keys()].sort()) if (!after.has(id)) changes.push(`Removed timeline ${id}`);
+  return changes;
 }
 
 function toDraft(entry: OfflineEditReviewEntry<TimelineDraftPayload>): TimelineDraft {

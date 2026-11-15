@@ -1,9 +1,12 @@
 import React from "react";
 import type { DevProject, DevProjectRevision, DevTimelineEdit } from "@audio-video/client/dev-project-timeline";
 import {
-  OfflineTimelineDrafts, isConnectivityFailure,
+  OfflineTimelineDrafts, isConnectivityFailure, refusalFor,
   type DraftReplayOutcome, type DraftReview, type OfflineDraftsPort, type TimelineDraft,
 } from "./offlineTimelineDrafts";
+
+const UNREADABLE = "DRAFTS_UNREADABLE";
+const isUnreadable = (error: unknown): boolean => typeof error === "object" && error !== null && (error as { code?: unknown }).code === UNREADABLE;
 
 export interface DevOfflineDraftsPanelProps {
   readonly client: OfflineDraftsPort;
@@ -36,7 +39,8 @@ function describeOutcome(outcome: DraftReplayOutcome): string {
     case "APPLIED": return `APPLIED (201): revision ${outcome.revisionId} committed with requestId ${outcome.requestId}.`;
     case "REPLAYED": return `REPLAYED: the same requestId ${outcome.requestId} was accepted again; revision ${outcome.revisionId}.`;
     case "REVISION_CONFLICT": return `REVISION_CONFLICT: this draft was authored on ${outcome.baseRevisionId} but the project head is ${outcome.currentHeadRevisionId}. ${outcome.message}`;
-    case "DISCARDED": return `DISCARDED (${outcome.status} ${outcome.reason}): ${outcome.message}`;
+    case "REFUSED": return `REFUSED (${outcome.status} ${outcome.reason}): ${outcome.message}`;
+    case "UNREADABLE": return `DRAFTS_UNREADABLE: ${outcome.message}`;
     case "OUTCOME_UNKNOWN": return `OUTCOME_UNKNOWN: ${outcome.message}`;
     case "RETRYABLE": return `${outcome.reason}: ${outcome.message}`;
     case "REVIEW_REQUIRED": return `REVIEW_REQUIRED: ${outcome.message}`;
@@ -52,6 +56,8 @@ export function DevOfflineDraftsPanel(props: DevOfflineDraftsPanelProps): React.
   const { client, project, revision, principalId, indexedDB, crypto, newId } = props;
   const [controller, setController] = React.useState<OfflineTimelineDrafts | null>(null);
   const [fatal, setFatal] = React.useState<string | null>(null);
+  /** Set when the local encrypted store cannot be read; every send path is disabled until the user acts. */
+  const [unreadable, setUnreadable] = React.useState<string | null>(null);
   const [link, setLink] = React.useState<Link>(() => typeof navigator !== "undefined" && navigator.onLine === false ? "offline" : "online");
   const [drafts, setDrafts] = React.useState<readonly TimelineDraft[]>([]);
   const [base, setBase] = React.useState(revision.revisionId);
@@ -69,15 +75,22 @@ export function DevOfflineDraftsPanel(props: DevOfflineDraftsPanelProps): React.
   React.useEffect(() => {
     let cancelled = false;
     let opened: OfflineTimelineDrafts | null = null;
-    setController(null); setFatal(null); setDrafts([]); setReviews({}); setOutcomes({});
+    setController(null); setFatal(null); setUnreadable(null); setDrafts([]); setReviews({}); setOutcomes({});
     setBase(revision.revisionId);
     void (async () => {
       try {
         opened = await OfflineTimelineDrafts.open({ scope: { tenantId: project.tenantId, principalId, projectId: project.projectId }, port: client, indexedDB, crypto, newId });
-        const existing = await opened.list();
         if (cancelled) { await opened.close(); return; }
-        setController(opened); setDrafts(existing);
-        if (existing.length > 0) setMessage(`${existing.length} offline draft(s) restored. Review each draft before it can be sent.`);
+        setController(opened);
+        try {
+          const existing = await opened.list();
+          if (cancelled) return;
+          setDrafts(existing);
+          if (existing.length > 0) setMessage(`${existing.length} offline draft(s) restored. Review each draft before it can be sent.`);
+        } catch (error) {
+          if (!isUnreadable(error)) throw error;
+          if (!cancelled) setUnreadable(error instanceof Error ? error.message : "A stored offline draft could not be read.");
+        }
       } catch (error) {
         if (!cancelled) setFatal(error instanceof Error ? error.message : "Offline drafts are unavailable in this browser.");
       }
@@ -95,6 +108,12 @@ export function DevOfflineDraftsPanel(props: DevOfflineDraftsPanelProps): React.
 
   const refresh = async (): Promise<void> => { if (controller) setDrafts(await controller.list()); };
   const noteFailure = (error: unknown): string => {
+    if (isUnreadable(error)) { const text = error instanceof Error ? error.message : "A stored offline draft could not be read."; setUnreadable(text); return `${UNREADABLE}: ${text}`; }
+    if (error instanceof Error && (error as { code?: unknown }).code === "INVALID_CONFIGURATION") {
+      return "AUTH_REQUIRED: connect with a fresh DEV_ONLY token above, then review again. The draft is kept and nothing was sent.";
+    }
+    const refusal = refusalFor(error);
+    if (refusal) return `REFUSED (${refusal.status} ${refusal.reason}): ${refusal.message}`;
     if (isConnectivityFailure(error)) { setLink("offline"); return "The Media host could not be reached. Working offline; drafts stay on this device."; }
     return error instanceof Error ? error.message : "Request failed.";
   };
@@ -151,6 +170,11 @@ export function DevOfflineDraftsPanel(props: DevOfflineDraftsPanelProps): React.
       if (outcome.kind === "REVISION_CONFLICT") setBase(outcome.currentHeadRevisionId);
       setMessage(describeOutcome(outcome));
       await refresh();
+      if (outcome.kind === "REVISION_CONFLICT" || outcome.kind === "OUTCOME_UNKNOWN") {
+        // Show both versions (or the reconciliation) straight away. This is a read; nothing is sent.
+        try { const again = await controller.review(draft.editId); setReviews((current) => ({ ...current, [draft.editId]: again })); }
+        catch { /* the explicit Review button remains */ }
+      }
     } catch (error) { setMessage(noteFailure(error)); }
     finally { setBusy(false); }
   };
@@ -173,6 +197,17 @@ export function DevOfflineDraftsPanel(props: DevOfflineDraftsPanelProps): React.
     <p data-testid="offline-link-state">Connection: <strong>{offline ? "Offline" : "Online"}</strong>. Base head for new drafts: <code>{base}</code>.
       {" "}<button type="button" onClick={() => void probe()} disabled={busy}>Check connection</button></p>
     {fatal && <p role="alert">Offline drafts are unavailable: {fatal}</p>}
+    {unreadable && <div role="alert" data-testid="offline-drafts-unreadable">
+      <p><strong>{UNREADABLE}:</strong> {unreadable}</p>
+      <button type="button" disabled={busy || !controller} onClick={() => void (async () => {
+        setBusy(true);
+        try {
+          const removed = await controller!.discardUnreadableLocalDrafts();
+          setUnreadable(null); setDrafts(await controller!.list());
+          setMessage(`Discarded ${removed} unreadable local draft row(s) at your request. Nothing was sent.`);
+        } catch (error) { setMessage(noteFailure(error)); } finally { setBusy(false); }
+      })()}>Discard unreadable local drafts</button>
+    </div>}
     <p role="status" data-testid="offline-draft-status">{message}</p>
     <form id="offline-draft-form" onSubmit={(event) => void capture(event)}>
       <label>Timeline <select value={effectiveTimelineId} onChange={(event) => setTimelineId(event.target.value)}>
@@ -183,9 +218,9 @@ export function DevOfflineDraftsPanel(props: DevOfflineDraftsPanelProps): React.
       </select></label>
       <label>{kind === "removeClip" ? "Clip id" : "Scene id"} <input value={targetId} onChange={(event) => setTargetId(event.target.value)} /></label>
       {kind === "addScene" && <label>Order <input inputMode="numeric" value={order} onChange={(event) => setOrder(event.target.value)} /></label>}
-      <button type="submit" disabled={busy || !controller}>Save as offline draft</button>
+      <button type="submit" disabled={busy || !controller || unreadable !== null}>Save as offline draft</button>
     </form>
-    {drafts.length === 0 ? <p>No offline drafts.</p> : <ul aria-label="Offline drafts">
+    {unreadable ? null : drafts.length === 0 ? <p>No offline drafts.</p> : <ul aria-label="Offline drafts">
       {drafts.map((draft) => {
         const reviewed = reviews[draft.editId];
         const outcome = outcomes[draft.editId];
@@ -193,19 +228,44 @@ export function DevOfflineDraftsPanel(props: DevOfflineDraftsPanelProps): React.
           <p><strong>{draft.state}</strong> on {draft.timelineId}, base <code>{draft.baseRevisionId}</code>, request <code>{draft.requestId}</code></p>
           <ul>{draft.edits.map((edit, index) => <li key={index}>{describeEdit(edit)}</li>)}</ul>
           {outcome && <p role="status">{describeOutcome(outcome)}</p>}
-          {!reviewed && <button type="button" onClick={() => void review(draft)} disabled={busy || offline}>Review and replay</button>}
+          {!reviewed && <button type="button" onClick={() => void review(draft)} disabled={busy || offline || unreadable !== null}>Review and replay</button>}
           {reviewed && <div aria-label="Draft review">
             <p>Authored on <code>{reviewed.draft.baseRevisionId}</code>; project head now <code>{reviewed.headRevisionId}</code>
-              {reviewed.stale ? " (changed: replay will report REVISION_CONFLICT and will not merge)." : " (unchanged)."}</p>
-            {reviewed.draft.state === "PENDING" && <button type="button" onClick={() => void confirm(draft)} disabled={busy}>Confirm replay</button>}
-            {reviewed.draft.state === "OUTCOME_UNKNOWN" && <p>{reviewed.reconciliation === "NOT_APPLIED_CONFIRMED"
-              ? "The head still equals the base, so the earlier request did not commit."
-              : "The head moved; the earlier request may have committed. It cannot be re-sent safely."}</p>}
+              {reviewed.stale ? " (changed: replay would hit a version conflict; nothing is merged or overwritten)." : " (unchanged)."}</p>
+            {reviewed.stale && <section aria-label="Version conflict" data-testid="offline-conflict">
+              <h4>Version conflict: both versions</h4>
+              <div aria-label="Your draft (mine)" data-testid="conflict-mine">
+                <h5>Mine (offline draft on {reviewed.draft.baseRevisionId})</h5>
+                <ul>{reviewed.draft.edits.map((edit, index) => <li key={index}>{describeEdit(edit)}</li>)}</ul>
+              </div>
+              <div aria-label="Server head (theirs)" data-testid="conflict-theirs">
+                <h5>Theirs (server head {reviewed.headRevisionId})</h5>
+                {reviewed.theirs?.unavailable
+                  ? <p>The base revision could not be read, so the server changes cannot be listed.</p>
+                  : reviewed.theirs && reviewed.theirs.changes.length === 0 ? <p>The head moved without visible timeline changes.</p>
+                    : <ul>{reviewed.theirs?.changes.map((change) => <li key={change}>{change}</li>)}</ul>}
+              </div>
+              {(reviewed.draft.state === "PENDING" || reviewed.draft.state === "CONFLICT"
+                || (reviewed.draft.state === "OUTCOME_UNKNOWN" && reviewed.reconciliation === "NOT_APPLIED_STALE")) && <div>
+                <button type="button" disabled={busy}
+                  onClick={() => void act(async () => { await controller!.rebase(reviewed); }, "Kept mine: the edit was rebased onto the current head with a new requestId and a new compare-and-set base. It was not sent; review and replay it to send.")
+                    .then(() => setReviews((c) => { const { [draft.editId]: _g, ...r } = c; return r; }))}>Keep mine (rebase onto current head)</button>
+                <button type="button" disabled={busy}
+                  onClick={() => void act(async () => { await controller!.discard(draft.editId); }, `Took theirs: my draft was discarded; the server version ${reviewed.headRevisionId} stands.`)
+                    .then(() => setReviews((c) => { const { [draft.editId]: _g, ...r } = c; return r; }))}>Take theirs (discard my draft)</button>
+              </div>}
+            </section>}
+            {!reviewed.stale && reviewed.draft.state === "PENDING" && <button type="button" onClick={() => void confirm(draft)} disabled={busy}>Confirm replay</button>}
+            {reviewed.draft.state === "OUTCOME_UNKNOWN" && <p data-testid="offline-reconciliation">{
+              reviewed.reconciliation === "NOT_APPLIED_CONFIRMED" ? "The head still equals the base, so the earlier request did not commit."
+                : reviewed.reconciliation === "APPLIED_CONFIRMED" ? `The head history shows revision ${reviewed.appliedRevisionId}, a child of the base, already holds this draft's edits. It will not be sent again.`
+                : reviewed.reconciliation === "NOT_APPLIED_STALE" ? "The base revision's only child does not contain this draft's edits, so it was not applied."
+                : "The head moved and the history cannot prove whether the earlier request committed. It cannot be re-sent safely."}</p>}
             {reviewed.reconciliation === "NOT_APPLIED_CONFIRMED" && <button type="button" disabled={busy}
               onClick={() => void act(() => controller!.rearmUnknown(reviewed), "Draft re-armed with the same requestId. Review again to replay.").then(() => setReviews((c) => { const { [draft.editId]: _g, ...r } = c; return r; }))}>Retry same requestId</button>}
-            {reviewed.draft.state === "CONFLICT" && <button type="button" disabled={busy}
-              onClick={() => void act(async () => { await controller!.rebaseConflict(draft.editId, reviewed.headRevisionId); }, "Draft rebased onto the current head with a new requestId. It was not sent.")
-                .then(() => setReviews((c) => { const { [draft.editId]: _g, ...r } = c; return r; }))}>Rebase onto current head</button>}
+            {reviewed.reconciliation === "APPLIED_CONFIRMED" && <button type="button" disabled={busy}
+              onClick={() => void act(async () => { await controller!.acknowledgeApplied(reviewed); }, `Confirmed already applied in revision ${reviewed.appliedRevisionId}; the local draft was removed and nothing was sent again.`)
+                .then(() => setReviews((c) => { const { [draft.editId]: _g, ...r } = c; return r; }))}>Confirm already applied and remove local draft</button>}
             <button type="button" onClick={() => setReviews((c) => { const { [draft.editId]: _g, ...r } = c; return r; })} disabled={busy}>Close review</button>
           </div>}
           <button type="button" disabled={busy} onClick={() => void act(async () => { await controller!.discard(draft.editId); }, "Draft discarded from this browser.")}>Discard draft</button>

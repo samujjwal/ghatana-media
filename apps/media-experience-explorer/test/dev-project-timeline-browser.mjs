@@ -914,11 +914,12 @@ try {
   fixture.revisions.set(movedHead, fixture.revision);
   const postsBeforeConflict = fixture.graphEditPostAttempts;
   await keyboardActivate(page, draftPanel.getByRole("button", { name: "Review and replay" }));
-  await draftPanel.getByLabel("Draft review").getByText(movedHead).waitFor();
-  await keyboardActivate(page, draftPanel.getByRole("button", { name: "Confirm replay" }));
-  await draftPanel.getByText(new RegExp(`REVISION_CONFLICT: this draft was authored on ${staleBase} but the project head is ${movedHead}`, "u")).first().waitFor();
+  await draftPanel.getByLabel("Draft review").getByText(movedHead).first().waitFor();
+  // A stale draft shows both versions and is never blindly replayed; the user chooses explicitly.
+  await draftPanel.getByTestId("offline-conflict").waitFor();
+  assert.equal(await draftPanel.getByRole("button", { name: "Confirm replay" }).count(), 0, "a stale draft has no blind replay button");
   assert.equal(fixture.graphEditPostAttempts, postsBeforeConflict, "a stale draft must not be sent or merged");
-  await keyboardActivate(page, draftPanel.getByRole("button", { name: "Discard draft" }));
+  await keyboardActivate(page, draftPanel.getByRole("button", { name: "Take theirs (discard my draft)" }));
   await draftPanel.getByText("No offline drafts.").waitFor();
 
   await keyboardActivate(page, page.getByRole("button", { name: "Forget token and disconnect" }));

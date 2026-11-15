@@ -98,6 +98,29 @@ reconnect, explicit "Review and replay" then "Confirm replay" sending the CAS
 request, and a REVISION_CONFLICT for a head that moved while offline. The
 principal comes from the verified host context, never from the token.
 
+Offline reconnect (J-23, `media.dev.outcome-offline-conflict-reconnect`). No new
+host route. Owner decisions: (1) a reload while offline reopens the page from a
+DEV_ONLY app-shell worker (`public/dev-offline-sw.js`: same-origin GET only,
+network first, never `/dev/v1` or `/api`) and lists the encrypted drafts of the
+last opened project from a non-secret pointer (`src/dev-offline-workspace.ts`,
+identifiers and last head only, never a token); replay still needs a fresh token
+and an explicit Review then Confirm. (2) Refusals never delete a draft: 401
+`AUTH_EXPIRED`, 403 `ACCESS_DENIED` (revoked project access or write right),
+404 `PROJECT_UNAVAILABLE` and other 4xx `REJECTED` are typed `REFUSED` outcomes
+and the draft stays pending with its requestId. (3) The host edit route is a
+compare-and-set on the head, so any head change makes a draft conflict; there is
+no auto-merge. A stale draft shows both versions (mine; the server changes since
+its base) and offers "Keep mine (rebase onto current head)" (new requestId, new
+CAS, still needs Review and Confirm) or "Take theirs (discard my draft)". (4) A
+lost response is reconciled from the revision history: the child of the base
+holding the draft's exact effects is `APPLIED_CONFIRMED` (nothing is re-sent;
+the user confirms removal), a head still equal to the base is a safe "Retry same
+requestId", and an unprovable history stays fenced. (5) A corrupt, tampered or
+key-orphaned draft store fails closed as `DRAFTS_UNREADABLE` with no host call;
+only an explicit "Discard unreadable local drafts" removes it. Real-launcher
+check: `test/dev-offline-reconnect-live-browser.mjs` driven by
+`MediaDevExplorerOfflineReconnectLiveIT` (Docker, PostgreSQL + S3).
+
 "Open existing project" (step 02b, `src/dev-open-project.ts`) reads
 `GET /dev/v1/projects/{id}` in the connected owner scope and loads the project
 and its current head into the workspace, so a reloaded page can resume a prior

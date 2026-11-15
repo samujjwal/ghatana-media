@@ -178,26 +178,43 @@ describe("offline timeline drafts", () => {
     expect(await drafts.replay(await drafts.review(draft.editId))).toMatchObject({ kind: "REVISION_CONFLICT", currentHeadRevisionId: "rev-5" });
   });
 
-  it.each([[403, "ACCESS_REVOKED"], [404, "NOT_FOUND"]] as const)("discards the draft with an explanation on a %i authorization read", async (status, reason) => {
+  it.each([[401, "AUTH_EXPIRED"], [403, "ACCESS_DENIED"], [404, "PROJECT_UNAVAILABLE"]] as const)(
+    "refuses with a typed %i outcome on the fresh authorization read and KEEPS the draft pending", async (status, reason) => {
     const idb = new IDBFactory(); const f = fixture();
     const drafts = await open(idb, f.port, f.newId);
     const draft = await drafts.capture({ timelineId: "timeline-main", edits: [...EDITS], baseRevisionId: "rev-1" });
     const review = await drafts.review(draft.editId);
     f.port.getProject.mockRejectedValue(new MediaDevProjectTimelineError("FORBIDDEN", status, "denied"));
     const outcome = await drafts.replay(review);
-    expect(outcome).toMatchObject({ kind: "DISCARDED", status, reason });
-    expect((outcome as { message: string }).message).toMatch(/discarded/);
+    expect(outcome).toMatchObject({ kind: "REFUSED", status, reason, draftKept: true });
+    expect((outcome as { message: string }).message).toMatch(/draft is kept/);
     expect(f.port.editTimeline).not.toHaveBeenCalled();
-    expect(await drafts.list()).toEqual([]);
+    expect(await drafts.list()).toMatchObject([{ editId: draft.editId, state: "PENDING", requestId: draft.requestId }]);
+    // The user can retry with fresh authorization: the same draft then replays once.
+    f.port.getProject.mockImplementation(async () => read("rev-1"));
+    expect(await drafts.replay(await drafts.review(draft.editId))).toMatchObject({ kind: "APPLIED", requestId: draft.requestId });
+    expect(f.port.editTimeline).toHaveBeenCalledTimes(1);
   });
 
-  it("discards on a 403 returned by the edit itself (provably not applied)", async () => {
+  it("refuses a 403 returned by the edit itself, keeps the very same draft pending and sends nothing twice", async () => {
     const idb = new IDBFactory(); const f = fixture();
     f.port.editTimeline.mockRejectedValueOnce(new MediaDevProjectTimelineError("FORBIDDEN", 403, "denied"));
     const drafts = await open(idb, f.port, f.newId);
     const draft = await drafts.capture({ timelineId: "timeline-main", edits: [...EDITS], baseRevisionId: "rev-1" });
-    expect(await drafts.replay(await drafts.review(draft.editId))).toMatchObject({ kind: "DISCARDED", status: 403 });
-    expect(await drafts.list()).toEqual([]);
+    expect(await drafts.replay(await drafts.review(draft.editId))).toMatchObject({ kind: "REFUSED", status: 403, reason: "ACCESS_DENIED", draftKept: true });
+    const kept = await drafts.list();
+    expect(kept).toMatchObject([{ editId: draft.editId, requestId: draft.requestId, baseRevisionId: "rev-1", state: "PENDING" }]);
+    expect(await drafts.replay(await drafts.review(draft.editId))).toMatchObject({ kind: "APPLIED" });
+    expect(f.port.editTimeline).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps a draft refused by a domain 4xx (REJECTED) instead of discarding it", async () => {
+    const idb = new IDBFactory(); const f = fixture();
+    f.port.editTimeline.mockRejectedValueOnce(new MediaDevProjectTimelineError("INVALID_REQUEST", 400, "bad"));
+    const drafts = await open(idb, f.port, f.newId);
+    const draft = await drafts.capture({ timelineId: "timeline-main", edits: [...EDITS], baseRevisionId: "rev-1" });
+    expect(await drafts.replay(await drafts.review(draft.editId))).toMatchObject({ kind: "REFUSED", status: 400, reason: "REJECTED", draftKept: true });
+    expect(await drafts.list()).toHaveLength(1);
   });
 
   it("keeps the draft retryable when authorization or the head cannot be read", async () => {
@@ -244,6 +261,107 @@ describe("offline timeline drafts", () => {
     const review = await drafts.review(draft.editId);
     expect(review.reconciliation).toBe("POSSIBLY_APPLIED");
     await expect(drafts.rearmUnknown(review)).rejects.toThrow();
+  });
+
+  const sceneGraph = (ids: string[]) => ({ timelineId: "timeline-main", scenes: ids.map((sceneId, order) => ({ sceneId, order })), tracks: [], clips: [] });
+  const revision = (id: string, parent: string | null, scenes: string[]) => ({ tenantId: "tenant-a", projectId: "project-a", revisionId: id,
+    parentRevisionId: parent, timelines: [{ semanticVersionId: `v-${id}`, graph: sceneGraph(scenes) }] });
+
+  it("reconciles a lost response from the head history: the child of the base holds the effects, so nothing is re-sent", async () => {
+    const idb = new IDBFactory(); const f = fixture();
+    const history: Record<string, ReturnType<typeof revision>> = { "rev-1": revision("rev-1", null, []), "rev-2": revision("rev-2", "rev-1", [SECRET]) };
+    f.port.getProject.mockImplementation(async () => ({ ...read("rev-1"), project: { ...read("rev-1").project, headRevisionId: "rev-2" }, currentRevision: history["rev-2"] }) as never);
+    (f.port as unknown as { getRevision: unknown }).getRevision = vi.fn(async (_p: string, id: string) => ({ scope: "DEV_ONLY", revision: history[id] }));
+    f.port.editTimeline.mockRejectedValueOnce(new MediaDevProjectTimelineError("OUTCOME_UNKNOWN", 0, "lost response"));
+    // The first replay read sees rev-1 as head; afterwards the (committed) rev-2 is the head.
+    f.port.getProject.mockImplementationOnce(async () => read("rev-1")).mockImplementationOnce(async () => read("rev-1")).mockImplementationOnce(async () => read("rev-1")).mockImplementationOnce(async () => read("rev-1"));
+    const drafts = await open(idb, f.port, f.newId);
+    const draft = await drafts.capture({ timelineId: "timeline-main", edits: [...EDITS], baseRevisionId: "rev-1" });
+    expect(await drafts.replay(await drafts.review(draft.editId))).toMatchObject({ kind: "OUTCOME_UNKNOWN" });
+    const review = await drafts.review(draft.editId);
+    expect(review).toMatchObject({ reconciliation: "APPLIED_CONFIRMED", appliedRevisionId: "rev-2", stale: true });
+    await expect(drafts.rearmUnknown(review)).rejects.toThrow();
+    expect(await drafts.replay(review)).toMatchObject({ kind: "REVIEW_REQUIRED" });
+    expect(await drafts.acknowledgeApplied(review)).toBe("rev-2");
+    expect(await drafts.list()).toEqual([]);
+    expect(f.port.editTimeline).toHaveBeenCalledTimes(1); // exactly one send ever
+  });
+
+  it("proves an unknown draft LOST when the only child of its base lacks the effects, then only allows keep-mine or take-theirs", async () => {
+    const idb = new IDBFactory(); const f = fixture();
+    const history: Record<string, ReturnType<typeof revision>> = { "rev-1": revision("rev-1", null, []), "rev-2": revision("rev-2", "rev-1", ["theirs-scene"]) };
+    (f.port as unknown as { getRevision: unknown }).getRevision = vi.fn(async (_p: string, id: string) => ({ scope: "DEV_ONLY", revision: history[id] }));
+    f.port.editTimeline.mockRejectedValueOnce(new MediaDevProjectTimelineError("OUTCOME_UNKNOWN", 0, "lost"));
+    const drafts = await open(idb, f.port, f.newId);
+    const draft = await drafts.capture({ timelineId: "timeline-main", edits: [...EDITS], baseRevisionId: "rev-1" });
+    await drafts.replay(await drafts.review(draft.editId));
+    f.port.getProject.mockImplementation(async () => ({ ...read("rev-2"), currentRevision: history["rev-2"] }) as never);
+    const review = await drafts.review(draft.editId);
+    expect(review).toMatchObject({ reconciliation: "NOT_APPLIED_STALE", theirs: { changes: ["Added scene theirs-scene in timeline-main"] } });
+    const rebased = await drafts.rebase(review);
+    expect(rebased).toMatchObject({ state: "PENDING", baseRevisionId: "rev-2" });
+    expect(rebased.requestId).not.toBe(draft.requestId);
+    expect((await drafts.list()).map((d) => d.editId)).toEqual([rebased.editId]);
+    expect(f.port.editTimeline).toHaveBeenCalledTimes(1); // the rebase itself sends nothing
+  });
+
+  it("shows both versions on a stale PENDING draft; keep-mine rebases without sending and the new CAS replays once", async () => {
+    const idb = new IDBFactory(); const f = fixture();
+    const history: Record<string, ReturnType<typeof revision>> = { "rev-1": revision("rev-1", null, ["a"]), "rev-2": revision("rev-2", "rev-1", ["a", "b"]) };
+    (f.port as unknown as { getRevision: unknown }).getRevision = vi.fn(async (_p: string, id: string) => ({ scope: "DEV_ONLY", revision: history[id] }));
+    f.port.getProject.mockImplementation(async () => ({ ...read("rev-2"), currentRevision: history["rev-2"] }) as never);
+    const drafts = await open(idb, f.port, f.newId);
+    const draft = await drafts.capture({ timelineId: "timeline-main", edits: [...EDITS], baseRevisionId: "rev-1" });
+    const review = await drafts.review(draft.editId);
+    expect(review).toMatchObject({ stale: true, theirs: { baseRevisionId: "rev-1", headRevisionId: "rev-2", changes: ["Added scene b in timeline-main"] } });
+    const mine = await drafts.rebase(review);
+    expect(f.port.editTimeline).not.toHaveBeenCalled();
+    expect(await drafts.replay(await drafts.review(mine.editId))).toMatchObject({ kind: "APPLIED", requestId: mine.requestId });
+    expect(f.calls.edit).toEqual([{ expectedHeadRevisionId: "rev-2", edits: EDITS }]);
+    expect(await drafts.list()).toEqual([]);
+  });
+
+  it("take-theirs discards only the chosen draft", async () => {
+    const idb = new IDBFactory(); const f = fixture({ head: "rev-9" });
+    const drafts = await open(idb, f.port, f.newId);
+    const one = await drafts.capture({ timelineId: "timeline-main", edits: [...EDITS], baseRevisionId: "rev-1" });
+    const two = await drafts.capture({ timelineId: "timeline-main", edits: [{ type: "removeScene", sceneId: "s2" }], baseRevisionId: "rev-1" });
+    await drafts.discard(one.editId);
+    expect((await drafts.list()).map((d) => d.editId)).toEqual([two.editId]);
+    expect(f.port.editTimeline).not.toHaveBeenCalled();
+  });
+
+  it("fails closed with a typed DRAFTS_UNREADABLE error on a tampered row and makes no remote call", async () => {
+    const idb = new IDBFactory(); const f = fixture();
+    const drafts = await open(idb, f.port, f.newId);
+    const draft = await drafts.capture({ timelineId: "timeline-main", edits: [...EDITS], baseRevisionId: "rev-1" });
+    await drafts.close();
+    const name = (await idb.databases()).map((db) => db.name!).find((n) => n.startsWith("ghatana-media-offline-drafts-v1:"))!;
+    const db = await new Promise<IDBDatabase>((resolve) => { const r = idb.open(name); r.onsuccess = () => resolve(r.result); });
+    const store = Array.from(db.objectStoreNames)[0]!;
+    await new Promise<void>((resolve) => {
+      const tx = db.transaction(store, "readwrite"); const os = tx.objectStore(store); const all = os.getAll();
+      all.onsuccess = () => { for (const row of all.result) { const bytes = new Uint8Array(row.ciphertext); bytes[0] = bytes[0]! ^ 0xff; os.put({ ...row, ciphertext: bytes }); } };
+      tx.oncomplete = () => resolve();
+    });
+    db.close();
+    const reopened = await open(idb, f.port, f.newId);
+    await expect(reopened.list()).rejects.toMatchObject({ code: "DRAFTS_UNREADABLE" });
+    await expect(reopened.review(draft.editId)).rejects.toMatchObject({ code: "DRAFTS_UNREADABLE" });
+    expect(f.port.getProject).not.toHaveBeenCalled();
+    expect(f.port.editTimeline).not.toHaveBeenCalled();
+    // Only an explicit user action removes the unreadable rows.
+    expect(await reopened.discardUnreadableLocalDrafts()).toBe(1);
+    expect(await reopened.list()).toEqual([]);
+  });
+
+  it("fails closed with DRAFTS_UNREADABLE when the browser key was lost (rows can no longer be decrypted)", async () => {
+    const idb = new IDBFactory(); const f = fixture();
+    await (await open(idb, f.port, f.newId)).capture({ timelineId: "timeline-main", edits: [...EDITS], baseRevisionId: "rev-1" });
+    await new OfflineDraftKeyCustody({ indexedDB: idb }).destroy(scope);
+    const reopened = await open(idb, f.port, f.newId);
+    await expect(reopened.list()).rejects.toMatchObject({ code: "DRAFTS_UNREADABLE" });
+    expect(f.port.getProject).not.toHaveBeenCalled();
   });
 
   it("classifies only no-response failures as connectivity loss", () => {

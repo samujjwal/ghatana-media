@@ -16,9 +16,13 @@ const rootElement = document.getElementById("timeline-workspace-root");
 if (!rootElement) throw new Error("Missing reusable project timeline workspace mount.");
 const root = createRoot(rootElement);
 
-rootElement.addEventListener("media-dev-project-timeline", ((event: CustomEvent<WorkspaceDetail | null>) => {
-  const detail = event.detail;
+// The last head the page observed (after any online edit) is the base of drafts saved offline.
+let observed: DevProjectRevision | null = null;
+let current: WorkspaceDetail | null = null;
+const renderWorkspace = (): void => {
+  const detail = current;
   if (!detail) { root.render(null); return; }
+  const revisionForDrafts = observed && observed.projectId === detail.project.projectId ? observed : detail.revision;
   root.render(React.createElement(React.Fragment, null,
     React.createElement(MediaProductRenderer, {
       kind: "dev-project-timeline",
@@ -30,10 +34,43 @@ rootElement.addEventListener("media-dev-project-timeline", ((event: CustomEvent<
     React.createElement(DevOfflineDraftsPanel, {
       client: detail.client,
       project: detail.project,
-      revision: detail.revision,
+      revision: revisionForDrafts,
       principalId: detail.principalId,
     })));
+};
+
+rootElement.addEventListener("media-dev-project-timeline", ((event: CustomEvent<WorkspaceDetail | null>) => {
+  current = event.detail;
+  observed = null;
+  renderWorkspace();
 }) as EventListener);
+rootElement.addEventListener("media-dev-head-observed", ((event: CustomEvent<DevProjectRevision>) => {
+  observed = event.detail;
+  if (current) renderWorkspace();
+}) as EventListener);
+
+// Offline restore: after a reload, the encrypted drafts of the last opened project are listed before (and without) any
+// host connection. Replay still needs a fresh token and review.
+const restoreElement = document.getElementById("offline-restore-root");
+if (restoreElement) {
+  const restoreRoot = createRoot(restoreElement);
+  let restore: WorkspaceDetail | null = null;
+  let restoreObserved: DevProjectRevision | null = null;
+  const renderRestore = (): void => {
+    if (!restore) { restoreRoot.render(null); return; }
+    const revision = restoreObserved && restoreObserved.projectId === restore.project.projectId ? restoreObserved : restore.revision;
+    restoreRoot.render(React.createElement(DevOfflineDraftsPanel, {
+      key: `${restore.project.projectId}:${restore.principalId}`,
+      client: restore.client, project: restore.project, revision, principalId: restore.principalId,
+    }));
+  };
+  restoreElement.addEventListener("media-dev-offline-restore", ((event: CustomEvent<WorkspaceDetail | null>) => {
+    restore = event.detail; restoreObserved = null; renderRestore();
+  }) as EventListener);
+  restoreElement.addEventListener("media-dev-head-observed", ((event: CustomEvent<DevProjectRevision>) => {
+    restoreObserved = event.detail; if (restore) renderRestore();
+  }) as EventListener);
+}
 
 // Standalone assigned-reviewer view: opens an existing case by id; needs no project access.
 const reviewRootElement = document.getElementById("review-workspace-root");
