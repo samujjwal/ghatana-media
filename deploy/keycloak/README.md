@@ -68,7 +68,7 @@ refused. Run: `./gradlew :services:media:launcher:test --tests '*MediaOidcKeyclo
 
 ## TEST realm and the first-use journey (J-01)
 
-`realm/ghatana-media-test-realm.json` is a **separate, tests-only** realm (`ghatana-media-test`). Unlike the base realm it
+`integration-tests/src/test/resources/keycloak/ghatana-media-test-realm.json` is a **separate, tests-only** realm, deliberately kept outside `realm/` so the compose `--import-realm` mount never loads it, (`ghatana-media-test`). Unlike the base realm it
 ships users, and their password is a published TEST value (`TEST-only-Passw0rd-not-a-secret`, read by the IT from this
 file). Never import it into anything but a throwaway local Keycloak.
 
@@ -89,7 +89,7 @@ PostgreSQL and LocalStack, starts the real launcher with `MEDIA_OIDC_ISSUER/AUDI
 Explorer in Chromium through the real authorization-code + PKCE sign-in (`apps/media-experience-explorer/test/dev-oidc-first-use-live-browser.mjs`).
 
 To try it by hand: `docker run --rm -p 127.0.0.1:8180:8080 -e KC_BOOTSTRAP_ADMIN_USERNAME=admin
--e KC_BOOTSTRAP_ADMIN_PASSWORD="$(openssl rand -base64 18)" -v "$PWD/deploy/keycloak/realm/ghatana-media-test-realm.json:/opt/keycloak/data/import/r.json:ro"
+-e KC_BOOTSTRAP_ADMIN_PASSWORD="$(openssl rand -base64 18)" -v "$PWD/integration-tests/src/test/resources/keycloak/ghatana-media-test-realm.json:/opt/keycloak/data/import/r.json:ro"
 quay.io/keycloak/keycloak:26.8.2 start-dev --import-realm`, then use issuer
 `http://127.0.0.1:8180/realms/ghatana-media-test` for both the launcher and the Explorer (`VITE_MEDIA_OIDC_*`).
 

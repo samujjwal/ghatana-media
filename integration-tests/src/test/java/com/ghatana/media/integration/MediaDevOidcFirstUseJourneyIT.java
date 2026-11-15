@@ -54,7 +54,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
  * <p>Fault suite, all with genuine Keycloak-issued tokens: another tenant gets 404 without disclosure, duplicate
  * create replays or conflicts, expired, tampered and wrong-audience tokens are 401, a user removed from the tenant
  * group is refused on the next token, and signing out drops the in-memory token. Test credentials live in
- * {@code deploy/keycloak/realm/ghatana-media-test-realm.json} and are TEST values for this local realm only.
+ * {@code integration-tests/src/test/resources/keycloak/ghatana-media-test-realm.json} and are TEST values for this local realm only.
  */
 @Testcontainers(disabledWithoutDocker = true)
 @Tag("integration")
@@ -90,7 +90,7 @@ class MediaDevOidcFirstUseJourneyIT {
     private static JsonNode realmJson;
 
     private static Path realmFile() {
-        return Path.of(System.getProperty("user.dir")).resolve("../deploy/keycloak/realm/ghatana-media-test-realm.json")
+        return Path.of(System.getProperty("user.dir")).resolve("src/test/resources/keycloak/ghatana-media-test-realm.json")
                 .normalize();
     }
 
