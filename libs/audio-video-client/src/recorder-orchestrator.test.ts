@@ -832,6 +832,56 @@ describe("publishFinalRender", () => {
   });
   const admitted = { admit: async () => ({ status: "ADMITTED" as const, decisionRefs: ["rights-decision/demo"] }) };
   const muxer = { muxAndVerify: async () => verifiedContainer() };
+
+  it("accepts adjacent out-of-order caption cues without reordering the caller snapshot", async () => {
+    const base = scenario();
+    const plan = orchestrateScenario({
+      ...base,
+      scenes: [{ ...base.scenes[0]!, captionRefs: ["captions/intro@v1", "captions/second@v1"] }, base.scenes[1]!],
+    });
+    const captions = [
+      { captionRef: "captions/second@v1", startTicks: 20, endTicks: 30 },
+      { captionRef: "captions/intro@v1", startTicks: 10, endTicks: 20 },
+    ];
+    const requestWithCaptions = { ...request(), plan, captions };
+    const orderedMuxer = {
+      muxAndVerify: async () => {
+        const container = verifiedContainer();
+        return { ...container, probe: { ...container.probe, captionTrackCount: 2, captionTimings: captions } };
+      },
+    };
+
+    await expect(publishFinalRender(requestWithCaptions, admitted, orderedMuxer, fakeClient()))
+      .resolves.toMatchObject({ outcome: "PUBLISHED" });
+  });
+
+  it("rejects overlapping caption cues before authority, mux, or upload effects", async () => {
+    const base = scenario();
+    const plan = orchestrateScenario({
+      ...base,
+      scenes: [{ ...base.scenes[0]!, captionRefs: ["captions/intro@v1", "captions/second@v1"] }, base.scenes[1]!],
+    });
+    const captions = [
+      { captionRef: "captions/intro@v1", startTicks: 10, endTicks: 21 },
+      { captionRef: "captions/second@v1", startTicks: 20, endTicks: 30 },
+    ];
+    const admission = { admit: vi.fn(admitted.admit) };
+    const checkedMuxer = { muxAndVerify: vi.fn(muxer.muxAndVerify) };
+    const client = fakeClient() as unknown as {
+      createUploadSession: ReturnType<typeof vi.fn>;
+      uploadPart: ReturnType<typeof vi.fn>;
+      completeUploadSession: ReturnType<typeof vi.fn>;
+    };
+
+    await expect(publishFinalRender({ ...request(), plan, captions }, admission, checkedMuxer,
+      client as unknown as MediaOperationClient)).rejects.toBeInstanceOf(ScenarioError);
+    expect(admission.admit).not.toHaveBeenCalled();
+    expect(checkedMuxer.muxAndVerify).not.toHaveBeenCalled();
+    expect(client.createUploadSession).not.toHaveBeenCalled();
+    expect(client.uploadPart).not.toHaveBeenCalled();
+    expect(client.completeUploadSession).not.toHaveBeenCalled();
+  });
+
   const uploadSession = (overrides: Record<string, unknown> = {}) => ({
     uploadId: "upload-1", tenantId: "tenant-1", principalId: "principal-1", fileName: "demo.mp4",
     contentType: "video/mp4", expectedSizeBytes: 3, expectedSha256: "a".repeat(64), classification: "INTERNAL",

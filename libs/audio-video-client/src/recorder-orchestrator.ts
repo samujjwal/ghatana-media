@@ -838,6 +838,14 @@ function validateAndSnapshotRenderRequest(request: FinalRenderRequest): FinalRen
     }
     return { captionRef: ref, startTicks: caption.startTicks, endTicks: caption.endTicks };
   });
+  const captionsByStart = [...captions].sort((left, right) =>
+    left.startTicks < right.startTicks ? -1 : left.startTicks > right.startTicks ? 1
+      : left.endTicks < right.endTicks ? -1 : left.endTicks > right.endTicks ? 1 : 0);
+  for (let index = 1; index < captionsByStart.length; index += 1) {
+    if (captionsByStart[index]!.startTicks < captionsByStart[index - 1]!.endTicks) {
+      throw new ScenarioError("INVALID_SCENARIO", "caption cues must not overlap in the render timebase");
+    }
+  }
   if (!Array.isArray(request.creditRefs) || request.creditRefs.length > 256) {
     throw new ScenarioError("INVALID_SCENARIO", "creditRefs must contain at most 256 references");
   }
