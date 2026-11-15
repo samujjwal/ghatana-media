@@ -110,6 +110,9 @@ class MediaRuntimeRightsConsentGateTest {
             fixture.administration.confirm(who(REVIEWER, AssuranceSource.UNSPECIFIED),
                     consentOnWrongArtifact.attestation().attestationId(), "TEST confirm");
             assertRefused(fixture, request("req-voice", JobType.VISION, source, withVoice));
+            Map<String, Object> nestedVoice = Map.of("synthesis", Map.of("inputs", List.of(
+                    Map.of("voiceReferenceArtifactId", "voice-artifact"))));
+            assertRefused(fixture, request("req-nested-voice", JobType.VISION, source, nestedVoice));
             assertThat(fixture.jobStore.list(TENANT, 100)).isEmpty();
             assertThat(providerCalls).hasValue(0);
         }

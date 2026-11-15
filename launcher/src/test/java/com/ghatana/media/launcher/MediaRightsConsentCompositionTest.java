@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Locale;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -113,6 +114,8 @@ class MediaRightsConsentCompositionTest {
         assertThat(MediaRightsConsentComposition.scopeFor(request("TEXT_TO_SPEECH"))).isEqualTo(Scope.PROCESSING);
         assertThat(MediaRightsConsentComposition.referencesVoiceOrLikeness(Map.of("voice", "en-US-default"))).isFalse();
         assertThat(MediaRightsConsentComposition.referencesVoiceOrLikeness(Map.of("voiceReference", " "))).isFalse();
+        assertThat(MediaRightsConsentComposition.referencesVoiceOrLikeness(Map.of(
+                "synthesis", List.of(Map.of("voiceReferenceArtifactId", "voice-artifact"))))).isTrue();
     }
 
     @Test

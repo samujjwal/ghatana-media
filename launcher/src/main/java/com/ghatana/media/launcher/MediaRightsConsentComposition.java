@@ -131,12 +131,31 @@ final class MediaRightsConsentComposition {
     }
 
     static boolean referencesVoiceOrLikeness(Map<String, Object> parameters) {
-        if (parameters == null) return false;
-        for (String name : VOICE_OR_LIKENESS_PARAMETERS) {
-            Object value = parameters.get(name);
-            if (value != null && !(value instanceof CharSequence text && text.toString().isBlank())) return true;
+        return referencesVoiceOrLikenessValue(parameters);
+    }
+
+    private static boolean referencesVoiceOrLikenessValue(Object value) {
+        if (value instanceof Map<?, ?> map) {
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+                if (entry.getKey() instanceof String name
+                        && VOICE_OR_LIKENESS_PARAMETERS.contains(name)
+                        && hasReferenceValue(entry.getValue())) return true;
+                if (referencesVoiceOrLikenessValue(entry.getValue())) return true;
+            }
+        } else if (value instanceof Iterable<?> values) {
+            for (Object item : values) {
+                if (referencesVoiceOrLikenessValue(item)) return true;
+            }
+        } else if (value != null && value.getClass().isArray()) {
+            for (int i = 0; i < java.lang.reflect.Array.getLength(value); i++) {
+                if (referencesVoiceOrLikenessValue(java.lang.reflect.Array.get(value, i))) return true;
+            }
         }
         return false;
+    }
+
+    private static boolean hasReferenceValue(Object value) {
+        return value != null && !(value instanceof CharSequence text && text.toString().isBlank());
     }
 
     /** Runs {@code call} so that an authority consulted inside it maps the request to the right scope. */
