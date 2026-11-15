@@ -222,6 +222,8 @@ public final class MediaLauncher {
                                             : MediaDevSimulationRuntime.compose(runtime, environment, finalDevLedger))
                                     .withDevQuality(finalDevQuality)
                                     .withDevAnimation(devAnimation)
+                                    .withDevReferenceScenes(MediaDevReferenceSceneRuntime.compose(runtime,
+                                            finalDevRights == null ? null : finalDevRights.resolver(), finalDevLedger))
                                     .withDevRegionEdit(finalDevRegionEdit)
                                     .withDevVision(MediaLocalVisionComposition.engineFrom(environment)
                                             .map(engine -> {

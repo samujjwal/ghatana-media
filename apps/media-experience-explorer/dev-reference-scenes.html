@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f6f8" />
+    <meta name="description" content="DEV_ONLY rights-checked reference scenes: compose stored reference images with authored templates, measure continuity and see model unavailability in the local Explorer." />
+    <title>Reference Scenes · Media</title>
+    <link rel="stylesheet" href="/src/dev-reference-scenes.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header><a href="/">← Media Experience Explorer</a><p class="eyebrow">Local development only</p><h1>Reference scenes</h1></header>
+      <aside class="notice"><h2>DEV_ONLY · owner scoped</h2><p>Scenes are composed from authored, versioned templates and your stored reference images, placed, scaled and recoloured per the template parameters and reproducible from a seed. Every reference needs a processing rights statement from its uploader, checked on every run. There is no generative model on this host: asking for one is refused with MODEL_UNAVAILABLE and creates nothing. No quality, rights, approval or production claim.</p></aside>
+      <section class="panel">
+        <h2>Connect to local Media</h2>
+        <p>Requests stay on this page origin and use the configured loopback proxy. The token is held in memory only.</p>
+        <form id="connect-form"><label for="dev-token">Short-lived DEV_ONLY bearer token</label><input id="dev-token" type="password" autocomplete="off" required /><button type="submit">Connect</button><button id="disconnect" type="button" disabled>Forget token</button></form>
+        <p id="connection-status" role="status" aria-live="polite">Not connected.</p>
+      </section>
+      <div id="reference-scenes-root"></div>
+    </main>
+    <script type="module" src="/src/dev-reference-scenes.tsx"></script>
+  </body>
+</html>

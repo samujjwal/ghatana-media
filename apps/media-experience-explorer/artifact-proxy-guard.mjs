@@ -92,6 +92,14 @@ const devProjectRoutes = [
   { method: "GET", path: /^\/dev\/v1\/animations\/status$/u },
   { method: "POST", path: /^\/dev\/v1\/animations\/renders$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/animations/renders/${OPAQUE_ID}$`, "u") },
+  // DEV_ONLY rights-checked reference-conditioned scenes (J-10) used by the "Reference scenes" page (status, reference set,
+  // run, reopen, regeneration proof; no DELETE).
+  { method: "GET", path: /^\/dev\/v1\/reference-scenes\/status$/u },
+  { method: "POST", path: /^\/dev\/v1\/reference-scenes\/reference-sets$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/reference-scenes/reference-sets/${OPAQUE_ID}$`, "u") },
+  { method: "POST", path: /^\/dev\/v1\/reference-scenes\/runs$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/reference-scenes/runs/${OPAQUE_ID}$`, "u") },
+  { method: "POST", path: new RegExp(`^/dev/v1/reference-scenes/runs/${OPAQUE_ID}/regenerations$`, "u") },
   // DEV_ONLY scientific simulation (J-14/J-15) used by the "Scientific simulation" page (status, run, reopen; no DELETE).
   { method: "GET", path: /^\/dev\/v1\/simulations\/status$/u },
   { method: "POST", path: /^\/dev\/v1\/simulations$/u },

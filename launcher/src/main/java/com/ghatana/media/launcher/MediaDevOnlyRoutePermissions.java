@@ -92,6 +92,11 @@ final class MediaDevOnlyRoutePermissions {
         if ("GET".equals(method) && "/dev/v1/animations/status".equals(path)) return PROJECT_READ;
         if ("POST".equals(method) && "/dev/v1/animations/renders".equals(path)) return PROJECT_WRITE;
         if ("GET".equals(method) && path.matches("^/dev/v1/animations/renders/[^/]+$")) return PROJECT_READ;
+        // Rights-checked reference-conditioned scenes (J-10); the routes additionally require media:artifact:{read,create}.
+        if ("GET".equals(method) && "/dev/v1/reference-scenes/status".equals(path)) return PROJECT_READ;
+        if ("POST".equals(method) && path.matches("^/dev/v1/reference-scenes/(reference-sets|runs)$")) return PROJECT_WRITE;
+        if ("POST".equals(method) && path.matches("^/dev/v1/reference-scenes/runs/[^/]+/regenerations$")) return PROJECT_WRITE;
+        if ("GET".equals(method) && path.matches("^/dev/v1/reference-scenes/(reference-sets|runs)/[^/]+$")) return PROJECT_READ;
         // Scientific simulation (J-14/J-15); the routes additionally require media:artifact:{read,create}.
         if ("GET".equals(method) && "/dev/v1/simulations/status".equals(path)) return PROJECT_READ;
         if ("POST".equals(method) && "/dev/v1/simulations".equals(path)) return PROJECT_WRITE;

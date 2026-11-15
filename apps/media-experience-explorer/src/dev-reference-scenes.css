@@ -1,0 +1,38 @@
+@import "@audio-video/ui/styles.css";
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; color: CanvasText; background: Canvas; }
+body { margin: 0; }
+.shell { width: min(1100px, calc(100% - 2rem)); margin: 2rem auto; }
+.panel, .notice { background: Canvas; border: 1px solid GrayText; border-radius: 12px; padding: 1.25rem; margin: 1rem 0; }
+.notice { border-left: 5px solid GrayText; }
+.eyebrow { color: GrayText; text-transform: uppercase; letter-spacing: .08em; }
+form, .refscenes label { display: grid; gap: .3rem; max-width: 40rem; margin: .5rem 0; }
+form { gap: .75rem; }
+.refscenes label:has(input[type="radio"]) { display: flex; align-items: center; gap: .5rem; }
+input, select, textarea, button { font: inherit; padding: .65rem .8rem; max-width: 100%; min-height: 2.75rem; box-sizing: border-box; }
+input[type="radio"] { min-height: 1.25rem; width: 1.25rem; padding: 0; }
+button { width: fit-content; cursor: pointer; margin: .5rem .5rem .5rem 0; }
+button:disabled { cursor: not-allowed; }
+button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible, h2:focus-visible, .refscenes-scroll:focus-visible { outline: 3px solid Highlight; outline-offset: 2px; }
+fieldset { margin: .75rem 0; border: 1px solid GrayText; border-radius: 8px; }
+dl { display: grid; grid-template-columns: minmax(8rem, 12rem) 1fr; gap: .4rem .75rem; }
+dt { font-weight: 700; }
+dd { margin: 0; overflow-wrap: anywhere; }
+[role="alert"] { border-left: 5px solid CanvasText; }
+table { border-collapse: collapse; width: 100%; margin: .75rem 0; }
+caption { text-align: left; font-weight: 700; padding: .4rem 0; }
+th, td { border: 1px solid GrayText; padding: .45rem .6rem; text-align: left; vertical-align: top; }
+.refscenes-scroll { overflow-x: auto; max-width: 100%; }
+.refscenes-scroll table { min-width: 44rem; }
+.refscenes-gallery { display: flex; flex-wrap: wrap; gap: 1rem; }
+.refscenes-gallery figure { margin: 0; }
+.refscenes-image { max-width: 100%; height: auto; border: 1px solid GrayText; image-rendering: pixelated; }
+.hint { color: GrayText; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+body, p, li, dd, code { overflow-wrap: anywhere; }
+.shell, .shell > * { min-width: 0; }
+code { word-break: break-all; }
+@media (max-width: 640px) {
+  .shell { width: calc(100% - 1.5rem); margin: 1rem auto; }
+  dl { grid-template-columns: 1fr; }
+  button { width: 100%; }
+}

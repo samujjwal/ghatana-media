@@ -407,6 +407,12 @@ handlers additionally require the artifact permissions noted, so access is never
 | GET | `/dev/v1/animations/status` | `media:project:dev:read` | — | `MEDIA_DEV_RENDER_FFMPEG`/`MEDIA_DEV_RENDER_FFPROBE` + the shared request ledger |
 | POST | `/dev/v1/animations/renders` | `media:project:dev:write` | `media:artifact:{read,create}`; `PROCESSING` rights admission of every image asset | FFmpeg/FFprobe composed (J-12) |
 | GET | `/dev/v1/animations/renders/{renderId}` | `media:project:dev:read` | `media:artifact:read` (the render id is the manifest artifact id) | FFmpeg/FFprobe composed |
+| GET | `/dev/v1/reference-scenes/status` | `media:project:dev:read` | — | templates, limits, the MODEL state (`available: false`), the rights authority; needs the shared request ledger |
+| POST | `/dev/v1/reference-scenes/reference-sets` | `media:project:dev:write` | `media:artifact:{read,create}`; `PROCESSING` rights admission of every reference image | J-10 (`MediaDevReferenceSceneRuntime`): durable reference set manifest |
+| GET | `/dev/v1/reference-scenes/reference-sets/{setId}` | `media:project:dev:read` | `media:artifact:read` (the set id is the manifest artifact id) | owner only |
+| POST | `/dev/v1/reference-scenes/runs` | `media:project:dev:write` | `media:artifact:{read,create}`; `PROCESSING` rights admission of every USED reference on every call; `mode: MODEL` is `503 MODEL_UNAVAILABLE` | authored template composed by the animation renderer; no model, no FFmpeg |
+| GET | `/dev/v1/reference-scenes/runs/{runId}` | `media:project:dev:read` | `media:artifact:read` (the run id is the manifest artifact id) | owner only |
+| POST | `/dev/v1/reference-scenes/runs/{runId}/regenerations` | `media:project:dev:write` | `media:artifact:read`; rights re-checked | re-renders from the manifest and compares with the stored scenes; registers nothing |
 | GET | `/dev/v1/masters/status` | `media:project:dev:read` | — | the shared request ledger; the master encode needs `MEDIA_DEV_RENDER_FFMPEG` (stem generation needs no tool) |
 | POST | `/dev/v1/masters/stems` | `media:project:dev:write` | `media:artifact:{read,create}` | J-17 (`MediaDevMasterRuntime`): ORIGINAL procedural stem; no rights call (no third-party material) |
 | GET | `/dev/v1/masters/stems/{stemId}` | `media:project:dev:read` | `media:artifact:read` | owner only |
@@ -687,6 +693,38 @@ channels, another sample rate, truncated frames, not a WAV), `422 MASTER_TOO_SHO
 same requestId with a different body is `409 MASTER_REQUEST_ID_REUSED`. Registration keys derive from the content request, so a killed
 encode (`503 MASTER_OUTCOME_UNKNOWN`) or a killed launcher followed by a retry registers exactly one set of outputs. Responses are
 labelled DEV_ONLY with no rights-clearance, quality, approval or production claim.
+
+DEV_ONLY rights-checked reference scenes (J-10, `media.dev.outcome-reference-continuity`;
+`MediaDevReferenceSceneRuntime`, `MediaDevReferenceSceneSpec`, `MediaDevReferenceSceneImaging`,
+`MediaDevReferenceSceneRoutes`; composed with the shared durable request ledger, no FFmpeg and no model). There is NO local
+generative image or video model (the local models are Whisper, Kokoro, Florence-2 and Qwen2.5-VL, which understand media),
+so `mode: MODEL` is `503 MODEL_UNAVAILABLE` with `details{reason: NO_ADMITTED_GENERATIVE_MODEL, fallback: NONE,
+artifactsCreated: 0}`: no rights lookup, no read, no artifact and NO silent fallback to a template. `mode: TEMPLATE` composes
+authored, versioned templates (`reference-stage` v1: up to three references on a floor line; `product-spotlight` v1: one
+reference in a ring) with the verified `AnimationRenderer`: each reference is decoded, area-scaled to its seeded placement,
+optionally recoloured (`tint{color,strength}`), and drawn 1:1 over a palette background with optional seeded sparkles; the
+seed drives per-scene drift (SplitMix64) and `push{start,end}` scales the placement across scenes. A reference set
+(`POST .../reference-sets`, `{requestId, name?, references[{referenceId, artifactId, artifactVersionId}]}`) lists 1-6 exact
+`image/png|jpeg` versions, each ADMITTED for `PROCESSING` when listed (`403 RIGHTS_NOT_ADMITTED` with `details.path`,
+`503 RIGHTS_AUTHORITY_UNAVAILABLE`, `404 SOURCE_VERSION_NOT_FOUND` for another owner's artifact). A run
+(`{requestId, mode: TEMPLATE, referenceSetId, template{id,version}, seed, sceneCount 1-8, parameters{canvas?, palette 2-6
+#RRGGBB, slots[]|subject, drift?, push?, sparkles?}, continuity?}`) validates everything before any rights call (`422
+REFERENCE_SCENE_SPEC_INVALID` with `details.path`; a slot naming a reference outside the set is `422 REFERENCE_NOT_IN_SET`; a
+placement that does not fit the canvas is the `height` path), then re-checks `PROCESSING` for every USED reference (a replay
+included: revoked is `403`), then renders. Continuity is measured on the DECODED PNGs: per placed reference the colour
+histogram distance (64 bins, total variation), global luma SSIM and 64-bit difference-hash distance against the reference
+scaled to its placed size (opaque pixels only), the render fidelity (maximum channel difference of the decoded crop against
+the independently recoloured expectation, tolerance 2), the cross-scene histogram and hash distance of the reference crop
+against scene 0, and the palette adherence of everything outside the references. A threshold failure is
+`422 CONTINUITY_THRESHOLD_FAILED` with the failing metrics and nothing registered (defaults: histogram <= 0.35, SSIM >= 0.50,
+hash <= 16, palette >= 0.98, cross-scene histogram <= 0.30; overridable per request). A pass registers one PNG per scene
+and one manifest (template id and version, seed, canonical parameters, exact reference versions with their rights decisions,
+per-scene canonical and pixel SHA-256, rectangles and metrics). The store refuses two artifacts with identical bytes, so each
+stored PNG carries one `tEXt` chunk `media.reference-scene` with `requestId:index`; removing exactly that chunk gives the
+canonical renderer PNG, and `POST .../runs/{runId}/regenerations` re-checks rights, re-renders from the manifest and proves
+`byteIdentical` against the manifest digests and the stored bytes (artifacts created: 0). A different body under a used
+`requestId` is `409 REFERENCE_SCENE_REQUEST_ID_REUSED`; the ledger replays a finished request (`200`). The Explorer page is
+`/dev-reference-scenes.html`. Labelled DEV_ONLY with no quality, rights-clearance, approval or production claim.
 
 DEV_ONLY deterministic 2D animation (J-12, `media.dev.outcome-two-dimensional-animation`; `MediaDevAnimationRuntime`,
 `MediaDevAnimationSpec`, `MediaDevAnimationRoutes`; composed only when both absolute `MEDIA_DEV_RENDER_FFMPEG` and
