@@ -383,6 +383,32 @@ class SpatialRigEngineTest {
     }
 
     @Test
+    void publicGlbArtifactRequiresEmbeddedBufferData() throws Exception {
+        var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
+        var rig = new SpatialRigEngine.Rig("rig-buffer-uri", glbFrame(), "UNIT_QUATERNION_XYZW", List.of(source),
+                List.of(bone("root", null, SpatialRigEngine.LocalTransform.identity(), Math.PI)),
+                Map.of("root", List.of(
+                        key(0, 1, SpatialRigEngine.Vec3.ZERO, SpatialRigEngine.Quaternion.IDENTITY),
+                        key(1, 1, new SpatialRigEngine.Vec3(1, 0, 0), SpatialRigEngine.Quaternion.IDENTITY))),
+                "project:edit:revision-8");
+        var artifact = engine.exportGlb(rig, ignored -> SpatialRigEngine.RightsOutcome.ELIGIBLE);
+        String json = readGlbJson(artifact.bytes());
+        assertThat(json).contains("\"buffers\":[{\"byteLength\":").doesNotContain("\"uri\"");
+
+        String externalBuffer = json.replace("\"buffers\":[{\"byteLength\":",
+                "\"buffers\":[{\"uri\":\"https://example.invalid/external.bin\",\"byteLength\":");
+        assertThat(externalBuffer).isNotEqualTo(json);
+        byte[] tampered = replaceGlbJson(artifact.bytes(), externalBuffer);
+        String tamperedDigest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(tampered));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new SpatialRigEngine.GlbArtifact(
+                artifact.rigId(), artifact.sourceProjectRevisionRef(), artifact.frameRef(), artifact.frameVersionRef(),
+                artifact.sourceVersions(), artifact.mimeType(), artifact.timeEncoding(), artifact.lossDisposition(),
+                tamperedDigest, tampered))
+                .withMessageContaining("embedded buffer data");
+    }
+
+    @Test
     void publicGlbArtifactRejectsDuplicateLineageJsonKeys() throws Exception {
         var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
         var rig = new SpatialRigEngine.Rig("rig-duplicate", glbFrame(), "UNIT_QUATERNION_XYZW", List.of(source),

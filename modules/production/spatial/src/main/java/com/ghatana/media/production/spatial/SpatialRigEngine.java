@@ -732,6 +732,14 @@ public final class SpatialRigEngine {
         if (document == null || !document.isObject()) {
             throw new IllegalArgumentException("GLB spatial lineage manifest is invalid");
         }
+        JsonNode buffers = document.path("buffers");
+        if (buffers.isArray()) {
+            for (JsonNode buffer : buffers) {
+                if (buffer.isObject() && !buffer.path("uri").isMissingNode()) {
+                    throw new IllegalArgumentException("GLB spatial artifact must use embedded buffer data");
+                }
+            }
+        }
         JsonNode metadata = document.path("extras").path("mediaSpatial");
         if (!"2.0".equals(document.path("asset").path("version").asString())
                 || !timeEncoding.equals(metadata.path("timeEncoding").asString())
