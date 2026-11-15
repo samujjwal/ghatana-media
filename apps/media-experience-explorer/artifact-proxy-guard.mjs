@@ -129,6 +129,18 @@ const devProjectRoutes = [
   { method: "POST", path: /^\/dev\/v1\/composite-renders$/u },
   { method: "POST", path: new RegExp(`^/dev/v1/composite-renders/${OPAQUE_ID}/cancel$`, "u") },
   { method: "GET", path: new RegExp(`^/dev/v1/composite-renders/${OPAQUE_ID}$`, "u") },
+  // DEV_ONLY versioned storyboard (J-09) used by the "Brief to reviewed media" page (versions, readiness, render, review handoff; no DELETE).
+  { method: "GET", path: /^\/dev\/v1\/storyboards\/capabilities$/u },
+  { method: "POST", path: /^\/dev\/v1\/storyboards$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/storyboards/${OPAQUE_ID}$`, "u") },
+  { method: "GET", path: new RegExp(`^/dev/v1/storyboards/${OPAQUE_ID}/versions$`, "u") },
+  { method: "POST", path: new RegExp(`^/dev/v1/storyboards/${OPAQUE_ID}/versions$`, "u") },
+  { method: "GET", path: new RegExp(`^/dev/v1/storyboards/${OPAQUE_ID}/versions/[0-9]{1,6}$`, "u") },
+  { method: "GET", path: new RegExp(`^/dev/v1/storyboards/${OPAQUE_ID}/readiness$`, "u") },
+  { method: "POST", path: new RegExp(`^/dev/v1/storyboards/${OPAQUE_ID}/renders$`, "u") },
+  { method: "GET", path: new RegExp(`^/dev/v1/storyboards/${OPAQUE_ID}/versions/[0-9]{1,6}/render$`, "u") },
+  { method: "GET", path: new RegExp(`^/dev/v1/storyboards/${OPAQUE_ID}/versions/[0-9]{1,6}/review$`, "u") },
+  { method: "POST", path: new RegExp(`^/dev/v1/storyboards/${OPAQUE_ID}/versions/[0-9]{1,6}/review$`, "u") },
   // DEV_ONLY observed local provider readiness used by the "Local providers" page (read-only; no DELETE).
   { method: "GET", path: /^\/dev\/v1\/providers\/catalog$/u },
 ];
