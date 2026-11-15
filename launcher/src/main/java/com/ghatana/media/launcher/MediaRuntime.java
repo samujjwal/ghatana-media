@@ -2455,6 +2455,11 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         return devAdmission;
     }
 
+    /** The runtime's bounded-label metrics, shared by the DEV_ONLY provider catalog and outage counters. */
+    MediaWorkflowMetrics workflowMetrics() {
+        return workflowMetrics;
+    }
+
     void recordHttpRequest() {
         workflowMetrics.recordRequest();
     }

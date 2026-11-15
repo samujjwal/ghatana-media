@@ -110,6 +110,9 @@ public final class LocalVisionEngine {
 
     public boolean sidecarHealthy() { return client.healthy(); }
 
+    /** One bounded sidecar health probe with reachability class, latency and the sidecar's own report. */
+    public LocalVisionSidecarClient.Health sidecarHealth(java.time.Duration timeout) { return client.health(timeout); }
+
     /** Florence-2 caption, detection and scene-text in one bound result. */
     public Map<String, Object> analyze(byte[] image, String imageSha256, Set<String> tasks) {
         requireImage(image);

@@ -321,6 +321,12 @@ public final class MediaDevSpeechRuntime {
                         "dev-lane:no-source-artifact;stock-voice;no-cloning");
     }
 
+    // ---- provider access for the DEV_ONLY provider catalog ----
+
+    LocalWhisperCppSttProvider sttProvider() { return stt; }
+
+    LocalKokoroTtsProvider ttsProvider() { return tts; }
+
     // ---- capabilities ----
 
     /** Read-only readiness view. No filesystem path, weight location or tool output is exposed. */

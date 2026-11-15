@@ -251,10 +251,13 @@ public final class MediaDevVisionTrackingRuntime {
                     try {
                         inference = engine.analyze(image, sha, Set.of("detect"));
                     } catch (LocalVisionSidecarClient.SidecarUnavailableException unavailable) {
-                        throw new VisionOutcomeUnknownException(completed, sampled.size(), unavailable);
+                        throw MediaDevVisionRuntime.sidecarOutage(unavailable, completed, sampled.size());
                     } catch (LocalVisionEngine.NotAdmittedException refusal) {
                         throw new MediaDevVisionRuntime.VisionNotAdmittedException(refusal.modelId(), refusal.code());
                     } catch (LocalVisionSidecarClient.SidecarRejectedException rejected) {
+                        if (MediaDevVisionRuntime.providerFailure(rejected)) {
+                            throw new MediaDevVisionRuntime.VisionUnavailableException(rejected);
+                        }
                         throw new MediaDevVisionRuntime.VisionUnsupportedException("LOCAL_VISION_REJECTED",
                                 "the local vision sidecar rejected a frame (" + rejected.code() + ")");
                     }
@@ -461,10 +464,13 @@ public final class MediaDevVisionTrackingRuntime {
             try {
                 inference = engine.analyze(crop, cropSha, request.tasks());
             } catch (LocalVisionSidecarClient.SidecarUnavailableException unavailable) {
-                throw new VisionOutcomeUnknownException(0, 1, unavailable);
+                throw MediaDevVisionRuntime.sidecarOutage(unavailable, 0, 1);
             } catch (LocalVisionEngine.NotAdmittedException refusal) {
                 throw new MediaDevVisionRuntime.VisionNotAdmittedException(refusal.modelId(), refusal.code());
             } catch (LocalVisionSidecarClient.SidecarRejectedException rejected) {
+                if (MediaDevVisionRuntime.providerFailure(rejected)) {
+                    throw new MediaDevVisionRuntime.VisionUnavailableException(rejected);
+                }
                 throw new MediaDevVisionRuntime.VisionUnsupportedException("LOCAL_VISION_REJECTED",
                         "the local vision sidecar rejected the request (" + rejected.code() + ")");
             }

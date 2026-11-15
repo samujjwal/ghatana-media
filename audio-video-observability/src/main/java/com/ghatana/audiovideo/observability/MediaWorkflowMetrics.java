@@ -832,6 +832,101 @@ public final class MediaWorkflowMetrics {
         aggregateStoreQueriesSupported.set(hasCompleteMeasurements ? 1.0 : Double.NaN);
     }
 
+    // ---- DEV_ONLY local provider catalog (J-30) and outage counters (J-27) ----
+
+    /** Fixed local provider vocabulary; never a model path, endpoint or free-form value. */
+    public enum LocalProvider {
+        WHISPER("whisper"), KOKORO("kokoro"), FLORENCE("florence"), QWEN("qwen"), FFMPEG("ffmpeg");
+
+        private final String label;
+
+        LocalProvider(String label) { this.label = label; }
+
+        public String label() { return label; }
+    }
+
+    /** Observed catalog readiness; READY is only ever set from a real verification or probe. */
+    public enum LocalProviderState {
+        READY, DEGRADED, UNAVAILABLE, NOT_ADMITTED, WITHDRAWN
+    }
+
+    /** Fixed DEV lane vocabulary for outage counters. */
+    public enum OutageLane {
+        SPEECH_TRANSCRIBE("speech_transcribe"), SPEECH_SYNTHESIZE("speech_synthesize"), VISION("vision"),
+        GROUNDED("grounded"), RENDER("render");
+
+        private final String label;
+
+        OutageLane(String label) { this.label = label; }
+    }
+
+    /** What a lane reported when its provider was down or degraded; never a success. */
+    public enum OutageOutcome {
+        UNAVAILABLE("unavailable"), UNKNOWN("unknown"), TIMEOUT("timeout");
+
+        private final String label;
+
+        OutageOutcome(String label) { this.label = label; }
+    }
+
+    private final ConcurrentMap<LocalProvider, EnumMap<LocalProviderState, AtomicReference<Double>>> localProviderStates =
+            new ConcurrentHashMap<>();
+    private final ConcurrentMap<LocalProvider, AtomicReference<Double>> localProviderCheckedAt =
+            new ConcurrentHashMap<>();
+
+    /**
+     * Export one-hot readiness for a local provider: {@code media.dev.provider.state{provider,state}} is 1 for the
+     * observed state and 0 for the other four (bounded 5x5 series), and
+     * {@code media.dev.provider.checked_at_seconds{provider}} is the probe time. Labels carry no path, endpoint,
+     * digest, tenant or secret. A registry failure leaves the series unreported and never escapes.
+     */
+    public void recordLocalProviderState(LocalProvider provider, LocalProviderState state, Instant checkedAt) {
+        if (provider == null || state == null || checkedAt == null) return;
+        try {
+            EnumMap<LocalProviderState, AtomicReference<Double>> perState = localProviderStates.computeIfAbsent(
+                    provider, ignored -> {
+                        EnumMap<LocalProviderState, AtomicReference<Double>> created = new EnumMap<>(LocalProviderState.class);
+                        for (LocalProviderState each : LocalProviderState.values()) {
+                            AtomicReference<Double> cell = new AtomicReference<>(Double.NaN);
+                            Gauge.builder("media.dev.provider.state", cell, AtomicReference::get)
+                                    .description("1 when the DEV local provider is in this observed state, 0 otherwise; NaN before the first probe")
+                                    .tag("service", safeService).tag("provider", provider.label())
+                                    .tag("state", each.name().toLowerCase(java.util.Locale.ROOT))
+                                    .tag("contract_version", CONTRACT_VERSION).register(registry);
+                            created.put(each, cell);
+                        }
+                        return created;
+                    });
+            for (LocalProviderState each : LocalProviderState.values()) {
+                perState.get(each).set(each == state ? 1.0 : 0.0);
+            }
+            localProviderCheckedAt.computeIfAbsent(provider, ignored -> {
+                AtomicReference<Double> cell = new AtomicReference<>(Double.NaN);
+                Gauge.builder("media.dev.provider.checked_at_seconds", cell, AtomicReference::get)
+                        .description("Unix timestamp of the latest DEV local provider verification or probe")
+                        .tag("service", safeService).tag("provider", provider.label())
+                        .tag("contract_version", CONTRACT_VERSION).register(registry);
+                return cell;
+            }).set(epochSeconds(checkedAt));
+        } catch (RuntimeException registryFailure) {
+            // Observational only: a registry failure must not alter the catalog or a lane result.
+        }
+    }
+
+    /** Count one lane result that reported a provider outage instead of a success. */
+    public void recordLocalProviderOutage(OutageLane lane, OutageOutcome outcome) {
+        if (lane == null || outcome == null) return;
+        try {
+            registry.counter("media.dev.provider.outages",
+                    "lane", lane.label,
+                    "outcome", outcome.label,
+                    "service", safeService,
+                    "contract_version", CONTRACT_VERSION).increment();
+        } catch (RuntimeException ignored) {
+            // Outage counters are observational and must not replace the typed outage response.
+        }
+    }
+
     private static double measuredCount(long count) {
         return count < 0 ? Double.NaN : count;
     }

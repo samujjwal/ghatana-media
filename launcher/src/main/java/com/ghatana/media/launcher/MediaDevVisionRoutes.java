@@ -46,6 +46,8 @@ final class MediaDevVisionRoutes {
 
     static boolean handles(String path) { return path.startsWith("/dev/v1/vision/"); }
 
+    MediaDevVisionRuntime visionRuntime() { return vision; }
+
     void handle(HttpExchange exchange, String path, String method, String tenantId, String principalId,
                 int maxBody, MediaDevCreativeOutputRoutes.Responder out) throws IOException {
         try {
@@ -76,6 +78,10 @@ final class MediaDevVisionRoutes {
             out.error(exchange, 503, "LOCAL_MODEL_NOT_ADMITTED",
                     "The required local model is not digest-qualified; nothing was dispatched",
                     Map.of("modelId", failure.modelId(), "reason", failure.code()));
+        } catch (MediaDevVisionRuntime.VisionTimeoutException failure) {
+            out.error(exchange, 504, "VISION_TIMEOUT",
+                    "The local vision run exceeded its time budget and was abandoned; nothing was registered. "
+                            + "Retry the same requestId", Map.of());
         } catch (MediaDevVisionRuntime.VisionUnavailableException failure) {
             out.error(exchange, 503, "LOCAL_VISION_UNAVAILABLE",
                     "The loopback local vision sidecar is unavailable; retry the same requestId", Map.of());

@@ -127,6 +127,32 @@ public final class MediaDevVisionRuntime {
         VisionUnavailableException(Throwable cause) { super("local vision sidecar is unavailable", cause); }
     }
 
+    /** The sidecar did not answer within its deadline; the call was abandoned and nothing was registered. */
+    public static final class VisionTimeoutException extends RuntimeException {
+        VisionTimeoutException(Throwable cause) { super("local vision sidecar exceeded its time budget", cause); }
+    }
+
+    /**
+     * Classifies a lost sidecar call (J-27): a refused or never-established connection means nothing ran
+     * (UNAVAILABLE) unless earlier frames already ran, a deadline miss is TIMEOUT, and a connection lost mid-call is
+     * UNKNOWN because the model may have run. None of these registers anything or falls back to another model.
+     */
+    static RuntimeException sidecarOutage(LocalVisionSidecarClient.SidecarUnavailableException failure,
+                                          int framesCompleted, int framesPlanned) {
+        return switch (failure.reach()) {
+            case NOT_REACHED -> framesCompleted == 0 ? new VisionUnavailableException(failure)
+                    : new MediaDevVisionTrackingRuntime.VisionOutcomeUnknownException(framesCompleted, framesPlanned, failure);
+            case TIMED_OUT -> new VisionTimeoutException(failure);
+            case CONNECTION_LOST -> new MediaDevVisionTrackingRuntime.VisionOutcomeUnknownException(
+                    framesCompleted, framesPlanned, failure);
+        };
+    }
+
+    /** A 5xx (a model or runtime failure such as GPU memory exhaustion) or an auth refusal is a provider outage. */
+    static boolean providerFailure(LocalVisionSidecarClient.SidecarRejectedException rejected) {
+        return rejected.status() >= 500 || rejected.status() == 401 || rejected.status() == 403;
+    }
+
     public static final class VisionUnsupportedException extends IllegalArgumentException {
         private final String code;
         VisionUnsupportedException(String code, String message) { super(message); this.code = code; }
@@ -283,8 +309,9 @@ public final class MediaDevVisionRuntime {
         } catch (LocalVisionEngine.NotAdmittedException refusal) {
             throw new VisionNotAdmittedException(refusal.modelId(), refusal.code());
         } catch (LocalVisionSidecarClient.SidecarUnavailableException unavailable) {
-            throw new VisionUnavailableException(unavailable);
+            throw sidecarOutage(unavailable, 0, 1);
         } catch (LocalVisionSidecarClient.SidecarRejectedException rejected) {
+            if (providerFailure(rejected)) throw new VisionUnavailableException(rejected);
             throw new VisionUnsupportedException("LOCAL_VISION_REJECTED",
                     "the local vision sidecar rejected the request (" + rejected.code() + ")");
         } catch (IllegalArgumentException invalid) {

@@ -67,7 +67,7 @@ public final class MediaDevGroundedAnswerRuntime {
     }
 
     /** One child's attempt outcome. */
-    enum ChildStatus { COMPLETED, UNAVAILABLE, FAILED, OUTCOME_UNKNOWN }
+    enum ChildStatus { COMPLETED, UNAVAILABLE, FAILED, OUTCOME_UNKNOWN, TIMED_OUT }
 
     /**
      * What one evidence child returns. {@code pin} is what the child states about the source version and clock its
@@ -350,7 +350,23 @@ public final class MediaDevGroundedAnswerRuntime {
                         Map.of("children", childViews(results, evidence)));
             }
         }
+        for (ChildResult child : results) {
+            if (child.status() == ChildStatus.TIMED_OUT) {
+                throw new GroundedRefusedException(504, "GROUNDED_TIMEOUT",
+                        "a child exceeded its time budget and was abandoned; nothing was registered and the same "
+                                + "requestId may be retried", Map.of("children", childViews(results, evidence)));
+            }
+        }
         boolean partial = results.stream().anyMatch(child -> child.status() != ChildStatus.COMPLETED);
+        if (partial && !request.allowPartial()
+                && results.stream().anyMatch(child -> child.status() == ChildStatus.UNAVAILABLE)
+                && results.stream().noneMatch(child -> child.status() == ChildStatus.FAILED)) {
+            // Nothing ran for the unavailable child: report the outage as such, never as a generic failure.
+            throw new GroundedRefusedException(503, "GROUNDED_UNAVAILABLE",
+                    "an evidence provider is unavailable; nothing ran for it and no answer was produced (retry, or "
+                            + "set allowPartial to accept the remaining evidence)",
+                    Map.of("children", childViews(results, evidence)));
+        }
         if (partial && !request.allowPartial()) {
             throw new GroundedRefusedException(502, "GROUNDED_CHILD_FAILED",
                     "an evidence child failed; no answer was produced (retry, or set allowPartial to accept the "

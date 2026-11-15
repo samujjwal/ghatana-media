@@ -37,7 +37,24 @@ public final class LocalVisionSidecarClient {
 
     /** The sidecar cannot be reached or timed out; the effect may or may not have happened. */
     public static final class SidecarUnavailableException extends RuntimeException {
-        public SidecarUnavailableException(String message, Throwable cause) { super(message, cause); }
+        /**
+         * How far the call got. {@code NOT_REACHED}: the connection was refused or never established, so nothing ran.
+         * {@code TIMED_OUT}: the request was sent and no answer arrived within the deadline (the call is abandoned and
+         * its late result is never used). {@code CONNECTION_LOST}: the request may have been processed (the process
+         * died or reset the connection mid-call), so the outcome is unknown.
+         */
+        public enum Reach { NOT_REACHED, TIMED_OUT, CONNECTION_LOST }
+
+        private final Reach reach;
+
+        public SidecarUnavailableException(String message, Throwable cause) { this(message, cause, Reach.CONNECTION_LOST); }
+
+        public SidecarUnavailableException(String message, Throwable cause, Reach reach) {
+            super(message, cause);
+            this.reach = Objects.requireNonNull(reach, "reach");
+        }
+
+        public Reach reach() { return reach; }
     }
 
     /** The sidecar answered with a definite refusal or failure. */
@@ -91,6 +108,42 @@ public final class LocalVisionSidecarClient {
         }
     }
 
+    /** Outcome of one bounded health probe: reachability class plus the sidecar's own body when it answered. */
+    public record Health(State state, long elapsedMillis, Map<String, Object> body) {
+        public enum State { UP, UNREACHABLE, TIMED_OUT, REJECTED }
+    }
+
+    /**
+     * One authenticated {@code /v1/health} probe bounded by {@code timeout}. A refused connection is UNREACHABLE (no
+     * process listening), a response that does not arrive in time is TIMED_OUT (hung or saturated) and any non-200
+     * answer is REJECTED. The body is the sidecar's own report (loaded models, the device torch actually reports).
+     */
+    public Health health(Duration timeout) {
+        long started = System.nanoTime();
+        try {
+            HttpResponse<byte[]> response = http.send(
+                    HttpRequest.newBuilder(base.resolve("/v1/health")).timeout(timeout)
+                            .header("Authorization", "Bearer " + token).GET().build(),
+                    HttpResponse.BodyHandlers.ofByteArray());
+            long elapsed = (System.nanoTime() - started) / 1_000_000;
+            if (response.statusCode() != 200) return new Health(Health.State.REJECTED, elapsed, Map.of());
+            Map<String, Object> body;
+            try {
+                body = JSON.readValue(response.body(), new tools.jackson.core.type.TypeReference<Map<String, Object>>() { });
+            } catch (RuntimeException malformed) {
+                body = Map.of();
+            }
+            return new Health(Health.State.UP, elapsed, body == null ? Map.of() : body);
+        } catch (java.net.http.HttpTimeoutException timedOut) {
+            return new Health(Health.State.TIMED_OUT, (System.nanoTime() - started) / 1_000_000, Map.of());
+        } catch (IOException | RuntimeException unreachable) {
+            return new Health(Health.State.UNREACHABLE, (System.nanoTime() - started) / 1_000_000, Map.of());
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+            return new Health(Health.State.UNREACHABLE, (System.nanoTime() - started) / 1_000_000, Map.of());
+        }
+    }
+
     public boolean healthy() {
         try {
             HttpResponse<byte[]> response = http.send(
@@ -141,11 +194,19 @@ public final class LocalVisionSidecarClient {
                             .header("Content-Type", "application/json")
                             .POST(HttpRequest.BodyPublishers.ofByteArray(payload)).build(),
                     HttpResponse.BodyHandlers.ofByteArray());
+        } catch (java.net.http.HttpConnectTimeoutException | java.net.ConnectException e) {
+            throw new SidecarUnavailableException("local vision sidecar could not be reached", e,
+                    SidecarUnavailableException.Reach.NOT_REACHED);
+        } catch (java.net.http.HttpTimeoutException e) {
+            throw new SidecarUnavailableException("local vision sidecar timed out", e,
+                    SidecarUnavailableException.Reach.TIMED_OUT);
         } catch (IOException e) {
-            throw new SidecarUnavailableException("local vision sidecar is unreachable or timed out", e);
+            throw new SidecarUnavailableException("local vision sidecar connection was lost", e,
+                    SidecarUnavailableException.Reach.CONNECTION_LOST);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new SidecarUnavailableException("local vision sidecar call interrupted", e);
+            throw new SidecarUnavailableException("local vision sidecar call interrupted", e,
+                    SidecarUnavailableException.Reach.CONNECTION_LOST);
         }
         byte[] data = response.body();
         if (data.length > MAX_RESPONSE_BYTES) throw new SidecarRejectedException(502, "RESPONSE_TOO_LARGE");

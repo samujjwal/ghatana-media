@@ -102,6 +102,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private MediaDevErasureRoutes devErasure;
     private MediaDevCaptionRoutes devCaptions;
     private MediaDevAudioRoutes devAudio;
+    private MediaDevProviderCatalogRoutes devProviderCatalog;
     private final ObjectMapper mapper = JsonMapper.builder(JsonFactory.builder()
             .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
             .build())
@@ -184,6 +185,15 @@ public final class MediaHttpHandler implements HttpHandler {
     }
 
     /** Installs the optional DEV_ONLY rights and consent routes. */
+    /** DEV_ONLY provider catalog over the speech and vision providers this handler already serves. */
+    MediaHttpHandler withDevProviderCatalog(Map<String, String> environment) {
+        this.devProviderCatalog = new MediaDevProviderCatalogRoutes(MediaDevProviderCatalog.compose(runtime, environment,
+                devSpeech == null ? null : devSpeech.speechRuntime().sttProvider(),
+                devSpeech == null ? null : devSpeech.speechRuntime().ttsProvider(),
+                devVision == null ? null : devVision.visionRuntime().engine()));
+        return this;
+    }
+
     MediaHttpHandler withDevRights(MediaDevRightsRuntime rights) {
         this.devRights = rights == null ? null : new MediaDevRightsRoutes(runtime, rights);
         return this;
@@ -467,6 +477,18 @@ public final class MediaHttpHandler implements HttpHandler {
             }
             // A read of an erased artifact id answers a typed 410 on every artifact-bearing DEV route.
             if (devErasure.refuseIfErased(exchange, path, method, tenantId, erasureOut)) return;
+        }
+        if (devProviderCatalog != null && MediaDevProviderCatalogRoutes.handles(path)) {
+            devProviderCatalog.handle(exchange, path, method, new MediaDevCreativeOutputRoutes.Responder() {
+                @Override public void json(HttpExchange e, int status, Object body) throws IOException {
+                    MediaHttpHandler.this.json(e, status, body);
+                }
+                @Override public void error(HttpExchange e, int status, String code, String message,
+                                            Map<String, ?> details) throws IOException {
+                    MediaHttpHandler.this.error(e, status, code, message, details);
+                }
+            });
+            return;
         }
         if (devRights != null && MediaDevRightsRoutes.handles(path)) {
             devRights.handle(exchange, path, method, tenantId, principalId);
@@ -807,6 +829,14 @@ public final class MediaHttpHandler implements HttpHandler {
         } catch (MediaDevProjectRenderRuntime.RenderCodecUnavailableException failure) {
             error(exchange, 503, "RENDER_CODEC_UNAVAILABLE",
                     "The DEV_ONLY MP4 codec pipeline is not configured or not runnable on this host");
+        } catch (MediaDevProjectRenderRuntime.RenderTimeoutException failure) {
+            error(exchange, 504, "RENDER_TIMEOUT",
+                    "The DEV_ONLY render exceeded its time budget and was cancelled; nothing was registered. "
+                            + "Retry the same requestId");
+        } catch (MediaDevProjectRenderRuntime.RenderOutcomeUnknownException failure) {
+            error(exchange, 503, "RENDER_OUTCOME_UNKNOWN",
+                    "The DEV_ONLY render process ended abnormally; its outcome is unknown and nothing was registered. "
+                            + "Retry the same requestId");
         } catch (MediaDevProjectRenderRuntime.RenderExecutionFailedException failure) {
             error(exchange, 502, "RENDER_EXECUTION_FAILED", "Render did not produce a verified output",
                     Map.of("reason", failure.reason()));
@@ -1435,6 +1465,12 @@ public final class MediaHttpHandler implements HttpHandler {
         exchange.getResponseHeaders().set("X-Request-ID", requestId);
         exchange.getResponseHeaders().set("X-Correlation-ID", correlationId);
         if (status == 429) exchange.getResponseHeaders().set("Retry-After", "1");
+        var outage = MediaDevOutage.classify(code);
+        if (outage.isPresent()) {
+            // DEV lane provider outage: shared outcome vocabulary, the no-fallback policy and a bounded-label counter.
+            details = MediaDevOutage.enrich(outage.get(), details);
+            runtime.workflowMetrics().recordLocalProviderOutage(outage.get().lane(), outage.get().outcome());
+        }
         Map<String, Object> error = new java.util.LinkedHashMap<>();
         error.put("code", code);
         error.put("message", message);

@@ -128,7 +128,17 @@ public final class MediaDevProjectRenderRuntime {
         RenderCodecUnavailableException(String message) { super(message); }
     }
 
-    /** The codec process ran but produced no verified output (timeout, crash, verification failure). */
+    /** The codec process exceeded its wall-clock budget and was killed; nothing was registered. */
+    public static final class RenderTimeoutException extends IllegalStateException {
+        RenderTimeoutException() { super("render exceeded its wall-clock budget and was cancelled"); }
+    }
+
+    /** The codec process ended abnormally (crash, kill, non-zero exit): it may have run; nothing was registered. */
+    public static final class RenderOutcomeUnknownException extends IllegalStateException {
+        RenderOutcomeUnknownException() { super("render process ended abnormally; its outcome is unknown"); }
+    }
+
+    /** The codec process ran but produced no verified output (verification failure, budget, I/O). */
     public static final class RenderExecutionFailedException extends IllegalStateException {
         private final String reason;
         RenderExecutionFailedException(String reason) {
@@ -175,6 +185,21 @@ public final class MediaDevProjectRenderRuntime {
      * Builds the DEV_ONLY MP4 pipeline from explicit absolute tool paths. Absent configuration yields null so MP4
      * requests return a typed unavailable result; tool paths are never resolved through PATH.
      */
+    /** Wall-clock budget of one FFmpeg render: {@code MEDIA_DEV_RENDER_TIMEOUT_SECONDS}, default 120, range 1..600. */
+    static final String RENDER_TIMEOUT_ENV = "MEDIA_DEV_RENDER_TIMEOUT_SECONDS";
+
+    static Duration renderTimeoutFrom(Map<String, String> environment) {
+        String raw = environment.get(RENDER_TIMEOUT_ENV);
+        if (raw == null || raw.isBlank()) return Duration.ofMinutes(2);
+        try {
+            long seconds = Long.parseLong(raw.trim());
+            if (seconds < 1 || seconds > 600) throw new NumberFormatException();
+            return Duration.ofSeconds(seconds);
+        } catch (NumberFormatException invalid) {
+            throw new IllegalArgumentException(RENDER_TIMEOUT_ENV + " must be an integer within [1, 600]");
+        }
+    }
+
     static FfmpegMultitrackRenderer mp4RendererFrom(Map<String, String> environment) {
         String ffmpeg = environment.get(FFMPEG_ENV);
         String ffprobe = environment.get(FFPROBE_ENV);
@@ -186,7 +211,7 @@ public final class MediaDevProjectRenderRuntime {
         }
         java.nio.file.Path tempRoot = java.nio.file.Path.of(System.getProperty("java.io.tmpdir")).toAbsolutePath();
         return new FfmpegMultitrackRenderer(new FfmpegMultitrackRenderer.Config(ffmpegPath, ffprobePath, tempRoot,
-                Map.of(), Duration.ofSeconds(10), Duration.ofMinutes(2), true));
+                Map.of(), Duration.ofSeconds(10), renderTimeoutFrom(environment), true));
     }
 
     /**
@@ -477,6 +502,13 @@ public final class MediaDevProjectRenderRuntime {
                         "timeline uses a feature the MP4 renderer does not support exactly");
                 case NOT_ADMITTED, UNAVAILABLE -> throw new RenderCodecUnavailableException(
                         "MP4 codec pipeline is unavailable: " + result.reason());
+                case FAILED -> {
+                    if (result.reason() == FfmpegMultitrackRenderer.Reason.TIMEOUT) throw new RenderTimeoutException();
+                    if (result.reason() == FfmpegMultitrackRenderer.Reason.PROCESS_FAILED) {
+                        throw new RenderOutcomeUnknownException();
+                    }
+                    throw new RenderExecutionFailedException(String.valueOf(result.reason()));
+                }
                 default -> throw new RenderExecutionFailedException(String.valueOf(result.reason()));
             }
             byte[] bytes = java.nio.file.Files.readAllBytes(result.outputPath());

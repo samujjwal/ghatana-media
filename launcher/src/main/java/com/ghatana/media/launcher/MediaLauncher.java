@@ -161,7 +161,8 @@ public final class MediaLauncher {
                                                 return devVision.withTracking(
                                                         MediaDevVisionTrackingRuntime.compose(runtime, devVision, environment,
                                                                 finalDevLedger));
-                                            }).orElse(null)),
+                                            }).orElse(null))
+                                    .withDevProviderCatalog(environment),
                             config.profile()));
         } catch (RuntimeException failure) {
             if (devErasure != null) {

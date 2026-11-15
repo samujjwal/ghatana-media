@@ -139,10 +139,15 @@ final class MediaDevGroundedLocalChildren implements MediaDevGroundedAnswerRunti
                     MediaDevGroundedAnswerRuntime.ChildStatus.COMPLETED, pin, items, model,
                     items.isEmpty() ? "NO_SPEECH_DETECTED" : "", 0, null);
         } catch (LocalSpeechException failure) {
-            return MediaDevGroundedAnswerRuntime.ChildResult.failed("STT",
-                    failure.code() == LocalSpeechException.Code.TIMEOUT
-                            ? MediaDevGroundedAnswerRuntime.ChildStatus.OUTCOME_UNKNOWN
-                            : MediaDevGroundedAnswerRuntime.ChildStatus.FAILED, "STT_" + failure.code().name());
+            // A recognizer that could not start is UNAVAILABLE (nothing ran), one that ended abnormally may have run
+            // (UNKNOWN) and a deadline miss is TIMED_OUT; only a definite input/limit refusal is a plain failure.
+            MediaDevGroundedAnswerRuntime.ChildStatus status = switch (failure.code()) {
+                case RUNTIME_UNAVAILABLE -> MediaDevGroundedAnswerRuntime.ChildStatus.UNAVAILABLE;
+                case PROCESS_FAILED, OUTPUT_INVALID -> MediaDevGroundedAnswerRuntime.ChildStatus.OUTCOME_UNKNOWN;
+                case TIMEOUT -> MediaDevGroundedAnswerRuntime.ChildStatus.TIMED_OUT;
+                default -> MediaDevGroundedAnswerRuntime.ChildStatus.FAILED;
+            };
+            return MediaDevGroundedAnswerRuntime.ChildResult.failed("STT", status, "STT_" + failure.code().name());
         } catch (IOException failure) {
             return MediaDevGroundedAnswerRuntime.ChildResult.failed("STT",
                     MediaDevGroundedAnswerRuntime.ChildStatus.FAILED, "AUDIO_EXTRACTION_FAILED");
@@ -239,12 +244,22 @@ final class MediaDevGroundedLocalChildren implements MediaDevGroundedAnswerRunti
             return MediaDevGroundedAnswerRuntime.ChildResult.failed("VISION",
                     MediaDevGroundedAnswerRuntime.ChildStatus.UNAVAILABLE, "LOCAL_MODEL_NOT_ADMITTED:" + refusal.code());
         } catch (LocalVisionSidecarClient.SidecarUnavailableException unavailable) {
-            // The sidecar was lost mid-inference: whether the model finished is unknown.
-            return MediaDevGroundedAnswerRuntime.ChildResult.failed("VISION",
-                    MediaDevGroundedAnswerRuntime.ChildStatus.OUTCOME_UNKNOWN, "LOCAL_VISION_SIDECAR_UNAVAILABLE");
+            return switch (unavailable.reach()) {
+                // The connection was never established: nothing ran.
+                case NOT_REACHED -> MediaDevGroundedAnswerRuntime.ChildResult.failed("VISION",
+                        MediaDevGroundedAnswerRuntime.ChildStatus.UNAVAILABLE, "LOCAL_VISION_SIDECAR_UNREACHABLE");
+                case TIMED_OUT -> MediaDevGroundedAnswerRuntime.ChildResult.failed("VISION",
+                        MediaDevGroundedAnswerRuntime.ChildStatus.TIMED_OUT, "LOCAL_VISION_TIMEOUT");
+                // The sidecar was lost mid-inference: whether the model finished is unknown.
+                case CONNECTION_LOST -> MediaDevGroundedAnswerRuntime.ChildResult.failed("VISION",
+                        MediaDevGroundedAnswerRuntime.ChildStatus.OUTCOME_UNKNOWN, "LOCAL_VISION_SIDECAR_UNAVAILABLE");
+            };
         } catch (LocalVisionSidecarClient.SidecarRejectedException rejected) {
             return MediaDevGroundedAnswerRuntime.ChildResult.failed("VISION",
-                    MediaDevGroundedAnswerRuntime.ChildStatus.FAILED, "LOCAL_VISION_REJECTED:" + rejected.code());
+                    MediaDevVisionRuntime.providerFailure(rejected)
+                            ? MediaDevGroundedAnswerRuntime.ChildStatus.UNAVAILABLE
+                            : MediaDevGroundedAnswerRuntime.ChildStatus.FAILED,
+                    "LOCAL_VISION_REJECTED:" + rejected.code());
         } catch (IOException | RuntimeException failure) {
             if (failure instanceof MediaDevGroundedClock.ClockBindingException refused) throw refused;
             return MediaDevGroundedAnswerRuntime.ChildResult.failed("VISION",
@@ -302,10 +317,23 @@ final class MediaDevGroundedLocalChildren implements MediaDevGroundedAnswerRunti
                     "the answering model is not digest-qualified; nothing was dispatched",
                     Map.of("modelId", refusal.modelId(), "reason", refusal.code()));
         } catch (LocalVisionSidecarClient.SidecarUnavailableException unavailable) {
-            throw new MediaDevGroundedAnswerRuntime.GroundedRefusedException(503, "GROUNDED_OUTCOME_UNKNOWN",
-                    "the vision sidecar was lost while answering; the outcome is unknown, nothing was registered "
-                            + "and the same requestId may be retried");
+            switch (unavailable.reach()) {
+                case NOT_REACHED -> throw new MediaDevGroundedAnswerRuntime.GroundedRefusedException(503,
+                        "GROUNDED_UNAVAILABLE", "the answering model's sidecar could not be reached; nothing ran, "
+                        + "nothing was registered and the same requestId may be retried");
+                case TIMED_OUT -> throw new MediaDevGroundedAnswerRuntime.GroundedRefusedException(504,
+                        "GROUNDED_TIMEOUT", "the answering model exceeded its time budget and was abandoned; nothing "
+                        + "was registered and the same requestId may be retried");
+                default -> throw new MediaDevGroundedAnswerRuntime.GroundedRefusedException(503, "GROUNDED_OUTCOME_UNKNOWN",
+                        "the vision sidecar was lost while answering; the outcome is unknown, nothing was registered "
+                                + "and the same requestId may be retried");
+            }
         } catch (LocalVisionSidecarClient.SidecarRejectedException rejected) {
+            if (MediaDevVisionRuntime.providerFailure(rejected)) {
+                throw new MediaDevGroundedAnswerRuntime.GroundedRefusedException(503, "GROUNDED_UNAVAILABLE",
+                        "the answering model failed to serve the request (" + rejected.code() + "); no answer was "
+                                + "produced and nothing was registered");
+            }
             throw new MediaDevGroundedAnswerRuntime.GroundedRefusedException(502, "GROUNDED_ANSWER_FAILED",
                     "the answering model rejected the request (" + rejected.code() + ")");
         }

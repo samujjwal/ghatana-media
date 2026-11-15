@@ -43,6 +43,8 @@ final class MediaDevSpeechRoutes {
         return path.startsWith("/dev/v1/speech/");
     }
 
+    MediaDevSpeechRuntime speechRuntime() { return speech; }
+
     void handle(HttpExchange exchange, String path, String method, String tenantId, String principalId,
                 int maxBody, MediaDevCreativeOutputRoutes.Responder out) throws IOException {
         try {

@@ -151,6 +151,24 @@ class Engines:
         self.qwen_manifest = None
 
     # ---- loading ----
+
+    def device_info(self):
+        """The accelerator torch actually reports for the configured device (never inferred from configuration)."""
+        if getattr(self, "_device_info", None) is not None:
+            return self._device_info
+        self._device_info = self._read_device_info()
+        return self._device_info
+
+    def _read_device_info(self):
+        try:
+            import torch
+            if self.device.startswith("cuda") and torch.cuda.is_available():
+                index = torch.cuda.current_device() if self.device == "cuda" else int(self.device.split(":")[1])
+                return {"kind": "GPU", "name": torch.cuda.get_device_name(index), "torch": torch.__version__}
+            return {"kind": "CPU", "name": "cpu", "torch": torch.__version__}
+        except Exception:
+            return {"kind": "UNKNOWN", "name": "", "torch": ""}
+
     def load_florence(self):
         if self._florence is not None:
             return self._florence
@@ -264,7 +282,9 @@ def make_handler(engines, token):
                 return self._send(200, {
                     "status": "UP",
                     "floren2Loaded": engines._florence is not None,
-                    "qwenLoaded": engines._qwen is not None})
+                    "qwenLoaded": engines._qwen is not None,
+                    "device": engines.device,
+                    "deviceInfo": engines.device_info()})
             return self._send(404, {"error": "NOT_FOUND"})
 
         def do_POST(self):
