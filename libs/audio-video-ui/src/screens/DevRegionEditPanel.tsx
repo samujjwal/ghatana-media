@@ -177,7 +177,7 @@ export function DevRegionEditPanel({ regionEdit, locked = false, newRequestId = 
     setPending(true); setFailure(null);
     try { await work(); } catch (error) {
       const shown = describeRegionFailure(error);
-      if (alive.current) setFailure(shown);
+      if (alive.current) { setFailure(shown); setResult(null); }
     } finally { if (alive.current) setPending(false); }
   };
 
@@ -351,7 +351,7 @@ export function DevRegionEditPanel({ regionEdit, locked = false, newRequestId = 
       {(failure.stale || failure.code === "LINEAGE_NOT_FOUND") && lineage && <p><button type="button" onClick={() => void openLineage(true)} disabled={busy}>Reload lineage</button></p>}
     </div>}
 
-    {result && <section aria-labelledby="region-result-title" className="region-result" data-region-result data-version-number={result.version.versionNumber}>
+    {result && <section aria-labelledby="region-result-title" className="region-result" data-region-result data-result-version={result.version.versionNumber}>
       <h3 id="region-result-title" ref={resultHeading} tabIndex={-1}>
         {result.version.kind === "UNDO" ? `Undo registered: version ${result.version.versionNumber}` : `Edit registered: version ${result.version.versionNumber}`}</h3>
       {result.version.kind === "UNDO" && <p data-undo-summary>

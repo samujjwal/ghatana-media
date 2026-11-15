@@ -45,3 +45,5 @@ input[type="range"] { width: 100%; max-width: 40rem; }
 .region-stage video { display: block; width: 100%; max-width: 100%; margin: 0; }
 .region-overlay { position: absolute; left: 0; top: 0; width: 100%; height: auto; pointer-events: none; }
 .region-stage p { margin-top: .5rem; }
+.region-field input, .region-field select { width: 100%; box-sizing: border-box; }
+form, .region-field { min-width: 0; max-width: 100%; }
