@@ -51,6 +51,16 @@ class MediaArtifactFormatVerifierTest {
             assertThat(match.detectedFormat()).isEqualTo("png");
         }
     @Test
+    void acceptsFlacOnlyWithTheFlacStreamMarkerAndRejectsSpoofing() {
+        var match = MediaArtifactFormatVerifier.verify("master.flac", "audio/flac", bytes("fLaC\0\0\0\"xxxx"));
+        assertThat(match.state()).isEqualTo("SIGNATURE_MATCH");
+        assertThat(match.detectedFormat()).isEqualTo("flac");
+        assertThat(MediaArtifactFormatVerifier.verify("master.flac", "audio/flac", bytes("RIFFxxxxWAVE")).state()).isEqualTo("SIGNATURE_MISMATCH");
+        assertThat(MediaArtifactFormatVerifier.verify("master.wav", "audio/flac", bytes("fLaC....")).state()).isEqualTo("SIGNATURE_MISMATCH");
+        assertThat(MediaArtifactFormatVerifier.verify("master.flac", "audio/flac", bytes("not flac")).state()).isEqualTo("SIGNATURE_MISMATCH");
+    }
+
+    @Test
         void acceptsGlbOnlyWithGltfMagicAndVersionTwo() {
             byte[] glb = {'g', 'l', 'T', 'F', 2, 0, 0, 0, 12, 0, 0, 0};
             assertThat(MediaArtifactFormatVerifier.matches("model/gltf-binary", glb)).isTrue();

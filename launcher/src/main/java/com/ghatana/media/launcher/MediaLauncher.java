@@ -185,6 +185,10 @@ public final class MediaLauncher {
                                             : MediaDevAudioRestorationRuntime.compose(runtime, environment,
                                                     finalDevRights == null ? null : finalDevRights.resolver(),
                                                     finalDevLedger))
+                                    .withDevMasters(finalDevLedger == null ? null
+                                            : MediaDevMasterRuntime.compose(runtime, environment,
+                                                    finalDevRights == null ? null : finalDevRights.resolver(),
+                                                    finalDevLedger))
                                     .withDevCaptions(finalDevProjectTimeline == null ? null
                                             : MediaDevCaptionRuntime.compose(runtime,
                                                     finalDevRights == null ? null : finalDevRights.resolver(),

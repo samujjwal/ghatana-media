@@ -43,6 +43,14 @@ final class MediaDevAudioWav {
     private MediaDevAudioWav() { }
 
     static Pcm parse(byte[] bytes) {
+        return parse(bytes, false);
+    }
+
+    /**
+     * {@code strict} additionally refuses a data chunk that is not a whole number of interleaved frames or that claims
+     * more bytes than the file holds, instead of silently dropping the partial tail.
+     */
+    static Pcm parse(byte[] bytes, boolean strict) {
         if (bytes.length < 44) throw new WavException("AUDIO_NOT_WAV", "the artifact is too small to be a WAV file");
         ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
         if (buffer.getInt(0) != 0x46464952 || buffer.getInt(8) != 0x45564157) { // "RIFF" ... "WAVE"
@@ -78,6 +86,10 @@ final class MediaDevAudioWav {
                 long available = bytes.length - (long) body;
                 long length = Math.min(size, available);
                 int frameBytes = 2 * channels;
+                if (strict && (size > available || size % frameBytes != 0)) {
+                    throw new WavException("AUDIO_PARTIAL_FRAMES",
+                            "the data chunk is truncated or not a whole number of interleaved PCM frames");
+                }
                 long frames = length / frameBytes;
                 if (frames <= 0) throw new WavException("AUDIO_EMPTY", "the audio has no samples");
                 short[] samples = new short[(int) (frames * channels)];
@@ -90,6 +102,30 @@ final class MediaDevAudioWav {
             position = (int) next;
         }
         throw new WavException("AUDIO_NOT_WAV", "no data chunk was found");
+    }
+
+    /**
+     * Canonical 44-byte-header PCM16 WAV followed by one RIFF {@code LIST/INFO ICMT} comment chunk. The data chunk is
+     * unchanged and still starts at byte 44; the comment (ASCII, at most 255 bytes) makes the bytes owner-specific, because
+     * the artifact store keeps one artifact per (tenant, digest, size) across owners.
+     */
+    static byte[] write(Pcm pcm, String comment) {
+        byte[] text = comment.getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+        if (text.length > 255) throw new IllegalArgumentException("WAV comment is too long");
+        int padded = text.length + 1 + ((text.length + 1) & 1); // NUL-terminated, padded to an even length
+        int dataBytes = pcm.raw().length * 2;
+        int listBody = 4 + 8 + padded; // "INFO" + ICMT header + text
+        ByteBuffer out = ByteBuffer.allocate(44 + dataBytes + 8 + listBody).order(ByteOrder.LITTLE_ENDIAN);
+        out.putInt(0x46464952).putInt(36 + dataBytes + 8 + listBody).putInt(0x45564157);
+        out.putInt(0x20746d66).putInt(16).putShort((short) 1).putShort((short) pcm.channels()).putInt(pcm.sampleRate())
+                .putInt(pcm.sampleRate() * pcm.channels() * 2).putShort((short) (pcm.channels() * 2)).putShort((short) 16);
+        out.putInt(0x61746164).putInt(dataBytes);
+        out.asShortBuffer().put(pcm.raw());
+        out.position(44 + dataBytes);
+        out.putInt(0x5453494c).putInt(listBody).putInt(0x4f464e49); // "LIST" size "INFO"
+        out.putInt(0x544d4349).putInt(text.length + 1); // "ICMT" size
+        out.put(text).put((byte) 0);
+        return out.array();
     }
 
     /** Canonical 44-byte-header PCM16 WAV; used by tests and the metric fixtures. */

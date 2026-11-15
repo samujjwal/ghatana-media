@@ -20,7 +20,7 @@ public final class MediaArtifactFormatVerifier {
             Map.entry("mov", "iso-bmff"), Map.entry("m4a", "iso-bmff"),
             Map.entry("webm", "webm"), Map.entry("mkv", "webm"),
             Map.entry("ogg", "ogg"), Map.entry("ogv", "ogg"),
-            Map.entry("mp3", "mp3"), Map.entry("wav", "wav"), Map.entry("pdf", "pdf"),
+            Map.entry("mp3", "mp3"), Map.entry("wav", "wav"), Map.entry("flac", "flac"), Map.entry("pdf", "pdf"),
             Map.entry("glb", "glb"), Map.entry("json", "json"), Map.entry("vtt", "webvtt"));
     private static final Map<String, String> CONTENT_TYPE_FORMATS = Map.ofEntries(
             Map.entry("image/png", "png"), Map.entry("image/jpeg", "jpeg"),
@@ -30,7 +30,7 @@ public final class MediaArtifactFormatVerifier {
             Map.entry("video/webm", "webm"), Map.entry("audio/webm", "webm"),
             Map.entry("audio/ogg", "ogg"), Map.entry("video/ogg", "ogg"),
             Map.entry("audio/mpeg", "mp3"), Map.entry("audio/wav", "wav"),
-            Map.entry("audio/x-wav", "wav"), Map.entry("application/pdf", "pdf"),
+            Map.entry("audio/x-wav", "wav"), Map.entry("audio/flac", "flac"), Map.entry("application/pdf", "pdf"),
             Map.entry("model/gltf-binary", "glb"), Map.entry("application/json", "json"),
             Map.entry("text/vtt", "webvtt"));
 
@@ -132,6 +132,7 @@ public final class MediaArtifactFormatVerifier {
         if (ascii(bytes, 0, "RIFF") && ascii(bytes, 8, "WEBP")) return "webp";
         if (ascii(bytes, 0, "RIFF") && ascii(bytes, 8, "WAVE")) return "wav";
         if (ascii(bytes, 0, "OggS")) return "ogg";
+        if (ascii(bytes, 0, "fLaC")) return "flac";
         if (starts(bytes, new byte[] {0x1a, 0x45, (byte) 0xdf, (byte) 0xa3})) return "webm";
         if (ascii(bytes, 0, "%PDF-")) return "pdf";
         if (isGlbHeader(bytes)) return "glb";
