@@ -1018,7 +1018,7 @@ class MediaDevProjectRenderHttpTest {
         return HttpClient.newHttpClient().send(request.build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
     }
 
-    private static String token(String principal, Set<String> permissions) throws Exception {
+    static String token(String principal, Set<String> permissions) throws Exception {
         String header = encode("{\"alg\":\"HS256\",\"typ\":\"JWT\"}");
         String permissionJson = permissions.stream().sorted().map(permission -> "\"" + permission + "\"")
                 .collect(java.util.stream.Collectors.joining(","));

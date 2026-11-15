@@ -407,6 +407,12 @@ handlers additionally require the artifact permissions noted, so access is never
 | GET | `/dev/v1/masters/stems/{stemId}` | `media:project:dev:read` | `media:artifact:read` | owner only |
 | POST | `/dev/v1/masters` | `media:project:dev:write` | `media:artifact:{read,create}`; `PROCESSING` rights admission of every UPLOADED stem | J-17 mix and loudness master; FFmpeg composed |
 | GET | `/dev/v1/masters/{masterId}` | `media:project:dev:read` | `media:artifact:read` (the master id is the report artifact id) | owner only |
+| GET | `/dev/v1/live-sessions/status` | `media:project:dev:read` | — | J-29 (`MediaDevLiveSessionRuntime`): limits, open sessions, reorder-buffer bytes in use; needs `MEDIA_RIGHTS_DEV_ENABLED=true` |
+| POST | `/dev/v1/live-sessions` | `media:project:dev:write` | `media:artifact:{read,create}`; `PROCESSING` or `VOICE_OR_LIKENESS_USE` admission of the consent subject artifact version | open a live session (idempotent per `requestId`) |
+| GET | `/dev/v1/live-sessions/{sessionId}` | `media:project:dev:read` | `media:artifact:read` | owner only; acknowledged prefix, held frames, typed state |
+| POST | `/dev/v1/live-sessions/{sessionId}/frames` | `media:project:dev:write` | `media:artifact:{read,create}` | binary frame records (may be chunked); ack = contiguous written prefix |
+| POST | `/dev/v1/live-sessions/{sessionId}/eos` | `media:project:dev:write` | `media:artifact:{read,create}`; fresh consent decision | end of stream: stores WAV + PTS index (idempotent) |
+| POST | `/dev/v1/live-sessions/{sessionId}/abort` | `media:project:dev:write` | `media:artifact:{read,create}` | discards everything received |
 | GET | `/dev/v1/simulations/status` | `media:project:dev:read` | — | the shared request ledger; MP4 animation needs `MEDIA_DEV_RENDER_FFMPEG`/`MEDIA_DEV_RENDER_FFPROBE` |
 | POST | `/dev/v1/simulations` | `media:project:dev:write` | `media:artifact:{read,create}` | J-14/J-15 (`MediaDevSimulationRuntime`); a `render.video` request also needs FFmpeg/FFprobe |
 | GET | `/dev/v1/simulations/{simulationId}` | `media:project:dev:read` | `media:artifact:read` (the simulation id is the result artifact id) | — |
@@ -624,6 +630,34 @@ anything further out is dropped and counted in `rejectedDetections`. Lineage (`s
 same requestId replays the registered tracks (`200`) from the durable request ledger without re-running the detector; it
 is never a second registration, and the same requestId with different parameters is `409 VISION_REQUEST_ID_REUSED`. ROI
 analysis (`vision.roi` ledger lane) behaves the same way.
+
+DEV_ONLY live capture sessions (J-29, `media.dev.outcome-live-session-recovery`; `MediaDevLiveSessionRuntime`,
+`MediaDevLiveSessionRoutes`; composed whenever `MEDIA_RIGHTS_DEV_ENABLED=true`). Transport is plain authenticated HTTP: every request
+carries the DEV_ONLY bearer token, so there is no session-level credential. `POST /dev/v1/live-sessions` takes `{requestId,
+consent{artifactId, artifactVersionId, scope PROCESSING|VOICE_OR_LIKENESS_USE}, format{sampleRate 16000|24000|48000, channels 1|2,
+samplesPerFrame 80-4800}, startPtsSamples, reorderWindowFrames 1-64, leaseSeconds 1-300}`; the consent subject is an exact artifact
+version that carries a current statement for the scope (a second person must confirm `VOICE_OR_LIKENESS_USE`), resolved through
+`MediaRightsConsentAuthority` at open, on a poll (`MEDIA_DEV_LIVE_REVOCATION_POLL_MS`, default 250) while the session is open, and
+again, uncached, at end of stream. `POST .../frames` takes a binary record stream (big-endian `u64 sequence, u64 ptsSamples, u32
+payloadBytes, u32 crc32(payload)`, then the PCM16LE payload; `payloadBytes` must equal `samplesPerFrame*channels*2` and
+`ptsSamples` must equal `startPts + sequence*samplesPerFrame`). Frames are applied as they are read, so a request cut mid-frame keeps
+the whole frames before the cut. In-order frames are written to an owner-only append-only spool; a frame ahead of the next expected
+sequence by less than the window is held and drained when the gap fills, one at or beyond the window is `409
+SEQUENCE_WINDOW_EXCEEDED` (never buffered); a repeated sequence is absorbed (`duplicates`) and a conflicting repeat is `409
+DUPLICATE_SEQUENCE_CONFLICT`; a bad CRC, PTS or size is `422` and stores nothing. `ackedThroughSequence` is the contiguous written
+prefix and is the only resume point a client needs. Held frames of all sessions share one byte budget
+(`MEDIA_DEV_LIVE_GLOBAL_BUFFER_BYTES`, default 16 MiB): when it is full the frame is refused `429 BACKPRESSURE_SLOW_CONSUMER`
+(`Retry-After`), and a request that cannot take the session lock within 2 s is `503 BACKPRESSURE_SLOW_CONSUMER`. `POST .../eos`
+`{finalSequence}` is `409 EOS_GAP` (with the missing sequences) until every frame up to it is present, then stores a 16-bit WAV and a
+`media.dev.live-pts-index.v1` JSON (every frame's sequence, exact PTS, sample count and CRC, plus the PCM and WAV digests) under
+deterministic registration keys, so repeating it is idempotent (`200`, same artifacts). Terminal states are typed and final: `ABORTED`,
+`EXPIRED` (the lease renews on every accepted frame, capped at 15 minutes total), `REVOKED` (consent no longer admitted: the spool is
+destroyed and nothing is registered), `FAILED`, `COMPLETED`; further calls are `410 SESSION_<STATE>`. An unreachable rights authority
+refuses new frames `503` without destroying the session. State lives in `MEDIA_DEV_LIVE_SESSION_DIR` (owner-only), not PostgreSQL;
+after a launcher restart the spool is rescanned (a torn tail is cut), open sessions are `recovered: true` with a renewed lease and
+resume from `ackedThroughSequence`, a session that was `FINALIZING` stays `FINALIZING` until end of stream is repeated, and a
+session whose state is gone is `404 SESSION_NOT_FOUND` (never reported completed). Audio only; stored artifacts are for the owning
+principal; no rights clearance, quality or production claim.
 
 DEV_ONLY stems, foley, mix and loudness master (J-17, `media.dev.outcome-music-effects-master`; `MediaDevMasterRuntime`,
 `MediaDevMasterSpec`, `MediaDevMasterDsp`, `MediaDevMasterRoutes`; composed with the shared durable request ledger, the master

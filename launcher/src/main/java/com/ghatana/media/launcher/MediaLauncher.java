@@ -95,10 +95,16 @@ public final class MediaLauncher {
             MediaDevSpeechRuntime finalDevSpeech = finalDevProjectTimeline == null ? null
                     : MediaDevSpeechRuntime.compose(runtime, System.getenv(),
                             finalDevRights == null ? null : finalDevRights.resolver(), finalDevLedger);
+            MediaDevLiveSessionRuntime finalDevLive = finalDevRights == null ? null
+                    : MediaDevLiveSessionRuntime.compose(runtime, environment, finalDevRights.resolver());
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 RuntimeException failure = null;
                 if (devStoryboards != null) {
                     try { devStoryboards.close(); }
+                    catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
+                }
+                if (finalDevLive != null) {
+                    try { finalDevLive.close(); }
                     catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
                 }
                 if (finalDevErasure != null) {
@@ -197,6 +203,7 @@ public final class MediaLauncher {
                                             : MediaDevAudioRestorationRuntime.compose(runtime, environment,
                                                     finalDevRights == null ? null : finalDevRights.resolver(),
                                                     finalDevLedger))
+                                    .withDevLiveSessions(finalDevLive)
                                     .withDevMasters(finalDevLedger == null ? null
                                             : MediaDevMasterRuntime.compose(runtime, environment,
                                                     finalDevRights == null ? null : finalDevRights.resolver(),

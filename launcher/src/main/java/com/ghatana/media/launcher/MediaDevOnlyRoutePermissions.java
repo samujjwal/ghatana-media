@@ -59,6 +59,9 @@ final class MediaDevOnlyRoutePermissions {
         if ("GET".equals(method) && "/dev/v1/masters/status".equals(path)) return PROJECT_READ;
         if ("POST".equals(method) && path.matches("^/dev/v1/masters(/stems)?$")) return PROJECT_WRITE;
         if ("GET".equals(method) && path.matches("^/dev/v1/masters/(stems/)?[^/]+$") && !"/dev/v1/masters/status".equals(path)) return PROJECT_READ;
+        // Live media sessions (J-29); the routes additionally require media:artifact:read (and create for POST).
+        if ("GET".equals(method) && path.matches("^/dev/v1/live-sessions/(status|[^/]+)$")) return PROJECT_READ;
+        if ("POST".equals(method) && path.matches("^/dev/v1/live-sessions(/[^/]+/(frames|eos|abort))?$")) return PROJECT_WRITE;
         // Observed readiness of the local providers (no paths, endpoints or tokens).
         if ("GET".equals(method) && "/dev/v1/providers/catalog".equals(path)) return PROJECT_READ;
         // Translation and dubbing; the routes additionally require media:artifact:read (and create for POST).
