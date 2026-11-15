@@ -13,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Real-Time Audio Tests
@@ -31,6 +32,15 @@ class RealTimeAudioTest {
 
         assertThat(fps).isEqualTo(120.0d);
         assertThat(fps).isGreaterThan(60.0d);
+        assertThat(session.framesPerSecond(0, 1_000)).isEqualTo(0.0d);
+    }
+
+    @Test
+    @DisplayName("AV-1: should reject a negative frame count")
+    void shouldRejectNegativeFrameCount() {
+        assertThatThrownBy(() -> session.framesPerSecond(-1, 1_000))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("frameCount must be >= 0");
     }
 
     @Test

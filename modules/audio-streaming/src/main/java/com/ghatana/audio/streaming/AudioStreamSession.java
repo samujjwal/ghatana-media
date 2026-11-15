@@ -124,6 +124,9 @@ public final class AudioStreamSession {
     }
 
     public double framesPerSecond(int frameCount, long elapsedMillis) {
+        if (frameCount < 0) {
+            throw new IllegalArgumentException("frameCount must be >= 0");
+        }
         if (elapsedMillis <= 0) {
             throw new IllegalArgumentException("elapsedMillis must be > 0");
         }
