@@ -55,6 +55,8 @@ final class MediaDevOutage {
             case "RENDER_CODEC_UNAVAILABLE" -> of(OutageLane.RENDER, OutageOutcome.UNAVAILABLE);
             case "RENDER_OUTCOME_UNKNOWN" -> of(OutageLane.RENDER, OutageOutcome.UNKNOWN);
             case "RENDER_TIMEOUT" -> of(OutageLane.RENDER, OutageOutcome.TIMEOUT);
+            // J-08 video enhancement and comparison: an FFmpeg signal exit or timeout is UNKNOWN by that lane's contract.
+            case "VIDEO_OUTCOME_UNKNOWN" -> of(OutageLane.VIDEO, OutageOutcome.UNKNOWN);
             default -> Optional.empty();
         };
     }

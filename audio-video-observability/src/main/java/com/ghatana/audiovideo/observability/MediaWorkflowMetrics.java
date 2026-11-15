@@ -853,7 +853,7 @@ public final class MediaWorkflowMetrics {
     /** Fixed DEV lane vocabulary for outage counters. */
     public enum OutageLane {
         SPEECH_TRANSCRIBE("speech_transcribe"), SPEECH_SYNTHESIZE("speech_synthesize"), VISION("vision"),
-        GROUNDED("grounded"), RENDER("render");
+        GROUNDED("grounded"), RENDER("render"), VIDEO("video");
 
         private final String label;
 
