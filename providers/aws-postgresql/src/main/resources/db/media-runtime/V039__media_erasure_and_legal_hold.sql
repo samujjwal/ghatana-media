@@ -75,4 +75,4 @@ ALTER TABLE media_dev_request_ledger DROP CONSTRAINT media_dev_request_ledger_co
 ALTER TABLE media_dev_request_ledger ADD CONSTRAINT media_dev_request_ledger_completed_check CHECK (
     (state = 'COMPLETED' AND completed_at IS NOT NULL AND outputs_json <> '[]')
     OR (state = 'ERASED' AND outputs_json = '[]')
-    OR (state IN ('IN_PROGRESS', 'RELEASED') AND completed_at IS NULL));
+    OR (state NOT IN ('COMPLETED', 'ERASED') AND completed_at IS NULL));

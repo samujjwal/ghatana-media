@@ -268,7 +268,7 @@ class Ip06LegacyMigrationCompatibilityTest {
                 .baselineVersion("16")
                 .validateMigrationNaming(true)
                 .load();
-        assertThat(forward.migrate().migrationsExecuted).isEqualTo(20);
+        assertThat(forward.migrate().migrationsExecuted).isEqualTo(21);
         assertSnapshotBaselineRows(schema);
         assertForwardSnapshotSchema(schema);
         assertThat(forward.migrate().migrationsExecuted).isZero();
