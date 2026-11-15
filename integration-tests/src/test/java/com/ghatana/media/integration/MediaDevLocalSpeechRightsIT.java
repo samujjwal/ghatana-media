@@ -12,6 +12,7 @@ import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import tools.jackson.databind.JsonNode;
 
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -120,6 +121,38 @@ class MediaDevLocalSpeechRightsIT {
             assertThat(stt.path("captions").path("artifact").path("contentType").asString()).isEqualTo("text/vtt");
             assertThat(stt.path("transcript").path("lineage").path("rightsDecision").asString())
                     .contains(attestationId);
+
+            JsonNode transcriptOutput = stt.path("transcript");
+            String transcriptId = transcriptOutput.path("artifact").path("artifactId").asString();
+            String transcriptVersion = transcriptOutput.path("artifact").path("artifactVersionId").asString();
+            String transcriptSha256 = transcriptOutput.path("artifact").path("sha256").asString();
+            JsonNode transcriptLineage = transcriptOutput.path("lineage");
+            assertThat(transcriptLineage.path("source").path("artifactId").asString()).isEqualTo(clipId);
+            assertThat(transcriptLineage.path("source").path("artifactVersionId").asString())
+                    .isEqualTo(clipVersion);
+            assertThat(transcriptLineage.path("source").path("sha256").asString())
+                    .isEqualTo(synth.path("artifact").path("sha256").asString());
+
+            // Restart while rights are still current, then read the exact positive transcript bytes and lineage
+            // back from PostgreSQL + S3. This distinguishes durable result recovery from only durable source audio.
+            stopLauncher(launcher);
+            launcher = startLauncher(classpath, environment, log);
+            awaitReady(launcher, port);
+            token = issueDevToken(tenant, owner);
+            JsonNode reopenedTranscript = get(port, tenant, token,
+                    "/dev/v1/speech/outputs/" + transcriptId, 200);
+            assertThat(reopenedTranscript.path("artifact").path("artifactVersionId").asString())
+                    .isEqualTo(transcriptVersion);
+            assertThat(reopenedTranscript.path("artifact").path("sha256").asString())
+                    .isEqualTo(transcriptSha256);
+            assertThat(reopenedTranscript.path("lineage")).isEqualTo(transcriptLineage);
+            HttpResponse<String> transcriptContent = send(port, tenant, token, "GET",
+                    "/dev/v1/artifacts/" + transcriptId + "/content?version=" + transcriptVersion, null);
+            assertThat(transcriptContent.statusCode()).as(transcriptContent.body()).isEqualTo(200);
+            assertThat(MediaDevLiveFixtures.sha256(transcriptContent.body().getBytes(StandardCharsets.UTF_8)))
+                    .isEqualTo(transcriptSha256);
+            JsonNode reopenedDocument = JSON.readTree(transcriptContent.body());
+            assertThat(reopenedDocument.path("text").asString()).isEqualTo(text);
 
             // Revocation withdraws the admission; a restart keeps it withdrawn.
             post(port, tenant, token, "/dev/v1/rights/attestations/" + attestationId + "/revoke",
