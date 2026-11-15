@@ -49,6 +49,9 @@ final class MediaDevOnlyRoutePermissions {
         if ("GET".equals(method) && "/dev/v1/grounded-answers/status".equals(path)) return PROJECT_READ;
         if ("POST".equals(method) && "/dev/v1/grounded-answers".equals(path)) return PROJECT_WRITE;
         if ("GET".equals(method) && path.matches("^/dev/v1/grounded-answers/[^/]+$")) return PROJECT_READ;
+        // Video enhancement and measured comparison (J-08); the routes additionally require media:artifact:read/create.
+        if ("POST".equals(method) && path.matches("^/dev/v1/video/(enhancements|comparisons)$")) return PROJECT_WRITE;
+        if ("GET".equals(method) && path.matches("^/dev/v1/video/(enhancements|comparisons)/[^/]+$")) return PROJECT_READ;
         return null;
     }
 }

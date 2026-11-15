@@ -47,7 +47,8 @@ public final class MediaLauncher {
                     devRights == null ? null : devRights.resolver());
             // One durable request ledger for every DEV_ONLY model lane (speech, captions, vision tracking/ROI, grounded).
             boolean devModelLanes = devProjectTimeline != null
-                    || !environment.getOrDefault(MediaLocalVisionComposition.MODELS_ROOT_ENV, "").isBlank();
+                    || !environment.getOrDefault(MediaLocalVisionComposition.MODELS_ROOT_ENV, "").isBlank()
+                    || !environment.getOrDefault(MediaDevProjectRenderRuntime.FFMPEG_ENV, "").isBlank();
             devLedger = devModelLanes ? MediaDevRequestLedger.compose(environment) : null;
             MediaDevRequestLedger finalDevLedger = devLedger;
             MediaPrivacyMaintenanceRuntime finalPrivacyMaintenance = privacyMaintenance;
@@ -135,6 +136,10 @@ public final class MediaLauncher {
                                                     finalDevReview, finalDevLedger),
                                             "true".equalsIgnoreCase(environment.getOrDefault(
                                                     MediaDevCaptionRuntime.REVIEW_REQUIRED_ENV, "false")))
+                                    .withDevVideo(finalDevLedger == null ? null
+                                            : MediaDevVideoRuntime.compose(runtime, environment,
+                                                    finalDevRights == null ? null : finalDevRights.resolver(),
+                                                    finalDevLedger))
                                     .withDevVision(MediaLocalVisionComposition.engineFrom(environment)
                                             .map(engine -> {
                                                 MediaDevVisionRuntime devVision = new MediaDevVisionRuntime(runtime, engine,

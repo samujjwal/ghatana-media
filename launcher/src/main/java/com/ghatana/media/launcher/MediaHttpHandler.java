@@ -98,6 +98,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private MediaDevSpeechRoutes devSpeech;
     private MediaDevVisionRoutes devVision;
     private MediaDevGroundedRoutes devGrounded;
+    private MediaDevVideoRoutes devVideo;
     private MediaDevCaptionRoutes devCaptions;
     private final ObjectMapper mapper = JsonMapper.builder(JsonFactory.builder()
             .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
@@ -213,6 +214,12 @@ public final class MediaHttpHandler implements HttpHandler {
     /** Installs the optional DEV_ONLY local vision routes (Florence-2 analysis, Qwen2.5-VL questions). */
     MediaHttpHandler withDevVision(MediaDevVisionRuntime vision) {
         this.devVision = vision == null ? null : new MediaDevVisionRoutes(vision, runtime);
+        return this;
+    }
+
+    /** Installs the optional DEV_ONLY video enhancement and measured comparison routes (J-08). */
+    MediaHttpHandler withDevVideo(MediaDevVideoRuntime videoRuntime) {
+        this.devVideo = videoRuntime == null ? null : new MediaDevVideoRoutes(videoRuntime, runtime);
         return this;
     }
 
@@ -525,6 +532,19 @@ public final class MediaHttpHandler implements HttpHandler {
             }
             if (devGrounded != null && MediaDevGroundedRoutes.handles(path)) {
                 devGrounded.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
+                        new MediaDevCreativeOutputRoutes.Responder() {
+                            @Override public void json(HttpExchange e, int status, Object body) throws IOException {
+                                MediaHttpHandler.this.json(e, status, body);
+                            }
+                            @Override public void error(HttpExchange e, int status, String code, String message,
+                                                        Map<String, ?> details) throws IOException {
+                                MediaHttpHandler.this.error(e, status, code, message, details);
+                            }
+                        });
+                return;
+            }
+            if (devVideo != null && MediaDevVideoRoutes.handles(path)) {
+                devVideo.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
                         new MediaDevCreativeOutputRoutes.Responder() {
                             @Override public void json(HttpExchange e, int status, Object body) throws IOException {
                                 MediaHttpHandler.this.json(e, status, body);
