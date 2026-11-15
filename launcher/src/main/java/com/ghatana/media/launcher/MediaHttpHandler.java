@@ -98,6 +98,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private final MediaDevCreativeOutputRoutes devCreative;
     private MediaDevArtifactContentRoutes devArtifactContent;
     private MediaDevSpeechRoutes devSpeech;
+    private MediaDevRequestOutcomeRoutes devRequestOutcomes;
     private MediaDevVisionRoutes devVision;
     private MediaDevGroundedRoutes devGrounded;
     private MediaDevVideoRoutes devVideo;
@@ -223,6 +224,12 @@ public final class MediaHttpHandler implements HttpHandler {
     /** Installs the optional DEV_ONLY local speech routes (real whisper.cpp STT and Kokoro TTS). */
     MediaHttpHandler withDevSpeech(MediaDevSpeechRuntime speechRuntime) {
         this.devSpeech = speechRuntime == null ? null : new MediaDevSpeechRoutes(speechRuntime, runtime);
+        return this;
+    }
+
+    /** Installs the DEV_ONLY read-only request-outcome lookup over the shared request ledger (J-25). */
+    MediaHttpHandler withDevRequestOutcomes(MediaDevRequestLedger ledger) {
+        this.devRequestOutcomes = ledger == null ? null : new MediaDevRequestOutcomeRoutes(ledger, runtime);
         return this;
     }
 
@@ -634,6 +641,19 @@ public final class MediaHttpHandler implements HttpHandler {
         }
         if (devAudio != null && MediaDevAudioRoutes.handles(path)) {
             devAudio.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
+                    new MediaDevCreativeOutputRoutes.Responder() {
+                        @Override public void json(HttpExchange e, int status, Object body) throws IOException {
+                            MediaHttpHandler.this.json(e, status, body);
+                        }
+                        @Override public void error(HttpExchange e, int status, String code, String message,
+                                                    Map<String, ?> details) throws IOException {
+                            MediaHttpHandler.this.error(e, status, code, message, details);
+                        }
+                    });
+            return;
+        }
+        if (devRequestOutcomes != null && MediaDevRequestOutcomeRoutes.handles(path)) {
+            devRequestOutcomes.handle(exchange, path, method, tenantId, principalId,
                     new MediaDevCreativeOutputRoutes.Responder() {
                         @Override public void json(HttpExchange e, int status, Object body) throws IOException {
                             MediaHttpHandler.this.json(e, status, body);

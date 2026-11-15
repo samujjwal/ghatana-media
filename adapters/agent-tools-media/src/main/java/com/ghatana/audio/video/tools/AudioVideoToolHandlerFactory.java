@@ -59,6 +59,8 @@ public final class AudioVideoToolHandlerFactory {
     private final MediaToolExecutionBinder executionBinder;
     /** Optional canonical Media job bridge; absent means every tool stays typed NOT_ADMITTED. */
     private final MediaToolJobBridge jobBridge;
+    /** Optional grant-scoped launcher delegation; absent (and no bridge) means every tool stays typed NOT_ADMITTED. */
+    private final MediaLauncherDelegate launcherDelegate;
 
     /**
      * Creates local fail-closed handlers without an Action Plane ledger. This
@@ -68,6 +70,7 @@ public final class AudioVideoToolHandlerFactory {
     public AudioVideoToolHandlerFactory() {
         this.executionBinder = null;
         this.jobBridge = null;
+        this.launcherDelegate = null;
     }
 
     /**
@@ -79,6 +82,7 @@ public final class AudioVideoToolHandlerFactory {
     public AudioVideoToolHandlerFactory(MediaToolExecutionBinder executionBinder) {
         this.executionBinder = Objects.requireNonNull(executionBinder, "executionBinder");
         this.jobBridge = null;
+        this.launcherDelegate = null;
     }
 
     /**
@@ -88,6 +92,19 @@ public final class AudioVideoToolHandlerFactory {
     public AudioVideoToolHandlerFactory(MediaToolExecutionBinder executionBinder, MediaToolJobBridge jobBridge) {
         this.executionBinder = Objects.requireNonNull(executionBinder, "executionBinder");
         this.jobBridge = Objects.requireNonNull(jobBridge, "jobBridge");
+        this.launcherDelegate = null;
+    }
+
+    /**
+     * Creates handlers that, after the binder's durable claim, delegate each tool call as the authenticated user and
+     * under that user's scoped revocable grant to the real Media launcher. Provider, rights and consent admission
+     * stay the launcher's decision; the binder must be built with {@link MediaLauncherDelegate#replayAuthorizer()} and
+     * {@link MediaLauncherDelegate#reconciler()}.
+     */
+    public AudioVideoToolHandlerFactory(MediaToolExecutionBinder executionBinder, MediaLauncherDelegate launcherDelegate) {
+        this.executionBinder = Objects.requireNonNull(executionBinder, "executionBinder");
+        this.jobBridge = null;
+        this.launcherDelegate = Objects.requireNonNull(launcherDelegate, "launcherDelegate");
     }
 
     /**
@@ -119,6 +136,14 @@ public final class AudioVideoToolHandlerFactory {
     }
 
     private ToolHandler createDelegate(String toolId, AuthenticatedPrincipal principal) {
+        if (launcherDelegate != null && HANDLER_REGISTRY.containsKey(toolId)) {
+            return switch (toolId) {
+                case TOOL_ID_STT       -> new SpeechToTextToolHandler(launcherDelegate, principal);
+                case TOOL_ID_TTS       -> new TextToSpeechToolHandler(launcherDelegate, principal);
+                case TOOL_ID_VISION    -> new VisionAnalysisToolHandler(launcherDelegate, principal);
+                default                -> new MultimodalInferenceToolHandler(launcherDelegate, principal);
+            };
+        }
         if (jobBridge != null && HANDLER_REGISTRY.containsKey(toolId)) {
             return switch (toolId) {
                 case TOOL_ID_STT       -> new SpeechToTextToolHandler(jobBridge, principal);

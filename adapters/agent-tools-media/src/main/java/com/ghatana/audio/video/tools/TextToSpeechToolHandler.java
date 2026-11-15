@@ -38,7 +38,7 @@ public final class TextToSpeechToolHandler implements ToolHandler {
 
     private static final Logger log = LoggerFactory.getLogger(TextToSpeechToolHandler.class);
     static final String TOOL_ID = "av.text-to-speech";
-    private static final Set<String> VALIDATION_CODES = Set.of(
+    static final Set<String> VALIDATION_CODES = Set.of(
             "TOOL_ID_MISMATCH", "TOOL_VERSION_MISMATCH", "TOOL_ACTION_CLASS_MISMATCH",
             "UNKNOWN_INPUT_FIELD", "MISSING_TENANT_CONTEXT", "TOOL_INPUT_SCHEMA_VIOLATION",
             "SOURCE_ARTIFACT_REQUIRED", "SOURCE_VERSION_REQUIRED", "SOURCE_VERSION_INVALID", "INVALID_TEXT", "INVALID_VOICEID", "INVALID_SPEAKING_RATE", "INVALID_AUDIO_ENCODING",
@@ -54,10 +54,12 @@ public final class TextToSpeechToolHandler implements ToolHandler {
      */
     public TextToSpeechToolHandler(ToolHandler ignoredDelegate) {
         this.bridge = null;
+        this.launcher = null;
         this.principal = null;
     }
 
     private final MediaToolJobBridge bridge;
+    private final MediaLauncherDelegate launcher;
     private final AuthenticatedPrincipal principal;
 
     /**
@@ -67,6 +69,18 @@ public final class TextToSpeechToolHandler implements ToolHandler {
      */
     public TextToSpeechToolHandler(MediaToolJobBridge bridge, AuthenticatedPrincipal principal) {
         this.bridge = java.util.Objects.requireNonNull(bridge, "bridge");
+        this.launcher = null;
+        this.principal = principal;
+    }
+
+    /**
+     * Delegating constructor: after validation the call is delegated, as the host-authenticated user and under that
+     * user's scoped revocable grant, to the real Media launcher operation that matches this tool's intent (see
+     * {@link MediaDelegatedPlans}). Anything the launcher operation cannot honour stays typed NOT_ADMITTED.
+     */
+    public TextToSpeechToolHandler(MediaLauncherDelegate launcher, AuthenticatedPrincipal principal) {
+        this.bridge = null;
+        this.launcher = java.util.Objects.requireNonNull(launcher, "launcher");
         this.principal = principal;
     }
 
@@ -76,6 +90,9 @@ public final class TextToSpeechToolHandler implements ToolHandler {
         Objects.requireNonNull(contract, "contract must not be null");
 
         Instant start = Instant.now();
+        if (launcher != null) {
+            return MediaDelegatedPlans.run(launcher, principal, envelope, contract, start, "TTS_INPUT_INVALID", VALIDATION_CODES);
+        }
         Map<String, Object> input;
         String sourceId = null;
         String sourceVersion = null;

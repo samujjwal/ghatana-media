@@ -388,6 +388,7 @@ handlers additionally require the artifact permissions noted, so access is never
 | POST | `/dev/v1/speech/syntheses` | `media:project:dev:write` | `media:artifact:{read,create}`; a `voiceReference`/`likenessReference` additionally needs a confirmed `VOICE_OR_LIKENESS_USE` statement and is then refused `VOICE_CLONING_NOT_SUPPORTED` | local Kokoro TTS |
 | POST | `/dev/v1/speech/transcriptions` | `media:project:dev:write` | `media:artifact:{read,create}`, `PROCESSING` rights admission of the exact version | local Whisper STT |
 | GET | `/dev/v1/speech/outputs/{outputId}` | `media:project:dev:read` | `media:artifact:read` | local speech |
+| GET | `/dev/v1/request-outcomes/{lane}/{requestId}` | `media:project:dev:read` | `media:artifact:read`; `lane` is one of `speech.transcribe`, `speech.synthesize`, `vision.analyze`, `vision.ask`, `vision.track`, `vision.roi` | read-only view of the caller's own durable request-ledger row (`ABSENT`/`IN_PROGRESS`/`COMPLETED`+output refs/`RELEASED`/`ERASED`); never claims or re-runs; used by the agent-tools delegation (J-25) to reconcile an ambiguous dispatch |
 | GET | `/dev/v1/vision/status` | `media:project:dev:read` | — | `MEDIA_LOCAL_VISION_*` configured |
 | POST | `/dev/v1/vision/analyses` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision |
 | POST | `/dev/v1/vision/questions` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision |

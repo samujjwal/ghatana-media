@@ -193,6 +193,7 @@ public final class MediaLauncher {
                                     .withDevErasure(finalDevErasure, "true".equalsIgnoreCase(
                                             environment.getOrDefault("MEDIA_DEV_ERASURE_REQUIRE_OIDC", "false")))
                                     .withDevSpeech(finalDevSpeech)
+                                    .withDevRequestOutcomes(finalDevLedger)
                                     .withDevComposite(devComposite)
                                     .withDevStoryboards(devStoryboards)
                                     .withDevDub(finalDevSpeech == null ? null
@@ -233,7 +234,8 @@ public final class MediaLauncher {
                                             .map(engine -> {
                                                 MediaDevVisionRuntime devVision = new MediaDevVisionRuntime(runtime, engine,
                                                         MediaDevFfmpegFrameExtractor.from(environment),
-                                                        finalDevRights == null ? null : finalDevRights.resolver());
+                                                        finalDevRights == null ? null : finalDevRights.resolver())
+                                                        .withLedger(finalDevLedger);
                                                 return devVision.withTracking(
                                                         MediaDevVisionTrackingRuntime.compose(runtime, devVision, environment,
                                                                 finalDevLedger));

@@ -23,8 +23,35 @@ constructor denies replay by default; envelope caller/tenant fields are not
 credentials. This remains a single-host development store and does not
 establish provider dispatch admission. Do not use unsafe legacy record upserts.
 
-The four handler adapters currently validate inputs and return typed
-`NOT_ADMITTED` results before provider dispatch. Compatibility constructor
+The four handler adapters validate inputs and, by default, return typed
+`NOT_ADMITTED` results before provider dispatch. A host may instead construct
+`AudioVideoToolHandlerFactory(binder, MediaLauncherDelegate)` (J-25): each tool
+then delegates, as the host-authenticated USER and under that user's explicit,
+scoped, revocable `MediaDelegationGrant`, to a real Media launcher operation over
+the launcher's own HTTP routes (so the launcher's permission, tenant and
+rights/consent gates decide exactly as for the user; there is no service
+super-user and no provider bypass). Mapping, chosen as the closest match that
+exists and runs on CPU: `av.speech-to-text` to `POST /dev/v1/speech/transcriptions`
+(local Whisper, `PROCESSING` rights admission of the exact version),
+`av.text-to-speech` to `POST /dev/v1/speech/syntheses` (Kokoro stock voice, WAV
+artifact; MP3/other encodings, pitch, `storeAsArtifact=false` and a source
+artifact stay typed refusals), `av.vision-analysis` to `POST /dev/v1/vision/analyses`
+(Florence-2 `detect`/`ocr`/`caption`; face detection, custom models and inline
+bytes stay refused) and `av.multimodal-inference` to `POST /dev/v1/vision/tracks`
+(vision-only observation of a video; `enableTranscription=true` stays
+`MULTIMODAL_TRANSCRIPTION_NOT_ADMITTED` and `samplingRateMs` is not honoured).
+The grant is re-read on every dispatch, replay and reconciliation, and revoking it
+also stops a recorded result from being replayed. The launcher request id is
+derived from the durable invocation id, so the launcher's own request ledger makes
+a repeated dispatch one effect. An ambiguous dispatch (killed host, lost
+response) is reconciled by `MediaToolExecutionBinder.AmbiguousInvocationReconciler`
+through the launcher's read-only `GET /dev/v1/request-outcomes/{lane}/{requestId}`:
+only a launcher-recorded `COMPLETED` request is fetched (replayed, never re-run)
+and recorded; `IN_PROGRESS`/`ABSENT` stay `OUTCOME_UNKNOWN`; `RELEASED` becomes a
+typed no-effect failure. `FileMediaDelegationGrantStore` is a single-host
+development stand-in for the Action Plane delegation registry and holds no
+credential; the bearer credential comes from a host-owned `CredentialSource`.
+Compatibility constructor
 delegates are ignored. The Data Cloud artifact entry in the shared capability
 descriptor is read-model metadata only; it is not a Media handler or an
 authenticated execution grant.

@@ -175,6 +175,24 @@ public final class MediaToolExecutionBinder {
         boolean mayReplay(AuthenticatedPrincipal authenticated, RequestIdentity recordedIdentity);
     }
 
+    /**
+     * Host-supplied read-only reconciliation of an ambiguous (UNKNOWN-fenced) invocation. It must establish what the
+     * downstream system actually did WITHOUT sending new work. Return a terminal result when the real outcome is
+     * established, or empty while it is still unknown (in flight, never observed, or the authority to read it is gone).
+     */
+    @FunctionalInterface
+    public interface AmbiguousInvocationReconciler {
+        Optional<ToolExecutionResult> reconcile(ToolExecutionEnvelope envelope, ToolContract contract,
+                AuthenticatedPrincipal authenticated) throws Exception;
+    }
+
+    private static final java.util.concurrent.Executor RECONCILE_EXECUTOR = java.util.concurrent.Executors
+            .newCachedThreadPool(task -> {
+                Thread thread = new Thread(task, "media-tool-reconcile");
+                thread.setDaemon(true);
+                return thread;
+            });
+
     public static final class OutcomeUnknownException extends RuntimeException {
         private final String invocationId;
         private final String durableJobState;
@@ -210,6 +228,7 @@ public final class MediaToolExecutionBinder {
     private final InvocationLedger ledger;
     private final MediaJobReadback jobReadback;
     private final InvocationReplayAuthorizer replayAuthorizer;
+    private final AmbiguousInvocationReconciler reconciler;
 
     public MediaToolExecutionBinder(InvocationLedger ledger, MediaJobReadback jobReadback) {
         this(ledger, jobReadback, (authenticated, identity) -> false);
@@ -217,9 +236,19 @@ public final class MediaToolExecutionBinder {
 
     public MediaToolExecutionBinder(InvocationLedger ledger, MediaJobReadback jobReadback,
             InvocationReplayAuthorizer replayAuthorizer) {
+        this(ledger, jobReadback, replayAuthorizer, null);
+    }
+
+    /**
+     * @param reconciler optional read-only reconciliation of an UNKNOWN-fenced invocation on replay; without one an
+     *                   UNKNOWN fence stays unknown forever (the original fail-closed behaviour)
+     */
+    public MediaToolExecutionBinder(InvocationLedger ledger, MediaJobReadback jobReadback,
+            InvocationReplayAuthorizer replayAuthorizer, AmbiguousInvocationReconciler reconciler) {
         this.ledger = Objects.requireNonNull(ledger, "ledger");
         this.jobReadback = Objects.requireNonNull(jobReadback, "jobReadback");
         this.replayAuthorizer = Objects.requireNonNull(replayAuthorizer, "replayAuthorizer");
+        this.reconciler = reconciler;
     }
 
     public Promise<ToolExecutionResult> execute(
@@ -292,7 +321,7 @@ public final class MediaToolExecutionBinder {
             if (prior == null || prior.isEmpty()) {
                 return Promise.ofException(new InvocationClaimUnavailableException());
             }
-            return replay(prior.get(), identity, boundEnvelope, authenticated);
+            return replay(prior.get(), identity, boundEnvelope, contract, authenticated);
         }
         if (claim != ClaimResult.CLAIMED) {
             return Promise.ofException(new InvocationClaimUnavailableException());
@@ -302,8 +331,13 @@ public final class MediaToolExecutionBinder {
         // dispatch/completion ambiguity retains that fence, preventing replay.
         return AgentToolInput.dispatch(delegate, boundEnvelope, contract)
                 .map(result -> finishIfTerminal(result, identity, boundEnvelope))
-                .mapException(failure -> failure instanceof OutcomeUnknownException
-                        ? failure : unknown(boundEnvelope));
+                .mapException(failure -> {
+                    if (failure instanceof OutcomeUnknownException) return failure;
+                    // Keep the dispatch failure as the cause for operator diagnostics; it never reaches a result.
+                    OutcomeUnknownException unknown = unknown(boundEnvelope);
+                    unknown.initCause(failure);
+                    return unknown;
+                });
     }
 
     private static ToolExecutionEnvelope snapshotEnvelope(ToolExecutionEnvelope envelope) {
@@ -348,7 +382,7 @@ public final class MediaToolExecutionBinder {
     }
 
     private Promise<ToolExecutionResult> replay(
-            LogicalAction prior, RequestIdentity identity, ToolExecutionEnvelope envelope,
+            LogicalAction prior, RequestIdentity identity, ToolExecutionEnvelope envelope, ToolContract contract,
             AuthenticatedPrincipal authenticated) {
         if (!prior.invocationId().equals(envelope.invocationId()) || !wellFormed(prior)) {
             return Promise.ofException(new InvocationClaimUnavailableException());
@@ -367,7 +401,28 @@ public final class MediaToolExecutionBinder {
             return Promise.ofException(new InvocationReplayDeniedException());
         }
         if (prior.outcome() == LogicalOutcome.OUTCOME_UNKNOWN) {
-            return Promise.ofException(unknown(envelope));
+            if (reconciler == null) return Promise.ofException(unknown(envelope));
+            // Read-only reconciliation: never re-dispatches. A terminal result is recorded over the exact UNKNOWN fence
+            // (CAS), so the single real outcome becomes the invocation's durable result.
+            return Promise.ofBlocking(RECONCILE_EXECUTOR, () -> {
+                        try {
+                            return reconciler.reconcile(envelope, contract, authenticated);
+                        } catch (RuntimeException unexpected) {
+                            // an unchecked exception from a blocking task would be a fatal error in the eventloop
+                            throw new java.io.IOException("reconciliation failed", unexpected);
+                        }
+                    })
+                    .then(established -> {
+                        if (established == null || established.isEmpty()
+                                || !envelope.invocationId().equals(established.get().invocationId())) {
+                            return Promise.<ToolExecutionResult>ofException(unknown(envelope));
+                        }
+                        try {
+                            return Promise.of(finishIfTerminal(established.get(), identity, envelope));
+                        } catch (RuntimeException unacknowledged) {
+                            return Promise.<ToolExecutionResult>ofException(unknown(envelope));
+                        }
+                    }, failure -> Promise.<ToolExecutionResult>ofException(unknown(envelope)));
         }
         if (prior.result() == null) {
             return Promise.ofException(new InvocationClaimUnavailableException());

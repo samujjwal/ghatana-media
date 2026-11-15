@@ -195,6 +195,19 @@ public final class MediaDevVisionRuntime {
     }
 
     private volatile MediaDevVisionTrackingRuntime tracking;
+    private volatile MediaDevRequestLedger ledger;
+    static final String LANE_ANALYZE = "vision.analyze";
+    static final String LANE_ASK = "vision.ask";
+
+    /**
+     * Attaches the shared DEV_ONLY request ledger so one requestId maps to at most one model run and one registered
+     * output (a replay re-reads the output; a stale crashed run is reclaimed). Without a ledger the lane keeps its
+     * original behaviour: idempotent registration only.
+     */
+    public MediaDevVisionRuntime withLedger(MediaDevRequestLedger ledger) {
+        this.ledger = ledger;
+        return this;
+    }
 
     /** Attaches the DEV_ONLY video tracking and ROI lane that shares this runtime's engine, rights and registrar. */
     public MediaDevVisionRuntime withTracking(MediaDevVisionTrackingRuntime tracking) {
@@ -269,6 +282,34 @@ public final class MediaDevVisionRuntime {
                     resolution.verdict() == com.ghatana.media.runtime.MediaRightsConsentContracts.Verdict.UNAVAILABLE
                             ? "RIGHTS_AUTHORITY_UNAVAILABLE" : "RIGHTS_" + resolution.verdict().name(), resolution);
         }
+        MediaDevRequestLedger shared = ledger;
+        if (shared == null) {
+            return produce(tenantId, principalId, requestId, source, resolution, frameTimeMs, kind, tasks, question);
+        }
+        // Rights were re-checked above on every call (a revoked source refuses even a replay). The ledger maps the
+        // requestId to its registered output, so the model runs at most once per request.
+        String lane = KIND_ANALYSIS.equals(kind) ? LANE_ANALYZE : LANE_ASK;
+        final Resolution admitted = resolution;
+        String fingerprint = MediaDevRequestLedger.fingerprint("media.dev.vision." + kind + ".v1", source.artifactId(),
+                source.version().value(), source.sha256(), frameTimeMs,
+                tasks == null ? "" : String.join(",", new java.util.TreeSet<>(tasks)), question);
+        return shared.run(tenantId, principalId, lane, requestId, fingerprint,
+                outputs -> {
+                    var ref = outputs.getFirst();
+                    return reopen(tenantId, principalId, ref.artifactId())
+                            .filter(found -> found.artifact().version().value().equals(ref.versionId()))
+                            .map(found -> new VisionResult(found.artifact(), found.lineage(), true, admitted))
+                            .orElseThrow(() -> MediaDevRequestLedger.outputUnavailable(lane));
+                },
+                () -> produce(tenantId, principalId, requestId, source, admitted, frameTimeMs, kind, tasks, question),
+                result -> List.of(new com.ghatana.media.runtime.MediaRequestLedgerContracts.OutputRef("result",
+                        result.artifact().artifactId(), result.artifact().version().value())),
+                () -> new VisionRequestReusedException(new IllegalArgumentException("requestId used with a different request")));
+    }
+
+    private VisionResult produce(String tenantId, String principalId, String requestId, MediaArtifact source,
+                                 Resolution resolution, long frameTimeMs, String kind, Set<String> tasks,
+                                 String question) {
         if (source.sizeBytes() > MAX_SOURCE_BYTES) {
             throw new VisionUnsupportedException("VISION_LIMIT_EXCEEDED", "source exceeds the byte ceiling");
         }
