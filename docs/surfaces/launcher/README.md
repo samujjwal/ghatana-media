@@ -494,7 +494,9 @@ completes, the registered output artifact ids and versions. Each lane first vali
 model runs: COMPLETED with the same fingerprint replays the registered output (`200`, artifact re-read, no model run); a
 different fingerprint is the lane's `409 *_REQUEST_ID_REUSED`; IN_PROGRESS under a live lease waits up to
 `MEDIA_DEV_REQUEST_LEDGER_WAIT_SECONDS` (default 20) and then answers `409 REQUEST_IN_PROGRESS`; a stale lease (the owner
-crashed, outcome UNKNOWN) is taken over under a higher fencing token, and the superseded owner's late completion is refused;
+crashed, outcome UNKNOWN) is taken over under a higher fencing token, and the superseded owner's late completion is refused
+(a run owned by a launcher process on the same host that provably no longer exists, by pid and start time, is reclaimed at
+once by a compare-and-set instead of waiting for the lease, so an immediate retry after a killed launcher works);
 a run that failed with nothing registered releases the claim so a retry runs again. `503 REQUEST_LEDGER_UNAVAILABLE` and
 `409 REQUEST_OUTPUT_UNAVAILABLE` (a completed request whose artifact is no longer readable) are typed refusals. Configuration:
 `MEDIA_DEV_REQUEST_LEDGER=postgresql|memory|auto` (default `auto`: PostgreSQL through the canonical runtime datasource when
