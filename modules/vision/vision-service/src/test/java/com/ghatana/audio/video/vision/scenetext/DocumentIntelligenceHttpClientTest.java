@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -37,6 +38,77 @@ class DocumentIntelligenceHttpClientTest {
     private volatile int parseStatus = 409;
     private volatile String parseBody = errorEnvelope("operation-1", "PROVIDER_FAILED");
     private final AtomicInteger cancelRequests = new AtomicInteger();
+
+    @Test
+    void cancellationRegistrationAndRemovalAreRaceSafeAndExactlyOnce() throws Exception {
+        Cancellation alreadyCancelled = new Cancellation();
+        alreadyCancelled.cancel();
+        AtomicInteger lateCalls = new AtomicInteger();
+        Runnable removeLate = alreadyCancelled.onCancel(lateCalls::incrementAndGet);
+        alreadyCancelled.cancel();
+        removeLate.run();
+        assertThat(lateCalls).hasValue(1);
+
+        Cancellation removedBeforeCancel = new Cancellation();
+        AtomicInteger removedCalls = new AtomicInteger();
+        Runnable removePending = removedBeforeCancel.onCancel(removedCalls::incrementAndGet);
+        removePending.run();
+        removePending.run();
+        removedBeforeCancel.cancel();
+        assertThat(removedCalls).hasValue(0);
+
+        try (var pool = Executors.newFixedThreadPool(2)) {
+            for (int attempt = 0; attempt < 128; attempt++) {
+                Cancellation racing = new Cancellation();
+                AtomicInteger calls = new AtomicInteger();
+                CountDownLatch ready = new CountDownLatch(2);
+                CountDownLatch start = new CountDownLatch(1);
+                var registration = pool.submit(() -> {
+                    ready.countDown();
+                    start.await();
+                    racing.onCancel(calls::incrementAndGet);
+                    return null;
+                });
+                var cancellation = pool.submit(() -> {
+                    ready.countDown();
+                    start.await();
+                    racing.cancel();
+                    return null;
+                });
+                assertThat(ready.await(5, TimeUnit.SECONDS)).isTrue();
+                start.countDown();
+                registration.get(5, TimeUnit.SECONDS);
+                cancellation.get(5, TimeUnit.SECONDS);
+                racing.cancel();
+                assertThat(calls).as("listener invocation on concurrent registration attempt %s", attempt).hasValue(1);
+
+                Cancellation removing = new Cancellation();
+                AtomicInteger removalCalls = new AtomicInteger();
+                Runnable remove = removing.onCancel(removalCalls::incrementAndGet);
+                CountDownLatch removalReady = new CountDownLatch(2);
+                CountDownLatch removalStart = new CountDownLatch(1);
+                var removal = pool.submit(() -> {
+                    removalReady.countDown();
+                    removalStart.await();
+                    remove.run();
+                    return null;
+                });
+                var concurrentCancel = pool.submit(() -> {
+                    removalReady.countDown();
+                    removalStart.await();
+                    removing.cancel();
+                    return null;
+                });
+                assertThat(removalReady.await(5, TimeUnit.SECONDS)).isTrue();
+                removalStart.countDown();
+                removal.get(5, TimeUnit.SECONDS);
+                concurrentCancel.get(5, TimeUnit.SECONDS);
+                removing.cancel();
+                assertThat(removalCalls.get()).as("listener invocation on concurrent removal attempt %s", attempt)
+                        .isBetween(0, 1);
+            }
+        }
+    }
 
     @BeforeEach
     void start() throws IOException {

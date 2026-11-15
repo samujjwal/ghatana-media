@@ -117,14 +117,21 @@ public interface DocumentIntelligenceV1 {
     /** Cooperative cancellation; listeners fire once, immediately if already cancelled. */
     final class Cancellation {
         private final java.util.concurrent.atomic.AtomicBoolean cancelled = new java.util.concurrent.atomic.AtomicBoolean();
-        private final java.util.List<Runnable> listeners = new java.util.concurrent.CopyOnWriteArrayList<>();
+        private final java.util.List<ListenerRegistration> listeners =
+                new java.util.concurrent.CopyOnWriteArrayList<>();
 
         public static Cancellation none() {
             return new Cancellation();
         }
 
         public void cancel() {
-            if (cancelled.compareAndSet(false, true)) listeners.forEach(Runnable::run);
+            if (cancelled.compareAndSet(false, true)) {
+                // Each registration arbitrates its own fire/remove race. Keep callback
+                // invocation outside any registry lock, and release captured closures once
+                // the cancellation snapshot has been delivered.
+                listeners.forEach(ListenerRegistration::fire);
+                listeners.clear();
+            }
         }
 
         public boolean isCancelled() {
@@ -132,9 +139,37 @@ public interface DocumentIntelligenceV1 {
         }
 
         public Runnable onCancel(Runnable listener) {
-            listeners.add(listener);
-            if (cancelled.get()) listener.run();
-            return () -> listeners.remove(listener);
+            ListenerRegistration registration = new ListenerRegistration(listener);
+            listeners.add(registration);
+            if (cancelled.get()) {
+                registration.fire();
+                listeners.remove(registration);
+            }
+            return () -> {
+                listeners.remove(registration);
+                registration.remove();
+            };
+        }
+
+        private static final class ListenerRegistration {
+            private static final int PENDING = 0;
+            private static final int FIRED = 1;
+            private static final int REMOVED = 2;
+            private final Runnable listener;
+            private final java.util.concurrent.atomic.AtomicInteger state =
+                    new java.util.concurrent.atomic.AtomicInteger(PENDING);
+
+            private ListenerRegistration(Runnable listener) {
+                this.listener = Objects.requireNonNull(listener, "listener");
+            }
+
+            private void fire() {
+                if (state.compareAndSet(PENDING, FIRED)) listener.run();
+            }
+
+            private void remove() {
+                state.compareAndSet(PENDING, REMOVED);
+            }
         }
     }
 }
