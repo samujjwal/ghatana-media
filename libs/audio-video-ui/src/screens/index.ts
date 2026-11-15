@@ -121,6 +121,16 @@ export type {
 } from "./devProviderCatalog";
 
 // DEV_ONLY translate-and-dub panel (J-16).
+export { DevAnimationPanel } from "./DevAnimationPanel";
+export type { DevAnimationPanelProps } from "./DevAnimationPanel";
+export {
+  DevAnimationHostError, EASINGS as ANIMATION_EASINGS, PRIMITIVES as ANIMATION_PRIMITIVES, describeAnimationFailure, ease as animationEase,
+  exampleSpec as exampleAnimationSpec, parseAnimationRenderView, parseAnimationStatus, sampleCurve as sampleAnimationCurve, toRequestSpec as toAnimationRequestSpec,
+} from "./devAnimation";
+export type {
+  AnimationFailure, AnimationRenderView, AnimationStatus, AuthoredSpec as AuthoredAnimationSpec, DevAnimationHostResponse, DevAnimationPort,
+  DevAnimationRenderRequest,
+} from "./devAnimation";
 export { DevDubbingPanel } from "./DevDubbingPanel";
 export type { DevDubbingPanelProps } from "./DevDubbingPanel";
 export { DevDubbingHostError, describeDubbingFailure, parseDubbingCapabilities, parseDubbingTimingSegments, parseDubView, parseTranslationView } from "./devDubbing";

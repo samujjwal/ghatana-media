@@ -80,6 +80,10 @@ const devProjectRoutes = [
   { method: "GET", path: new RegExp(`^/dev/v1/video/enhancements/${OPAQUE_ID}$`, "u") },
   { method: "POST", path: /^\/dev\/v1\/video\/comparisons$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/video/comparisons/${OPAQUE_ID}$`, "u") },
+  // DEV_ONLY deterministic 2D animation (J-12) used by the "2D animation" page (status, render, reopen; no DELETE).
+  { method: "GET", path: /^\/dev\/v1\/animations\/status$/u },
+  { method: "POST", path: /^\/dev\/v1\/animations\/renders$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/animations/renders/${OPAQUE_ID}$`, "u") },
   // DEV_ONLY erasure and legal-hold lane used by the "Erasure and legal hold" page (plan, confirm-erase, receipt, hold,
   // release). The hold listing takes a query string and is deliberately not proxied; the plan carries active holds.
   { method: "GET", path: new RegExp(`^/dev/v1/erasure-plans/${OPAQUE_ID}$`, "u") },
