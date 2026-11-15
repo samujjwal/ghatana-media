@@ -331,6 +331,12 @@ handlers additionally require the artifact permissions noted, so access is never
 | GET | `/dev/v1/grounded-answers/status` | `media:project:dev:read` | — | local vision + `MEDIA_DEV_RENDER_FFMPEG/FFPROBE` |
 | POST | `/dev/v1/grounded-answers` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision + FFmpeg/FFprobe |
 | GET | `/dev/v1/grounded-answers/{outputId}` | `media:project:dev:read` | `media:artifact:read` | local vision + FFmpeg/FFprobe |
+| GET | `/dev/v1/erasure-plans/{artifactId}` | `media:project:dev:read` | `media:artifact:read` (caller owns the root); read-only preview of the exact tree, dependent records and blocking holds | `MEDIA_DEV_ERASURE_ENABLED` + canonical PostgreSQL/S3 runtime |
+| POST | `/dev/v1/erasures` | `media:project:dev:write` | `media:artifact:write`; `confirm:true`; optional `expectedArtifactCount`; owner only; `LEGAL_HOLD_ACTIVE` while a hold covers the tree; `OIDC_VERIFIED` in production-like profiles (or `MEDIA_DEV_ERASURE_REQUIRE_OIDC=true`) | erasure |
+| GET | `/dev/v1/erasures/{erasureId}` | `media:project:dev:read` | `media:artifact:read`; content-free receipt (kinds, counts, digests) | erasure |
+| POST | `/dev/v1/legal-holds` | `media:project:dev:write` | `media:artifact:write`; owner only; records reason, principal and identity assurance; `OIDC_VERIFIED` in production-like profiles | erasure |
+| GET | `/dev/v1/legal-holds/{holdId}` and `/dev/v1/legal-holds?artifactId=` | `media:project:dev:read` | `media:artifact:read`; owner only | erasure |
+| POST | `/dev/v1/legal-holds/{holdId}/release` | `media:project:dev:write` | `media:artifact:write`; the placing owner; attributed; `OIDC_VERIFIED` in production-like profiles | erasure |
 
 DEV_ONLY voice synthesis (J-04; real Kokoro-82M, Apache-2.0, stock voices, no voice cloning).
 `POST /dev/v1/speech/syntheses` takes `{requestId, text, voice?, speakingRate?, locale?, voiceReference?, likenessReference?}`

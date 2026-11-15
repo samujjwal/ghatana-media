@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f6f8" />
+    <meta name="description" content="DEV_ONLY erasure of an artifact tree and owner legal holds." />
+    <title>Erasure and Legal Hold · Media</title>
+    <link rel="stylesheet" href="/src/dev-erasure.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header><a href="/">← Media Experience Explorer</a><p class="eyebrow">Local development only</p><h1>Erasure and legal hold</h1></header>
+      <aside class="notice"><h2>DEV_ONLY · owner scoped</h2><p>Review the exact tree an erasure would remove, place or release an owner legal hold, and erase after an explicit confirmation. Erasure is permanent and is not the same as revoking a rights statement. The receipt lists what was removed by kind and count with digests of the removed objects; it never shows content. No quality, rights, approval or production claim.</p></aside>
+      <section class="panel">
+        <h2>Connect to local Media</h2>
+        <p>Requests stay on this page origin and use the configured loopback proxy. The token is held in memory only.</p>
+        <form id="connect-form"><label for="dev-token">Short-lived DEV_ONLY bearer token</label><input id="dev-token" type="password" autocomplete="off" required /><button type="submit">Connect</button><button id="disconnect" type="button" disabled>Forget token</button></form>
+        <p id="connection-status" role="status" aria-live="polite">Not connected.</p>
+      </section>
+      <div id="erasure-root"></div>
+    </main>
+    <script type="module" src="/src/dev-erasure.tsx"></script>
+  </body>
+</html>

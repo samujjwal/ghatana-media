@@ -52,7 +52,7 @@ public final class MediaLauncher {
                     || !environment.getOrDefault(MediaDevProjectRenderRuntime.FFMPEG_ENV, "").isBlank();
             devLedger = devModelLanes ? MediaDevRequestLedger.compose(environment) : null;
             MediaDevRequestLedger finalDevLedger = devLedger;
-            devErasure = MediaDevErasureRuntime.compose(environment, devLedger, null);
+            devErasure = MediaDevErasureRuntime.compose(environment, devLedger, devDelivery, null);
             MediaDevErasureRuntime finalDevErasure = devErasure;
             MediaPrivacyMaintenanceRuntime finalPrivacyMaintenance = privacyMaintenance;
             MediaConsentAdministrationRuntime finalConsentAdministration = consentAdministration;

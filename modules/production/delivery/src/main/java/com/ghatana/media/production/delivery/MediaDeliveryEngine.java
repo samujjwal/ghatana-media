@@ -261,6 +261,15 @@ public final class MediaDeliveryEngine {
         return queued.status() == Status.QUEUED ? dispatch(request) : queued;
     }
 
+    /**
+     * Drops this process's in-memory entry for one operation, including the artifact bytes it retains for resumption.
+     * Used when the exported artifact is erased: a retained copy must not outlive the durable record. Returns whether an
+     * entry was held. The durable operation row is never touched here.
+     */
+    public synchronized boolean evict(String tenantId, String requestId) {
+        return entries.remove(new OperationKey(required(tenantId, "tenantId"), required(requestId, "requestId"))) != null;
+    }
+
     /** Resolve uncertainty first; any resumed send uses the same idempotency identity and verified offset. */
     public synchronized DeliveryResult reconcileAndResume(String tenantId, String requestId) {
         Entry entry = entries.get(new OperationKey(required(tenantId, "tenantId"), required(requestId, "requestId")));

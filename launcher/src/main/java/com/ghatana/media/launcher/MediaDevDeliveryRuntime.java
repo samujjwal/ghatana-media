@@ -172,6 +172,11 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
         return engine.find(tenantId, requestId).filter(result -> result.principalId().equals(principalId));
     }
 
+    /** Drops this process's retained copy of an export's artifact bytes and cached state (artifact erasure). */
+    boolean evict(String tenantId, String requestId) {
+        return engine != null && engine.evict(tenantId, requestId);
+    }
+
     static final class UnknownDestinationException extends RuntimeException {
         UnknownDestinationException() { super("destination is not configured"); }
     }

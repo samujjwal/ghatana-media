@@ -92,3 +92,13 @@ export type {
   MetricPoint as VideoMetricPoint, VideoAgainstReference, VideoComparisonDelta, VideoComparisonDocument,
   VideoFrameMeasure, VideoSubject,
 } from "./devVideoComparison";
+export { DevErasurePanel } from "./DevErasurePanel";
+export type { DevErasurePanelProps } from "./DevErasurePanel";
+export {
+  DevErasureHostError, describeErasureFailure, parseErasurePlanView, parseErasureReceiptView, parseLegalHoldView,
+  treeRows as erasureTreeRows,
+} from "./devErasure";
+export type {
+  DevErasureFailure, DevErasureHoldRequest, DevErasureHostResponse, DevErasurePort, DevErasureRequest, ErasurePlanView,
+  ErasureReceiptItemView, ErasureReceiptView, ErasureTreeNodeView, LegalHoldView,
+} from "./devErasure";

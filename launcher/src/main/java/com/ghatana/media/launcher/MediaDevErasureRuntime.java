@@ -65,7 +65,7 @@ final class MediaDevErasureRuntime implements AutoCloseable {
 
     /** Composes the runtime, or returns null when erasure is not enabled for this launcher. */
     static MediaDevErasureRuntime compose(Map<String, String> environment, MediaDevRequestLedger ledger,
-                                          Consumer<String> tenantCacheInvalidator) {
+                                          MediaDevDeliveryRuntime delivery, Consumer<String> tenantCacheInvalidator) {
         if (!"true".equalsIgnoreCase(environment.getOrDefault(ENV_ENABLED, "false"))) return null;
         String profile = environment.getOrDefault("MEDIA_RUNTIME_ENVIRONMENT",
                 environment.getOrDefault("MEDIA_PROFILE", "")).trim().toLowerCase(Locale.ROOT);
@@ -90,16 +90,20 @@ final class MediaDevErasureRuntime implements AutoCloseable {
             }
         });
         String destination = environment.get(MediaDevDeliveryRuntime.DESTINATION_DIR);
-        if (destination != null && !destination.isEmpty()) {
-            Path root = MediaDevLocalDirectoryDestination.confineRoot(destination);
+        Path destinationRoot = destination != null && !destination.isEmpty()
+                ? MediaDevLocalDirectoryDestination.confineRoot(destination) : null;
+        if (destinationRoot != null || delivery != null) {
             erasers.add(new LocalCopyEraser() {
                 @Override public String kind() { return "DELIVERED_OBJECT"; }
                 @Override public List<String> erase(String tenantId, LocalWork work) {
                     List<String> removed = new ArrayList<>();
-                    for (DeliveryRef delivery : work.deliveries()) {
+                    for (DeliveryRef ref : work.deliveries()) {
+                        // The engine keeps the exported artifact bytes in memory for resumption: drop them too.
+                        if (delivery != null) delivery.evict(tenantId, ref.requestId());
+                        if (destinationRoot == null) continue;
                         int files = MediaDevLocalDirectoryDestination.eraseDelivered(
-                                root, tenantId, delivery.principalId(), delivery.requestId());
-                        for (int i = 0; i < files; i++) removed.add(delivery.requestId());
+                                destinationRoot, tenantId, ref.principalId(), ref.requestId());
+                        for (int i = 0; i < files; i++) removed.add(ref.requestId());
                     }
                     return removed;
                 }

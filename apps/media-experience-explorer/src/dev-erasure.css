@@ -1,0 +1,31 @@
+@import "@audio-video/ui/styles.css";
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; color: CanvasText; background: Canvas; }
+body { margin: 0; }
+.shell { width: min(1040px, calc(100% - 2rem)); margin: 2rem auto; }
+.panel, .notice, .dev-erasure, #erasure-plan, #erasure-receipt { background: Canvas; border: 1px solid GrayText; border-radius: 12px; padding: 1.25rem; margin: 1rem 0; }
+.notice { border-left: 5px solid GrayText; }
+.eyebrow { color: GrayText; text-transform: uppercase; letter-spacing: .08em; }
+form { display: grid; gap: .6rem; max-width: 40rem; }
+input, select, textarea, button { font: inherit; padding: .65rem .8rem; max-width: 100%; }
+button { width: fit-content; cursor: pointer; min-height: 2.75rem; }
+button:focus-visible, input:focus-visible, a:focus-visible, h4:focus-visible { outline: 3px solid Highlight; outline-offset: 2px; }
+aside[role="note"] { border: 2px solid CanvasText; border-radius: 8px; padding: .75rem 1rem; margin: .75rem 0; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid GrayText; padding: .3rem .5rem; text-align: left; }
+[role="alert"] { border-left: 5px solid CanvasText; padding-left: .75rem; }
+.dev-erasure, .dev-erasure * { min-width: 0; }
+.dev-erasure p, .dev-erasure li, .dev-erasure td, .dev-erasure th, .dev-erasure code, .dev-erasure h3, .dev-erasure label { overflow-wrap: anywhere; }
+.dev-erasure input[type="text"] { box-sizing: border-box; width: 100%; }
+.ea-depth-0 { padding-left: .5rem; }
+.ea-depth-1 { padding-left: 1.5rem; }
+.ea-depth-2 { padding-left: 2.5rem; }
+.ea-depth-3 { padding-left: 3.5rem; }
+.ea-depth-4 { padding-left: 4.5rem; }
+.ea-depth-5 { padding-left: 5.5rem; }
+.ea-depth-6 { padding-left: 6.5rem; }
+.ea-holds { list-style: none; padding: 0; }
+.ea-holds li { border: 2px solid CanvasText; border-radius: 8px; padding: .5rem .75rem; margin: .4rem 0; display: grid; gap: .4rem; }
+.ea-confirm { border: 3px solid CanvasText; border-radius: 10px; padding: 1rem; margin: 1rem 0; display: grid; gap: .6rem; max-width: 40rem; }
+.ea-confirm button { margin-right: .5rem; }
+[data-tone="held"], [data-tone="unknown"] { border-left: 5px solid CanvasText; padding-left: .75rem; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
