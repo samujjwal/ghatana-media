@@ -2,6 +2,7 @@ package com.ghatana.media.runtime;
 
 import com.ghatana.media.runtime.MediaRequestLedgerContracts.Acquired;
 import com.ghatana.media.runtime.MediaRequestLedgerContracts.Claim;
+import com.ghatana.media.runtime.MediaRequestLedgerContracts.Erased;
 import com.ghatana.media.runtime.MediaRequestLedgerContracts.Entry;
 import com.ghatana.media.runtime.MediaRequestLedgerContracts.InProgress;
 import com.ghatana.media.runtime.MediaRequestLedgerContracts.Key;
@@ -49,6 +50,7 @@ public final class InMemoryMediaRequestLedger implements RequestLedger {
                     now, now, null));
             return new Acquired(1, 1, false);
         }
+        if (current.state() == State.ERASED) return new Erased();
         if (current.state() == State.RELEASED) {
             long fence = current.fence() + 1;
             int attempt = current.attempts() + 1;
@@ -110,6 +112,21 @@ public final class InMemoryMediaRequestLedger implements RequestLedger {
     @Override public synchronized Optional<Entry> find(Key key) {
         ensureOpen();
         return Optional.ofNullable(rows.get(key));
+    }
+
+    @Override public synchronized int eraseOutputs(String tenantId, java.util.Set<String> artifactIds) {
+        ensureOpen();
+        int changed = 0;
+        Instant now = clock.instant();
+        for (Map.Entry<Key, Entry> row : new java.util.ArrayList<>(rows.entrySet())) {
+            Entry entry = row.getValue();
+            if (!entry.key().tenantId().equals(tenantId) || entry.state() != State.COMPLETED) continue;
+            if (entry.outputs().stream().noneMatch(output -> artifactIds.contains(output.artifactId()))) continue;
+            rows.put(row.getKey(), new Entry(entry.key(), entry.fingerprint(), State.ERASED, entry.leaseOwner(),
+                    entry.fence(), entry.leaseExpiresAt(), entry.attempts(), List.of(), "", entry.createdAt(), now, null));
+            changed++;
+        }
+        return changed;
     }
 
     @Override public synchronized void close() { closed = true; }

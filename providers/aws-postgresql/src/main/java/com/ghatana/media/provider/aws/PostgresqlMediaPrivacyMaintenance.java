@@ -39,6 +39,9 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
     private final Duration jobRetention;
     private final Duration streamRetention;
     private final AtomicBoolean closed = new AtomicBoolean(false);
+    // Owner legal holds (V039) cover derived artifacts that the lineage table alone cannot see; expiry must honor them.
+    private final PostgresqlMediaErasureAuthority holds =
+            new PostgresqlMediaErasureAuthority(state, null, java.time.Clock.systemUTC(), false);
 
     public PostgresqlMediaPrivacyMaintenance() {
         this(System.getenv());
@@ -114,7 +117,8 @@ public final class PostgresqlMediaPrivacyMaintenance implements MediaPrivacyMain
                 ArtifactNode root = tree.get(rootArtifactId);
                 if (root == null || root.legalHold()
                         || requireExpiredRoot && root.expiresAt() > now
-                        || tree.values().stream().anyMatch(ArtifactNode::legalHold)) {
+                        || tree.values().stream().anyMatch(ArtifactNode::legalHold)
+                        || holds.heldByActiveHold(connection, tenantId, tree.keySet())) {
                     connection.commit();
                     return 0;
                 }

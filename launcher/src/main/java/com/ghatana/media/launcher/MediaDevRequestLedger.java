@@ -3,6 +3,7 @@ package com.ghatana.media.launcher;
 import com.ghatana.media.runtime.InMemoryMediaRequestLedger;
 import com.ghatana.media.runtime.MediaRequestLedgerContracts.Acquired;
 import com.ghatana.media.runtime.MediaRequestLedgerContracts.Claim;
+import com.ghatana.media.runtime.MediaRequestLedgerContracts.Erased;
 import com.ghatana.media.runtime.MediaRequestLedgerContracts.InProgress;
 import com.ghatana.media.runtime.MediaRequestLedgerContracts.Key;
 import com.ghatana.media.runtime.MediaRequestLedgerContracts.Mismatch;
@@ -222,6 +223,12 @@ final class MediaDevRequestLedger implements AutoCloseable {
                     throw unavailable(failure);
                 }
             }
+            if (claim instanceof Erased) {
+                // The registered output of this requestId was erased on request: never a replay, never a re-run.
+                throw new LedgerRefusedException(410, "OUTPUT_ERASED",
+                        "the output of this requestId was erased; it cannot be replayed or produced again under this requestId",
+                        Map.of("lane", lane));
+            }
             if (claim instanceof Replay replayed) return replay.apply(replayed.outputs());
             if (claim instanceof Mismatch) throw mismatch.get();
             if (claim instanceof InProgress busy) {
@@ -267,6 +274,11 @@ final class MediaDevRequestLedger implements AutoCloseable {
             }
             return result;
         }
+    }
+
+    /** Marks the replay rows of erased outputs as erased in a process-local ledger; durable rows are erased in the erasure transaction. */
+    int eraseOutputs(String tenantId, java.util.Set<String> artifactIds) {
+        return ledger.eraseOutputs(tenantId, artifactIds);
     }
 
     static LedgerRefusedException outputUnavailable(String lane) {

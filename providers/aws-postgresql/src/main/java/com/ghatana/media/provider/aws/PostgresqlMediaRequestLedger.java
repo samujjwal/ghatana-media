@@ -4,6 +4,7 @@ import com.ghatana.media.runtime.MediaRequestLedgerContracts;
 import com.ghatana.media.runtime.MediaRequestLedgerContracts.Acquired;
 import com.ghatana.media.runtime.MediaRequestLedgerContracts.Claim;
 import com.ghatana.media.runtime.MediaRequestLedgerContracts.Entry;
+import com.ghatana.media.runtime.MediaRequestLedgerContracts.Erased;
 import com.ghatana.media.runtime.MediaRequestLedgerContracts.InProgress;
 import com.ghatana.media.runtime.MediaRequestLedgerContracts.Key;
 import com.ghatana.media.runtime.MediaRequestLedgerContracts.Mismatch;
@@ -93,7 +94,9 @@ public final class PostgresqlMediaRequestLedger implements RequestLedger {
                 }
                 Claim decided;
                 boolean takeover = false;
-                if (current.state() == State.RELEASED) {
+                if (current.state() == State.ERASED) {
+                    decided = new Erased();
+                } else if (current.state() == State.RELEASED) {
                     decided = null;
                 } else if (!current.fingerprint().equals(fingerprint)) {
                     decided = new Mismatch();

@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * A09 historical-lineage fixture: a database built at the Media pre-V010 lineage (V001–V009)
- * must migrate forward through V010–V029, V031–V033, V035, V036, V037 (an H2 vendor no-op; the PostgreSQL guard is proven on PostgreSQL) and V038 (DEV request ledger) without checksum conflicts, row loss or phantom state;
+ * must migrate forward through V010–V029, V031–V033, V035, V036, V037 (an H2 vendor no-op; the PostgreSQL guard is proven on PostgreSQL), V038 (DEV request ledger) and V039 (erasure and legal hold) without checksum conflicts, row loss or phantom state;
  * a repeated migrate pass must be a no-op and the V009-era column surface must remain readable.
  */
 class MediaMigrationLineageFixtureTest {
@@ -74,7 +74,7 @@ class MediaMigrationLineageFixtureTest {
         }
 
         MigrateResult forward = flyway(ds, null).migrate();
-        assertThat(forward.migrationsExecuted).isEqualTo(27); // V010..V029 plus additive V031..V033, V035, V036, V037 (H2 vendor no-op) and V038 (DEV request ledger)
+        assertThat(forward.migrationsExecuted).isEqualTo(28); // V010..V029 plus additive V031..V033, V035, V036, V037 (H2 vendor no-op), V038 (DEV request ledger) and V039 (erasure and legal hold)
 
         try (Connection connection = ds.getConnection()) {
             assertThat(count(connection, "media_processing_jobs")).isEqualTo(3);
@@ -128,7 +128,7 @@ class MediaMigrationLineageFixtureTest {
                     "SELECT COUNT(*), SUM(CASE WHEN success THEN 0 ELSE 1 END)"
                             + " FROM flyway_schema_history WHERE version IS NOT NULL")) {
                 history.next();
-                assertThat(history.getLong(1)).isEqualTo(36); // includes V037 (H2 vendor counterpart) and V038
+                assertThat(history.getLong(1)).isEqualTo(37); // includes V037 (H2 vendor counterpart), V038 and V039
                 assertThat(history.getLong(2)).isZero();
             }
             assertThat(tableExists(connection, "media_delivery_operations")).isTrue();

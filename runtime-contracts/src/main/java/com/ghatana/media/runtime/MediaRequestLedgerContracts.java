@@ -51,7 +51,7 @@ public final class MediaRequestLedgerContracts {
         }
     }
 
-    public enum State { IN_PROGRESS, COMPLETED, RELEASED }
+    public enum State { IN_PROGRESS, COMPLETED, RELEASED, ERASED }
 
     /** Read-only view of one ledger row. */
     public record Entry(Key key, String fingerprint, State state, String leaseOwner, long fence,
@@ -63,7 +63,7 @@ public final class MediaRequestLedgerContracts {
     }
 
     /** Result of {@link RequestLedger#claim}. */
-    public sealed interface Claim permits Acquired, Replay, Mismatch, InProgress { }
+    public sealed interface Claim permits Acquired, Replay, Mismatch, InProgress, Erased { }
 
     /** The caller owns the run. {@code fence} must be presented to complete or release; {@code takeover} marks a stale lease. */
     public record Acquired(long fence, int attempt, boolean takeover) implements Claim { }
@@ -74,6 +74,12 @@ public final class MediaRequestLedgerContracts {
             outputs = List.copyOf(outputs);
         }
     }
+
+    /**
+     * The registered output of this requestId was erased on request (J-26). The key is permanently answered as
+     * erased: it neither replays nor runs a model again, whatever fingerprint the caller presents.
+     */
+    public record Erased() implements Claim { }
 
     /** The requestId was already used with a different canonical request. */
     public record Mismatch() implements Claim { }
@@ -115,6 +121,14 @@ public final class MediaRequestLedgerContracts {
         boolean release(Key key, long fence, String failureCode);
 
         Optional<Entry> find(Key key);
+
+        /**
+         * Marks every COMPLETED row of {@code tenantId} whose registered output names one of {@code artifactIds} as
+         * {@link State#ERASED} and drops its output references, so the key can never replay an erased output. Returns
+         * the number of rows changed. Providers whose rows are erased inside an erasure transaction may keep the
+         * default.
+         */
+        default int eraseOutputs(String tenantId, java.util.Set<String> artifactIds) { return 0; }
 
         @Override void close();
     }
