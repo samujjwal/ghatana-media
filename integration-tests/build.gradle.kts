@@ -24,6 +24,8 @@ dependencies {
     testImplementation(project(":services:media:modules:speech:tts-service"))
     testImplementation(project(":services:media:modules:vision:vision-service"))
     testImplementation(project(":services:media:modules:production:rendering"))
+    // J-12: the animation IT renders the same scene in-process to compare pre-encode frame digests with the launcher's.
+    testImplementation(project(":services:media:modules:production:animation"))
     testImplementation(project(":services:media:modules:audio-streaming"))
     testImplementation(project(":services:media:modules:video-streaming"))
 

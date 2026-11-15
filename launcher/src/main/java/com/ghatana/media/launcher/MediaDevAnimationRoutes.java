@@ -8,6 +8,9 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -33,6 +36,8 @@ final class MediaDevAnimationRoutes {
             .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build()).build();
     private static final String NOTE = "DEV_ONLY deterministic 2D render encoded as lossy H.264; no quality, rights, "
             + "approval or production claim";
+
+    private static final Logger log = LoggerFactory.getLogger(MediaDevAnimationRoutes.class);
 
     private final MediaDevAnimationRuntime animation;
     private final MediaRuntime runtime;
@@ -74,6 +79,11 @@ final class MediaDevAnimationRoutes {
         } catch (MediaDevAnimationRuntime.AnimationRegistrationFailedException failure) {
             out.error(exchange, 502, "ANIMATION_OUTPUT_REGISTRATION_FAILED",
                     "The output was not registered; retry with the same requestId to resume", Map.of());
+        } catch (IllegalArgumentException | IllegalStateException | SecurityException handled) {
+            throw handled; // mapped to 400/409/403 by the host handler
+        } catch (RuntimeException unexpected) {
+            log.error("DEV animation request failed unexpectedly", unexpected);
+            throw unexpected;
         }
     }
 
@@ -93,9 +103,14 @@ final class MediaDevAnimationRoutes {
                         "DEV_ONLY artifact read and create permissions are required for animation renders", Map.of());
                 return;
             }
-            Map<String, Object> body = JSON.readValue(MediaHttpHandler.boundedBody(exchange, maxBody, false),
-                    new TypeReference<Map<String, Object>>() { });
-            if (body == null) throw new IllegalArgumentException("request body is required");
+            Map<String, Object> body;
+            try {
+                body = JSON.readValue(MediaHttpHandler.boundedBody(exchange, maxBody, false),
+                        new TypeReference<Map<String, Object>>() { });
+            } catch (tools.jackson.core.JacksonException malformed) {
+                throw MediaDevAnimationSpec.invalid("$", "the request body is not a valid JSON object");
+            }
+            if (body == null) throw MediaDevAnimationSpec.invalid("$", "the request body is required");
             requireKeys(body, Set.of("requestId", "spec"), Set.of("encoder"), "animation render request");
             int crf = MediaDevAnimationRuntime.DEFAULT_CRF;
             if (body.containsKey("encoder")) {
