@@ -70,6 +70,10 @@ final class MediaDevOnlyRoutePermissions {
         if ("GET".equals(method) && "/dev/v1/animations/status".equals(path)) return PROJECT_READ;
         if ("POST".equals(method) && "/dev/v1/animations/renders".equals(path)) return PROJECT_WRITE;
         if ("GET".equals(method) && path.matches("^/dev/v1/animations/renders/[^/]+$")) return PROJECT_READ;
+        // Scientific simulation (J-14/J-15); the routes additionally require media:artifact:{read,create}.
+        if ("GET".equals(method) && "/dev/v1/simulations/status".equals(path)) return PROJECT_READ;
+        if ("POST".equals(method) && "/dev/v1/simulations".equals(path)) return PROJECT_WRITE;
+        if ("GET".equals(method) && path.matches("^/dev/v1/simulations/[^/]+$") && !"/dev/v1/simulations/status".equals(path)) return PROJECT_READ;
         // J-26 erasure and legal holds; the routes additionally require media:artifact:{read,write}.
         if ("GET".equals(method) && path.matches("^/dev/v1/(erasure-plans/[^/]+|erasures/[^/]+|legal-holds(/[^/]+)?)$")) return PROJECT_READ;
         if ("POST".equals(method) && ("/dev/v1/erasures".equals(path) || "/dev/v1/legal-holds".equals(path)
