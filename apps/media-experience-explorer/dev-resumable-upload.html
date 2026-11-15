@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f6f8" />
+    <meta name="description" content="DEV_ONLY resumable chunked upload with versioned artifact intake in the local Explorer." />
+    <title>Local Resumable Upload · Media</title>
+    <link rel="stylesheet" href="/src/dev-resumable-upload.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <main id="main-content" class="shell">
+      <header><a href="/">← Media Experience Explorer</a><p class="eyebrow">Local development only</p><h1>Resumable upload and versions</h1></header>
+      <aside class="notice"><h2>DEV_ONLY · owner scoped</h2><p>A real file is sent in verified chunks. If the host stops, the upload resumes from the bytes the server acknowledged, never from a local guess. A finished upload is registered as an immutable version with its media probe. Registering a version grants no rights: processing stays refused until a rights statement exists for that exact version.</p></aside>
+      <section class="panel" aria-labelledby="connect-heading">
+        <h2 id="connect-heading">Connect to local Media</h2>
+        <p>Requests stay on this page origin through the configured loopback proxy. The token is held in memory only.</p>
+        <form id="connect-form"><label for="dev-token">Short-lived DEV_ONLY bearer token</label><input id="dev-token" type="password" autocomplete="off" required /><button type="submit">Connect</button><button id="disconnect" type="button" disabled>Forget token</button></form>
+        <p id="connection-status" role="status" aria-live="polite">Not connected.</p>
+      </section>
+      <section class="panel" aria-labelledby="upload-heading">
+        <h2 id="upload-heading">Upload a file</h2>
+        <form id="upload-form">
+          <div class="field"><label for="file">Media file (audio or video)</label><input id="file" type="file" accept="audio/*,video/*" disabled /></div>
+          <div class="field"><label for="lineage">Lineage name (a revised file with the same name becomes the next version)</label><input id="lineage" type="text" maxlength="100" pattern="[A-Za-z0-9][A-Za-z0-9._:\-]*" value="my-media" disabled aria-describedby="lineage-help" /><span id="lineage-help" class="hint">Letters, digits, dot, dash, underscore, colon.</span></div>
+          <div class="field"><label for="chunk-size">Chunk size</label><select id="chunk-size" disabled><option value="262144">256 KiB</option><option value="524288" selected>512 KiB</option><option value="1048576">1 MiB</option></select></div>
+          <div class="field"><label for="pace">Pause between chunks (milliseconds, for slow links)</label><input id="pace" type="number" min="0" max="5000" value="0" disabled /></div>
+          <div class="actions"><button id="start" type="submit" disabled>Start upload</button><button id="pause" type="button" disabled>Pause</button><button id="resume" type="button" disabled>Resume</button></div>
+        </form>
+        <p><label for="progress">Server-acknowledged progress</label><progress id="progress" max="1" value="0" aria-describedby="progress-text">0%</progress></p>
+        <p id="progress-text" role="status" aria-live="polite">No upload started.</p>
+        <p id="upload-error" role="alert"></p>
+      </section>
+      <section class="panel" aria-labelledby="versions-heading">
+        <h2 id="versions-heading">Versions</h2>
+        <div class="scroll" tabindex="0" role="region" aria-labelledby="versions-heading">
+          <table id="versions"><caption>Registered versions of this lineage</caption><thead><tr><th scope="col">Version</th><th scope="col">Parent</th><th scope="col">SHA-256</th><th scope="col">Size</th><th scope="col">Duration</th><th scope="col">Streams</th><th scope="col">Processing</th></tr></thead><tbody id="versions-body"><tr><td colspan="7">No version registered yet.</td></tr></tbody></table>
+        </div>
+        <p id="register-status" role="status" aria-live="polite"></p>
+        <form id="rights-form">
+          <h3>State rights for processing</h3>
+          <p>This records a statement by the signed-in DEV_ONLY identity for the latest version. It is not a legal determination and approves nothing by itself.</p>
+          <div class="field"><label for="basis">Basis for the statement</label><input id="basis" type="text" maxlength="500" disabled /></div>
+          <button id="attest" type="submit" disabled>State rights for latest version</button>
+        </form>
+        <p id="rights-status" role="status" aria-live="polite"></p>
+      </section>
+    </main>
+    <script type="module" src="/src/dev-resumable-upload.ts"></script>
+  </body>
+</html>

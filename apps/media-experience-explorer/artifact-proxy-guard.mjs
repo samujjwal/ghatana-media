@@ -34,6 +34,10 @@ const devProjectRoutes = [
   { method: "POST", path: new RegExp(`^/dev/v1/rights/attestations/${OPAQUE_ID}/confirm$`, "u") },
   { method: "POST", path: new RegExp(`^/dev/v1/rights/attestations/${OPAQUE_ID}/revoke$`, "u") },
   { method: "GET", path: new RegExp(`^/dev/v1/rights/artifacts/${OPAQUE_ID}/versions/${OPAQUE_ID}/attestations$`, "u") },
+  // DEV_ONLY versioned artifact intake used by the "Resumable upload" page (register a finalised upload as the next
+  // version of a lineage, read the lineage with probes and the live processing-admission verdict; no DELETE).
+  { method: "POST", path: /^\/dev\/v1\/intakes$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/intakes/${OPAQUE_ID}$`, "u") },
   // DEV_ONLY hosted export lane used by the "Export this render artifact" control.
   { method: "POST", path: /^\/dev\/v1\/exports$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/exports/${OPAQUE_ID}$`, "u") },

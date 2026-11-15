@@ -499,6 +499,8 @@ public final class PostgresqlMediaErasureAuthority implements ErasureAuthority {
         records.put("REQUEST_LEDGER_ROW", eraseLedgerRows(connection, tenantId, ids));
         records.put("REVIEW_RECORD", eraseReviewRows(connection, tenantId, ids));
         records.put("UPLOAD_SESSION", deleteByIds(connection, "media_upload_sessions", "artifact_id", tenantId, ids));
+        // DEV_ONLY versioned-intake rows (ids, digest, media probe) must not outlive their erased artifact.
+        deleteByIds(connection, "media_dev_artifact_versions", "artifact_id", tenantId, ids);
 
         // Artifacts last: lineage, transcripts and verifications no longer reference them.
         int removed = 0;

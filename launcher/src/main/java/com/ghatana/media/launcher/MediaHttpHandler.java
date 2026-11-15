@@ -72,6 +72,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private static final Set<String> HEALTH_PATHS = Set.of(
             "/health", "/health/live", "/health/ready", "/health/startup",
             "/ready", "/metrics", "/info", "/api/v1/health");
+    static final String CHUNK_SHA256_HEADER = "X-Chunk-SHA256";
     private static final Pattern UPLOAD_PATH = Pattern.compile("^/api/v1/artifacts/uploads/([^/]+)$");
     private static final Pattern CHUNK_PATH = Pattern.compile("^/api/v1/artifacts/uploads/([^/]+)/chunks/(-?\\d+)$");
     private static final Pattern COMPLETE_PATH = Pattern.compile("^/api/v1/artifacts/uploads/([^/]+)/complete$");
@@ -93,6 +94,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private final MediaDevReviewRoutes devReview;
     private MediaDevDeliveryRoutes devDelivery;
     private MediaDevRightsRoutes devRights;
+    private MediaDevIntakeRoutes devIntake;
     private final MediaDevCreativeOutputRoutes devCreative;
     private MediaDevArtifactContentRoutes devArtifactContent;
     private MediaDevSpeechRoutes devSpeech;
@@ -192,6 +194,12 @@ public final class MediaHttpHandler implements HttpHandler {
                 devSpeech == null ? null : devSpeech.speechRuntime().sttProvider(),
                 devSpeech == null ? null : devSpeech.speechRuntime().ttsProvider(),
                 devVision == null ? null : devVision.visionRuntime().engine()));
+        return this;
+    }
+
+    /** Installs the optional DEV_ONLY versioned artifact intake routes. */
+    MediaHttpHandler withDevIntake(MediaDevIntakeRuntime intake) {
+        this.devIntake = intake == null ? null : new MediaDevIntakeRoutes(runtime, intake);
         return this;
     }
 
@@ -495,6 +503,10 @@ public final class MediaHttpHandler implements HttpHandler {
                     MediaHttpHandler.this.error(e, status, code, message, details);
                 }
             });
+            return;
+        }
+        if (devIntake != null && MediaDevIntakeRoutes.handles(path)) {
+            devIntake.handle(exchange, path, method, tenantId, principalId);
             return;
         }
         if (devRights != null && MediaDevRightsRoutes.handles(path)) {
@@ -954,9 +966,23 @@ public final class MediaHttpHandler implements HttpHandler {
             error(exchange, 404, "UPLOAD_NOT_FOUND", "Upload session not found");
             return;
         }
+        byte[] chunk = boundedBody(exchange, runtime.config().maximumChunkBytes());
+        // Optional per-chunk integrity: a client that declares the chunk SHA-256 gets a typed refusal, and nothing is
+        // appended, when the bytes that arrived are not the bytes it hashed (corruption in transit).
+        String declared = exchange.getRequestHeaders().getFirst(CHUNK_SHA256_HEADER);
+        if (declared != null) {
+            if (!declared.matches("[0-9a-f]{64}")) {
+                error(exchange, 400, "CHUNK_CHECKSUM_INVALID", "X-Chunk-SHA256 must be 64 lowercase hex characters");
+                return;
+            }
+            if (!declared.equals(sha256Hex(chunk))) {
+                error(exchange, 422, "CHUNK_CHECKSUM_MISMATCH",
+                        "The received chunk does not match its declared SHA-256; the chunk was not appended");
+                return;
+            }
+        }
         json(exchange, 200, UploadSessionObservation.from(runtime.appendUploadChunk(
-                authenticatedPrincipal(exchange), uploadId, index,
-                boundedBody(exchange, runtime.config().maximumChunkBytes()))));
+                authenticatedPrincipal(exchange), uploadId, index, chunk)));
     }
 
     private void completeUpload(
@@ -1304,6 +1330,14 @@ public final class MediaHttpHandler implements HttpHandler {
                     MediaCapabilityNotAdmittedException.Reason.PROVIDER_UNAVAILABLE, "consent-administration");
         }
         return consentAdministration;
+    }
+
+    private static String sha256Hex(byte[] bytes) {
+        try {
+            return java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(bytes));
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException(impossible);
+        }
     }
 
     private static byte[] boundedBody(HttpExchange exchange, int maximum) throws IOException {

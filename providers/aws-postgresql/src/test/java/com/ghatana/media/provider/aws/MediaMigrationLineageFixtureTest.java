@@ -74,7 +74,7 @@ class MediaMigrationLineageFixtureTest {
         }
 
         MigrateResult forward = flyway(ds, null).migrate();
-        assertThat(forward.migrationsExecuted).isEqualTo(28); // V010..V029 plus additive V031..V033, V035, V036, V037 (H2 vendor no-op), V038 (DEV request ledger) and V039 (erasure and legal hold)
+        assertThat(forward.migrationsExecuted).isEqualTo(29); // V010..V029 plus additive V031..V033, V035, V036, V037 (H2 vendor no-op), V038 (DEV request ledger), V039 (erasure and legal hold) and V040 (DEV artifact version ledger)
 
         try (Connection connection = ds.getConnection()) {
             assertThat(count(connection, "media_processing_jobs")).isEqualTo(3);
@@ -128,7 +128,7 @@ class MediaMigrationLineageFixtureTest {
                     "SELECT COUNT(*), SUM(CASE WHEN success THEN 0 ELSE 1 END)"
                             + " FROM flyway_schema_history WHERE version IS NOT NULL")) {
                 history.next();
-                assertThat(history.getLong(1)).isEqualTo(37); // includes V037 (H2 vendor counterpart), V038 and V039
+                assertThat(history.getLong(1)).isEqualTo(38); // includes V037 (H2 vendor counterpart), V038, V039 and V040
                 assertThat(history.getLong(2)).isZero();
             }
             assertThat(tableExists(connection, "media_delivery_operations")).isTrue();

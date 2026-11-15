@@ -35,6 +35,7 @@ public final class MediaLauncher {
         MediaDevReviewRuntime devReview = null;
         MediaDevDeliveryRuntime devDelivery = null;
         MediaDevRightsRuntime devRights = null;
+        MediaDevIntakeRuntime devIntake = null;
         MediaDevRequestLedger devLedger = null;
         MediaDevErasureRuntime devErasure = null;
         try {
@@ -44,6 +45,9 @@ public final class MediaLauncher {
             devProjectTimeline = MediaDevProjectTimelineRuntime.compose(environment);
             devReview = MediaDevReviewRuntime.compose(environment, runtime, devProjectTimeline);
             devRights = MediaDevRightsRuntime.compose(environment, runtime);
+            devIntake = MediaDevIntakeRuntime.compose(environment, runtime,
+                    devRights == null ? null : devRights.resolver());
+            MediaDevIntakeRuntime finalDevIntake = devIntake;
             devDelivery = MediaDevDeliveryRuntime.compose(environment, runtime,
                     devRights == null ? null : devRights.resolver());
             // One durable request ledger for every DEV_ONLY model lane (speech, captions, vision tracking/ROI, grounded).
@@ -76,6 +80,10 @@ public final class MediaLauncher {
                 }
                 if (finalDevDelivery != null) {
                     try { finalDevDelivery.close(); }
+                    catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
+                }
+                if (finalDevIntake != null) {
+                    try { finalDevIntake.close(); }
                     catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
                 }
                 if (finalDevRights != null) {
@@ -133,6 +141,7 @@ public final class MediaLauncher {
                                     consentAdministration == null ? null : consentAdministration.administration(),
                                     captions, finalDevProjectTimeline, finalDevReview,
                                     finalDevProjectTimeline == null ? null : new MediaDevCreativeOutputRuntime(runtime)).withDevDelivery(finalDevDelivery).withDevRights(finalDevRights)
+                                    .withDevIntake(finalDevIntake)
                                     .withDevErasure(finalDevErasure, "true".equalsIgnoreCase(
                                             environment.getOrDefault("MEDIA_DEV_ERASURE_REQUIRE_OIDC", "false")))
                                     .withDevSpeech(finalDevSpeech)
@@ -179,6 +188,10 @@ public final class MediaLauncher {
             }
             if (devDelivery != null) {
                 try { devDelivery.close(); }
+                catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
+            }
+            if (devIntake != null) {
+                try { devIntake.close(); }
                 catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
             }
             if (devRights != null) {

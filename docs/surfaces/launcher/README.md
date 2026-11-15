@@ -190,6 +190,11 @@ and stable terminal reads — **no second writer**.
   advertises the runtime's bounded request size and does not create an artifact
   operation. It remains outside the canonical route manifest/OpenAPI and is
   not production admission.
+- The canonical chunk `PUT /api/v1/artifacts/uploads/{uploadId}/chunks/{n}` accepts an optional
+  `X-Chunk-SHA256` header (64 lowercase hex). When present and different from the received bytes the host answers
+  422 `CHUNK_CHECKSUM_MISMATCH` (malformed header: 400 `CHUNK_CHECKSUM_INVALID`) and appends nothing, so the
+  acknowledged prefix and next chunk index are unchanged. Absent header: unchanged behaviour. The header is not a
+  declared OpenAPI parameter; the final whole-file SHA-256/size verification at completion is unchanged.
 - Local development cancellation is a signed `POST /dev/v1/jobs/{jobId}/cancel`
   operation requiring `media:job:cancel` and exact profile `dev`. The route is
   owner-scoped, admits only providers declared LOCAL, and persists its stable
@@ -310,6 +315,8 @@ handlers additionally require the artifact permissions noted, so access is never
 | POST | `/dev/v1/rights/attestations/{attestationId}/confirm` | `media:project:dev:write` | a principal other than the attester | rights |
 | POST | `/dev/v1/rights/attestations/{attestationId}/revoke` | `media:project:dev:write` | attester or confirmer | rights |
 | GET | `/dev/v1/rights/artifacts/{artifactId}/versions/{versionId}/attestations` | `media:project:dev:read` | caller owns the exact version | rights |
+| POST | `/dev/v1/intakes` | `media:project:dev:write` | `media:artifact:read` (caller owns the exact finalised version) | `MEDIA_DEV_INTAKE_ENABLED` + `MEDIA_DEV_RENDER_FFPROBE` (PostgreSQL V040 ledger). Registers the upload as the next immutable version of a lineage (201), probes the verified bytes with ffprobe (undecodable media: 422 `INTAKE_MEDIA_NOT_PROBEABLE`, nothing registered), identical content in the lineage deduplicates (200) |
+| GET | `/dev/v1/intakes/{lineageId}` | `media:project:dev:read` | lineage owner (foreign owner: concealed 404) | intake: versions, parent links, probes and the live `PROCESSING` admission verdict per exact version |
 | POST | `/dev/v1/captions/corrections` | `media:project:dev:write` | `media:artifact:{read,create}` (caller owns the exact base version) | timeline (rights/review: `MEDIA_RIGHTS_DEV_ENABLED`, `MEDIA_DEV_REVIEW_ENABLED`) |
 | GET | `/dev/v1/captions/{captionId}` | `media:project:dev:read` | `media:artifact:read` (caller owns the version) | timeline |
 | POST | `/dev/v1/exports` | `media:delivery:dev:export` | `media:artifact:read` | `MEDIA_DELIVERY_DEV_ENABLED` + `MEDIA_DELIVERY_DEV_DESTINATION_DIR` |
