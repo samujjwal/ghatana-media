@@ -25,7 +25,7 @@ Every `DeliveryResult` carries the exact tenant, principal, request, artifact ID
 
 ## Bounds and limitations
 
-Artifacts are snapshotted and capped at 64 MiB; transfer chunks are capped at 1 MiB. The default engine constructor still uses an in-memory ledger. A `DeliveryOperationStore` SPI and PostgreSQL adapter persist exact operation identity/status; additive V031 creates that table and V032 adds an exact-scope, expiring claim with a monotonic fence. The adapter is not wired into the default launcher runtime.
+Artifacts are snapshotted and capped at 64 MiB; transfer chunks are capped at 1 MiB. The default engine constructor still uses an in-memory ledger; an overload takes the dispatch-claim lease (default and maximum five minutes), which bounds how long a crashed dispatcher blocks takeover. A `DeliveryOperationStore` SPI and PostgreSQL adapter persist exact operation identity/status; additive V031 creates that table and V032 adds an exact-scope, expiring claim with a monotonic fence. The adapter is not wired into the default launcher runtime.
 
 `MediaDeliveryEngine` dispatches only through `FencedDestinationPort` and a store that advertises durable dispatch claims. Claims compare the exact stored operation state before acquisition, and stores reject illegal state regressions or decreasing acknowledged offsets. Legacy destination implementations remain source compatible but receive no calls; process-local stores also fail closed. The fenced destination contract carries the claim into each send and reconciliation call, and implementations must reject stale fences and deduplicate exact chunk identities. No real destination currently implements or qualifies that contract, so the claim ledger does not establish safe external delivery by itself.
 

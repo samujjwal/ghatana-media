@@ -182,6 +182,34 @@ and stable terminal reads — **no second writer**.
   authorization is a DEV_ONLY owner-read grant, not a signed production authority. Not covered: network or
   third-party destinations, external destination ACK, signed authorization, token revocation UI, rights
   revocation; routes stay outside the canonical manifest/OpenAPI.
+- J-22 signed-ACK receiver destination `dev-http-receiver` (DEV_ONLY, loopback only). Opt in with
+  `MEDIA_DELIVERY_DEV_RECEIVER_URL` (bare `http://127.0.0.1:<port>`; a non-loopback host fails startup),
+  `MEDIA_DELIVERY_DEV_RECEIVER_IDENTITY`, `MEDIA_DELIVERY_DEV_RECEIVER_CREDENTIAL_REFERENCE` and
+  `MEDIA_DELIVERY_DEV_RECEIVER_ACK_KEY_REFERENCE` (`secret:env:NAME` references), `MEDIA_DELIVERY_DEV_RECEIVER_TENANTS`
+  (comma list of permitted tenants), optional `MEDIA_DELIVERY_DEV_RECEIVER_TIMEOUT_MS` (default 15000) and
+  `MEDIA_DELIVERY_DEV_DISPATCH_LEASE_MS` (1000-300000, default 300000: how long a crashed dispatcher blocks takeover).
+  The directory destination becomes optional when a receiver is configured. The receiver is a separate process with
+  its own storage, a revocable upload credential and an independent HMAC-SHA256 ACK key. Wire protocol:
+  `PUT /v1/objects/{sha256(tenant,principal,requestId)}/parts?offset=N` (1 MiB parts, `X-Part-Sha256`,
+  `X-Object-Size`, `X-Object-Sha256`, `X-Ack-Nonce`, bearer credential) answers a signed PART ack;
+  `GET /v1/objects/{key}` answers a signed STATUS (`ABSENT|PARTIAL|COMPLETE` with receivedBytes and the SHA-256 the
+  receiver computed over what it stored). Responses carry `X-Ack-Signature: v1=<hmac over the exact body>`; Media
+  verifies it in constant time and binds identity, object key, kind, per-call nonce, offsets and, for the final
+  receipt, size and checksum. `DELIVERED` is recorded only from a verified COMPLETE status whose checksum equals the
+  artifact digest. Views carry `ackState` (`DELIVERED|UNKNOWN|NOT_DELIVERED`), a typed `failure`
+  (`CREDENTIAL_REVOKED`, `ACK_SIGNATURE_INVALID`, `DESTINATION_IDENTITY_MISMATCH`, `CHECKSUM_MISMATCH`,
+  `DESTINATION_UNREACHABLE`, `DESTINATION_REJECTED`), `destinationReceivedBytes` and `observedAt` (the observation is
+  process-local, not durable: after a restart `failure` is empty until the next reconcile). Lost ACK: the export
+  stays `OUTCOME_UNKNOWN`; `POST /dev/v1/exports/{requestId}/reconcile` (`media:delivery:dev:export` +
+  `media:artifact:read`, body `{}` or `{"resume":bool}`) reads the receiver state. `resume:false` never sends: an
+  absent object is `NOT_DELIVERED`, a partial one stays `UNKNOWN`, a complete matching one is confirmed by the
+  engine with no second write; `resume:true` (also what a retry of the export does) continues from the
+  receiver-verified offset, so stored parts are not resent. A registered destination that the tenant is not
+  permitted to use is `403 DESTINATION_NOT_PERMITTED`; an unregistered one stays `404 DESTINATION_NOT_FOUND`
+  (existing client contract). A destination whose credential is refused before any write is a terminal
+  `UNAVAILABLE`/`NOT_DELIVERED` for that request id. Rights revocation mid-export stops the next part. Erasure of
+  copies already delivered to an external receiver is not performed by this host. The review lane is not consulted:
+  the second-person-confirmed EXTERNAL_DELIVERY attestation is the only release gate.
 - The DEV_ONLY artifact intake host reads `GET /dev/v1/artifact-upload-policy`
   using a signed DEV_ONLY identity with `media:artifact:create`. The exact
   response is `{schemaVersion:"media.dev.artifact-upload-policy.v1",
@@ -923,7 +951,7 @@ PDF, JSON and GLB are never rendered inline). Only GET is supported (no HEAD).
 | `MediaRuntime.compose` / upload & artifact methods | Canonical runtime port |
 | `MediaHttpHandler` | HTTP request handling over `MediaRouteManifest` |
 | `MediaDevProjectTimelineRuntime` | Optional isolated owner-only DEV_ONLY project and timeline preview |
-| `MediaDevDeliveryRuntime` / `MediaDevDeliveryRoutes` | DEV_ONLY hosted export to a read-back local directory destination over `MediaDeliveryEngine` |
+| `MediaDevDeliveryRuntime` / `MediaDevDeliveryRoutes` | DEV_ONLY hosted export to a read-back local directory destination or a signed-ACK loopback receiver (`MediaDevHttpReceiverDestination`, `MediaDevDestinationRouter`) over `MediaDeliveryEngine` |
 | `MediaDevProjectRenderRuntime` | DEV_ONLY revision-exact storyboard render registered as an immutable artifact with lineage |
 | `MediaDevWebVtt` | Strict bounded WebVTT cue parser for MP4 caption clips (plain text only) |
 | `vision-service` (`bin/vision-service`) | Standalone Vision gRPC server on the same packaged classpath |
@@ -1089,6 +1117,14 @@ Hosted export with destination acknowledgment (in-process + real launcher/Postgr
   --tests 'com.ghatana.media.launcher.MediaDevDeliveryHttpTest'
 ./gradlew :services:media:integration-tests:test \
   --tests 'com.ghatana.media.integration.MediaDevDeliveryRestartIT'
+```
+
+Signed-ACK destination, lost-ACK reconciliation and Explorer delivery page (J-22; Docker, real launcher, independent receiver):
+
+```bash
+./gradlew :services:media:integration-tests:test \
+  --tests 'com.ghatana.media.integration.MediaDevDeliveryAckIT' \
+  --tests 'com.ghatana.media.integration.MediaDevExplorerDeliveryLiveIT'
 ```
 
 DEV_ONLY creative outputs (in-process HTTP; outside the canonical manifest/OpenAPI):

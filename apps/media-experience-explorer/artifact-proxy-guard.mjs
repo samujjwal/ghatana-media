@@ -41,6 +41,8 @@ const devProjectRoutes = [
   // DEV_ONLY hosted export lane used by the "Export this render artifact" control.
   { method: "POST", path: /^\/dev\/v1\/exports$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/exports/${OPAQUE_ID}$`, "u") },
+  // Reconcile an unresolved export against the destination's own state (resume true|false in the body).
+  { method: "POST", path: new RegExp(`^/dev/v1/exports/${OPAQUE_ID}/reconcile$`, "u") },
   // DEV_ONLY exact-version content read for verified previews/downloads. The version travels in If-Match (no query).
   { method: "GET", path: new RegExp(`^/dev/v1/artifacts/${OPAQUE_ID}/content$`, "u") },
   // DEV_ONLY local speech lane used by the "Voice synthesis" page (synthesis only; transcription is not proxied).

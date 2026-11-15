@@ -209,7 +209,8 @@ public final class MediaDeliveryEngine {
     private record OperationKey(String tenantId, String requestId) {}
     private final Map<OperationKey, Entry> entries = new HashMap<>();
     private final String dispatcherId = UUID.randomUUID().toString();
-    private static final Duration DISPATCH_CLAIM_LEASE = Duration.ofMinutes(5);
+    public static final Duration DEFAULT_DISPATCH_CLAIM_LEASE = Duration.ofMinutes(5);
+    private final Duration dispatchClaimLease;
 
     public MediaDeliveryEngine(AuthorizationPort authorization, DestinationPort destination,
                                java.util.function.Supplier<Instant> clock) {
@@ -218,6 +219,17 @@ public final class MediaDeliveryEngine {
 
     public MediaDeliveryEngine(AuthorizationPort authorization, DestinationPort destination,
                                java.util.function.Supplier<Instant> clock, DeliveryOperationStore operations) {
+        this(authorization, destination, clock, operations, DEFAULT_DISPATCH_CLAIM_LEASE);
+    }
+
+    /**
+     * {@code dispatchClaimLease} bounds how long a crashed dispatcher blocks takeover of its operation; it is renewed
+     * per chunk, so it must exceed the slowest single chunk transfer.
+     */
+    public MediaDeliveryEngine(AuthorizationPort authorization, DestinationPort destination,
+                               java.util.function.Supplier<Instant> clock, DeliveryOperationStore operations,
+                               Duration dispatchClaimLease) {
+        this.dispatchClaimLease = DeliveryOperationStore.checkedLease(dispatchClaimLease);
         this.authorization = Objects.requireNonNull(authorization, "authorization");
         this.destination = Objects.requireNonNull(destination, "destination");
         this.clock = Objects.requireNonNull(clock, "clock");
@@ -297,7 +309,7 @@ public final class MediaDeliveryEngine {
         if (!(destination instanceof FencedDestinationPort fencedDestination)
                 || !operations.supportsDurableDispatchClaims()) return entry.result;
         DeliveryOperationStore.DispatchClaim claim = operations.acquireDispatchClaim(
-                operation(entry), dispatcherId, DISPATCH_CLAIM_LEASE).orElse(null);
+                operation(entry), dispatcherId, dispatchClaimLease).orElse(null);
         if (claim == null) return refreshEntry(entry);
         try {
             refreshEntry(entry);
@@ -371,7 +383,7 @@ public final class MediaDeliveryEngine {
             return entry.result;
         }
         DeliveryOperationStore.DispatchClaim claim = operations.acquireDispatchClaim(
-                operation(entry), dispatcherId, DISPATCH_CLAIM_LEASE).orElse(null);
+                operation(entry), dispatcherId, dispatchClaimLease).orElse(null);
         if (claim == null) return refreshEntry(entry);
         try {
             refreshEntry(entry);
@@ -656,7 +668,7 @@ public final class MediaDeliveryEngine {
     }
 
     private DeliveryOperationStore.DispatchClaim renew(DeliveryOperationStore.DispatchClaim claim) {
-        return operations.renewDispatchClaim(claim, DISPATCH_CLAIM_LEASE).orElse(null);
+        return operations.renewDispatchClaim(claim, dispatchClaimLease).orElse(null);
     }
 
     private static DeliveryOperationStore.Operation operation(Entry entry) {

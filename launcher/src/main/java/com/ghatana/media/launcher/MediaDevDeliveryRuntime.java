@@ -39,6 +39,8 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
     static final String DESTINATION_DIR = "MEDIA_DELIVERY_DEV_DESTINATION_DIR";
     /** The only destination this DEV_ONLY host exposes. */
     static final String DESTINATION_ID = "dev-local-directory";
+    /** Test and DEV control of how long a dead dispatcher blocks takeover (default and maximum: five minutes). */
+    static final String DISPATCH_LEASE_MS = "MEDIA_DELIVERY_DEV_DISPATCH_LEASE_MS";
     private static final Duration GRANT_VALIDITY = Duration.ofMinutes(2);
 
     /** The destination is not configured (or the runtime is unavailable); typed, never a silent success. */
@@ -79,12 +81,15 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
     private final DeliveryOperationStore store;
     private final MediaDeliveryEngine engine;
     private final MediaDevLocalDirectoryDestination destination;
+    private final MediaDevHttpReceiverDestination receiver;
+    private final MediaDevDestinationRouter router;
     private final RightsConsentResolver rights;
     private final AtomicBoolean closed = new AtomicBoolean();
 
-    /** Unavailable runtime: enabled but the destination directory is not configured. */
+    /** Unavailable runtime: enabled but no destination is configured. */
     private MediaDevDeliveryRuntime() {
-        this.runtime = null; this.store = null; this.engine = null; this.destination = null;
+        this.runtime = null; this.store = null; this.engine = null; this.destination = null; this.receiver = null;
+        this.router = null;
         this.rights = RightsConsentResolver.unavailable();
     }
 
@@ -97,14 +102,31 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
     MediaDevDeliveryRuntime(MediaRuntime runtime, DeliveryOperationStore store, Path destinationRoot,
                             Supplier<Instant> clock, RightsConsentResolver rights,
                             java.util.function.UnaryOperator<MediaDeliveryEngine.FencedDestinationPort> destinationWrapper) {
+        this(runtime, store, destinationRoot, null, clock, rights, destinationWrapper,
+                MediaDeliveryEngine.DEFAULT_DISPATCH_CLAIM_LEASE);
+    }
+
+    /** Either destination may be absent, never both. */
+    MediaDevDeliveryRuntime(MediaRuntime runtime, DeliveryOperationStore store, Path destinationRoot,
+                            MediaDevHttpReceiverDestination receiver, Supplier<Instant> clock,
+                            RightsConsentResolver rights,
+                            java.util.function.UnaryOperator<MediaDeliveryEngine.FencedDestinationPort> destinationWrapper,
+                            Duration dispatchClaimLease) {
         this.runtime = Objects.requireNonNull(runtime, "runtime");
         // Fail closed: without a configured rights authority no external delivery is ever admitted.
         this.rights = rights == null ? RightsConsentResolver.unavailable() : rights;
         this.store = Objects.requireNonNull(store, "store");
-        this.destination = new MediaDevLocalDirectoryDestination(destinationRoot, store);
-        MediaDeliveryEngine.FencedDestinationPort port = destinationWrapper == null ? destination
-                : destinationWrapper.apply(destination);
-        this.engine = new MediaDeliveryEngine(new OwnerReadAuthorization(runtime, clock, this.rights), port, clock, store);
+        if (destinationRoot == null && receiver == null) throw new IllegalArgumentException("a destination is required");
+        this.destination = destinationRoot == null ? null : new MediaDevLocalDirectoryDestination(destinationRoot, store);
+        this.receiver = receiver;
+        Map<String, MediaDeliveryEngine.FencedDestinationPort> registered = new java.util.HashMap<>();
+        if (destination != null) registered.put(DESTINATION_ID, destination);
+        if (receiver != null) registered.put(MediaDevHttpReceiverDestination.DESTINATION_ID, receiver);
+        this.router = new MediaDevDestinationRouter(registered);
+        MediaDeliveryEngine.FencedDestinationPort port = destinationWrapper == null ? router
+                : destinationWrapper.apply(router);
+        this.engine = new MediaDeliveryEngine(new OwnerReadAuthorization(runtime, clock, this.rights), port, clock, store,
+                dispatchClaimLease);
     }
 
     /** Null when the explicit DEV_ONLY flag is absent; an unavailable runtime when the directory is absent. */
@@ -120,10 +142,13 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
                     "DEV_ONLY delivery runtime requires profile=dev and MEDIA_DEV_IDENTITY_ENABLED=true");
         }
         String configured = environment.get(DESTINATION_DIR);
-        if (configured == null || configured.isEmpty()) return new MediaDevDeliveryRuntime();
-        Path root = MediaDevLocalDirectoryDestination.confineRoot(configured);
-        if (!MediaDevLocalDirectoryDestination.supportsPrivateFilePermissions(root)) {
-            return new MediaDevDeliveryRuntime();
+        boolean receiverConfigured = !environment.getOrDefault(MediaDevHttpReceiverDestination.URL_ENV, "").isBlank();
+        if ((configured == null || configured.isEmpty()) && !receiverConfigured) return new MediaDevDeliveryRuntime();
+        Path root = null;
+        if (configured != null && !configured.isEmpty()) {
+            root = MediaDevLocalDirectoryDestination.confineRoot(configured);
+            if (!MediaDevLocalDirectoryDestination.supportsPrivateFilePermissions(root)) root = null;
+            if (root == null && !receiverConfigured) return new MediaDevDeliveryRuntime();
         }
         List<MediaDevDeliveryStoreFactory> factories = ServiceLoader.load(MediaDevDeliveryStoreFactory.class).stream()
                 .map(ServiceLoader.Provider::get)
@@ -133,7 +158,11 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
             throw new IllegalStateException("exactly one PostgreSQL DEV_ONLY delivery store factory is required");
         }
         DeliveryOperationStore store = factories.get(0).createDevOnly(Map.copyOf(environment));
-        return new MediaDevDeliveryRuntime(runtime, store, root, Instant::now, rights);
+        MediaDevHttpReceiverDestination receiver = MediaDevHttpReceiverDestination.compose(environment, store);
+        long leaseMs = Long.parseLong(environment.getOrDefault(DISPATCH_LEASE_MS, "300000").trim());
+        if (leaseMs < 1_000 || leaseMs > 300_000) throw new IllegalArgumentException(DISPATCH_LEASE_MS + " is out of range");
+        return new MediaDevDeliveryRuntime(runtime, store, root, receiver, Instant::now, rights, null,
+                Duration.ofMillis(leaseMs));
     }
 
     boolean available() { return engine != null; }
@@ -145,9 +174,7 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
     Outcome export(String tenantId, String principalId, Export request) {
         ensureAvailable();
         Objects.requireNonNull(request, "request");
-        if (!DESTINATION_ID.equals(request.destinationId())) {
-            throw new UnknownDestinationException();
-        }
+        requireRegistered(tenantId, request.destinationId());
         Optional<DeliveryResult> existing = engine.find(tenantId, request.requestId());
         ExportRequest exportRequest = exportRequest(tenantId, principalId, request);
         // A new effect, or an unconfirmed operation about to be resumed, needs a current confirmed EXTERNAL_DELIVERY
@@ -182,6 +209,53 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
 
     static final class UnknownDestinationException extends RuntimeException {
         UnknownDestinationException() { super("destination is not configured"); }
+    }
+
+    /** The destination is registered but not for this tenant; nothing was read or sent. */
+    static final class DestinationNotPermittedException extends RuntimeException {
+        DestinationNotPermittedException() { super("destination is not permitted for this tenant"); }
+    }
+
+    private void requireRegistered(String tenantId, String destinationId) {
+        if (!router.isRegistered(destinationId)) throw new UnknownDestinationException();
+        if (MediaDevHttpReceiverDestination.DESTINATION_ID.equals(destinationId) && !receiver.permits(tenantId)) {
+            throw new DestinationNotPermittedException();
+        }
+    }
+
+    /** Latest verified or failed observation of the signed-ACK receiver for one request; empty for other destinations. */
+    Optional<MediaDevHttpReceiverDestination.Observation> observation(String tenantId, String requestId) {
+        return receiver == null ? Optional.empty() : receiver.observation(tenantId, requestId);
+    }
+
+    /**
+     * Resolves an unresolved export against the destination's own state. With {@code resume} the engine reconciles and
+     * continues from the destination-verified offset (exactly what a retry of the export does). Without it nothing is
+     * sent: the receiver is only read, so an object that is verifiably absent is reported as not delivered, and an
+     * object that is complete and matches is confirmed by the engine without any second write.
+     */
+    Optional<Outcome> reconcile(String tenantId, String principalId, String requestId, boolean resume) {
+        ensureAvailable();
+        Optional<DeliveryResult> found = find(tenantId, principalId, requestId);
+        if (found.isEmpty()) return Optional.empty();
+        DeliveryResult existing = found.get();
+        Export export = new Export(requestId, existing.artifactId(), existing.versionRef(), existing.destinationRef());
+        if (resume || existing.status() == MediaDeliveryEngine.Status.DESTINATION_CONFIRMED) {
+            return Optional.of(export(tenantId, principalId, export));
+        }
+        requireRegistered(tenantId, existing.destinationRef());
+        if (receiver == null || !MediaDevHttpReceiverDestination.DESTINATION_ID.equals(existing.destinationRef())) {
+            throw new IllegalArgumentException("read-only reconciliation is only defined for the signed-ACK receiver");
+        }
+        Resolution resolution = externalDelivery(rights, tenantId, existing.artifactId(), existing.versionRef(),
+                existing.artifactDigest());
+        if (!resolution.admitted()) throw new RightsNotAdmittedException(resolution);
+        var observed = receiver.inspect(exportRequest(tenantId, principalId, export));
+        if (observed.finding() == MediaDevHttpReceiverDestination.Finding.ACK_VERIFIED) {
+            // The destination already holds exactly these bytes: the engine records its signed receipt; nothing is sent.
+            return Optional.of(export(tenantId, principalId, export));
+        }
+        return Optional.of(new Outcome(existing, true));
     }
 
     private ExportRequest exportRequest(String tenantId, String principalId, Export request) {

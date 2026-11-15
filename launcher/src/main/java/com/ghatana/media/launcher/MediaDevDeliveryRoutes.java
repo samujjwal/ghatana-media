@@ -31,12 +31,21 @@ import java.util.regex.Pattern;
  *       201 only when a destination readback receipt confirmed the first export; 200 when an existing
  *       operation is replayed; 202 for any operation not yet destination-confirmed.</li>
  *   <li>{@code GET /dev/v1/exports/{requestId}} (permission {@code media:delivery:dev:read}).</li>
+ *   <li>{@code POST /dev/v1/exports/{requestId}/reconcile} body {@code {"resume": true|false}} (permissions
+ *       {@code media:delivery:dev:export} and {@code media:artifact:read}). Resolves an unresolved export against the
+ *       destination's own state; {@code resume:false} sends nothing.</li>
+ * </ul>
+ * Every view carries {@code ackState} (DELIVERED only on a verified destination receipt, NOT_DELIVERED only when the
+ * destination verifiably holds nothing, otherwise UNKNOWN) and a typed {@code failure} code when the receiver
+ * interaction failed (credential revoked, signature invalid, identity or checksum mismatch, unreachable, rejected).
+ * <ul>
  * </ul>
  */
 final class MediaDevDeliveryRoutes {
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(MediaDevDeliveryRoutes.class);
     private static final String BASE = "/dev/v1/exports";
     private static final Pattern READ = Pattern.compile("^/dev/v1/exports/([^/]+)$");
+    private static final Pattern RECONCILE = Pattern.compile("^/dev/v1/exports/([^/]+)/reconcile$");
     private static final Pattern ID = Pattern.compile("[A-Za-z0-9][A-Za-z0-9._:-]{0,127}");
     private final ObjectMapper mapper = JsonMapper.builder(JsonFactory.builder()
             .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION).build()).build();
@@ -82,7 +91,37 @@ final class MediaDevDeliveryRoutes {
                 boolean confirmed = outcome.result().status() == MediaDeliveryEngine.Status.DESTINATION_CONFIRMED;
                 int status = !confirmed ? 202 : outcome.replayed() ? 200 : 201;
                 exportOutcome(!confirmed ? "unconfirmed" : outcome.replayed() ? "replayed" : "success");
-                json(exchange, status, view(outcome.result(), outcome.replayed()));
+                json(exchange, status, view(outcome.result(), outcome.replayed(),
+                        delivery.observation(tenantId, outcome.result().requestId()).orElse(null)));
+                return;
+            }
+            Matcher reconcile = RECONCILE.matcher(path);
+            if (reconcile.matches()) {
+                if (!"POST".equals(method)) { methodNotAllowed(exchange, "POST"); return; }
+                if (!MediaSecurityFilter.hasDevOnlyPermission(exchange, "media:artifact:read")) {
+                    runtime.recordDeniedRequest();
+                    error(exchange, 403, "ARTIFACT_PERMISSION_REQUIRED",
+                            "DEV_ONLY artifact read permission is required to reconcile an export");
+                    return;
+                }
+                byte[] raw = MediaHttpHandler.boundedBody(exchange, runtime.config().maximumBodyBytes(), true);
+                Map<String, Object> body = raw.length == 0 ? null : mapper.readValue(raw, new TypeReference<>() { });
+                boolean resume = true;
+                if (body != null && !body.isEmpty()) {
+                    if (!body.keySet().equals(Set.of("resume")) || !(body.get("resume") instanceof Boolean flag)) {
+                        throw new IllegalArgumentException("reconcile request fields do not match its declared shape");
+                    }
+                    resume = flag;
+                }
+                var outcome = delivery.reconcile(tenantId, principalId, decodeSegment(reconcile.group(1)), resume);
+                if (outcome.isEmpty()) {
+                    error(exchange, 404, "EXPORT_NOT_FOUND", "Export is not available in this tenant and owner scope");
+                    return;
+                }
+                boolean confirmed = outcome.get().result().status() == MediaDeliveryEngine.Status.DESTINATION_CONFIRMED;
+                exportOutcome(confirmed ? "reconciled_confirmed" : "reconciled_unconfirmed");
+                json(exchange, 200, view(outcome.get().result(), true, delivery.observation(tenantId,
+                        outcome.get().result().requestId()).orElse(null)));
                 return;
             }
             Matcher read = READ.matcher(path);
@@ -93,7 +132,7 @@ final class MediaDevDeliveryRoutes {
                     error(exchange, 404, "EXPORT_NOT_FOUND", "Export is not available in this tenant and owner scope");
                     return;
                 }
-                json(exchange, 200, view(found.get(), true));
+                json(exchange, 200, view(found.get(), true, delivery.observation(tenantId, found.get().requestId()).orElse(null)));
                 return;
             }
             error(exchange, 404, "NOT_FOUND", "Local delivery route not found");
@@ -103,6 +142,11 @@ final class MediaDevDeliveryRoutes {
         } catch (MediaDevDeliveryRuntime.UnknownDestinationException failure) {
             exportOutcome("unknown_destination");
             error(exchange, 404, "DESTINATION_NOT_FOUND", "The destination is not configured on this DEV_ONLY host");
+        } catch (MediaDevDeliveryRuntime.DestinationNotPermittedException failure) {
+            exportOutcome("destination_not_permitted");
+            runtime.recordDeniedRequest();
+            error(exchange, 403, "DESTINATION_NOT_PERMITTED",
+                    "The destination is registered but not permitted for this tenant; nothing was sent");
         } catch (MediaDevDeliveryRuntime.ArtifactVersionUnavailableException failure) {
             exportOutcome("source_unavailable");
             runtime.recordDeniedRequest();
@@ -151,7 +195,8 @@ final class MediaDevDeliveryRoutes {
         }
     }
 
-    private static Map<String, Object> view(DeliveryResult result, boolean replayed) {
+    private static Map<String, Object> view(DeliveryResult result, boolean replayed,
+                                            MediaDevHttpReceiverDestination.Observation observed) {
         MediaDeliveryEngine.Status status = result.status();
         Map<String, Object> view = new LinkedHashMap<>();
         view.put("requestId", result.requestId());
@@ -164,8 +209,28 @@ final class MediaDevDeliveryRoutes {
         view.put("destinationConfirmed", status == MediaDeliveryEngine.Status.DESTINATION_CONFIRMED);
         view.put("destinationReceiptRef", result.destinationReceiptRef().orElse(null));
         view.put("replayed", replayed);
+        view.put("ackState", ackState(status, observed));
+        view.put("failure", status == MediaDeliveryEngine.Status.DESTINATION_CONFIRMED || observed == null
+                || !observed.finding().failure() ? null : observed.finding().name());
+        view.put("destinationReceivedBytes", observed == null ? null : observed.receivedBytes());
+        view.put("observedAt", observed == null ? null : observed.at().toString());
         view.put("scope", "DEV_ONLY");
         return view;
+    }
+
+    /**
+     * DELIVERED only for a destination-confirmed (signed, verified) receipt. NOT_DELIVERED when nothing was ever
+     * written (a pre-effect refusal) or the receiver verifiably holds no object. Everything else is UNKNOWN.
+     */
+    static String ackState(MediaDeliveryEngine.Status status,
+                           MediaDevHttpReceiverDestination.Observation observed) {
+        return switch (status) {
+            case DESTINATION_CONFIRMED -> "DELIVERED";
+            case QUEUED, REVOKED, UNAVAILABLE -> "NOT_DELIVERED";
+            case SENT, OUTCOME_UNKNOWN -> observed != null
+                    && observed.finding() == MediaDevHttpReceiverDestination.Finding.OBJECT_ABSENT
+                    ? "NOT_DELIVERED" : "UNKNOWN";
+        };
     }
 
     private static String id(Object value, String name) {

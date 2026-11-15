@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f6f8" />
+    <meta name="description" content="DEV_ONLY export of a stored artifact to a registered destination with a signed acknowledgment." />
+    <title>Delivery and Acknowledgment · Media</title>
+    <link rel="stylesheet" href="/src/dev-delivery.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header><a href="/">← Media Experience Explorer</a><p class="eyebrow">Local development only</p><h1>Delivery and acknowledgment</h1></header>
+      <aside class="notice"><h2>DEV_ONLY · owner scoped</h2><p>Export one exact artifact version to a registered local destination. A delivery is shown as DELIVERED only after the destination returned a signed receipt for the exact bytes and Media verified it; anything else is UNKNOWN or NOT_DELIVERED, with a typed reason. Reconciliation reads the destination's own state and never uploads the same bytes twice. These destinations are controlled local receivers: no third-party publication, and no rights, approval or production claim.</p></aside>
+      <section class="panel">
+        <h2>Connect to local Media</h2>
+        <p>Requests stay on this page origin and use the configured loopback proxy. The token is held in memory only.</p>
+        <form id="connect-form"><label for="dev-token">Short-lived DEV_ONLY bearer token</label><input id="dev-token" type="password" autocomplete="off" required /><button type="submit">Connect</button><button id="disconnect" type="button" disabled>Forget token</button></form>
+        <p id="connection-status" role="status" aria-live="polite">Not connected.</p>
+      </section>
+      <div id="delivery-root"></div>
+    </main>
+    <script type="module" src="/src/dev-delivery.tsx"></script>
+  </body>
+</html>
