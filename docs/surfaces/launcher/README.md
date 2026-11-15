@@ -182,8 +182,13 @@ and stable terminal reads — **no second writer**.
   reviewer, current on the lineage head; otherwise `409 EXPORT_REVIEW_REQUIRED`, `EXPORT_REVIEW_SUPERSEDED`,
   `EXPORT_REVIEW_STALE`, `EXPORT_REVIEW_NOT_ACCEPTED` or `EXPORT_REVIEW_APPROVAL_SCOPE_REQUIRED`, and nothing is exported. The
   gate is in addition to the rights gate and is never an approval (`establishesApproval=false`). Retention: erasure of a version
-  (J-26) deletes its case, comments, decisions and assignments and removes it from the lineage (erasing the head would make the previous version the head
-  again with its own earlier decisions current again; this follows from the lineage ledger and is not exercised by a test); an active legal hold blocks erasure and leaves the review readable.
+  (J-26) deletes its case, comments, decisions and assignments and removes it from the lineage. Erasing the head restores the previous
+  version as head; its own ACCEPT is then `CURRENT` again only because it was a decision on that exact, unchanged digest, and the
+  revival is never silent: the lineage read carries `headChangedBy: "ERASURE"` and `headChange` (erased version number, artifact
+  version id, erasure id, `erasedAt`), the case's `lineage.headChangedBy` is set, and an export admitted on it names the erasure in
+  its admission message. The removal is recorded in the erasure operation's manifest (`intakeVersions`, same transaction; no migration),
+  so it survives restart. Covered by `MediaDevVersionedReviewIT.erasingTheHeadRestoresTheEarlierAcceptanceVisiblyAndSurvivesRestart`.
+  An active legal hold blocks erasure and leaves the review readable.
   Not covered: a trusted human identity (every decision is a DEV_ONLY test-principal statement), multi-process atomicity, retention
   expiry by time, and the J-11/J-19 head ledgers (only the J-02 intake lineage defines "source revision" for review).
 - **Hosted export with destination acknowledgment (DEV_ONLY).**

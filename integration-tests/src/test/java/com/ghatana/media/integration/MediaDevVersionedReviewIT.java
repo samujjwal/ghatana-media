@@ -454,6 +454,142 @@ class MediaDevVersionedReviewIT {
         }
     }
 
+    /**
+     * Erasing the lineage head restores the earlier version as head. Its ACCEPT was a decision on v1's exact digest and
+     * v1 is unchanged, so it becomes CURRENT again, but only visibly: the lineage read names the erasure that changed the
+     * head (headChangedBy ERASURE with the erased version, erasure id and time), export admission still requires that
+     * current ACCEPT, and the revival survives a SIGKILL restart unchanged.
+     */
+    @Test
+    void erasingTheHeadRestoresTheEarlierAcceptanceVisiblyAndSurvivesRestart() throws Exception {
+        assumeTrue(ffmpeg() != null && ffprobe() != null, "FFmpeg/FFprobe tool paths are required");
+        String run = UUID.randomUUID().toString().replace("-", "");
+        String tenant = "tenant-dev-vrevive-" + run;
+        String uploader = "test-principal-uploader-" + run;
+        String reviewer = "test-principal-reviewer-" + run;
+        String confirmer = "test-principal-confirmer-" + run;
+        String bucket = "media-dev-vrevive-" + run.substring(0, 12);
+        String schema = "media_dev_vrevive_" + run.substring(0, 12);
+        int port;
+        try (var socket = new java.net.ServerSocket(0)) { port = socket.getLocalPort(); }
+        Path services = Files.createTempDirectory("media-dev-vrevive-services-");
+        Path work = Files.createTempDirectory("media-dev-vrevive-work-");
+        Path destination = Files.createTempDirectory("media-dev-vrevive-destination-");
+        Path log = Files.createTempFile("media-dev-vrevive-process-", ".log");
+        Process launcher = null;
+        boolean passed = false;
+        try {
+            try (var s3 = s3(LOCALSTACK)) { s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build()); }
+            installDescriptors(services);
+            String childClasspath = System.getProperty("media.child.classpath", "");
+            assertThat(childClasspath).as("Gradle-resolved child runtime classpath").isNotBlank();
+            String classpath = services + java.io.File.pathSeparator + childClasspath;
+            Map<String, String> environment = new HashMap<>(environment(POSTGRES, LOCALSTACK, bucket, port, schema));
+            environment.put("MEDIA_RIGHTS_DEV_ENABLED", "true");
+            environment.put("MEDIA_DEV_INTAKE_ENABLED", "true");
+            environment.put("MEDIA_DEV_REVIEW_ENABLED", "true");
+            environment.put("MEDIA_DEV_REVIEW_REQUIRED_FOR_DELIVERY", "true");
+            environment.put("MEDIA_DEV_ERASURE_ENABLED", "true");
+            environment.put("MEDIA_DELIVERY_DEV_ENABLED", "true");
+            environment.put("MEDIA_DELIVERY_DEV_DESTINATION_DIR", destination.toString());
+            environment.put("MEDIA_DEV_RENDER_FFMPEG", ffmpeg());
+            environment.put("MEDIA_DEV_RENDER_FFPROBE", ffprobe());
+            launcher = startLauncher(classpath, environment, log);
+            awaitReady(launcher, port);
+            Api api = new Api(port, tenant);
+            String exportPerms = "media:delivery:dev:export";
+            String uploaderToken = issueDevToken(tenant, uploader, exportPerms, "media:delivery:dev:read");
+            String reviewerToken = issueDevToken(tenant, reviewer);
+            String confirmerToken = issueDevToken(tenant, confirmer);
+
+            byte[] mp4v1 = mp4(work, "v1.mp4", "testsrc2=size=320x240:rate=12:duration=3", 440);
+            byte[] mp4v2 = mp4(work, "v2.mp4", "smptebars=size=320x240:rate=12:duration=3", 660);
+            String lineage = "revive-lineage-" + run;
+
+            // v1 registered, reviewed and accepted on its exact digest
+            String id1 = upload(port, tenant, uploader, uploaderToken, run + "-v1", "cut-v1.mp4", "video/mp4", mp4v1);
+            String ver1 = "sha256:" + sha256(mp4v1);
+            api.post(uploaderToken, "/dev/v1/intakes", Map.of("lineageId", lineage, "artifactId", id1,
+                    "artifactVersionId", ver1), 201);
+            attestDelivery(api, uploaderToken, confirmerToken, id1, ver1);
+            String caseId1 = api.post(uploaderToken, "/dev/v1/reviews", Map.of("subject",
+                    Map.of("kind", "ARTIFACT_VERSION", "artifactId", id1, "artifactVersionId", ver1)), 201)
+                    .path("reviewCaseId").asString();
+            api.post(uploaderToken, "/dev/v1/reviews/" + caseId1 + "/assignments",
+                    assignment("a-r1", 0, reviewer, List.of("APPROVAL")), 201);
+            JsonNode accept1 = api.post(reviewerToken, "/dev/v1/reviews/" + caseId1 + "/decisions",
+                    decision("d-approve-1", rev(api, reviewerToken, caseId1), "ACCEPT", "APPROVAL"), 201);
+            assertThat(accept1.path("currentness").asString()).isEqualTo("CURRENT");
+
+            // v2 registered: v1's acceptance is STALE
+            String id2 = upload(port, tenant, uploader, uploaderToken, run + "-v2", "cut-v2.mp4", "video/mp4", mp4v2);
+            String ver2 = "sha256:" + sha256(mp4v2);
+            attestDelivery(api, uploaderToken, confirmerToken, id2, ver2);
+            api.post(uploaderToken, "/dev/v1/intakes", Map.of("lineageId", lineage, "artifactId", id2,
+                    "artifactVersionId", ver2), 201);
+            assertThat(api.get(uploaderToken, "/dev/v1/review-lineages/" + lineage, 200)
+                    .path("versions").get(0).path("state").asString()).isEqualTo("ACCEPT_STALE");
+
+            // erase v2 (the head) through the DEV erasure route
+            JsonNode plan2 = api.get(uploaderToken, "/dev/v1/erasure-plans/" + id2, 200);
+            api.post(uploaderToken, "/dev/v1/erasures", Map.of("erasureId", "erase-head-" + run, "artifactId", id2,
+                    "confirm", true, "expectedArtifactCount", plan2.path("artifacts").size()), 201);
+
+            // v1 is head again; its decision is CURRENT for its exact, unchanged digest, and the revival is visible
+            JsonNode revived = api.get(uploaderToken, "/dev/v1/review-lineages/" + lineage, 200);
+            assertThat(revived.path("headVersionNumber").asInt()).isEqualTo(1);
+            assertThat(revived.path("versions").size()).isEqualTo(1);
+            JsonNode head = revived.path("versions").get(0);
+            assertThat(head.path("artifactVersionId").asString()).isEqualTo(ver1);
+            assertThat(head.path("head").asBoolean()).isTrue();
+            assertThat(head.path("superseded").asBoolean()).isFalse();
+            assertThat(head.path("state").asString()).isEqualTo("ACCEPT_CURRENT");
+            assertThat(head.path("acceptedForHead").asBoolean()).isTrue();
+            assertThat(revived.path("headChangedBy").asString())
+                    .as("the head changed because of an erasure, and the read says so").isEqualTo("ERASURE");
+            JsonNode change = revived.path("headChange");
+            assertThat(change.path("erasedArtifactVersionId").asString()).isEqualTo(ver2);
+            assertThat(change.path("erasedVersionNumber").asInt()).isEqualTo(2);
+            assertThat(change.path("erasureId").asString()).isEqualTo("erase-head-" + run);
+            assertThat(change.path("erasedAt").asString()).isNotBlank();
+
+            JsonNode reviewerView = api.get(reviewerToken, "/dev/v1/reviews/" + caseId1, 200);
+            assertThat(reviewerView.path("currentness").asString()).isEqualTo("CURRENT");
+            assertThat(reviewerView.path("reviewState").path("status").asString())
+                    .isEqualTo("DEV_ASSIGNED_REVIEWER_ACCEPT_CURRENT");
+            assertThat(reviewerView.path("lineage").path("headChangedBy").asString()).isEqualTo("ERASURE");
+
+            // export admission follows the revived, current ACCEPT of the exact v1 bytes
+            JsonNode exported = api.post(uploaderToken, "/dev/v1/exports", exportMap("export-revived-" + run, id1, ver1), 201);
+            assertThat(exported.path("status").asString()).isEqualTo("DESTINATION_CONFIRMED");
+            List<Path> delivered = destinationFiles(destination);
+            assertThat(delivered).hasSize(1);
+            assertThat(Files.readAllBytes(delivered.get(0))).as("exactly version 1's bytes").isEqualTo(mp4v1);
+
+            // SIGKILL: the revival and its attribution survive unchanged
+            launcher.destroyForcibly();
+            assertThat(launcher.waitFor(15, TimeUnit.SECONDS)).isTrue();
+            launcher = startLauncher(classpath, environment, log);
+            awaitReady(launcher, port);
+            uploaderToken = issueDevToken(tenant, uploader, exportPerms, "media:delivery:dev:read");
+            reviewerToken = issueDevToken(tenant, reviewer);
+            assertThat(api.get(uploaderToken, "/dev/v1/review-lineages/" + lineage, 200))
+                    .as("the lineage read after restart is identical").isEqualTo(revived);
+            assertThat(stable(api.get(reviewerToken, "/dev/v1/reviews/" + caseId1, 200)))
+                    .as("the reviewer's case view after restart is identical (clock fields aside)")
+                    .isEqualTo(stable(reviewerView));
+            passed = true;
+        } finally {
+            if (launcher != null && launcher.isAlive()) stopLauncher(launcher);
+            dropSchema(POSTGRES, schema);
+            deleteBucket(LOCALSTACK, bucket);
+            if (passed) Files.deleteIfExists(log); else System.err.println("head-erasure revival IT log retained at " + log);
+            deleteTree(services);
+            deleteTree(work);
+            deleteTree(destination);
+        }
+    }
+
     // ---------------------------------------------------------------------------------------------------- helpers
 
     private record Api(int port, String tenant) {

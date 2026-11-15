@@ -499,7 +499,10 @@ public final class PostgresqlMediaErasureAuthority implements ErasureAuthority {
         records.put("REQUEST_LEDGER_ROW", eraseLedgerRows(connection, tenantId, ids));
         records.put("REVIEW_RECORD", eraseReviewRows(connection, tenantId, ids));
         records.put("UPLOAD_SESSION", deleteByIds(connection, "media_upload_sessions", "artifact_id", tenantId, ids));
-        // DEV_ONLY versioned-intake rows (ids, digest, media probe) must not outlive their erased artifact.
+        // DEV_ONLY versioned-intake rows (ids, digest, media probe) must not outlive their erased artifact. The removed
+        // rows are recorded in this operation's manifest first, so a lineage whose head was erased shows that its head
+        // was restored by erasure instead of silently reverting (same transaction as the delete).
+        manifest.put("intakeVersions", intakeVersionsOf(connection, tenantId, ids));
         deleteByIds(connection, "media_dev_artifact_versions", "artifact_id", tenantId, ids);
         // DEV_ONLY head-pointer logs (J-19): a lineage whose log names an erased artifact is dropped whole, so no
         // surviving head can point at erased content and no log can be replayed over a missing event.
@@ -545,6 +548,30 @@ public final class PostgresqlMediaErasureAuthority implements ErasureAuthority {
                 return rows.getLong(1) > inTree;
             }
         }
+    }
+
+    /** The DEV_ONLY versioned-intake rows of the tree, as the manifest records them before they are deleted. */
+    private static List<Map<String, Object>> intakeVersionsOf(Connection connection, String tenantId,
+                                                              Collection<String> ids) throws SQLException {
+        List<Map<String, Object>> out = new ArrayList<>();
+        try (PreparedStatement select = connection.prepareStatement(
+                "SELECT lineage_id,version_number,artifact_id,artifact_version_id FROM media_dev_artifact_versions "
+                        + "WHERE tenant_id=? AND artifact_id=?")) {
+            for (String id : ids) {
+                select.setString(1, tenantId); select.setString(2, id);
+                try (ResultSet rows = select.executeQuery()) {
+                    while (rows.next()) {
+                        Map<String, Object> row = new LinkedHashMap<>();
+                        row.put("lineageId", rows.getString(1));
+                        row.put("versionNumber", rows.getInt(2));
+                        row.put("artifactId", rows.getString(3));
+                        row.put("artifactVersionId", rows.getString(4));
+                        out.add(row);
+                    }
+                }
+            }
+        }
+        return out;
     }
 
     private void eraseHeadLineages(Connection connection, String tenantId, Collection<String> ids) throws SQLException {

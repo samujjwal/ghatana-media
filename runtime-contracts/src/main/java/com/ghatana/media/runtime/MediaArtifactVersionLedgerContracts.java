@@ -46,6 +46,21 @@ public final class MediaArtifactVersionLedgerContracts {
         public LineageOwnershipException() { super("lineage is not available to this principal", null, false, false); }
     }
 
+    /**
+     * A registered version that an erasure removed from its lineage. Versions are append-only, so the only way a version
+     * leaves a lineage is erasure; this record is the durable audit of that removal.
+     */
+    public record Removal(String lineageId, int versionNumber, String artifactId, String artifactVersionId,
+                          String erasureId, Instant erasedAt) {
+        public Removal {
+            Objects.requireNonNull(lineageId, "lineageId");
+            Objects.requireNonNull(artifactId, "artifactId");
+            Objects.requireNonNull(artifactVersionId, "artifactVersionId");
+            Objects.requireNonNull(erasureId, "erasureId");
+            Objects.requireNonNull(erasedAt, "erasedAt");
+        }
+    }
+
     public interface VersionLedger extends AutoCloseable {
         String ledgerId();
 
@@ -72,6 +87,12 @@ public final class MediaArtifactVersionLedgerContracts {
          * artifact version uses it to learn whether a later version of the same lineage has superseded it.
          */
         List<String> lineagesHolding(String tenantId, String principalId, String artifactId, String artifactVersionId);
+
+        /**
+         * Versions of this owner's lineage that erasures removed, oldest erasure first. A removed version that was newer
+         * than the current head means the head was restored by that erasure.
+         */
+        List<Removal> removals(String tenantId, String principalId, String lineageId);
 
         @Override void close();
     }

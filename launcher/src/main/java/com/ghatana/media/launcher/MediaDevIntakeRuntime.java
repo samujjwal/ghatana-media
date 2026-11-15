@@ -2,6 +2,7 @@ package com.ghatana.media.launcher;
 
 import com.ghatana.media.runtime.MediaArtifactVersionLedgerContracts.LineageOwnershipException;
 import com.ghatana.media.runtime.MediaArtifactVersionLedgerContracts.Registration;
+import com.ghatana.media.runtime.MediaArtifactVersionLedgerContracts.Removal;
 import com.ghatana.media.runtime.MediaArtifactVersionLedgerContracts.Version;
 import com.ghatana.media.runtime.MediaArtifactVersionLedgerContracts.VersionLedger;
 import com.ghatana.media.runtime.MediaArtifactVersionLedgerContracts.VersionLedgerFactory;
@@ -171,6 +172,20 @@ final class MediaDevIntakeRuntime implements AutoCloseable {
             if (worst == null || candidate.superseded() && !worst.superseded()) worst = candidate;
         }
         return Optional.ofNullable(worst);
+    }
+
+    /**
+     * The erasure that restored {@code head} as the lineage head, if any: the most recent removal of a version numbered
+     * above the head. Empty when the head was registered (never restored). Used by review to say so, never to hide it.
+     */
+    Optional<Removal> restoredByErasure(String tenantId, String ownerPrincipalId, String lineageId, Version head) {
+        ensureOpen();
+        Removal latest = null;
+        for (Removal removal : ledger.removals(tenantId, ownerPrincipalId, lineageId)) {
+            if (removal.versionNumber() <= head.versionNumber()) continue;
+            if (latest == null || removal.erasedAt().isAfter(latest.erasedAt())) latest = removal;
+        }
+        return Optional.ofNullable(latest);
     }
 
     /** Runs {@code action} while holding the lineage lock that serialises registration against review decisions. */

@@ -2,6 +2,7 @@ package com.ghatana.media.provider.aws;
 
 import com.ghatana.media.runtime.MediaArtifactVersionLedgerContracts.LineageOwnershipException;
 import com.ghatana.media.runtime.MediaArtifactVersionLedgerContracts.Registration;
+import com.ghatana.media.runtime.MediaArtifactVersionLedgerContracts.Removal;
 import com.ghatana.media.runtime.MediaArtifactVersionLedgerContracts.Version;
 import com.ghatana.media.runtime.MediaArtifactVersionLedgerContracts.VersionLedger;
 
@@ -11,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -136,6 +138,41 @@ public final class PostgresqlMediaArtifactVersionLedger implements VersionLedger
             return out;
         } catch (SQLException failure) {
             throw new IllegalStateException("artifact version ledger read failed", failure);
+        }
+    }
+
+    /**
+     * Erasures record the lineage versions they remove in their own durable manifest (written in the same transaction as
+     * the removal), so the removal outlives the deleted version row. Lineage ids are validated opaque ids, so the quoted
+     * exact key match cannot be confused with another lineage.
+     */
+    @Override
+    public List<Removal> removals(String tenantId, String principalId, String lineageId) {
+        ensureOpen();
+        String needle = "\"lineageId\":\"" + lineageId + "\"";
+        try (Connection connection = state.connection();
+             PreparedStatement select = connection.prepareStatement("SELECT erasure_id,requested_at,manifest_json "
+                     + "FROM media_erasure_operations WHERE tenant_id=? AND principal_id=? AND strpos(manifest_json, ?) > 0 "
+                     + "ORDER BY requested_at, erasure_id")) {
+            select.setString(1, tenantId);
+            select.setString(2, principalId);
+            select.setString(3, needle);
+            List<Removal> out = new ArrayList<>();
+            try (ResultSet rows = select.executeQuery()) {
+                while (rows.next()) {
+                    String erasureId = rows.getString(1);
+                    Instant erasedAt = rows.getTimestamp(2).toInstant();
+                    for (var entry : state.mapper().readTree(rows.getString(3)).path("intakeVersions")) {
+                        if (!lineageId.equals(entry.path("lineageId").asString())) continue;
+                        out.add(new Removal(lineageId, entry.path("versionNumber").asInt(),
+                                entry.path("artifactId").asString(), entry.path("artifactVersionId").asString(),
+                                erasureId, erasedAt));
+                    }
+                }
+            }
+            return out;
+        } catch (SQLException failure) {
+            throw new IllegalStateException("artifact version ledger removal read failed", failure);
         }
     }
 

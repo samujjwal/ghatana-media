@@ -6,6 +6,7 @@ import com.ghatana.media.production.review.ReviewAssignmentStore;
 import com.ghatana.media.production.review.ReviewAssignmentStore.*;
 import com.ghatana.media.production.review.ReviewContracts.*;
 import com.ghatana.media.production.review.VersionedReviewEngine;
+import com.ghatana.media.runtime.MediaArtifactVersionLedgerContracts.Removal;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectAccessDeniedException;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectNotFoundException;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
@@ -436,15 +437,25 @@ public final class MediaDevReviewRuntime implements AutoCloseable {
     /**
      * Review standing of one version of a lineage. {@code state} is one of NOT_REVIEWED, IN_REVIEW,
      * {DECISION}_CURRENT, {DECISION}_STALE, or NOT_ASSIGNED (a reviewer sees nothing of versions they were not assigned
-     * to). A decision is only ever CURRENT on the lineage head; it is never transferred to a newer version.
+     * to). A decision is only ever CURRENT on the lineage head; it is never transferred to a newer version. The one
+     * exception is an erasure that removed the newer version: the restored head's own decision on its exact, unchanged
+     * digest is CURRENT again, and {@link LineageReview#headChange()} names that erasure.
      */
     public record VersionReview(int versionNumber, String artifactId, String artifactVersionId, boolean head,
                                 boolean superseded, String state, String reviewCaseId, String latestDecision,
                                 String latestScope, String latestDecisionBy, boolean acceptedForHead,
                                 int commentCount) { }
 
+    /**
+     * Why the head is the head when a newer version was erased: {@code by} is ERASURE and the other fields name the
+     * removed version and the erasure. Null when the head was registered as the newest version.
+     */
+    public record HeadChange(String by, String erasureId, int erasedVersionNumber, String erasedArtifactId,
+                             String erasedArtifactVersionId, Instant erasedAt) { }
+
     /** All versions of one lineage with their review standing as seen by one principal. */
-    public record LineageReview(String lineageId, int headVersionNumber, List<VersionReview> versions) { }
+    public record LineageReview(String lineageId, int headVersionNumber, HeadChange headChange,
+                                List<VersionReview> versions) { }
 
     /** The lineage that holds the case's exact artifact version, as seen by the owner or an assigned reviewer. */
     public Optional<LineageReview> lineageOf(String tenantId, String principalId, ReviewCaseRef reviewCase) {
@@ -477,6 +488,10 @@ public final class MediaDevReviewRuntime implements AutoCloseable {
     private LineageReview lineageReview(String tenantId, String viewer, String owner, String lineageId) {
         var all = lineages.versions(tenantId, owner, lineageId);
         int head = all.get(all.size() - 1).versionNumber();
+        HeadChange headChange = lineages.restoredByErasure(tenantId, owner, lineageId, all.get(all.size() - 1))
+                .map(removal -> new HeadChange("ERASURE", removal.erasureId(), removal.versionNumber(),
+                        removal.artifactId(), removal.artifactVersionId(), removal.erasedAt()))
+                .orElse(null);
         List<VersionReview> out = new java.util.ArrayList<>();
         for (var version : all) {
             ExactVersionRef subject = new ExactVersionRef(SubjectKind.ARTIFACT_VERSION, version.artifactId(),
@@ -529,7 +544,7 @@ public final class MediaDevReviewRuntime implements AutoCloseable {
                     decision.decision().name(), isAssignedAuthority(authority) ? parts[parts.length - 1] : null,
                     latest.record().actor().principalId(), accepted, comments));
         }
-        return new LineageReview(lineageId, head, out);
+        return new LineageReview(lineageId, head, headChange, out);
     }
 
     /** Cases (with their exact subject) in which this principal was assigned as reviewer; assignment status is theirs to read. */
@@ -568,11 +583,16 @@ public final class MediaDevReviewRuntime implements AutoCloseable {
             }
         }
         MediaDevIntakeRuntime lineage = lineages;
+        Optional<Removal> restored = Optional.empty();
         if (lineage != null) {
             var standing = lineage.standing(tenantId, ownerPrincipalId, artifactId, versionId);
             if (standing.isPresent() && standing.get().superseded()) {
                 return new DeliveryAdmission(false, "REVIEW_SUPERSEDED",
                         "A later version of the lineage supersedes this version; the newer version must be reviewed", caseId);
+            }
+            if (standing.isPresent()) {
+                restored = lineage.restoredByErasure(tenantId, ownerPrincipalId, standing.get().lineageId(),
+                        standing.get().head());
             }
         }
         Optional<ReviewCaseRef> registered = store.findCase(tenantId, caseId);
@@ -602,8 +622,12 @@ public final class MediaDevReviewRuntime implements AutoCloseable {
             return new DeliveryAdmission(false, "REVIEW_APPROVAL_SCOPE_REQUIRED",
                     "Delivery needs an assigned reviewer's ACCEPT within the APPROVAL scope", caseId);
         }
-        return new DeliveryAdmission(true, "REVIEW_ACCEPTED_CURRENT",
-                "An assigned DEV_ONLY reviewer accepted this exact current version (not a human or production approval)", caseId);
+        String message = "An assigned DEV_ONLY reviewer accepted this exact current version (not a human or production approval)";
+        if (restored.isPresent()) {
+            message += "; the head was restored by erasure " + restored.get().erasureId() + " of version "
+                    + restored.get().versionNumber() + " (" + restored.get().artifactVersionId() + ")";
+        }
+        return new DeliveryAdmission(true, "REVIEW_ACCEPTED_CURRENT", message, caseId);
     }
 
     // ------------------------------------------------------------------------------------------------ content read

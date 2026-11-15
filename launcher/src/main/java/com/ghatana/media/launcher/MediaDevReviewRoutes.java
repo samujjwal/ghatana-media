@@ -224,6 +224,7 @@ final class MediaDevReviewRoutes {
                     lineageInfo.put("versionNumber", mine.versionNumber());
                     lineageInfo.put("headVersionNumber", found.headVersionNumber());
                     lineageInfo.put("superseded", mine.superseded());
+                    lineageInfo.put("headChangedBy", found.headChange() == null ? null : found.headChange().by());
                     view.put("lineage", lineageInfo);
                 }
             });
@@ -333,6 +334,21 @@ final class MediaDevReviewRoutes {
         view.put("schema", SCHEMA);
         view.put("lineageId", lineage.lineageId());
         view.put("headVersionNumber", lineage.headVersionNumber());
+        // Null unless an erasure removed the newer version and the restored head is current again only by its own decision.
+        view.put("headChangedBy", lineage.headChange() == null ? null : lineage.headChange().by());
+        if (lineage.headChange() == null) {
+            view.put("headChange", null);
+        } else {
+            var change = lineage.headChange();
+            Map<String, Object> changeView = new LinkedHashMap<>();
+            changeView.put("by", change.by());
+            changeView.put("erasureId", change.erasureId());
+            changeView.put("erasedVersionNumber", change.erasedVersionNumber());
+            changeView.put("erasedArtifactId", change.erasedArtifactId());
+            changeView.put("erasedArtifactVersionId", change.erasedArtifactVersionId());
+            changeView.put("erasedAt", change.erasedAt().toString());
+            view.put("headChange", changeView);
+        }
         view.put("role", role);
         List<Map<String, Object>> rows = new ArrayList<>();
         for (var version : lineage.versions()) {
