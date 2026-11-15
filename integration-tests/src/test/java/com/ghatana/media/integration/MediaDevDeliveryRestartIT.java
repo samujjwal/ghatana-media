@@ -130,7 +130,9 @@ class MediaDevDeliveryRestartIT {
             // Lost ACK window: bytes landed before any ledger record. A fresh request verifies them by
             // readback and confirms; a foreign object at another request's path is never confirmed.
             String lostAck = "lost-ack-" + run;
-            Files.write(destination.resolve(objectName(tenant, principal, lostAck) + ".bin"), content);
+            Path landed = destination.resolve(objectName(tenant, principal, lostAck) + ".bin");
+            Files.write(landed, content);
+            Files.setPosixFilePermissions(landed, java.nio.file.attribute.PosixFilePermissions.fromString("rw-------"));
             HttpResponse<String> recovered = send(port, tenant, token, "POST", "/dev/v1/exports",
                     exportBody(lostAck, artifactId, versionId, "dev-local-directory"));
             assertThat(recovered.statusCode()).as(recovered.body()).isEqualTo(201);
@@ -141,6 +143,7 @@ class MediaDevDeliveryRestartIT {
             foreign[10] ^= 0x7f;
             Path foreignObject = destination.resolve(objectName(tenant, principal, tampered) + ".bin");
             Files.write(foreignObject, foreign);
+            Files.setPosixFilePermissions(foreignObject, java.nio.file.attribute.PosixFilePermissions.fromString("rw-------"));
             HttpResponse<String> refused = send(port, tenant, token, "POST", "/dev/v1/exports",
                     exportBody(tampered, artifactId, versionId, "dev-local-directory"));
             assertThat(refused.statusCode()).as(refused.body()).isEqualTo(202);
