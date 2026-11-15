@@ -214,7 +214,7 @@ class PostgresqlReviewStoreTest {
         AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment(bucket, schema));
         try {
             Flyway.configure().dataSource(scopedJdbcUrl(schema), POSTGRES.getUsername(), POSTGRES.getPassword())
-                    .locations("classpath:db/media-runtime").load().migrate();
+                    .locations(MediaRuntimeMigrations.locations(MediaRuntimeMigrations.POSTGRESQL)).load().migrate();
             return new Fixture(installed, MediaAwsPostgresqlRuntimeState.acquire(), schema);
         } catch (RuntimeException failure) { installed.close(); dropSchema(schema); throw failure; }
     }

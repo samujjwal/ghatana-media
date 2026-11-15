@@ -453,7 +453,7 @@ class PostgresqlProjectTimelineStoreTest {
         try {
             // Test-only V030 is an isolated projection migration; allow its test schema after current V031.
             Flyway.configure().dataSource(scopedJdbcUrl(schema), POSTGRES.getUsername(), POSTGRES.getPassword())
-                    .locations("classpath:db/media-runtime", "classpath:db/media-project-timeline")
+                    .locations("classpath:db/media-runtime", MediaRuntimeMigrations.vendorLocation(MediaRuntimeMigrations.POSTGRESQL), "classpath:db/media-project-timeline")
                     .outOfOrder(true)
                     .load().migrate();
             return new Fixture(installed, new PostgresqlProjectTimelineStore(), schema);

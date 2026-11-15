@@ -81,7 +81,7 @@ class MediaPostgresqlS3ArtifactErasureTreeTest {
         }
         Flyway.configure()
                 .dataSource(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword())
-                .locations("classpath:db/media-runtime")
+                .locations(MediaRuntimeMigrations.locations(MediaRuntimeMigrations.POSTGRESQL))
                 .validateMigrationNaming(true)
                 .load()
                 .migrate();
