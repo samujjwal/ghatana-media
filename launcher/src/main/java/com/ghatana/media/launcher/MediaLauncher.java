@@ -139,6 +139,10 @@ public final class MediaLauncher {
                                     .withDevGrounded(MediaDevGroundedComposition.compose(runtime, environment,
                                             System.getenv(), finalDevRights == null ? null : finalDevRights.resolver(),
                                             finalDevLedger))
+                                    .withDevAudio(finalDevProjectTimeline == null ? null
+                                            : MediaDevAudioRestorationRuntime.compose(runtime, environment,
+                                                    finalDevRights == null ? null : finalDevRights.resolver(),
+                                                    finalDevLedger))
                                     .withDevCaptions(finalDevProjectTimeline == null ? null
                                             : MediaDevCaptionRuntime.compose(runtime,
                                                     finalDevRights == null ? null : finalDevRights.resolver(),

@@ -328,6 +328,10 @@ handlers additionally require the artifact permissions noted, so access is never
 | GET | `/dev/v1/video/enhancements/{outputId}` | `media:project:dev:read` | `media:artifact:read` | FFmpeg/FFprobe composed |
 | POST | `/dev/v1/video/comparisons` | `media:project:dev:write` | `media:artifact:{read,create}`, `PROCESSING` rights admission of every subject and the reference | FFmpeg/FFprobe composed |
 | GET | `/dev/v1/video/comparisons/{outputId}` | `media:project:dev:read` | `media:artifact:read` | FFmpeg/FFprobe composed |
+| GET | `/dev/v1/audio/status` | `media:project:dev:read` | — | `MEDIA_DEV_RENDER_FFMPEG` (absolute path); Whisper optional |
+| POST | `/dev/v1/audio/restorations` | `media:project:dev:write` | `media:artifact:{read,create}` | `MEDIA_DEV_RENDER_FFMPEG`; PROCESSING rights on the exact source; J-07 (`MediaDevAudioRestorationRuntime`) |
+| POST | `/dev/v1/audio/comparisons` | `media:project:dev:write` | `media:artifact:{read,create}` | measured source/restored(/reference) report; optional Whisper transcript diff |
+| GET | `/dev/v1/audio/outputs/{outputId}` | `media:project:dev:read` | `media:artifact:read` | reopen a restoration or comparison |
 | GET | `/dev/v1/grounded-answers/status` | `media:project:dev:read` | — | local vision + `MEDIA_DEV_RENDER_FFMPEG/FFPROBE` |
 | POST | `/dev/v1/grounded-answers` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision + FFmpeg/FFprobe |
 | GET | `/dev/v1/grounded-answers/{outputId}` | `media:project:dev:read` | `media:artifact:read` | local vision + FFmpeg/FFprobe |

@@ -101,6 +101,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private MediaDevVideoRoutes devVideo;
     private MediaDevErasureRoutes devErasure;
     private MediaDevCaptionRoutes devCaptions;
+    private MediaDevAudioRoutes devAudio;
     private final ObjectMapper mapper = JsonMapper.builder(JsonFactory.builder()
             .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
             .build())
@@ -215,6 +216,12 @@ public final class MediaHttpHandler implements HttpHandler {
         if (captionRuntime != null && requireReviewedCaptions && devProjectRender != null) {
             devProjectRender.requireReviewedCaptions(captionRuntime.captionUseGate());
         }
+        return this;
+    }
+
+    /** Installs the optional DEV_ONLY audio restoration and measured comparison routes (J-07). */
+    MediaHttpHandler withDevAudio(MediaDevAudioRestorationRuntime audio) {
+        this.devAudio = audio == null ? null : new MediaDevAudioRoutes(audio, runtime);
         return this;
     }
 
@@ -471,6 +478,19 @@ public final class MediaHttpHandler implements HttpHandler {
         }
         if (devCaptions != null && MediaDevCaptionRoutes.handles(path)) {
             devCaptions.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
+                    new MediaDevCreativeOutputRoutes.Responder() {
+                        @Override public void json(HttpExchange e, int status, Object body) throws IOException {
+                            MediaHttpHandler.this.json(e, status, body);
+                        }
+                        @Override public void error(HttpExchange e, int status, String code, String message,
+                                                    Map<String, ?> details) throws IOException {
+                            MediaHttpHandler.this.error(e, status, code, message, details);
+                        }
+                    });
+            return;
+        }
+        if (devAudio != null && MediaDevAudioRoutes.handles(path)) {
+            devAudio.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
                     new MediaDevCreativeOutputRoutes.Responder() {
                         @Override public void json(HttpExchange e, int status, Object body) throws IOException {
                             MediaHttpHandler.this.json(e, status, body);

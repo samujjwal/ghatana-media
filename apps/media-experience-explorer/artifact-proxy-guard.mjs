@@ -51,6 +51,11 @@ const devProjectRoutes = [
   { method: "POST", path: /^\/dev\/v1\/creative-outputs\/simulations$/u },
   { method: "POST", path: /^\/dev\/v1\/creative-outputs\/spatial-glb$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/creative-outputs/${OPAQUE_ID}$`, "u") },
+  // DEV_ONLY audio restoration used by the "Audio restoration A/B" page (restore, compare, status, reopen; no DELETE).
+  { method: "GET", path: /^\/dev\/v1\/audio\/status$/u },
+  { method: "POST", path: /^\/dev\/v1\/audio\/restorations$/u },
+  { method: "POST", path: /^\/dev\/v1\/audio\/comparisons$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/audio/outputs/${OPAQUE_ID}$`, "u") },
   // DEV_ONLY grounded cross-modal answers used by the "Grounded answers" page (ask, status, reopen; no DELETE).
   { method: "POST", path: /^\/dev\/v1\/grounded-answers$/u },
   { method: "GET", path: /^\/dev\/v1\/grounded-answers\/status$/u },
