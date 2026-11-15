@@ -99,6 +99,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private MediaDevVisionRoutes devVision;
     private MediaDevGroundedRoutes devGrounded;
     private MediaDevVideoRoutes devVideo;
+    private MediaDevErasureRoutes devErasure;
     private MediaDevCaptionRoutes devCaptions;
     private final ObjectMapper mapper = JsonMapper.builder(JsonFactory.builder()
             .enable(StreamReadFeature.STRICT_DUPLICATE_DETECTION)
@@ -190,6 +191,12 @@ public final class MediaHttpHandler implements HttpHandler {
     /** Installs the optional DEV_ONLY local speech routes (real whisper.cpp STT and Kokoro TTS). */
     MediaHttpHandler withDevSpeech(MediaDevSpeechRuntime speechRuntime) {
         this.devSpeech = speechRuntime == null ? null : new MediaDevSpeechRoutes(speechRuntime, runtime);
+        return this;
+    }
+
+    /** Installs the optional DEV_ONLY erasure and legal-hold routes (J-26). */
+    MediaHttpHandler withDevErasure(MediaDevErasureRuntime erasure, boolean requireOidc) {
+        this.devErasure = erasure == null ? null : new MediaDevErasureRoutes(erasure, runtime, requireOidc);
         return this;
     }
 
@@ -435,6 +442,24 @@ public final class MediaHttpHandler implements HttpHandler {
         if (!MediaSecurityFilter.isDevOnlyIdentity(exchange)) {
             error(exchange, 403, "DEV_ONLY_IDENTITY_REQUIRED", "A signed DEV_ONLY identity is required");
             return;
+        }
+        if (devErasure != null) {
+            MediaDevCreativeOutputRoutes.Responder erasureOut = new MediaDevCreativeOutputRoutes.Responder() {
+                @Override public void json(HttpExchange e, int status, Object body) throws IOException {
+                    MediaHttpHandler.this.json(e, status, body);
+                }
+                @Override public void error(HttpExchange e, int status, String code, String message,
+                                            Map<String, ?> details) throws IOException {
+                    MediaHttpHandler.this.error(e, status, code, message, details);
+                }
+            };
+            if (MediaDevErasureRoutes.handles(path)) {
+                devErasure.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
+                        erasureOut);
+                return;
+            }
+            // A read of an erased artifact id answers a typed 410 on every artifact-bearing DEV route.
+            if (devErasure.refuseIfErased(exchange, path, method, tenantId, erasureOut)) return;
         }
         if (devRights != null && MediaDevRightsRoutes.handles(path)) {
             devRights.handle(exchange, path, method, tenantId, principalId);

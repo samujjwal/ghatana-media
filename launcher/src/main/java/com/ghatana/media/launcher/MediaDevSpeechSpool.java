@@ -96,6 +96,31 @@ final class MediaDevSpeechSpool {
         }
     }
 
+    /**
+     * Removes every cached synthesis whose audio has one of the given SHA-256 digests (content-addressed, so a
+     * request id is not needed) together with its lineage json, including an orphaned audio file left by a crash
+     * between the two writes. Returns the digests of the audio removed; never reads content into the result.
+     */
+    List<String> eraseByDigests(java.util.Set<String> digests) {
+        List<String> removed = new ArrayList<>();
+        if (digests.isEmpty() || !Files.isDirectory(directory)) return removed;
+        try (Stream<Path> files = Files.list(directory)) {
+            for (Path wav : files.filter(path -> path.getFileName().toString().endsWith(".wav")).toList()) {
+                String digest;
+                try { digest = MediaDevProjectRenderRuntime.sha256Hex(Files.readAllBytes(wav)); }
+                catch (IOException unreadable) { continue; }
+                if (!digests.contains(digest)) continue;
+                String name = wav.getFileName().toString();
+                Files.deleteIfExists(directory.resolve(name.substring(0, name.length() - ".wav".length()) + ".json"));
+                Files.deleteIfExists(wav);
+                removed.add(digest);
+            }
+        } catch (IOException failure) {
+            throw new IllegalStateException("speech spool could not be erased", failure);
+        }
+        return removed;
+    }
+
     private void evict() {
         try (Stream<Path> files = Files.list(directory)) {
             List<Path> entries = new ArrayList<>(files.filter(path -> path.getFileName().toString().endsWith(".json"))

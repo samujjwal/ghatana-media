@@ -36,6 +36,7 @@ public final class MediaLauncher {
         MediaDevDeliveryRuntime devDelivery = null;
         MediaDevRightsRuntime devRights = null;
         MediaDevRequestLedger devLedger = null;
+        MediaDevErasureRuntime devErasure = null;
         try {
             privacyMaintenance = MediaPrivacyMaintenanceRuntime.compose(environment);
             consentAdministration = MediaConsentAdministrationRuntime.compose(environment);
@@ -51,6 +52,8 @@ public final class MediaLauncher {
                     || !environment.getOrDefault(MediaDevProjectRenderRuntime.FFMPEG_ENV, "").isBlank();
             devLedger = devModelLanes ? MediaDevRequestLedger.compose(environment) : null;
             MediaDevRequestLedger finalDevLedger = devLedger;
+            devErasure = MediaDevErasureRuntime.compose(environment, devLedger, null);
+            MediaDevErasureRuntime finalDevErasure = devErasure;
             MediaPrivacyMaintenanceRuntime finalPrivacyMaintenance = privacyMaintenance;
             MediaConsentAdministrationRuntime finalConsentAdministration = consentAdministration;
             MediaCaptionRuntime finalCaptions = captions;
@@ -60,6 +63,10 @@ public final class MediaLauncher {
             MediaDevRightsRuntime finalDevRights = devRights;
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 RuntimeException failure = null;
+                if (finalDevErasure != null) {
+                    try { finalDevErasure.close(); }
+                    catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
+                }
                 if (finalDevLedger != null) {
                     try { finalDevLedger.close(); }
                     catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
@@ -123,6 +130,8 @@ public final class MediaLauncher {
                                     consentAdministration == null ? null : consentAdministration.administration(),
                                     captions, finalDevProjectTimeline, finalDevReview,
                                     finalDevProjectTimeline == null ? null : new MediaDevCreativeOutputRuntime(runtime)).withDevDelivery(finalDevDelivery).withDevRights(finalDevRights)
+                                    .withDevErasure(finalDevErasure, "true".equalsIgnoreCase(
+                                            environment.getOrDefault("MEDIA_DEV_ERASURE_REQUIRE_OIDC", "false")))
                                     .withDevSpeech(finalDevProjectTimeline == null ? null
                                             : MediaDevSpeechRuntime.compose(runtime, System.getenv(),
                                                     finalDevRights == null ? null : finalDevRights.resolver(),
@@ -151,6 +160,10 @@ public final class MediaLauncher {
                                             }).orElse(null)),
                             config.profile()));
         } catch (RuntimeException failure) {
+            if (devErasure != null) {
+                try { devErasure.close(); }
+                catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
+            }
             if (devLedger != null) {
                 try { devLedger.close(); }
                 catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }

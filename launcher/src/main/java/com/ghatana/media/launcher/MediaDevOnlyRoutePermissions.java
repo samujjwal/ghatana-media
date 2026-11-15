@@ -52,6 +52,10 @@ final class MediaDevOnlyRoutePermissions {
         // Video enhancement and measured comparison (J-08); the routes additionally require media:artifact:read/create.
         if ("POST".equals(method) && path.matches("^/dev/v1/video/(enhancements|comparisons)$")) return PROJECT_WRITE;
         if ("GET".equals(method) && path.matches("^/dev/v1/video/(enhancements|comparisons)/[^/]+$")) return PROJECT_READ;
+        // J-26 erasure and legal holds; the routes additionally require media:artifact:{read,write}.
+        if ("GET".equals(method) && path.matches("^/dev/v1/(erasure-plans/[^/]+|erasures/[^/]+|legal-holds(/[^/]+)?)$")) return PROJECT_READ;
+        if ("POST".equals(method) && ("/dev/v1/erasures".equals(path) || "/dev/v1/legal-holds".equals(path)
+                || path.matches("^/dev/v1/legal-holds/[^/]+/release$"))) return PROJECT_WRITE;
         return null;
     }
 }

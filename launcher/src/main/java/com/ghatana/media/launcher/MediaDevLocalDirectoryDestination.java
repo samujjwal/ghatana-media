@@ -77,6 +77,24 @@ final class MediaDevLocalDirectoryDestination implements MediaDeliveryEngine.Fen
                 tenantId + "\u0000" + principalId + "\u0000" + requestId);
     }
 
+    /**
+     * Removes the delivered object (and any partial write) of one request from the destination directory. The file
+     * name is a SHA-256 of tenant, principal and request id, so no caller text reaches the path. Returns how many
+     * files were removed.
+     */
+    static int eraseDelivered(Path root, String tenantId, String principalId, String requestId) {
+        String name = objectName(tenantId, principalId, requestId);
+        int removed = 0;
+        for (String suffix : new String[] {".bin", ".part"}) {
+            try {
+                if (java.nio.file.Files.deleteIfExists(root.resolve(name + suffix))) removed++;
+            } catch (IOException failure) {
+                throw new IllegalStateException("delivered object could not be erased", failure);
+            }
+        }
+        return removed;
+    }
+
     Path finalPath(String tenantId, String principalId, String requestId) {
         return confined(objectName(tenantId, principalId, requestId) + ".bin");
     }
