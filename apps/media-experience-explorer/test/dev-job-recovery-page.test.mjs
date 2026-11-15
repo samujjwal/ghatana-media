@@ -26,3 +26,16 @@ test("job recovery page is DEV_ONLY and delegates owner reads to canonical UI/SD
   assert.match(main, /import\.meta\.env\.DEV[\s\S]*dev-job-recovery\.html/u,
     "the Explorer navigation link must remain development-only");
 });
+
+test("job watch panel only polls the owner-scoped read, keeps the last state while the host is down and never retries or cancels", async () => {
+  const [html, source] = await Promise.all([
+    readFile(resolve(root, "dev-job-recovery.html"), "utf8"),
+    readFile(resolve(root, "src/dev-job-recovery.tsx"), "utf8"),
+  ]);
+  assert.match(html, /id="watch-toggle"/u);
+  assert.match(html, /aria-label="Observed job states, oldest first"/u);
+  assert.match(source, /current\.getJob\(jobId, controller\.signal\)/u);
+  assert.match(source, /Local host is unavailable\. Last observed state:/u);
+  assert.match(source, /statusCode === 404/u, "a not-found read must stop watching and reveal nothing");
+  assert.doesNotMatch(source, /method:\s*"(?:POST|PUT|DELETE|PATCH)"|\.cancelJob\(|\.createJob\(|\/cancel|fetch\(`\$\{origin\}\/api/u);
+});
