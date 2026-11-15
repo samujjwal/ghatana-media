@@ -363,6 +363,26 @@ eviction loses no replay. Altering any pinned weight file withdraws the profile 
 `503 SPEECH_RUNTIME_UNAVAILABLE`). The output is a mono 24 kHz PCM16 WAV artifact whose lineage records voice, locale,
 model/runtime digests and the input text digest only. The Explorer page `dev-voice-synthesis.html` (panel
 `VoiceSynthesisPanel` in `@audio-video/ui`) proxies only the synthesis routes of this lane; transcription is not proxied.
+DEV_ONLY audio restoration and measured comparison (J-07, `media.dev.outcome-audio-restoration`; `MediaDevAudioRestorationRuntime`,
+`MediaDevAudioRoutes`). `POST /dev/v1/audio/restorations` takes `{requestId, artifactId, artifactVersionId, operations}` where
+`operations` is a strict typed set (at least one of `declip{threshold 1-100}`, `dehum{frequencyHz 50|60}`,
+`denoise{reductionDb 1-40, noiseFloorDb -80..-20, trackNoise}`, `normalize{targetLufs -30..-10}`; normalization is off unless
+present). Invalid or unknown parameters are refused (422 `AUDIO_PARAMETERS_INVALID` or 400) before any rights call, source read or
+engine start. The exact PCM16 WAV version (at most 8 MiB, 8-96 kHz, mono/stereo) needs `Scope.PROCESSING` from the rights resolver on
+every call (replays included); a different current version is 409 `SOURCE_VERSION_STALE`. The filter graph is built only from the
+validated numbers and run through `BoundedProcessRunner` (argument array, cleared environment, wall-clock deadline
+`MEDIA_DEV_AUDIO_RESTORE_TIMEOUT_SECONDS` default 60, output ceiling); the FFT denoiser's sampleRate/40 latency is absorbed so the
+result stays sample-aligned. The result is a NEW `audio/wav` version whose lineage records the source version digest, the filter graph,
+the typed parameters and the engine version line and binary digest; the WAV also carries the request id and source digest in its
+RIFF comment so a second request never collides with the tenant's content-addressed uniqueness. A killed, timed-out or over-ceiling
+engine is 503 `AUDIO_RESTORATION_OUTCOME_UNKNOWN` (nothing registered; the ledger claim is released so a retry of the same requestId
+runs again and registers exactly once; a SIGKILLed launcher is reclaimed through the dead-owner path). `POST /dev/v1/audio/comparisons`
+takes `{requestId, source, restored, reference?, transcript?{language, referenceText?}}` (all exact versions; the restored version
+must be a recorded restoration of that source) and registers a JSON report: SNR and segmental SNR against the reference, clipped-sample
+count, noise-floor level and spectral flatness for source and restored, deltas, a verdict derived only from the numbers (no reference
+means `NOT_MEASURED_AGAINST_REFERENCE`), and an optional local Whisper transcript diff (word error rate against the clean reference
+text or Whisper-on-reference). `GET /dev/v1/audio/outputs/{id}` reopens either after restart.
+
 DEV_ONLY video tracking and ROI analysis (J-05, `media.dev.outcome-vision-detection-and-tracking`; same models, rights,
 registration and `/dev/v1/vision/outputs/{outputId}` readback as in the lane described below; `MediaDevVisionTrackingRuntime`).
 `POST /dev/v1/vision/tracks` takes `{requestId, artifactId, artifactVersionId, maxFrames?(1-64, default 16),

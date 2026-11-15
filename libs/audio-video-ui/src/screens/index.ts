@@ -102,3 +102,10 @@ export type {
   DevErasureFailure, DevErasureHoldRequest, DevErasureHostResponse, DevErasurePort, DevErasureRequest, ErasurePlanView,
   ErasureReceiptItemView, ErasureReceiptView, ErasureTreeNodeView, LegalHoldView,
 } from "./devErasure";
+export { DevAudioRestorationPanel } from "./DevAudioRestorationPanel";
+export type { DevAudioRestorationPanelProps } from "./DevAudioRestorationPanel";
+export { DevAudioHostError, describeAudioFailure, describeAudioVerdict, parseAudioComparisonView, parseAudioHostStatus, parseAudioRestorationView } from "./devAudioRestoration";
+export type {
+  AudioComparisonReport, AudioFailure, AudioHostStatus, AudioRestorationView, AudioSideMetrics, AudioTranscriptDiff, DevAudioCompareRequest,
+  DevAudioHostResponse, DevAudioOperations, DevAudioRestoreRequest, DevAudioRestorationPort, DevAudioVersionRef,
+} from "./devAudioRestoration";
