@@ -196,9 +196,13 @@ final class MediaDevProjectAudioMix {
             } else if (id == 0x61746164) {
                 if (rate < 0 || body + size > data.length) throw notPcm();
                 long frameBytes = 2L * channels;
-                int usable = (int) (size - size % frameBytes);
-                byte[] pcm = new byte[usable];
-                System.arraycopy(data, body, pcm, 0, usable);
+                if (size % frameBytes != 0) {
+                    throw new RenderNotSupportedException("RENDER_UNSUPPORTED_AUDIO_FORMAT",
+                            "audio data chunk must contain complete interleaved frames; no trimming is applied");
+                }
+                int pcmBytes = Math.toIntExact(size);
+                byte[] pcm = new byte[pcmBytes];
+                System.arraycopy(data, body, pcm, 0, pcmBytes);
                 return new Wav(rate, channels, pcm);
             }
             long next = body + size + (size & 1);
