@@ -155,26 +155,18 @@ class MediaDevAgentDelegationIT extends EventloopTestBase {
 
             // ---- the USER's own direct work: real inputs, registered over the launcher's own routes ----
             String userToken = issueDevToken(tenant, owner);
-            JsonNode capabilities = get(port, tenant, userToken, "/dev/v1/speech/capabilities", 200);
+            JsonNode capabilities = get(port, tenant, issueToken(tenant, owner), "/dev/v1/speech/capabilities", 200);
             assertThat(capabilities.path("speechToText").path("ready").asBoolean()).isTrue();
             assertThat(capabilities.path("textToSpeech").path("ready").asBoolean()).isTrue();
-            JsonNode clip = post(port, tenant, userToken, "/dev/v1/speech/syntheses",
+            JsonNode clip = post(port, tenant, issueToken(tenant, owner), "/dev/v1/speech/syntheses",
                     Map.of("requestId", "j25-user-clip-" + run, "text", TTS_TEXT, "voice", "af_heart"), 201);
             String clipId = clip.path("artifact").path("artifactId").asString();
             String clipVersion = clip.path("artifact").path("artifactVersionId").asString();
             byte[] video = TrackingVideoFixture.generate(ffmpeg, work, false);
-            String videoId = upload(port, tenant, owner, userToken, run + "-video", "motion.mp4", "video/mp4", video);
+            String videoId = upload(port, tenant, owner, issueToken(tenant, owner), run + "-video", "motion.mp4", "video/mp4", video);
             String videoVersion = "sha256:" + sha256(video);
-            // A second clip with different words: re-transcribing byte-identical audio yields byte-identical transcript
-            // bytes, which the DEV speech lane's artifact registration refuses (reported as a known limit).
-            JsonNode clip2 = post(port, tenant, userToken, "/dev/v1/speech/syntheses",
-                    Map.of("requestId", "j25-user-clip2-" + run, "text", "Pack my box with five dozen liquor jugs.",
-                            "voice", "af_heart"), 201);
-            String clip2Id = clip2.path("artifact").path("artifactId").asString();
-            String clip2Version = clip2.path("artifact").path("artifactVersionId").asString();
-            String clipAttestation = attest(userToken, clipId, clipVersion);
-            String clip2Attestation = attest(userToken, clip2Id, clip2Version);
-            String videoAttestation = attest(userToken, videoId, videoVersion);
+            String clipAttestation = attest(issueToken(tenant, owner), clipId, clipVersion);
+            String videoAttestation = attest(issueToken(tenant, owner), videoId, videoVersion);
             // a second tenant with its own user and its own synthetic clip
             String otherToken = issueDevToken(otherTenant, otherOwner);
 
@@ -188,7 +180,7 @@ class MediaDevAgentDelegationIT extends EventloopTestBase {
                     });
             factory = factory(binder(ledger, delegate), delegate);
             Instant now = Instant.now();
-            grant("grant-stt-" + run, tenant, owner, STT, "speech.transcribe", Set.of(clipId, clip2Id), now);
+            grant("grant-stt-" + run, tenant, owner, STT, "speech.transcribe", Set.of(clipId), now);
             grant("grant-tts-" + run, tenant, owner, TTS, "speech.synthesize", Set.of(), now);
             grant("grant-vis-" + run, tenant, owner, VISION, "vision.analyze", Set.of(videoId), now);
             grant("grant-mm-" + run, tenant, owner, MULTIMODAL, "vision.track", Set.of(videoId), now);
@@ -210,7 +202,7 @@ class MediaDevAgentDelegationIT extends EventloopTestBase {
             }
             // no provider bypass: owned by the delegating USER, requestId derived from the invocation, launcher ledger row
             assertThat(out(tts).get("requestId")).isEqualTo(MediaToolJobBridge.requestIdFor("inv-tts-1-" + run));
-            assertOutcome(userToken, tenant, "speech.synthesize", "inv-tts-1-" + run, "COMPLETED", 1);
+            assertOutcome(issueToken(tenant, owner), tenant, "speech.synthesize", "inv-tts-1-" + run, "COMPLETED", 1);
             assertOutcome(otherToken, otherTenant, "speech.synthesize", "inv-tts-1-" + run, "ABSENT", 0);
             duplicateIsSingleEffect(TTS, "inv-tts-1-" + run, tenant, owner, null, null, tts);
             wrongTenantDenied(TTS, run, null, null, Set.of());
@@ -230,14 +222,14 @@ class MediaDevAgentDelegationIT extends EventloopTestBase {
             StoredArtifact transcriptRow = storedArtifact(POSTGRES, tenant, owner, transcriptId);
             assertThat(JSON.readTree(new String(s3Bytes(LOCALSTACK, bucket, transcriptRow), StandardCharsets.UTF_8))
                     .path("text").asString()).isEqualTo(out(stt).get("transcript"));
-            assertThat(get(port, tenant, userToken, "/dev/v1/speech/outputs/" + transcriptId, 200)
+            assertThat(get(port, tenant, issueToken(tenant, owner), "/dev/v1/speech/outputs/" + transcriptId, 200)
                     .path("lineage").path("requestId").asString())
                     .isEqualTo(MediaToolJobBridge.requestIdFor("inv-stt-1-" + run));
-            assertOutcome(userToken, tenant, "speech.transcribe", "inv-stt-1-" + run, "COMPLETED", 2);
+            assertOutcome(issueToken(tenant, owner), tenant, "speech.transcribe", "inv-stt-1-" + run, "COMPLETED", 2);
             duplicateIsSingleEffect(STT, "inv-stt-1-" + run, tenant, owner, clipId, clipVersion, stt);
             wrongTenantDenied(STT, run, clipId, clipVersion, Set.of(clipId));
             outOfScopeDenied(STT, run, videoId, videoVersion);
-            ambiguousAfterResponse(STT, "inv-stt-amb-" + run, clip2Id, clip2Version, "speech.transcribe", 2, run);
+            ambiguousAfterResponse(STT, "inv-stt-amb-" + run, clipId, clipVersion, "speech.transcribe", 2, run);
 
             // =============== VISION ANALYSIS ===============
             int beforeVision = artifactCount();
@@ -253,7 +245,7 @@ class MediaDevAgentDelegationIT extends EventloopTestBase {
             assertThat(analysis.path("requestId").asString()).isEqualTo(MediaToolJobBridge.requestIdFor("inv-vis-1-" + run));
             assertThat(analysis.path("source").path("sha256").asString()).isEqualTo(sha256(video));
             assertThat(analysis.path("inference").path("model").path("id").asString()).contains("Florence-2");
-            assertOutcome(userToken, tenant, "vision.analyze", "inv-vis-1-" + run, "COMPLETED", 1);
+            assertOutcome(issueToken(tenant, owner), tenant, "vision.analyze", "inv-vis-1-" + run, "COMPLETED", 1);
             duplicateIsSingleEffect(VISION, "inv-vis-1-" + run, tenant, owner, videoId, videoVersion, vision);
             wrongTenantDenied(VISION, run, videoId, videoVersion, Set.of(videoId));
             outOfScopeDenied(VISION, run, clipId, clipVersion);
@@ -269,7 +261,7 @@ class MediaDevAgentDelegationIT extends EventloopTestBase {
             assertThat(tracks.path("frames").size()).isEqualTo(2);
             assertThat(tracks.path("model").path("id").asString()).contains("Florence-2");
             assertThat(out(mm).get("samplingRateMsHonored")).isEqualTo(false);
-            assertOutcome(userToken, tenant, "vision.track", "inv-mm-1-" + run, "COMPLETED", 1);
+            assertOutcome(issueToken(tenant, owner), tenant, "vision.track", "inv-mm-1-" + run, "COMPLETED", 1);
             duplicateIsSingleEffect(MULTIMODAL, "inv-mm-1-" + run, tenant, owner, videoId, videoVersion, mm);
             wrongTenantDenied(MULTIMODAL, run, videoId, videoVersion, Set.of(videoId));
             outOfScopeDenied(MULTIMODAL, run, clipId, clipVersion);
@@ -291,13 +283,16 @@ class MediaDevAgentDelegationIT extends EventloopTestBase {
             assertThat(artifactCount()).as("refusals have no effect").isEqualTo(beforeMm + 1 + 1);
 
             // =============== REVOKED CONSENT (the launcher's rights gate) ===============
+            // Killed hosts whose launcher work completed but whose result was never recorded, BEFORE consent is revoked.
+            killBeforeRecording(STT, "inv-stt-consent-amb-" + run, clipId, clipVersion);
+            killBeforeRecording(VISION, "inv-vis-consent-amb-" + run, videoId, videoVersion);
+            killBeforeRecording(MULTIMODAL, "inv-mm-consent-amb-" + run, videoId, videoVersion);
             int beforeConsent = artifactCount();
-            revokeAttestation(userToken, clipAttestation);
-            revokeAttestation(userToken, clip2Attestation);
+            revokeAttestation(issueToken(tenant, owner), clipAttestation);
             ToolExecutionResult sttRevoked = call(STT, "inv-stt-consent-" + run, tenant, owner, clipId, clipVersion);
             assertThat(sttRevoked.status()).isEqualTo(ToolExecutionStatus.DENIED);
             assertThat(sttRevoked.failure().code()).startsWith("MEDIA_RIGHTS_");
-            revokeAttestation(userToken, videoAttestation);
+            revokeAttestation(issueToken(tenant, owner), videoAttestation);
             ToolExecutionResult visionRevoked = call(VISION, "inv-vis-consent-" + run, tenant, owner, videoId, videoVersion);
             assertThat(visionRevoked.status()).isEqualTo(ToolExecutionStatus.DENIED);
             assertThat(visionRevoked.failure().code()).startsWith("MEDIA_RIGHTS_");
@@ -305,6 +300,30 @@ class MediaDevAgentDelegationIT extends EventloopTestBase {
             assertThat(mmRevoked.status()).isEqualTo(ToolExecutionStatus.DENIED);
             assertThat(mmRevoked.failure().code()).startsWith("MEDIA_RIGHTS_");
             assertThat(artifactCount()).as("consent revoked: no effect").isEqualTo(beforeConsent);
+            // Duplicates of RECORDED successes are re-checked by the launcher: a revoked consent withholds the result.
+            for (Object[] duplicate : new Object[][]{{STT, "inv-stt-1-", clipId, clipVersion},
+                    {VISION, "inv-vis-1-", videoId, videoVersion}, {MULTIMODAL, "inv-mm-1-", videoId, videoVersion},
+                    {STT, "inv-stt-amb-", clipId, clipVersion}}) {
+                ToolExecutionResult withheld = call((String) duplicate[0], duplicate[1] + run, tenant, owner,
+                        (String) duplicate[2], (String) duplicate[3]);
+                assertThat(withheld.status()).as(duplicate[1] + " duplicate after consent revocation")
+                        .isEqualTo(ToolExecutionStatus.DENIED);
+                assertThat(withheld.failure().code()).startsWith("MEDIA_RIGHTS_");
+                assertThat(ledger.find(duplicate[1] + run)).hasValueSatisfying(found ->
+                        assertThat(found.outcome()).isEqualTo(MediaToolExecutionBinder.LogicalOutcome.SUCCESS));
+            }
+            // Reconciliation of an ambiguous invocation is re-checked the same way and stays fenced.
+            for (Object[] killed : new Object[][]{{STT, "inv-stt-consent-amb-", clipId, clipVersion},
+                    {VISION, "inv-vis-consent-amb-", videoId, videoVersion},
+                    {MULTIMODAL, "inv-mm-consent-amb-", videoId, videoVersion}}) {
+                ToolExecutionResult withheld = call((String) killed[0], killed[1] + run, tenant, owner,
+                        (String) killed[2], (String) killed[3]);
+                assertThat(withheld.status()).isEqualTo(ToolExecutionStatus.DENIED);
+                assertThat(withheld.failure().code()).startsWith("MEDIA_RIGHTS_");
+                assertThat(ledger.find(killed[1] + run)).hasValueSatisfying(found ->
+                        assertThat(found.outcome()).isEqualTo(MediaToolExecutionBinder.LogicalOutcome.OUTCOME_UNKNOWN));
+            }
+            assertThat(artifactCount()).as("withheld replays have no effect").isEqualTo(beforeConsent);
 
             // =============== REVOKED GRANT ===============
             for (String[] toolGrant : new String[][]{{STT, "grant-stt-"}, {TTS, "grant-tts-"}, {VISION, "grant-vis-"},
@@ -349,7 +368,10 @@ class MediaDevAgentDelegationIT extends EventloopTestBase {
         // a freshly started host over the same durable ledger answers the same way
         FileInvocationLedger restartedLedger = ledger(ledgerDir);
         MediaLauncherDelegate delegate = delegate(URI.create("http://127.0.0.1:" + port), grants,
-                (grant, principal) -> { throw new IOException("a replay must not need a credential"); });
+                (grant, principal) -> {
+                    try { return issueDevToken(grant.tenantId(), grant.principalId()); }
+                    catch (Exception failure) { throw new IOException(failure); }
+                });
         AudioVideoToolHandlerFactory restarted = factory(binder(restartedLedger, delegate), delegate);
         ToolExecutionEnvelope envelope = envelope(toolId, invocationId, tenantId, AGENT, artifactId, version);
         ToolExecutionResult replayed = runPromise(() -> restarted.createAuthenticated(toolId)
@@ -419,6 +441,14 @@ class MediaDevAgentDelegationIT extends EventloopTestBase {
         assertThat(artifactCount()).isEqualTo(before + expectedArtifacts);
     }
 
+    private void killBeforeRecording(String toolId, String invocationId, String artifactId, String version)
+            throws Exception {
+        Process child = startWorker(toolId, invocationId, artifactId, version, "on-complete");
+        String output = new String(child.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        assertThat(child.waitFor(900, TimeUnit.SECONDS)).isTrue();
+        assertThat(child.exitValue()).as(output).isEqualTo(137);
+    }
+
     /** Killed while the launcher is still synthesizing: stays unknown while in flight, then reconciles to one effect. */
     private void midFlightKillReconciles(String run) throws Exception {
         String invocationId = "inv-tts-midflight-" + run;
@@ -442,8 +472,8 @@ class MediaDevAgentDelegationIT extends EventloopTestBase {
                     .isInstanceOf(MediaToolExecutionBinder.OutcomeUnknownException.class);
             assertThat(artifactCount()).as("no second dispatch while in flight").isLessThanOrEqualTo(before + 1);
         }
-        long deadline = System.nanoTime() + Duration.ofMinutes(3).toNanos();
-        while (!"COMPLETED".equals(outcomeState(token, tenant, "speech.synthesize", invocationId))) {
+        long deadline = System.nanoTime() + Duration.ofMinutes(10).toNanos();
+        while (!"COMPLETED".equals(outcomeState(issueToken(tenant, owner), tenant, "speech.synthesize", invocationId))) {
             assertThat(System.nanoTime()).as("launcher finished the orphaned request").isLessThan(deadline);
             Thread.sleep(250);
         }

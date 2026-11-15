@@ -544,6 +544,9 @@ public final class MediaDevSpeechRuntime {
         }
         transcriptDocument.put("segments", documentCues);
         transcriptDocument.put("segmentTimeBase", "milliseconds from the start of the decoded audio; unqualified");
+        // Non-content registration marker: the store refuses byte-identical bytes under a new request, so
+        // re-transcribing the same audio under a new requestId must differ. The transcript text is never altered.
+        transcriptDocument.put("registration", Map.of("requestId", request.requestId()));
         final byte[] transcriptBytes;
         try {
             transcriptBytes = JSON.writeValueAsBytes(transcriptDocument);
@@ -565,9 +568,18 @@ public final class MediaDevSpeechRuntime {
         captionLineage.put("note", "Derived WebVTT rendering of recognizer segments (times relative to the start of the "
                 + "decoded audio); not reviewed, not a caption authority, and not source-clock bound.");
         SpeechOutput captions = register(tenantId, principalId, source.classification(), "stt-webvtt",
-                request.requestId(), WebVttWriter.write(cues), "text/vtt", "vtt",
+                request.requestId(), withRequestNote(WebVttWriter.write(cues), request.requestId()), "text/vtt", "vtt",
                 "captions-" + safeName(source.artifactId()), captionLineage);
         return new TranscriptionResult(transcript, captions, result.text(), cues.size());
+    }
+
+    /** Inserts a WebVTT NOTE block naming the request after the header (so identical captions differ per request). */
+    private static byte[] withRequestNote(byte[] vtt, String requestId) {
+        String text = new String(vtt, StandardCharsets.UTF_8);
+        int headerEnd = text.indexOf("\n\n");
+        if (headerEnd < 0) return vtt;
+        return (text.substring(0, headerEnd + 2) + "NOTE speech request " + requestId + "\n\n"
+                + text.substring(headerEnd + 2)).getBytes(StandardCharsets.UTF_8);
     }
 
     // ---- synthesis ----

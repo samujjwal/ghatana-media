@@ -181,6 +181,26 @@ class MediaDevSpeechLocalModelsTest {
                     "language", "en"));
             assertThat(replay.statusCode()).as(text(replay)).isEqualTo(200);
             assertThat(map(replay).get("replayed")).isEqualTo(true);
+            @SuppressWarnings("unchecked") String replayedId = (String) ((Map<String, Object>) ((Map<String, Object>)
+                    map(replay).get("transcript")).get("artifact")).get("artifactId");
+            assertThat(replayedId).as("same requestId replays the ORIGINAL transcript artifact").isEqualTo(transcriptId);
+
+            // 6. byte-identical audio transcribed again under a NEW requestId registers distinct outputs (the stored
+            // envelope carries a non-content registration marker); the transcript text itself is unchanged.
+            HttpResponse<byte[]> again = post(server, "/dev/v1/speech/transcriptions", Map.of(
+                    "requestId", "rt-stt-2", "artifactId", audioId, "artifactVersionId", audioVersion,
+                    "language", "en"));
+            assertThat(again.statusCode()).as(text(again)).isEqualTo(201);
+            Map<String, Object> againBody = map(again);
+            @SuppressWarnings("unchecked") String secondId = (String) ((Map<String, Object>) ((Map<String, Object>)
+                    againBody.get("transcript")).get("artifact")).get("artifactId");
+            assertThat(secondId).isNotEqualTo(transcriptId);
+            ByteArrayOutputStream secondJson = new ByteArrayOutputStream();
+            MediaArtifact secondArtifact = runtime.artifact(TENANT, PRINCIPAL, secondId).orElseThrow();
+            runtime.copyArtifactContent(TENANT, PRINCIPAL, secondId, secondArtifact.version(), secondJson, 1 << 20).orElseThrow();
+            String secondDocument = secondJson.toString(StandardCharsets.UTF_8);
+            assertThat(secondDocument).contains("\"registration\":{\"requestId\":\"rt-stt-2\"}");
+            assertThat((String) againBody.get("text")).isNotBlank();
         } finally {
             server.stop(0);
         }

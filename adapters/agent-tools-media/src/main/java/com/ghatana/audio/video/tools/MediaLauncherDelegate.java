@@ -220,6 +220,29 @@ public final class MediaLauncherDelegate {
         }
     }
 
+    /**
+     * Re-checks the launcher's current admission before a recorded SUCCESS is replayed, by asking the launcher to
+     * replay the same request id (it re-applies permissions and the rights/consent gate and answers a completed
+     * request from its stored output without running the model). Empty means admitted; a typed DENIED/FAILED result
+     * means the recorded result must be withheld.
+     */
+    Optional<ToolExecutionResult> revalidate(ToolExecutionEnvelope envelope, AuthenticatedPrincipal principal, Call call,
+                                             Instant start) throws IOException, InterruptedException {
+        ToolExecutionResult refusal = authorize(envelope, principal, call, start);
+        if (refusal != null) return Optional.of(refusal);
+        MediaDelegationGrant grant = grants.findFor(envelope.tenantId(), principal.principalId(),
+                envelope.callerAgentId(), envelope.toolId()).orElseThrow();
+        final String token;
+        try {
+            token = credentials.bearerToken(grant, principal);
+        } catch (IOException | RuntimeException unavailable) {
+            throw new IOException(CREDENTIAL_UNAVAILABLE);
+        }
+        ToolExecutionResult replayed = dispatch(envelope, grant, token, call, start);
+        return replayed.status() == com.ghatana.agent.framework.tools.ToolExecutionStatus.SUCCESS
+                ? Optional.empty() : Optional.of(replayed);
+    }
+
     /** Pre-dispatch checks; null when the call may go ahead, otherwise a typed terminal refusal with no effect. */
     private ToolExecutionResult authorize(ToolExecutionEnvelope envelope, AuthenticatedPrincipal principal, Call call,
                                           Instant start) {
@@ -311,6 +334,15 @@ public final class MediaLauncherDelegate {
         } catch (RuntimeException unreadable) {
             return "LAUNCHER_REFUSED";
         }
+    }
+
+    /** Replay re-check binding used by {@link MediaToolExecutionBinder}. */
+    public MediaToolExecutionBinder.ReplayRevalidator revalidator() {
+        return (envelope, contract, principal) -> {
+            MediaLauncherDelegate.Call call = MediaDelegatedPlans.plan(envelope, contract);
+            if (call == null) return Optional.of(notAdmitted(envelope, "DELEGATION_TOOL_UNKNOWN", Instant.now()));
+            return revalidate(envelope, principal, call, Instant.now());
+        };
     }
 
     /** Reconciler binding used by {@link MediaToolExecutionBinder}: plans the same call from the same envelope. */

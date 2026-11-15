@@ -108,7 +108,7 @@ class MediaLauncherDelegateTest extends EventloopTestBase {
 
     private MediaToolExecutionBinder binder(InMemory ledger) {
         return new MediaToolExecutionBinder(ledger, (t, i) -> Optional.empty(), delegate.replayAuthorizer(),
-                delegate.reconciler());
+                delegate.reconciler(), delegate.revalidator());
     }
 
     private ToolExecutionResult run(MediaToolExecutionBinder binder, ToolExecutionEnvelope e) {
@@ -158,15 +158,30 @@ class MediaLauncherDelegateTest extends EventloopTestBase {
     }
 
     @Test
-    void duplicateInvocationReturnsTheRecordedResultWithoutAnotherLauncherCall() {
+    void duplicateInvocationRechecksTheLauncherAndReturnsTheRecordedResultOnlyWhileAdmitted() {
         grant("g-1", "av.speech-to-text", "speech.transcribe", Set.of("a1"));
         postBody.set("{\"text\":\"hello\",\"cueCount\":1}");
         InMemory ledger = new InMemory();
         ToolExecutionEnvelope e = envelope("av.speech-to-text", "inv-dup", sttInput("a1"));
         ToolExecutionResult first = run(binder(ledger), e);
+        postStatus.set(new int[]{200});
         ToolExecutionResult second = run(binder(ledger), e);
         assertThat(second).isEqualTo(first);
-        assertThat(seen).hasSize(1);
+        assertThat(seen).as("the replay is re-checked by the launcher's own replay of the same request id")
+                .containsExactly("POST /dev/v1/speech/transcriptions", "POST /dev/v1/speech/transcriptions");
+
+        // consent revoked at the launcher: the recorded SUCCESS is withheld and the ledger row is untouched
+        postStatus.set(new int[]{403});
+        postBody.set("{\"error\":{\"code\":\"RIGHTS_DECISION_DENIED\"}}");
+        ToolExecutionResult denied = run(binder(ledger), e);
+        assertThat(denied.status()).isEqualTo(ToolExecutionStatus.DENIED);
+        assertThat(denied.failure().code()).isEqualTo("MEDIA_RIGHTS_DECISION_DENIED");
+        assertThat(ledger.find("inv-dup").orElseThrow().outcome()).isEqualTo(MediaToolExecutionBinder.LogicalOutcome.SUCCESS);
+
+        // an unreachable re-check withholds the result too (never a silent replay)
+        postStatus.set(new int[]{500});
+        assertThatThrownBy(() -> run(binder(ledger), e))
+                .isInstanceOf(MediaToolExecutionBinder.InvocationClaimUnavailableException.class);
     }
 
     @Test
@@ -272,7 +287,7 @@ class MediaLauncherDelegateTest extends EventloopTestBase {
         assertThat(posts).as("exactly one replay fetch after the completed outcome").isEqualTo(1);
         seen.clear();
         assertThat(run(binder(ledger), e)).isEqualTo(reconciled);
-        assertThat(seen).isEmpty();
+        assertThat(seen).containsExactly("POST /dev/v1/speech/transcriptions");
     }
 
     @Test

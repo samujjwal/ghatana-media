@@ -186,6 +186,19 @@ public final class MediaToolExecutionBinder {
                 AuthenticatedPrincipal authenticated) throws Exception;
     }
 
+    /**
+     * Host-supplied re-check made before a recorded SUCCESS is replayed: the downstream authority (for Media, the
+     * launcher's rights/consent gate) must still admit the exact source. Return empty to allow the replay, or a
+     * terminal non-success result (for example DENIED) to return INSTEAD of the recorded result. The recorded result
+     * and its ledger row are never altered by a refusal. An exception means the re-check could not be made, and the
+     * recorded result is withheld.
+     */
+    @FunctionalInterface
+    public interface ReplayRevalidator {
+        Optional<ToolExecutionResult> revalidate(ToolExecutionEnvelope envelope, ToolContract contract,
+                AuthenticatedPrincipal authenticated) throws Exception;
+    }
+
     private static final java.util.concurrent.Executor RECONCILE_EXECUTOR = java.util.concurrent.Executors
             .newCachedThreadPool(task -> {
                 Thread thread = new Thread(task, "media-tool-reconcile");
@@ -229,6 +242,7 @@ public final class MediaToolExecutionBinder {
     private final MediaJobReadback jobReadback;
     private final InvocationReplayAuthorizer replayAuthorizer;
     private final AmbiguousInvocationReconciler reconciler;
+    private final ReplayRevalidator revalidator;
 
     public MediaToolExecutionBinder(InvocationLedger ledger, MediaJobReadback jobReadback) {
         this(ledger, jobReadback, (authenticated, identity) -> false);
@@ -245,6 +259,14 @@ public final class MediaToolExecutionBinder {
      */
     public MediaToolExecutionBinder(InvocationLedger ledger, MediaJobReadback jobReadback,
             InvocationReplayAuthorizer replayAuthorizer, AmbiguousInvocationReconciler reconciler) {
+        this(ledger, jobReadback, replayAuthorizer, reconciler, null);
+    }
+
+    /** @param revalidator optional re-check of the downstream authority before a recorded SUCCESS is replayed */
+    public MediaToolExecutionBinder(InvocationLedger ledger, MediaJobReadback jobReadback,
+            InvocationReplayAuthorizer replayAuthorizer, AmbiguousInvocationReconciler reconciler,
+            ReplayRevalidator revalidator) {
+        this.revalidator = revalidator;
         this.ledger = Objects.requireNonNull(ledger, "ledger");
         this.jobReadback = Objects.requireNonNull(jobReadback, "jobReadback");
         this.replayAuthorizer = Objects.requireNonNull(replayAuthorizer, "replayAuthorizer");
@@ -417,6 +439,10 @@ public final class MediaToolExecutionBinder {
                                 || !envelope.invocationId().equals(established.get().invocationId())) {
                             return Promise.<ToolExecutionResult>ofException(unknown(envelope));
                         }
+                        if (established.get().status() == ToolExecutionStatus.DENIED) {
+                            // Authority was withdrawn: return the denial without recording it over the fence.
+                            return Promise.of(established.get());
+                        }
                         try {
                             return Promise.of(finishIfTerminal(established.get(), identity, envelope));
                         } catch (RuntimeException unacknowledged) {
@@ -427,7 +453,24 @@ public final class MediaToolExecutionBinder {
         if (prior.result() == null) {
             return Promise.ofException(new InvocationClaimUnavailableException());
         }
-        return Promise.of(prior.result());
+        if (revalidator == null || prior.result().status() != ToolExecutionStatus.SUCCESS) {
+            return Promise.of(prior.result());
+        }
+        ToolExecutionResult recorded = prior.result();
+        return Promise.ofBlocking(RECONCILE_EXECUTOR, () -> {
+                    try {
+                        return revalidator.revalidate(envelope, contract, authenticated);
+                    } catch (RuntimeException unexpected) {
+                        throw new java.io.IOException("replay re-check failed", unexpected);
+                    }
+                })
+                .then(refusal -> refusal != null && refusal.isPresent()
+                                && envelope.invocationId().equals(refusal.get().invocationId())
+                                && refusal.get().status() != ToolExecutionStatus.SUCCESS
+                        ? Promise.of(refusal.get())
+                        : refusal != null && refusal.isEmpty() ? Promise.of(recorded)
+                        : Promise.<ToolExecutionResult>ofException(new InvocationClaimUnavailableException()),
+                        failure -> Promise.<ToolExecutionResult>ofException(new InvocationClaimUnavailableException()));
     }
 
     private static boolean wellFormed(LogicalAction action) {
