@@ -415,6 +415,40 @@ class MediaDevGroundedAnswerTest {
     }
 
     @Test
+    void anUnavailableOrTimedOutChildIsATypedOutageNeverAFailureOrSuccessAndTheRetryRunsOnce() throws Exception {
+        Fixture f = new Fixture(Verdict.ADMITTED);
+        try {
+            // Nothing ran for the speech child: UNAVAILABLE (503), not a generic 502 failure.
+            f.children.sttStatus = MediaDevGroundedAnswerRuntime.ChildStatus.UNAVAILABLE;
+            HttpResponse<byte[]> unavailable = f.ask("outage-unavailable", false);
+            assertThat(unavailable.statusCode()).as(new String(unavailable.body())).isEqualTo(503);
+            assertThat(new String(unavailable.body())).contains("GROUNDED_UNAVAILABLE", "\"outcome\":\"UNAVAILABLE\"",
+                    "\"fallback\":\"NONE\"");
+            assertThat(f.registrations.get()).isZero();
+            assertThat(f.children.answerCalls.get()).as("no model is asked once an evidence child is down").isZero();
+
+            // A child that exceeded its deadline: TIMEOUT (504) with nothing registered.
+            f.children.sttStatus = MediaDevGroundedAnswerRuntime.ChildStatus.TIMED_OUT;
+            HttpResponse<byte[]> timedOut = f.ask("outage-timeout", false);
+            assertThat(timedOut.statusCode()).as(new String(timedOut.body())).isEqualTo(504);
+            assertThat(new String(timedOut.body())).contains("GROUNDED_TIMEOUT", "\"outcome\":\"TIMEOUT\"");
+            assertThat(f.registrations.get()).isZero();
+
+            // Recovery: the same requestIds now run exactly once each, and a repeat replays instead of re-running.
+            f.children.sttStatus = MediaDevGroundedAnswerRuntime.ChildStatus.COMPLETED;
+            HttpResponse<byte[]> recovered = f.ask("outage-unavailable", false);
+            assertThat(recovered.statusCode()).as(new String(recovered.body())).isEqualTo(201);
+            int speechCalls = f.children.speechCalls.get();
+            HttpResponse<byte[]> replay = f.ask("outage-unavailable", false);
+            assertThat(replay.statusCode()).isEqualTo(200);
+            assertThat(f.children.speechCalls.get()).as("a replay does not run the children again").isEqualTo(speechCalls);
+            assertThat(f.registrations.get()).isEqualTo(1);
+        } finally {
+            f.close();
+        }
+    }
+
+    @Test
     void anUnknownChildOutcomeOrALostAnswererIsOutcomeUnknownWithNothingRegisteredAndRetryResumes() throws Exception {
         Fixture f = new Fixture(Verdict.ADMITTED);
         try {

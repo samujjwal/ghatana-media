@@ -87,6 +87,7 @@ class LocalKokoroWorkerTest {
                     if m == "504": return self.send(504, b'{"error":"DEADLINE_EXCEEDED"}')
                     if m == "files": return self.send(503, b'{"error":"FILES_CHANGED"}')
                     if m == "garbage": return self.send(200, b"not a wav", "audio/wav")
+                    if m == "hang": time.sleep(3600)
                     if m == "slow": time.sleep(5)
                     self.send(200, wav, "audio/wav", {"X-Kokoro-Device": "cuda:0"})
                     if m == "exit-after-one":
@@ -177,6 +178,19 @@ class LocalKokoroWorkerTest {
     }
 
     @Test
+    void aHungWorkerIsTimedOutStoppedAndTheNextCallStartsAFreshOne() throws Exception {
+        mode("hang");
+        var w = worker(3, Duration.ofSeconds(1));
+        long started = System.nanoTime();
+        assertThat(failure(w, Duration.ofSeconds(2)).code()).isEqualTo(LocalTtsException.Code.TIMEOUT);
+        assertThat(Duration.ofNanos(System.nanoTime() - started)).as("bounded by the client deadline").isLessThan(Duration.ofSeconds(20));
+        assertThat(w.running()).as("the hung worker was killed so its abandoned call cannot finish later").isFalse();
+        mode("ok");
+        assertThat(ok(w).samples()).isEqualTo(2400);
+        assertThat(w.startCount()).isEqualTo(2);
+    }
+
+    @Test
     void workerThatDiesBetweenCallsIsRestartedOnTheNextCall() throws Exception {
         mode("exit-after-one");
         var w = worker(3, Duration.ofSeconds(1));
@@ -190,9 +204,13 @@ class LocalKokoroWorkerTest {
     void aWorkerThatKeepsCrashingIsRefusedTypedThenCoolsDownWithoutSpawningMore() throws Exception {
         mode("crash-always");
         var w = worker(3, Duration.ofMinutes(10));
-        assertThat(failure(w, Duration.ofSeconds(30)).code()).isEqualTo(LocalTtsException.Code.WORKER_UNAVAILABLE);
+        // The worker died while it held the request (twice): the synthesis may have run, so the outcome is UNKNOWN
+        // (PROCESS_FAILED), not "unavailable".
+        assertThat(failure(w, Duration.ofSeconds(30)).code()).isEqualTo(LocalTtsException.Code.PROCESS_FAILED);
         int afterFirst = w.startCount();
         assertThat(afterFirst).isLessThanOrEqualTo(3);
+        // The third crash reaches the cool-down before the retry: still a call lost mid-flight, so still UNKNOWN.
+        assertThat(failure(w, Duration.ofSeconds(30)).code()).isEqualTo(LocalTtsException.Code.PROCESS_FAILED);
         for (int i = 0; i < 4; i++) {
             assertThat(failure(w, Duration.ofSeconds(30)).code()).isEqualTo(LocalTtsException.Code.WORKER_UNAVAILABLE);
         }

@@ -211,6 +211,8 @@ public final class LocalKokoroWorker implements AutoCloseable {
     public Result synthesize(String text, String voice, double speed, Duration budget,
                              BoundedProcessRunner.CancellationToken cancellation) throws LocalTtsException {
         long deadline = System.nanoTime() + budget.toNanos();
+        // True once a request reached the worker and the connection was then lost: the synthesis may have run.
+        boolean mayHaveRun = false;
         for (int attempt = 0; ; attempt++) {
             if (!ready()) throw new LocalTtsException(LocalTtsException.Code.FILES_CHANGED,
                     "the Kokoro worker's verified files changed or it was closed; it is withdrawn");
@@ -222,7 +224,16 @@ public final class LocalKokoroWorker implements AutoCloseable {
             String bearer;
             Process used;
             synchronized (lifecycle) {
-                ensureRunning(deadline);
+                try {
+                    ensureRunning(deadline);
+                } catch (LocalTtsException notRunning) {
+                    // A restart that cannot come up after a call that was lost mid-flight: the earlier call may have run.
+                    if (mayHaveRun && notRunning.code() == LocalTtsException.Code.WORKER_UNAVAILABLE) {
+                        throw new LocalTtsException(LocalTtsException.Code.PROCESS_FAILED,
+                                "the Kokoro worker was lost mid-synthesis and could not be restarted");
+                    }
+                    throw notRunning;
+                }
                 uri = base;
                 bearer = token;
                 used = process;
@@ -240,8 +251,19 @@ public final class LocalKokoroWorker implements AutoCloseable {
                     if (process == used) stopProcess();
                     recordFailure();
                 }
-                if (attempt >= 1) throw new LocalTtsException(LocalTtsException.Code.WORKER_UNAVAILABLE,
-                        "the Kokoro worker is unreachable after a restart");
+                if (unreachable.hung) {
+                    // The worker accepted the request and then neither answered nor hit its own deadline: it is hung.
+                    // It was killed above, so the abandoned call cannot finish later and the next call starts fresh.
+                    throw new LocalTtsException(LocalTtsException.Code.TIMEOUT,
+                            "Kokoro synthesis exceeded its time budget and the hung worker was stopped");
+                }
+                mayHaveRun |= unreachable.sent;
+                if (attempt >= 1) {
+                    throw new LocalTtsException(mayHaveRun ? LocalTtsException.Code.PROCESS_FAILED
+                            : LocalTtsException.Code.WORKER_UNAVAILABLE,
+                            mayHaveRun ? "the Kokoro worker was lost mid-synthesis; the outcome is unknown"
+                                    : "the Kokoro worker is unreachable after a restart");
+                }
             }
         }
     }
@@ -286,12 +308,13 @@ public final class LocalKokoroWorker implements AutoCloseable {
             throw new LocalTtsException(LocalTtsException.Code.CANCELLED, "Kokoro synthesis was interrupted");
         } catch (ExecutionException failure) {
             Throwable cause = failure.getCause();
-            if (cause instanceof HttpTimeoutException) {
-                throw new LocalTtsException(LocalTtsException.Code.TIMEOUT, "Kokoro synthesis exceeded its time budget");
+            if (cause instanceof java.net.http.HttpConnectTimeoutException || cause instanceof java.net.ConnectException) {
+                throw new WorkerUnreachable(false, false);
             }
-            throw new WorkerUnreachable();
+            if (cause instanceof HttpTimeoutException) throw new WorkerUnreachable(true, true);
+            throw new WorkerUnreachable(true, false);
         } catch (IOException failure) {
-            throw new WorkerUnreachable();
+            throw new WorkerUnreachable(true, false);
         }
     }
 
@@ -335,7 +358,15 @@ public final class LocalKokoroWorker implements AutoCloseable {
 
     private static final class WorkerUnreachable extends Exception {
         private static final long serialVersionUID = 1L;
-        WorkerUnreachable() { super(null, null, false, false); }
+        /** The request reached the worker (so the synthesis may have run) before the connection was lost. */
+        final boolean sent;
+        /** The worker accepted the request but never answered within the client deadline. */
+        final boolean hung;
+        WorkerUnreachable(boolean sent, boolean hung) {
+            super(null, null, false, false);
+            this.sent = sent;
+            this.hung = hung;
+        }
     }
 
     // ---- supervision (callers hold the lifecycle lock) ----

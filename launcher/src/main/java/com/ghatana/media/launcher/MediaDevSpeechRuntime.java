@@ -183,6 +183,25 @@ public final class MediaDevSpeechRuntime {
     private final RightsConsentResolver referenceResolver;
     private final MediaDevSpeechSpool spool;
     private final MediaDevRequestLedger ledger;
+    /** Wall-clock budget of one recognition or synthesis; {@code MEDIA_DEV_SPEECH_TIMEOUT_SECONDS} may only shorten it. */
+    static final String TIMEOUT_ENV = "MEDIA_DEV_SPEECH_TIMEOUT_SECONDS";
+    private Duration sttBudget = Duration.ofMinutes(5);
+    private Duration ttsBudget = Duration.ofMinutes(3);
+
+    /** Applies the operator's shorter budget (1..600 seconds) to both operations; never lengthens the defaults. */
+    MediaDevSpeechRuntime withBudgetFrom(Map<String, String> environment) {
+        String raw = environment.get(TIMEOUT_ENV);
+        if (raw == null || raw.isBlank()) return this;
+        try {
+            long seconds = Long.parseLong(raw.trim());
+            if (seconds < 1 || seconds > 600) throw new NumberFormatException();
+            sttBudget = Duration.ofSeconds(Math.min(seconds, sttBudget.toSeconds()));
+            ttsBudget = Duration.ofSeconds(Math.min(seconds, ttsBudget.toSeconds()));
+            return this;
+        } catch (NumberFormatException invalid) {
+            throw new IllegalArgumentException(TIMEOUT_ENV + " must be an integer within [1, 600]");
+        }
+    }
 
     MediaDevSpeechRuntime(MediaRuntime runtime, MediaDevProjectRenderRuntime.OutputRegistrar registrar,
                           LocalWhisperCppSttProvider stt, LocalKokoroTtsProvider tts,
@@ -242,7 +261,7 @@ public final class MediaDevSpeechRuntime {
                 LocalWhisperCppSttProvider.fromEnvironment(environment),
                 LocalKokoroTtsProvider.fromEnvironment(environment),
                 resolverGate(effective), canonicalJobLaneTtsGate(runtime), effective,
-                MediaDevSpeechSpool.fromEnvironment(environment), ledger);
+                MediaDevSpeechSpool.fromEnvironment(environment), ledger).withBudgetFrom(environment);
     }
 
     static MediaDevSpeechRuntime compose(MediaRuntime runtime, Map<String, String> environment) {
@@ -444,7 +463,7 @@ public final class MediaDevSpeechRuntime {
         final LocalWhisperCppRunner.Transcription result;
         try {
             byte[] mono16k = PcmWav.toMono16k(staged.toByteArray());
-            result = runner.transcribe(mono16k, request.language(), Duration.ofMinutes(5),
+            result = runner.transcribe(mono16k, request.language(), sttBudget,
                     BoundedProcessRunner.CancellationToken.NEVER);
         } catch (LocalSpeechException failure) {
             throw speechFailure(failure, request.requestId());
@@ -578,7 +597,7 @@ public final class MediaDevSpeechRuntime {
             final LocalKokoroSynthesizer.Synthesis result;
             try {
                 result = synthesizer.synthesize(request.text(), request.voice(), request.speakingRate(),
-                        Duration.ofMinutes(3), BoundedProcessRunner.CancellationToken.NEVER);
+                        ttsBudget, BoundedProcessRunner.CancellationToken.NEVER);
             } catch (LocalTtsException failure) {
                 throw speechFailure(failure);
             }
