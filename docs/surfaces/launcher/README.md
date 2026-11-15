@@ -402,6 +402,11 @@ handlers additionally require the artifact permissions noted, so access is never
 | GET | `/dev/v1/animations/status` | `media:project:dev:read` | — | `MEDIA_DEV_RENDER_FFMPEG`/`MEDIA_DEV_RENDER_FFPROBE` + the shared request ledger |
 | POST | `/dev/v1/animations/renders` | `media:project:dev:write` | `media:artifact:{read,create}`; `PROCESSING` rights admission of every image asset | FFmpeg/FFprobe composed (J-12) |
 | GET | `/dev/v1/animations/renders/{renderId}` | `media:project:dev:read` | `media:artifact:read` (the render id is the manifest artifact id) | FFmpeg/FFprobe composed |
+| GET | `/dev/v1/masters/status` | `media:project:dev:read` | — | the shared request ledger; the master encode needs `MEDIA_DEV_RENDER_FFMPEG` (stem generation needs no tool) |
+| POST | `/dev/v1/masters/stems` | `media:project:dev:write` | `media:artifact:{read,create}` | J-17 (`MediaDevMasterRuntime`): ORIGINAL procedural stem; no rights call (no third-party material) |
+| GET | `/dev/v1/masters/stems/{stemId}` | `media:project:dev:read` | `media:artifact:read` | owner only |
+| POST | `/dev/v1/masters` | `media:project:dev:write` | `media:artifact:{read,create}`; `PROCESSING` rights admission of every UPLOADED stem | J-17 mix and loudness master; FFmpeg composed |
+| GET | `/dev/v1/masters/{masterId}` | `media:project:dev:read` | `media:artifact:read` (the master id is the report artifact id) | owner only |
 | GET | `/dev/v1/simulations/status` | `media:project:dev:read` | — | the shared request ledger; MP4 animation needs `MEDIA_DEV_RENDER_FFMPEG`/`MEDIA_DEV_RENDER_FFPROBE` |
 | POST | `/dev/v1/simulations` | `media:project:dev:write` | `media:artifact:{read,create}` | J-14/J-15 (`MediaDevSimulationRuntime`); a `render.video` request also needs FFmpeg/FFprobe |
 | GET | `/dev/v1/simulations/{simulationId}` | `media:project:dev:read` | `media:artifact:read` (the simulation id is the result artifact id) | — |
@@ -576,6 +581,30 @@ anything further out is dropped and counted in `rejectedDetections`. Lineage (`s
 same requestId replays the registered tracks (`200`) from the durable request ledger without re-running the detector; it
 is never a second registration, and the same requestId with different parameters is `409 VISION_REQUEST_ID_REUSED`. ROI
 analysis (`vision.roi` ledger lane) behaves the same way.
+
+DEV_ONLY stems, foley, mix and loudness master (J-17, `media.dev.outcome-music-effects-master`; `MediaDevMasterRuntime`,
+`MediaDevMasterSpec`, `MediaDevMasterDsp`, `MediaDevMasterRoutes`; composed with the shared durable request ledger, the master
+encode needs absolute `MEDIA_DEV_RENDER_FFMPEG`). Lawful inputs only: a stem is either ORIGINAL audio Media synthesizes from a
+typed spec (`POST /dev/v1/masters/stems` with `{requestId, spec{kind TONE|CHORD|DRUM|FOLEY, durationMs 50-30000, channels 1|2,
+amplitudeDb -60..0, frequencyHz | frequenciesHz[] | drum KICK|SNARE|HAT | foley FOOTSTEP|WHOOSH|IMPACT, seed}}`; StrictMath and a
+SplitMix64 noise generator, so identical bytes on every run and after a restart, 48 kHz PCM16; the generator spec and digest are the
+recorded provenance, no model and no third-party sample) or an uploaded 48 kHz PCM16 mono/stereo WAV that carries an ADMITTED
+`PROCESSING` rights statement (missing or revoked is `403 RIGHTS_NOT_ADMITTED`, re-resolved on every call, replays included). A
+stem is treated as Media's own only when its recorded spec re-synthesizes to exactly its stored digest; forged metadata on an upload
+buys nothing. `POST /dev/v1/masters` takes `{requestId, stems[]{artifactId,artifactVersionId,gainDb -60..12,pan -1..1,startFrame,
+fadeInFrames,fadeOutFrames}, durationFrames?, target?{integratedLufs -30..-9 default -16, truePeakDbtp -6..-0.1 default -1}}`
+(at most 32 placements, 60 s, uploaded stems at most 8 MiB each and 32 MiB in total; starts and fades are exact sample counts, the
+pan law is `left=1-max(pan,0)`, `right=1+min(pan,0)` so a centred mono stem is duplicated exactly) and stores three artifacts: a 16-bit
+stereo WAV, a lossless FLAC (re-decoded by FFmpeg and compared sample for sample before registration) and a JSON report with lineage
+to every stem, the rights record and loudness measured on the exact output samples (BS.1770 K-weighted gated integrated loudness,
+8x-oversampled true peak, sample peak, clipped samples, pre-limiter gain and limiter activity). Failures are typed: `422
+MASTER_PARAMETERS_INVALID` with `details.path`, `422 MASTER_BUDGET_EXCEEDED`, `422 STEM_FORMAT_NOT_SUPPORTED` (more than two
+channels, another sample rate, truncated frames, not a WAV), `422 MASTER_TOO_SHORT_TO_MEASURE`, `422 MASTER_STEM_PAST_END` and
+`422 MASTER_LOUDNESS_TARGET_UNREACHABLE` (an abstention: silent mix, gain beyond +48 dB, or the ceiling keeps the target out of reach;
+`details.reason`, `details.outcome=ABSTAINED`, nothing registered); another tenant or owner is `404 SOURCE_VERSION_NOT_FOUND`; the
+same requestId with a different body is `409 MASTER_REQUEST_ID_REUSED`. Registration keys derive from the content request, so a killed
+encode (`503 MASTER_OUTCOME_UNKNOWN`) or a killed launcher followed by a retry registers exactly one set of outputs. Responses are
+labelled DEV_ONLY with no rights-clearance, quality, approval or production claim.
 
 DEV_ONLY deterministic 2D animation (J-12, `media.dev.outcome-two-dimensional-animation`; `MediaDevAnimationRuntime`,
 `MediaDevAnimationSpec`, `MediaDevAnimationRoutes`; composed only when both absolute `MEDIA_DEV_RENDER_FFMPEG` and
