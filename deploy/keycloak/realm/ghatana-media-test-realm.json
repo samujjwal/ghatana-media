@@ -1,0 +1,468 @@
+{
+  "realm": "ghatana-media-test",
+  "displayName": "Ghatana Media TEST realm (local tests only; contains TEST users with a published test password)",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "registrationEmailAsUsername": false,
+  "loginWithEmailAllowed": false,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": false,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": true,
+  "failureFactor": 30,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "ssoSessionMaxLifespan": 36000,
+  "accessCodeLifespan": 60,
+  "roles": {
+    "realm": [
+      {
+        "name": "media:artifact:create",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:artifact:read",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:artifact:write",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:caption-version:read",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:caption-version:write",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:consent:create",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:consent:read",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:consent:revoke",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:job:cancel",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:job:create",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:job:read",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:provider:read",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:stream:close",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:stream:create",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:stream:read",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:stream:write",
+        "description": "Media permission (route-manifest permission string)"
+      },
+      {
+        "name": "media:delivery:dev:export",
+        "description": "Media DEV_ONLY route permission; honoured only by the dev profile"
+      },
+      {
+        "name": "media:delivery:dev:read",
+        "description": "Media DEV_ONLY route permission; honoured only by the dev profile"
+      },
+      {
+        "name": "media:project:dev:create",
+        "description": "Media DEV_ONLY route permission; honoured only by the dev profile"
+      },
+      {
+        "name": "media:project:dev:read",
+        "description": "Media DEV_ONLY route permission; honoured only by the dev profile"
+      },
+      {
+        "name": "media:project:dev:write",
+        "description": "Media DEV_ONLY route permission; honoured only by the dev profile"
+      },
+      {
+        "name": "media-operator",
+        "description": "All canonical Media permissions",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "media:artifact:create",
+            "media:artifact:read",
+            "media:artifact:write",
+            "media:caption-version:read",
+            "media:caption-version:write",
+            "media:consent:create",
+            "media:consent:read",
+            "media:consent:revoke",
+            "media:job:cancel",
+            "media:job:create",
+            "media:job:read",
+            "media:provider:read",
+            "media:stream:close",
+            "media:stream:create",
+            "media:stream:read",
+            "media:stream:write"
+          ]
+        }
+      },
+      {
+        "name": "media-dev-workspace",
+        "description": "DEV_ONLY project, review and delivery routes plus artifact and job permissions",
+        "composite": true,
+        "composites": {
+          "realm": [
+            "media:delivery:dev:export",
+            "media:delivery:dev:read",
+            "media:project:dev:create",
+            "media:project:dev:read",
+            "media:project:dev:write",
+            "media:artifact:create",
+            "media:artifact:read",
+            "media:artifact:write",
+            "media:job:read",
+            "media:job:cancel"
+          ]
+        }
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "ghatana-media-explorer",
+      "name": "Ghatana Media launcher and Experience Explorer",
+      "description": "Browser client using authorization code with PKCE (S256); no client secret",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "frontchannelLogout": true,
+      "redirectUris": [
+        "http://127.0.0.1:4178/*",
+        "http://localhost:4178/*"
+      ],
+      "webOrigins": [
+        "http://127.0.0.1:4178",
+        "http://localhost:4178"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://127.0.0.1:4178/*##http://localhost:4178/*",
+        "access.token.lifespan": "300"
+      },
+      "protocolMappers": [
+        {
+          "name": "media-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "ghatana-media",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "media-tenant-group",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "media_tenant",
+            "full.path": "false",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "media-test-direct",
+      "name": "TEST direct-grant client (tests only)",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "fullScopeAllowed": true,
+      "attributes": {},
+      "protocolMappers": [
+        {
+          "name": "media-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "ghatana-media",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "media-tenant-group",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "media_tenant",
+            "full.path": "false",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "media-test-direct-short",
+      "name": "TEST direct-grant client (tests only)",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "fullScopeAllowed": true,
+      "attributes": {
+        "access.token.lifespan": "3"
+      },
+      "protocolMappers": [
+        {
+          "name": "media-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "ghatana-media",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "media-tenant-group",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "media_tenant",
+            "full.path": "false",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "media-test-direct-other-audience",
+      "name": "TEST direct-grant client (tests only)",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": false,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "fullScopeAllowed": true,
+      "attributes": {},
+      "protocolMappers": [
+        {
+          "name": "media-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "some-other-service",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true"
+          }
+        },
+        {
+          "name": "media-tenant-group",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-group-membership-mapper",
+          "consentRequired": false,
+          "config": {
+            "claim.name": "media_tenant",
+            "full.path": "false",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "introspection.token.claim": "true",
+            "userinfo.token.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+  "groups": [
+    {
+      "name": "tenant-a-test",
+      "path": "/tenant-a-test"
+    },
+    {
+      "name": "tenant-b-test",
+      "path": "/tenant-b-test"
+    }
+  ],
+  "users": [
+    {
+      "username": "test-owner-tenant-a",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "test-owner-tenant-a@example.test",
+      "firstName": "TEST",
+      "lastName": "test-owner-tenant-a",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "TEST-only-Passw0rd-not-a-secret",
+          "temporary": false
+        }
+      ],
+      "groups": [
+        "/tenant-a-test"
+      ],
+      "realmRoles": [
+        "media-dev-workspace"
+      ]
+    },
+    {
+      "username": "test-colleague-tenant-a",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "test-colleague-tenant-a@example.test",
+      "firstName": "TEST",
+      "lastName": "test-colleague-tenant-a",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "TEST-only-Passw0rd-not-a-secret",
+          "temporary": false
+        }
+      ],
+      "groups": [
+        "/tenant-a-test"
+      ],
+      "realmRoles": [
+        "media-dev-workspace"
+      ]
+    },
+    {
+      "username": "test-owner-tenant-b",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "test-owner-tenant-b@example.test",
+      "firstName": "TEST",
+      "lastName": "test-owner-tenant-b",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "TEST-only-Passw0rd-not-a-secret",
+          "temporary": false
+        }
+      ],
+      "groups": [
+        "/tenant-b-test"
+      ],
+      "realmRoles": [
+        "media-dev-workspace"
+      ]
+    },
+    {
+      "username": "test-removable-tenant-a",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "test-removable-tenant-a@example.test",
+      "firstName": "TEST",
+      "lastName": "test-removable-tenant-a",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "TEST-only-Passw0rd-not-a-secret",
+          "temporary": false
+        }
+      ],
+      "groups": [
+        "/tenant-a-test"
+      ],
+      "realmRoles": [
+        "media-dev-workspace"
+      ]
+    },
+    {
+      "username": "test-both-tenants",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "test-both-tenants@example.test",
+      "firstName": "TEST",
+      "lastName": "test-both-tenants",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "TEST-only-Passw0rd-not-a-secret",
+          "temporary": false
+        }
+      ],
+      "groups": [
+        "/tenant-a-test",
+        "/tenant-b-test"
+      ],
+      "realmRoles": [
+        "media-dev-workspace"
+      ]
+    },
+    {
+      "username": "test-no-tenant",
+      "enabled": true,
+      "emailVerified": true,
+      "email": "test-no-tenant@example.test",
+      "firstName": "TEST",
+      "lastName": "test-no-tenant",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "TEST-only-Passw0rd-not-a-secret",
+          "temporary": false
+        }
+      ],
+      "groups": [],
+      "realmRoles": [
+        "media-dev-workspace"
+      ]
+    }
+  ]
+}

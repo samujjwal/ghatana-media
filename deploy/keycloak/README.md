@@ -66,6 +66,33 @@ this realm, creates users and a direct-grant test client through the admin API w
 real access token, calls launcher routes, and checks that forged, foreign-realm, tampered and `alg=none` tokens are
 refused. Run: `./gradlew :services:media:launcher:test --tests '*MediaOidcKeycloakIT'`.
 
+## TEST realm and the first-use journey (J-01)
+
+`realm/ghatana-media-test-realm.json` is a **separate, tests-only** realm (`ghatana-media-test`). Unlike the base realm it
+ships users, and their password is a published TEST value (`TEST-only-Passw0rd-not-a-secret`, read by the IT from this
+file). Never import it into anything but a throwaway local Keycloak.
+
+- Tenants are Keycloak **groups**: `tenant-a-test`, `tenant-b-test`. A group-membership mapper puts the user's group
+  names in the access-token claim `media_tenant` (no leading slash); run the launcher with
+  `MEDIA_OIDC_TENANT_CLAIM=media_tenant`. The launcher accepts a claim list only when it holds exactly one tenant, so a
+  user in no tenant group, or in two, is refused (401). Removing a user from the group takes effect when their next
+  token is issued; an already-issued token stays valid until it expires (access tokens live 5 minutes).
+- Users (all TEST): `test-owner-tenant-a`, `test-colleague-tenant-a`, `test-removable-tenant-a` (tenant A),
+  `test-owner-tenant-b` (tenant B), `test-both-tenants`, `test-no-tenant`. All carry the `media-dev-workspace` role.
+- Clients: `ghatana-media-explorer` (public, PKCE S256, audience `ghatana-media`) used by the Explorer;
+  `media-test-direct`, `media-test-direct-short` (3 s tokens) and `media-test-direct-other-audience` (audience
+  `some-other-service`) are direct-grant clients used only by the IT for fault cases.
+
+Run the journey (Docker, Chromium, the pinned Keycloak image locally present):
+`./gradlew :services:media:integration-tests:test --tests '*MediaDevOidcFirstUseJourneyIT'`. It starts Keycloak,
+PostgreSQL and LocalStack, starts the real launcher with `MEDIA_OIDC_ISSUER/AUDIENCE/TENANT_CLAIM`, and drives the
+Explorer in Chromium through the real authorization-code + PKCE sign-in (`apps/media-experience-explorer/test/dev-oidc-first-use-live-browser.mjs`).
+
+To try it by hand: `docker run --rm -p 127.0.0.1:8180:8080 -e KC_BOOTSTRAP_ADMIN_USERNAME=admin
+-e KC_BOOTSTRAP_ADMIN_PASSWORD="$(openssl rand -base64 18)" -v "$PWD/deploy/keycloak/realm/ghatana-media-test-realm.json:/opt/keycloak/data/import/r.json:ro"
+quay.io/keycloak/keycloak:26.8.2 start-dev --import-realm`, then use issuer
+`http://127.0.0.1:8180/realms/ghatana-media-test` for both the launcher and the Explorer (`VITE_MEDIA_OIDC_*`).
+
 ## Changing provider or version
 
 - Another OIDC provider: only the `MEDIA_OIDC_*` configuration changes (claim paths if its layout differs).

@@ -1184,6 +1184,16 @@ permissions come only from verified claims; the request's `X-Tenant-Id`/`X-Princ
   there may use the `/dev/v1` routes only if it carries the `media:project:dev:*` / `media:delivery:dev:*` roles.
 - Other non-production profiles use OIDC for any bearer token when it is configured.
 
+**First-use journey proof (J-01).** `MediaDevOidcFirstUseJourneyIT` signs a first-time user in through a real Keycloak
+(authorization code + PKCE in Chromium, Explorer page `/dev-project-timeline.html`), creates the workspace-scoped project
+and a first timeline/scene revision, restarts the launcher process and reopens the exact head. Tenants are Keycloak
+groups mapped to the `media_tenant` claim (`MEDIA_OIDC_TENANT_CLAIM=media_tenant`; a list claim is accepted only with
+exactly one entry, so no group or two groups is a 401). Fault suite with genuine tokens: other tenant 404 without
+disclosure (the `X-Tenant-Id` header cannot choose), colleague 403/404, same request id replays (200, `createdNow:false`)
+and a different payload is 409, expired/tampered/bad-signature/other-audience tokens 401, a user removed from the tenant
+group is refused on the next token (an already-issued token lives until `exp`, 5 minutes), sign-out drops the in-memory
+token. Realm and run instructions: `deploy/keycloak/README.md` ("TEST realm").
+
 **Trusted identity contract** (`runtime-contracts`, package `com.ghatana.media.runtime`,
 `MediaVerifiedIdentityContracts`): `VerifiedIdentity(issuer, subject, tenantId, authenticatedAt, AssuranceSource)`,
 `AssuranceSource {OIDC_VERIFIED, DEV_ISSUED, SHARED_SECRET_JWT, BOOTSTRAP_SERVICE_KEY, LOCAL_UNVERIFIED, UNSPECIFIED}`
