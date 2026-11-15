@@ -541,6 +541,43 @@ A correction is a statement by a DEV_ONLY principal, not a verified human, a qua
 page is `/dev-caption-correction.html`. Tests: `MediaDevCaptionCorrectionHttpTest`, `MediaDevCaptionJourneyIT` (real
 launcher, real Whisper, faults), `MediaDevExplorerCaptionCorrectionLiveIT` (real Chromium).
 
+DEV_ONLY retention, legal hold and erasure (J-26, `media.dev.outcome-retention-and-erasure`; `MediaDevErasureRuntime`,
+`PostgresqlMediaErasureAuthority`, V039 `media_legal_holds` / `media_erasure_operations` / `media_erasure_tombstones`; enabled by
+`MEDIA_DEV_ERASURE_ENABLED=true` over the canonical PostgreSQL/S3 runtime, profile `dev`). **Revoking a rights statement is not
+erasure**: revocation stops new processing and replays and deletes nothing; erasure is a separate, explicit, owner-only act.
+`POST /dev/v1/erasures {erasureId, artifactId, confirm:true, expectedArtifactCount?}` erases the artifact and everything derived
+from it. The tree is derived from `media_artifact_lineage` and from the artifact-reference fields of the lineage metadata every
+lane registers (`source`, `parent`, `sources[]`, `machineVersion`, `inputReferences[]`), for the same tenant and owning principal
+only, so transcripts, WebVTT, corrected caption versions, synthesized audio, vision analyses/tracks/ROI, grounded answers,
+renders/dubs and creative outputs of an erased source go with it; erasing a derived artifact removes only its own subtree.
+`GET /dev/v1/erasure-plans/{artifactId}` previews that exact tree (id, kind, content type, digest, parents), the dependent records
+and any blocking hold, and removes nothing. The durable order is fixed so a crash can never leave bytes reachable: (1) one
+PostgreSQL transaction under the tenant mutation lock removes every metadata row of the tree (artifacts, lineage, transcript
+revisions, caption registrations, delivery operations, review cases and records in the canonical and DEV_ONLY review schemas,
+upload sessions, staged chunks), marks the request-ledger rows of the erased outputs `ERASED`, writes one tombstone per artifact
+(id, kind, digest) and a content-free manifest; from that commit no Media read path can return the tree; (2) every S3 object in the
+manifest is deleted and verified absent (an object another artifact still references is kept); (3) the host removes its local
+copies (speech spool entries by audio digest, delivered files by hashed name, the delivery engine's in-memory copy of the exported
+bytes, the process-local ledger, an optional tenant cache invalidation) and finalises the receipt. The operation is idempotent by
+`erasureId`; a launcher that died between steps resumes every incomplete operation at start-up before it serves a request, and
+the same `erasureId` resumes it too. `MEDIA_DEV_ERASURE_CRASH_AT=AFTER_DB_ERASED|AFTER_OBJECTS_ERASED` halts the JVM at that point
+(DEV_ONLY fault injection for the real-process tests only). The receipt (`GET /dev/v1/erasures/{erasureId}`) lists kinds and counts
+with the SHA-256 digests of the removed objects and `contentDisclosed:"none"`; it never contains content. After erasure an erased
+id answers `410 ARTIFACT_ERASED` on the DEV artifact content, speech, caption, vision, grounded, creative and rights-by-artifact
+reads (`404` on the canonical `/api/v1/artifacts/{id}`), and a request-ledger replay of an erased output answers
+`410 OUTPUT_ERASED`: it neither replays bytes nor runs a model again under that requestId. Refusals: `404 ARTIFACT_NOT_FOUND` for a
+non-owner, `409 LEGAL_HOLD_ACTIVE`, `409 ERASURE_TREE_CHANGED` (the reviewed `expectedArtifactCount` no longer matches),
+`409 ERASURE_ID_REUSED`, `422 ERASURE_NOT_CONFIRMED`, `422 ERASURE_TREE_TOO_LARGE` (bound 2000), `410 ARTIFACT_ERASED`. A legal hold
+(`POST /dev/v1/legal-holds {requestId, artifactId, reason}`) is owner-authorised, records the reason, the placing principal and its
+identity assurance, and blocks erasure of any tree that overlaps the held tree (a hold on a derived render blocks erasing its
+source; a hold on the source blocks erasing the render) until `POST /dev/v1/legal-holds/{holdId}/release {reason}` by the placing
+owner, which is attributed. Expiry purge also honors holds. In production-like profiles (or with
+`MEDIA_DEV_ERASURE_REQUIRE_OIDC=true`) hold, release and erase need an `OIDC_VERIFIED` principal (`403
+IDENTITY_ASSURANCE_REQUIRED` otherwise, from both the route and the authority); a read-only plan stays available. Not erased by this
+increment: rights attestations/consent records (an audit trail naming ids and statements, no content), processing-job rows, and
+project-timeline documents (they keep artifact ids, no bytes); no all-copy claim covers backups, replicas or external providers.
+The Explorer page `dev-erasure.html` (panel `DevErasurePanel` in `@audio-video/ui`) shows the tree, holds and the receipt, and
+requires a checkbox plus the typed root id before it sends the erase.
 DEV_ONLY durable request ledger (`MediaDevRequestLedger`, V038 `media_dev_request_ledger`; used by the speech STT/TTS,
 caption correction, vision tracking/ROI and grounded-answer lanes). Local model output is not byte-reproducible, so
 idempotency is not "re-run and compare bytes": the ledger is keyed by `(tenant, principal, lane, requestId)` and stores the
