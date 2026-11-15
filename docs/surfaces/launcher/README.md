@@ -335,6 +335,9 @@ handlers additionally require the artifact permissions noted, so access is never
 | GET | `/dev/v1/video/enhancements/{outputId}` | `media:project:dev:read` | `media:artifact:read` | FFmpeg/FFprobe composed |
 | POST | `/dev/v1/video/comparisons` | `media:project:dev:write` | `media:artifact:{read,create}`, `PROCESSING` rights admission of every subject and the reference | FFmpeg/FFprobe composed |
 | GET | `/dev/v1/video/comparisons/{outputId}` | `media:project:dev:read` | `media:artifact:read` | FFmpeg/FFprobe composed |
+| GET | `/dev/v1/animations/status` | `media:project:dev:read` | — | `MEDIA_DEV_RENDER_FFMPEG`/`MEDIA_DEV_RENDER_FFPROBE` + the shared request ledger |
+| POST | `/dev/v1/animations/renders` | `media:project:dev:write` | `media:artifact:{read,create}`; `PROCESSING` rights admission of every image asset | FFmpeg/FFprobe composed (J-12) |
+| GET | `/dev/v1/animations/renders/{renderId}` | `media:project:dev:read` | `media:artifact:read` (the render id is the manifest artifact id) | FFmpeg/FFprobe composed |
 | GET | `/dev/v1/audio/status` | `media:project:dev:read` | — | `MEDIA_DEV_RENDER_FFMPEG` (absolute path); Whisper optional |
 | POST | `/dev/v1/audio/restorations` | `media:project:dev:write` | `media:artifact:{read,create}` | `MEDIA_DEV_RENDER_FFMPEG`; PROCESSING rights on the exact source; J-07 (`MediaDevAudioRestorationRuntime`) |
 | POST | `/dev/v1/audio/comparisons` | `media:project:dev:write` | `media:artifact:{read,create}` | measured source/restored(/reference) report; optional Whisper transcript diff |
@@ -479,6 +482,36 @@ anything further out is dropped and counted in `rejectedDetections`. Lineage (`s
 same requestId replays the registered tracks (`200`) from the durable request ledger without re-running the detector; it
 is never a second registration, and the same requestId with different parameters is `409 VISION_REQUEST_ID_REUSED`. ROI
 analysis (`vision.roi` ledger lane) behaves the same way.
+
+DEV_ONLY deterministic 2D animation (J-12, `media.dev.outcome-two-dimensional-animation`; `MediaDevAnimationRuntime`,
+`MediaDevAnimationSpec`, `MediaDevAnimationRoutes`; composed only when both absolute `MEDIA_DEV_RENDER_FFMPEG` and
+`MEDIA_DEV_RENDER_FFPROBE` are set, with the shared durable request ledger). `POST /dev/v1/animations/renders` takes
+`{requestId, spec, encoder?{crf 10-30, default 14}}` where `spec` is `media.dev.animation-spec.v1`: `width`/`height`
+(even, 16-1280 x 16-720), opaque `background` (`#RRGGBB`), `fps{numerator,denominator}` (1-60), `frameCount` (1-240, at most
+33,554,432 total pixels), `shapes[]` (`RECTANGLE`, `ELLIPSE`, `LINE`, `RASTER_ASSET`; `x,y,width,height`, `color`
+`#RRGGBB[AA]`, `keyframes[]` of `{frame,x,y,scaleX,scaleY,rotationDegrees,opacity,easing}` with `LINEAR`, `EASE_IN`,
+`EASE_OUT` or `EASE_IN_OUT` easing to the next keyframe; keyframe x/y are pixel offsets from the shape's own position),
+optional seeded `particleFields[]` and optional `assets[]` (`{id,artifactId,artifactVersionId}` exact `image/png` or
+`image/jpeg` versions, at most 1 MiB pixels). There is deliberately no text primitive: glyph rasterization depends on host
+fonts and would break determinism. Unknown fields and wrong types are `422 ANIMATION_SPEC_INVALID` with
+`details.path` (for example `$.shapes[1].keyframes[2].frame`); a ceiling is `422 ANIMATION_BUDGET_EXCEEDED` with
+`details{path,limit,ceiling,requested}`; both happen before any source lookup, rights call, permit or process. Each asset
+must be visible to the caller (otherwise `404 SOURCE_VERSION_NOT_FOUND`) and resolve ADMITTED for `PROCESSING` on every
+call, a replay included (`403 RIGHTS_NOT_ADMITTED` with the verdict, `503 RIGHTS_AUTHORITY_UNAVAILABLE`); nothing is read,
+rendered or registered otherwise. The verified renderer produces PNG frames (no antialiasing, exact-rational PTS, seeded
+particles); FFmpeg (bounded no-shell runner, absolute path, empty environment, 5 minute deadline, 64 MiB output ceiling)
+encodes them with libx264 (`-preset medium`, High profile, no B-frames, single thread, `yuv420p`, BT.709 limited range
+tagged, `-fflags +bitexact`, a track timescale that makes every frame duration an exact integer). Before registration the MP4
+is re-probed with ffprobe: codec, pixel format, geometry, exact frame count, exact rational frame rate, time base and every
+frame's PTS tick; any disagreement registers nothing. Two NEW artifacts are registered: the `video/mp4` and an
+`application/json` frame manifest (`media.dev.animation-manifest.v1`: the canonical spec, per-frame exact PTS and story time,
+PNG and decoded-pixel SHA-256, the frame-set digest, the verified encode and each asset's rights decision); the response
+returns both plus the manifest (`201`, or `200 replayed:true`). The request id is in the MP4 container comment, so two
+requests never share bytes. The same requestId and body replays the stored output from the ledger; a different body is
+`409 ANIMATION_REQUEST_ID_REUSED`; an FFmpeg process that is killed or times out is `503 ANIMATION_OUTCOME_UNKNOWN`
+with nothing registered, and a retry (or a retry after a launcher restart, taken over from the dead owner) registers exactly
+once. The MP4 is read back through `GET /dev/v1/artifacts/{id}/content` (Range supported). The output is a lossy YUV420
+encode of the frames; no quality, rights, approval or production claim.
 
 DEV_ONLY video enhancement and independent measured comparison (J-08, `media.dev.outcome-video-enhancement`;
 `MediaDevVideoRuntime`, `MediaDevVideoRoutes`, `MediaDevVideoQualityMetrics`; composed only when both absolute
