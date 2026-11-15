@@ -64,7 +64,10 @@ public final class TemporalVideoRestoration {
             rightsEvidenceRefs = boundedListCopy(rightsEvidenceRefs, 1, 32,
                     "rightsEvidenceRefs must contain between 1 and 32 references");
             rightsEvidenceRefs = rightsEvidenceRefs.stream()
-                    .map(value -> exactText(value, "rightsEvidenceRef", 256)).distinct().toList();
+                    .map(value -> exactText(value, "rightsEvidenceRef", 256)).toList();
+            if (new java.util.HashSet<>(rightsEvidenceRefs).size() != rightsEvidenceRefs.size()) {
+                throw invalid("rightsEvidenceRefs must be unique");
+            }
             if (rightsEvidenceRefs.isEmpty()) throw invalid("rightsEvidenceRefs must be unique");
             policyDecisionRef = exactText(policyDecisionRef, "policyDecisionRef", 384);
         }

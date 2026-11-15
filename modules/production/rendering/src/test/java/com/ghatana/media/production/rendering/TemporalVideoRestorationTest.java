@@ -59,6 +59,38 @@ class TemporalVideoRestorationTest {
     }
 
     @Test
+    void artifactBindingPreservesUniqueRightsReferenceOrderAndRejectsDuplicatesBeforeDispatch() {
+        var ordered = new ArtifactBinding("tenant-a", "principal-a", "source", "v3", SOURCE_SHA,
+                "purpose:preserve-video", List.of("rights:audio", "rights:video"), "policy:source:v3");
+        assertThat(ordered.rightsEvidenceRefs()).containsExactly("rights:audio", "rights:video");
+
+        for (List<String> duplicateRefs : List.of(
+                List.of("rights:video", "rights:video"),
+                List.of("rights:video", "rights:audio", "rights:video"))) {
+            assertThatThrownBy(() -> new ArtifactBinding("tenant-a", "principal-a", "source", "v3",
+                    SOURCE_SHA, "purpose:preserve-video", duplicateRefs, "policy:source:v3"))
+                    .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("unique");
+        }
+
+        AtomicInteger authorityCalls = new AtomicInteger();
+        AtomicInteger sourceReads = new AtomicInteger();
+        assertThatThrownBy(() -> {
+            var duplicate = new ArtifactBinding("tenant-a", "principal-a", "source", "v3", SOURCE_SHA,
+                    "purpose:preserve-video", List.of("rights:video", "rights:video"), "policy:source:v3");
+            TemporalVideoRestoration.restore(new RestorationRequest("request-duplicate-rights", duplicate),
+                    (binding, operation) -> {
+                        authorityCalls.incrementAndGet();
+                        return allowed("source-decision-v3");
+                    }, binding -> {
+                        sourceReads.incrementAndGet();
+                        return sequence(SOURCE_SHA, stableFrames(), new Roi(0, 0, 1, 1));
+                    }, Optional.empty(), null, null);
+        }).isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("unique");
+        assertThat(authorityCalls).hasValue(0);
+        assertThat(sourceReads).hasValue(0);
+    }
+
+    @Test
     void boundedCallerListsUseIteratorAndDoNotConsumeOverLimitItem() {
         AtomicInteger rightsConsumed = new AtomicInteger();
         List<String> rights = new ArrayList<>();
