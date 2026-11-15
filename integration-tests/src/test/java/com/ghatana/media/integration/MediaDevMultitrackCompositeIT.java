@@ -10,6 +10,7 @@ import org.testcontainers.utility.DockerImageName;
 import tools.jackson.databind.JsonNode;
 
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -17,9 +18,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.ghatana.media.integration.MediaDevCompositeSupport.*;
 import static com.ghatana.media.integration.MediaDevLiveFixtures.JSON;
+import static com.ghatana.media.integration.MediaDevVoiceJourneySupport.ffmpeg;
 import static com.ghatana.media.integration.MediaDevLiveFixtures.sha256;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.testcontainers.containers.localstack.LocalStackContainer.Service.S3;
@@ -278,6 +282,50 @@ class MediaDevMultitrackCompositeIT {
             assertThat(probe(mp4).path("streams").get(0).path("nb_read_frames").asString()).isEqualTo("100");
             host.passed = true;
         }
+    }
+
+    @Test
+    void aHotAudioSumIsLimitedByDefaultAndTheDecodedMasterHonoursTheCeiling() throws Exception {
+        try (Host host = Host.start(POSTGRES, LOCALSTACK, Map.of())) {
+            Media media = generate(host.work.resolve("gen"));
+            Placed placed = place(host, media, true);
+            // the music at +12 dB sums with the narration beep far above the -1 dBTP default ceiling
+            Map<String, Object> hot = request(placed, "h-hot", "MUX");
+            hot.put("audio", List.of(Map.of("clipId", "aud-mus", "gainDb", 12.0), Map.of("clipId", "aud-nar", "gainDb", 0.0)));
+            HttpResponse<String> created = host.owner("POST", "/dev/v1/composite-renders", hot);
+            assertThat(created.statusCode()).as(created.body()).isEqualTo(201);
+            JsonNode body = JSON.readTree(created.body());
+            JsonNode peak = body.path("lineage").path("composition").path("audioPeak");
+            assertThat(peak.path("policy").asString()).isEqualTo("LIMIT");
+            assertThat(peak.path("limiterApplied").asBoolean()).isTrue();
+            double pre = peak.path("preLimitTruePeakDbtp").asDouble();
+            double post = peak.path("postLimitTruePeakDbtp").asDouble();
+            assertThat(pre).as("pre-limit true peak of the hot sum").isGreaterThan(-1.0);
+            assertThat(post).as("post-limit true peak of the sum").isLessThanOrEqualTo(-1.0);
+            assertThat(peak.path("maxGainReductionDb").asDouble()).isPositive();
+
+            // the decoded AAC audio of the registered master, measured independently by FFmpeg ebur128 (true peak)
+            Path mp4 = host.work.resolve("hot.mp4");
+            Files.write(mp4, host.artifactBytes(body.path("renderId").asString()));
+            double decoded = decodedTruePeakDbtp(mp4);
+            assertThat(decoded).as("decoded true peak of the master (ffmpeg ebur128=peak=true); measured pre=" + pre
+                    + " post=" + post + " dBTP, gain reduction=" + peak.path("maxGainReductionDb").asDouble() + " dB")
+                    .isLessThanOrEqualTo(-1.0);
+            System.out.println("J-18 hot-sum measured: pre=" + pre + " post=" + post + " decoded=" + decoded
+                    + " maxGainReductionDb=" + peak.path("maxGainReductionDb").asDouble());
+            host.passed = true;
+        }
+    }
+
+    /** The true peak FFmpeg's ebur128 meter reports for the first audio stream of a decoded file, in dBTP. */
+    static double decodedTruePeakDbtp(Path mp4) throws Exception {
+        Process process = new ProcessBuilder(ffmpeg(), "-nostdin", "-hide_banner", "-nostats", "-i", mp4.toString(),
+                "-map", "0:a:0", "-af", "ebur128=peak=true", "-f", "null", "-").redirectErrorStream(true).start();
+        String output = new String(process.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        assertThat(process.waitFor()).as(output).isZero();
+        Matcher matcher = Pattern.compile("True peak:\\s*\\R\\s*Peak:\\s*(-?[0-9.]+|-inf) dBFS").matcher(output);
+        assertThat(matcher.find()).as("ebur128 true-peak summary: " + output).isTrue();
+        return Double.parseDouble(matcher.group(1).equals("-inf") ? "-Infinity" : matcher.group(1));
     }
 
     private static Map<String, Object> withRevision(Map<String, Object> request, String revisionId) {

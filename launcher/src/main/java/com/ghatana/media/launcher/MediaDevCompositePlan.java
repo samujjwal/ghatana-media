@@ -72,15 +72,37 @@ final class MediaDevCompositePlan {
         }
     }
 
+    /**
+     * What happens when the summed AUDIO tracks would exceed the true-peak ceiling: LIMIT caps the sum with the master
+     * peak guard before encoding; REFUSE refuses the render with a typed 422 that names the measured true peak.
+     */
+    enum AudioPeakPolicy { LIMIT, REFUSE }
+
+    static final double DEFAULT_TRUE_PEAK_CEILING_DBTP = -1.0;
+    static final double MIN_TRUE_PEAK_CEILING_DBTP = -6.0;
+    static final double MAX_TRUE_PEAK_CEILING_DBTP = -0.1;
+
     record Spec(int width, int height, int fps, GapPolicy gap, CaptionMode captions, Color color,
-                List<Overlay> overlays, List<Gain> gains) {
+                List<Overlay> overlays, List<Gain> gains, AudioPeakPolicy audioPeakPolicy, double truePeakCeilingDbtp) {
         Spec {
             overlays = List.copyOf(overlays);
             gains = List.copyOf(gains);
+            if (audioPeakPolicy == null) audioPeakPolicy = AudioPeakPolicy.LIMIT;
             if (width < 2 || height < 2 || width > 1920 || height > 1080 || width % 2 != 0 || height % 2 != 0) {
                 throw bad("width", "width and height must be even and within 2..1920 x 2..1080");
             }
             if (fps < 1 || fps > MAX_FPS) throw bad("framesPerSecond", "framesPerSecond must be within [1, " + MAX_FPS + "]");
+            if (!(truePeakCeilingDbtp >= MIN_TRUE_PEAK_CEILING_DBTP && truePeakCeilingDbtp <= MAX_TRUE_PEAK_CEILING_DBTP)) {
+                throw bad("truePeakCeilingDbtp", "AUDIO_PEAK_CEILING_OUT_OF_RANGE",
+                        "truePeakCeilingDbtp must be within [-6.0, -0.1] dBTP");
+            }
+        }
+
+        /** The defaults of the audio peak policy: LIMIT at -1.0 dBTP. */
+        Spec(int width, int height, int fps, GapPolicy gap, CaptionMode captions, Color color, List<Overlay> overlays,
+             List<Gain> gains) {
+            this(width, height, fps, gap, captions, color, overlays, gains, AudioPeakPolicy.LIMIT,
+                    DEFAULT_TRUE_PEAK_CEILING_DBTP);
         }
     }
 

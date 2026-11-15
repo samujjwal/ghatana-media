@@ -489,9 +489,12 @@ discarded.
 DEV_ONLY multitrack composite render (J-18, `media.dev.outcome-multitrack-finished-master`). `POST /dev/v1/composite-renders`
 `{requestId, projectId, revisionId, timelineId, width, height, framesPerSecond, gapPolicy?: REFUSE|BLACK, captionMode?:
 NONE|MUX|BURN|BOTH, color?: {brightness, contrast, saturation}, overlays?: [{clipId, x, y, opacity?}], audio?: [{clipId, gainDb}],
-maxOutputBytes?}` renders one exact timeline with real FFmpeg into an H.264+AAC MP4 (optional mov_text subtitle stream): VIDEO-track
+maxOutputBytes?, audioPeakPolicy?: LIMIT|REFUSE, truePeakCeilingDbtp?: [-6.0, -0.1]}` renders one exact timeline with real FFmpeg into an H.264+AAC MP4 (optional mov_text subtitle stream): VIDEO-track
 clips (any fps/resolution, trimmed by source interval, conformed to the output grid, letterboxed, never retimed), AUDIO-track clips
-(mono duplicated to stereo, per-clip gain, sample-exact placement, summed without normalisation), WebVTT caption clips (muxed
+(mono duplicated to stereo, per-clip gain, sample-exact placement, summed without normalisation; the sum is then peak-protected:
+LIMIT (default) caps its 8x-oversampled true peak at `truePeakCeilingDbtp` (default -1.0) with the J-17 master limiter, leaving the
+sum untouched when it is already under the ceiling; REFUSE returns 422 `COMPOSITE_AUDIO_CLIPS` with the measured peak; the pre-limit
+and post-limit true peaks and the gain reduction are recorded in `lineage.composition.audioPeak`), WebVTT caption clips (muxed
 and/or burned), OVERLAY-track PNG clips (explicit position/opacity), and an `eq` colour grade applied to the program video before
 graphics and burned captions. A video clip's embedded audio is not used. The output is probed and refused unless frame count,
 codecs, geometry, frame rate and duration match the plan. `sources[]` lineage names every exact source version (erasure follows

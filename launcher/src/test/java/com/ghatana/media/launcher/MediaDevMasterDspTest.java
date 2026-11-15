@@ -220,4 +220,53 @@ class MediaDevMasterDspTest {
         for (short s : pcm) peak = Math.max(peak, Math.abs((int) s));
         return peak;
     }
+
+
+    // ------------------------------------------------------------------ composite peak guard (J-18 audio peak policy)
+
+    @Test
+    void peakGuardCapsAHotSumAtTheCeilingOnTheSamplesItHands() {
+        int frames = 48_000;
+        double[] l = sineBus(1000, 1.6, frames)[0];
+        double[] r = sineBus(1000, 1.6, frames)[1];
+        double before = MediaDevMasterDsp.truePeakDbtp(l, r);
+        assertThat(before).isGreaterThan(-1.0);
+        MediaDevMasterDsp.PeakGuarded guarded = MediaDevMasterDsp.truePeakGuard(l, r, -1.0);
+        assertThat(guarded.honoured()).isTrue();
+        assertThat(guarded.preTruePeakDbtp()).isCloseTo(before, org.assertj.core.data.Offset.offset(1e-9));
+        // the verified peak is measured on the very samples handed back (float-representable), under the ceiling
+        assertThat(MediaDevMasterDsp.truePeakDbtp(guarded.left(), guarded.right())).isLessThanOrEqualTo(-1.0);
+        assertThat(guarded.postTruePeakDbtp()).isLessThanOrEqualTo(-1.0);
+        assertThat(guarded.maxGainReductionDb()).isGreaterThan(4.0);
+        assertThat(guarded.limitedFrames()).isPositive();
+        assertThat(guarded.internalCeilingDbtp()).isLessThanOrEqualTo(-1.0);
+    }
+
+    @Test
+    void peakGuardCapsTheIntersamplePeakThatTheSamplePeakMisses() {
+        int frames = 4800;
+        double[] l = new double[frames];
+        double[] r = new double[frames];
+        for (int n = 0; n < frames; n++) {
+            l[n] = r[n] = 1.2 * Math.sin(2 * Math.PI * (RATE / 4.0) * n / RATE + Math.PI / 4);
+        }
+        double samplePeak = 20 * Math.log10(1.2 * Math.sqrt(0.5));
+        MediaDevMasterDsp.PeakGuarded guarded = MediaDevMasterDsp.truePeakGuard(l, r, -1.0);
+        assertThat(guarded.preTruePeakDbtp()).isGreaterThan(samplePeak + 2.5);
+        assertThat(guarded.honoured()).isTrue();
+        assertThat(MediaDevMasterDsp.truePeakDbtp(guarded.left(), guarded.right())).isLessThanOrEqualTo(-1.0);
+    }
+
+    @Test
+    void peakGuardLeavesAQuietSumUntouchedSampleForSample() {
+        int frames = 48_000;
+        double[][] bus = sineBus(440, 0.3, frames);
+        MediaDevMasterDsp.PeakGuarded guarded = MediaDevMasterDsp.truePeakGuard(bus[0], bus[1], -1.0);
+        assertThat(guarded.honoured()).isTrue();
+        assertThat(guarded.left()).isSameAs(bus[0]);
+        assertThat(guarded.right()).isSameAs(bus[1]);
+        assertThat(guarded.maxGainReductionDb()).isZero();
+        assertThat(guarded.limitedFrames()).isZero();
+        assertThat(guarded.postTruePeakDbtp()).isEqualTo(guarded.preTruePeakDbtp());
+    }
 }

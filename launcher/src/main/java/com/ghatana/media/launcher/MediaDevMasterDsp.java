@@ -371,6 +371,63 @@ final class MediaDevMasterDsp {
         return db(scanPeak(l, r, 8, 16, null));
     }
 
+    /** True peak of interleaved float stereo samples (both channels in [-1, 1] full scale) in dBTP, 8x oversampled. */
+    static double truePeakDbtp(double[] left, double[] right) {
+        return db(scanPeak(left, right, 8, 16, null));
+    }
+
+    /** The J-17 master's headroom below its ceiling (its output is quantized to 16 bits and measured there). */
+    static final double PEAK_GUARD_MARGIN_DB = 0.10;
+
+    /**
+     * Outcome of {@link #truePeakGuard}: the samples the encoder receives (the same arrays when nothing needed limiting),
+     * the true peaks measured on exactly those samples, and the largest gain reduction applied.
+     */
+    record PeakGuarded(double[] left, double[] right, double preTruePeakDbtp, double postTruePeakDbtp,
+                       double maxGainReductionDb, long limitedFrames, double internalCeilingDbtp, boolean honoured) { }
+
+    static PeakGuarded truePeakGuard(double[] left, double[] right, double ceilingDbtp) {
+        return truePeakGuard(left, right, ceilingDbtp, PEAK_GUARD_MARGIN_DB);
+    }
+
+    /**
+     * Caps the true peak of a summed stereo mix at {@code ceilingDbtp} with the look-ahead limiter core of this class
+     * ({@link #gainEnvelope}), aiming {@code marginDb} below it. Samples at or below the ceiling are returned untouched,
+     * sample for sample. Limited output is rounded to float (the form it is encoded from) and re-measured at 8x
+     * oversampling; while the measurement is still over the ceiling the internal ceiling is tightened and the limiter
+     * re-solved. {@code honoured} is false only if no tightening within the bounded number of attempts keeps the samples
+     * under the ceiling.
+     */
+    static PeakGuarded truePeakGuard(double[] left, double[] right, double ceilingDbtp, double marginDb) {
+        int frames = left.length;
+        float[] peak = new float[frames];
+        double pre = db(scanPeak(left, right, 8, 16, peak));
+        if (pre <= ceilingDbtp) return new PeakGuarded(left, right, pre, pre, 0.0, 0, ceilingDbtp, true);
+        double margin = marginDb;
+        double post = pre;
+        for (int outer = 0; outer < 6; outer++) {
+            double ceilingLinear = StrictMath.pow(10.0, (ceilingDbtp - margin) / 20.0);
+            float[] envelope = gainEnvelope(peak, 1.0, ceilingLinear);
+            double[] l = new double[frames];
+            double[] r = new double[frames];
+            double minGain = 1.0;
+            long limited = 0;
+            for (int n = 0; n < frames; n++) {
+                l[n] = (float) (left[n] * envelope[n]);
+                r[n] = (float) (right[n] * envelope[n]);
+                minGain = Math.min(minGain, envelope[n]);
+                if (envelope[n] < 0.999f) limited++;
+            }
+            post = db(scanPeak(l, r, 8, 16, null));
+            if (post <= ceilingDbtp) {
+                return new PeakGuarded(l, r, pre, post, minGain >= 1.0 ? 0.0 : -db(minGain), limited, ceilingDbtp - margin,
+                        true);
+            }
+            margin += (post - ceilingDbtp) + 0.03;
+        }
+        return new PeakGuarded(left, right, pre, post, 0.0, 0, ceilingDbtp - margin, false);
+    }
+
     static double db(double linear) {
         return linear <= 0 ? Double.NEGATIVE_INFINITY : 20.0 * Math.log10(linear);
     }

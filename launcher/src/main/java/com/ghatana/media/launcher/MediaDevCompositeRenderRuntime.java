@@ -55,6 +55,12 @@ import java.util.regex.Pattern;
  * nothing and leaves no process or temp file behind (a launcher that is killed mid-render leaves an orphan that the next
  * start sweeps). Idempotency comes from the durable request ledger plus the canonical upload idempotency key. A video
  * clip's embedded audio is not used: sound comes only from explicit AUDIO-track clips.
+ *
+ * <p>Peak protection: the AUDIO tracks are summed to float PCM in a separate FFmpeg pass and measured with the J-17 master
+ * DSP ({@link MediaDevMasterDsp}, 8x oversampled true peak). Policy LIMIT (default) caps that sum with the master peak
+ * guard at {@code truePeakCeilingDbtp} before it is encoded; REFUSE returns a typed 422 {@code COMPOSITE_AUDIO_CLIPS}
+ * instead. The pre- and post-limit true peaks and the gain reduction are recorded in the lineage. A quiet sum is passed
+ * to the encoder sample for sample.
  */
 final class MediaDevCompositeRenderRuntime {
     static final String SCHEMA = "media.dev.composite-render.v1";
@@ -67,6 +73,14 @@ final class MediaDevCompositeRenderRuntime {
     static final String SPACE_RESERVE_ENV = "MEDIA_DEV_COMPOSITE_SPACE_RESERVE_BYTES";
     static final String MAX_SOURCE_ENV = "MEDIA_DEV_COMPOSITE_MAX_SOURCE_BYTES";
     static final String WORK_PREFIX = "media-dev-composite-";
+    /**
+     * Headroom kept below the requested ceiling when the sum is limited. The encoder (AAC) adds inter-sample overshoot after
+     * the guard has measured the float mix; measured on the decoded master with ffmpeg ebur128=peak=true, a 0.1 dB margin
+     * left the decoded true peak at -0.9 dBTP against a -1.0 ceiling, so the composite keeps 0.5 dB.
+     */
+    static final double ENCODE_OVERSHOOT_MARGIN_DB = 0.5;
+    /** The summed audio is measured and limited in memory (about 16 bytes per stereo sample frame); bounded accordingly. */
+    static final double MAX_PEAK_GUARDED_SECONDS = 600.0;
     private static final Pattern WORK_DIR = Pattern.compile("^" + WORK_PREFIX + "(\\d+)-.*$");
     private static final Set<String> VIDEO_TYPES = Set.of("video/mp4", "video/quicktime", "video/webm", "video/x-matroska");
     private static final Set<String> AUDIO_TYPES = Set.of("audio/wav", "audio/x-wav", "audio/wave", "audio/mpeg",
@@ -202,6 +216,9 @@ final class MediaDevCompositeRenderRuntime {
         view.put("captionSourceTypes", List.of("text/vtt"));
         view.put("captionModes", List.of("MUX", "BURN", "BOTH"));
         view.put("gapPolicies", List.of("REFUSE", "BLACK"));
+        view.put("audioPeakPolicies", List.of("LIMIT", "REFUSE"));
+        view.put("truePeakCeilingDbtp", Map.of("default", MediaDevCompositePlan.DEFAULT_TRUE_PEAK_CEILING_DBTP,
+                "min", MediaDevCompositePlan.MIN_TRUE_PEAK_CEILING_DBTP, "max", MediaDevCompositePlan.MAX_TRUE_PEAK_CEILING_DBTP));
         view.put("limits", Map.of("maxClips", config.maxClips(), "maxTimelineSeconds", config.maxSeconds(),
                 "maxOutputBytes", config.maxOutputBytes(), "maxSourceBytes", config.maxSourceBytes(),
                 "maxFramesPerSecond", MediaDevCompositePlan.MAX_FPS, "maxWidth", 1920, "maxHeight", 1080));
@@ -248,7 +265,8 @@ final class MediaDevCompositeRenderRuntime {
         List<Object> fingerprintParts = new ArrayList<>(List.of(request.projectId(), request.revisionId(),
                 request.timelineId(), timeline.semanticVersionId(), request.spec().width(), request.spec().height(),
                 request.spec().fps(), request.spec().gap(), request.spec().captions(), request.spec().color(),
-                request.spec().overlays(), request.spec().gains(), request.maxOutputBytes()));
+                request.spec().overlays(), request.spec().gains(), request.maxOutputBytes(),
+                request.spec().audioPeakPolicy().name(), request.spec().truePeakCeilingDbtp()));
         for (Resolved source : sources) {
             fingerprintParts.add(source.clip().clipId() + "|" + source.artifact().artifactId() + "|"
                     + source.artifact().version().value() + "|" + source.artifact().sha256());
@@ -310,6 +328,7 @@ final class MediaDevCompositeRenderRuntime {
 
     private Result produce(String tenantId, String principalId, Request request, Revision revision,
                            TimelineSnapshot timeline, Planned planned, List<Resolved> sources, List<String> evidence) {
+        Spec spec = request.spec();
         String key = tenantId + "\u0000" + principalId + "\u0000" + request.requestId();
         BoundedProcessRunner.CancellationSource cancellation = new BoundedProcessRunner.CancellationSource();
         if (inFlight.putIfAbsent(key, cancellation) != null) {
@@ -320,7 +339,9 @@ final class MediaDevCompositeRenderRuntime {
         try {
             long staged = 0;
             for (Resolved source : sources) staged += source.artifact().sizeBytes();
-            long required = staged + request.maxOutputBytes() + config.spaceReserveBytes();
+            long audioScratch = planned.audio().isEmpty() ? 0
+                    : 2L * (planned.totalFrames() * MediaDevCompositePlan.AUDIO_RATE * 8L / spec.fps() + 1);
+            long required = staged + audioScratch + request.maxOutputBytes() + config.spaceReserveBytes();
             long free = freeSpace.getAsLong();
             if (free < required) {
                 throw MediaDevCompositePlan.bad("limits.space", "RENDER_SPACE_BUDGET",
@@ -344,7 +365,8 @@ final class MediaDevCompositeRenderRuntime {
             validateSources(planned, sources, probes, request.spec());
             List<MediaDevWebVtt.Cue> cues = captions(tenantId, principalId, planned, sources, request.spec());
             cancelled(cancellation);
-            Built built = build(request, planned, sources, files, probes, cues, work);
+            AudioMix mix = mixAudio(request, planned, sources, files, probes, work, cancellation);
+            Built built = build(request, planned, sources, files, probes, cues, work, mix);
             Path output = work.resolve("out.mp4");
             run(built.command(), work, output, request.maxOutputBytes(), cancellation);
             cancelled(cancellation);
@@ -551,11 +573,16 @@ final class MediaDevCompositeRenderRuntime {
 
     // ---------------------------------------------------------------- command construction
 
+    /** The summed AUDIO tracks as float PCM (the file the encoder reads) and what the peak policy measured on it. */
+    private record AudioMix(Path file, double preTruePeakDbtp, double postTruePeakDbtp, double maxGainReductionDb,
+                            long limitedFrames, boolean limiterApplied, double internalCeilingDbtp) { }
+
     private record Built(List<String> command, String filterGraphSha256, boolean audio, boolean subtitles, boolean burned,
-                         String preset, int audioClipCount) { }
+                         String preset, int audioClipCount, AudioMix audioMix) { }
 
     private Built build(Request request, Planned planned, List<Resolved> sources, Map<String, Path> files,
-                        Map<String, Probe> probes, List<MediaDevWebVtt.Cue> cues, Path work) throws IOException {
+                        Map<String, Probe> probes, List<MediaDevWebVtt.Cue> cues, Path work, AudioMix mix)
+            throws IOException {
         Spec spec = request.spec();
         int fps = spec.fps();
         int w = spec.width(), h = spec.height();
@@ -615,28 +642,13 @@ final class MediaDevCompositeRenderRuntime {
             current = "[vburn]";
         }
         graph.add(current + "null[vfinal]");
-        // ---- audio ----
+        // ---- audio: the peak-guarded float mix of the AUDIO tracks, read as one raw input (see mixAudio) ----
         boolean audio = !planned.audio().isEmpty();
+        int audioInput = -1;
         if (audio) {
-            List<String> labels = new ArrayList<>();
-            int audioIndex = 0;
-            for (Clip clip : planned.audio()) {
-                Resolved source = byClip.get(clip.clipId());
-                Probe probe = probes.get(ref(source));
-                inputs.addAll(List.of("-i", files.get(ref(source)).toString()));
-                double gain = 0.0;
-                for (var entry : spec.gains()) if (entry.clipId().equals(clip.clipId())) gain = entry.gainDb();
-                String start = MediaDevCompositePlan.samples(clip.storyStart(), "").toString();
-                String label = "[a" + audioIndex++ + "]";
-                graph.add("[" + input++ + ":a]atrim=start=" + MediaDevCompositePlan.decimalSeconds(clip.sourceIn()) + ":end="
-                        + MediaDevCompositePlan.decimalSeconds(clip.sourceOut()) + ",asetpts=PTS-STARTPTS,"
-                        + (probe.channels() == 1 ? "pan=stereo|c0=c0|c1=c0" : "aformat=channel_layouts=stereo")
-                        + ",aresample=" + MediaDevCompositePlan.AUDIO_RATE + ",aformat=sample_fmts=fltp,volume=" + num(gain)
-                        + "dB,adelay=" + start + "S|" + start + "S" + label);
-                labels.add(label);
-            }
-            graph.add(String.join("", labels) + "amix=inputs=" + labels.size() + ":normalize=0:duration=longest"
-                    + ",apad=whole_dur=" + totalDecimal + ",atrim=end=" + totalDecimal + ",asetpts=PTS-STARTPTS[aout]");
+            inputs.addAll(List.of("-f", "f32le", "-ar", Integer.toString(MediaDevCompositePlan.AUDIO_RATE), "-ac", "2", "-i",
+                    mix.file().toString()));
+            audioInput = input++;
         }
         boolean subtitles = spec.captions().mux() && !cues.isEmpty();
         int subtitleInput = -1;
@@ -653,7 +665,7 @@ final class MediaDevCompositeRenderRuntime {
                 "-loglevel", "error", "-y", "-filter_complex_threads", "1"));
         command.addAll(inputs);
         command.addAll(List.of("-filter_complex_script", scriptFile.toString(), "-map", "[vfinal]"));
-        if (audio) command.addAll(List.of("-map", "[aout]"));
+        if (audio) command.addAll(List.of("-map", audioInput + ":a"));
         if (subtitles) command.addAll(List.of("-map", subtitleInput + ":0"));
         command.addAll(List.of("-c:v", "libx264", "-preset", config.preset(), "-crf", "18", "-pix_fmt", "yuv420p",
                 "-r", Integer.toString(fps), "-fps_mode", "cfr", "-frames:v", Long.toString(planned.totalFrames()),
@@ -665,7 +677,113 @@ final class MediaDevCompositeRenderRuntime {
                 "-fs", Long.toString(request.maxOutputBytes()), work.resolve("out.mp4").toString()));
         Objects.requireNonNull(totalSeconds);
         return new Built(List.copyOf(command), MediaDevProjectRenderRuntime.sha256Hex(script), audio, subtitles, burned,
-                config.preset(), planned.audio().size());
+                config.preset(), planned.audio().size(), audio ? mix : null);
+    }
+
+    // ---------------------------------------------------------------- audio peak policy
+
+    /**
+     * Sums the AUDIO tracks to float PCM (the same clip chain as before: trim, layout, 48 kHz, gain, placement, amix), measures
+     * the true peak with the J-17 meter and applies the peak policy. LIMIT caps the sum with the master peak guard; REFUSE
+     * refuses it with 422 COMPOSITE_AUDIO_CLIPS. Returns null when there are no AUDIO clips.
+     */
+    private AudioMix mixAudio(Request request, Planned planned, List<Resolved> sources, Map<String, Path> files,
+                              Map<String, Probe> probes, Path work, BoundedProcessRunner.CancellationSource cancellation)
+            throws IOException {
+        if (planned.audio().isEmpty()) return null;
+        Spec spec = request.spec();
+        if ((double) planned.totalFrames() / spec.fps() > MAX_PEAK_GUARDED_SECONDS) {
+            throw MediaDevCompositePlan.bad("timeline", "RENDER_LIMIT_EXCEEDED",
+                    "audio peak protection is limited to " + (long) MAX_PEAK_GUARDED_SECONDS + " s of timeline");
+        }
+        Map<String, Resolved> byClip = new LinkedHashMap<>();
+        for (Resolved source : sources) byClip.put(source.clip().clipId(), source);
+        Path raw = work.resolve("audio-mix.f32");
+        long bound = (planned.totalFrames() * MediaDevCompositePlan.AUDIO_RATE * 8L / spec.fps()) + (1L << 20);
+        run(audioMixCommand(planned, spec, byClip, files, probes, work, raw), work, raw, bound, cancellation);
+        cancelled(cancellation);
+        int frames;
+        double[] left;
+        double[] right;
+        try (var channel = java.nio.channels.FileChannel.open(raw)) {
+            frames = Math.toIntExact(channel.size() / 8);
+        }
+        left = new double[frames];
+        right = new double[frames];
+        java.nio.ByteBuffer buffer = java.nio.ByteBuffer.wrap(Files.readAllBytes(raw)).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        for (int n = 0; n < frames; n++) {
+            left[n] = buffer.getFloat();
+            right[n] = buffer.getFloat();
+        }
+        double ceiling = spec.truePeakCeilingDbtp();
+        double pre = MediaDevMasterDsp.truePeakDbtp(left, right);
+        if (spec.audioPeakPolicy() == MediaDevCompositePlan.AudioPeakPolicy.REFUSE && pre > ceiling) {
+            throw new SpeechRefusedException(422, "COMPOSITE_AUDIO_CLIPS",
+                    "the summed AUDIO clips reach " + finiteDb(pre) + " dBTP, above the " + ceiling + " dBTP ceiling; "
+                            + "lower the clip gains or use audioPeakPolicy LIMIT",
+                    Map.of("path", "composition.audio", "measuredTruePeakDbtp", finiteDb(pre),
+                            "truePeakCeilingDbtp", ceiling));
+        }
+        MediaDevMasterDsp.PeakGuarded guarded = MediaDevMasterDsp.truePeakGuard(left, right, ceiling, ENCODE_OVERSHOOT_MARGIN_DB);
+        if (!guarded.honoured()) {
+            throw new SpeechRefusedException(422, "AUDIO_PEAK_CEILING_UNREACHABLE",
+                    "the summed AUDIO clips could not be limited under the " + ceiling + " dBTP ceiling",
+                    Map.of("path", "composition.audio", "measuredTruePeakDbtp", finiteDb(pre),
+                            "truePeakCeilingDbtp", ceiling));
+        }
+        Path file = raw;
+        if (guarded.maxGainReductionDb() > 0.0) {
+            // Re-serialize the limited samples exactly as the verified values; the raw mix is kept until the render ends.
+            file = work.resolve("audio-mix-limited.f32");
+            java.nio.ByteBuffer out = java.nio.ByteBuffer.allocate(frames * 8).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+            for (int n = 0; n < frames; n++) {
+                out.putFloat((float) guarded.left()[n]);
+                out.putFloat((float) guarded.right()[n]);
+            }
+            Files.write(file, out.array());
+        }
+        return new AudioMix(file, finiteDb(guarded.preTruePeakDbtp()), finiteDb(guarded.postTruePeakDbtp()),
+                guarded.maxGainReductionDb(), guarded.limitedFrames(), guarded.maxGainReductionDb() > 0.0,
+                guarded.internalCeilingDbtp());
+    }
+
+    private List<String> audioMixCommand(Planned planned, Spec spec, Map<String, Resolved> byClip, Map<String, Path> files,
+                                         Map<String, Probe> probes, Path work, Path output) throws IOException {
+        String totalDecimal = seconds(planned.totalFrames(), spec.fps());
+        List<String> inputs = new ArrayList<>();
+        List<String> graph = new ArrayList<>();
+        List<String> labels = new ArrayList<>();
+        int input = 0;
+        for (Clip clip : planned.audio()) {
+            Resolved source = byClip.get(clip.clipId());
+            Probe probe = probes.get(ref(source));
+            inputs.addAll(List.of("-i", files.get(ref(source)).toString()));
+            double gain = 0.0;
+            for (var entry : spec.gains()) if (entry.clipId().equals(clip.clipId())) gain = entry.gainDb();
+            String start = MediaDevCompositePlan.samples(clip.storyStart(), "").toString();
+            String label = "[a" + labels.size() + "]";
+            graph.add("[" + input++ + ":a]atrim=start=" + MediaDevCompositePlan.decimalSeconds(clip.sourceIn()) + ":end="
+                    + MediaDevCompositePlan.decimalSeconds(clip.sourceOut()) + ",asetpts=PTS-STARTPTS,"
+                    + (probe.channels() == 1 ? "pan=stereo|c0=c0|c1=c0" : "aformat=channel_layouts=stereo")
+                    + ",aresample=" + MediaDevCompositePlan.AUDIO_RATE + ",aformat=sample_fmts=fltp,volume=" + num(gain)
+                    + "dB,adelay=" + start + "S|" + start + "S" + label);
+            labels.add(label);
+        }
+        graph.add(String.join("", labels) + "amix=inputs=" + labels.size() + ":normalize=0:duration=longest"
+                + ",apad=whole_dur=" + totalDecimal + ",atrim=end=" + totalDecimal + ",asetpts=PTS-STARTPTS[aout]");
+        Path script = work.resolve("audio-graph.txt");
+        Files.writeString(script, String.join(";\n", graph), StandardCharsets.UTF_8);
+        List<String> command = new ArrayList<>(List.of(config.ffmpeg().toString(), "-nostdin", "-hide_banner",
+                "-loglevel", "error", "-y", "-filter_complex_threads", "1"));
+        command.addAll(inputs);
+        command.addAll(List.of("-filter_complex_script", script.toString(), "-map", "[aout]", "-f", "f32le", "-ar",
+                Integer.toString(MediaDevCompositePlan.AUDIO_RATE), "-ac", "2", output.toString()));
+        return List.copyOf(command);
+    }
+
+    /** dBTP of a measurement, with silence floored at -120 dBTP so the lineage stays finite JSON. */
+    private static double finiteDb(double value) {
+        return Double.isInfinite(value) ? -120.0 : value;
     }
 
     private static String ref(Resolved source) {
@@ -854,6 +972,23 @@ final class MediaDevCompositeRenderRuntime {
                 "x", o.x(), "y", o.y(), "opacity", o.opacity())).toList());
         composition.put("audio", spec.gains().stream().map(g -> Map.<String, Object>of("clipId", g.clipId(),
                 "gainDb", g.gainDb())).toList());
+        Map<String, Object> audioPeak = new LinkedHashMap<>();
+        audioPeak.put("policy", spec.audioPeakPolicy().name());
+        audioPeak.put("truePeakCeilingDbtp", spec.truePeakCeilingDbtp());
+        audioPeak.put("measurement", "ghatana-media.master-dsp true peak, 8x oversampled, on the float mix before encoding");
+        if (built.audioMix() == null) {
+            audioPeak.put("status", "NO_AUDIO_CLIPS");
+        } else {
+            AudioMix mix = built.audioMix();
+            audioPeak.put("status", "MEASURED");
+            audioPeak.put("preLimitTruePeakDbtp", mix.preTruePeakDbtp());
+            audioPeak.put("postLimitTruePeakDbtp", mix.postTruePeakDbtp());
+            audioPeak.put("maxGainReductionDb", mix.maxGainReductionDb());
+            audioPeak.put("limitedFrames", mix.limitedFrames());
+            audioPeak.put("limiterApplied", mix.limiterApplied());
+            audioPeak.put("internalCeilingDbtp", mix.internalCeilingDbtp());
+        }
+        composition.put("audioPeak", audioPeak);
         Map<String, Object> encoding = new LinkedHashMap<>(measured);
         encoding.put("preset", built.preset());
         encoding.put("crf", 18);

@@ -1,5 +1,6 @@
 package com.ghatana.media.launcher;
 
+import com.ghatana.media.launcher.MediaDevCompositePlan.AudioPeakPolicy;
 import com.ghatana.media.launcher.MediaDevCompositePlan.CaptionMode;
 import com.ghatana.media.launcher.MediaDevCompositePlan.Color;
 import com.ghatana.media.launcher.MediaDevCompositePlan.GapPolicy;
@@ -114,13 +115,17 @@ final class MediaDevCompositeRenderRoutes {
             if (!permitted(exchange, true, out)) return;
             Map<String, Object> body = body(exchange, maxBody);
             requireKeys(body, Set.of("requestId", "projectId", "revisionId", "timelineId", "width", "height",
-                    "framesPerSecond"), Set.of("gapPolicy", "captionMode", "color", "overlays", "audio", "maxOutputBytes"),
+                    "framesPerSecond"), Set.of("gapPolicy", "captionMode", "color", "overlays", "audio", "maxOutputBytes",
+                    "audioPeakPolicy", "truePeakCeilingDbtp"),
                     "composite render request");
             MediaDevCompositePlan.Spec spec = new MediaDevCompositePlan.Spec(integer(body.get("width"), "width"),
                     integer(body.get("height"), "height"), integer(body.get("framesPerSecond"), "framesPerSecond"),
                     enumValue(GapPolicy.class, body.get("gapPolicy"), GapPolicy.REFUSE, "gapPolicy"),
                     enumValue(CaptionMode.class, body.get("captionMode"), CaptionMode.MUX, "captionMode"),
-                    color(body.get("color")), overlays(body.get("overlays")), gains(body.get("audio")));
+                    color(body.get("color")), overlays(body.get("overlays")), gains(body.get("audio")),
+                    enumValue(AudioPeakPolicy.class, body.get("audioPeakPolicy"), AudioPeakPolicy.LIMIT, "audioPeakPolicy"),
+                    decimal(body.get("truePeakCeilingDbtp"), MediaDevCompositePlan.DEFAULT_TRUE_PEAK_CEILING_DBTP,
+                            "truePeakCeilingDbtp"));
             long maxOutput = body.containsKey("maxOutputBytes")
                     ? integer(body.get("maxOutputBytes"), "maxOutputBytes") : composite.config().maxOutputBytes();
             var request = new MediaDevCompositeRenderRuntime.Request(string(body.get("requestId"), "requestId"),

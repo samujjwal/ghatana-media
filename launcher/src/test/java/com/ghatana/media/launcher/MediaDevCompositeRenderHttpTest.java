@@ -392,6 +392,70 @@ class MediaDevCompositeRenderHttpTest {
     private MediaDevDubSupport support;
     private MediaDevRequestLedger ledger;
 
+    // ---------------------------------------------------------------- audio peak policy
+
+    @Test
+    void hotAudioSumIsLimitedByDefaultRefusedOnRequestAndTheOptionsAreInTheFingerprint() throws Exception {
+        tools();
+        Path root = Files.createTempDirectory("media-dev-composite-peak-");
+        Path temp = Files.createDirectories(root.resolve("work"));
+        MediaRuntime runtime = runtime(root.resolve("store"), 4, 4);
+        HttpServer server = server(runtime, config(temp, "ultrafast", 120, 64L << 20, 0));
+        try {
+            String base = base(server);
+            Fixture fx = fixture(base, runtime, root);
+            // the music at +12 dB sums with the narration beep far above the -1 dBTP ceiling
+            Map<String, Object> hot = spec(fx.revisionId, "p-hot", "MUX", null);
+            hot.put("audio", List.of(Map.of("clipId", "aud-mus", "gainDb", 12.0), Map.of("clipId", "aud-nar", "gainDb", 0.0)));
+            hot.put("audioPeakPolicy", "REFUSE");
+            HttpResponse<String> refused = post(base, hot);
+            assertThat(refused.statusCode()).as(refused.body()).isEqualTo(422);
+            assertThat(refused.body()).contains("COMPOSITE_AUDIO_CLIPS").contains("composition.audio");
+            double measured = Double.parseDouble(refused.body().replaceAll(".*measuredTruePeakDbtp\":(-?[0-9.]+).*", "$1"));
+            assertThat(measured).as("measured true peak named in the refusal").isGreaterThan(-1.0);
+
+            // LIMIT (the default): the same sum is capped before encoding; the measurements are recorded in the lineage
+            hot.put("requestId", "p-limit");
+            hot.put("audioPeakPolicy", "LIMIT");
+            HttpResponse<String> limited = post(base, hot);
+            assertThat(limited.statusCode()).as(limited.body()).isEqualTo(201);
+            Map<String, Object> peak = object(object(object(read(limited.body()).get("lineage")).get("composition"))
+                    .get("audioPeak"));
+            assertThat(peak).containsEntry("policy", "LIMIT").containsEntry("status", "MEASURED")
+                    .containsEntry("limiterApplied", true).containsEntry("truePeakCeilingDbtp", -1.0);
+            double pre = ((Number) peak.get("preLimitTruePeakDbtp")).doubleValue();
+            double post = ((Number) peak.get("postLimitTruePeakDbtp")).doubleValue();
+            assertThat(pre).isGreaterThan(-1.0);
+            assertThat(post).isLessThanOrEqualTo(-1.0);
+            assertThat(((Number) peak.get("maxGainReductionDb")).doubleValue()).isGreaterThan(0.0);
+            assertThat(((Number) peak.get("limitedFrames")).longValue()).isPositive();
+
+            // the policy is part of the request fingerprint: the same requestId with REFUSE is a 409
+            hot.put("audioPeakPolicy", "REFUSE");
+            HttpResponse<String> reuse = post(base, hot);
+            assertThat(reuse.statusCode()).as(reuse.body()).isEqualTo(409);
+            assertThat(reuse.body()).contains("REQUEST_ID_REUSED");
+
+            // a quiet sum under the default ceiling is not limited at all
+            HttpResponse<String> quiet = post(base, spec(fx.revisionId, "p-quiet", "MUX", null));
+            assertThat(quiet.statusCode()).as(quiet.body()).isEqualTo(201);
+            Map<String, Object> quietPeak = object(object(object(read(quiet.body()).get("lineage")).get("composition"))
+                    .get("audioPeak"));
+            assertThat(quietPeak).containsEntry("limiterApplied", false).containsEntry("maxGainReductionDb", 0.0);
+            assertThat(((Number) quietPeak.get("postLimitTruePeakDbtp")).doubleValue())
+                    .isEqualTo(((Number) quietPeak.get("preLimitTruePeakDbtp")).doubleValue());
+
+            // the ceiling is range checked with a typed path
+            Map<String, Object> outOfRange = spec(fx.revisionId, "p-range", "MUX", null);
+            outOfRange.put("truePeakCeilingDbtp", -0.05);
+            HttpResponse<String> range = post(base, outOfRange);
+            expect(range, 422, "AUDIO_PEAK_CEILING_OUT_OF_RANGE", "truePeakCeilingDbtp");
+        } finally {
+            server.stop(0);
+            deleteTree(root);
+        }
+    }
+
     private static MediaDevCompositeRenderRuntime.Config config(Path temp, String preset, double maxSeconds,
                                                                 long maxOutput, long reserve) {
         String ffmpeg = System.getenv(MediaDevProjectRenderRuntime.FFMPEG_ENV);
