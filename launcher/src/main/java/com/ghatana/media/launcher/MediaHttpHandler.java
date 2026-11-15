@@ -107,6 +107,8 @@ public final class MediaHttpHandler implements HttpHandler {
     private MediaDevRegionEditRoutes devRegionEdit;
     private MediaDevErasureRoutes devErasure;
     private MediaDevDubRoutes devDub;
+    private MediaDevCompositeRenderRoutes devComposite;
+    private MediaDevCompositeRenderRuntime devCompositeRuntime;
     private MediaDevCaptionRoutes devCaptions;
     private MediaDevAudioRoutes devAudio;
     private MediaDevProviderCatalogRoutes devProviderCatalog;
@@ -224,6 +226,13 @@ public final class MediaHttpHandler implements HttpHandler {
         return this;
     }
 
+    /** Installs the optional DEV_ONLY multitrack composite render routes (J-18). */
+    MediaHttpHandler withDevComposite(MediaDevCompositeRenderRuntime composite) {
+        this.devCompositeRuntime = composite;
+        this.devComposite = composite == null ? null : new MediaDevCompositeRenderRoutes(composite, runtime);
+        return this;
+    }
+
     /** Installs the optional DEV_ONLY translation and dubbing routes. */
     MediaHttpHandler withDevDub(MediaDevDubRoutes routes) {
         this.devDub = routes;
@@ -244,6 +253,7 @@ public final class MediaHttpHandler implements HttpHandler {
         this.devCaptions = captionRuntime == null ? null : new MediaDevCaptionRoutes(captionRuntime, runtime);
         if (captionRuntime != null && requireReviewedCaptions && devProjectRender != null) {
             devProjectRender.requireReviewedCaptions(captionRuntime.captionUseGate());
+            if (devCompositeRuntime != null) devCompositeRuntime.requireReviewedCaptions(captionRuntime.captionUseGate());
         }
         return this;
     }
@@ -642,6 +652,19 @@ public final class MediaHttpHandler implements HttpHandler {
                 }
                 json(exchange, 200, runtime.cancelLocalDevelopmentJob(
                         tenantId, principalId, jobId, requestId, expectedVersion));
+                return;
+            }
+            if (devComposite != null && MediaDevCompositeRenderRoutes.handles(path)) {
+                devComposite.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
+                        new MediaDevCreativeOutputRoutes.Responder() {
+                            @Override public void json(HttpExchange e, int status, Object body) throws IOException {
+                                MediaHttpHandler.this.json(e, status, body);
+                            }
+                            @Override public void error(HttpExchange e, int status, String code, String message,
+                                                        Map<String, ?> details) throws IOException {
+                                MediaHttpHandler.this.error(e, status, code, message, details);
+                            }
+                        });
                 return;
             }
             if (devDub != null && MediaDevDubRoutes.handles(path)) {

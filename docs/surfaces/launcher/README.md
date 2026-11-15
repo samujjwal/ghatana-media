@@ -421,6 +421,10 @@ handlers additionally require the artifact permissions noted, so access is never
 | GET | `/dev/v1/translations/{artifactId}` | `media:project:dev:read` | `media:artifact:read` | translation |
 | POST | `/dev/v1/dubs` | `media:project:dev:write` | `media:artifact:{read,create}`, same rights chain; a `voiceReference`/`likenessReference` is refused as in plain synthesis | local Kokoro TTS (+ `MEDIA_DEV_RENDER_FFMPEG` for tempo) |
 | GET | `/dev/v1/dubs/{dubId}` | `media:project:dev:read` | `media:artifact:read` | dubbing |
+| GET | `/dev/v1/composite-renders/capabilities` | `media:project:dev:read` | `media:artifact:read` | FFmpeg composite render |
+| POST | `/dev/v1/composite-renders` | `media:project:dev:write` | `media:artifact:{read,create}`; every source version needs an ADMITTED PROCESSING rights decision (403 when denied/revoked, 422 when no statement) | `MEDIA_DEV_RENDER_FFMPEG/FFPROBE`, request ledger |
+| GET | `/dev/v1/composite-renders/{renderId}` | `media:project:dev:read` | `media:artifact:read` | composite render |
+| POST | `/dev/v1/composite-renders/{requestId}/cancel` | `media:project:dev:write` | `media:artifact:{read,create}` | kills the running encoder; nothing is registered |
 | GET | `/dev/v1/grounded-answers/status` | `media:project:dev:read` | — | local vision + `MEDIA_DEV_RENDER_FFMPEG/FFPROBE` |
 | POST | `/dev/v1/grounded-answers` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision + FFmpeg/FFprobe |
 | GET | `/dev/v1/grounded-answers/{outputId}` | `media:project:dev:read` | `media:artifact:read` | local vision + FFmpeg/FFprobe |
@@ -476,6 +480,23 @@ vision) was unavailable and `allowPartial` is not set; with `allowPartial` the r
 labelled `PARTIAL`, an explicit caller choice and not a model substitution. A TIMEOUT stops the caller's wait and kills the
 local process (FFmpeg, whisper-cli); the vision sidecar has no cancellation protocol, so its GPU work may finish and is
 discarded.
+
+DEV_ONLY multitrack composite render (J-18, `media.dev.outcome-multitrack-finished-master`). `POST /dev/v1/composite-renders`
+`{requestId, projectId, revisionId, timelineId, width, height, framesPerSecond, gapPolicy?: REFUSE|BLACK, captionMode?:
+NONE|MUX|BURN|BOTH, color?: {brightness, contrast, saturation}, overlays?: [{clipId, x, y, opacity?}], audio?: [{clipId, gainDb}],
+maxOutputBytes?}` renders one exact timeline with real FFmpeg into an H.264+AAC MP4 (optional mov_text subtitle stream): VIDEO-track
+clips (any fps/resolution, trimmed by source interval, conformed to the output grid, letterboxed, never retimed), AUDIO-track clips
+(mono duplicated to stereo, per-clip gain, sample-exact placement, summed without normalisation), WebVTT caption clips (muxed
+and/or burned), OVERLAY-track PNG clips (explicit position/opacity), and an `eq` colour grade applied to the program video before
+graphics and burned captions. A video clip's embedded audio is not used. The output is probed and refused unless frame count,
+codecs, geometry, frame rate and duration match the plan. `sources[]` lineage names every exact source version (erasure follows
+it); the durable request ledger gives replay (200) / `409 REQUEST_ID_REUSED`. `POST /dev/v1/composite-renders/{requestId}/cancel`
+stops the encoder (`409 RENDER_CANCELLED` to the waiting caller, nothing registered). Typed 422 refusals carry `details.path`:
+`TIMELINE_OVERLAP`, `TIMELINE_GAP`, `TIME_NOT_FRAME_ALIGNED`, `TRIM_OUT_OF_RANGE`, `RETIMING_NOT_SUPPORTED`,
+`OVERLAY_OUT_OF_FRAME`, `OVERLAY_PLACEMENT_REQUIRED`, `CLIP_PAST_TIMELINE_END`, `CAPTION_CLIPS_OVERLAP`, `RENDER_DURATION_BUDGET`,
+`RENDER_OUTPUT_BUDGET_EXCEEDED`, `RENDER_SPACE_BUDGET`, `SOURCE_FORMAT_NOT_SUPPORTED`. Budgets: `MEDIA_DEV_COMPOSITE_MAX_SECONDS`
+(120), `_MAX_OUTPUT_BYTES` (64 MiB), `_MAX_SOURCE_BYTES` (128 MiB), `_SPACE_RESERVE_BYTES` (512 MiB), `_TEMP_ROOT`, `_X264_PRESET`
+(medium). A launcher killed mid-render leaves an orphan work directory and encoder that the next start sweeps.
 
 DEV_ONLY translation and dubbing (J-16; owner decision of the Media owner delegate, 2026-11-15, Spanish only). `POST
 /dev/v1/translations` `{requestId, transcriptArtifactId, transcriptArtifactVersionId, sourceLanguage:"en", targetLanguage:"es"}`

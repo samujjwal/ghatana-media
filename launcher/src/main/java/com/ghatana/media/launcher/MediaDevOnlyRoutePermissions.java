@@ -61,6 +61,9 @@ final class MediaDevOnlyRoutePermissions {
         if ("GET".equals(method) && "/dev/v1/translations/capabilities".equals(path)) return PROJECT_READ;
         if ("POST".equals(method) && path.matches("^/dev/v1/translations(/revisions)?$")) return PROJECT_WRITE;
         if ("GET".equals(method) && path.matches("^/dev/v1/translations/[^/]+$")) return PROJECT_READ;
+        // Multitrack composite render (J-18); the routes additionally require media:artifact:{read,create}.
+        if ("GET".equals(method) && path.matches("^/dev/v1/composite-renders/(capabilities|[^/]+)$")) return PROJECT_READ;
+        if ("POST".equals(method) && path.matches("^/dev/v1/composite-renders(/[^/]+/cancel)?$")) return PROJECT_WRITE;
         if ("POST".equals(method) && "/dev/v1/dubs".equals(path)) return PROJECT_WRITE;
         if ("GET".equals(method) && path.matches("^/dev/v1/dubs/[^/]+$")) return PROJECT_READ;
         if ("GET".equals(method) && "/dev/v1/grounded-answers/status".equals(path)) return PROJECT_READ;
