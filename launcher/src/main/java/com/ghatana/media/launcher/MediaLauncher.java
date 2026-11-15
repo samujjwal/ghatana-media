@@ -89,6 +89,9 @@ public final class MediaLauncher {
             MediaDevAnimationRuntime devAnimation = finalDevLedger == null ? null
                     : MediaDevAnimationRuntime.compose(runtime, environment,
                             finalDevRights == null ? null : finalDevRights.resolver(), finalDevLedger);
+            MediaDevRigRuntime devRig = finalDevLedger == null ? null
+                    : MediaDevRigRuntime.compose(runtime, environment,
+                            finalDevRights == null ? null : finalDevRights.resolver(), finalDevLedger);
             MediaDevStoryboardRuntime devStoryboards = MediaDevStoryboardRuntime.compose(runtime, environment,
                     finalDevProjectTimeline, devComposite, devAnimation,
                     finalDevRights == null ? null : finalDevRights.resolver(), finalDevLedger, finalDevReview);
@@ -224,6 +227,7 @@ public final class MediaLauncher {
                                     .withDevAnimation(devAnimation)
                                     .withDevReferenceScenes(MediaDevReferenceSceneRuntime.compose(runtime,
                                             finalDevRights == null ? null : finalDevRights.resolver(), finalDevLedger))
+                                    .withDevRig(devRig)
                                     .withDevRegionEdit(finalDevRegionEdit)
                                     .withDevVision(MediaLocalVisionComposition.engineFrom(environment)
                                             .map(engine -> {

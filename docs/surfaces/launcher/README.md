@@ -421,6 +421,10 @@ handlers additionally require the artifact permissions noted, so access is never
 | POST | `/dev/v1/reference-scenes/runs` | `media:project:dev:write` | `media:artifact:{read,create}`; `PROCESSING` rights admission of every USED reference on every call; `mode: MODEL` is `503 MODEL_UNAVAILABLE` | authored template composed by the animation renderer; no model, no FFmpeg |
 | GET | `/dev/v1/reference-scenes/runs/{runId}` | `media:project:dev:read` | `media:artifact:read` (the run id is the manifest artifact id) | owner only |
 | POST | `/dev/v1/reference-scenes/runs/{runId}/regenerations` | `media:project:dev:write` | `media:artifact:read`; rights re-checked | re-renders from the manifest and compares with the stored scenes; registers nothing |
+
+| GET | `/dev/v1/rigs/status` | `media:project:dev:read` | — | `MEDIA_DEV_RENDER_FFMPEG`/`MEDIA_DEV_RENDER_FFPROBE` + the shared request ledger |
+| POST | `/dev/v1/rigs/renders` | `media:project:dev:write` | `media:artifact:{read,create}`; `PROCESSING` rights admission of every floor-texture asset | FFmpeg/FFprobe composed (J-13) |
+| GET | `/dev/v1/rigs/renders/{renderId}` | `media:project:dev:read` | `media:artifact:read` (the render id is the manifest artifact id) | FFmpeg/FFprobe composed |
 | GET | `/dev/v1/masters/status` | `media:project:dev:read` | — | the shared request ledger; the master encode needs `MEDIA_DEV_RENDER_FFMPEG` (stem generation needs no tool) |
 | POST | `/dev/v1/masters/stems` | `media:project:dev:write` | `media:artifact:{read,create}` | J-17 (`MediaDevMasterRuntime`): ORIGINAL procedural stem; no rights call (no third-party material) |
 | GET | `/dev/v1/masters/stems/{stemId}` | `media:project:dev:read` | `media:artifact:read` | owner only |
@@ -733,6 +737,42 @@ canonical renderer PNG, and `POST .../runs/{runId}/regenerations` re-checks righ
 `byteIdentical` against the manifest digests and the stored bytes (artifacts created: 0). A different body under a used
 `requestId` is `409 REFERENCE_SCENE_REQUEST_ID_REUSED`; the ledger replays a finished request (`200`). The Explorer page is
 `/dev-reference-scenes.html`. Labelled DEV_ONLY with no quality, rights-clearance, approval or production claim.
+
+DEV_ONLY deterministic 3D rig render (J-13, `media.dev.outcome-three-dimensional-animation`; `MediaDevRigRuntime`,
+`MediaDevRigSpec`, `MediaDevRigRaster`, `MediaDevRigRoutes`; composed only when both absolute `MEDIA_DEV_RENDER_FFMPEG`
+and `MEDIA_DEV_RENDER_FFPROBE` are set, with the shared durable request ledger). `POST /dev/v1/rigs/renders` takes
+`{requestId, spec, encoder?{crf 10-30, default 14}}` where `spec` is `media.dev.rig-render-spec.v1`: `width`/`height`
+(even, 64-960 x 64-540), opaque `background`, `fps{numerator,denominator}` (1-60), `frameCount` (1-240, at most 33,554,432
+total pixels), a required `coordinateFrame{handedness: RIGHT_HANDED, upAxis: Y, unit: METRE}` (anything else is
+`422 COORDINATE_PROFILE_UNSUPPORTED`), a perspective `camera{position, lookAt, verticalFovDegrees, near, far}` (looks
+along its local -Z, +Y up), `bones[]` (at most 16: `id`, `parent` or null, `restPosition`, optional `restRotation{axis,
+degrees}`, `tip` (the capsule's far end in the bone's local frame), `radius`, `color`, `maxDeviationDegrees` (a ball-joint
+limit on the angular deviation from rest), `keyframes[]` of `{frame, rotation{axis,degrees} (a delta from rest), position?}`,
+at most 64), an `endEffector{bone, offset, markerRadius, color}` and an optional textured `floor{y, halfExtent, tiles,
+colorA, colorB, textureAssetId?}` with `assets[]` (`{id,artifactId,artifactVersionId}` exact `image/png`/`image/jpeg`
+versions). Keyframe times are frame indices, i.e. the exact rationals `frame*fpsDen/fpsNum` seconds. The verified
+`SpatialRigEngine` solves forward kinematics and enforces the joint limits (keyframe values and the shortest-arc
+interpolation between them); frames come from a deterministic CPU software rasterizer (z-buffer, near-plane-clipped
+flat-shaded floor triangles, ray-cast capsules, an overlay disc at the exactly projected end effector; no GPU, no external
+renderer). Unknown fields and wrong types are `422 RIG_SPEC_INVALID` with `details.path`; a rotation beyond a limit is
+`422 JOINT_LIMIT_EXCEEDED` (`details{path,bone,limitDegrees,requestedDegrees,frame}`, path e.g.
+`$.bones[1].keyframes[2].rotation`, or `$.bones[0].keyframes` when only the interpolation between two keys leaves the
+limit); a ceiling is `422 RIG_BUDGET_EXCEEDED`; `422 END_EFFECTOR_NOT_VISIBLE` when the marker would leave the image; all
+before any lookup, rights call, permit or process. A floor texture must be visible to the caller (`404
+SOURCE_VERSION_NOT_FOUND`) and ADMITTED for `PROCESSING` on every call, a replay included (`403 RIGHTS_NOT_ADMITTED`,
+`503 RIGHTS_AUTHORITY_UNAVAILABLE`). The procedural rig itself is the authored source version
+`authored-rig-spec@sha256:<spec digest>` in the GLB (no rights statement, no approval). Three NEW immutable artifacts are
+registered per render with lineage: the MP4 (`video/mp4`, H.264 yuv420p bt709, exact PTS ticks), the GLB 2.0
+(`model/gltf-binary`, node TRS rest pose + LINEAR translation/rotation channels, float32 approximation, coordinate
+declaration in `extras.mediaSpatial`; bound to the request id) and a manifest (`application/json`: per-frame exact PTS,
+pre-encode RGB24 digest, joint angles, bone world transforms, end-effector world position and projected pixel, per-frame
+PSNR of the full FFmpeg decode against the pre-encode frame, gated at 20 dB; the camera, the coordinate frame, encoder and
+verification). The MP4 is re-probed (codec, geometry, exact frame count, rational frame rate, time base, per-frame PTS) and
+the GLB's embedded frame is read back before anything is registered. The same requestId and body replays (200); another
+body is `409 RIG_REQUEST_ID_REUSED`; a killed encoder is `503 RIG_OUTCOME_UNKNOWN` with nothing registered, and a retry (also
+after a launcher restart) registers exactly one video, one GLB and one manifest. `GET /dev/v1/rigs/renders/{renderId}`
+reopens a render owner-scoped; the MP4 and the GLB are read through `GET /dev/v1/artifacts/{id}/content`. Outputs are labelled DEV_ONLY
+with no quality, rights-clearance, approval or production claim.
 
 DEV_ONLY deterministic 2D animation (J-12, `media.dev.outcome-two-dimensional-animation`; `MediaDevAnimationRuntime`,
 `MediaDevAnimationSpec`, `MediaDevAnimationRoutes`; composed only when both absolute `MEDIA_DEV_RENDER_FFMPEG` and

@@ -100,6 +100,10 @@ const devProjectRoutes = [
   { method: "POST", path: /^\/dev\/v1\/reference-scenes\/runs$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/reference-scenes/runs/${OPAQUE_ID}$`, "u") },
   { method: "POST", path: new RegExp(`^/dev/v1/reference-scenes/runs/${OPAQUE_ID}/regenerations$`, "u") },
+  // DEV_ONLY deterministic 3D rig render (J-13) used by the "3D rig" page (status, render, reopen; no DELETE).
+  { method: "GET", path: /^\/dev\/v1\/rigs\/status$/u },
+  { method: "POST", path: /^\/dev\/v1\/rigs\/renders$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/rigs/renders/${OPAQUE_ID}$`, "u") },
   // DEV_ONLY scientific simulation (J-14/J-15) used by the "Scientific simulation" page (status, run, reopen; no DELETE).
   { method: "GET", path: /^\/dev\/v1\/simulations\/status$/u },
   { method: "POST", path: /^\/dev\/v1\/simulations$/u },
