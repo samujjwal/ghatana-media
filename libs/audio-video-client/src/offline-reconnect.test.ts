@@ -76,6 +76,38 @@ describe("OfflineReconnectCoordinator", () => {
       reason: "CANONICAL_PROJECT_EDIT_OPERATION_UNAVAILABLE", dirty: true });
   });
 
+  it("reports an unavailable local queue read as dirty without consulting remote edit ports", async () => {
+    let authorizationReads = 0;
+    let versionReads = 0;
+    let applyCalls = 0;
+    const rejectingStore: OfflineEditStore = {
+      list: async () => { throw new Error("private storage detail"); },
+      insert: (record, maximumEntries) => store.insert(record, maximumEntries),
+      put: (record) => store.put(record),
+      compareAndSet: (expected, replacement) => store.compareAndSet(expected, replacement),
+      remove: (targetScope, editId) => store.remove(targetScope, editId),
+    };
+    const coordinator = new OfflineReconnectCoordinator(await queue(rejectingStore), scope, operations({
+      reauthorize: async () => { authorizationReads++; return { ...scope, disposition: "AUTHORIZED" }; },
+      readProjectVersion: async () => {
+        versionReads++;
+        return { ...scope, disposition: "CURRENT", version: "revision-7" };
+      },
+      applyEdit: async (queued) => {
+        applyCalls++;
+        return { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
+          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "unexpected" };
+      },
+    }));
+
+    await expect(coordinator.reconnect(true, { reviewedQueue: [] })).resolves.toEqual({
+      status: "UNAVAILABLE", reason: "OFFLINE_EDIT_STORE_UNAVAILABLE", dirty: true,
+    });
+    expect({ authorizationReads, versionReads, applyCalls }).toEqual({
+      authorizationReads: 0, versionReads: 0, applyCalls: 0,
+    });
+  });
+
   it("does not send queued private edits to remote operations while still offline", async () => {
     const q = await queue();
     await q.enqueue(edit);

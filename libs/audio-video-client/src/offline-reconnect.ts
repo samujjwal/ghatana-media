@@ -39,6 +39,7 @@ export interface OfflineReconnectOperations<T = unknown> {
 
 export type OfflineReconnectResult<R = unknown> =
   | { readonly status: "UNAVAILABLE"; readonly reason: "CANONICAL_PROJECT_EDIT_OPERATION_UNAVAILABLE"; readonly dirty: boolean }
+  | { readonly status: "UNAVAILABLE"; readonly reason: "OFFLINE_EDIT_STORE_UNAVAILABLE"; readonly dirty: true }
   | { readonly status: "REVIEW_REQUIRED"; readonly dirty: true }
   | { readonly status: "UNAVAILABLE"; readonly reason: "OFFLINE_STORE_CAS_UNAVAILABLE"; readonly dirty: boolean; readonly results: readonly {
       readonly editId: string; readonly state: OfflineEditReplayState; readonly receipt?: R;
@@ -65,7 +66,14 @@ export class OfflineReconnectCoordinator<T = unknown, R = string> {
   }
 
   public async reconnect(online: boolean, options: OfflineReconnectOptions<T> = {}): Promise<OfflineReconnectResult<R>> {
-    const dirty = await this.queue.hasDirtyEdits(this.scope);
+    let dirty: boolean;
+    try {
+      dirty = await this.queue.hasDirtyEdits(this.scope);
+    } catch {
+      // The encrypted local queue may still contain unsaved edits. Keep the
+      // UI dirty and fail closed before consulting or dispatching remote ports.
+      return { status: "UNAVAILABLE", reason: "OFFLINE_EDIT_STORE_UNAVAILABLE", dirty: true };
+    }
     if (!online) return { status: "OFFLINE", dirty };
     if (!this.operations) {
       return { status: "UNAVAILABLE", reason: "CANONICAL_PROJECT_EDIT_OPERATION_UNAVAILABLE", dirty };
