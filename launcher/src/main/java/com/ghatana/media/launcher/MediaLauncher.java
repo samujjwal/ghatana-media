@@ -83,11 +83,24 @@ public final class MediaLauncher {
             MediaDevReviewRuntime finalDevReview = devReview;
             MediaDevDeliveryRuntime finalDevDelivery = devDelivery;
             MediaDevRightsRuntime finalDevRights = devRights;
+            MediaDevCompositeRenderRuntime devComposite = MediaDevCompositeRenderRuntime.compose(runtime,
+                    finalDevProjectTimeline, environment, finalDevRights == null ? null : finalDevRights.resolver(),
+                    finalDevLedger);
+            MediaDevAnimationRuntime devAnimation = finalDevLedger == null ? null
+                    : MediaDevAnimationRuntime.compose(runtime, environment,
+                            finalDevRights == null ? null : finalDevRights.resolver(), finalDevLedger);
+            MediaDevStoryboardRuntime devStoryboards = MediaDevStoryboardRuntime.compose(runtime, environment,
+                    finalDevProjectTimeline, devComposite, devAnimation,
+                    finalDevRights == null ? null : finalDevRights.resolver(), finalDevLedger, finalDevReview);
             MediaDevSpeechRuntime finalDevSpeech = finalDevProjectTimeline == null ? null
                     : MediaDevSpeechRuntime.compose(runtime, System.getenv(),
                             finalDevRights == null ? null : finalDevRights.resolver(), finalDevLedger);
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 RuntimeException failure = null;
+                if (devStoryboards != null) {
+                    try { devStoryboards.close(); }
+                    catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
+                }
                 if (finalDevErasure != null) {
                     try { finalDevErasure.close(); }
                     catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
@@ -171,9 +184,8 @@ public final class MediaLauncher {
                                     .withDevErasure(finalDevErasure, "true".equalsIgnoreCase(
                                             environment.getOrDefault("MEDIA_DEV_ERASURE_REQUIRE_OIDC", "false")))
                                     .withDevSpeech(finalDevSpeech)
-                                    .withDevComposite(MediaDevCompositeRenderRuntime.compose(runtime,
-                                            finalDevProjectTimeline, environment,
-                                            finalDevRights == null ? null : finalDevRights.resolver(), finalDevLedger))
+                                    .withDevComposite(devComposite)
+                                    .withDevStoryboards(devStoryboards)
                                     .withDevDub(finalDevSpeech == null ? null
                                             : MediaDevDubbingComposition.compose(runtime, environment, System.getenv(),
                                                     finalDevRights == null ? null : finalDevRights.resolver(),
@@ -202,10 +214,7 @@ public final class MediaLauncher {
                                     .withDevSimulation(finalDevLedger == null ? null
                                             : MediaDevSimulationRuntime.compose(runtime, environment, finalDevLedger))
                                     .withDevQuality(finalDevQuality)
-                                    .withDevAnimation(finalDevLedger == null ? null
-                                            : MediaDevAnimationRuntime.compose(runtime, environment,
-                                                    finalDevRights == null ? null : finalDevRights.resolver(),
-                                                    finalDevLedger))
+                                    .withDevAnimation(devAnimation)
                                     .withDevRegionEdit(finalDevRegionEdit)
                                     .withDevVision(MediaLocalVisionComposition.engineFrom(environment)
                                             .map(engine -> {

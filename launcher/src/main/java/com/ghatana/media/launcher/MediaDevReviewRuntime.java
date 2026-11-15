@@ -83,6 +83,19 @@ public final class MediaDevReviewRuntime implements AutoCloseable {
      */
     void attachLineages(MediaDevIntakeRuntime intake) { this.lineages = intake; }
 
+    /**
+     * Another DEV_ONLY authority that can supersede an artifact version without a newer artifact version (a storyboard
+     * render is superseded the moment its storyboard gains a later version). When it names a replacing head the exact
+     * version is STALE: earlier decisions never transfer and new decisions are refused, exactly as for a lineage.
+     */
+    interface ArtifactSupersession {
+        Optional<String> supersededBy(String tenantId, String ownerPrincipalId, MediaArtifact artifact);
+    }
+
+    private volatile ArtifactSupersession supersession;
+
+    void attachSupersession(ArtifactSupersession supersession) { this.supersession = supersession; }
+
     MediaDevReviewRuntime(ManagedReviewStore store, MediaRuntime runtime, MediaDevProjectTimelineRuntime projects,
                           Clock clock) {
         this.store = Objects.requireNonNull(store, "store");
@@ -383,6 +396,11 @@ public final class MediaDevReviewRuntime implements AutoCloseable {
                     .orElseThrow(SubjectNotFoundException::new);
             ExactVersionRef own = new ExactVersionRef(SubjectKind.ARTIFACT_VERSION, artifact.artifactId(),
                     artifact.version().value());
+            ArtifactSupersession external = supersession;
+            if (external != null && own.reference().equals(subject.reference())) {
+                Optional<String> replacement = external.supersededBy(tenantId, principalId, artifact);
+                if (replacement.isPresent()) return "superseded-by:" + replacement.get();
+            }
             MediaDevIntakeRuntime lineage = lineages;
             if (lineage != null && own.reference().equals(subject.reference())) {
                 var standing = lineage.standing(tenantId, principalId, artifact.artifactId(), artifact.version().value());
@@ -540,6 +558,15 @@ public final class MediaDevReviewRuntime implements AutoCloseable {
         ensureOpen();
         ExactVersionRef subject = new ExactVersionRef(SubjectKind.ARTIFACT_VERSION, artifactId, versionId);
         String caseId = caseId(tenantId, ownerPrincipalId, subject);
+        ArtifactSupersession external = supersession;
+        if (external != null) {
+            Optional<MediaArtifact> own = runtime.artifact(tenantId, ownerPrincipalId, artifactId)
+                    .filter(found -> found.version().value().equals(versionId));
+            if (own.isPresent() && external.supersededBy(tenantId, ownerPrincipalId, own.get()).isPresent()) {
+                return new DeliveryAdmission(false, "REVIEW_SUPERSEDED",
+                        "The authored source of this version has a later version; the newer render must be reviewed", caseId);
+            }
+        }
         MediaDevIntakeRuntime lineage = lineages;
         if (lineage != null) {
             var standing = lineage.standing(tenantId, ownerPrincipalId, artifactId, versionId);

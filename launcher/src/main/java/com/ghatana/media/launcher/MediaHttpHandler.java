@@ -109,6 +109,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private MediaDevDubRoutes devDub;
     private MediaDevCompositeRenderRoutes devComposite;
     private MediaDevCompositeRenderRuntime devCompositeRuntime;
+    private MediaDevStoryboardRoutes devStoryboards;
     private MediaDevCaptionRoutes devCaptions;
     private MediaDevAudioRoutes devAudio;
     private MediaDevMasterRoutes devMasters;
@@ -231,6 +232,12 @@ public final class MediaHttpHandler implements HttpHandler {
     MediaHttpHandler withDevComposite(MediaDevCompositeRenderRuntime composite) {
         this.devCompositeRuntime = composite;
         this.devComposite = composite == null ? null : new MediaDevCompositeRenderRoutes(composite, runtime);
+        return this;
+    }
+
+    /** Installs the optional DEV_ONLY versioned storyboard routes (J-09). */
+    MediaHttpHandler withDevStoryboards(MediaDevStoryboardRuntime storyboards) {
+        this.devStoryboards = storyboards == null ? null : new MediaDevStoryboardRoutes(storyboards, runtime);
         return this;
     }
 
@@ -675,6 +682,19 @@ public final class MediaHttpHandler implements HttpHandler {
             }
             if (devComposite != null && MediaDevCompositeRenderRoutes.handles(path)) {
                 devComposite.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
+                        new MediaDevCreativeOutputRoutes.Responder() {
+                            @Override public void json(HttpExchange e, int status, Object body) throws IOException {
+                                MediaHttpHandler.this.json(e, status, body);
+                            }
+                            @Override public void error(HttpExchange e, int status, String code, String message,
+                                                        Map<String, ?> details) throws IOException {
+                                MediaHttpHandler.this.error(e, status, code, message, details);
+                            }
+                        });
+                return;
+            }
+            if (devStoryboards != null && MediaDevStoryboardRoutes.handles(path)) {
+                devStoryboards.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
                         new MediaDevCreativeOutputRoutes.Responder() {
                             @Override public void json(HttpExchange e, int status, Object body) throws IOException {
                                 MediaHttpHandler.this.json(e, status, body);

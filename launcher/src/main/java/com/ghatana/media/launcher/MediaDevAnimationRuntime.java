@@ -127,7 +127,17 @@ final class MediaDevAnimationRuntime {
         }
     }
 
-    record RenderRequest(String requestId, Object spec, int crf) {
+    /**
+     * {@code anchor} (optional) names the exact artifact version whose own rights statement stands for the authored,
+     * procedural content of this render (for example the storyboard version that authored the spec). It is recorded as
+     * the first {@code source}/{@code parent} of the video so downstream rights checks and erasure follow it; it never
+     * replaces the PROCESSING check of any image asset.
+     */
+    record RenderRequest(String requestId, Object spec, int crf, MediaArtifact anchor) {
+        RenderRequest(String requestId, Object spec, int crf) {
+            this(requestId, spec, crf, null);
+        }
+
         RenderRequest {
             requestId = MediaDevDubSupport.boundedId(requestId, "requestId");
             if (crf < MIN_CRF || crf > MAX_CRF) {
@@ -272,8 +282,11 @@ final class MediaDevAnimationRuntime {
             assetDigests.append(asset.ref().id()).append('=').append(asset.artifact().artifactId()).append('@')
                     .append(asset.artifact().version().value()).append(';');
         }
-        String fingerprint = MediaDevRequestLedger.fingerprint("media.dev.animation.render.v1", specSha, request.crf(),
-                assetDigests.toString());
+        String fingerprint = request.anchor() == null
+                ? MediaDevRequestLedger.fingerprint("media.dev.animation.render.v1", specSha, request.crf(),
+                        assetDigests.toString())
+                : MediaDevRequestLedger.fingerprint("media.dev.animation.render.v1", specSha, request.crf(),
+                        assetDigests.toString(), request.anchor().artifactId() + "@" + request.anchor().version().value());
         return ledger.run(tenantId, principalId, LANE, request.requestId(), fingerprint,
                 outputs -> replay(tenantId, principalId, outputs),
                 () -> produce(tenantId, principalId, request, parsed, specSha, assets),
@@ -566,6 +579,12 @@ final class MediaDevAnimationRuntime {
         String mp4Sha = MediaDevProjectRenderRuntime.sha256Hex(mp4);
         List<Map<String, Object>> assetRefs = new ArrayList<>();
         List<String> attestations = new ArrayList<>();
+        if (request.anchor() != null) {
+            Map<String, Object> anchorRef = MediaDevDubSupport.ref(request.anchor());
+            anchorRef.put("assetId", "authored-anchor");
+            anchorRef.put("contentType", request.anchor().contentType());
+            assetRefs.add(anchorRef);
+        }
         for (ResolvedAsset asset : assets) {
             Map<String, Object> ref = MediaDevDubSupport.ref(asset.artifact());
             ref.put("assetId", asset.ref().id());

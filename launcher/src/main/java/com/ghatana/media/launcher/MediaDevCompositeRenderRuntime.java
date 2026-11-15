@@ -90,7 +90,7 @@ final class MediaDevCompositeRenderRuntime {
     private static final List<String> LINEAGE_KEYS = List.of("renderSchema", "scope", "engine", "projectId", "revisionId",
             "timelineId", "timelineSemanticVersionId", "requestId", "width", "height", "framesPerSecond", "frameCount",
             "durationSeconds", "format", "sources", "parent", "composition", "segments", "encoding", "rightsDecision",
-            "note");
+            "annotations", "note");
 
     /** Server-side ceilings and tool locations. */
     record Config(Path ffmpeg, Path ffprobe, Path tempRoot, Duration timeout, long maxSourceBytes, long maxTotalSourceBytes,
@@ -105,8 +105,13 @@ final class MediaDevCompositeRenderRuntime {
 
     /** One composite render request; every parameter is part of the idempotency fingerprint. */
     record Request(String requestId, String projectId, String revisionId, String timelineId, Spec spec,
-                   long maxOutputBytes) {
+                   long maxOutputBytes, Map<String, Object> annotations) {
+        Request(String requestId, String projectId, String revisionId, String timelineId, Spec spec, long maxOutputBytes) {
+            this(requestId, projectId, revisionId, timelineId, spec, maxOutputBytes, Map.of());
+        }
+
         Request {
+            annotations = annotations == null ? Map.of() : java.util.Collections.unmodifiableMap(new LinkedHashMap<>(annotations));
             requestId = MediaDevDubSupport.boundedId(requestId, "requestId");
             projectId = MediaDevDubSupport.boundedId(projectId, "projectId");
             revisionId = MediaDevDubSupport.boundedId(revisionId, "revisionId");
@@ -267,6 +272,7 @@ final class MediaDevCompositeRenderRuntime {
                 request.spec().fps(), request.spec().gap(), request.spec().captions(), request.spec().color(),
                 request.spec().overlays(), request.spec().gains(), request.maxOutputBytes(),
                 request.spec().audioPeakPolicy().name(), request.spec().truePeakCeilingDbtp()));
+        if (!request.annotations().isEmpty()) fingerprintParts.add("annotations=" + request.annotations());
         for (Resolved source : sources) {
             fingerprintParts.add(source.clip().clipId() + "|" + source.artifact().artifactId() + "|"
                     + source.artifact().version().value() + "|" + source.artifact().sha256());
@@ -1017,6 +1023,7 @@ final class MediaDevCompositeRenderRuntime {
         lineage.put("segments", segments);
         lineage.put("encoding", encoding);
         lineage.put("rightsDecision", String.join(";", evidence));
+        if (!request.annotations().isEmpty()) lineage.put("annotations", request.annotations());
         lineage.put("note", "DEV_ONLY finished master rendered by FFmpeg from exact source versions; rights are the "
                 + "sources' own attestations, not a quality, delivery or approval claim.");
         MediaDevDubSupport.Output output = support.register(tenantId, principalId, "INTERNAL", "composite.render",
@@ -1058,6 +1065,42 @@ final class MediaDevCompositeRenderRuntime {
                     }
                 })
                 .map(MediaDevCompositeRenderRuntime::view);
+    }
+
+    // ---------------------------------------------------------------- inspection
+
+    /** What a stored source decodes to (immutable per exact version, so cached). */
+    record Facts(double durationSeconds, boolean hasVideo, boolean hasAudio, int channels) { }
+
+    private final ConcurrentHashMap<String, Facts> factsCache = new ConcurrentHashMap<>();
+
+    /**
+     * Decodes the exact stored version with FFprobe (never trusting a declared duration) so a caller can state, before any
+     * render, whether the source can serve a clip. Refuses with the same typed codes a render would.
+     */
+    Facts inspect(String tenantId, String principalId, MediaArtifact artifact) {
+        String key = tenantId + "\u0000" + artifact.artifactId() + "@" + artifact.version().value();
+        Facts known = factsCache.get(key);
+        if (known != null) return known;
+        if (artifact.sizeBytes() > config.maxSourceBytes()) {
+            throw new SpeechRefusedException(422, "RENDER_LIMIT_EXCEEDED",
+                    "the source exceeds the " + config.maxSourceBytes() + " byte ceiling", Map.of());
+        }
+        Path work = null;
+        try {
+            work = Files.createTempDirectory(config.tempRoot(), WORK_PREFIX + ProcessHandle.current().pid() + "-inspect-");
+            Path file = work.resolve("source.bin");
+            stage(tenantId, principalId, artifact, file);
+            Probe probe = probe(file, new BoundedProcessRunner.CancellationSource());
+            Facts facts = new Facts(probe.durationSeconds(), probe.hasVideo(), probe.hasAudio(), probe.channels());
+            factsCache.put(key, facts);
+            return facts;
+        } catch (IOException failure) {
+            throw new SpeechRefusedException(422, "SOURCE_NOT_DECODABLE", "the source could not be staged for inspection",
+                    Map.of());
+        } finally {
+            deleteTree(work);
+        }
     }
 
     // ---------------------------------------------------------------- housekeeping
