@@ -127,6 +127,24 @@ public final class MediaAlertDeliveryExporterFixture {
             send(exchange, 400, "unexpected test-only alert\n");
             return;
         }
+        // The alert is grouped by service/modality and must not carry source metric identities
+        // through the actual webhook payload. The REST API assertion in the shell smoke checks
+        // alert labels; this boundary also checks the delivered JSON envelope and annotations.
+        for (String privateMarker : new String[] {
+                "alert-delivery-fixture", "fixture-v1", "fixture-model", "fixture-r1"}) {
+            if (body.contains("\"" + privateMarker + "\"")) {
+                send(exchange, 400, "unexpected alert identity field\n");
+                return;
+            }
+        }
+        for (String privateField : new String[] {
+                "provider_id", "provider_version", "model_profile", "model_revision",
+                "tenant_id", "source_id", "request_id", "job_id", "artifact_id"}) {
+            if (containsJsonField(body, privateField)) {
+                send(exchange, 400, "unexpected alert identity field\n");
+                return;
+            }
+        }
         if (body.matches("(?s).*\\\"status\\\"\\s*:\\s*\\\"firing\\\".*")) {
             receipts.firing.incrementAndGet();
         } else if (body.matches("(?s).*\\\"status\\\"\\s*:\\s*\\\"resolved\\\".*")) {
@@ -158,5 +176,12 @@ public final class MediaAlertDeliveryExporterFixture {
         try (var output = exchange.getResponseBody()) {
             output.write(bytes);
         }
+    }
+
+    private static boolean containsJsonField(String body, String field) {
+        String key = java.util.regex.Pattern.quote(field);
+        return java.util.regex.Pattern.compile("(?:^|[{,])\\s*\\\"" + key + "\\\"\\s*:")
+                .matcher(body)
+                .find();
     }
 }
