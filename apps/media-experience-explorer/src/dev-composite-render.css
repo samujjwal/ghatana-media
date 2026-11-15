@@ -44,3 +44,7 @@ fieldset label { display: grid; gap: .25rem; }
 [data-clip-row] { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: .6rem; border-top: 1px dashed GrayText; padding-top: .6rem; }
 video { width: 100%; max-width: 40rem; margin: .5rem 0; }
 [data-form-errors] ul { margin: 0; }
+fieldset { min-width: 0; }
+fieldset input:not([type="checkbox"]), fieldset select { width: 100%; }
+[data-clip-row], [role="group"] { min-width: 0; }
+.composite [role="region"] { overflow-x: auto; max-width: 100%; }

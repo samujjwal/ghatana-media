@@ -31,7 +31,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 /**
  * Real Chromium drives the Explorer "Multitrack finished master" page against a real launcher process (PostgreSQL + S3),
  * real FFmpeg and a real rights authority. The test principal uploads and attests the generated sources and creates the
- * project; the BROWSER places the six clips on the timeline, triggers a typed refusal, cancels a render mid-encode,
+ * project and its empty timeline; the BROWSER places the six clips on the timeline, triggers a typed refusal, cancels a render mid-encode,
  * renders, verifies and plays the MP4 (decoded by Chromium at each clip's timeline position) and replays. The Java side
  * then reads the registered bytes back from S3 and probes them independently. TEST identities only.
  */
@@ -63,6 +63,9 @@ class MediaDevExplorerCompositeLiveIT {
             String workspaceId = host.ownerGet("/dev/v1/context", 200).path("selectedAuthorizedWorkspaceId").asString();
             String projectId = host.ownerPost("/dev/v1/projects", Map.of("selectedAuthorizedWorkspaceId", workspaceId,
                     "title", "J-18 UI " + host.run, "requestId", "j18-ui-project-" + host.run), 201).path("project").path("projectId").asString();
+            String head = host.ownerGet("/dev/v1/projects/" + projectId, 200).path("currentRevision").path("revisionId").asString();
+            host.ownerPost("/dev/v1/projects/" + projectId + "/timelines", Map.of("expectedHeadRevisionId", head,
+                    "timelineId", "timeline-main"), 201);
             Map<String, Object> sources = new LinkedHashMap<>();
             sources.put("a", ref(a, media.videoA()));
             sources.put("b", ref(b, media.videoB()));

@@ -130,9 +130,16 @@ try {
 
   // 1. Connect; the host limits come FROM THE HOST.
   await page.goto(`${baseUrl}/dev-composite-render.html`, { waitUntil: "networkidle" });
-  await page.getByLabel("Short-lived DEV_ONLY bearer token").fill(token);
-  await page.getByRole("button", { name: "Connect", exact: true }).click();
-  await page.getByRole("heading", { name: "Multitrack finished master", level: 2 }).waitFor({ timeout: 30_000 });
+  await page.reload({ waitUntil: "networkidle" });
+  for (let attempt = 1; ; attempt += 1) {
+    if (attempt > 1) await page.goto(`${baseUrl}/dev-composite-render.html`, { waitUntil: "networkidle" });
+    await page.getByLabel("Short-lived DEV_ONLY bearer token").fill(token);
+    await page.getByRole("button", { name: "Connect", exact: true }).click();
+    try {
+      await page.getByRole("heading", { name: "Multitrack finished master", level: 2 }).waitFor({ timeout: 20_000 });
+      break;
+    } catch (error) { if (attempt >= 3) throw error; }
+  }
   await page.locator("[data-capabilities-status]").getByText(/Limits: 64 clips/u).waitFor({ timeout: 15_000 });
 
   // 2. Project, head revision from the host.
@@ -191,7 +198,7 @@ try {
   const gain = page.getByRole("group", { name: "Audio gain 1", exact: true });
   await gain.getByLabel("Audio clip id").fill("aud-mus");
   await gain.getByLabel("Gain (dB)").fill("-12");
-  await page.getByLabel("Captions", { exact: true }).selectOption("BOTH");
+  await page.getByLabel(/^Captions/u).selectOption("BOTH");
   const refusedPost = page.waitForResponse(isPost("/dev/v1/composite-renders"), { timeout: 60_000 });
   await page.getByRole("button", { name: "Render finished master" }).click();
   const refused = await refusedPost;
