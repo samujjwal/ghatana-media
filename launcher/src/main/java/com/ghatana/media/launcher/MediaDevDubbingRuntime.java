@@ -323,14 +323,11 @@ final class MediaDevDubbingRuntime {
                             "overflowSegments", overflowing, "segments", fit));
         }
         short[] track = MediaDevDubTiming.assemble(placed, lastEnd);
-        // The artifact store refuses a second artifact with identical bytes in a tenant, so a second dub request over the same
-        // translation must differ in bytes: the final sample of the track, when it is silence, carries a request-derived
-        // value of 1 to 8 LSB (inaudible, about -84 dBFS or less) and the captions and timing documents name the requestId.
-        if (track.length > 0 && track[track.length - 1] == 0) {
-            track[track.length - 1] = (short) (1 + (request.requestId().hashCode() & 7));
-        }
-        byte[] wav = MediaDevDubTiming.encodeWav(track);
-        long trackMillis = MediaDevDubTiming.millis((wav.length - 44) / 2);
+        // The artifact store refuses a second artifact with identical bytes in a tenant, so the WAV carries a RIFF LIST/INFO
+        // provenance comment (requestId and translation digest) after the data chunk; the PCM samples are untouched.
+        byte[] wav = MediaDevDubTiming.encodeWav(track, "media.dev.dub request=" + request.requestId()
+                + " translation=" + base.sha256());
+        long trackMillis = MediaDevDubTiming.millis(track.length);
         int overflowCount = (int) placed.stream().filter(MediaDevDubTiming.Placed::overflow).count();
         int adjusted = (int) placed.stream().filter(p -> p.tempoFactor() > 1.0).count();
 

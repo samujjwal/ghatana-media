@@ -169,13 +169,30 @@ final class MediaDevDubTiming {
 
     /** Mono 24 kHz signed 16-bit PCM WAV bytes. */
     static byte[] encodeWav(short[] samples) {
+        return encodeWav(samples, null);
+    }
+
+    /**
+     * Mono 24 kHz signed 16-bit PCM WAV bytes. A non-null {@code comment} is written after the data chunk as a RIFF
+     * {@code LIST/INFO ICMT} chunk (the same kind of provenance comment the audio-restoration lane writes), so the
+     * bytes differ per request while the PCM samples stay exactly what was synthesized and assembled.
+     */
+    static byte[] encodeWav(short[] samples, String comment) {
         int data = samples.length * 2;
-        ByteBuffer out = ByteBuffer.allocate(44 + data).order(ByteOrder.LITTLE_ENDIAN);
-        out.put("RIFF".getBytes(StandardCharsets.US_ASCII)).putInt(36 + data)
+        byte[] text = comment == null ? new byte[0] : (comment + "\0").getBytes(StandardCharsets.US_ASCII);
+        int icmt = text.length == 0 ? 0 : 8 + text.length + (text.length & 1);
+        int list = icmt == 0 ? 0 : 8 + 4 + icmt;
+        ByteBuffer out = ByteBuffer.allocate(44 + data + list).order(ByteOrder.LITTLE_ENDIAN);
+        out.put("RIFF".getBytes(StandardCharsets.US_ASCII)).putInt(36 + data + list)
                 .put("WAVEfmt ".getBytes(StandardCharsets.US_ASCII)).putInt(16).putShort((short) 1).putShort((short) 1)
                 .putInt(SAMPLE_RATE).putInt(SAMPLE_RATE * 2).putShort((short) 2).putShort((short) 16)
                 .put("data".getBytes(StandardCharsets.US_ASCII)).putInt(data);
         for (short sample : samples) out.putShort(sample);
+        if (list > 0) {
+            out.put("LIST".getBytes(StandardCharsets.US_ASCII)).putInt(4 + icmt)
+                    .put("INFOICMT".getBytes(StandardCharsets.US_ASCII)).putInt(text.length).put(text);
+            if ((text.length & 1) == 1) out.put((byte) 0);
+        }
         return out.array();
     }
 

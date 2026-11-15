@@ -136,6 +136,20 @@ class MediaDevDubTimingTest {
     }
 
     @Test
+    void aProvenanceCommentChunkMakesBytesDifferWithoutTouchingTheSamples() throws Exception {
+        short[] samples = {0, 5, -5, 1000, 0};
+        byte[] plain = MediaDevDubTiming.encodeWav(samples);
+        byte[] first = MediaDevDubTiming.encodeWav(samples, "media.dev.dub request=a translation=x");
+        byte[] second = MediaDevDubTiming.encodeWav(samples, "media.dev.dub request=b translation=x");
+        assertThat(first).isNotEqualTo(plain).isNotEqualTo(second);
+        assertThat(MediaDevDubTiming.decodeWav(first)).containsExactly(samples);
+        assertThat(MediaDevDubTiming.decodeWav(second)).containsExactly(samples);
+        // The data chunk bytes are identical and the declared RIFF size covers the trailing chunk.
+        assertThat(java.util.Arrays.copyOfRange(first, 44, 54)).isEqualTo(java.util.Arrays.copyOfRange(plain, 44, 54));
+        assertThat(java.nio.ByteBuffer.wrap(first).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt(4)).isEqualTo(first.length - 8);
+    }
+
+    @Test
     void emptyOrNonPositiveWindowsAndOversizedTracksAreRefused() {
         assertThatThrownBy(() -> MediaDevDubTiming.fit(new MediaDevDubTiming.Segment("s", 1000, 1000, tone(100, (short) 1)), null))
                 .isInstanceOf(IllegalArgumentException.class);
