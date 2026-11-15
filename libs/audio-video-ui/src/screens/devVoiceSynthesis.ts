@@ -78,10 +78,26 @@ export interface VoiceCapabilities {
   readonly noticeRequired: boolean;
   readonly attributionNotice: string | null;
   readonly voices: readonly string[];
+  /** Additive host map voice -> language; when present the voice list follows the selected locale. */
+  readonly voiceLanguages: Readonly<Record<string, string>> | null;
   readonly defaultVoice: string | null;
   readonly verifiedLanguages: readonly string[];
   readonly voiceCloning: string | null;
   readonly maxTextChars: number;
+}
+
+function voiceLanguages(value: unknown): Record<string, string> | null {
+  if (!isRecord(value)) return null;
+  const map: Record<string, string> = {};
+  for (const [voice, language] of Object.entries(value)) if (typeof language === "string" && language) map[voice] = language;
+  return Object.keys(map).length > 0 ? map : null;
+}
+
+/** The voices that speak the primary language of a locale; all voices when the host reports no language map. */
+export function voicesForLocale(capabilities: VoiceCapabilities, locale: string): readonly string[] {
+  if (!capabilities.voiceLanguages) return capabilities.voices;
+  const primary = locale.split(/[-_]/u, 1)[0]!.toLowerCase();
+  return capabilities.voices.filter((voice) => capabilities.voiceLanguages![voice] === primary);
 }
 
 /** Parses the text-to-speech section of GET /dev/v1/speech/capabilities; anything malformed is a typed error. */
@@ -103,6 +119,7 @@ export function parseVoiceCapabilities(body: unknown): VoiceCapabilities {
     noticeRequired: attribution?.noticeRequired === true,
     attributionNotice: attribution ? str(attribution.notice) : null,
     voices,
+    voiceLanguages: voiceLanguages(section.voiceLanguages),
     defaultVoice: str(section.defaultVoice),
     verifiedLanguages: languages,
     voiceCloning: str(section.voiceCloning),
@@ -179,6 +196,8 @@ export function describeVoiceFailure(error: unknown): VoiceFailure {
       return { code, tone: "denied", text: `This locale is not verified for the installed model${list("verifiedLanguages") ? ` (verified: ${list("verifiedLanguages")})` : ""}. Nothing was synthesized.` };
     case "VOICE_NOT_ADMITTED":
       return { code, tone: "denied", text: "This voice is not part of the verified model installation. Nothing was synthesized." };
+    case "VOICE_LOCALE_MISMATCH":
+      return { code, tone: "denied", text: "This stock voice does not speak the chosen locale. Pick a voice for that language. Nothing was synthesized." };
     case "VOICE_CLONING_NOT_SUPPORTED":
       return { code, tone: "unsupported", text: "Voice cloning and likeness synthesis are not supported by this model. Nothing was synthesized." };
     case "RIGHTS_AUTHORITY_UNAVAILABLE":

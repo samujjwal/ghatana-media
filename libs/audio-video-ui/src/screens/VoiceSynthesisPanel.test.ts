@@ -63,6 +63,22 @@ describe("VoiceSynthesisPanel", () => {
     expect(port.getCapabilities).toHaveBeenCalledTimes(1);
   });
 
+  it("follows the selected locale when the host reports a voice-language map", async () => {
+    const port = fakePort({}, capabilitiesBody({ voices: ["af_heart", "am_michael", "ef_dora", "em_alex"], verifiedLanguages: ["en", "es"],
+      voiceLanguages: { af_heart: "en", am_michael: "en", ef_dora: "es", em_alex: "es" } }));
+    await mounted(port);
+    expect(options("Locale")).toEqual(["en", "es"]);
+    expect(options("Voice")).toEqual(["af_heart", "am_michael"]);
+    fireEvent.change(screen.getByLabelText("Locale"), { target: { value: "es" } });
+    expect(options("Voice")).toEqual(["ef_dora", "em_alex"]);
+    expect((screen.getByLabelText("Voice") as HTMLSelectElement).value).toBe("ef_dora");
+    type("Hola.");
+    fireEvent.click(screen.getByRole("button", { name: "Synthesize" }));
+    await waitFor(() => expect(port.synthesize).toHaveBeenCalled());
+    expect(port.synthesize).toHaveBeenCalledWith(expect.objectContaining({ voice: "ef_dora", locale: "es" }));
+    expect(describeVoiceFailure(new DevVoiceHostError("VOICE_LOCALE_MISMATCH", 422, "x")).text).toContain("does not speak");
+  });
+
   it("offers a different voice set when the host reports different voices (nothing is hard-coded)", async () => {
     await mounted(fakePort({}, capabilitiesBody({ voices: ["zz_test"], defaultVoice: "zz_test", verifiedLanguages: ["ne"] })));
     expect(options("Voice")).toEqual(["zz_test"]);

@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  describeVoiceFailure, languageLabel, parseVoiceCapabilities, parseVoiceSynthesisView,
+  describeVoiceFailure, languageLabel, parseVoiceCapabilities, parseVoiceSynthesisView, voicesForLocale,
   type DevVoiceSynthesisPort, type DevVoiceTimelinePlacement, type VoiceCapabilities, type VoiceFailure, type VoiceSynthesisView,
 } from "./devVoiceSynthesis";
 import { DevVerifiedContent } from "./DevVerifiedContent";
@@ -64,20 +64,30 @@ export function VoiceSynthesisPanel({ voice, locked = false, newRequestId = defa
       const capabilities = parseVoiceCapabilities(response.body);
       if (!alive.current) return;
       setState({ phase: "loaded", capabilities });
-      setSelectedVoice((current) => capabilities.voices.includes(current) ? current
-        : capabilities.defaultVoice && capabilities.voices.includes(capabilities.defaultVoice) ? capabilities.defaultVoice : capabilities.voices[0] ?? "");
-      setSelectedLocale((current) => capabilities.verifiedLanguages.includes(current) ? current : capabilities.verifiedLanguages[0] ?? "");
+      const locale = capabilities.verifiedLanguages.includes(selectedLocale) ? selectedLocale : capabilities.verifiedLanguages[0] ?? "";
+      setSelectedLocale(locale);
+      const offered = voicesForLocale(capabilities, locale);
+      setSelectedVoice((current) => offered.includes(current) ? current
+        : capabilities.defaultVoice && offered.includes(capabilities.defaultVoice) ? capabilities.defaultVoice : offered[0] ?? "");
     } catch (error) {
       if (alive.current) setState({ phase: "failed", failure: describeVoiceFailure(error) });
     }
-  }, [voice]);
+  }, [voice]); // eslint-disable-line react-hooks/exhaustive-deps -- the selected locale is only a first-load default
   React.useEffect(() => { void loadCapabilities(); }, [loadCapabilities]);
 
   // A new result takes focus so keyboard and screen-reader users land on it.
   React.useEffect(() => { if (shown) resultHeading.current?.focus(); }, [shown]);
 
   const capabilities = state.phase === "loaded" ? state.capabilities : null;
+  const offeredVoices = capabilities ? voicesForLocale(capabilities, selectedLocale) : [];
   const usable = !!capabilities && capabilities.ready && capabilities.voices.length > 0 && capabilities.verifiedLanguages.length > 0;
+  const chooseLocale = (locale: string): void => {
+    setSelectedLocale(locale);
+    if (!capabilities) return;
+    const offered = voicesForLocale(capabilities, locale);
+    setSelectedVoice((current) => offered.includes(current) ? current
+      : capabilities.defaultVoice && offered.includes(capabilities.defaultVoice) ? capabilities.defaultVoice : offered[0] ?? "");
+  };
   const disabled = locked || pending || !usable;
 
   const synthesize = async (event: React.FormEvent): Promise<void> => {
@@ -156,12 +166,12 @@ export function VoiceSynthesisPanel({ voice, locked = false, newRequestId = defa
       <div className="voice-field">
         <label htmlFor="voice-select">Voice</label>
         <select id="voice-select" value={selectedVoice} disabled={disabled} onChange={(event) => setSelectedVoice(event.currentTarget.value)}>
-          {capabilities?.voices.map((name) => <option key={name} value={name}>{name}</option>)}
+          {offeredVoices.map((name) => <option key={name} value={name}>{name}</option>)}
         </select>
       </div>
       <div className="voice-field">
         <label htmlFor="voice-locale">Locale</label>
-        <select id="voice-locale" value={selectedLocale} disabled={disabled} onChange={(event) => setSelectedLocale(event.currentTarget.value)}>
+        <select id="voice-locale" value={selectedLocale} disabled={disabled} onChange={(event) => chooseLocale(event.currentTarget.value)}>
           {capabilities?.verifiedLanguages.map((tag) => <option key={tag} value={tag}>{languageLabel(tag)}</option>)}
         </select>
       </div>

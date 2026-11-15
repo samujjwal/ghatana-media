@@ -135,10 +135,18 @@ try {
   const capabilities = (await capabilitiesResponse.json()).textToSpeech;
   assert.equal(capabilities.ready, true, "the real Kokoro model must be verified on this host");
   const optionValues = async (label) => page.getByLabel(label, { exact: true }).locator("option").evaluateAll((options) => options.map((option) => option.value));
-  assert.deepEqual(await optionValues("Voice"), capabilities.voices, "voices come from the host");
+  assert.ok(capabilities.verifiedLanguages.includes("en"), "English stays verified");
+  assert.ok(capabilities.voiceLanguages && Object.keys(capabilities.voiceLanguages).length === capabilities.voices.length, "the host reports each voice's language");
+  const englishVoices = capabilities.voices.filter((name) => capabilities.voiceLanguages[name] === "en");
+  assert.deepEqual(await optionValues("Voice"), englishVoices, "the voices offered for locale en are the host's English voices");
   assert.deepEqual(await optionValues("Locale"), capabilities.verifiedLanguages, "locales come from the host");
-  assert.deepEqual(capabilities.voices, ["af_heart", "am_michael"], "only the manifest-listed stock voices");
-  assert.deepEqual(capabilities.verifiedLanguages, ["en"]);
+  assert.deepEqual(englishVoices, ["af_heart", "am_michael"], "the manifest-listed English stock voices");
+  if (capabilities.verifiedLanguages.includes("es")) {
+    await page.getByLabel("Locale", { exact: true }).selectOption("es");
+    assert.deepEqual(await optionValues("Voice"), capabilities.voices.filter((name) => capabilities.voiceLanguages[name] === "es"), "Spanish locale offers only Spanish voices");
+    await page.getByLabel("Locale", { exact: true }).selectOption("en");
+    assert.deepEqual(await optionValues("Voice"), englishVoices);
+  }
   const licence = page.locator("[data-voice-licence]");
   assert.ok((await licence.textContent()).includes(capabilities.licenseSpdx), "licence is shown");
   assert.equal((await page.locator("[data-attribution-notice]").textContent()).startsWith(capabilities.attribution.notice), true, "the attribution notice is the host's notice");

@@ -119,3 +119,12 @@ export type {
   DevProviderCatalogHostResponse, DevProviderCatalogPort, DevProviderCatalogView, DevProviderChange, DevProviderEntry,
   DevProviderFailure, DevProviderState,
 } from "./devProviderCatalog";
+
+// DEV_ONLY translate-and-dub panel (J-16).
+export { DevDubbingPanel } from "./DevDubbingPanel";
+export type { DevDubbingPanelProps } from "./DevDubbingPanel";
+export { DevDubbingHostError, describeDubbingFailure, parseDubbingCapabilities, parseDubbingTimingSegments, parseDubView, parseTranslationView } from "./devDubbing";
+export type {
+  DevDubbingDubRequest, DevDubbingHostResponse, DevDubbingPort, DevDubbingReviseRequest, DevDubbingTranslateRequest, DubbingCapabilities,
+  DubbingFailure, DubbingFit, DubbingOverflowSegment, DubbingSegment, DubbingTiming, DubbingTimingSegment, DubView, TranslationView,
+} from "./devDubbing";

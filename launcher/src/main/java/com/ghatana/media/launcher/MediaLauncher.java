@@ -135,7 +135,7 @@ public final class MediaLauncher {
                                     finalDevProjectTimeline == null ? null : new MediaDevCreativeOutputRuntime(runtime)).withDevDelivery(finalDevDelivery).withDevRights(finalDevRights)
                                     .withDevErasure(finalDevErasure, "true".equalsIgnoreCase(
                                             environment.getOrDefault("MEDIA_DEV_ERASURE_REQUIRE_OIDC", "false")))
-                                                                        .withDevSpeech(finalDevSpeech)
+                                    .withDevSpeech(finalDevSpeech)
                                     .withDevDub(finalDevSpeech == null ? null
                                             : MediaDevDubbingComposition.compose(runtime, environment, System.getenv(),
                                                     finalDevRights == null ? null : finalDevRights.resolver(),
