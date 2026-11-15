@@ -166,6 +166,10 @@ public final class MediaLauncher {
                                             : MediaDevVideoRuntime.compose(runtime, environment,
                                                     finalDevRights == null ? null : finalDevRights.resolver(),
                                                     finalDevLedger))
+                                    .withDevAnimation(finalDevLedger == null ? null
+                                            : MediaDevAnimationRuntime.compose(runtime, environment,
+                                                    finalDevRights == null ? null : finalDevRights.resolver(),
+                                                    finalDevLedger))
                                     .withDevVision(MediaLocalVisionComposition.engineFrom(environment)
                                             .map(engine -> {
                                                 MediaDevVisionRuntime devVision = new MediaDevVisionRuntime(runtime, engine,
