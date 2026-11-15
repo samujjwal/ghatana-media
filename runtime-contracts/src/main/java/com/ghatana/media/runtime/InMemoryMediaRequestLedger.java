@@ -129,6 +129,22 @@ public final class InMemoryMediaRequestLedger implements RequestLedger {
         return changed;
     }
 
+    @Override public synchronized int pruneTerminal(Instant updatedBefore, int maxRows) {
+        ensureOpen();
+        if (maxRows < 1) throw new IllegalArgumentException("maxRows must be positive");
+        int removed = 0;
+        for (java.util.Iterator<Entry> rowsIterator = rows.values().iterator();
+             rowsIterator.hasNext() && removed < maxRows; ) {
+            Entry entry = rowsIterator.next();
+            boolean terminal = entry.state() == State.COMPLETED || entry.state() == State.RELEASED;
+            if (terminal && entry.updatedAt().isBefore(updatedBefore)) {
+                rowsIterator.remove();
+                removed++;
+            }
+        }
+        return removed;
+    }
+
     @Override public synchronized void close() { closed = true; }
 
     private void ensureOpen() {

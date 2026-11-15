@@ -257,6 +257,90 @@ class PostgresqlMediaRequestLedgerTest {
         }
     }
 
+    @Test
+    void pruneDeletesOnlyOldTerminalRowsInBoundedBatchesAndKeepsInProgressErasedAndRecentRows() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            MutableClock clock = new MutableClock();
+            try (PostgresqlMediaRequestLedger timed = new PostgresqlMediaRequestLedger(
+                    MediaAwsPostgresqlRuntimeState.acquire(), clock)) {
+                // The container is shared by the class: clear terminal rows left by other tests so counts are exact.
+                drainTerminalRows(timed);
+                String tenant = "tenant-" + UUID.randomUUID();
+                Key completedA = new Key(tenant, "p", "speech.transcribe", "old-completed-a");
+                Key completedB = new Key(tenant, "p", "speech.transcribe", "old-completed-b");
+                Key released = new Key(tenant, "p", "speech.transcribe", "old-released");
+                Key inProgress = new Key(tenant, "p", "speech.transcribe", "old-in-progress");
+                Key erased = new Key(tenant, "p", "speech.transcribe", "old-erased");
+                Key recent = new Key(tenant, "p", "speech.transcribe", "recent-completed");
+
+                // Everything below is last updated 40 days before the prune.
+                for (Key key : List.of(completedA, completedB, erased)) {
+                    assertThat(timed.claim(key, FP_A, "w", LEASE)).isInstanceOf(Acquired.class);
+                    assertThat(timed.complete(key, 1, OUT)).isTrue();
+                }
+                assertThat(timed.claim(released, FP_A, "w", LEASE)).isEqualTo(new Acquired(1, 1, false));
+                assertThat(timed.release(released, 1, "backend-failed")).isTrue();
+                assertThat(timed.claim(inProgress, FP_A, "w", LEASE)).isEqualTo(new Acquired(1, 1, false));
+                clock.advance(Duration.ofDays(40));
+                assertThat(timed.claim(recent, FP_A, "w", LEASE)).isInstanceOf(Acquired.class);
+                assertThat(timed.complete(recent, 1, OUT)).isTrue();
+
+                // ERASED is a permanent tombstone: the erasure path writes it, pruning must never remove it.
+                try (Connection connection = DriverManager.getConnection(POSTGRES.getJdbcUrl(), POSTGRES.getUsername(),
+                        POSTGRES.getPassword());
+                     PreparedStatement markErased = connection.prepareStatement(
+                             "UPDATE media_dev_request_ledger SET state='ERASED', outputs_json='[]', completed_at=NULL"
+                                     + " WHERE tenant_id=? AND request_id=?")) {
+                    markErased.setString(1, tenant);
+                    markErased.setString(2, erased.requestId());
+                    assertThat(markErased.executeUpdate()).isEqualTo(1);
+                }
+
+                Instant cutoff = clock.instant().minus(Duration.ofDays(30));
+                // Three old terminal rows (two COMPLETED, one RELEASED): a batch bound of 2 removes exactly 2.
+                assertThat(timed.pruneTerminal(cutoff, 2)).isEqualTo(2);
+                assertThat(timed.pruneTerminal(cutoff, 10)).isEqualTo(1);
+                assertThat(timed.pruneTerminal(cutoff, 10)).isZero();
+
+                assertThat(timed.find(completedA)).isEmpty();
+                assertThat(timed.find(completedB)).isEmpty();
+                assertThat(timed.find(released)).isEmpty();
+                assertThat(timed.find(inProgress).orElseThrow().state()).isEqualTo(State.IN_PROGRESS);
+                assertThat(timed.find(erased).orElseThrow().state()).isEqualTo(State.ERASED);
+                assertThat(timed.find(recent).orElseThrow().state()).isEqualTo(State.COMPLETED);
+                assertThatThrownBy(() -> timed.pruneTerminal(cutoff, 0)).isInstanceOf(IllegalArgumentException.class);
+            }
+        }
+    }
+
+    @Test
+    void aPrunedRequestIsClaimedAsANewRequestWithAFreshAttemptAndFence() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            MutableClock clock = new MutableClock();
+            try (PostgresqlMediaRequestLedger ledger = new PostgresqlMediaRequestLedger(
+                    MediaAwsPostgresqlRuntimeState.acquire(), clock)) {
+                drainTerminalRows(ledger);
+                Key key = key();
+                assertThat(ledger.claim(key, FP_A, "w", LEASE)).isEqualTo(new Acquired(1, 1, false));
+                assertThat(ledger.complete(key, 1, OUT)).isTrue();
+                clock.advance(Duration.ofDays(31));
+
+                assertThat(ledger.pruneTerminal(clock.instant().minus(Duration.ofDays(30)), 500)).isEqualTo(1);
+                // Same key, even a different fingerprint: a new request, not a replay and not a 409 mismatch.
+                assertThat(ledger.claim(key, FP_B, "w", LEASE)).isEqualTo(new Acquired(1, 1, false));
+                Entry fresh = ledger.find(key).orElseThrow();
+                assertThat(fresh.state()).isEqualTo(State.IN_PROGRESS);
+                assertThat(fresh.fingerprint()).isEqualTo(FP_B);
+                assertThat(fresh.outputs()).isEmpty();
+            }
+        }
+    }
+
+    /** Deletes every terminal row of the shared container that is already in the past; used before exact-count checks. */
+    private static void drainTerminalRows(PostgresqlMediaRequestLedger ledger) {
+        while (ledger.pruneTerminal(Instant.now().plus(Duration.ofDays(1)), 500) > 0) { /* drain */ }
+    }
+
     private static void insertRaw(Connection connection, String tenant, String requestId, String state, String outputs,
                                   boolean completed) throws SQLException {
         try (PreparedStatement insert = connection.prepareStatement("""

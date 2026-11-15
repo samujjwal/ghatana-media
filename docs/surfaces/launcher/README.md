@@ -860,7 +860,14 @@ a run that failed with nothing registered releases the claim so a retry runs aga
 `409 REQUEST_OUTPUT_UNAVAILABLE` (a completed request whose artifact is no longer readable) are typed refusals. Configuration:
 `MEDIA_DEV_REQUEST_LEDGER=postgresql|memory|auto` (default `auto`: PostgreSQL through the canonical runtime datasource when
 `MEDIA_POSTGRES_JDBC_URL` is set, otherwise a process-local ledger that is logged as non-durable), and
-`MEDIA_DEV_REQUEST_LEDGER_LEASE_SECONDS` (default 900, 30-86400). Remaining limits: the lease is not renewed, so a model run
+`MEDIA_DEV_REQUEST_LEDGER_LEASE_SECONDS` (default 900, 30-86400), and `MEDIA_DEV_REQUEST_LEDGER_RETENTION_DAYS` (default 30,
+integer 1-3650; a malformed value fails startup). Terminal rows (COMPLETED, RELEASED) last updated more than the retention
+ago are pruned by one daemon thread about one minute after start and then hourly, at most 500 rows per pass; IN_PROGRESS
+rows are never pruned, and ERASED rows are kept permanently so an erased output is never produced again. After a row is
+pruned, a retry with the same `requestId` is a NEW request: the model runs again and the fingerprint is not compared with
+the old run (a different request under that id is accepted, not `409`). Registered artifacts are never deleted by pruning;
+a retry that reproduces the identical bytes replays the existing artifact through the upload idempotency key while the
+upload store still holds that record, and different bytes are refused by that key (no second artifact). Remaining limits: the lease is not renewed, so a model run
 longer than the lease may be taken over (the late owner is fenced and registration stays idempotent by its upload key); a
 crash between artifact registration and ledger completion leaves the row IN_PROGRESS until the lease expires and the
 takeover re-runs the model, which can be refused as `409 *_REQUEST_ID_REUSED` when a nondeterministic model produced

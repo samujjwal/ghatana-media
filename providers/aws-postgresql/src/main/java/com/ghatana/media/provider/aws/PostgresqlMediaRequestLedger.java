@@ -35,7 +35,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * ({@code SELECT ... FOR UPDATE} after an {@code INSERT ... ON CONFLICT DO NOTHING}), so concurrent claimants of
  * one key, in this process or another, are serialised and exactly one receives the run. Completion and release are
  * fenced by the lease token: a run that lost its lease (a stale-lease takeover) cannot complete, release or
- * overwrite the new owner's row. Rows are never deleted by this store.
+ * overwrite the new owner's row. Rows leave this store only through {@link #pruneTerminal}, which deletes terminal
+ * COMPLETED and RELEASED rows past retention in bounded batches.
  */
 public final class PostgresqlMediaRequestLedger implements RequestLedger {
     private static final String COLUMNS = """
@@ -83,14 +84,19 @@ public final class PostgresqlMediaRequestLedger implements RequestLedger {
                         return new Acquired(1, 1, false);
                     }
                 }
-                Entry current;
+                Entry current = null;
                 try (PreparedStatement select = connection.prepareStatement(
                         "SELECT " + COLUMNS + " FROM media_dev_request_ledger" + WHERE_KEY + " FOR UPDATE")) {
                     bindKey(select, key);
                     try (ResultSet row = select.executeQuery()) {
-                        if (!row.next()) throw new IllegalStateException("request ledger row vanished during a claim");
-                        current = entry(row);
+                        if (row.next()) current = entry(row);
                     }
+                }
+                if (current == null) {
+                    // A terminal row was pruned between the insert conflict and this lock: the key is free again,
+                    // so it is claimed afresh as a new request.
+                    rollbackQuietly(connection);
+                    return claim(key, fingerprint, owner, lease);
                 }
                 Claim decided;
                 boolean takeover = false;
@@ -272,6 +278,25 @@ public final class PostgresqlMediaRequestLedger implements RequestLedger {
 
     private void ensureOpen() {
         if (closed.get()) throw new IllegalStateException("request ledger is closed");
+    }
+
+    @Override public int pruneTerminal(Instant updatedBefore, int maxRows) {
+        ensureOpen();
+        if (maxRows < 1) throw new IllegalArgumentException("maxRows must be positive");
+        // Only COMPLETED and RELEASED rows are candidates: IN_PROGRESS and ERASED rows are excluded by the state filter.
+        // SKIP LOCKED leaves any row a claimant currently locks alone; a claim that loses the race re-claims the key.
+        try (Connection connection = state.connection();
+             PreparedStatement delete = connection.prepareStatement("""
+                     DELETE FROM media_dev_request_ledger WHERE (tenant_id, principal_id, lane, request_id) IN (
+                         SELECT tenant_id, principal_id, lane, request_id FROM media_dev_request_ledger
+                         WHERE state IN ('COMPLETED', 'RELEASED') AND updated_at < ?
+                         ORDER BY updated_at LIMIT ? FOR UPDATE SKIP LOCKED)""")) {
+            delete.setTimestamp(1, Timestamp.from(updatedBefore));
+            delete.setInt(2, maxRows);
+            return delete.executeUpdate();
+        } catch (SQLException failure) {
+            throw persistence("prune", failure);
+        }
     }
 
     @Override public void close() {

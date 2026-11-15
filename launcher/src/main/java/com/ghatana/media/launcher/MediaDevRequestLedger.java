@@ -16,12 +16,16 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.UUID;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -44,6 +48,18 @@ import java.util.function.Supplier;
  * <p>The ledger maps the request to its registered output; it does not make registration exactly-once on its own.
  * Registration stays idempotent through the canonical upload idempotency key, so a superseded run that registers late
  * can never create a second artifact.</p>
+ *
+ * <p><b>Retention.</b> Terminal rows (COMPLETED, RELEASED) last updated more than
+ * {@code MEDIA_DEV_REQUEST_LEDGER_RETENTION_DAYS} days ago (default 30) are pruned by a single daemon thread, at most
+ * {@link #MAX_PRUNE_BATCH} rows per pass. IN_PROGRESS rows are never pruned, whatever their age, and an ERASED
+ * tombstone is kept forever so an erased output is never produced again. Once its row is pruned, a retry with the
+ * same requestId is a NEW request: it claims the key again (attempt and fence restart), the model runs again, and
+ * the fingerprint is no longer compared against the old run, so a different request under the same id is accepted
+ * instead of answered 409. Artifacts are never deleted by pruning. Registration is still guarded by the upload
+ * idempotency key (derived from tenant, principal and requestId, not from the fingerprint), for as long as the upload
+ * store still holds that record: a retry that produces byte-identical output replays the existing artifact, while
+ * different bytes or different upload metadata are refused by the upload store as an Idempotency-Key conflict and no
+ * second artifact is registered. Once the artifact itself has expired or been erased, a retry registers a new one.</p>
  */
 final class MediaDevRequestLedger implements AutoCloseable {
     static final String ENV_BACKEND = "MEDIA_DEV_REQUEST_LEDGER";
@@ -52,6 +68,13 @@ final class MediaDevRequestLedger implements AutoCloseable {
     static final String POSTGRESQL_FACTORY = "postgresql-dev-request-ledger";
     static final Duration DEFAULT_LEASE = Duration.ofMinutes(15);
     static final Duration DEFAULT_WAIT = Duration.ofSeconds(20);
+    /** Retention of terminal rows, in whole days: {@code MEDIA_DEV_REQUEST_LEDGER_RETENTION_DAYS}, 1-3650. */
+    static final String ENV_RETENTION_DAYS = "MEDIA_DEV_REQUEST_LEDGER_RETENTION_DAYS";
+    static final Duration DEFAULT_RETENTION = Duration.ofDays(30);
+    /** Upper bound of rows deleted by one prune pass. */
+    static final int MAX_PRUNE_BATCH = 500;
+    static final Duration PRUNE_INITIAL_DELAY = Duration.ofMinutes(1);
+    static final Duration PRUNE_INTERVAL = Duration.ofHours(1);
     private static final long POLL_MILLIS = 200;
     private static final Logger log = LoggerFactory.getLogger(MediaDevRequestLedger.class);
 
@@ -76,16 +99,24 @@ final class MediaDevRequestLedger implements AutoCloseable {
     private final RequestLedger ledger;
     private final Duration lease;
     private final Duration maxWait;
+    private final Duration retention;
     private static final String LOCAL_HOST = localHost();
 
     private final String owner = localOwner();
     private final boolean durable;
+    private volatile ScheduledExecutorService pruner;
 
     MediaDevRequestLedger(RequestLedger ledger, Duration lease, Duration maxWait, boolean durable) {
+        this(ledger, lease, maxWait, durable, DEFAULT_RETENTION);
+    }
+
+    MediaDevRequestLedger(RequestLedger ledger, Duration lease, Duration maxWait, boolean durable, Duration retention) {
         this.ledger = Objects.requireNonNull(ledger, "ledger");
         this.lease = Objects.requireNonNull(lease, "lease");
         this.maxWait = Objects.requireNonNull(maxWait, "maxWait");
+        this.retention = Objects.requireNonNull(retention, "retention");
         this.durable = durable;
+        if (retention.isZero() || retention.isNegative()) throw new IllegalArgumentException("retention must be positive");
         if (lease.isZero() || lease.isNegative()) throw new IllegalArgumentException("lease must be positive");
         if (maxWait.isNegative()) throw new IllegalArgumentException("maxWait must not be negative");
     }
@@ -144,21 +175,85 @@ final class MediaDevRequestLedger implements AutoCloseable {
         String mode = environment.getOrDefault(ENV_BACKEND, "auto").trim().toLowerCase(Locale.ROOT);
         Duration lease = seconds(environment, ENV_LEASE_SECONDS, DEFAULT_LEASE, 30, 86_400);
         Duration wait = seconds(environment, ENV_WAIT_SECONDS, DEFAULT_WAIT, 0, 300);
+        Duration retention = retention(environment);
         boolean datasourceConfigured = !environment.getOrDefault("MEDIA_POSTGRES_JDBC_URL", "").isBlank();
+        RequestLedger store;
+        boolean durable;
         switch (mode) {
             case "memory" -> {
                 log.warn("DEV request ledger is process-local (non-durable) by explicit configuration");
-                return new MediaDevRequestLedger(new InMemoryMediaRequestLedger(), lease, wait, false);
+                store = new InMemoryMediaRequestLedger();
+                durable = false;
             }
-            case "postgresql" -> { return new MediaDevRequestLedger(openPostgresql(environment), lease, wait, true); }
+            case "postgresql" -> {
+                store = openPostgresql(environment);
+                durable = true;
+            }
             case "auto" -> {
                 if (datasourceConfigured) {
-                    return new MediaDevRequestLedger(openPostgresql(environment), lease, wait, true);
+                    store = openPostgresql(environment);
+                    durable = true;
+                } else {
+                    log.warn("DEV request ledger is process-local (non-durable): no canonical PostgreSQL datasource is configured");
+                    store = new InMemoryMediaRequestLedger();
+                    durable = false;
                 }
-                log.warn("DEV request ledger is process-local (non-durable): no canonical PostgreSQL datasource is configured");
-                return new MediaDevRequestLedger(new InMemoryMediaRequestLedger(), lease, wait, false);
             }
             default -> throw new IllegalArgumentException(ENV_BACKEND + " must be postgresql, memory or auto");
+        }
+        MediaDevRequestLedger ledger = new MediaDevRequestLedger(store, lease, wait, durable, retention);
+        ledger.startPruning();
+        return ledger;
+    }
+
+    /**
+     * Starts the single daemon thread that prunes terminal rows past retention, one bounded batch per pass. It is
+     * stopped by {@link #close}.
+     */
+    private void startPruning() {
+        ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(task -> {
+            Thread thread = new Thread(task, "media-dev-request-ledger-prune");
+            thread.setDaemon(true);
+            return thread;
+        });
+        scheduler.scheduleWithFixedDelay(this::pruneQuietly, PRUNE_INITIAL_DELAY.toMillis(),
+                PRUNE_INTERVAL.toMillis(), TimeUnit.MILLISECONDS);
+        pruner = scheduler;
+    }
+
+    private void pruneQuietly() {
+        try {
+            pruneOnce(Instant.now());
+        } catch (RuntimeException failure) {
+            // Pruning is best effort: a failed pass leaves rows in place and the next pass retries them.
+            log.warn("DEV request ledger prune pass failed reason={}", failure.getClass().getSimpleName());
+        }
+    }
+
+    /**
+     * One prune pass: deletes at most {@link #MAX_PRUNE_BATCH} COMPLETED or RELEASED rows last updated before
+     * {@code now - retention}. IN_PROGRESS and ERASED rows are never deleted. Returns the rows deleted.
+     */
+    int pruneOnce(Instant now) {
+        int removed = ledger.pruneTerminal(now.minus(retention), MAX_PRUNE_BATCH);
+        if (removed > 0) {
+            log.info("DEV request ledger pruned {} terminal row(s) older than {} days", removed, retention.toDays());
+        }
+        return removed;
+    }
+
+    Duration retention() { return retention; }
+
+    /** {@code MEDIA_DEV_REQUEST_LEDGER_RETENTION_DAYS}: an integer from 1 to 3650, default 30; malformed is refused. */
+    static Duration retention(Map<String, String> environment) {
+        String raw = environment.get(ENV_RETENTION_DAYS);
+        if (raw == null || raw.isBlank()) return DEFAULT_RETENTION;
+        try {
+            long days = Long.parseLong(raw.trim());
+            if (days < 1 || days > 3650) throw new NumberFormatException();
+            return Duration.ofDays(days);
+        } catch (NumberFormatException invalid) {
+            throw new IllegalArgumentException(ENV_RETENTION_DAYS + " must be an integer within [1, 3650]");
         }
     }
 
@@ -305,6 +400,8 @@ final class MediaDevRequestLedger implements AutoCloseable {
     }
 
     @Override public void close() {
+        ScheduledExecutorService scheduler = pruner;
+        if (scheduler != null) scheduler.shutdownNow();
         ledger.close();
     }
 }

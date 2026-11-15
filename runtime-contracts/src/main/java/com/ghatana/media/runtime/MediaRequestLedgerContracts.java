@@ -130,6 +130,15 @@ public final class MediaRequestLedgerContracts {
          */
         default int eraseOutputs(String tenantId, java.util.Set<String> artifactIds) { return 0; }
 
+        /**
+         * Deletes at most {@code maxRows} TERMINAL rows whose last update is before {@code updatedBefore}: COMPLETED
+         * and RELEASED rows only. IN_PROGRESS rows (live or expired leases, outcome unknown) and ERASED tombstones are
+         * never deleted, whatever their age: an erased key must stay permanently refused. After a row is pruned, a
+         * request with the same key is a NEW request: it claims the key again and runs again. Artifacts are never
+         * touched. Returns the number of rows deleted.
+         */
+        int pruneTerminal(Instant updatedBefore, int maxRows);
+
         @Override void close();
     }
 
