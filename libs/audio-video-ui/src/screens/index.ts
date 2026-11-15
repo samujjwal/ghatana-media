@@ -78,3 +78,17 @@ export type {
   BoxesAtResult, DevVisionHostResponse, DevVisionPort, DevVisionTrackRequest, VisionBox, VisionFrame, VisionObservation,
   VisionTrack, VisionTracksDocument,
 } from "./devVisionTracks";
+export { DevVideoComparisonPanel } from "./DevVideoComparisonPanel";
+export type { DevVideoComparisonPanelProps } from "./DevVideoComparisonPanel";
+export { VideoWipeComparison } from "./VideoWipeComparison";
+export type { VideoWipeComparisonProps } from "./VideoWipeComparison";
+export {
+  DevVideoHostError, IDENTICAL_PSNR_DB as VIDEO_IDENTICAL_PSNR_DB, VIDEO_COMPARISON_SCHEMA, VIDEO_ENHANCEMENT_SCHEMA,
+  VideoComparisonParseError, describeVideoFailure, formatDb as formatVideoDb, formatSigned as formatVideoSigned,
+  formatSsim as formatVideoSsim, frameAt as videoFrameAt, metricSeries as videoMetricSeries, parseVideoComparisonDocument,
+} from "./devVideoComparison";
+export type {
+  DevVideoCompareRequest, DevVideoHostResponse, DevVideoPort, DevVideoSourceRef, MetricName as VideoMetricName,
+  MetricPoint as VideoMetricPoint, VideoAgainstReference, VideoComparisonDelta, VideoComparisonDocument,
+  VideoFrameMeasure, VideoSubject,
+} from "./devVideoComparison";
