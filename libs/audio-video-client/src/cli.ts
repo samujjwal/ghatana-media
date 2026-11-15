@@ -17,7 +17,7 @@ import { MediaDevProjectTimelineClient } from './dev-project-timeline.js';
 import { MediaDevOnlyJobCancellationClient } from './dev-job-cancellation.js';
 import { MediaDevOnlyRenderExportClient } from './dev-render-export.js';
 import type { DevExportResult, DevRenderFormat } from './dev-render-export.js';
-import { BatchValidationError, parseBatch, readBatchFile, runBatch } from './dev-batch.js';
+import { BatchValidationError, JOB_NOT_FINAL_EXIT_CODE, parseBatch, readBatchFile, runBatch } from './dev-batch.js';
 import type { BatchItem, BatchItemOutcome } from './dev-batch.js';
 import { sameMediaRetention } from './retention-duration.js';
 import { isCanonicalMediaContentType } from './upload-validation.js';
@@ -29,6 +29,7 @@ const LOCAL_DEVELOPMENT_COMMAND_IDS: Readonly<Record<string, string>> = {
   'artifact upload': 'media.cli.local-development.artifact.upload',
   'artifact inspect': 'media.cli.local-development.artifact.inspect',
   'job get': 'media.cli.local-development.job.get',
+  'job submit': 'media.cli.local-development.job.submit',
   'job cancel': 'media.cli.local-development.job.cancel',
   'project render': 'media.cli.local-development.project.render',
   'project render-get': 'media.cli.local-development.project.render-get',
@@ -37,8 +38,13 @@ const LOCAL_DEVELOPMENT_COMMAND_IDS: Readonly<Record<string, string>> = {
 };
 const BATCH_COMMAND_ID = 'media.cli.local-development.batch.run';
 const DEV_RENDER_EXPORT_COMMANDS: ReadonlySet<string> = new Set(['project render', 'project render-get', 'export create', 'export get']);
-const DEV_MUTATING_COMMANDS: ReadonlySet<string> = new Set(['project render', 'export create']);
+const DEV_MUTATING_COMMANDS: ReadonlySet<string> = new Set(['project render', 'export create', 'job submit']);
 const EXPORT_NOT_CONFIRMED_EXIT_CODE = 4;
+const MAX_AWAIT_FINALITY_MS = 300_000;
+const FINALITY_POLL_MS = 250;
+const JOB_TYPES_FOR_SUBMIT: ReadonlySet<string> = new Set(['TRANSCODE', 'SPEECH_TO_TEXT', 'TEXT_TO_SPEECH', 'VISION', 'MULTIMODAL']);
+const TERMINAL_JOB_STATES: ReadonlySet<string> = new Set(['COMPLETED', 'FAILED', 'CANCELLED']);
+const SERVER_CODE_PATTERN = /^[A-Z][A-Z0-9_]{0,63}$/u;
 const DEV_TYPED_ERROR_CODES: Readonly<Record<number, ReadonlySet<string>>> = {
   404: new Set(['PROJECT_NOT_FOUND', 'SOURCE_VERSION_NOT_FOUND', 'RENDER_NOT_FOUND', 'EXPORT_NOT_FOUND', 'DESTINATION_NOT_FOUND', 'ARTIFACT_VERSION_NOT_FOUND']),
   409: new Set(['IDEMPOTENCY_CONFLICT', 'REVISION_CONFLICT', 'MEDIA_STATE_CONFLICT', 'EXPORT_REQUEST_CONFLICT']),
@@ -46,7 +52,7 @@ const DEV_TYPED_ERROR_CODES: Readonly<Record<number, ReadonlySet<string>>> = {
 };
 const DEV_TYPED_422_PATTERN = /^(?:RENDER|EXPORT|TIMELINE|TRACK|SOURCE)_[A-Z0-9_]{1,56}$/u;
 const PRODUCTION_USAGE = 'Usage: ghatanamedia-api artifact inspect --endpoint URL --tenant ID --principal ID --artifact ID';
-const LOCAL_DEVELOPMENT_USAGE = 'Usage: ghatanamedia-api-dev artifact upload --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH --content-type TYPE --classification CLASS --retention PERIOD --idempotency-key KEY | artifact inspect --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID | job get --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID [--request-id ID] | job cancel --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID --request-id ID [--expected-version N] | project render --endpoint LOOPBACK_URL --tenant ID --principal ID --project-id ID --revision-id ID --timeline-id ID --request-id ID --width N --height N --fps N [--format gif|mp4] | project render-get --endpoint LOOPBACK_URL --tenant ID --principal ID --project-id ID --render-id ID | export create --endpoint LOOPBACK_URL --tenant ID --principal ID --request-id ID --artifact-id ID --artifact-version-id ID --destination-id ID | export get --endpoint LOOPBACK_URL --tenant ID --principal ID --request-id ID | batch run --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH [--continue-on-error]';
+const LOCAL_DEVELOPMENT_USAGE = 'Usage: ghatanamedia-api-dev artifact upload --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH --content-type TYPE --classification CLASS --retention PERIOD --idempotency-key KEY | artifact inspect --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID | job get --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID [--request-id ID] [--await-finality-ms N] | job submit --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID --request-id ID [--job-type TYPE] [--provider-hint ID] [--await-finality-ms N] | job cancel --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID --request-id ID [--expected-version N] | project render --endpoint LOOPBACK_URL --tenant ID --principal ID --project-id ID --revision-id ID --timeline-id ID --request-id ID --width N --height N --fps N [--format gif|mp4] | project render-get --endpoint LOOPBACK_URL --tenant ID --principal ID --project-id ID --render-id ID | export create --endpoint LOOPBACK_URL --tenant ID --principal ID --request-id ID --artifact-id ID --artifact-version-id ID --destination-id ID | export get --endpoint LOOPBACK_URL --tenant ID --principal ID --request-id ID | batch run --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH [--continue-on-error]';
 const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
 const MAX_REQUEST_TIMEOUT_MS = 300_000;
 const MAX_ENDPOINT_URL_CHARS = 8_192;
@@ -76,6 +82,8 @@ const COMMAND_OPTIONS: Readonly<Record<string, readonly string[]>> = {
 
 const LOCAL_DEVELOPMENT_COMMAND_OPTIONS: Readonly<Record<string, readonly string[]>> = {
   ...COMMAND_OPTIONS,
+  'job get': ['--endpoint', '--tenant', '--principal', '--job', '--request-id', '--await-finality-ms'],
+  'job submit': ['--endpoint', '--tenant', '--principal', '--artifact', '--request-id', '--job-type', '--provider-hint', '--await-finality-ms'],
   'job cancel': ['--endpoint', '--tenant', '--principal', '--job', '--request-id', '--expected-version'],
   'project render': ['--endpoint', '--tenant', '--principal', '--project-id', '--revision-id', '--timeline-id', '--request-id', '--width', '--height', '--fps', '--format'],
   'project render-get': ['--endpoint', '--tenant', '--principal', '--project-id', '--render-id'],
@@ -84,7 +92,8 @@ const LOCAL_DEVELOPMENT_COMMAND_OPTIONS: Readonly<Record<string, readonly string
 };
 
 const OPTIONAL_COMMAND_OPTIONS: Readonly<Record<string, readonly string[]>> = {
-  'job get': ['--request-id'],
+  'job get': ['--request-id', '--await-finality-ms'],
+  'job submit': ['--job-type', '--provider-hint', '--await-finality-ms'],
   'job cancel': ['--expected-version'],
   'project render': ['--format'],
 };
@@ -165,6 +174,20 @@ function parseArguments(argv: readonly string[], channel: CliChannel): Arguments
     const format = values.get('--format');
     if (format !== undefined && format !== 'gif' && format !== 'mp4') throw new Error('format must be gif or mp4.');
   }
+  if (command === 'job submit') {
+    const requestIdValue = values.get('--request-id')!;
+    if (!OPAQUE_ID_PATTERN.test(requestIdValue)) throw new Error('Job submit request ID must be a PDP-1 opaque ID of 1 to 128 characters.');
+    const jobType = values.get('--job-type');
+    if (jobType !== undefined && !JOB_TYPES_FOR_SUBMIT.has(jobType)) throw new Error('job type is not a canonical Media job type.');
+    const hint = values.get('--provider-hint');
+    if (hint !== undefined && !OPAQUE_ID_PATTERN.test(hint)) throw new Error('provider hint must be a PDP-1 opaque ID of 1 to 128 characters.');
+    const artifactValue = values.get('--artifact')!;
+    if (!OPAQUE_ID_PATTERN.test(artifactValue)) throw new Error('artifact ID must be a PDP-1 opaque ID of 1 to 128 characters.');
+  }
+  const awaitRaw = values.get('--await-finality-ms');
+  if (awaitRaw !== undefined && (!/^(?:0|[1-9]\d{0,6})$/u.test(awaitRaw) || Number(awaitRaw) > MAX_AWAIT_FINALITY_MS)) {
+    throw new Error(`await-finality-ms must be an integer in 0..${MAX_AWAIT_FINALITY_MS}.`);
+  }
   if (command === 'artifact upload') {
     const contentType = values.get('--content-type')!;
     if (!isCanonicalMediaContentType(contentType)) {
@@ -242,6 +265,7 @@ function hasLocalDevelopmentIdentityClaims(
       'artifact upload': ['media:artifact:create', 'media:artifact:read', 'media:artifact:write'],
       'artifact inspect': ['media:artifact:read'],
       'job get': ['media:job:read'],
+      'job submit': ['media:job:create'],
       'job cancel': ['media:job:cancel'],
       'project render': ['media:project:dev:write', 'media:artifact:read', 'media:artifact:create'],
       'project render-get': ['media:project:dev:read'],
@@ -522,6 +546,20 @@ async function uploadArtifact(
     assertSafeUploadSessionIdentity(session, token);
     onUploadId(session.uploadId);
 
+    // Re-running a batch replays the same idempotency key. A session this key already completed (or was
+    // finalizing when a prior process or host died) is reconciled by the host's idempotent completion and
+    // the exact content digest: no byte is re-sent and no second artifact can exist.
+    if ((session.status === 'COMPLETED' || session.status === 'FINALIZING')
+      && session.expectedSha256 === expectedSha256 && session.expectedSizeBytes === initialStat.size
+      && session.bytesReceived === initialStat.size) {
+      const replayed = await client.completeUploadSession(session.uploadId);
+      onArtifactId(replayed.artifactId);
+      if (replayed.sha256 !== expectedSha256 || replayed.sizeBytes !== initialStat.size) throw new ArtifactReadbackMismatchError();
+      const durableReplay = await client.getArtifact(replayed.artifactId);
+      if (!sameCompletedArtifact(durableReplay, replayed)) throw new ArtifactReadbackMismatchError();
+      return durableReplay;
+    }
+
     // The same idempotency key can recover a durable OPEN session from a prior
     // CLI process. Resume only from its acknowledged byte/chunk boundary.
     if (session.status !== 'OPEN' || !Number.isSafeInteger(session.bytesReceived)
@@ -648,10 +686,17 @@ async function runBatchCommand(argv: readonly string[], token: string | undefine
   try {
     items = parseBatch(await readBatchFile(values.get('--file')!));
     // Every item is fully validated by the single-command parser before any item is dispatched.
-    for (const item of items) parseArguments([...item.command.split(' '), ...common, ...item.flags], 'local-development');
+    for (const [index, item] of items.entries()) {
+      try { parseArguments([...item.command.split(' '), ...common, ...item.flags], 'local-development'); }
+      catch (error) {
+        throw new BatchValidationError('BATCH_SCHEMA_INVALID',
+          `items[${index}].options failed single-command validation: ${error instanceof Error ? error.message : 'invalid item'}`);
+      }
+    }
   } catch (error) {
-    if (error instanceof BatchValidationError) fail(error.code, error.message, 2);
-    else fail('BATCH_SCHEMA_INVALID', `A batch item failed single-command validation: ${error instanceof Error ? error.message : 'invalid item'}`, 2);
+    if (error instanceof BatchValidationError) {
+      writeError(error.code, error.message, { jsonPath: error.path }, 2, command, { 'batch run': BATCH_COMMAND_ID });
+    } else fail('BATCH_SCHEMA_INVALID', 'The batch file could not be validated.', 2);
     return;
   }
   const report = await runBatch(items, { continueOnError, dispatch: (item) => dispatchBatchItem(item, common, bearerToken) });
@@ -816,9 +861,36 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
       return;
     }
     const canonical = createMediaCanonicalClient(config);
-    const job = args.values['--request-id'] === undefined
-      ? await canonical.getJob(args.values['--job']!)
-      : await canonical.getJobByRequest(args.values['--job']!, args.values['--request-id']);
+    const awaitMs = Number(args.values['--await-finality-ms'] ?? 0);
+    const readJob = (jobId: string) => args.values['--request-id'] === undefined || args.command === 'job submit'
+      ? canonical.getJob(jobId)
+      : canonical.getJobByRequest(jobId, args.values['--request-id']);
+    let job = args.command === 'job submit'
+      ? await canonical.submitJob({
+        requestId: args.values['--request-id']!, correlationId: `cli-${args.values['--request-id']!}`.slice(0, 128),
+        artifactId: args.values['--artifact']!,
+        jobType: (args.values['--job-type'] ?? 'TRANSCODE') as 'TRANSCODE',
+        ...(args.values['--provider-hint'] === undefined ? {} : { providerHint: args.values['--provider-hint'] }),
+        idempotencyKey: args.values['--request-id']!,
+      })
+      : await readJob(args.values['--job']!);
+    // A 202/ACCEPTED/RUNNING observation is never finality. With --await-finality-ms the same read is
+    // repeated until the job is COMPLETED, FAILED or CANCELLED or the bound elapses (then JOB_NOT_FINAL).
+    const deadline = Date.now() + awaitMs;
+    while (awaitMs > 0 && !TERMINAL_JOB_STATES.has(job.status) && Date.now() < deadline) {
+      await new Promise((done) => setTimeout(done, Math.min(FINALITY_POLL_MS, Math.max(1, deadline - Date.now()))));
+      job = await readJob(job.jobId);
+    }
+    if (awaitMs > 0 && !TERMINAL_JOB_STATES.has(job.status)) {
+      if (containsCredential(job, bearerToken)) {
+        writeError('INVALID_MEDIA_RESPONSE', 'Media returned a job response containing credential material.', {}, 1, args.command, commandIds);
+        return;
+      }
+      writeError('JOB_NOT_FINAL', 'The job did not reach COMPLETED, FAILED or CANCELLED within the bound; finality is UNKNOWN. Re-read the same job (or re-run the same batch with the same request identity) to resume; do not submit a new request.',
+        { jobId: job.jobId, requestId: job.requestId, observedStatus: job.status, finality: 'UNKNOWN' },
+        JOB_NOT_FINAL_EXIT_CODE, args.command, commandIds);
+      return;
+    }
     writeJob(job, bearerToken, args.command, commandIds);
   } catch (error) {
     if (error instanceof MediaOperationAmbiguousError) {
@@ -886,6 +958,15 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
           statusCode: error.statusCode,
           ...safeCorrelationExtra(error.detail.correlationId, bearerToken),
         }, 1, args.command, commandIds);
+      } else if (channel === 'local-development' && (error.statusCode === 401 || error.statusCode === 403)) {
+        // Definitive authentication/authorization refusal: no effect occurred and none is inferred.
+        writeError(error.statusCode === 401 ? 'UNAUTHENTICATED' : 'FORBIDDEN',
+          error.statusCode === 401
+            ? 'Media did not accept the bearer identity; the operation had no effect.'
+            : 'Media denied this operation for the token\'s scopes or ownership; the operation had no effect.',
+          { statusCode: error.statusCode, ...(SERVER_CODE_PATTERN.test(error.detail.code) ? { serverCode: error.detail.code } : {}),
+            ...mutationExtra(args), ...(knownUploadId === undefined ? {} : { uploadId: knownUploadId }),
+            ...safeCorrelationExtra(error.detail.correlationId, bearerToken) }, 1, args.command, commandIds);
       } else if (error.statusCode === 404 && error.detail.code === 'ARTIFACT_NOT_FOUND' && args.command === 'artifact inspect') {
         writeError('ARTIFACT_NOT_FOUND', 'Artifact was not visible in the requested tenant and principal scope.', {
           statusCode: 404,

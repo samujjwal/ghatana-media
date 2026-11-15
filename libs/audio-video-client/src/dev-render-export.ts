@@ -65,6 +65,11 @@ export interface DevExportResult {
   readonly replayed: boolean;
   /** HTTP status the host used (201 confirmed, 200 replay/read, 202 not yet confirmed). */
   readonly httpStatus: number;
+  /** Destination acknowledgement observation, present when the host reports it (DELIVERED only when confirmed). */
+  readonly ackState?: string;
+  readonly failure?: string | null;
+  readonly destinationReceivedBytes?: number | null;
+  readonly observedAt?: string | null;
 }
 
 function record(value: unknown, label: string): Record<string, unknown> {
@@ -151,8 +156,21 @@ function parseRender(input: unknown, projectId: string, expected: Partial<DevRen
 
 function parseExport(input: unknown, expected: Partial<DevExportRequest>, httpStatus: number, createRoute: boolean): DevExportResult {
   const value = record(input, "export result");
+  // The host (J-22) also reports the destination ack observation; those four keys are all-or-none so a
+  // host that predates them and a current host are both accepted, and no other key ever is.
+  const ACK_KEYS = ["ackState", "failure", "destinationReceivedBytes", "observedAt"] as const;
+  const withAck = ACK_KEYS.every((key) => Object.hasOwn(value, key));
   exactKeys(value, ["requestId", "artifactId", "artifactVersionId", "artifactDigest", "destinationId", "status",
-    "acknowledgedBytes", "destinationConfirmed", "destinationReceiptRef", "replayed", "scope"], "export result");
+    "acknowledgedBytes", "destinationConfirmed", "destinationReceiptRef", "replayed", "scope",
+    ...(withAck ? ACK_KEYS : [])], "export result");
+  if (withAck) {
+    if (!["DELIVERED", "NOT_DELIVERED", "UNKNOWN"].includes(value.ackState as string)
+      || (value.failure !== null && typeof value.failure !== "string")
+      || (value.destinationReceivedBytes !== null && positiveInt(value.destinationReceivedBytes, "export received bytes") < 0)
+      || (value.observedAt !== null && typeof value.observedAt !== "string")) {
+      throw new TypeError("Canonical Media DEV_ONLY export acknowledgement observation is invalid.");
+    }
+  }
   const status = text(value.status, "export status", 32);
   if (value.scope !== "DEV_ONLY" || typeof value.replayed !== "boolean"
     || typeof value.destinationConfirmed !== "boolean" || !EXPORT_STATUSES.has(status)) {
@@ -173,6 +191,8 @@ function parseExport(input: unknown, expected: Partial<DevExportRequest>, httpSt
     destinationId: text(value.destinationId, "export destination"),
     status, acknowledgedBytes: positiveInt(value.acknowledgedBytes, "export acknowledged bytes"),
     destinationConfirmed: confirmed, destinationReceiptRef: receipt, replayed: value.replayed, httpStatus,
+    ...(withAck ? { ackState: value.ackState as string, failure: value.failure as string | null,
+      destinationReceivedBytes: value.destinationReceivedBytes as number | null, observedAt: value.observedAt as string | null } : {}),
   };
   if (!OPAQUE_ID.test(result.requestId)
     || (expected.requestId !== undefined && result.requestId !== expected.requestId)

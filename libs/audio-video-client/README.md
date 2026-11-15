@@ -180,6 +180,30 @@ request never implies provider finality; reuse the same request ID to reconcile
 an ambiguous result. Production admission remains `OPEN`, and the production
 binary continues to expose only `artifact inspect`.
 
+### DEV_ONLY structured batch (`batch run --file`) and finality
+
+`ghatanamedia-api-dev batch run --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH [--continue-on-error]`
+runs `{"schemaVersion":"media.dev.batch.v1","items":[{"id","command","options"}]}`
+(1 to 25 items, 256 KiB) and prints one `media.cli-batch-result.v1` document. It is
+NON-atomic. Besides the single-command set it accepts `job submit` (`artifact`,
+`request-id`, optional `job-type`, `provider-hint`, `await-finality-ms`) and
+`await-finality-ms` on `job get`, which re-reads the same job until it is
+COMPLETED, FAILED or CANCELLED. An option may be late-bound from an earlier item:
+`{"$ref":{"item":"u1","path":"artifact.artifactId","prefix":"sha256:"}}` (never for
+identity options or `file`; the referenced item must come earlier).
+
+Every item carries `finality`: `COMPLETED`, `FAILED`, `CANCELLED` or `UNKNOWN`
+(`null` for NOT_RUN). Only COMPLETED is success; an ACCEPTED/RUNNING job, an
+unanswered request or an unconfirmed export is UNKNOWN and carries a `resume`
+handle. Re-running the same file replays each item with its own request identity,
+so completed effects are not repeated. A server 401/403 is typed
+`UNAUTHENTICATED`/`FORBIDDEN` (with `serverCode`); a token lacking the command's
+scope is refused locally (`LOCAL_DEV_IDENTITY_REJECTED`) before any request. A
+schema error exits 2 with `jsonPath` before any request. Exit codes: 0 all
+COMPLETED, 1 typed failure or unknown outcome, 2 invalid invocation or schema,
+3 identity or endpoint refused, 4 export not confirmed, 5 final FAILED/CANCELLED
+job, 6 job not final. The batch exits with the worst item exit code.
+
 ## DEV_ONLY project and timeline client
 
 The separate `@audio-video/client/dev-project-timeline` subpath is an explicit

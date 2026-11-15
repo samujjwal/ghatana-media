@@ -19,7 +19,7 @@ const createToken = () => {
   const claims = {
     sub: 'principal-a', tenant_id: 'tenant-a', iss: 'urn:ghatana:media:dev-only', aud: 'ghatana-media-dev',
     dev_only: true, iat, exp: iat + 120,
-    permissions: ['media:project:dev:read', 'media:project:dev:write', 'media:artifact:read', 'media:artifact:create', 'media:artifact:write',
+    permissions: ['media:job:create', 'media:job:read', 'media:project:dev:read', 'media:project:dev:write', 'media:artifact:read', 'media:artifact:create', 'media:artifact:write',
       'media:delivery:dev:export', 'media:delivery:dev:read'],
   };
   return `test.${Buffer.from(JSON.stringify(claims)).toString('base64url')}.fixture`;
@@ -45,20 +45,38 @@ const render = (b, replayed) => ({ renderId: 'render-1', artifact: { artifactId:
   lineage: { scope: 'DEV_ONLY', renderSchema: 'media.dev.render.v1', engine: 'fixture-engine', projectId: 'project-a', revisionId: b.revisionId,
     timelineId: b.timelineId, requestId: b.requestId, width: b.width, height: b.height, framesPerSecond: b.framesPerSecond, frameCount: 20,
     format: 'gif', sources: [{ clipId: 'c1' }] }, replayed, scope: 'DEV_ONLY' });
-const exp = (id, replayed) => ({ requestId: id, artifactId: 'artifact-a', artifactVersionId: 'sha256:' + sha, artifactDigest: sha,
+const exp = (id, replayed, b) => ({ requestId: id, artifactId: b?.artifactId ?? 'artifact-a', artifactVersionId: b?.artifactVersionId ?? 'sha256:' + sha, artifactDigest: sha,
   destinationId: 'dev-local-directory', status: 'DESTINATION_CONFIRMED', acknowledgedBytes: 900, destinationConfirmed: true,
-  destinationReceiptRef: 'receipt-1', replayed, scope: 'DEV_ONLY' });
+  destinationReceiptRef: 'receipt-1', replayed, scope: 'DEV_ONLY',
+  ...(id.startsWith('ack-') ? { ackState: 'DELIVERED', failure: null, destinationReceivedBytes: 900, observedAt: '2026-01-01T00:00:00Z' } : {}) });
+const jobReads = new Map();
+const job = (id, requestId, status) => ({ jobId: id, requestId, tenantId: 'tenant-a', principalId: 'principal-a', artifactId: 'artifact-a',
+  jobType: 'TRANSCODE', providerId: 'local-diagnostic', status, createdAt: '2026-01-01T00:00:00Z', startedAt: null,
+  completedAt: ['COMPLETED', 'FAILED', 'CANCELLED'].includes(status) ? '2026-01-01T00:00:01Z' : null, result: {}, failureCode: status === 'FAILED' ? 'PROVIDER_FAILED' : null,
+  version: 1, expectedArtifactVersion: '', requestFingerprint: '' });
 const seen = new Set();
 globalThis.fetch = async (input, init = {}) => {
   const url = new URL(String(input));
   const body = init.body ? JSON.parse(String(init.body)) : undefined;
-  appendFileSync(process.env.FIXTURE_LOG, JSON.stringify({ method: init.method ?? 'GET', path: url.pathname, requestId: body?.requestId, fileName: body?.fileName }) + '\\n');
+  appendFileSync(process.env.FIXTURE_LOG, JSON.stringify({ method: init.method ?? 'GET', path: url.pathname, requestId: body?.requestId, fileName: body?.fileName, artifactId: body?.artifactId, artifactVersionId: body?.artifactVersionId }) + '\\n');
   if (url.pathname === '/dev/v1/artifact-upload-policy') return json({ schemaVersion: 'media.dev.artifact-upload-policy.v1', scope: 'DEV_ONLY', maxChunkBytes: 1024 });
+  if (url.pathname === '/api/v1/jobs' && init.method === 'POST') {
+    if (body.requestId.startsWith('deny-')) return err(403, 'MEDIA_POLICY_DENIED');
+    return json(job('job-' + body.requestId, body.requestId, 'ACCEPTED'), 202);
+  }
+  if (url.pathname.startsWith('/api/v1/jobs/')) {
+    const jobId = url.pathname.split('/').at(-1);
+    const reads = (jobReads.get(jobId) ?? 0) + 1; jobReads.set(jobId, reads);
+    const rid = jobId.slice(4);
+    const status = rid.startsWith('fail-') ? 'FAILED' : rid.startsWith('cancel-') ? 'CANCELLED' : rid.startsWith('slow-') ? 'RUNNING'
+      : reads >= 3 ? 'COMPLETED' : 'RUNNING';
+    return json(job(jobId, rid, status));
+  }
   const id = body?.requestId ?? url.pathname.split('/').at(-1);
   if (id?.startsWith('lost-')) return json({ nope: true }, 502);
   if (id?.startsWith('bad-')) return err(404, 'PROJECT_NOT_FOUND');
   if (url.pathname.endsWith('/renders') && init.method === 'POST') { const r = seen.has(id); seen.add(id); return json(render(body, r), r ? 200 : 201); }
-  if (url.pathname === '/dev/v1/exports' && init.method === 'POST') return json(exp(id, false), 201);
+  if (url.pathname === '/dev/v1/exports' && init.method === 'POST') return json(exp(id, false, body), 201);
   if (url.pathname.startsWith('/dev/v1/exports/')) return json(exp(id, true), 200);
   return err(404, 'NOT_FOUND');
 };
@@ -270,5 +288,91 @@ describe('ghatanamedia-api-dev batch run', () => {
       expect(JSON.parse(result.stderr).code).toBe('INVALID_INVOCATION');
       expect(await readFile(logPath, 'utf8').catch(() => '')).toBe('');
     }
+  });
+});
+
+describe('batch finality, typed refusals and schema paths', () => {
+  const submit = (id: string, requestId: string, awaitMs?: number) => ({ id, command: 'job submit', options: {
+    artifact: 'artifact-a', 'request-id': requestId, 'provider-hint': 'local-diagnostic', ...(awaitMs === undefined ? {} : { 'await-finality-ms': awaitMs }) } });
+
+  it('a 202 ACCEPTED submit is never success: it is UNKNOWN with a resumable handle', async () => {
+    const result = await batch([submit('s1', 'req-a'), exportItem('e1', 'exp-1')]);
+    expect(result.status).toBe(6);
+    const out = JSON.parse(result.stdout);
+    expect(statuses(result.stdout)).toEqual(['OUTCOME_UNKNOWN', 'NOT_RUN']);
+    expect(out.items[0]).toMatchObject({ finality: 'UNKNOWN', exitCode: 6, error: { code: 'JOB_NOT_FINAL', observedStatus: 'ACCEPTED' },
+      resume: { itemId: 's1', command: 'job submit', identity: { option: 'request-id', value: 'req-a' } } });
+    expect(out.items[1].finality).toBeNull();
+    expect(out.summary).toMatchObject({ success: false, finality: { completed: 0, unknown: 1 } });
+  });
+
+  it('awaits true finality by polling the job until COMPLETED', async () => {
+    const result = await batch([submit('s1', 'req-ok', 5000), exportItem('e1', 'exp-1')]);
+    expect(result.status).toBe(0);
+    const out = JSON.parse(result.stdout);
+    expect(out.items[0]).toMatchObject({ status: 'SUCCESS', finality: 'COMPLETED', result: { job: { status: 'COMPLETED' } } });
+    expect(out.summary.finality).toMatchObject({ completed: 2, unknown: 0 });
+    expect(result.requests.filter((r) => String(r.path).startsWith('/api/v1/jobs')).length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('reports a final FAILED or CANCELLED job as ERROR with its own finality and exit code 5', async () => {
+    const failed = await batch([submit('s1', 'fail-1', 5000)]);
+    expect(failed.status).toBe(5);
+    expect(JSON.parse(failed.stdout).items[0]).toMatchObject({ status: 'ERROR', finality: 'FAILED', exitCode: 5, error: { code: 'JOB_FAILED', failureCode: 'PROVIDER_FAILED' } });
+    const cancelled = await batch([submit('s1', 'cancel-1', 5000)]);
+    expect(cancelled.status).toBe(5);
+    expect(JSON.parse(cancelled.stdout).items[0]).toMatchObject({ finality: 'CANCELLED', error: { code: 'JOB_CANCELLED' } });
+  });
+
+  it('a bounded await that elapses is JOB_NOT_FINAL / UNKNOWN, not failure and not success', async () => {
+    const result = await batch([submit('s1', 'slow-1', 600)]);
+    expect(result.status).toBe(6);
+    expect(JSON.parse(result.stdout).items[0]).toMatchObject({ status: 'OUTCOME_UNKNOWN', finality: 'UNKNOWN', error: { code: 'JOB_NOT_FINAL', observedStatus: 'RUNNING' } });
+  });
+
+  it('types a server 403 as FORBIDDEN (no effect inferred), honours the continue policy', async () => {
+    const stop = await batch([submit('s1', 'deny-1', 1000), exportItem('e1', 'exp-1')]);
+    expect(stop.status).toBe(1);
+    const out = JSON.parse(stop.stdout);
+    expect(out.items[0]).toMatchObject({ status: 'ERROR', finality: 'FAILED', error: { code: 'FORBIDDEN', statusCode: 403, serverCode: 'MEDIA_POLICY_DENIED', requestId: 'deny-1' } });
+    expect(statuses(stop.stdout)).toEqual(['ERROR', 'NOT_RUN']);
+    const carry = await batch([submit('s1', 'deny-1', 1000), exportItem('e1', 'exp-1')], ['--continue-on-error']);
+    expect(statuses(carry.stdout)).toEqual(['ERROR', 'SUCCESS']);
+  });
+
+  it('reports a JSON path for schema errors, before any request', async () => {
+    const nested = await batch([getItem('g1', 'exp-1'), { ...getItem('g2', 'exp-2'), options: { 'request-id': 'exp-2', extra: 'y' } }]);
+    expect(nested.status).toBe(2);
+    expect(JSON.parse(nested.stderr)).toMatchObject({ code: 'BATCH_SCHEMA_INVALID', jsonPath: 'items[1].options' });
+    const semantic = await batch([getItem('g1', 'exp-1'), { id: 'j', command: 'job submit', options: { artifact: 'a', 'request-id': 'r', 'await-finality-ms': 99999999 } }]);
+    expect(semantic.status).toBe(2);
+    expect(JSON.parse(semantic.stderr).jsonPath).toBe('items[1].options');
+    const document = await batch([], [], '{nope');
+    expect(JSON.parse(document.stderr).jsonPath).toBe('$');
+    expect(nested.requests).toEqual([]);
+  });
+
+  it('late-binds an option from an earlier item result and rejects bad or forward references before dispatch', async () => {
+    const e = { id: 'e1', command: 'export create', options: { 'request-id': 'exp-ref', 'destination-id': 'dev-local-directory',
+      'artifact-id': { $ref: { item: 'r1', path: 'render.artifact.artifactId' } },
+      'artifact-version-id': { $ref: { item: 'r1', path: 'render.artifact.sha256', prefix: 'sha256:' } } } };
+    const ok = await batch([renderItem('r1', 'req-1'), e]);
+    expect(ok.status).toBe(0);
+    expect(ok.requests[1]).toMatchObject({ path: '/dev/v1/exports', artifactId: 'render-1', artifactVersionId: 'sha256:' + sha });
+    const forward = await batch([e, renderItem('r1', 'req-1')]);
+    expect(forward.status).toBe(2);
+    expect(JSON.parse(forward.stderr)).toMatchObject({ code: 'BATCH_SCHEMA_INVALID', jsonPath: 'items[0].options.artifact-id' });
+    expect(forward.requests).toEqual([]);
+    const missing = await batch([renderItem('r1', 'req-1'), { ...e, options: { ...e.options, 'artifact-id': { $ref: { item: 'r1', path: 'render.nope' } } } }]);
+    expect(missing.status).toBe(1);
+    expect(JSON.parse(missing.stdout).items[1]).toMatchObject({ status: 'ERROR', finality: 'FAILED', error: { code: 'BATCH_REFERENCE_UNRESOLVED' } });
+    const identity = await batch([renderItem('r1', 'req-1'), { ...e, options: { ...e.options, 'request-id': { $ref: { item: 'r1', path: 'render.renderId' } } } }]);
+    expect(identity.status).toBe(2);
+  });
+
+  it('accepts the host\'s destination acknowledgement observation on export results', async () => {
+    const result = await batch([exportItem('e1', 'ack-1'), getItem('g1', 'ack-1')]);
+    expect(result.status).toBe(0);
+    expect(JSON.parse(result.stdout).items[0].result.export).toMatchObject({ ackState: 'DELIVERED', destinationReceivedBytes: 900, destinationConfirmed: true });
   });
 });
