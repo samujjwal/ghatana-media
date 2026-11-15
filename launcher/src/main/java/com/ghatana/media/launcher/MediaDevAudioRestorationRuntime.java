@@ -601,6 +601,10 @@ public final class MediaDevAudioRestorationRuntime {
         if (reference != null) lineage.put("reference", sourceRef(reference));
         lineage.put("rightsDecision", sourceRights + (referenceRights == null ? "" : ";" + referenceRights));
         lineage.put("transcript", Map.of("status", String.valueOf(transcript.get("status"))));
+        // Erasure finds derived outputs through sources[]: every version this report was computed from.
+        List<Map<String, Object>> derivedFrom = new java.util.ArrayList<>(List.of(sourceRef(source), sourceRef(restored)));
+        if (reference != null) derivedFrom.add(sourceRef(reference));
+        lineage.put("sources", derivedFrom);
         lineage.put("note", "Measured comparison report; derived data only, the compared versions are unchanged.");
         Map<String, Object> metadata = new LinkedHashMap<>(lineage);
         metadata.put("purpose", "audio-comparison");
