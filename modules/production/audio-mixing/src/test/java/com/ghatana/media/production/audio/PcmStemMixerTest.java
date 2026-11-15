@@ -86,6 +86,32 @@ class PcmStemMixerTest {
     }
 
     @Test
+    void gainDbFactoryConvertsAmplitudeAndRejectsNonFiniteOrAboveCeilingValues() {
+        byte[] source = pcm(new short[] {12_000, -9_000});
+        Stem unity = Stem.withGainDb("gain-db-unity-v1", RATE, 2, 16, source, 0.0,
+                0.0f, syntheticProvenance("gain-db-unity-v1"));
+        Stem half = Stem.withGainDb("gain-db-half-v1", RATE, 2, 16, source, -6.0206,
+                0.0f, syntheticProvenance("gain-db-half-v1"));
+
+        assertThat(unity.gain()).isEqualTo(1.0f);
+        assertThat(half.gain()).isBetween(0.49999f, 0.50001f);
+        assertThat(samples(mix(List.of(unity), 1, 0.98f).pcmS16Le()))
+                .containsExactly((short) 12_000, (short) -9_000);
+        assertThat(samples(mix(List.of(half), 1, 0.98f).pcmS16Le()))
+                .containsExactly((short) 6_000, (short) -4_500);
+
+        expect(ErrorCode.INVALID_INPUT, () -> Stem.withGainDb("gain-db-nan-v1", RATE, 2, 16,
+                source, Double.NaN, 0.0f, syntheticProvenance("gain-db-nan-v1")));
+        expect(ErrorCode.INVALID_INPUT, () -> Stem.withGainDb("gain-db-infinity-v1", RATE, 2, 16,
+                source, Double.POSITIVE_INFINITY, 0.0f, syntheticProvenance("gain-db-infinity-v1")));
+        expect(ErrorCode.INVALID_INPUT, () -> Stem.withGainDb("gain-db-negative-infinity-v1", RATE, 2, 16,
+                source, Double.NEGATIVE_INFINITY, 0.0f, syntheticProvenance("gain-db-negative-infinity-v1")));
+        double aboveFourTimes = 20.0 * Math.log10(4.0) + 0.01;
+        expect(ErrorCode.INVALID_INPUT, () -> Stem.withGainDb("gain-db-above-ceiling-v1", RATE, 2, 16,
+                source, aboveFourTimes, 0.0f, syntheticProvenance("gain-db-above-ceiling-v1")));
+    }
+
+    @Test
     void applies_true_peak_ceiling_without_clipping_and_is_deterministic() {
         short[] loud = new short[400];
         for (int index = 0; index < loud.length; index++) loud[index] = (short) (index % 2 == 0 ? 30_000 : -30_000);

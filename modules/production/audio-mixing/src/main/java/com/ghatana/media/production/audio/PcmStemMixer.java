@@ -127,6 +127,13 @@ public final class PcmStemMixer {
             this.provenance = provenance;
         }
 
+        /** Create a stem from a finite source gain in decibels, using amplitude conversion. */
+        public static Stem withGainDb(String versionRef, int sampleRate, int channels, int bitsPerSample,
+                                      byte[] pcmS16Le, double gainDb, float pan, Provenance provenance) {
+            return new Stem(versionRef, sampleRate, channels, bitsPerSample, pcmS16Le,
+                    linearGainFromDecibels(gainDb), pan, provenance);
+        }
+
         public String versionRef() { return versionRef; }
         public int sampleRate() { return sampleRate; }
         public int channels() { return channels; }
@@ -340,6 +347,21 @@ public final class PcmStemMixer {
         } catch (ArithmeticException overflow) {
             throw error(ErrorCode.RESOURCE_LIMIT, "PCM output byte count overflow");
         }
+    }
+
+    private static float linearGainFromDecibels(double gainDb) {
+        if (!Double.isFinite(gainDb)) {
+            throw error(ErrorCode.INVALID_INPUT, "stem gain in decibels must be finite");
+        }
+        double maximumGainDb = 20.0 * Math.log10(MAX_STEM_GAIN);
+        if (gainDb > maximumGainDb) {
+            throw error(ErrorCode.INVALID_INPUT, "stem gain in decibels exceeds the 4x stem ceiling");
+        }
+        double linearGain = Math.pow(10.0, gainDb / 20.0);
+        // At the mathematical 4x boundary, floating-point log/pow round trips can
+        // produce the adjacent representable value above 4.0. Clamp only that
+        // boundary conversion; larger authored gains were rejected above.
+        return (float) Math.min(linearGain, MAX_STEM_GAIN);
     }
 
     private static void validateStem(Stem stem, MixSpec spec, Instant now) {
