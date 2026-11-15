@@ -154,3 +154,14 @@ export {
 export type {
   DevRegionEditHostResponse, DevRegionEditPort, DevRegionEditRequest, RegionEditStatus, RegionFailure, RegionLineageView, RegionManifest, RegionOutcome,
 } from "./devRegionEdit";
+
+// DEV_ONLY stems, foley, mix and loudness master panel (J-17).
+export { DevMasterPanel } from "./DevMasterPanel";
+export type { DevMasterPanelProps } from "./DevMasterPanel";
+export {
+  DevMasterHostError, STEM_KINDS, blankPlacement, blankStem, describeMasterFailure, parseMasterStatus, parseMasterView, parseStemView,
+  toMasterRequest, toStemRequestSpec,
+} from "./devMaster";
+export type {
+  AuthoredMaster, AuthoredPlacement, AuthoredStem, DevMasterHostResponse, DevMasterPort, MasterFailure, MasterStatus, MasterView, StemKind, StemView,
+} from "./devMaster";

@@ -109,6 +109,13 @@ const devProjectRoutes = [
   { method: "POST", path: /^\/dev\/v1\/region-edits\/lineages$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/region-edits/lineages/${OPAQUE_ID}$`, "u") },
   { method: "POST", path: new RegExp(`^/dev/v1/region-edits/lineages/${OPAQUE_ID}/(edits|undo)$`, "u") },
+  // DEV_ONLY stems, foley, mix and loudness master (J-17) used by the "Stems and master" page (status, build stem, master,
+  // reopen; no DELETE).
+  { method: "GET", path: /^\/dev\/v1\/masters\/status$/u },
+  { method: "POST", path: /^\/dev\/v1\/masters\/stems$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/masters/stems/${OPAQUE_ID}$`, "u") },
+  { method: "POST", path: /^\/dev\/v1\/masters$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/masters/(?!(?:stems|status)$)${OPAQUE_ID}$`, "u") },
   // DEV_ONLY erasure and legal-hold lane used by the "Erasure and legal hold" page (plan, confirm-erase, receipt, hold,
   // release). The hold listing takes a query string and is deliberately not proxied; the plan carries active holds.
   { method: "GET", path: new RegExp(`^/dev/v1/erasure-plans/${OPAQUE_ID}$`, "u") },
