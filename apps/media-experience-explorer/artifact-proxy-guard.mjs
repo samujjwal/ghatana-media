@@ -59,6 +59,11 @@ const devProjectRoutes = [
   { method: "POST", path: /^\/dev\/v1\/vision\/tracks$/u },
   { method: "POST", path: /^\/dev\/v1\/vision\/roi-analyses$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/vision/outputs/${OPAQUE_ID}$`, "u") },
+  // DEV_ONLY video enhancement and measured comparison (J-08) used by the "Video comparison" page.
+  { method: "POST", path: /^\/dev\/v1\/video\/enhancements$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/video/enhancements/${OPAQUE_ID}$`, "u") },
+  { method: "POST", path: /^\/dev\/v1\/video\/comparisons$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/video/comparisons/${OPAQUE_ID}$`, "u") },
 ];
 
 function isCanonicalPath(requestUrl) {

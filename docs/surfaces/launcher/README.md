@@ -324,6 +324,10 @@ handlers additionally require the artifact permissions noted, so access is never
 | POST | `/dev/v1/vision/tracks` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision + `MEDIA_DEV_RENDER_FFMPEG`/`MEDIA_DEV_RENDER_FFPROBE` |
 | POST | `/dev/v1/vision/roi-analyses` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision (video also needs FFmpeg/FFprobe) |
 | GET | `/dev/v1/vision/outputs/{outputId}` | `media:project:dev:read` | `media:artifact:read` | local vision |
+| POST | `/dev/v1/video/enhancements` | `media:project:dev:write` | `media:artifact:{read,create}`, `PROCESSING` rights admission of the exact version | `MEDIA_DEV_RENDER_FFMPEG`/`MEDIA_DEV_RENDER_FFPROBE` |
+| GET | `/dev/v1/video/enhancements/{outputId}` | `media:project:dev:read` | `media:artifact:read` | FFmpeg/FFprobe composed |
+| POST | `/dev/v1/video/comparisons` | `media:project:dev:write` | `media:artifact:{read,create}`, `PROCESSING` rights admission of every subject and the reference | FFmpeg/FFprobe composed |
+| GET | `/dev/v1/video/comparisons/{outputId}` | `media:project:dev:read` | `media:artifact:read` | FFmpeg/FFprobe composed |
 | GET | `/dev/v1/grounded-answers/status` | `media:project:dev:read` | — | local vision + `MEDIA_DEV_RENDER_FFMPEG/FFPROBE` |
 | POST | `/dev/v1/grounded-answers` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision + FFmpeg/FFprobe |
 | GET | `/dev/v1/grounded-answers/{outputId}` | `media:project:dev:read` | `media:artifact:read` | local vision + FFmpeg/FFprobe |
@@ -373,6 +377,52 @@ anything further out is dropped and counted in `rejectedDetections`. Lineage (`s
 same requestId replays the registered tracks (`200`) from the durable request ledger without re-running the detector; it
 is never a second registration, and the same requestId with different parameters is `409 VISION_REQUEST_ID_REUSED`. ROI
 analysis (`vision.roi` ledger lane) behaves the same way.
+
+DEV_ONLY video enhancement and independent measured comparison (J-08, `media.dev.outcome-video-enhancement`;
+`MediaDevVideoRuntime`, `MediaDevVideoRoutes`, `MediaDevVideoQualityMetrics`; composed only when both absolute
+`MEDIA_DEV_RENDER_FFMPEG` and `MEDIA_DEV_RENDER_FFPROBE` are set, with the shared durable request ledger).
+`POST /dev/v1/video/enhancements` takes `{requestId, artifactId, artifactVersionId, operations[1-5], encoder?{crf 10-30,
+default 18}}` for a `video/*` version. `operations` is a bounded typed set, each type at most once, applied in the fixed
+order deinterlace, denoise, deblock, sharpen, colour correction regardless of request order: `{type:"deinterlace"}`
+(`yadif` mode 0, frame count unchanged), `{type:"denoise", method:"hqdn3d"|"nlmeans", strength}` (hqdn3d 0.5-12,
+nlmeans 1-10), `{type:"deblock", strength 0.02-0.4}`, `{type:"sharpen", amount 0.1-1.5}` (`unsharp`, luma only) and
+`{type:"colourCorrection", brightness -0.3..0.3, contrast 0.5-2, saturation 0-2.5, gamma 0.5-2}` (`eq`). A value out of
+range, an unknown type or key, a duplicate type or too many operations is `422 VIDEO_PARAMETER_OUT_OF_RANGE` while the
+body is parsed, before any source lookup, rights call or process. FFmpeg is run through the bounded no-shell runner
+(absolute path, empty environment, 10 minute deadline, 256 MiB output ceiling watched while it runs; source <= 128 MiB,
+<= 1080p, <= 1800 frames); request text never reaches the command line, only the formatted numbers of the typed
+operations. Video is re-encoded with libx264 (`-preset medium`, `-pix_fmt yuv420p`, `-fps_mode passthrough`, source
+track timescale kept when the time base is `1/n`) and every audio stream is copied (`-c:a copy`). Before anything is
+registered the output is re-probed: frame count, every frame's presentation instant (exact rational equality), geometry,
+duration and the audio stream parameters plus the MD5 of the copied audio packets must equal the source, otherwise
+`422 ENHANCEMENT_TIMELINE_MISMATCH`/`ENHANCEMENT_AUDIO_MISMATCH` and nothing is registered. The result is a NEW
+`video/mp4` artifact (the source is untouched); lineage `videoSchema=media.dev.video-enhancement.v1` holds `source`
+(artifact, exact version, SHA-256), `operations`, the exact `filterGraph`, `encoder`, the verified `timeline` and `audio`,
+the FFmpeg version, `rightsDecision` and `resultSha256`. A source that ffprobe cannot read, has no video stream, a
+broken timeline, or a rotation matrix is `422 SOURCE_VIDEO_CORRUPT`/`SOURCE_FORMAT_NOT_SUPPORTED`; a non-video
+artifact is `422 SOURCE_FORMAT_NOT_SUPPORTED`. An FFmpeg process that is killed (signal exit) or exceeds the deadline is
+`503 VIDEO_OUTCOME_UNKNOWN` with nothing registered; a retry with the same requestId runs again and registers exactly
+once (upload idempotency key plus the ledger lane `video.enhance`), and a completed request replays (`200`) without
+running FFmpeg, even after a launcher restart. The same requestId with another graph is `409 VIDEO_REQUEST_ID_REUSED`.
+Rights are re-resolved on every call, replays included: a missing, revoked or unavailable `PROCESSING` admission is
+`403 RIGHTS_DENIED|RIGHTS_REVOKED|...` / `503 RIGHTS_AUTHORITY_UNAVAILABLE`. `POST /dev/v1/video/comparisons` takes
+`{requestId, reference?{artifactId, artifactVersionId}, subjects[1-3]{label, artifactId, artifactVersionId}}`; every
+subject and the reference needs its own `PROCESSING` admission (an enhanced output is a new artifact). The luma plane
+of each decoded video is measured in Java, independently of FFmpeg's `psnr`/`ssim` filters (the tests cross-check
+them): per-frame PSNR, per-frame mean SSIM (8x8 windows, stride 4), and without or in addition to a reference the
+Immerkaer noise-sigma estimate and the Laplacian variance. Frames are paired by exact presentation instant, not by
+index; unpaired frames are counted (`unalignedSubjectFrames`, `unalignedReferenceFrames`, `fullyAligned`) and zero
+pairs is `422 PTS_ALIGNMENT_FAILED`; differing frame sizes are `422 VIDEO_GEOMETRY_MISMATCH` (no scaling is done).
+Subject 0 is the baseline; each later subject reports `meanPsnrYDeltaDb`, `meanSsimYDelta`, noise/sharpness deltas, the
+per-frame counts that improved and regressed and a `verdict` of IMPROVED, REGRESSED or MIXED (NO_REFERENCE when no
+reference was given): a regression is reported as such, never smoothed. Identical frames have no finite PSNR and are
+reported as 100 dB and counted in `identicalFrames`. The registered `media.dev.video-comparison.v1` JSON carries the
+method, per-frame values and aggregates; its lineage `summary` repeats the aggregates. Claims are limited to measured
+luma PSNR/SSIM and the two no-reference estimates (edges and texture inflate the noise estimate, noise inflates the
+Laplacian variance): no perceptual-quality, rights, approval or production claim. Reopen with
+`GET /dev/v1/video/{enhancements|comparisons}/{outputId}` (a mismatched kind is `404`). The Explorer page
+`dev-video-comparison.html` (panel `DevVideoComparisonPanel`, player `VideoWipeComparison` in `@audio-video/ui`) proxies
+only the four routes above and shows a wipe or side-by-side player with a per-frame metrics chart.
 A sidecar that fails or is killed mid-run is `503 VISION_OUTCOME_UNKNOWN` (`outcome:"UNKNOWN"`, `framesCompleted`,
 `framesPlanned`): never success, nothing registered, retry the same requestId. A withdrawn model (digest changed) is
 `503 LOCAL_MODEL_NOT_ADMITTED` before any byte is read.
