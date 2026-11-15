@@ -8,6 +8,7 @@ import java.security.MessageDigest;
 import java.util.List;
 import java.util.Map;
 import java.util.AbstractList;
+import java.util.Base64;
 import java.util.HexFormat;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.nio.ByteBuffer;
@@ -409,6 +410,54 @@ class SpatialRigEngineTest {
     }
 
     @Test
+    void publicGlbArtifactAcceptsEmbeddedImageResourcesAndRejectsExternalUris() throws Exception {
+        var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
+        var rig = new SpatialRigEngine.Rig("rig-image-uri", glbFrame(), "UNIT_QUATERNION_XYZW", List.of(source),
+                List.of(bone("root", null, SpatialRigEngine.LocalTransform.identity(), Math.PI)),
+                Map.of("root", List.of(
+                        key(0, 1, SpatialRigEngine.Vec3.ZERO, SpatialRigEngine.Quaternion.IDENTITY),
+                        key(1, 1, new SpatialRigEngine.Vec3(1, 0, 0), SpatialRigEngine.Quaternion.IDENTITY))),
+                "project:edit:revision-8");
+        var artifact = engine.exportGlb(rig, ignored -> SpatialRigEngine.RightsOutcome.ELIGIBLE);
+        byte[] png = pngFixture();
+        String pngData = Base64.getEncoder().encodeToString(png);
+        int imageOffset = glbDeclaredBufferLength(artifact.bytes());
+
+        assertThat(withImageResource(artifact, "{\"uri\":\"data:image/png;base64," + pngData + "\"}"))
+                .isNotNull();
+        assertThat(withEmbeddedImageResource(artifact, png, imageOffset, png.length, 0, "image/png")).isNotNull();
+
+        for (String uri : List.of("textures/image.png", "https://example.invalid/image.png",
+                "file:///tmp/image.png", "ftp://example.invalid/image.png", "data:image/png;base64,!!")) {
+            assertThatIllegalArgumentException()
+                    .isThrownBy(() -> withImageResource(artifact, "{\"uri\":\"" + uri + "\"}"))
+                    .withMessageContaining("inline image data");
+        }
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> withImageResource(artifact,
+                        "{\"uri\":\"data:image/jpeg;base64," + pngData + "\"}"))
+                .withMessageContaining("inline image data");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> withImageResource(artifact, "{\"uri\":\"data:image/png;base64,aGVsbG8=\"}"))
+                .withMessageContaining("inline image data");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> withImageResource(artifact, "{\"bufferView\":4,\"mimeType\":\"image/png\"}"))
+                .withMessageContaining("valid embedded bufferView");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> withEmbeddedImageResource(artifact, png, -1, png.length, 0, "image/png"))
+                .withMessageContaining("bufferView bounds");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> withEmbeddedImageResource(artifact, png, imageOffset, png.length + 1, 0, "image/png"))
+                .withMessageContaining("bufferView bounds");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> withEmbeddedImageResource(artifact, png, imageOffset, png.length, 0, "image/jpeg"))
+                .withMessageContaining("bufferView bounds");
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> withEmbeddedImageResource(artifact, png, imageOffset, png.length, 1, "image/png"))
+                .withMessageContaining("bufferView bounds");
+    }
+
+    @Test
     void publicGlbArtifactRejectsDuplicateLineageJsonKeys() throws Exception {
         var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
         var rig = new SpatialRigEngine.Rig("rig-duplicate", glbFrame(), "UNIT_QUATERNION_XYZW", List.of(source),
@@ -604,6 +653,76 @@ class SpatialRigEngineTest {
         return new SpatialRigEngine.GlbArtifact(source.rigId(), source.sourceProjectRevisionRef(),
                 source.frameRef(), source.frameVersionRef(), sourceVersions, source.mimeType(),
                 source.timeEncoding(), source.lossDisposition(), source.sha256(), bytes);
+    }
+
+    private static SpatialRigEngine.GlbArtifact withImageResource(SpatialRigEngine.GlbArtifact source,
+            String imageJson) throws Exception {
+        String json = readGlbJson(source.bytes());
+        String withImage = json.replace("\"asset\":", "\"images\":[" + imageJson + "],\"asset\":");
+        assertThat(withImage).isNotEqualTo(json);
+        byte[] bytes = replaceGlbJson(source.bytes(), withImage);
+        String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
+        return new SpatialRigEngine.GlbArtifact(source.rigId(), source.sourceProjectRevisionRef(),
+                source.frameRef(), source.frameVersionRef(), source.sourceVersions(), source.mimeType(),
+                source.timeEncoding(), source.lossDisposition(), digest, bytes);
+    }
+
+    private static SpatialRigEngine.GlbArtifact withEmbeddedImageResource(SpatialRigEngine.GlbArtifact source,
+            byte[] image, int byteOffset, int byteLength, int bufferIndex, String mimeType) throws Exception {
+        String json = readGlbJson(source.bytes());
+        String bufferMarker = "\"buffers\":[{\"byteLength\":";
+        int bufferLengthStart = json.indexOf(bufferMarker) + bufferMarker.length();
+        int bufferLengthEnd = json.indexOf('}', bufferLengthStart);
+        int declaredLength = Integer.parseInt(json.substring(bufferLengthStart, bufferLengthEnd));
+        String viewArrayMarker = "\"bufferViews\":[";
+        int viewArrayStartIndex = json.indexOf(viewArrayMarker);
+        int viewArrayStart = viewArrayStartIndex + viewArrayMarker.length();
+        int viewArrayEnd = json.indexOf("],\"accessors\":");
+        assertThat(json.indexOf(bufferMarker)).isGreaterThanOrEqualTo(0);
+        assertThat(viewArrayStartIndex).isGreaterThanOrEqualTo(0);
+        assertThat(viewArrayEnd).isGreaterThan(0);
+        int newViewIndex = json.substring(viewArrayStart, viewArrayEnd).split("\"buffer\":").length - 1;
+        String view = "{\"buffer\":" + bufferIndex + ",\"byteOffset\":" + byteOffset + ",\"byteLength\":"
+                + byteLength + "}";
+        String updatedJson = json.substring(0, bufferLengthStart)
+                + (declaredLength + image.length) + json.substring(bufferLengthEnd, viewArrayEnd)
+                + "," + view + json.substring(viewArrayEnd);
+        updatedJson = updatedJson.replace("\"asset\":", "\"images\":[{\"bufferView\":"
+                + newViewIndex + ",\"mimeType\":\"" + mimeType + "\"}],\"asset\":");
+        byte[] withJson = replaceGlbJson(source.bytes(), updatedJson);
+        ByteBuffer input = ByteBuffer.wrap(withJson).order(ByteOrder.LITTLE_ENDIAN);
+        int jsonLength = input.getInt(12);
+        int binHeader = 20 + jsonLength;
+        int oldBinLength = input.getInt(binHeader);
+        int binStart = binHeader + 8;
+        int newBinLength = (declaredLength + image.length + 3) & ~3;
+        int totalLength = binStart + newBinLength;
+        ByteBuffer output = ByteBuffer.allocate(totalLength).order(ByteOrder.LITTLE_ENDIAN);
+        output.put(withJson, 0, binHeader);
+        output.putInt(newBinLength).putInt(0x004e4942);
+        output.put(withJson, binStart, Math.min(oldBinLength, declaredLength));
+        output.put(image);
+        while (output.position() < totalLength) output.put((byte) 0);
+        output.putInt(8, totalLength);
+        byte[] bytes = output.array();
+        String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
+        return new SpatialRigEngine.GlbArtifact(source.rigId(), source.sourceProjectRevisionRef(),
+                source.frameRef(), source.frameVersionRef(), source.sourceVersions(), source.mimeType(),
+                source.timeEncoding(), source.lossDisposition(), digest, bytes);
+    }
+
+    private static byte[] pngFixture() {
+        return HexFormat.of().parseHex("89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c489"
+                + "0000000d49444154789c63606060f80f00010401005fe5c34b0000000049454e44ae426082");
+    }
+
+    private static int glbDeclaredBufferLength(byte[] glb) {
+        String json = readGlbJson(glb);
+        String marker = "\"buffers\":[{\"byteLength\":";
+        int start = json.indexOf(marker);
+        if (start < 0) throw new AssertionError("GLB writer omitted its buffer declaration");
+        start += marker.length();
+        return Integer.parseInt(json.substring(start, json.indexOf('}', start)));
     }
 
     private static SpatialRigEngine.GlbArtifact copyArtifactWithLineage(SpatialRigEngine.GlbArtifact source,

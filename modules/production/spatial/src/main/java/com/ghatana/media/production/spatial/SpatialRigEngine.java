@@ -11,6 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.HexFormat;
@@ -740,6 +741,7 @@ public final class SpatialRigEngine {
                 }
             }
         }
+        validateGlbImageResources(document, bytes);
         JsonNode metadata = document.path("extras").path("mediaSpatial");
         if (!"2.0".equals(document.path("asset").path("version").asString())
                 || !timeEncoding.equals(metadata.path("timeEncoding").asString())
@@ -782,6 +784,108 @@ public final class SpatialRigEngine {
         if (embedded.size() != embeddedSources.size() || !embedded.equals(new HashSet<>(sourceVersions))) {
             throw new IllegalArgumentException("GLB spatial source versions do not match artifact lineage");
         }
+    }
+
+    private static void validateGlbImageResources(JsonNode document, byte[] glbBytes) {
+        JsonNode images = document.path("images");
+        if (images.isMissingNode()) return;
+        if (!images.isArray()) {
+            throw new IllegalArgumentException("GLB spatial image resources must be an array");
+        }
+        JsonNode bufferViews = document.path("bufferViews");
+        JsonNode buffers = document.path("buffers");
+        boolean hasEmbeddedImage = false;
+        for (JsonNode image : images) {
+            if (image.isObject() && !image.path("bufferView").isMissingNode()) {
+                hasEmbeddedImage = true;
+                break;
+            }
+        }
+        GlbBinaryRange binaryRange = hasEmbeddedImage ? glbBinaryRange(glbBytes) : null;
+        int declaredBufferLength = -1;
+        if (hasEmbeddedImage) {
+            if (!buffers.isArray() || buffers.size() != 1 || !buffers.get(0).path("byteLength").isInt()) {
+                throw new IllegalArgumentException("GLB spatial images require one declared embedded buffer");
+            }
+            declaredBufferLength = buffers.get(0).path("byteLength").intValue();
+            if (declaredBufferLength < 0 || declaredBufferLength > binaryRange.length()
+                    || binaryRange.length() - declaredBufferLength > 3) {
+                throw new IllegalArgumentException("GLB spatial image buffer length is invalid");
+            }
+        }
+        for (JsonNode image : images) {
+            if (!image.isObject()) {
+                throw new IllegalArgumentException("GLB spatial image resource must be an object");
+            }
+            JsonNode uri = image.path("uri");
+            JsonNode bufferView = image.path("bufferView");
+            if (!uri.isMissingNode() && !bufferView.isMissingNode()) {
+                throw new IllegalArgumentException("GLB spatial image resource cannot use both uri and bufferView");
+            }
+            if (!uri.isMissingNode()) {
+                if (!uri.isString() || !isInlineImageDataUri(uri.asString())) {
+                    throw new IllegalArgumentException("GLB spatial image URI must contain inline image data");
+                }
+                continue;
+            }
+            JsonNode mimeType = image.path("mimeType");
+            if (!bufferView.isInt() || bufferView.intValue() < 0 || !bufferViews.isArray()
+                    || bufferView.intValue() >= bufferViews.size() || !mimeType.isString()
+                    || !isSupportedImageMimeType(mimeType.asString())) {
+                throw new IllegalArgumentException("GLB spatial image must use a valid embedded bufferView");
+            }
+            JsonNode view = bufferViews.get(bufferView.intValue());
+            JsonNode buffer = view.path("buffer");
+            JsonNode byteOffset = view.path("byteOffset");
+            JsonNode byteLength = view.path("byteLength");
+            int offset = byteOffset.isMissingNode() ? 0 : byteOffset.isInt() ? byteOffset.intValue() : -1;
+            int bufferIndex = buffer.isInt() ? buffer.intValue() : -1;
+            if (!view.isObject() || bufferIndex != 0 || offset < 0 || !byteLength.isInt()
+                    || byteLength.intValue() <= 0 || offset > declaredBufferLength
+                    || byteLength.intValue() > declaredBufferLength - offset
+                    || offset > binaryRange.length() || byteLength.intValue() > binaryRange.length() - offset
+                    || !hasImageSignature(glbBytes, binaryRange.offset() + offset,
+                            byteLength.intValue(), mimeType.asString())) {
+                throw new IllegalArgumentException("GLB spatial image bufferView bounds or content are invalid");
+            }
+        }
+    }
+
+    private static boolean isInlineImageDataUri(String uri) {
+        if (!uri.regionMatches(true, 0, "data:image/", 0, "data:image/".length())) return false;
+        int separator = uri.indexOf(',');
+        if (separator < 0) return false;
+        String metadata = uri.substring("data:".length(), separator);
+        String payload = uri.substring(separator + 1);
+        int parameter = metadata.indexOf(';');
+        if (parameter < 0 || !"base64".equalsIgnoreCase(metadata.substring(parameter + 1))
+                || !isSupportedImageMimeType(metadata.substring(0, parameter)) || payload.isEmpty()) {
+            return false;
+        }
+        try {
+            byte[] decoded = Base64.getDecoder().decode(payload);
+            return hasImageSignature(decoded, 0, decoded.length, metadata.substring(0, parameter));
+        } catch (IllegalArgumentException invalidBase64) {
+            return false;
+        }
+    }
+
+    private static boolean isSupportedImageMimeType(String mimeType) {
+        return "image/png".equalsIgnoreCase(mimeType) || "image/jpeg".equalsIgnoreCase(mimeType);
+    }
+
+    private static boolean hasImageSignature(byte[] bytes, int offset, int length, String mimeType) {
+        if ("image/png".equalsIgnoreCase(mimeType)) {
+            byte[] signature = {(byte) 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a};
+            if (length < signature.length) return false;
+            for (int index = 0; index < signature.length; index++) {
+                if (bytes[offset + index] != signature[index]) return false;
+            }
+            return true;
+        }
+        return "image/jpeg".equalsIgnoreCase(mimeType) && length >= 3
+                && (bytes[offset] & 0xff) == 0xff && (bytes[offset + 1] & 0xff) == 0xd8
+                && (bytes[offset + 2] & 0xff) == 0xff;
     }
 
     /** Keeps the exact rational-time report bound to the actual FLOAT32 animation inputs. */
