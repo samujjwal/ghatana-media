@@ -88,6 +88,14 @@ const devProjectRoutes = [
   { method: "GET", path: /^\/dev\/v1\/simulations\/status$/u },
   { method: "POST", path: /^\/dev\/v1\/simulations$/u },
   { method: "GET", path: new RegExp(`^/dev/v1/simulations/${OPAQUE_ID}$`, "u") },
+  // DEV_ONLY bounded quality optimization (J-19) used by the "Quality optimization" page (status, search, cancel,
+  // report reopen, lineage read, undo; no DELETE).
+  { method: "GET", path: /^\/dev\/v1\/quality\/status$/u },
+  { method: "POST", path: /^\/dev\/v1\/quality\/optimizations$/u },
+  { method: "POST", path: new RegExp(`^/dev/v1/quality/optimizations/${OPAQUE_ID}/cancel$`, "u") },
+  { method: "GET", path: new RegExp(`^/dev/v1/quality/optimizations/${OPAQUE_ID}$`, "u") },
+  { method: "GET", path: new RegExp(`^/dev/v1/quality/lineages/${OPAQUE_ID}$`, "u") },
+  { method: "POST", path: new RegExp(`^/dev/v1/quality/lineages/${OPAQUE_ID}/undo$`, "u") },
   // DEV_ONLY erasure and legal-hold lane used by the "Erasure and legal hold" page (plan, confirm-erase, receipt, hold,
   // release). The hold listing takes a query string and is deliberately not proxied; the plan carries active holds.
   { method: "GET", path: new RegExp(`^/dev/v1/erasure-plans/${OPAQUE_ID}$`, "u") },

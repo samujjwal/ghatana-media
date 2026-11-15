@@ -335,6 +335,12 @@ handlers additionally require the artifact permissions noted, so access is never
 | GET | `/dev/v1/video/enhancements/{outputId}` | `media:project:dev:read` | `media:artifact:read` | FFmpeg/FFprobe composed |
 | POST | `/dev/v1/video/comparisons` | `media:project:dev:write` | `media:artifact:{read,create}`, `PROCESSING` rights admission of every subject and the reference | FFmpeg/FFprobe composed |
 | GET | `/dev/v1/video/comparisons/{outputId}` | `media:project:dev:read` | `media:artifact:read` | FFmpeg/FFprobe composed |
+| GET | `/dev/v1/quality/status` | `media:project:dev:read` | — | FFmpeg/FFprobe composed + the shared request ledger (J-19) |
+| POST | `/dev/v1/quality/optimizations` | `media:project:dev:write` | `media:artifact:{read,create}`; `PROCESSING` rights admission of the source, replays included | bounded real-encode search (J-19, `MediaDevQualityOptimizationRuntime`) |
+| GET | `/dev/v1/quality/optimizations/{reportArtifactId}` | `media:project:dev:read` | `media:artifact:read` | recorded report and chosen version |
+| POST | `/dev/v1/quality/optimizations/{requestId}/cancel` | `media:project:dev:write` | the running search's own principal | in-process cancellation; `404` when nothing is running |
+| GET | `/dev/v1/quality/lineages/{lineageId}` | `media:project:dev:read` | `media:artifact:read` | head ledger V041; owner only |
+| POST | `/dev/v1/quality/lineages/{lineageId}/undo` | `media:project:dev:write` | `media:artifact:read` | head ledger V041; no rights admission (a pointer move, not processing) |
 | GET | `/dev/v1/animations/status` | `media:project:dev:read` | — | `MEDIA_DEV_RENDER_FFMPEG`/`MEDIA_DEV_RENDER_FFPROBE` + the shared request ledger |
 | POST | `/dev/v1/animations/renders` | `media:project:dev:write` | `media:artifact:{read,create}`; `PROCESSING` rights admission of every image asset | FFmpeg/FFprobe composed (J-12) |
 | GET | `/dev/v1/animations/renders/{renderId}` | `media:project:dev:read` | `media:artifact:read` (the render id is the manifest artifact id) | FFmpeg/FFprobe composed |
@@ -560,6 +566,48 @@ registered (the plot of that run may already exist and is reused by the retry, w
 also after a launcher restart). `GET /dev/v1/simulations/{id}` reopens a result in the caller's tenant and owner scope only
 (`404 SIMULATION_NOT_FOUND` otherwise). Uncertainty is NOT propagated by this lane (stated, never zero-filled). Everything is
 simulated model output; nothing is a measurement and nothing claims rights, approval, quality or production eligibility.
+
+DEV_ONLY bounded quality optimization with a measured report and a reversible head (J-19,
+`media.dev.outcome-bounded-quality-improvement`; `MediaDevQualityOptimizationRuntime`, `MediaDevQualitySearch`,
+`MediaDevQualityRoutes`, head ledger `MediaHeadLedgerContracts` over migration V041 `media_dev_head_events`; composed only
+when the J-08 video lane is, with the shared durable request ledger, and durable exactly when that ledger is). `POST
+/dev/v1/quality/optimizations` takes `{requestId, lineageId, artifactId, artifactVersionId, target, search?}` for ONE exact
+owner-visible `video/*` version. `target` is `{type:"MIN_BYTES_AT_QUALITY", metric:"ssim"|"psnr", minQuality}` (smallest
+file that stays at or above a measured quality; SSIM 0.5-0.9999, PSNR 20-80 dB) or `{type:"MAX_QUALITY_UNDER_BYTES",
+metric, maxBytes}` (best quality within 4 KiB to 256 MiB). `search` is `{crfMin 12-45 (default 16), crfMax 12-45 (default
+40), maxAttempts 1-8 (default 6)}`. Any out-of-range value, unknown target type or malformed id is `422
+QUALITY_PARAMETER_OUT_OF_RANGE` with `details.parameter` before any source lookup, rights call or process; unknown fields
+are `400`. The search is a deterministic bisection over the integer CRF range (`MediaDevQualitySearch`): every attempt is a
+real FFmpeg libx264 encode of the source (`-preset medium`, `yuv420p`, `-threads 1`, `-fflags +bitexact`, audio copied
+bit for bit, source PTS passed through, no shell, absolute path, empty environment), re-probed (frame count, geometry and
+every presentation instant must equal the source, else `422 OPTIMIZATION_TIMELINE_MISMATCH`), decoded and measured against
+the decoded source with the same independent Java luma PSNR (global, `10*log10(255^2/mean MSE)`) and mean SSIM as J-08 (not
+FFmpeg's filters). The chosen attempt is always one that was measured and satisfied the target: `MIN_BYTES_AT_QUALITY`
+requires quality at or above the threshold and a file smaller than the source and picks the fewest bytes (then the lowest
+CRF); `MAX_QUALITY_UNDER_BYTES` requires bytes within the budget and picks the highest quality (then fewest bytes, then
+lowest CRF). The report (`media.dev.quality-optimization-report.v1`, an `application/json` artifact) lists every attempt
+(CRF, bytes, size ratio, output SHA-256, mean/global/min PSNR, mean/min SSIM, identical frames, verdict), the stop reason
+(`RANGE_EXHAUSTED`, or `ATTEMPT_BUDGET_EXHAUSTED`, so a budget-limited result is not claimed to be an optimum), the outcome
+and the chosen attempt. It contains no timestamps, request id or lineage id, so identical inputs give byte-identical
+report and chosen-video bytes across runs and across a launcher restart. Outcome `SELECTED` (`201`, or `200 replayed:true`):
+the chosen attempt is registered as a NEW immutable `video/mp4` artifact (source untouched, no rights attestation of its own,
+so processing it again needs its own statement) and an `APPLY` event moves the lineage head to it (a first use of the lineage
+also records a `BASE` event for the source; a lineage whose head is not the named source is `409 LINEAGE_HEAD_MOVED`
+with the real head). Outcome `ABSTAINED` (`201`): no attempt met the target inside the bounds; the report is registered with
+`abstainReason: NO_ATTEMPT_MET_TARGET`, nothing is chosen or versioned and no head moves. The source must resolve ADMITTED for
+`PROCESSING` on every call, a replay included (`403 RIGHTS_DENIED|RIGHTS_REVOKED`, `503 RIGHTS_AUTHORITY_UNAVAILABLE`); another
+principal or tenant sees `404 SOURCE_VERSION_NOT_FOUND`. The same requestId and body replays from the request ledger without
+encoding; a different body is `409 QUALITY_REQUEST_ID_REUSED`; a concurrent duplicate waits and replays or is
+`409 REQUEST_IN_PROGRESS`; a killed FFmpeg is `503 OPTIMIZATION_OUTCOME_UNKNOWN` with nothing registered and a retry registers
+exactly once. `POST .../optimizations/{requestId}/cancel` stops a search running in this process for the caller (the FFmpeg
+child is killed): the original call answers `409 OPTIMIZATION_CANCELLED`, nothing is registered, the head does not move and the
+requestId is free to retry; once registration has begun it answers `409 OPTIMIZATION_PAST_CANCELLATION_POINT`. `POST
+.../lineages/{lineageId}/undo` takes `{requestId, expectedHeadArtifactVersionId}` and appends an `UNDO` event so the previous
+head (the very same artifact id and version, never a copy) is the head again; a stale expectation is `409
+LINEAGE_HEAD_MOVED`, undoing the base is `409 NOTHING_TO_UNDO`, a version that is no longer readable is `409
+HEAD_VERSION_UNAVAILABLE`, and the same requestId replays. The head log is append-only, owner scoped, never a rights
+authority, and a lineage whose events name an erased artifact is dropped in the erasure transaction. Measured luma only: no
+perceptual, rights, approval or production claim.
 
 DEV_ONLY video enhancement and independent measured comparison (J-08, `media.dev.outcome-video-enhancement`;
 `MediaDevVideoRuntime`, `MediaDevVideoRoutes`, `MediaDevVideoQualityMetrics`; composed only when both absolute

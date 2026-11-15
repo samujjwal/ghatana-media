@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f6f8" />
+    <meta name="description" content="DEV_ONLY bounded video quality optimization with a measured attempts table and reversible head in the local Explorer." />
+    <title>Quality Optimization · Media</title>
+    <link rel="stylesheet" href="/src/dev-quality-optimization.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header><a href="/">← Media Experience Explorer</a><p class="eyebrow">Local development only</p><h1>Quality optimization</h1></header>
+      <aside class="notice"><h2>DEV_ONLY · owner scoped</h2><p>A bounded search over real FFmpeg encodes of a video you own. Every attempt is decoded and measured (luma SSIM and PSNR) against the decoded source and listed, including the ones that failed. The best attempt that meets your target becomes a new immutable version; if none does, nothing is chosen. Undo restores the previous version exactly. Not a perceptual, rights, approval or production claim.</p></aside>
+      <section class="panel">
+        <h2>Connect to local Media</h2>
+        <p>Requests stay on this page origin and use the configured loopback proxy. The token is held in memory only.</p>
+        <form id="connect-form"><label for="dev-token">Short-lived DEV_ONLY bearer token</label><input id="dev-token" type="password" autocomplete="off" required /><button type="submit">Connect</button><button id="disconnect" type="button" disabled>Forget token</button></form>
+        <p id="connection-status" role="status" aria-live="polite">Not connected.</p>
+      </section>
+      <div id="quality-root"></div>
+    </main>
+    <script type="module" src="/src/dev-quality-optimization.tsx"></script>
+  </body>
+</html>
