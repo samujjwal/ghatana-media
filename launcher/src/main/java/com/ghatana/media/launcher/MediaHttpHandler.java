@@ -104,6 +104,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private MediaDevAnimationRoutes devAnimation;
     private MediaDevSimulationRoutes devSimulation;
     private MediaDevQualityRoutes devQuality;
+    private MediaDevRegionEditRoutes devRegionEdit;
     private MediaDevErasureRoutes devErasure;
     private MediaDevDubRoutes devDub;
     private MediaDevCaptionRoutes devCaptions;
@@ -280,6 +281,12 @@ public final class MediaHttpHandler implements HttpHandler {
     /** Installs the optional DEV_ONLY deterministic 2D animation render routes (J-12). */
     MediaHttpHandler withDevAnimation(MediaDevAnimationRuntime animationRuntime) {
         this.devAnimation = animationRuntime == null ? null : new MediaDevAnimationRoutes(animationRuntime, runtime);
+        return this;
+    }
+
+    /** Installs the optional DEV_ONLY tracked region edit routes (J-11). */
+    MediaHttpHandler withDevRegionEdit(MediaDevRegionEditRuntime regionEdit) {
+        this.devRegionEdit = regionEdit == null ? null : new MediaDevRegionEditRoutes(regionEdit, runtime);
         return this;
     }
 
@@ -665,6 +672,19 @@ public final class MediaHttpHandler implements HttpHandler {
             }
             if (devSimulation != null && MediaDevSimulationRoutes.handles(path)) {
                 devSimulation.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
+                        new MediaDevCreativeOutputRoutes.Responder() {
+                            @Override public void json(HttpExchange e, int status, Object body) throws IOException {
+                                MediaHttpHandler.this.json(e, status, body);
+                            }
+                            @Override public void error(HttpExchange e, int status, String code, String message,
+                                                        Map<String, ?> details) throws IOException {
+                                MediaHttpHandler.this.error(e, status, code, message, details);
+                            }
+                        });
+                return;
+            }
+            if (devRegionEdit != null && MediaDevRegionEditRoutes.handles(path)) {
+                devRegionEdit.handle(exchange, path, method, tenantId, principalId, runtime.config().maximumBodyBytes(),
                         new MediaDevCreativeOutputRoutes.Responder() {
                             @Override public void json(HttpExchange e, int status, Object body) throws IOException {
                                 MediaHttpHandler.this.json(e, status, body);

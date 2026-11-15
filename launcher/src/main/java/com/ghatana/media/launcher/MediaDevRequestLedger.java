@@ -276,6 +276,16 @@ final class MediaDevRequestLedger implements AutoCloseable {
         }
     }
 
+    /** The ledger row of a request of this principal, for provenance checks (never an authority for rights). */
+    java.util.Optional<com.ghatana.media.runtime.MediaRequestLedgerContracts.Entry> find(String tenantId, String principalId,
+                                                                                         String lane, String requestId) {
+        try {
+            return ledger.find(new Key(tenantId, principalId, lane, requestId));
+        } catch (RuntimeException failure) {
+            throw unavailable(failure);
+        }
+    }
+
     /** Marks the replay rows of erased outputs as erased in a process-local ledger; durable rows are erased in the erasure transaction. */
     int eraseOutputs(String tenantId, java.util.Set<String> artifactIds) {
         return ledger.eraseOutputs(tenantId, artifactIds);

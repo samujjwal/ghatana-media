@@ -38,6 +38,7 @@ public final class MediaLauncher {
         MediaDevIntakeRuntime devIntake = null;
         MediaDevRequestLedger devLedger = null;
         MediaDevQualityOptimizationRuntime devQuality = null;
+        MediaDevRegionEditRuntime devRegionEdit = null;
         MediaDevErasureRuntime devErasure = null;
         try {
             privacyMaintenance = MediaPrivacyMaintenanceRuntime.compose(environment);
@@ -60,6 +61,9 @@ public final class MediaLauncher {
             devQuality = devLedger == null ? null : MediaDevQualityOptimizationRuntime.compose(runtime, environment,
                     devRights == null ? null : devRights.resolver(), devLedger);
             MediaDevQualityOptimizationRuntime finalDevQuality = devQuality;
+            devRegionEdit = devLedger == null ? null : MediaDevRegionEditRuntime.compose(runtime, environment,
+                    devRights == null ? null : devRights.resolver(), devLedger);
+            MediaDevRegionEditRuntime finalDevRegionEdit = devRegionEdit;
             devErasure = MediaDevErasureRuntime.compose(environment, devLedger, devDelivery, null);
             MediaDevErasureRuntime finalDevErasure = devErasure;
             MediaPrivacyMaintenanceRuntime finalPrivacyMaintenance = privacyMaintenance;
@@ -88,6 +92,10 @@ public final class MediaLauncher {
                 }
                 if (finalDevDelivery != null) {
                     try { finalDevDelivery.close(); }
+                    catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
+                }
+                if (finalDevRegionEdit != null) {
+                    try { finalDevRegionEdit.close(); }
                     catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
                 }
                 if (finalDevIntake != null) {
@@ -181,6 +189,7 @@ public final class MediaLauncher {
                                             : MediaDevAnimationRuntime.compose(runtime, environment,
                                                     finalDevRights == null ? null : finalDevRights.resolver(),
                                                     finalDevLedger))
+                                    .withDevRegionEdit(finalDevRegionEdit)
                                     .withDevVision(MediaLocalVisionComposition.engineFrom(environment)
                                             .map(engine -> {
                                                 MediaDevVisionRuntime devVision = new MediaDevVisionRuntime(runtime, engine,
@@ -207,6 +216,10 @@ public final class MediaLauncher {
             }
             if (devDelivery != null) {
                 try { devDelivery.close(); }
+                catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
+            }
+            if (devRegionEdit != null) {
+                try { devRegionEdit.close(); }
                 catch (RuntimeException cleanupFailure) { failure.addSuppressed(cleanupFailure); }
             }
             if (devIntake != null) {

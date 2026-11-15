@@ -504,6 +504,9 @@ public final class PostgresqlMediaErasureAuthority implements ErasureAuthority {
         // DEV_ONLY head-pointer logs (J-19): a lineage whose log names an erased artifact is dropped whole, so no
         // surviving head can point at erased content and no log can be replayed over a missing event.
         eraseHeadLineages(connection, tenantId, ids);
+        // DEV_ONLY region-edit history rows reference the edited video and its mask manifest; they go with either.
+        deleteByIds(connection, "media_dev_region_edit_versions", "artifact_id", tenantId, ids);
+        deleteByIds(connection, "media_dev_region_edit_versions", "manifest_artifact_id", tenantId, ids);
 
         // Artifacts last: lineage, transcripts and verifications no longer reference them.
         int removed = 0;

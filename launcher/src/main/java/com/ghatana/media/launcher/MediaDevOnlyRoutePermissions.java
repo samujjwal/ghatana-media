@@ -80,6 +80,11 @@ final class MediaDevOnlyRoutePermissions {
         if ("GET".equals(method) && "/dev/v1/simulations/status".equals(path)) return PROJECT_READ;
         if ("POST".equals(method) && "/dev/v1/simulations".equals(path)) return PROJECT_WRITE;
         if ("GET".equals(method) && path.matches("^/dev/v1/simulations/[^/]+$") && !"/dev/v1/simulations/status".equals(path)) return PROJECT_READ;
+        // Tracked region edit with exact version compare-and-set and undo (J-11); the routes also need media:artifact:{read,create}.
+        if ("GET".equals(method) && "/dev/v1/region-edits/status".equals(path)) return PROJECT_READ;
+        if ("POST".equals(method) && "/dev/v1/region-edits/lineages".equals(path)) return PROJECT_WRITE;
+        if ("GET".equals(method) && path.matches("^/dev/v1/region-edits/lineages/[^/]+$")) return PROJECT_READ;
+        if ("POST".equals(method) && path.matches("^/dev/v1/region-edits/lineages/[^/]+/(edits|undo)$")) return PROJECT_WRITE;
         // J-26 erasure and legal holds; the routes additionally require media:artifact:{read,write}.
         if ("GET".equals(method) && path.matches("^/dev/v1/(erasure-plans/[^/]+|erasures/[^/]+|legal-holds(/[^/]+)?)$")) return PROJECT_READ;
         if ("POST".equals(method) && ("/dev/v1/erasures".equals(path) || "/dev/v1/legal-holds".equals(path)
