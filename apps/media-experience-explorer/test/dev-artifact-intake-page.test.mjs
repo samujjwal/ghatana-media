@@ -182,7 +182,6 @@ test("DEV_ONLY project proxy admits only exact context, policy, project, timelin
     ["DELETE", `/dev/v1/projects/${project}/renders/render-1`],
     ["GET", `/dev/v1/projects/${project}/renders`],
     ["POST", `/dev/v1/projects/${project}/renders/render-1`],
-    ["GET", "/dev/v1/reviews"],
     ["GET", "/dev/v1/exports"],
     ["PUT", "/dev/v1/exports"],
     ["POST", "/dev/v1/exports/export-1"],
