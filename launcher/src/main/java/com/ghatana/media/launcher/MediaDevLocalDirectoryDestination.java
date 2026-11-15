@@ -19,9 +19,12 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -38,6 +41,8 @@ import java.util.regex.Pattern;
  */
 final class MediaDevLocalDirectoryDestination implements MediaDeliveryEngine.FencedDestinationPort {
     private static final Pattern NAME = Pattern.compile("[0-9a-f]{64}");
+    private static final Set<PosixFilePermission> PRIVATE_FILE_PERMISSIONS = Set.of(
+            PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE);
     private final Path root;
     private final DeliveryOperationStore operations;
 
@@ -69,6 +74,11 @@ final class MediaDevLocalDirectoryDestination implements MediaDeliveryEngine.Fen
         } catch (IOException failure) {
             throw new IllegalArgumentException("delivery destination directory cannot be resolved", failure);
         }
+    }
+
+    static boolean supportsPrivateFilePermissions(Path directory) {
+        return Files.getFileAttributeView(directory,
+                java.nio.file.attribute.PosixFileAttributeView.class, LinkOption.NOFOLLOW_LINKS) != null;
     }
 
     /** Public object name for a request; also the only filename component this adapter ever uses. */
@@ -112,7 +122,29 @@ final class MediaDevLocalDirectoryDestination implements MediaDeliveryEngine.Fen
         Path resolved = root.resolve(fileName).normalize();
         if (!root.equals(resolved.getParent())) throw new IllegalStateException("destination path escaped its root");
         if (Files.isSymbolicLink(resolved)) throw new IllegalStateException("destination object must not be a symbolic link");
+        verifyPrivatePermissions(resolved);
         return resolved;
+    }
+
+    /** Preflight is effect-free, so a permission failure here is a known UNAVAILABLE result. */
+    @Override
+    public void preflight(ExportRequest request) {
+        if (!supportsPrivateFilePermissions(root)) {
+            throw new IllegalStateException("destination does not support owner-only file permissions");
+        }
+        finalPath(request);
+        partPath(request);
+    }
+
+    private static void verifyPrivatePermissions(Path path) {
+        if (!Files.exists(path, LinkOption.NOFOLLOW_LINKS)) return;
+        try {
+            if (!Files.getPosixFilePermissions(path, LinkOption.NOFOLLOW_LINKS).equals(PRIVATE_FILE_PERMISSIONS)) {
+                throw new IllegalStateException("destination object permissions must be owner-only");
+            }
+        } catch (IOException | UnsupportedOperationException failure) {
+            throw new IllegalStateException("destination object permissions cannot be verified", failure);
+        }
     }
 
     @Override
@@ -144,8 +176,9 @@ final class MediaDevLocalDirectoryDestination implements MediaDeliveryEngine.Fen
                 if (staged > offset) {
                     verifyRange(part, offset, chunk);
                 } else {
-                    try (FileChannel channel = FileChannel.open(part, StandardOpenOption.CREATE,
-                            StandardOpenOption.WRITE, LinkOption.NOFOLLOW_LINKS)) {
+                    try (FileChannel channel = FileChannel.open(part,
+                            Set.of(StandardOpenOption.CREATE, StandardOpenOption.WRITE, LinkOption.NOFOLLOW_LINKS),
+                            PosixFilePermissions.asFileAttribute(PRIVATE_FILE_PERMISSIONS))) {
                         channel.position(offset);
                         ByteBuffer buffer = ByteBuffer.wrap(chunk);
                         while (buffer.hasRemaining()) channel.write(buffer);

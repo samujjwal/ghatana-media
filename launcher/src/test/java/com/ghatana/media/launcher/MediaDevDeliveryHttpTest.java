@@ -25,6 +25,8 @@ import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -59,6 +61,8 @@ class MediaDevDeliveryHttpTest {
             java.time.Clock.fixed(Instant.parse("2026-11-13T20:00:00Z"), java.time.ZoneOffset.UTC);
     private static final Set<String> EXPORT_PERMISSIONS = Set.of(
             "media:delivery:dev:export", "media:delivery:dev:read", "media:artifact:read", "media:artifact:create");
+    private static final Set<PosixFilePermission> PRIVATE_FILE_PERMISSIONS = Set.of(
+            PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE);
     private static final ObjectMapper JSON = JsonMapper.builder().build();
     private static final String DESTINATION = MediaDevDeliveryRuntime.DESTINATION_ID;
 
@@ -81,6 +85,7 @@ class MediaDevDeliveryHttpTest {
             // The destination file holds exactly the artifact bytes (independent read).
             Path object = fixture.objectPath("export-1");
             assertThat(Files.readAllBytes(object)).isEqualTo(fixture.artifactBytes(artifact));
+            assertThat(Files.getPosixFilePermissions(object)).isEqualTo(PRIVATE_FILE_PERMISSIONS);
             assertThat(fixture.destinationCalls.get()).isEqualTo(1);
             assertThat(Files.list(fixture.destinationRoot).map(p -> p.getFileName().toString()).toList())
                     .containsExactly(object.getFileName().toString());
@@ -224,14 +229,14 @@ class MediaDevDeliveryHttpTest {
             MediaArtifact artifact = fixture.upload("seed.bin", bytes(2_000, 7), "seed");
             byte[] content = fixture.artifactBytes(artifact);
             // A write that landed before any ledger record (crash window): byte-identical object.
-            Files.write(fixture.objectPath("seed-ok"), content);
+            writeWithPermissions(fixture.objectPath("seed-ok"), content, PRIVATE_FILE_PERMISSIONS);
             HttpResponse<String> confirmed = fixture.export("seed-ok", artifact, DESTINATION, PRINCIPAL, EXPORT_PERMISSIONS);
             assertThat(confirmed.statusCode()).as(confirmed.body()).isEqualTo(201);
             assertThat(read(confirmed.body())).containsEntry("destinationConfirmed", true);
 
             // A foreign object with the same size is refused: not overwritten, not confirmed.
             byte[] foreign = bytes(2_000, 99);
-            Files.write(fixture.objectPath("seed-bad"), foreign);
+            writeWithPermissions(fixture.objectPath("seed-bad"), foreign, PRIVATE_FILE_PERMISSIONS);
             HttpResponse<String> refused = fixture.export("seed-bad", artifact, DESTINATION, PRINCIPAL, EXPORT_PERMISSIONS);
             assertThat(refused.statusCode()).as(refused.body()).isEqualTo(202);
             assertThat(read(refused.body())).containsEntry("destinationConfirmed", false);
@@ -239,6 +244,36 @@ class MediaDevDeliveryHttpTest {
         } finally {
             fixture.close();
         }
+    }
+
+    @Test
+    void refusesPermissivePreexistingObjectBeforeMutationWithUnavailableStatus() throws Exception {
+        Fixture fixture = new Fixture(null);
+        try {
+            MediaArtifact artifact = fixture.upload("private.bin", bytes(2_000, 17), "private");
+            Path object = fixture.objectPath("private-1");
+            byte[] existing = bytes(2_000, 31);
+            Set<PosixFilePermission> permissive = Set.of(PosixFilePermission.OWNER_READ,
+                    PosixFilePermission.OWNER_WRITE, PosixFilePermission.GROUP_READ);
+            writeWithPermissions(object, existing, permissive);
+
+            HttpResponse<String> response = fixture.export("private-1", artifact, DESTINATION,
+                    PRINCIPAL, EXPORT_PERMISSIONS);
+
+            assertThat(response.statusCode()).isEqualTo(202);
+            assertThat(read(response.body())).containsEntry("status", "UNAVAILABLE")
+                    .containsEntry("destinationConfirmed", false);
+            assertThat(Files.readAllBytes(object)).containsExactly(existing);
+            assertThat(Files.getPosixFilePermissions(object)).isEqualTo(permissive);
+        } finally {
+            fixture.close();
+        }
+    }
+
+    private static void writeWithPermissions(Path path, byte[] content, Set<PosixFilePermission> permissions)
+            throws Exception {
+        Files.createFile(path, PosixFilePermissions.asFileAttribute(permissions));
+        Files.write(path, content);
     }
 
     @Test
@@ -510,6 +545,8 @@ class MediaDevDeliveryHttpTest {
             this.delegate = delegate; this.failingCall = failingCall; this.writeBeforeFailing = writeBeforeFailing;
         }
 
+        @Override public void preflight(MediaDeliveryEngine.ExportRequest request) { delegate.preflight(request); }
+
         @Override public MediaDeliveryEngine.FencedChunkReceipt sendChunk(
                 MediaDeliveryEngine.ExportRequest request, int offset, byte[] chunk, String chunkDigest,
                 MediaDeliveryEngine.TransferAuthorization authorization,
@@ -591,6 +628,9 @@ class MediaDevDeliveryHttpTest {
             UnaryOperator<MediaDeliveryEngine.FencedDestinationPort> counting = port -> {
                 MediaDeliveryEngine.FencedDestinationPort inner = wrapper == null ? port : wrapper.apply(port);
                 return new MediaDeliveryEngine.FencedDestinationPort() {
+                    @Override public void preflight(MediaDeliveryEngine.ExportRequest request) {
+                        inner.preflight(request);
+                    }
                     @Override public MediaDeliveryEngine.FencedChunkReceipt sendChunk(
                             MediaDeliveryEngine.ExportRequest request, int offset, byte[] chunk, String digest,
                             MediaDeliveryEngine.TransferAuthorization authorization,

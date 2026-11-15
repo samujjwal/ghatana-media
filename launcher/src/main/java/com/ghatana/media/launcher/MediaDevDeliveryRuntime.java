@@ -122,6 +122,9 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
         String configured = environment.get(DESTINATION_DIR);
         if (configured == null || configured.isEmpty()) return new MediaDevDeliveryRuntime();
         Path root = MediaDevLocalDirectoryDestination.confineRoot(configured);
+        if (!MediaDevLocalDirectoryDestination.supportsPrivateFilePermissions(root)) {
+            return new MediaDevDeliveryRuntime();
+        }
         List<MediaDevDeliveryStoreFactory> factories = ServiceLoader.load(MediaDevDeliveryStoreFactory.class).stream()
                 .map(ServiceLoader.Provider::get)
                 .filter(factory -> "postgresql-dev-delivery".equals(factory.factoryId()))

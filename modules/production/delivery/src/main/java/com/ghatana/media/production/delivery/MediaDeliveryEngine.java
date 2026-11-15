@@ -19,7 +19,8 @@ public final class MediaDeliveryEngine {
     public enum Status { QUEUED, SENT, DESTINATION_CONFIRMED, OUTCOME_UNKNOWN, REVOKED, UNAVAILABLE }
 
     public static final class DeliveryException extends RuntimeException {
-        public enum Code { INVALID_REQUEST, IDEMPOTENCY_CONFLICT, AUTHORIZATION_DENIED, AUTHORIZATION_UNAVAILABLE, INVALID_DESTINATION_EVIDENCE }
+        public enum Code { INVALID_REQUEST, IDEMPOTENCY_CONFLICT, AUTHORIZATION_DENIED, AUTHORIZATION_UNAVAILABLE,
+            INVALID_DESTINATION_EVIDENCE }
         private final Code code;
         public DeliveryException(Code code, String message) { super(message); this.code = code; }
         public Code code() { return code; }
@@ -154,6 +155,9 @@ public final class MediaDeliveryEngine {
      * A legacy DestinationPort remains source compatible, but is never called by this engine.
      */
     public interface FencedDestinationPort extends DestinationPort {
+        /** No-effect destination preflight. Any failure is known to precede destination mutation. */
+        default void preflight(ExportRequest request) { }
+
         FencedChunkReceipt sendChunk(ExportRequest request, int offset, byte[] chunk, String chunkDigest,
                                      TransferAuthorization authorization, DeliveryOperationStore.DispatchClaim claim);
         FencedReconciliation reconcile(ExportRequest request, DeliveryOperationStore.DispatchClaim claim);
@@ -434,6 +438,14 @@ public final class MediaDeliveryEngine {
         int offset = start;
         int artifactSize = request.artifact().size();
         DeliveryOperationStore.DispatchClaim claim = initialClaim;
+        if (entry.result.status() == Status.QUEUED) {
+            try {
+                fencedDestination.preflight(request);
+            } catch (RuntimeException unavailable) {
+                if (!setResult(entry, result(request, Status.UNAVAILABLE, 0, null), claim)) refreshEntry(entry);
+                return;
+            }
+        }
         while (offset < artifactSize) {
             claim = renew(claim);
             if (claim == null) { refreshEntry(entry); return; }
