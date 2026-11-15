@@ -34,7 +34,14 @@ public final class GreedyIouTracker {
     public static final String ALGORITHM = "GREEDY_IOU_LABEL_V1";
 
     /** One detection in one frame. */
-    public record Detection(String label, SourceBox box) { }
+    public record Detection(String label, SourceBox box) {
+        public Detection {
+            if (label == null || label.isBlank()) {
+                throw new IllegalArgumentException("detection label must be non-blank");
+            }
+            if (box == null) throw new IllegalArgumentException("detection box is required");
+        }
+    }
 
     /** One box of one track at one exact frame. */
     public record Observation(int frameIndex, long pts, SourceBox box) { }
@@ -72,6 +79,7 @@ public final class GreedyIouTracker {
 
     /** Feeds the detections of the next sampled frame; PTS must be strictly increasing. */
     public void update(int frameIndex, long pts, List<Detection> detections) {
+        List<Detection> frameDetections = snapshotDetections(detections);
         if (pts <= lastPts) throw new IllegalArgumentException("frames must be fed in strictly increasing PTS order");
         lastPts = pts;
         ordinal++;
@@ -80,8 +88,8 @@ public final class GreedyIouTracker {
         for (Live track : all) {
             if (ordinal - track.lastOrdinal > maxMissedFrames + 1) continue;
             SourceBox predicted = predict(track, pts);
-            for (int i = 0; i < detections.size(); i++) {
-                Detection detection = detections.get(i);
+            for (int i = 0; i < frameDetections.size(); i++) {
+                Detection detection = frameDetections.get(i);
                 if (!track.label.equals(detection.label())) continue;
                 double score = Math.max(track.last().box().iou(detection.box()),
                         predicted == null ? 0 : predicted.iou(detection.box()));
@@ -96,16 +104,26 @@ public final class GreedyIouTracker {
             if (usedTracks.contains(pair.track()) || usedDetections.contains(pair.detection())) continue;
             usedTracks.add(pair.track());
             usedDetections.add(pair.detection());
-            pair.track().observations.add(new Observation(frameIndex, pts, detections.get(pair.detection()).box()));
+            pair.track().observations.add(new Observation(frameIndex, pts, frameDetections.get(pair.detection()).box()));
             pair.track().lastOrdinal = ordinal;
         }
-        for (int i = 0; i < detections.size(); i++) {
+        for (int i = 0; i < frameDetections.size(); i++) {
             if (usedDetections.contains(i)) continue;
-            Live fresh = new Live(all.size() + 1, detections.get(i).label());
-            fresh.observations.add(new Observation(frameIndex, pts, detections.get(i).box()));
+            Live fresh = new Live(all.size() + 1, frameDetections.get(i).label());
+            fresh.observations.add(new Observation(frameIndex, pts, frameDetections.get(i).box()));
             fresh.lastOrdinal = ordinal;
             all.add(fresh);
         }
+    }
+
+    private static List<Detection> snapshotDetections(List<Detection> detections) {
+        if (detections == null) throw new IllegalArgumentException("detections are required");
+        List<Detection> snapshot = new ArrayList<>();
+        for (Detection detection : detections) {
+            if (detection == null) throw new IllegalArgumentException("detection entries must be non-null");
+            snapshot.add(detection);
+        }
+        return List.copyOf(snapshot);
     }
 
     private static SourceBox predict(Live track, long pts) {

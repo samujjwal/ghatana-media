@@ -127,6 +127,26 @@ class TrackingCoreTest {
     }
 
     @Test
+    void invalidDetectionFrameIsRejectedBeforeConsumingPtsOrChangingTracks() {
+        GreedyIouTracker tracker = new GreedyIouTracker(0.3, 0);
+        tracker.update(0, 100, List.of(det("car", 10, 10, 20, 20)));
+
+        assertThatThrownBy(() -> tracker.update(1, 200, null))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("detections are required");
+        assertThatThrownBy(() -> tracker.update(1, 200, java.util.Arrays.asList((Detection) null)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("entries must be non-null");
+        assertThatThrownBy(() -> new Detection("  ", new SourceBox(10, 10, 20, 20)))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("label must be non-blank");
+        assertThatThrownBy(() -> new Detection("car", null))
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("box is required");
+
+        tracker.update(1, 200, List.of(det("car", 10, 10, 20, 20)));
+        assertThat(tracker.tracks()).hasSize(1);
+        assertThat(tracker.tracks().getFirst().observations())
+                .extracting(GreedyIouTracker.Observation::pts).containsExactly(100L, 200L);
+    }
+
+    @Test
     void boxBoundsAndIouAreExact() {
         SourceBox a = new SourceBox(0, 0, 10, 10);
         assertThat(a.iou(new SourceBox(5, 0, 10, 10))).isEqualTo(50.0 / 150.0);
