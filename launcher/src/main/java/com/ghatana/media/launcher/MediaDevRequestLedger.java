@@ -75,7 +75,9 @@ final class MediaDevRequestLedger implements AutoCloseable {
     private final RequestLedger ledger;
     private final Duration lease;
     private final Duration maxWait;
-    private final String owner = "launcher-" + UUID.randomUUID();
+    private static final String LOCAL_HOST = localHost();
+
+    private final String owner = localOwner();
     private final boolean durable;
 
     MediaDevRequestLedger(RequestLedger ledger, Duration lease, Duration maxWait, boolean durable) {
@@ -85,6 +87,44 @@ final class MediaDevRequestLedger implements AutoCloseable {
         this.durable = durable;
         if (lease.isZero() || lease.isNegative()) throw new IllegalArgumentException("lease must be positive");
         if (maxWait.isNegative()) throw new IllegalArgumentException("maxWait must not be negative");
+    }
+
+    /**
+     * Owner identity of this launcher process: {@code launcher/<host>/<pid>/<process start millis>/<nonce>}. A later
+     * process on the same host can prove the owner is gone (no such pid, or the pid was reused by a process with a
+     * different start time) and take its run over immediately instead of waiting for the lease to expire.
+     */
+    static String localOwner() {
+        String start = ProcessHandle.current().info().startInstant().map(i -> Long.toString(i.toEpochMilli())).orElse("0");
+        return "launcher/" + LOCAL_HOST + "/" + ProcessHandle.current().pid() + "/" + start + "/"
+                + UUID.randomUUID().toString().substring(0, 8);
+    }
+
+    private static String localHost() {
+        try {
+            return java.net.InetAddress.getLocalHost().getHostName().replace('/', '_');
+        } catch (java.io.IOException | RuntimeException unknown) {
+            return "unknown-host";
+        }
+    }
+
+    /** True only when {@code owner} names a process on THIS host that provably no longer runs. */
+    static boolean ownerProcessIsGone(String owner) {
+        String[] parts = owner == null ? new String[0] : owner.split("/");
+        if (parts.length != 5 || !"launcher".equals(parts[0]) || !LOCAL_HOST.equals(parts[1])) return false;
+        try {
+            long pid = Long.parseLong(parts[2]);
+            long recordedStart = Long.parseLong(parts[3]);
+            if (pid == ProcessHandle.current().pid()) return false;
+            var handle = ProcessHandle.of(pid);
+            if (handle.isEmpty() || !handle.get().isAlive()) return true;
+            var started = handle.get().info().startInstant();
+            // A live process whose start time differs by more than a second is a reused pid, not the owner.
+            return started.isPresent() && recordedStart != 0
+                    && Math.abs(started.get().toEpochMilli() - recordedStart) > 1_000;
+        } catch (NumberFormatException malformed) {
+            return false;
+        }
     }
 
     /** Process-local ledger for tests; never durable. */
@@ -171,6 +211,16 @@ final class MediaDevRequestLedger implements AutoCloseable {
                 claim = ledger.claim(key, fingerprint, owner, lease);
             } catch (RuntimeException failure) {
                 throw unavailable(failure);
+            }
+            if (claim instanceof InProgress stuck && ownerProcessIsGone(stuck.leaseOwner())) {
+                // The run was owned by a launcher process on this host that no longer exists (killed or crashed): its
+                // outcome is UNKNOWN, so take the run over now under a higher fencing token instead of waiting.
+                log.warn("DEV request ledger reclaiming a run owned by a dead local process lane={}", lane);
+                try {
+                    claim = ledger.reclaim(key, fingerprint, stuck.leaseOwner(), stuck.fence(), owner, lease);
+                } catch (RuntimeException failure) {
+                    throw unavailable(failure);
+                }
             }
             if (claim instanceof Replay replayed) return replay.apply(replayed.outputs());
             if (claim instanceof Mismatch) throw mismatch.get();

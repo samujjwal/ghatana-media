@@ -100,7 +100,7 @@ public final class PostgresqlMediaRequestLedger implements RequestLedger {
                 } else if (current.state() == State.COMPLETED) {
                     decided = new Replay(current.outputs());
                 } else if (current.leaseExpiresAt().isAfter(now)) {
-                    decided = new InProgress(current.leaseExpiresAt());
+                    decided = new InProgress(current.leaseExpiresAt(), current.leaseOwner(), current.fence());
                 } else {
                     decided = null;
                     takeover = true;
@@ -137,6 +137,39 @@ public final class PostgresqlMediaRequestLedger implements RequestLedger {
         } catch (SQLException failure) {
             throw persistence("claim", failure);
         }
+    }
+
+    @Override public Claim reclaim(Key key, String fingerprint, String expectedOwner, long expectedFence,
+                                   String newOwner, Duration lease) {
+        ensureOpen();
+        MediaRequestLedgerContracts.requireFingerprint(fingerprint);
+        Objects.requireNonNull(expectedOwner, "expectedOwner");
+        Objects.requireNonNull(newOwner, "newOwner");
+        if (lease == null || lease.isZero() || lease.isNegative()) throw new IllegalArgumentException("lease must be positive");
+        Instant now = clock.instant();
+        try (Connection connection = state.connection();
+             PreparedStatement update = connection.prepareStatement("""
+                     UPDATE media_dev_request_ledger SET lease_owner=?, lease_token=lease_token+1, lease_expires_at=?,
+                            attempts=attempts+1, outputs_json='[]', updated_at=?, completed_at=NULL""" + WHERE_KEY
+                     + " AND state='IN_PROGRESS' AND request_fingerprint=? AND lease_owner=? AND lease_token=?"
+                     + " RETURNING lease_token, attempts")) {
+            update.setString(1, newOwner);
+            update.setTimestamp(2, Timestamp.from(now.plus(lease)));
+            update.setTimestamp(3, Timestamp.from(now));
+            update.setString(4, key.tenantId());
+            update.setString(5, key.principalId());
+            update.setString(6, key.lane());
+            update.setString(7, key.requestId());
+            update.setString(8, fingerprint);
+            update.setString(9, expectedOwner);
+            update.setLong(10, expectedFence);
+            try (ResultSet row = update.executeQuery()) {
+                if (row.next()) return new Acquired(row.getLong("lease_token"), row.getInt("attempts"), true);
+            }
+        } catch (SQLException failure) {
+            throw persistence("reclaim", failure);
+        }
+        return claim(key, fingerprint, newOwner, lease);
     }
 
     @Override public boolean complete(Key key, long fence, List<OutputRef> outputs) {

@@ -146,6 +146,35 @@ class PostgresqlMediaRequestLedgerTest {
     }
 
     @Test
+    void aRunWhoseOwnerIsProvablyGoneIsReclaimedByCompareAndSetBeforeItsLeaseExpires() throws Exception {
+        try (Fixture fixture = openFixture(); PostgresqlMediaRequestLedger ledger = new PostgresqlMediaRequestLedger()) {
+            Key key = key();
+            assertThat(ledger.claim(key, FP_A, "killed-launcher", LEASE)).isEqualTo(new Acquired(1, 1, false));
+            InProgress busy = (InProgress) ledger.claim(key, FP_A, "restarted-launcher", LEASE);
+            assertThat(busy.leaseOwner()).isEqualTo("killed-launcher");
+            assertThat(busy.fence()).isEqualTo(1);
+            // A stale view (wrong fence or owner, or another request) never takes the run.
+            assertThat(ledger.reclaim(key, FP_A, "killed-launcher", 9, "restarted-launcher", LEASE)).isInstanceOf(InProgress.class);
+            assertThat(ledger.reclaim(key, FP_A, "someone-else", 1, "restarted-launcher", LEASE)).isInstanceOf(InProgress.class);
+            assertThat(ledger.reclaim(key, FP_B, "killed-launcher", 1, "restarted-launcher", LEASE)).isInstanceOf(Mismatch.class);
+            // Two restarted workers race to reclaim: exactly one wins.
+            try (ExecutorService workers = Executors.newFixedThreadPool(2)) {
+                Future<Claim> a = workers.submit(() -> ledger.reclaim(key, FP_A, "killed-launcher", 1, "worker-a", LEASE));
+                Future<Claim> b = workers.submit(() -> ledger.reclaim(key, FP_A, "killed-launcher", 1, "worker-b", LEASE));
+                List<Claim> claims = List.of(a.get(), b.get());
+                assertThat(claims.stream().filter(Acquired.class::isInstance).count()).isEqualTo(1);
+                assertThat(claims.stream().filter(InProgress.class::isInstance).count()).isEqualTo(1);
+            }
+            Entry entry = ledger.find(key).orElseThrow();
+            assertThat(entry.fence()).isEqualTo(2);
+            assertThat(entry.attempts()).isEqualTo(2);
+            // The killed launcher's late completion is fenced out.
+            assertThat(ledger.complete(key, 1, OUT)).isFalse();
+            assertThat(ledger.complete(key, 2, OUT)).isTrue();
+        }
+    }
+
+    @Test
     void aCompletedRequestReplaysItsRegisteredOutputsAfterAFullRestartOfTheRuntimeState() throws Exception {
         String bucket = "media-ledger-" + UUID.randomUUID().toString().replace("-", "");
         createBucket(bucket);

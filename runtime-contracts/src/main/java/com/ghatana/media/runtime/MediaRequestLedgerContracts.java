@@ -78,8 +78,11 @@ public final class MediaRequestLedgerContracts {
     /** The requestId was already used with a different canonical request. */
     public record Mismatch() implements Claim { }
 
-    /** Another worker holds a live lease for the same request; its outcome is not known yet. */
-    public record InProgress(Instant leaseExpiresAt) implements Claim { }
+    /**
+     * Another worker holds a live lease for the same request; its outcome is not known yet. {@code leaseOwner} and
+     * {@code fence} identify the holder so a caller that can prove the holder is gone may {@link RequestLedger#reclaim}.
+     */
+    public record InProgress(Instant leaseExpiresAt, String leaseOwner, long fence) implements Claim { }
 
     public interface RequestLedger extends AutoCloseable {
         String ledgerId();
@@ -91,6 +94,16 @@ public final class MediaRequestLedgerContracts {
          * {@link Acquired} for a given lease; the lease is bounded by {@code lease}.
          */
         Claim claim(Key key, String fingerprint, String owner, Duration lease);
+
+        /**
+         * Takes over an IN_PROGRESS run before its lease expires, only when it is still held by exactly
+         * {@code expectedOwner} at {@code expectedFence} with the same fingerprint (a compare-and-set). The caller must
+         * have independent proof that the owner is gone (for example a dead local process); the previous run's outcome
+         * stays UNKNOWN and its late completion is refused by the higher fence. When the row no longer matches, this
+         * behaves as {@link #claim}.
+         */
+        Claim reclaim(Key key, String fingerprint, String expectedOwner, long expectedFence, String newOwner,
+                      Duration lease);
 
         /**
          * Records the registered outputs and marks the request COMPLETED. Returns false, changing nothing, when the

@@ -93,6 +93,24 @@ class InMemoryMediaRequestLedgerTest {
     }
 
     @Test
+    void reclaimIsACompareAndSetOnTheNamedOwnerAndFence() {
+        InMemoryMediaRequestLedger ledger = new InMemoryMediaRequestLedger();
+        ledger.claim(KEY, FP_A, "dead-owner", LEASE);
+        // Wrong owner or wrong fence: behaves as a plain claim, i.e. the live lease holds.
+        assertThat(ledger.reclaim(KEY, FP_A, "someone-else", 1, "me", LEASE)).isInstanceOf(InProgress.class);
+        assertThat(ledger.reclaim(KEY, FP_A, "dead-owner", 7, "me", LEASE)).isInstanceOf(InProgress.class);
+        assertThat(ledger.reclaim(KEY, FP_B, "dead-owner", 1, "me", LEASE)).isInstanceOf(Mismatch.class);
+        assertThat(ledger.reclaim(KEY, FP_A, "dead-owner", 1, "me", LEASE)).isEqualTo(new Acquired(2, 2, true));
+        assertThat(ledger.complete(KEY, 1, OUT)).isFalse();
+        assertThat(ledger.complete(KEY, 2, OUT)).isTrue();
+        InMemoryMediaRequestLedger other = new InMemoryMediaRequestLedger();
+        other.claim(KEY, FP_A, "first", LEASE);
+        InProgress shown = (InProgress) other.claim(KEY, FP_A, "second", LEASE);
+        assertThat(shown.leaseOwner()).isEqualTo("first");
+        assertThat(shown.fence()).isEqualTo(1);
+    }
+
+    @Test
     void theKeyIncludesTenantPrincipalAndLane() {
         InMemoryMediaRequestLedger ledger = new InMemoryMediaRequestLedger();
         ledger.claim(KEY, FP_A, "w1", LEASE);

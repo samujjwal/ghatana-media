@@ -100,6 +100,46 @@ class MediaDevRequestLedgerTest {
     }
 
     @Test
+    void aRunOwnedByAProvablyDeadLocalProcessIsTakenOverImmediatelyWithoutWaitingForTheLease() throws Exception {
+        // A real child process that exits: its pid and start time are the "crashed launcher" identity.
+        Process child = new ProcessBuilder("sleep", "30").start();
+        long pid = child.pid();
+        long started = child.toHandle().info().startInstant().orElseThrow().toEpochMilli();
+        String host = MediaDevRequestLedger.localOwner().split("/")[1];
+        String deadOwner = "launcher/" + host + "/" + pid + "/" + started + "/abcd1234";
+        assertThat(MediaDevRequestLedger.ownerProcessIsGone(deadOwner)).as("still alive").isFalse();
+
+        InMemoryMediaRequestLedger store = new InMemoryMediaRequestLedger();
+        MediaDevRequestLedger ledger = new MediaDevRequestLedger(store, Duration.ofMinutes(15), Duration.ZERO, false);
+        String fp = MediaDevRequestLedger.fingerprint("v1", "a");
+        store.claim(new Key("t", "p", LANE, "req-1"), fp, deadOwner, Duration.ofMinutes(15));
+        AtomicInteger runs = new AtomicInteger();
+        assertThatThrownBy(() -> run(ledger, fp, runs, "x")).isInstanceOfSatisfying(
+                MediaDevRequestLedger.LedgerRefusedException.class,
+                refused -> assertThat(refused.code()).isEqualTo("REQUEST_IN_PROGRESS"));
+
+        child.destroyForcibly();
+        child.waitFor();
+        assertThat(MediaDevRequestLedger.ownerProcessIsGone(deadOwner)).isTrue();
+        assertThat(run(ledger, fp, runs, "after-crash")).isEqualTo("after-crash");
+        assertThat(runs.get()).isEqualTo(1);
+        // The dead owner's late completion is fenced out; the takeover's output is what replays.
+        assertThat(store.complete(new Key("t", "p", LANE, "req-1"), 1, refs("zombie"))).isFalse();
+        assertThat(run(ledger, fp, runs, "ignored")).isEqualTo("replayed:after-crash");
+    }
+
+    @Test
+    void ownerLivenessIsOnlyEverProvenForThisHostsDeadProcesses() {
+        String own = MediaDevRequestLedger.localOwner();
+        assertThat(MediaDevRequestLedger.ownerProcessIsGone(own)).as("this very process").isFalse();
+        String host = own.split("/")[1];
+        assertThat(MediaDevRequestLedger.ownerProcessIsGone("launcher/other-host/999999999/1/abcd")).isFalse();
+        assertThat(MediaDevRequestLedger.ownerProcessIsGone("launcher/" + host + "/notanumber/1/abcd")).isFalse();
+        assertThat(MediaDevRequestLedger.ownerProcessIsGone("something-else")).isFalse();
+        assertThat(MediaDevRequestLedger.ownerProcessIsGone(null)).isFalse();
+    }
+
+    @Test
     void concurrentCallsWithTheSameKeyRunTheModelExactlyOnceAndTheOthersReplayIt() throws Exception {
         MediaDevRequestLedger ledger = new MediaDevRequestLedger(new InMemoryMediaRequestLedger(),
                 Duration.ofMinutes(5), Duration.ofSeconds(20), false);

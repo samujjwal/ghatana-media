@@ -58,12 +58,32 @@ public final class InMemoryMediaRequestLedger implements RequestLedger {
         }
         if (!current.fingerprint().equals(fingerprint)) return new Mismatch();
         if (current.state() == State.COMPLETED) return new Replay(current.outputs());
-        if (current.leaseExpiresAt().isAfter(now)) return new InProgress(current.leaseExpiresAt());
+        if (current.leaseExpiresAt().isAfter(now)) {
+            return new InProgress(current.leaseExpiresAt(), current.leaseOwner(), current.fence());
+        }
         long fence = current.fence() + 1;
         int attempt = current.attempts() + 1;
         rows.put(key, new Entry(key, fingerprint, State.IN_PROGRESS, owner, fence, now.plus(lease), attempt, List.of(),
                 current.lastFailureCode(), current.createdAt(), now, null));
         return new Acquired(fence, attempt, true);
+    }
+
+    @Override public synchronized Claim reclaim(Key key, String fingerprint, String expectedOwner, long expectedFence,
+                                                String newOwner, Duration lease) {
+        ensureOpen();
+        MediaRequestLedgerContracts.requireFingerprint(fingerprint);
+        if (lease == null || lease.isZero() || lease.isNegative()) throw new IllegalArgumentException("lease must be positive");
+        Entry current = rows.get(key);
+        if (current != null && current.state() == State.IN_PROGRESS && current.fingerprint().equals(fingerprint)
+                && current.leaseOwner().equals(expectedOwner) && current.fence() == expectedFence) {
+            Instant now = clock.instant();
+            long fence = current.fence() + 1;
+            int attempt = current.attempts() + 1;
+            rows.put(key, new Entry(key, fingerprint, State.IN_PROGRESS, newOwner, fence, now.plus(lease), attempt,
+                    List.of(), current.lastFailureCode(), current.createdAt(), now, null));
+            return new Acquired(fence, attempt, true);
+        }
+        return claim(key, fingerprint, newOwner, lease);
     }
 
     @Override public synchronized boolean complete(Key key, long fence, List<OutputRef> outputs) {
