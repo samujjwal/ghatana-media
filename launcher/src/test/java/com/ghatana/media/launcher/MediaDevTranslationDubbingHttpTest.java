@@ -48,6 +48,7 @@ class MediaDevTranslationDubbingHttpTest {
     private static final Set<String> READ_ONLY = Set.of("media:project:dev:read", "media:artifact:read");
     private static final ObjectMapper JSON = JsonMapper.builder().build();
 
+    private final ConcurrentHashMap<String, Resolution> overrides = new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Verdict> verdicts = new ConcurrentHashMap<>();
     /** New (non-replayed) outputs registered through the lane's registrar. */
     private final AtomicInteger registrations = new AtomicInteger();
@@ -58,6 +59,8 @@ class MediaDevTranslationDubbingHttpTest {
         @Override public String resolverId() { return "test-resolver"; }
         @Override public boolean ready() { return true; }
         @Override public Resolution resolve(ResolutionRequest request) {
+            Resolution override = overrides.get(request.artifactId());
+            if (override != null) return override;
             Verdict verdict = verdicts.getOrDefault(request.artifactId(), Verdict.UNAVAILABLE);
             return switch (verdict) {
                 case ADMITTED -> new Resolution(Verdict.ADMITTED, Set.of(), List.of("att-" + request.artifactId()), resolverId());
@@ -150,6 +153,13 @@ class MediaDevTranslationDubbingHttpTest {
                     .contains("att-" + fixture.source.artifactId());
             assertThat(lineage.toString()).as("lineage carries digests, never the text").doesNotContain("Hola a todos");
             assertThat(translateCalls.get()).isEqualTo(2);
+
+            // A second request (new requestId) over the same transcript yields identical text and must register its own output.
+            HttpResponse<String> second = translate(base, "tr-again", fixture.transcript, "en", "es");
+            assertThat(second.statusCode()).as(second.body()).isEqualTo(201);
+            assertThat(read(second.body()).get("translationId")).isNotEqualTo(body.get("translationId"));
+            assertThat(translateCalls.get()).isEqualTo(4);
+            translateCalls.addAndGet(-2);
 
             // The same request replays the registered output and never calls the engine again.
             HttpResponse<String> replay = translate(base, "tr-1", fixture.transcript, "en", "es");
@@ -437,6 +447,47 @@ class MediaDevTranslationDubbingHttpTest {
             assertCode(send(base, "POST", "/dev/v1/dubs", JSON.writeValueAsString(Map.of("requestId", "dub-nothing",
                     "translatedArtifactId", fixture.source.artifactId(), "translatedArtifactVersionId",
                     fixture.source.version().value())), OWNER, PERMISSIONS), 422, "SOURCE_NOT_A_TRANSLATION");
+        } finally {
+            server.stop(0);
+            runtime.close();
+        }
+    }
+
+    @Test
+    void aDerivativeInheritsRightsFromItsAttestedRootOnlyWhenItHasNoStatementOfItsOwn() throws Exception {
+        Path root = Files.createTempDirectory("media-dev-derivative-rights-");
+        MediaRuntime runtime = runtime(root, MediaRuntimeConfig.DEFAULT_DEV_RENDER_MAX_CONCURRENT,
+                MediaRuntimeConfig.DEFAULT_DEV_RENDER_MAX_CONCURRENT_PER_TENANT);
+        HttpServer server = server(runtime);
+        try {
+            String base = base(server);
+            Fixture fixture = fixture(runtime, List.of(new Cue(0, 2000, "Hello there everyone")));
+            String transcript = fixture.transcript.artifactId();
+            verdicts.put(fixture.source.artifactId(), Verdict.ADMITTED);
+            // 1. No statement at all on the derivative (the DEV authority answers DENIED/NO_ATTESTATION), attested root: admitted.
+            overrides.put(transcript, new Resolution(Verdict.DENIED, Set.of(Reason.NO_ATTESTATION), List.of(), "test-resolver"));
+            assertThat(translate(base, "dr-1", fixture.transcript, "en", "es").statusCode()).isEqualTo(201);
+            // 2. The derivative's own statement does not cover PROCESSING: refused.
+            overrides.put(transcript, new Resolution(Verdict.DENIED, Set.of(Reason.SCOPE_NOT_COVERED), List.of(), "test-resolver"));
+            assertCode(translate(base, "dr-2", fixture.transcript, "en", "es"), 403, "RIGHTS_DECISION_DENIED");
+            overrides.put(transcript, new Resolution(Verdict.DENIED, Set.of(Reason.NO_ATTESTATION, Reason.NOT_CONFIRMED),
+                    List.of(), "test-resolver"));
+            assertCode(translate(base, "dr-2b", fixture.transcript, "en", "es"), 403, "RIGHTS_DECISION_DENIED");
+            // 3. The derivative is revoked, stale or mismatching: refused.
+            for (Verdict verdict : List.of(Verdict.REVOKED, Verdict.STALE, Verdict.MISMATCH)) {
+                overrides.put(transcript, new Resolution(verdict, Set.of(Reason.REVOKED), List.of(), "test-resolver"));
+                assertCode(translate(base, "dr-3-" + verdict, fixture.transcript, "en", "es"), 403, "RIGHTS_DECISION_" + verdict);
+            }
+            // 4. A revoked root refuses even a derivative with no statement.
+            overrides.put(transcript, new Resolution(Verdict.DENIED, Set.of(Reason.NO_ATTESTATION), List.of(), "test-resolver"));
+            verdicts.put(fixture.source.artifactId(), Verdict.REVOKED);
+            assertCode(translate(base, "dr-4", fixture.transcript, "en", "es"), 403, "RIGHTS_DECISION_REVOKED");
+            // 5. An unavailable resolver refuses.
+            verdicts.put(fixture.source.artifactId(), Verdict.UNAVAILABLE);
+            assertCode(translate(base, "dr-5", fixture.transcript, "en", "es"), 422, "RIGHTS_AUTHORITY_UNAVAILABLE");
+            // An unattested root (DENIED) is refused even though the derivative alone would be inherited.
+            verdicts.put(fixture.source.artifactId(), Verdict.DENIED);
+            assertThat(translate(base, "dr-6", fixture.transcript, "en", "es").statusCode()).isIn(403, 422);
         } finally {
             server.stop(0);
             runtime.close();

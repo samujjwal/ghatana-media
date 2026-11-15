@@ -394,6 +394,19 @@ labelled `PARTIAL`, an explicit caller choice and not a model substitution. A TI
 local process (FFmpeg, whisper-cli); the vision sidecar has no cancellation protocol, so its GPU work may finish and is
 discarded.
 
+DEV_ONLY translation and dubbing (J-16; owner decision of the Media owner delegate, 2026-11-15, Spanish only). `POST
+/dev/v1/translations` `{requestId, transcriptArtifactId, transcriptArtifactVersionId, sourceLanguage:"en", targetLanguage:"es"}`
+translates an exact speech-transcript version segment by segment with the local Qwen2.5-VL (text-only, through the vision
+sidecar's additive `/v1/translate`), keeping segment ids and source-clock times; `POST /dev/v1/translations/revisions` registers a
+human revision as a new version (same ids/times). `POST /dev/v1/dubs` `{requestId, translatedArtifactId,
+translatedArtifactVersionId, voice?, overflowPolicy?: REFUSE|ALLOW_SPILL}` synthesizes each segment with a Spanish stock voice,
+fits it to its source window (bounded `atempo` up to 1.25, never truncation) and registers a timing-aligned WAV, WebVTT and the
+per-segment timing metadata (source window, dub duration, tempo factor, overflow). Typed refusals: `422 LANGUAGE_NOT_ADMITTED`,
+`422 DUB_TIMING_OVERFLOW` (details list every segment), `422 VOICE_LOCALE_MISMATCH`, `VOICE_CLONING_NOT_SUPPORTED`,
+`403 RIGHTS_DECISION_*` / `422 RIGHTS_AUTHORITY_UNAVAILABLE` (the root source of the derivation chain needs a PROCESSING
+statement, re-checked on every call), `503 TRANSLATION_OUTCOME_UNKNOWN` / `DUB_OUTCOME_UNKNOWN` (nothing registered; retrying the
+same `requestId` registers once). Outputs carry `source` / `sourceTranscript` / `parent` lineage so derived outputs can be found.
+
 DEV_ONLY voice synthesis (J-04; real Kokoro-82M, Apache-2.0, stock voices, no voice cloning).
 `POST /dev/v1/speech/syntheses` takes `{requestId, text, voice?, speakingRate?, locale?, voiceReference?, likenessReference?}`
 where a reference is `{artifactId, artifactVersionId}` and `locale` defaults to `en`. The verified voices, verified

@@ -336,6 +336,9 @@ final class MediaDevTranslationRuntime {
                                                List<Segment> segments, Map<String, Object> lineage, String namePrefix) {
         Map<String, Object> document = new LinkedHashMap<>();
         document.put("schema", DOCUMENT_SCHEMA);
+        // The artifact store refuses a second artifact with identical bytes in a tenant (unique sha256 and size), so each
+        // request's output carries its own requestId and a second request over the same input registers its own output.
+        document.put("requestId", requestId);
         document.put("sourceLanguage", sourceLanguage);
         document.put("targetLanguage", targetLanguage);
         document.put("segmentTimeBase", "inherited from the source transcript: milliseconds from the start of the "

@@ -322,7 +322,14 @@ final class MediaDevDubbingRuntime {
                     Map.of("overflowPolicy", request.overflowPolicy().name(), "maxTempoFactor", MediaDevDubTiming.MAX_TEMPO,
                             "overflowSegments", overflowing, "segments", fit));
         }
-        byte[] wav = MediaDevDubTiming.encodeWav(MediaDevDubTiming.assemble(placed, lastEnd));
+        short[] track = MediaDevDubTiming.assemble(placed, lastEnd);
+        // The artifact store refuses a second artifact with identical bytes in a tenant, so a second dub request over the same
+        // translation must differ in bytes: the final sample of the track, when it is silence, carries a request-derived
+        // value of 1 to 8 LSB (inaudible, about -84 dBFS or less) and the captions and timing documents name the requestId.
+        if (track.length > 0 && track[track.length - 1] == 0) {
+            track[track.length - 1] = (short) (1 + (request.requestId().hashCode() & 7));
+        }
+        byte[] wav = MediaDevDubTiming.encodeWav(track);
         long trackMillis = MediaDevDubTiming.millis((wav.length - 44) / 2);
         int overflowCount = (int) placed.stream().filter(MediaDevDubTiming.Placed::overflow).count();
         int adjusted = (int) placed.stream().filter(p -> p.tempoFactor() > 1.0).count();
@@ -367,11 +374,12 @@ final class MediaDevDubbingRuntime {
         captionLineage.put("note", "WebVTT of the translated segments over their source windows; unreviewed machine or "
                 + "human-revised translation, not a caption authority.");
         MediaDevDubSupport.Output captions = support.register(tenantId, principalId, "INTERNAL", "dub.captions",
-                request.requestId(), WebVttWriter.write(cues), "text/vtt", "vtt",
+                request.requestId(), withRequestNote(WebVttWriter.write(cues), request.requestId()), "text/vtt", "vtt",
                 "dub-captions-" + translation.targetLanguage(), "dub-output", captionLineage);
 
         Map<String, Object> timingDocument = new LinkedHashMap<>();
         timingDocument.put("schema", TIMING_SCHEMA);
+        timingDocument.put("requestId", request.requestId());
         timingDocument.put("targetLanguage", translation.targetLanguage());
         timingDocument.put("voice", voice);
         timingDocument.put("sampleRate", MediaDevDubTiming.SAMPLE_RATE);
@@ -400,6 +408,15 @@ final class MediaDevDubbingRuntime {
                 request.requestId(), MediaDevDubSupport.json(timingDocument), "application/json", "json",
                 "dub-timing-" + translation.targetLanguage(), "dub-output", timingLineage);
         return new Dub(audio, captions, timing, timingDocument);
+    }
+
+    /** Inserts a WebVTT NOTE block naming the request after the header (so identical captions differ per request). */
+    private static byte[] withRequestNote(byte[] vtt, String requestId) {
+        String text = new String(vtt, StandardCharsets.UTF_8);
+        int headerEnd = text.indexOf("\n\n");
+        if (headerEnd < 0) return vtt;
+        return (text.substring(0, headerEnd + 2) + "NOTE dub request " + requestId + "\n\n"
+                + text.substring(headerEnd + 2)).getBytes(StandardCharsets.UTF_8);
     }
 
     // ---- readback ----

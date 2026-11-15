@@ -130,7 +130,8 @@ final class MediaDevDubSupport {
             // a derivative DENIED means "no statement of its own"; its rights come from its root source.
             boolean noStatement = resolution == null
                     || resolution.verdict() == MediaRightsConsentContracts.Verdict.UNAVAILABLE
-                    || (!root && resolution.verdict() == MediaRightsConsentContracts.Verdict.DENIED);
+                    || (!root && resolution.verdict() == MediaRightsConsentContracts.Verdict.DENIED
+                            && resolution.reasons().equals(Set.of(MediaRightsConsentContracts.Reason.NO_ATTESTATION)));
             if (noStatement && root) {
                 // The root source carries the rights statement; without it nothing derived from it is admitted.
                 throw new MediaDevSpeechRuntime.SpeechRefusedException(422, "RIGHTS_AUTHORITY_UNAVAILABLE",
