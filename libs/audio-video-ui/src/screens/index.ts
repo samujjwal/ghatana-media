@@ -109,3 +109,13 @@ export type {
   AudioComparisonReport, AudioFailure, AudioHostStatus, AudioRestorationView, AudioSideMetrics, AudioTranscriptDiff, DevAudioCompareRequest,
   DevAudioHostResponse, DevAudioOperations, DevAudioRestoreRequest, DevAudioRestorationPort, DevAudioVersionRef,
 } from "./devAudioRestoration";
+export { DevProviderStatusPanel } from "./DevProviderStatusPanel";
+export type { DevProviderStatusPanelProps } from "./DevProviderStatusPanel";
+export {
+  DEV_PROVIDER_LABELS, DEV_PROVIDER_STATES, DevProviderCatalogHostError, describeDevProviderFailure, describeDevProviderReason,
+  describeDevProviderState, diffDevProviderStates, parseDevProviderCatalog, parseDevProviderEntry, shortDigest,
+} from "./devProviderCatalog";
+export type {
+  DevProviderCatalogHostResponse, DevProviderCatalogPort, DevProviderCatalogView, DevProviderChange, DevProviderEntry,
+  DevProviderFailure, DevProviderState,
+} from "./devProviderCatalog";

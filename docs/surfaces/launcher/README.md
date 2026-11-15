@@ -341,6 +341,52 @@ handlers additionally require the artifact permissions noted, so access is never
 | POST | `/dev/v1/legal-holds` | `media:project:dev:write` | `media:artifact:write`; owner only; records reason, principal and identity assurance; `OIDC_VERIFIED` in production-like profiles | erasure |
 | GET | `/dev/v1/legal-holds/{holdId}` and `/dev/v1/legal-holds?artifactId=` | `media:project:dev:read` | `media:artifact:read`; owner only | erasure |
 | POST | `/dev/v1/legal-holds/{holdId}/release` | `media:project:dev:write` | `media:artifact:write`; the placing owner; attributed; `OIDC_VERIFIED` in production-like profiles | erasure |
+| GET | `/dev/v1/providers/catalog` | `media:project:dev:read` | — | always (dev); observed readiness of Whisper, Kokoro, Florence-2, Qwen2.5-VL and FFmpeg |
+
+
+DEV_ONLY provider catalog and outage-safe lanes (J-30 `media.dev.outcome-eligible-provider-catalog`, J-27
+`media.dev.outcome-provider-outage-safe-path`).
+`GET /dev/v1/providers/catalog` (`MediaDevProviderCatalog`) reports, per local provider (`whisper`, `kokoro`, `florence`,
+`qwen`, `ffmpeg`): `state`, a stable `reason` code, the manifest `modelId`/`revision`, `license{spdx,noticeRequired,notice}`,
+`digests`, `verifiedLanguages`, `voices`, the `device` the provider actually reported (`kind` GPU/CPU/UNREPORTED, `name`),
+`productionEligible` (always `false`: this catalog never asserts production eligibility), `fallback:"NONE"`,
+`lastCheckedAt` and `probeMillis`. States are observed, never configured: `READY` needs the manifest digests to verify AND a
+live probe to answer (`whisper-cli -h` after the pinned executable digest matched; the Kokoro worker's own `/v1/health`, which
+also reports the device torch uses; the vision sidecar's `/v1/health`, which reports the device torch reports; and
+`ffmpeg -version`, `ffprobe -version` and the `libx264`/`aac`/`mov_text` encoders). `NOT_ADMITTED` carries the reason
+(`MODEL_NOT_INSTALLED`, `MODEL_MANIFEST_INVALID`, `MODEL_DIGEST_MISMATCH`, `MODEL_FILE_MISSING`, `MODEL_LICENSE_MISMATCH`,
+`BINARY_DIGEST_MISMATCH`, ...). `WITHDRAWN` (`MODEL_FILES_CHANGED`, `BINARY_CHANGED`, `WORKER_REFUSED`) means it was verified
+and a file changed afterwards. `UNAVAILABLE` means the process, port, binary or worker is absent (`WORKER_NOT_RUNNING`,
+`SIDECAR_UNREACHABLE`, `BINARY_MISSING`, `FFMPEG_BINARY_MISSING`, `NOT_CONFIGURED`, `PROBE_TIMEOUT`); `DEGRADED` means it
+answers too slowly or only partly (`SIDECAR_HEALTH_TIMEOUT`, `PROBE_SLOW`, `NO_PERSISTENT_WORKER_TO_PROBE`). The Kokoro
+worker starts on its first request unless `MEDIA_LOCAL_MODEL_PRELOAD=true`, so before that it is `UNAVAILABLE
+WORKER_NOT_RUNNING`. Whisper's device is `UNREPORTED`: whisper-cli names its device only while it runs inference. FFmpeg's
+SPDX identifier is derived from the binary's own `configuration:` line. Probing is bounded: the observation is cached for
+`MEDIA_DEV_PROVIDER_CATALOG_TTL_SECONDS` (default 5, max 300), one refresh runs at a time (concurrent callers share it), at most
+`MEDIA_DEV_PROVIDER_CATALOG_MAX_CONCURRENT_PROBES` (default 3, max 8) probes run at once and a probe has a 12 s hard deadline
+(`PROBE_TIMEOUT`). The view never contains a filesystem path, endpoint or token; production-like profiles additionally omit
+device names and runtime versions. Metrics: `media.dev.provider.state{provider,state}` (one-hot gauge, 5x5 series),
+`media.dev.provider.checked_at_seconds{provider}` and `media.dev.provider.outages{lane,outcome}` (fixed vocabularies, no
+secret or path labels). The Explorer page `dev-provider-status.html` (panel `DevProviderStatusPanel` in `@audio-video/ui`)
+proxies only this read-only route and refreshes live.
+
+No-fallback policy: Media never substitutes a different model, voice or engine for a provider that failed. A lane whose
+provider is down or degraded answers with exactly one of three typed outcomes (each error carries `details.outcome` and
+`details.fallback:"NONE"` and is counted in `media.dev.provider.outages`), registers nothing, and a retry with the same
+`requestId` runs once through the durable request ledger:
+
+| Provider condition | Outcome | Speech (STT / TTS) | Vision | Grounded | Render (MP4) |
+| --- | --- | --- | --- | --- | --- |
+| nothing ran (binary missing, port closed, no worker, sidecar 5xx such as GPU OOM) | `UNAVAILABLE` 503 | `SPEECH_RUNTIME_UNAVAILABLE` | `LOCAL_VISION_UNAVAILABLE` | `GROUNDED_UNAVAILABLE` | `RENDER_CODEC_UNAVAILABLE` |
+| may have run (crash, exit 139, connection lost mid-call) | `UNKNOWN` 503 | `SPEECH_OUTCOME_UNKNOWN` | `VISION_OUTCOME_UNKNOWN` | `GROUNDED_OUTCOME_UNKNOWN` | `RENDER_OUTCOME_UNKNOWN` |
+| beyond its deadline (the call is abandoned, a late result is never used) | `TIMEOUT` 504 | `SPEECH_TIMEOUT` | `VISION_TIMEOUT` | `GROUNDED_TIMEOUT` | `RENDER_TIMEOUT` (`MEDIA_DEV_RENDER_TIMEOUT_SECONDS`) |
+
+Captions: the machine WebVTT comes from the transcription lane and follows its outcomes; human caption correction calls no
+model and keeps working while a provider is down. `GROUNDED_UNAVAILABLE` is returned when an evidence child (speech or
+vision) was unavailable and `allowPartial` is not set; with `allowPartial` the remaining evidence answers and the result is
+labelled `PARTIAL`, an explicit caller choice and not a model substitution. A TIMEOUT stops the caller's wait and kills the
+local process (FFmpeg, whisper-cli); the vision sidecar has no cancellation protocol, so its GPU work may finish and is
+discarded.
 
 DEV_ONLY voice synthesis (J-04; real Kokoro-82M, Apache-2.0, stock voices, no voice cloning).
 `POST /dev/v1/speech/syntheses` takes `{requestId, text, voice?, speakingRate?, locale?, voiceReference?, likenessReference?}`
