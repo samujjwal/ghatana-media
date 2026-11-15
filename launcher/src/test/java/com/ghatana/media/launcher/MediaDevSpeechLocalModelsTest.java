@@ -147,10 +147,11 @@ class MediaDevSpeechLocalModelsTest {
             Map<String, Object> sttBody = map(stt);
             String transcript = (String) sttBody.get("text");
             System.out.println("LOCAL_SPEECH_ROUND_TRIP input=\"" + SENTENCE + "\" transcript=\"" + transcript + "\"");
-            String normalized = transcript.toLowerCase(Locale.ROOT).replaceAll("[^a-z ]", " ");
-            for (String word : List.of("quick", "brown", "fox", "jumps", "lazy", "dog")) {
-                assertThat(normalized).as("transcript: %s", transcript).contains(word);
-            }
+            String normalized = transcript.toLowerCase(Locale.ROOT).replaceAll("[^a-z ]", " ")
+                    .trim().replaceAll("\\s+", " ");
+            String expected = SENTENCE.toLowerCase(Locale.ROOT).replaceAll("[^a-z ]", " ")
+                    .trim().replaceAll("\\s+", " ");
+            assertThat(normalized).as("complete transcript: %s", transcript).isEqualTo(expected);
             @SuppressWarnings("unchecked") Map<String, Object> captions = (Map<String, Object>) sttBody.get("captions");
             @SuppressWarnings("unchecked") Map<String, Object> captionArtifact = (Map<String, Object>) captions.get("artifact");
             assertThat(captionArtifact.get("contentType")).isEqualTo("text/vtt");

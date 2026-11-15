@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -93,26 +94,24 @@ class MediaRuntimeRightsConsentGateTest {
     }
 
     @Test
-    void aStatementForAnotherVersionNeverAdmitsAndAnUnconfirmedVoiceStatementDoesNotEither() throws Exception {
-        try (Fixture fixture = new Fixture(List.of(visionProvider()))) {
+    void sourceRightsAndConsentCannotAuthorizeAnUnresolvedVoiceArtifactReference() throws Exception {
+        AtomicInteger providerCalls = new AtomicInteger();
+        try (Fixture fixture = new Fixture(List.of(visionProvider(providerCalls)))) {
             MediaArtifact source = fixture.artifact(Map.of());
             MediaArtifact otherVersion = fixture.artifact(Map.of());
             fixture.attest(otherVersion, StatementKind.MEDIA_RIGHTS, Set.of(Scope.PROCESSING));
             assertRefused(fixture, request("req-other", JobType.VISION, source, Map.of()));
 
-            // A job carrying a voice or likeness reference needs a CONFIRMED person-consent statement.
+            // Rights for the job's primary artifact cannot stand in for the exact separately referenced artifact.
             fixture.attest(source, StatementKind.MEDIA_RIGHTS, Set.of(Scope.PROCESSING));
             Map<String, Object> withVoice = Map.of("voiceReference", "voice-artifact@sha256:" + "d".repeat(64));
-            assertThat(fixture.submit(request("req-plain", JobType.VISION, source, Map.of())).jobId()).isNotBlank();
-            assertRefused(fixture, request("req-voice-1", JobType.VISION, source, withVoice));
-
-            var consent = fixture.attest(source, StatementKind.IDENTIFIABLE_PERSON_CONSENT,
+            var consentOnWrongArtifact = fixture.attest(source, StatementKind.IDENTIFIABLE_PERSON_CONSENT,
                     Set.of(Scope.VOICE_OR_LIKENESS_USE));
-            assertRefused(fixture, request("req-voice-2", JobType.VISION, source, withVoice));
             fixture.administration.confirm(who(REVIEWER, AssuranceSource.UNSPECIFIED),
-                    consent.attestation().attestationId(), "TEST confirm");
-            assertThat(fixture.submit(request("req-voice-3", JobType.VISION, source, withVoice)).jobId())
-                    .isNotBlank();
+                    consentOnWrongArtifact.attestation().attestationId(), "TEST confirm");
+            assertRefused(fixture, request("req-voice", JobType.VISION, source, withVoice));
+            assertThat(fixture.jobStore.list(TENANT, 100)).isEmpty();
+            assertThat(providerCalls).hasValue(0);
         }
     }
 
@@ -216,7 +215,11 @@ class MediaRuntimeRightsConsentGateTest {
     }
 
     private static MediaProcessingProvider visionProvider() {
-        return provider("test-vision", JobType.VISION, null);
+        return visionProvider(new AtomicInteger());
+    }
+
+    private static MediaProcessingProvider visionProvider(AtomicInteger providerCalls) {
+        return provider("test-vision", JobType.VISION, null, providerCalls);
     }
 
     private static MediaProcessingProvider sttProvider() {
@@ -226,12 +229,19 @@ class MediaRuntimeRightsConsentGateTest {
                         com.ghatana.media.runtime.MediaSpeechToTextAdmission.ProfileQualification.QUALIFIED,
                         Set.of("en-US"), false,
                         com.ghatana.media.runtime.MediaSpeechToTextAdmission.TimingDisposition.SOURCE_CLOCK_BOUND,
-                        "fixture-qualification-evidence")));
+                        "fixture-qualification-evidence")), new AtomicInteger());
     }
 
     private static MediaProcessingProvider provider(
             String id, JobType type,
             java.util.Optional<com.ghatana.media.runtime.MediaSpeechToTextAdmission.Profile> profile) {
+        return provider(id, type, profile, new AtomicInteger());
+    }
+
+    private static MediaProcessingProvider provider(
+            String id, JobType type,
+            java.util.Optional<com.ghatana.media.runtime.MediaSpeechToTextAdmission.Profile> profile,
+            AtomicInteger providerCalls) {
         return new MediaProcessingProvider() {
             @Override public String providerId() { return id; }
             @Override public String providerVersion() { return "v1"; }
@@ -247,6 +257,7 @@ class MediaRuntimeRightsConsentGateTest {
             @Override public String processingRegion() { return "local"; }
             @Override public ProviderDataRetention providerDataRetention() { return ProviderDataRetention.NONE; }
             @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                providerCalls.incrementAndGet();
                 return CompletableFuture.completedFuture(Map.of("text", "grounded transcript"));
             }
         };

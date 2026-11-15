@@ -1049,6 +1049,16 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             throw new SecurityException(
                     "Media job request does not match the authenticated principal");
         }
+        if (MediaRightsConsentComposition.referencesVoiceOrLikeness(request.parameters())) {
+            // A statement on the job's primary source cannot authorize a separately referenced voice or
+            // likeness artifact. The canonical job contract does not yet resolve and revalidate those exact
+            // artifact versions, and the installed local speech profile does not support cloning. Refuse before
+            // reading the source, selecting a provider, creating a durable job, or dispatching any effect.
+            throw new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED,
+                    request.jobType().name(),
+                    "voice or likeness artifact references are not admitted by canonical job processing");
+        }
         ArtifactVersion requestedVersion = request.requestedArtifactVersion().orElse(null);
         MediaArtifact artifact = requestedVersion == null
                 ? artifactStore.artifact(request.tenantId(), request.artifactId())
