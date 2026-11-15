@@ -447,11 +447,13 @@ public final class MediaDevAudioRestorationRuntime {
             // Same-format, same-length output: allow the header plus a small margin, never a runaway write.
             long ceiling = sourceSize + 64 * 1024L;
             BoundedProcessRunner.Result result = BoundedProcessRunner.run(
-                    List.of(ffmpeg.toString(), "-nostdin", "-v", "error", "-nostats", "-fflags", "+bitexact",
-                            "-flags:a", "+bitexact", "-map_metadata", "-1", "-i", in.toString(), "-af", filterGraph,
+                    List.of(ffmpeg.toString(), "-nostdin", "-v", "error", "-nostats", "-i", in.toString(), "-af", filterGraph,
+                            "-map_metadata", "-1", "-fflags", "+bitexact", "-flags:a", "+bitexact",
                             "-c:a", "pcm_s16le", "-f", "wav", "-y", out.toString()),
                     dir, Map.of(), timeout, 1024, 8192, BoundedProcessRunner.CancellationToken.NEVER, out, ceiling);
-            if (result.end() != BoundedProcessRunner.End.EXITED || result.exitCode() >= 128 || result.exitCode() < 0) {
+            // A signalled child is reported as 128 + signal; FFmpeg's own failures are 1 or 234/255, never in that band.
+            boolean signalled = result.exitCode() > 128 && result.exitCode() <= 192 || result.exitCode() < 0;
+            if (result.end() != BoundedProcessRunner.End.EXITED || signalled) {
                 // Killed, timed out or over the ceiling: whether the engine finished is not known; nothing is registered.
                 throw new AudioOutcomeUnknownException(result.end() == BoundedProcessRunner.End.EXITED
                         ? "ENGINE_SIGNALLED" : result.end().name());
