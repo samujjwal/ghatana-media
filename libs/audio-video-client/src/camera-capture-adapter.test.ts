@@ -335,6 +335,8 @@ describe("CameraCaptureAdapter", () => {
     const opening = h.adapter.openSession(request);
     await bindStarted;
     h.setPermission("UNKNOWN");
+    await Promise.resolve();
+    expect(h.counts()).toEqual({ deviceOpens: 1, deviceStops: 1, codecCloses: 0 });
     finishBind?.();
     await expectCode(opening, "PERMISSION_UNKNOWN");
     expect(h.counts()).toEqual({ deviceOpens: 1, deviceStops: 1, codecCloses: 1 });

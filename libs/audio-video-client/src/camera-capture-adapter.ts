@@ -162,6 +162,14 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
     let codec: BrowserCameraCodecBinding | null = null;
     let unsubscribe: (() => void) | null = null;
     let stopOpenedTrack: (() => Promise<void>) | null = null;
+    let deviceStopPromise: Promise<void> | null = null;
+    const stopDevice = (): Promise<void> => {
+      if (deviceStopPromise !== null) return deviceStopPromise;
+      const openedDevice = device;
+      if (openedDevice === null) return Promise.resolve();
+      deviceStopPromise = Promise.resolve().then(() => openedDevice.stop());
+      return deviceStopPromise;
+    };
     const hostController = new AbortController();
     const abortHost = () => hostController.abort();
     signal.addEventListener("abort", abortHost, { once: true });
@@ -190,6 +198,10 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
       }
       await assertHostPermission();
       device = await this.devices.openExact(request, hostController.signal);
+      // Permission may be revoked while an injected codec takes time to bind.
+      // Publish device cleanup as soon as the source is open so revocation can
+      // release the camera immediately, even before a CameraTrack is returned.
+      stopOpenedTrack = stopDevice;
       if (hostPermissionFailure) throw hostPermissionFailure;
       if (!device || device.sourceIdentity !== request.sourceIdentity
         || device.sourceVersionRef !== request.sourceVersionRef) {
@@ -225,7 +237,7 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
           try { unsubscribe?.(); } catch { failed = true; }
           unsubscribe = null;
           try { await boundCodec.close(); } catch { failed = true; }
-          try { await boundDevice.stop(); } catch { failed = true; }
+          try { await stopDevice(); } catch { failed = true; }
           if (failed) throw new Error("camera stream cleanup failed");
         });
         return stopPromise;
@@ -281,7 +293,7 @@ export class BrowserCameraMediaDevicePort implements CameraMediaDevicePort {
       try { hostController.abort(); } catch { /* continue cleanup */ }
       await Promise.allSettled([
         Promise.resolve().then(() => codec?.close()),
-        Promise.resolve().then(() => device?.stop()),
+        stopDevice(),
       ]);
       throw hostPermissionFailure ?? error;
     }
