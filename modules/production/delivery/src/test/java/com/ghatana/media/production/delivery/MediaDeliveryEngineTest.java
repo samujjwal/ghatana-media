@@ -323,6 +323,25 @@ class MediaDeliveryEngineTest {
     }
 
     @Test
+    void evictDropsTheRetainedArtifactBytesAndCachedStateButNeverTheDurableOperation() {
+        Fixture f = new Fixture();
+        ExportRequest request = f.request(bytes(16));
+        f.engine.export(request);
+
+        assertThat(f.engine.evict(request.tenantId(), request.requestId())).as("an entry was held").isTrue();
+        assertThat(f.engine.evict(request.tenantId(), request.requestId())).as("nothing is held any more").isFalse();
+        assertThat(f.engine.evict(request.tenantId(), "request:unknown")).isFalse();
+        // The durable operation is untouched: readback now comes from the store, not from retained bytes.
+        assertThat(f.operations.find(request.tenantId(), request.requestId())).isPresent();
+        assertThat(f.engine.find(request.tenantId(), request.requestId())).get()
+                .extracting(DeliveryResult::status).isEqualTo(Status.DESTINATION_CONFIRMED);
+        // A later find on a fresh engine over the same store still reads the durable row (the erasure transaction, not
+        // this method, removes it).
+        assertThat(new MediaDeliveryEngine(f.authorization, f.destination, () -> NOW, f.operations)
+                .find(request.tenantId(), request.requestId())).isPresent();
+    }
+
+    @Test
     void findUsesCachedTypedKeyAndRejectsMismatchedDurableReadback() {
         Fixture f = new Fixture();
         ExportRequest request = f.request(bytes(16));

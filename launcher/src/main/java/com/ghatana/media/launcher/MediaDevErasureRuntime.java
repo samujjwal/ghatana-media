@@ -118,19 +118,26 @@ final class MediaDevErasureRuntime implements AutoCloseable {
                 }
             });
         }
-        if (tenantCacheInvalidator != null) {
-            erasers.add(new LocalCopyEraser() {
-                @Override public String kind() { return "CACHE_TENANT_INVALIDATION"; }
-                @Override public List<String> erase(String tenantId, LocalWork work) {
-                    tenantCacheInvalidator.accept(tenantId);
-                    return List.of("");
-                }
-            });
-        }
+        if (tenantCacheInvalidator != null) erasers.add(tenantCacheEraser(tenantCacheInvalidator));
         MediaDevErasureRuntime runtime = new MediaDevErasureRuntime(authority, erasers,
                 environment.get(ENV_CRASH_AT));
         runtime.resumeIncomplete();
         return runtime;
+    }
+
+    /**
+     * Derived caches (for example the rights-aware transcription cache) are keyed by their own ids, not by artifact id,
+     * so an erasure fails closed by invalidating every cached entry of the tenant. No launcher runtime cache is wired
+     * today; a host that adds one passes its tenant invalidation here.
+     */
+    static LocalCopyEraser tenantCacheEraser(Consumer<String> tenantCacheInvalidator) {
+        return new LocalCopyEraser() {
+            @Override public String kind() { return "CACHE_TENANT_INVALIDATION"; }
+            @Override public List<String> erase(String tenantId, LocalWork work) {
+                tenantCacheInvalidator.accept(tenantId);
+                return List.of("");
+            }
+        };
     }
 
     boolean ready() { return authority.ready(); }

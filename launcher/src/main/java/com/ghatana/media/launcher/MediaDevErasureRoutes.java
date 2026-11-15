@@ -125,7 +125,9 @@ final class MediaDevErasureRoutes {
                 return;
             }
             String artifactId = string(body.get("artifactId"), "artifactId");
-            if (body.containsKey("expectedArtifactCount")) {
+            // A retry of an erasure that already started (same erasureId) resumes it; its tree no longer exists to compare.
+            if (body.containsKey("expectedArtifactCount")
+                    && erasure.receipt(tenantId, principalId, string(body.get("erasureId"), "erasureId")).isEmpty()) {
                 int expected = integer(body.get("expectedArtifactCount"), "expectedArtifactCount");
                 int current = erasure.plan(tenantId, principalId, artifactId).artifacts().size();
                 if (expected != current) {
