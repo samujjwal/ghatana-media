@@ -127,7 +127,7 @@ class MediaDevExplorerDubbingLiveIT {
             environment.put("MEDIA_DEV_RENDER_FFPROBE", ffprobe());
             environment.put("MEDIA_RIGHTS_DEV_ENABLED", "true");
             launcher = startLauncher(classpath, environment, log);
-            awaitReady(launcher, port);
+            awaitLauncher(launcher, port);
 
             // ---- real input through the API: Kokoro English narration -> attested -> Whisper English transcript ----
             String token = issueDevToken(tenant, principal);
@@ -235,7 +235,13 @@ class MediaDevExplorerDubbingLiveIT {
             dropSchema(POSTGRES, schema);
             deleteBucket(LOCALSTACK, bucket);
             if (passed) Files.deleteIfExists(log);
-            else System.err.println("Explorer dubbing live failure log retained at " + log);
+            else {
+                System.err.println("Explorer dubbing live failure log retained at " + log);
+                try {
+                    List<String> lines = Files.readAllLines(work.resolve("sidecar.log"));
+                    System.err.println("vision sidecar log tail:\n" + String.join("\n", lines.subList(Math.max(0, lines.size() - 12), lines.size())));
+                } catch (java.io.IOException ignored) { }
+            }
             deleteTree(services);
             deleteTree(work);
         }
@@ -291,6 +297,22 @@ class MediaDevExplorerDubbingLiveIT {
             g.dispose();
         }
         javax.imageio.ImageIO.write(image, "png", out.toFile());
+    }
+
+    /** The shared two-minute readiness wait is too short while model digests are verified on a loaded host. */
+    private static void awaitLauncher(Process process, int port) throws Exception {
+        long deadline = System.nanoTime() + Duration.ofMinutes(10).toNanos();
+        while (System.nanoTime() < deadline) {
+            if (!process.isAlive()) throw new AssertionError("MediaLauncher exited: " + process.exitValue());
+            try {
+                HttpResponse<String> response = HttpClient.newHttpClient().send(
+                        HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + "/health/ready")).GET().build(),
+                        HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() == 200) return;
+            } catch (java.io.IOException ignored) { }
+            Thread.sleep(500);
+        }
+        throw new AssertionError("MediaLauncher did not become ready within 10 minutes");
     }
 
     private static void awaitSidecar(Process process, int port, String token) throws Exception {

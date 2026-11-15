@@ -94,7 +94,7 @@ viteProcess.stdout.setEncoding("utf8").on("data", (chunk) => { viteOutput += chu
 viteProcess.stderr.setEncoding("utf8").on("data", (chunk) => { viteOutput += chunk; });
 
 const sha256Of = (bytes) => createHash("sha256").update(bytes).digest("hex");
-const EDITED_FIRST = "Bienvenidos a nuestra presentación del informe trimestral.";
+const EDIT_CANDIDATES = ["Bienvenidos a nuestra presentación del informe trimestral.", "Bienvenidos a la presentación del informe trimestral."];
 const LONG_FIRST = "Bienvenidos a todos ustedes a esta presentación extraordinariamente larga del informe trimestral de resultados "
   + "financieros de nuestra empresa, que de ninguna manera cabe dentro de la ventana de tiempo original del primer segmento.";
 
@@ -175,7 +175,7 @@ try {
   const translatePost = page.waitForResponse(isPost("/dev/v1/translations"), { timeout: 480_000 });
   await page.keyboard.press("Enter");
   const translateResponse = await translatePost;
-  assert.equal(translateResponse.status(), 201);
+  assert.equal(translateResponse.status(), 201, await translateResponse.text());
   const translation = await translateResponse.json();
   const translateBody = JSON.parse(translateResponse.request().postData());
   assert.deepEqual({ ...translateBody, requestId: "x" }, { requestId: "x", transcriptArtifactId: transcriptId,
@@ -195,13 +195,15 @@ try {
   assert.equal(await page.getByRole("button", { name: "Save revision" }).isDisabled(), true, "nothing to save yet");
   assert.deepEqual(await optionValues("Spanish stock voice"), hostVoices, "only the host's Spanish voices are offered");
 
+  // The edit must differ from whatever the real model produced.
+  const EDITED_FIRST = EDIT_CANDIDATES.find((candidate) => candidate !== translation.segments[0].text);
   // 3. Edit segment 1: Dub is refused for unsaved edits, then Save revision creates a NEW version.
   await page.getByLabel("Translation of seg-0001").fill(EDITED_FIRST);
   assert.equal(await page.getByRole("button", { name: "Dub", exact: true }).isDisabled(), true, "unsaved edits cannot be dubbed");
   const revisePost = page.waitForResponse(isPost("/dev/v1/translations/revisions"));
   await page.getByRole("button", { name: "Save revision" }).click();
   const reviseResponse = await revisePost;
-  assert.equal(reviseResponse.status(), 201);
+  assert.equal(reviseResponse.status(), 201, await reviseResponse.text());
   const revised = await reviseResponse.json();
   const reviseBody = JSON.parse(reviseResponse.request().postData());
   assert.equal(reviseBody.baseArtifactId, translation.translation.artifact.artifactId);
@@ -290,13 +292,13 @@ try {
   await page.getByLabel("Translation of seg-0001").fill(LONG_FIRST);
   const longRevise = page.waitForResponse(isPost("/dev/v1/translations/revisions"));
   await page.getByRole("button", { name: "Save revision" }).click();
-  assert.equal((await longRevise).status(), 201);
+  { const lr = await longRevise; assert.equal(lr.status(), 201, await lr.text()); }
   assert.equal(await page.locator("[data-dub-result]").count(), 0, "a new version clears the previous dub result");
   await page.getByLabel("Overflow policy").selectOption("REFUSE");
   const overflowPost = page.waitForResponse(isPost("/dev/v1/dubs"), { timeout: 300_000 });
   await page.getByRole("button", { name: "Dub", exact: true }).click();
   const overflowResponse = await overflowPost;
-  assert.equal(overflowResponse.status(), 422);
+  assert.equal(overflowResponse.status(), 422, await overflowResponse.text());
   const overflowBody = await overflowResponse.json();
   assert.equal(overflowBody.error.code, "DUB_TIMING_OVERFLOW");
   const failure = page.locator('[data-failure-code="DUB_TIMING_OVERFLOW"]');

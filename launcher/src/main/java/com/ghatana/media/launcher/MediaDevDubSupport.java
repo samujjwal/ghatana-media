@@ -126,8 +126,11 @@ final class MediaDevDubSupport {
             subject.put("subject", roles.get(hop));
             subject.put("artifactId", artifact.artifactId());
             subject.put("artifactVersionId", artifact.version().value());
+            // The DEV rights authority answers DENIED (not UNAVAILABLE) for an artifact that has no statement at all, so for
+            // a derivative DENIED means "no statement of its own"; its rights come from its root source.
             boolean noStatement = resolution == null
-                    || resolution.verdict() == MediaRightsConsentContracts.Verdict.UNAVAILABLE;
+                    || resolution.verdict() == MediaRightsConsentContracts.Verdict.UNAVAILABLE
+                    || (!root && resolution.verdict() == MediaRightsConsentContracts.Verdict.DENIED);
             if (noStatement && root) {
                 // The root source carries the rights statement; without it nothing derived from it is admitted.
                 throw new MediaDevSpeechRuntime.SpeechRefusedException(422, "RIGHTS_AUTHORITY_UNAVAILABLE",

@@ -32,3 +32,7 @@ textarea { width: 100%; }
 .dubbing-scroll:focus-visible { outline: 3px solid Highlight; outline-offset: 2px; }
 .dubbing-scroll table { min-width: 36rem; }
 table [role="alert"], tr { overflow-wrap: anywhere; }
+
+body, p, li, dd, code { overflow-wrap: anywhere; }
+.shell, .shell > * { min-width: 0; }
+code { word-break: break-all; }
