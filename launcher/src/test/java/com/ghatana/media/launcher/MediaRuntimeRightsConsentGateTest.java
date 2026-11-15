@@ -113,6 +113,15 @@ class MediaRuntimeRightsConsentGateTest {
             Map<String, Object> nestedVoice = Map.of("synthesis", Map.of("inputs", List.of(
                     Map.of("voiceReferenceArtifactId", "voice-artifact"))));
             assertRefused(fixture, request("req-nested-voice", JobType.VISION, source, nestedVoice));
+            Object[] voiceReferenceArray = {Map.of("referenceAudioArtifactId", "voice-artifact")};
+            assertRefused(fixture, request("req-array-voice", JobType.VISION, source,
+                    Map.of("context", voiceReferenceArray)));
+            var typedVoiceReference = new com.ghatana.media.runtime.MediaModalityContracts.ContextReference(
+                    "urn:voice-profile:1", "voice-reference",
+                    com.ghatana.media.runtime.MediaRuntimeContracts.DataClassification.CONFIDENTIAL,
+                    Instant.now().plusSeconds(60));
+            assertRefused(fixture, request("req-typed-voice", JobType.VISION, source,
+                    Map.of("context", typedVoiceReference)));
             assertThat(fixture.jobStore.list(TENANT, 100)).isEmpty();
             assertThat(providerCalls).hasValue(0);
         }

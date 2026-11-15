@@ -60,6 +60,8 @@ final class MediaRightsConsentComposition {
             "voiceReference", "voiceReferenceArtifactId", "voiceSampleArtifactId", "referenceAudioArtifactId",
             "voiceCloneReference", "speakerReference", "likenessReference", "likenessArtifactId",
             "faceReferenceArtifactId", "referenceImageArtifactId");
+    private static final Set<String> VOICE_OR_LIKENESS_PURPOSE_TOKENS = Set.of(
+            "voice", "speaker", "likeness", "face");
 
     private static final ThreadLocal<Boolean> VOICE_OR_LIKENESS = new ThreadLocal<>();
 
@@ -135,7 +137,10 @@ final class MediaRightsConsentComposition {
     }
 
     private static boolean referencesVoiceOrLikenessValue(Object value) {
-        if (value instanceof Map<?, ?> map) {
+        if (value instanceof com.ghatana.media.runtime.MediaModalityContracts.ContextReference reference) {
+            return java.util.Arrays.stream(reference.purpose().split("[^a-z0-9]+"))
+                    .anyMatch(VOICE_OR_LIKENESS_PURPOSE_TOKENS::contains);
+        } else if (value instanceof Map<?, ?> map) {
             for (Map.Entry<?, ?> entry : map.entrySet()) {
                 if (entry.getKey() instanceof String name
                         && VOICE_OR_LIKENESS_PARAMETERS.contains(name)

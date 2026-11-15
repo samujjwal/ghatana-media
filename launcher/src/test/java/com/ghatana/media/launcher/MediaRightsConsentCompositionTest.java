@@ -116,6 +116,11 @@ class MediaRightsConsentCompositionTest {
         assertThat(MediaRightsConsentComposition.referencesVoiceOrLikeness(Map.of("voiceReference", " "))).isFalse();
         assertThat(MediaRightsConsentComposition.referencesVoiceOrLikeness(Map.of(
                 "synthesis", List.of(Map.of("voiceReferenceArtifactId", "voice-artifact"))))).isTrue();
+        assertThat(MediaRightsConsentComposition.referencesVoiceOrLikeness(Map.of("context",
+                new com.ghatana.media.runtime.MediaModalityContracts.ContextReference(
+                        "urn:voice-profile:1", "voice-reference",
+                        com.ghatana.media.runtime.MediaRuntimeContracts.DataClassification.CONFIDENTIAL,
+                        Instant.now().plusSeconds(60))))).isTrue();
     }
 
     @Test
