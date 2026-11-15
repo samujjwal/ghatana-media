@@ -376,6 +376,10 @@ final class MediaDevStoryboardRuntime implements AutoCloseable {
             }
             for (Shot shot : scene.shots()) {
                 List<Blocker> reasons = new ArrayList<>();
+                if (composite == null) {
+                    reasons.add(new Blocker("RENDERER_UNAVAILABLE", shot.path() + ".source", scene.sceneId(), shot.shotId(),
+                            "the composite renderer is not configured on this launcher", Map.of()));
+                }
                 switch (shot.kind()) {
                     case PLACEHOLDER -> reasons.add(new Blocker("PLACEHOLDER_NOT_RENDERABLE", shot.path() + ".source", scene.sceneId(),
                             shot.shotId(), "a placeholder is an authored intent; it has no source to render",
@@ -390,7 +394,7 @@ final class MediaDevStoryboardRuntime implements AutoCloseable {
                 view.put("kind", shot.kind().name());
                 view.put("startMs", shot.startMs());
                 view.put("durationMs", shot.durationMs());
-                view.put("state", reasons.isEmpty() && composite != null ? "RENDERABLE" : "BLOCKED");
+                view.put("state", reasons.isEmpty() ? "RENDERABLE" : "BLOCKED");
                 view.put("reasons", reasons.stream().map(Blocker::view).toList());
                 shotViews.add(view);
             }

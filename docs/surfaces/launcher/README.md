@@ -430,6 +430,15 @@ handlers additionally require the artifact permissions noted, so access is never
 | POST | `/dev/v1/composite-renders` | `media:project:dev:write` | `media:artifact:{read,create}`; every source version needs an ADMITTED PROCESSING rights decision (403 when denied/revoked, 422 when no statement) | `MEDIA_DEV_RENDER_FFMPEG/FFPROBE`, request ledger |
 | GET | `/dev/v1/composite-renders/{renderId}` | `media:project:dev:read` | `media:artifact:read` | composite render |
 | POST | `/dev/v1/composite-renders/{requestId}/cancel` | `media:project:dev:write` | `media:artifact:{read,create}` | kills the running encoder; nothing is registered |
+| GET | `/dev/v1/storyboards/capabilities` | `media:project:dev:read` | `media:artifact:read` | `MEDIA_DEV_STORYBOARD_ENABLED=true` |
+| POST | `/dev/v1/storyboards` | `media:project:dev:write` | `media:artifact:{read,create}`; brief to version 1 (drafted placeholder scenes when `scenes` is omitted) | storyboard store (artifact + version ledger), request ledger |
+| GET | `/dev/v1/storyboards/{id}` | `media:project:dev:read` | `media:artifact:read` | owner scoped (404 otherwise) |
+| GET / POST | `/dev/v1/storyboards/{id}/versions` | `media:project:dev:read` / `write` | `media:artifact:{read,create}`; POST edits against `expectedVersion` (409 `STORYBOARD_VERSION_STALE`) | storyboard store |
+| GET | `/dev/v1/storyboards/{id}/versions/{n}` | `media:project:dev:read` | `media:artifact:read` | storyboard store |
+| GET | `/dev/v1/storyboards/{id}/readiness` | `media:project:dev:read` | `media:artifact:read` | derived per shot from live state |
+| POST | `/dev/v1/storyboards/{id}/renders` | `media:project:dev:write` | `media:artifact:{read,create}`; every source needs an ADMITTED PROCESSING decision (403 `STORYBOARD_RIGHTS_DENIED`), blocked shots are 422 `STORYBOARD_NOT_RENDERABLE` | composite + animation lanes, request ledger |
+| GET | `/dev/v1/storyboards/{id}/versions/{n}/render` | `media:project:dev:read` | `media:artifact:read` | composite render |
+| GET / POST | `/dev/v1/storyboards/{id}/versions/{n}/review` | `media:project:dev:read` / `write` | `media:artifact:{read,create}` (POST); the case is read and decided through `/dev/v1/reviews` | `MEDIA_DEV_REVIEW_ENABLED=true` |
 | GET | `/dev/v1/grounded-answers/status` | `media:project:dev:read` | — | local vision + `MEDIA_DEV_RENDER_FFMPEG/FFPROBE` |
 | POST | `/dev/v1/grounded-answers` | `media:project:dev:write` | `media:artifact:{read,create}` | local vision + FFmpeg/FFprobe |
 | GET | `/dev/v1/grounded-answers/{outputId}` | `media:project:dev:read` | `media:artifact:read` | local vision + FFmpeg/FFprobe |
@@ -505,6 +514,37 @@ stops the encoder (`409 RENDER_CANCELLED` to the waiting caller, nothing registe
 `RENDER_OUTPUT_BUDGET_EXCEEDED`, `RENDER_SPACE_BUDGET`, `SOURCE_FORMAT_NOT_SUPPORTED`. Budgets: `MEDIA_DEV_COMPOSITE_MAX_SECONDS`
 (120), `_MAX_OUTPUT_BYTES` (64 MiB), `_MAX_SOURCE_BYTES` (128 MiB), `_SPACE_RESERVE_BYTES` (512 MiB), `_TEMP_ROOT`, `_X264_PRESET`
 (medium). A launcher killed mid-render leaves an orphan work directory and encoder that the next start sweeps.
+
+DEV_ONLY versioned storyboard and shot plan (J-09, `media.dev.outcome-brief-to-reviewed-media`; `MEDIA_DEV_STORYBOARD_ENABLED=true`
+needs the DEV_ONLY project timeline and request ledger). Contract `media.dev.storyboard.v1` (owner decision of J-09: the planner in
+`modules/production/timeline` is a PDP candidate over project revisions and is not used here): `{requestId, storyboardId?, brief:
+{title, text}, format?: {width, height, fps} (320x240 at 25), captions?: {artifactId, artifactVersionId}, scenes?: [{sceneId, title,
+narration?: {artifactId, artifactVersionId}, shots: [{shotId, durationMs, source}]}]}`. A shot `source` is exactly one of
+`{kind:"ANIMATION", spec}` (a J-12 animation spec; `width`, `height`, `fps` and `frameCount` are derived and refused when authored),
+`{kind:"ASSET", artifactId, artifactVersionId, sourceInMs?}` (an exact stored video version) or `{kind:"PLACEHOLDER", note?}` (never
+renders). Story time is DERIVED, never authored: scenes and their shots play in array order, contiguous, so there is no overlap and no
+gap; every `durationMs` (and `sourceInMs`) must be a whole number of output frames (`DURATION_NOT_FRAME_ALIGNED`, nothing is rounded).
+Ceilings: 24 scenes, 12 shots per scene, 24 shots, 60 s per shot, and the composite render duration budget. Omitting `scenes` drafts one
+scene with one placeholder shot per brief paragraph. Each version is an immutable `application/json` artifact appended to an owner
+scoped lineage of the DEV_ONLY version ledger (durable, gapless, survives restart); an edit names the `expectedVersion` it was made
+against and any other head is `409 STORYBOARD_VERSION_STALE` with nothing written (concurrent edits serialise: one wins). The durable
+request ledger gives replay (200) and `409 REQUEST_ID_REUSED`; a second create of one id is `409 STORYBOARD_EXISTS`. Refusals are
+typed 422 with the JSON `path` (`STORYBOARD_INVALID`, `DURATION_NOT_FRAME_ALIGNED`, `STORYBOARD_LIMIT_EXCEEDED`). `GET .../readiness`
+is derived from live state on every call, per shot, with typed reasons: `RENDERER_UNAVAILABLE`, `PLACEHOLDER_NOT_RENDERABLE`,
+`ASSET_UNAVAILABLE`, `ASSET_NOT_VIDEO`, `ASSET_TOO_SHORT`, `RIGHTS_DENIED` (no current statement) / `RIGHTS_REVOKED`,
+`ANIMATION_RENDERER_UNAVAILABLE`, `ANIMATION_ASSET_UNAVAILABLE`, `AUTHORED_RIGHTS_DENIED|REVOKED` (the authored procedural animation
+is covered only by a rights statement the OWNER records for the exact storyboard version; the host never makes it),
+`NARRATION_UNAVAILABLE|NOT_AUDIO|LONGER_THAN_SCENE`, `CAPTIONS_UNAVAILABLE|NOT_VTT`, `RENDER_DURATION_BUDGET`. `POST .../renders`
+`{requestId, storyboardVersion}` renders only the HEAD version (older: `409 STORYBOARD_VERSION_STALE`), refuses blocked storyboards
+before any effect (403 `STORYBOARD_RIGHTS_DENIED` when a blocker is a rights decision, otherwise 422 `STORYBOARD_NOT_RENDERABLE`, both
+with the per-shot `blockers`), renders animation shots with the J-12 lane (the storyboard version is the video's authored
+`source`/`parent`), places shots, per-scene narration (never cut or sped up) and the caption file at their derived story times on a
+project timeline and renders one H.264+AAC MP4 with the J-18 lane (`annotations` in the lineage name the storyboard version, every
+shot with its frames and every source). One render per storyboard version (another request converges on it). Erasing any source
+erases the render. `POST .../versions/{n}/review` opens (idempotently) the J-21 version-specific case of that exact render; the
+review runtime treats the render as superseded as soon as the storyboard has a later version, so earlier decisions are STALE, new
+decisions are `409 REVIEW_SUBJECT_STALE` and delivery admission is `REVIEW_SUPERSEDED`. Nothing here is an approval. Not in this
+lane: cancelling a storyboard render (cancel the underlying `composite-renders/{requestId}` request) and per-shot transitions.
 
 DEV_ONLY translation and dubbing (J-16; owner decision of the Media owner delegate, 2026-11-15, Spanish only). `POST
 /dev/v1/translations` `{requestId, transcriptArtifactId, transcriptArtifactVersionId, sourceLanguage:"en", targetLanguage:"es"}`

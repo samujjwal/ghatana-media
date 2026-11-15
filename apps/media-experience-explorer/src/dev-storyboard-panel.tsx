@@ -112,12 +112,18 @@ export function StoryboardPanel({ port, readContent }: StoryboardPanelProps): Re
 
   const refresh = async (id: string, versionNumber?: number): Promise<void> => {
     const loaded = (versionNumber === undefined ? await port.head(id) : await port.version(id, versionNumber)) as Json;
+    const [derived, rendered, reviewed] = await Promise.all([
+      port.readiness(id) as Promise<Json>,
+      port.renderOf(id, loaded.versionNumber).catch(() => null) as Promise<Json | null>,
+      port.reviewStatus(id, loaded.versionNumber).catch(() => null) as Promise<Json | null>,
+    ]);
+    // One consistent snapshot: the version, its readiness, its render and its review state are replaced together.
     setView(loaded);
     setDraft(viewToDraft(loaded));
     setStoryboardId(id);
-    setReadiness(await port.readiness(id) as Json);
-    setRender(await port.renderOf(id, loaded.versionNumber).catch(() => null) as Json | null);
-    setReview(await port.reviewStatus(id, loaded.versionNumber).catch(() => null) as Json | null);
+    setReadiness(derived);
+    setRender(rendered);
+    setReview(reviewed);
   };
 
   const run = async (key: string, label: string, action: () => Promise<void>): Promise<void> => {

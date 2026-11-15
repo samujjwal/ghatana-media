@@ -341,8 +341,8 @@ try {
   // reload the head: version 3 has no statement of its own, so it is not renderable and the render button is disabled again
   await page.getByRole("button", { name: "Reload head version" }).click();
   await page.locator("[data-version]").getByText("3", { exact: true }).waitFor({ timeout: 15_000 });
+  await page.locator("[data-shot-state='s1'] [data-reason='AUTHORED_RIGHTS_DENIED']").waitFor({ timeout: 15_000 });
   assert.equal(await page.getByRole("button", { name: "Render storyboard" }).isDisabled(), true);
-  assert.match(await page.locator("[data-shot-state='s1']").textContent(), /AUTHORED_RIGHTS_DENIED/u);
 
   // 8. Accessibility and responsiveness.
   const audit = await page.evaluate(() => {
