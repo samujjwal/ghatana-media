@@ -137,6 +137,9 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
         String validName = requireName(name, "check name");
         Supplier<Boolean> validCheck = Objects.requireNonNull(check, "check supplier");
         synchronized (checks) {
+            if (closed || lifecycle.get() == LifecycleState.DRAINING) {
+                throw new IllegalStateException("health service is draining");
+            }
             if (!checks.containsKey(validName) && checks.size() >= MAX_HEALTH_CHECKS) {
                 throw new IllegalStateException("health check capacity reached");
             }
@@ -169,7 +172,9 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
      * {@link HealthCheckResponse.ServingStatus#NOT_SERVING}.
      */
     public void setNotServing() {
-        lifecycle.set(LifecycleState.DRAINING);
+        synchronized (checks) {
+            lifecycle.set(LifecycleState.DRAINING);
+        }
         LOG.info("Service marked NOT_SERVING: {}", metricServiceName);
     }
 
@@ -292,7 +297,10 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
     public void close() {
         Set<WatchSubscription> subscribersToComplete;
         synchronized (watchLock) {
-            closed = true;
+            synchronized (checks) {
+                closed = true;
+                lifecycle.set(LifecycleState.DRAINING);
+            }
             subscribersToComplete = Set.copyOf(watchSubscribers);
             watchSubscribers.clear();
             if (watchPollTask != null) {
@@ -300,7 +308,7 @@ public class AudioVideoHealthService extends HealthGrpc.HealthImplBase implement
                 watchPollTask = null;
             }
         }
-        setNotServing();
+        LOG.info("Service marked NOT_SERVING: {}", metricServiceName);
         watchPublisher.shutdownNow();
         checkExecutor.shutdownNow();
         for (WatchSubscription subscriber : subscribersToComplete) {

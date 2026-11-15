@@ -178,6 +178,39 @@ class AudioVideoHealthServiceTest {
     }
 
     @Test
+    @DisplayName("Rejects new or replacement checks after draining begins")
+    void registerCheckCannotMutateRegistryAfterDrainingBegins() {
+        healthService.registerCheck("all-good", () -> true);
+        assertThat(healthService.getCheckResults()).isEqualTo(Map.of("all-good", true));
+
+        healthService.setNotServing();
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                        () -> healthService.registerCheck("late-check", () -> true))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("health service is draining");
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                        () -> healthService.registerCheck("all-good", () -> false))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("health service is draining");
+        assertThat(healthService.getCheckResults()).isEqualTo(Map.of("all-good", true));
+    }
+
+    @Test
+    @DisplayName("Rejects check registration after close begins draining")
+    void registerCheckCannotMutateRegistryAfterClose() {
+        AudioVideoHealthService closing = new AudioVideoHealthService("stt-service", metricsCollector);
+        closing.registerCheck("existing", () -> true);
+
+        closing.close();
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(
+                        () -> closing.registerCheck("late-check", () -> true))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("health service is draining");
+    }
+
+    @Test
     @DisplayName("Emits metric counter on every Check call")
     void shouldEmitMetricOnEveryCheck() { 
         healthService.registerCheck("ready", () -> true);
