@@ -53,7 +53,8 @@ class WorkerTest(unittest.TestCase):
         self.dir = tempfile.mkdtemp(prefix="kw-test-")
         self.addCleanup(shutil.rmtree, self.dir, True)
         os.makedirs(os.path.join(self.dir, "voices"))
-        files = {"kokoro-v1_0.pth": b"weights", "config.json": b"{}", "voices/af_heart.pt": b"voice"}
+        files = {"kokoro-v1_0.pth": b"weights", "config.json": b"{}", "voices/af_heart.pt": b"voice",
+                 "voices/ef_dora.pt": b"voice-es"}
         for rel, data in files.items():
             with open(os.path.join(self.dir, rel), "wb") as handle:
                 handle.write(data)
@@ -62,7 +63,8 @@ class WorkerTest(unittest.TestCase):
         self.manifest = {"files": [
             {"role": "WEIGHTS", "path": "kokoro-v1_0.pth", "sha256": sha(b"weights")},
             {"role": "CONFIG", "path": "config.json", "sha256": sha(b"{}")},
-            {"role": "VOICE", "path": "voices/af_heart.pt", "sha256": sha(b"voice")}],
+            {"role": "VOICE", "path": "voices/af_heart.pt", "sha256": sha(b"voice")},
+            {"role": "VOICE", "path": "voices/ef_dora.pt", "sha256": sha(b"voice-es")}],
             "runtime": {"name": "kokoro", "workerSha256": self.script_sha}}
 
     def serve(self, engine=None, manifest=None):
@@ -102,6 +104,14 @@ class WorkerTest(unittest.TestCase):
 
     def test_wrong_worker_script_digest_refuses_to_serve(self):
         self.manifest["runtime"]["workerSha256"] = sha(b"some other script")
+        with self.assertRaises(kw.IntegrityError):
+            self.serve()
+
+    def test_additional_worker_digest_is_accepted_when_the_pinned_one_is_an_older_revision(self):
+        self.manifest["runtime"]["additionalWorkerSha256"] = [self.script_sha]
+        self.manifest["runtime"]["workerSha256"] = sha(b"an older worker revision")
+        self.serve()  # the script on disk matches one accepted digest
+        self.manifest["runtime"]["additionalWorkerSha256"] = [sha(b"another")]
         with self.assertRaises(kw.IntegrityError):
             self.serve()
 
@@ -160,6 +170,15 @@ class WorkerTest(unittest.TestCase):
                     self.request(text="   "), self.request(text=5)):
             self.assertEqual(self.call(port, "POST", "/v1/synthesize", bad)[0], 400, bad)
         self.assertEqual(self.call(port, "POST", "/v1/synthesize", b"not json")[0], 400)
+
+    def test_spanish_requires_a_spanish_voice_pack_and_the_matching_language_code(self):
+        engine = StubEngine()
+        port, _ = self.serve(engine)
+        self.assertEqual(self.call(port, "POST", "/v1/synthesize", self.request(voice="ef_dora", lang="e"))[0], 200)
+        # A voice pack is only usable with its own language code, in both directions.
+        self.assertEqual(self.call(port, "POST", "/v1/synthesize", self.request(voice="ef_dora", lang="a"))[0], 400)
+        self.assertEqual(self.call(port, "POST", "/v1/synthesize", self.request(voice="af_heart", lang="e"))[0], 400)
+        self.assertEqual(engine.calls, 1)
 
     def test_success_returns_pcm16_wav_and_device_header(self):
         port, _ = self.serve()

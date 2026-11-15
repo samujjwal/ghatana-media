@@ -26,6 +26,16 @@ OWNER_DECISION_QUOTE = (
     "Qwen2.5-VL-7B for multimodal (Apache-2.0). Media stays on this machine, with no per-use cost."
 )
 OWNER_LICENSE_STATEMENT = "we will abide by all license requirements."
+# Verbatim owner decision (Media owner delegate, 2026-11-15): Spanish for the DEV_ONLY speech lanes. A verified
+# language other than "en" is only written together with this text and the digest of its measured evidence file.
+LANGUAGE_ADMISSION_DATE = "2026-11-15"
+LANGUAGE_ADMISSION_QUOTE = (
+    "Admit Spanish (es) for the DEV_ONLY speech lanes only, using the already-installed Kokoro-82M Spanish stock "
+    "voices (same Apache-2.0 model licence) and Whisper large-v3-turbo (MIT, multilingual), with machine translation "
+    "by the already-admitted local Qwen2.5-VL-7B-Instruct (Apache-2.0) in text-only mode. Admission is gated on "
+    "measured round-trip evidence recorded in the manifest; it is not a quality qualification and productionEligible "
+    "stays false."
+)
 ROLES = {"WEIGHTS", "CONFIG", "VOICE", "LICENSE", "MODEL_CARD"}
 
 
@@ -57,6 +67,14 @@ def main():
     parser.add_argument("--runtime-revision", default="")
     parser.add_argument("--runtime-exe")
     parser.add_argument("--runtime-worker", help="optional persistent-worker script whose digest is pinned too")
+    parser.add_argument("--runtime-worker-primary-sha", default="",
+                        help="digest recorded as runtime.workerSha256 (an older worker revision kept for checkouts that "
+                             "have not rebased); the digest of --runtime-worker is then written to "
+                             "runtime.additionalWorkerSha256 instead")
+    parser.add_argument("--language-admission", action="append", default=[],
+                        help="LANG=EVIDENCE_FILE: records the owner admission text and the SHA-256 of the checked-in "
+                             "round-trip evidence file for a non-English verified language")
+    parser.add_argument("--evidence-root", default="", help="directory the evidence path is recorded relative to")
     parser.add_argument("--voice-cloning", default="")
     parser.add_argument("--out", required=True)
     args = parser.parse_args()
@@ -92,6 +110,22 @@ def main():
         "admission": {"scope": args.scope, "productionEligible": False},
         "verifiedLanguages": args.language,
     }
+    admissions = []
+    for spec in args.language_admission:
+        language, _, evidence = spec.partition("=")
+        if not language or not os.path.isfile(evidence):
+            sys.exit("bad --language-admission " + spec)
+        if language not in args.language:
+            sys.exit("--language-admission names a language that is not a --language")
+        recorded = os.path.relpath(evidence, args.evidence_root) if args.evidence_root else os.path.basename(evidence)
+        admissions.append({"language": language, "ownerDecisionDate": LANGUAGE_ADMISSION_DATE,
+                           "ownerDecisionQuote": LANGUAGE_ADMISSION_QUOTE, "evidencePath": recorded,
+                           "evidenceSha256": sha256(evidence)})
+    for language in args.language:
+        if language != "en" and not any(a["language"] == language for a in admissions):
+            sys.exit("language " + language + " needs --language-admission with its evidence file")
+    if admissions:
+        manifest["languageAdmissions"] = admissions
     if args.voice_cloning:
         manifest["voiceCloning"] = args.voice_cloning
     if args.runtime_name:
@@ -99,7 +133,12 @@ def main():
         if args.runtime_exe:
             runtime["executableSha256"] = sha256(args.runtime_exe)
         if args.runtime_worker:
-            runtime["workerSha256"] = sha256(args.runtime_worker)
+            worker = sha256(args.runtime_worker)
+            if args.runtime_worker_primary_sha and args.runtime_worker_primary_sha != worker:
+                runtime["workerSha256"] = args.runtime_worker_primary_sha
+                runtime["additionalWorkerSha256"] = [worker]
+            else:
+                runtime["workerSha256"] = worker
         manifest["runtime"] = runtime
     with open(args.out, "w", encoding="utf-8") as handle:
         json.dump(manifest, handle, indent=2)

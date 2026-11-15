@@ -47,7 +47,8 @@ public record LocalModelManifest(
         Set<String> verifiedLanguages,
         RuntimeBinding runtime,
         String voiceCloning,
-        String fileSetSha256) {
+        String fileSetSha256,
+        List<LanguageAdmission> languageAdmissions) {
 
     public static final String SCHEMA = "ghatana.media.local-model-manifest.v1";
     /** Verbatim owner decision given in chat on 2026-11-14; manifests must carry exactly this text. */
@@ -57,6 +58,18 @@ public record LocalModelManifest(
                     + "Kokoro-82M for text-to-speech (Apache-2.0, no voice cloning). Florence-2 for vision (MIT). "
                     + "Qwen2.5-VL-7B for multimodal (Apache-2.0). Media stays on this machine, with no per-use cost.";
     public static final String OWNER_LICENSE_STATEMENT = "we will abide by all license requirements.";
+    /** Date of the Spanish DEV_ONLY speech-lane admission by the Media owner delegate (quoted verbatim below). */
+    public static final String SPANISH_ADMISSION_DATE = "2026-11-15";
+    /**
+     * Verbatim owner decision (Media owner delegate, 2026-11-15) that admits Spanish for the DEV_ONLY speech lanes. Any
+     * verified language other than English must carry it plus the digest of the measured round-trip evidence.
+     */
+    public static final String SPANISH_ADMISSION_QUOTE =
+            "Admit Spanish (es) for the DEV_ONLY speech lanes only, using the already-installed Kokoro-82M Spanish "
+                    + "stock voices (same Apache-2.0 model licence) and Whisper large-v3-turbo (MIT, multilingual), with "
+                    + "machine translation by the already-admitted local Qwen2.5-VL-7B-Instruct (Apache-2.0) in "
+                    + "text-only mode. Admission is gated on measured round-trip evidence recorded in the manifest; it "
+                    + "is not a quality qualification and productionEligible stays false.";
     /** Manifest file name used by the {@link #parseDirectoryManifest directory layout} (vision / multimodal). */
     public static final String DIRECTORY_MANIFEST_FILE = "ghatana-model-manifest.json";
     private static final java.util.regex.Pattern REVISION_40_HEX = java.util.regex.Pattern.compile("^[0-9a-f]{40}$");
@@ -95,11 +108,33 @@ public record LocalModelManifest(
      * manifest without it stays valid and simply offers no worker.
      */
     public record RuntimeBinding(String name, String version, String revision, String executableSha256,
-                                 String workerSha256) {
+                                 String workerSha256, Set<String> additionalWorkerSha256) {
+        public RuntimeBinding {
+            additionalWorkerSha256 = additionalWorkerSha256 == null ? Set.of() : Set.copyOf(additionalWorkerSha256);
+        }
+
+        public RuntimeBinding(String name, String version, String revision, String executableSha256,
+                              String workerSha256) {
+            this(name, version, revision, executableSha256, workerSha256, Set.of());
+        }
+
         public RuntimeBinding(String name, String version, String revision, String executableSha256) {
-            this(name, version, revision, executableSha256, "");
+            this(name, version, revision, executableSha256, "", Set.of());
+        }
+
+        /** True when {@code digest} is the pinned worker digest or one of the additionally accepted ones. */
+        public boolean acceptsWorkerSha256(String digest) {
+            return !workerSha256.isEmpty() && (workerSha256.equals(digest) || additionalWorkerSha256.contains(digest));
         }
     }
+
+    /**
+     * A non-English language admitted for the DEV_ONLY speech lanes: the verbatim owner decision and the SHA-256 of the
+     * checked-in measured round-trip evidence file. It records that the language was measured and admitted; it is not a
+     * quality qualification.
+     */
+    public record LanguageAdmission(String language, String ownerDecisionDate, String ownerDecisionQuote,
+                                    String evidencePath, String evidenceSha256) { }
 
     public enum Status { VERIFIED, MANIFEST_INVALID, FILE_MISSING, DIGEST_MISMATCH, SIZE_MISMATCH,
         LICENSE_NOT_ALLOWED, OWNER_DECISION_MISMATCH }
@@ -117,6 +152,7 @@ public record LocalModelManifest(
     public LocalModelManifest {
         files = List.copyOf(files);
         verifiedLanguages = Set.copyOf(verifiedLanguages);
+        languageAdmissions = languageAdmissions == null ? List.of() : List.copyOf(languageAdmissions);
     }
 
     public static LocalModelManifest read(Path manifestFile) throws IOException {
@@ -187,11 +223,33 @@ public record LocalModelManifest(
                 languages.add(tag);
             }
         }
+        List<LanguageAdmission> admissions = new ArrayList<>();
+        JsonNode admissionNodes = root.get("languageAdmissions");
+        if (admissionNodes != null && admissionNodes.isArray()) {
+            for (JsonNode node : admissionNodes) {
+                String language = text(node, "language");
+                String evidenceSha = text(node, "evidenceSha256");
+                if (!language.matches("[a-z]{2,3}") || !evidenceSha.matches("[0-9a-f]{64}")) {
+                    throw new IllegalArgumentException("language admission is malformed");
+                }
+                admissions.add(new LanguageAdmission(language, text(node, "ownerDecisionDate"),
+                        text(node, "ownerDecisionQuote"), text(node, "evidencePath"), evidenceSha));
+            }
+        }
         JsonNode runtimeNode = root.get("runtime");
+        Set<String> additionalWorkers = new LinkedHashSet<>();
+        if (runtimeNode != null && runtimeNode.path("additionalWorkerSha256").isArray()) {
+            for (JsonNode digest : runtimeNode.path("additionalWorkerSha256")) {
+                if (!digest.asString("").matches("[0-9a-f]{64}")) {
+                    throw new IllegalArgumentException("runtime.additionalWorkerSha256 must be lowercase hex");
+                }
+                additionalWorkers.add(digest.asString());
+            }
+        }
         RuntimeBinding runtime = runtimeNode == null || !runtimeNode.isObject() ? null
                 : new RuntimeBinding(text(runtimeNode, "name"), text(runtimeNode, "version"),
                         runtimeNode.path("revision").asString(""), runtimeNode.path("executableSha256").asString(""),
-                        runtimeNode.path("workerSha256").asString(""));
+                        runtimeNode.path("workerSha256").asString(""), additionalWorkers);
         if (runtime != null && !runtime.executableSha256().isEmpty()
                 && !runtime.executableSha256().matches("[0-9a-f]{64}")) {
             throw new IllegalArgumentException("runtime.executableSha256 must be lowercase hex");
@@ -206,7 +264,7 @@ public record LocalModelManifest(
                 new Attribution(attribution.path("noticeRequired").asBoolean(false),
                         attribution.path("notice").asString("")),
                 new Admission(text(admission, "scope"), admission.path("productionEligible").asBoolean(false)),
-                languages, runtime, root.path("voiceCloning").asString(""), "");
+                languages, runtime, root.path("voiceCloning").asString(""), "", admissions);
     }
 
     /** Reads {@code <modelDir>/ghatana-model-manifest.json} (the vision / multimodal directory layout). */
@@ -296,7 +354,7 @@ public record LocalModelManifest(
                 new OwnerDecision(text(owner, "decidedOn"), text(owner, "quote"), text(owner, "licenseNote")),
                 new Attribution(true, text(root, "attribution")),
                 new Admission("LOCAL_ARTIFACT_IDENTITY_AND_LICENSE_ONLY", false), Set.of(),
-                new RuntimeBinding(text(runtime, "kind"), text(runtime, "quantization"), "", ""), "", fileSet);
+                new RuntimeBinding(text(runtime, "kind"), text(runtime, "quantization"), "", ""), "", fileSet, List.of());
     }
 
     /**
@@ -313,6 +371,20 @@ public record LocalModelManifest(
                 || !OWNER_LICENSE_STATEMENT.equals(ownerDecision.licenseStatement())) {
             return fail(Status.OWNER_DECISION_MISMATCH, "owner decision text/date does not match the record",
                     manifestSha256);
+        }
+        for (String language : verifiedLanguages) {
+            if ("en".equals(language)) continue;
+            LanguageAdmission admission = languageAdmissions.stream()
+                    .filter(candidate -> candidate.language().equals(language)).findFirst().orElse(null);
+            if (admission == null) {
+                return fail(Status.MANIFEST_INVALID, "language " + language
+                        + " is verified without a recorded owner admission and evidence digest", manifestSha256);
+            }
+            if (!SPANISH_ADMISSION_DATE.equals(admission.ownerDecisionDate())
+                    || !SPANISH_ADMISSION_QUOTE.equals(admission.ownerDecisionQuote())) {
+                return fail(Status.OWNER_DECISION_MISMATCH, "language " + language
+                        + " admission text/date does not match the record", manifestSha256);
+            }
         }
         if (files.stream().noneMatch(f -> f.role() == FileRole.WEIGHTS)
                 || files.stream().noneMatch(f -> f.role() == FileRole.LICENSE)) {

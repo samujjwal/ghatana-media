@@ -99,6 +99,61 @@ class LocalModelManifestTest {
         assertThat(LocalModelInstall.inspect(dir, "fixture-tts", Modality.TEXT_TO_SPEECH).usable()).isTrue();
     }
 
+    private static void rewrite(Path manifest, java.util.function.UnaryOperator<String> edit) throws Exception {
+        Files.writeString(manifest, edit.apply(Files.readString(manifest)));
+    }
+
+    @Test
+    void aNonEnglishVerifiedLanguageNeedsTheVerbatimOwnerAdmissionAndAnEvidenceDigest() throws Exception {
+        Path manifest = install(dir, "fixture-stt", Modality.SPEECH_TO_TEXT, "MIT", LocalModelManifest.OWNER_DECISION_QUOTE);
+        rewrite(manifest, json -> json.replace("\"verifiedLanguages\":[\"en\"]", "\"verifiedLanguages\":[\"en\",\"es\"]"));
+        LocalModelInstall unadmitted = LocalModelInstall.inspect(dir, "fixture-stt", Modality.SPEECH_TO_TEXT);
+        assertThat(unadmitted.usable()).as("es without an admission record is refused").isFalse();
+        assertThat(unadmitted.verificationStatus()).isEqualTo(Status.MANIFEST_INVALID);
+
+        String evidence = "0123456789abcdef".repeat(4);
+        String admission = ",\"languageAdmissions\":[{\"language\":\"es\",\"ownerDecisionDate\":\""
+                + LocalModelManifest.SPANISH_ADMISSION_DATE + "\",\"ownerDecisionQuote\":\"%s\","
+                + "\"evidencePath\":\"docs/evidence/es.json\",\"evidenceSha256\":\"" + evidence + "\"}]";
+        rewrite(manifest, json -> json.replace("\"runtime\"", admission.substring(1).formatted(
+                "Some paraphrase of the decision") + ",\"runtime\""));
+        assertThat(LocalModelInstall.inspect(dir, "fixture-stt", Modality.SPEECH_TO_TEXT).verificationStatus())
+                .as("a paraphrased admission quote is refused").isEqualTo(Status.OWNER_DECISION_MISMATCH);
+
+        install(dir, "fixture-stt", Modality.SPEECH_TO_TEXT, "MIT", LocalModelManifest.OWNER_DECISION_QUOTE);
+        rewrite(manifest, json -> json.replace("\"verifiedLanguages\":[\"en\"]", "\"verifiedLanguages\":[\"en\",\"es\"]")
+                .replace("\"runtime\"", admission.substring(1).formatted(LocalModelManifest.SPANISH_ADMISSION_QUOTE)
+                        + ",\"runtime\""));
+        LocalModelInstall admitted = LocalModelInstall.inspect(dir, "fixture-stt", Modality.SPEECH_TO_TEXT);
+        assertThat(admitted.usable()).isTrue();
+        assertThat(admitted.manifest().verifiedLanguages()).containsExactlyInAnyOrder("en", "es");
+        assertThat(admitted.manifest().languageAdmissions()).singleElement().satisfies(entry -> {
+            assertThat(entry.language()).isEqualTo("es");
+            assertThat(entry.evidenceSha256()).isEqualTo(evidence);
+        });
+        assertThat(admitted.manifest().admission().productionEligible()).isFalse();
+    }
+
+    @Test
+    void aMalformedEvidenceDigestIsAnInvalidManifest() throws Exception {
+        Path manifest = install(dir, "fixture-stt", Modality.SPEECH_TO_TEXT, "MIT", LocalModelManifest.OWNER_DECISION_QUOTE);
+        rewrite(manifest, json -> json.replace("\"runtime\"", "\"languageAdmissions\":[{\"language\":\"es\","
+                + "\"ownerDecisionDate\":\"2026-11-15\",\"ownerDecisionQuote\":\"q\",\"evidencePath\":\"p\","
+                + "\"evidenceSha256\":\"nothex\"}],\"runtime\""));
+        assertThat(LocalModelInstall.inspect(dir, "fixture-stt", Modality.SPEECH_TO_TEXT).usable()).isFalse();
+    }
+
+    @Test
+    void aRuntimeBindingAcceptsThePinnedAndTheAdditionalWorkerDigestsOnly() {
+        String pinned = "a".repeat(64);
+        String additional = "b".repeat(64);
+        var binding = new LocalModelManifest.RuntimeBinding("kokoro", "1", "", "", pinned, java.util.Set.of(additional));
+        assertThat(binding.acceptsWorkerSha256(pinned)).isTrue();
+        assertThat(binding.acceptsWorkerSha256(additional)).isTrue();
+        assertThat(binding.acceptsWorkerSha256("c".repeat(64))).isFalse();
+        assertThat(new LocalModelManifest.RuntimeBinding("kokoro", "1", "", "").acceptsWorkerSha256(pinned)).isFalse();
+    }
+
     @Test
     void ownerDecisionQuoteMustBeVerbatim() throws Exception {
         install(dir, "fixture-stt", Modality.SPEECH_TO_TEXT, "MIT", "Some other paraphrased decision");

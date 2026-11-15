@@ -9,6 +9,13 @@ set -euo pipefail
 ROOT="${MEDIA_LOCAL_MODEL_ROOT:-$HOME/.local/share/ghatana-media}"
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MAKE="$HERE/make_manifest.py"
+REPO_ROOT="$(cd "$HERE/../.." && pwd)"
+# Measured Spanish round-trip evidence (es_roundtrip_evidence.py), checked in; its SHA-256 is recorded in both manifests.
+# Spanish is admitted for the DEV_ONLY speech lanes only (Media owner delegate decision, 2026-11-15).
+ES_EVIDENCE="${ES_ROUNDTRIP_EVIDENCE:-$REPO_ROOT/docs/development/evidence/media-dev-es-roundtrip-2026-11-15.json}"
+# Worker revision pinned by manifests written before Spanish was admitted; kept as workerSha256 so checkouts that have not
+# rebased onto the Spanish worker still verify, while the current worker digest is listed in additionalWorkerSha256.
+KOKORO_WORKER_PREVIOUS_SHA="089cd0a3ba5a48bfa9c9ae4665420c4b03e35fd79e21da407827391f09ad44b3"
 
 WHISPER_REV="${WHISPER_MODEL_REVISION:-5359861c739e955e79d9a303bcbc70fb988958b1}"
 WHISPER_CPP_REV="${WHISPER_CPP_REVISION:-d1be6fde11ac6e0407606b4e42fe72d34add8037}"
@@ -18,7 +25,8 @@ python3 -I "$MAKE" --model-root "$ROOT/models/whisper-large-v3-turbo" --key whis
   --source-url https://huggingface.co/ggerganov/whisper.cpp --revision "$WHISPER_REV" \
   --spdx MIT --license-source-url https://raw.githubusercontent.com/openai/whisper/main/LICENSE \
   --file WEIGHTS:ggml-large-v3-turbo.bin --file LICENSE:LICENSE-openai-whisper.txt \
-  --file LICENSE:LICENSE-whisper.cpp.txt --file MODEL_CARD:MODEL_CARD_README.md --language en \
+  --file LICENSE:LICENSE-whisper.cpp.txt --file MODEL_CARD:MODEL_CARD_README.md --language en --language es \
+  --language-admission "es=$ES_EVIDENCE" --evidence-root "$REPO_ROOT" \
   --notice "Whisper model weights (c) 2022 OpenAI, MIT License; whisper.cpp / ggml (c) 2023-2026 The ggml authors, MIT License. The MIT copyright and permission notice must be preserved in copies or substantial portions. The runtime binary is a static ggml Vulkan (GPU) build of whisper-cli and statically includes code generated from KhronosGroup Vulkan-Headers v1.4.341 (Apache-2.0 OR MIT) and SPIRV-Headers vulkan-sdk-1.4.341.0 (MIT-style Khronos licence)." \
   --notice-required --runtime-name whisper.cpp --runtime-version v1.9.5 --runtime-revision "$WHISPER_CPP_REV" \
   --runtime-exe "${WHISPER_CPP_EXE:-$ROOT/runtimes/whisper.cpp-src/build-vulkan/bin/whisper-cli}" \
@@ -30,11 +38,13 @@ python3 -I "$MAKE" --model-root "$ROOT/models/kokoro-82m" --key kokoro-82m --mod
   --revision "$KOKORO_REV" --spdx Apache-2.0 \
   --license-source-url https://huggingface.co/hexgrad/Kokoro-82M/blob/$KOKORO_REV/README.md \
   --file WEIGHTS:kokoro-v1_0.pth --file CONFIG:config.json --file VOICE:voices/af_heart.pt \
-  --file VOICE:voices/am_michael.pt --file LICENSE:LICENSE-Apache-2.0.txt --file MODEL_CARD:README.md \
-  --language en \
-  --notice "Kokoro-82M (c) hexgrad, licensed under the Apache License 2.0; the model repository ships no LICENSE file, the licence is declared in the model-card metadata at the pinned revision and LICENSE-Apache-2.0.txt is the canonical text from apache.org. Apache-2.0 attribution and licence copy must accompany redistribution. The kokoro/misaki Python packages are Apache-2.0; their English phonemizer fallback pulls GPL-3.0+ components (phonemizer-fork, espeak-ng) which are installed locally and must not be redistributed with this product without GPL compliance." \
+  --file VOICE:voices/am_michael.pt --file VOICE:voices/ef_dora.pt --file VOICE:voices/em_alex.pt \
+  --file VOICE:voices/em_santa.pt --file LICENSE:LICENSE-Apache-2.0.txt --file MODEL_CARD:README.md \
+  --language en --language es --language-admission "es=$ES_EVIDENCE" --evidence-root "$REPO_ROOT" \
+  --notice "Kokoro-82M (c) hexgrad, licensed under the Apache License 2.0; the model repository ships no LICENSE file, the licence is declared in the model-card metadata at the pinned revision and LICENSE-Apache-2.0.txt is the canonical text from apache.org. Apache-2.0 attribution and licence copy must accompany redistribution. The kokoro/misaki Python packages are Apache-2.0; their English phonemizer fallback and the Spanish (es) grapheme-to-phoneme backend pull GPL-3.0+ components (phonemizer-fork, espeak-ng) which are installed locally and must not be redistributed with this product without GPL compliance." \
   --notice-required --voice-cloning NOT_SUPPORTED \
   --runtime-name kokoro --runtime-version "kokoro 0.9.4 / misaki 0.9.4 / torch 2.15.0" \
   --runtime-exe "$HERE/kokoro_synth.py" --runtime-worker "$HERE/kokoro_worker.py" \
+  --runtime-worker-primary-sha "$KOKORO_WORKER_PREVIOUS_SHA" \
   --out "$ROOT/models/kokoro-82m/manifest.json"
 echo "manifests written under $ROOT/models/*/manifest.json"

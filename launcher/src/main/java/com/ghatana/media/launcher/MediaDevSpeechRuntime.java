@@ -58,6 +58,8 @@ public final class MediaDevSpeechRuntime {
     public static final String KIND_CAPTIONS = "LOCAL_STT_WEBVTT_UNREVIEWED";
     public static final String KIND_SYNTHESIS = "LOCAL_TTS_AUDIO";
     static final int MAX_SOURCE_BYTES = 4 * 1024 * 1024;
+    /** Default Kokoro Spanish stock voice (Spanish is admitted by the owner delegate decision of 2026-11-15). */
+    public static final String DEFAULT_SPANISH_VOICE = "ef_dora";
     static final String LANE_TRANSCRIBE = "speech.transcribe";
     static final String LANE_SYNTHESIZE = "speech.synthesize";
     private static final Set<String> WAV_TYPES = Set.of("audio/wav", "audio/x-wav", "audio/wave", "audio/vnd.wave");
@@ -120,7 +122,6 @@ public final class MediaDevSpeechRuntime {
                 throw new IllegalArgumentException("text must be 1-" + LocalKokoroSynthesizer.MAX_TEXT_CHARS
                         + " characters");
             }
-            voice = voice == null || voice.isBlank() ? LocalKokoroTtsProvider.DEFAULT_VOICE : voice;
             if (!Double.isFinite(speakingRate) || speakingRate < 0.5 || speakingRate > 2.0) {
                 throw new IllegalArgumentException("speakingRate must be within [0.5, 2.0]");
             }
@@ -128,6 +129,13 @@ public final class MediaDevSpeechRuntime {
             if (!locale.matches("[A-Za-z]{2,3}([-_][A-Za-z0-9]{2,8}){0,3}")) {
                 throw new IllegalArgumentException("locale must be a BCP-47 language tag");
             }
+            voice = voice == null || voice.isBlank() ? defaultVoiceFor(locale) : voice;
+        }
+
+        /** Default stock voice of a locale's primary language (Spanish: ef_dora, everything else: the English default). */
+        static String defaultVoiceFor(String locale) {
+            return "es".equalsIgnoreCase(locale.split("[-_]", 2)[0]) ? DEFAULT_SPANISH_VOICE
+                    : LocalKokoroTtsProvider.DEFAULT_VOICE;
         }
 
         public SynthesizeRequest(String requestId, String text, String voice, double speakingRate) {
@@ -346,6 +354,16 @@ public final class MediaDevSpeechRuntime {
 
     LocalKokoroTtsProvider ttsProvider() { return tts; }
 
+    /** Language of a Kokoro stock voice from its pack id prefix (a/b English, e Spanish); empty when unknown. */
+    static String voiceLanguage(String voice) {
+        if (voice == null || voice.isEmpty()) return "";
+        return switch (voice.charAt(0)) {
+            case 'a', 'b' -> "en";
+            case 'e' -> "es";
+            default -> "";
+        };
+    }
+
     // ---- capabilities ----
 
     /** Read-only readiness view. No filesystem path, weight location or tool output is exposed. */
@@ -374,6 +392,23 @@ public final class MediaDevSpeechRuntime {
             if (voices != null) view.put("voiceCloning", install.manifest().voiceCloning());
         }
         if (voices != null) view.put("voices", new java.util.TreeSet<>(voices));
+        if (voices != null) {
+            Map<String, String> voiceLanguages = new java.util.TreeMap<>();
+            for (String voice : voices) voiceLanguages.put(voice, voiceLanguage(voice));
+            view.put("voiceLanguages", voiceLanguages);
+        }
+        if (install != null && install.usable() && !install.manifest().languageAdmissions().isEmpty()) {
+            List<Map<String, Object>> admissions = new ArrayList<>();
+            for (var admission : install.manifest().languageAdmissions()) {
+                Map<String, Object> entry = new LinkedHashMap<>();
+                entry.put("language", admission.language());
+                entry.put("ownerDecisionDate", admission.ownerDecisionDate());
+                entry.put("evidencePath", admission.evidencePath());
+                entry.put("evidenceSha256", admission.evidenceSha256());
+                admissions.add(entry);
+            }
+            view.put("languageAdmissions", admissions);
+        }
         if (voices != null) view.put("defaultVoice", LocalKokoroTtsProvider.DEFAULT_VOICE);
         if (voices != null) view.put("maxTextChars", LocalKokoroSynthesizer.MAX_TEXT_CHARS);
         return view;
@@ -559,6 +594,12 @@ public final class MediaDevSpeechRuntime {
         if (!synthesizer.voices().contains(request.voice())) {
             throw new SpeechRefusedException(422, "VOICE_NOT_ADMITTED",
                     "the voice is not part of the verified model installation; voice cloning is not supported");
+        }
+        if (!voiceLanguage(request.voice()).equals(request.language())) {
+            throw new SpeechRefusedException(422, "VOICE_LOCALE_MISMATCH",
+                    "the stock voice does not speak the requested language",
+                    Map.of("voice", request.voice(), "voiceLanguage", voiceLanguage(request.voice()),
+                            "locale", request.locale()));
         }
         SpeechRightsGate.Decision rights = ttsGate.authorize(tenantId, principalId, Operation.TEXT_TO_SPEECH, null);
         requireAllowed(rights, Operation.TEXT_TO_SPEECH);

@@ -137,12 +137,14 @@ public final class LocalKokoroWorker implements AutoCloseable {
         if (!Files.isExecutable(config.python())
                 || !Files.isRegularFile(config.script(), LinkOption.NOFOLLOW_LINKS)
                 || !Files.isRegularFile(manifestFile, LinkOption.NOFOLLOW_LINKS)) return null;
+        final String scriptSha256;
         try {
-            if (!binding.workerSha256().equals(LocalModelManifest.sha256(config.script()))) return null;
+            scriptSha256 = LocalModelManifest.sha256(config.script());
         } catch (IOException unreadable) {
             return null;
         }
-        return new LocalKokoroWorker(config, binding.workerSha256(), installCurrent);
+        if (!binding.acceptsWorkerSha256(scriptSha256)) return null;
+        return new LocalKokoroWorker(config, scriptSha256, installCurrent);
     }
 
     /**
@@ -274,7 +276,7 @@ public final class LocalKokoroWorker implements AutoCloseable {
                         BoundedProcessRunner.CancellationToken cancellation)
             throws LocalTtsException, WorkerUnreachable {
         long deadlineMillis = Math.max(1, Math.min(remaining.toMillis(), 180_000));
-        byte[] body = ("{\"text\":" + quote(text) + ",\"voice\":" + quote(voice) + ",\"lang\":\"a\",\"speed\":"
+        byte[] body = ("{\"text\":" + quote(text) + ",\"voice\":" + quote(voice) + ",\"lang\":\"" + voice.charAt(0) + "\",\"speed\":"
                 + String.format(Locale.ROOT, "%.4f", speed) + ",\"deadlineMillis\":" + deadlineMillis + "}")
                 .getBytes(StandardCharsets.UTF_8);
         if (body.length > MAX_BODY_BYTES) {

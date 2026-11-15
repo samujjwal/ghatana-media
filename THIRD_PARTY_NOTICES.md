@@ -38,7 +38,7 @@ software or weights. Verified licence files (SHA-256): OpenAI Whisper `LICENSE`
 
 | Component | Version / revision | SPDX | Source |
 | --- | --- | --- | --- |
-| Kokoro-82M weights, config and voice packs (`af_heart`, `am_michael`) | `hexgrad/Kokoro-82M` HF revision `f3ff3571791e39611d31c381e3a41a3af07b4987` (card: `license: apache-2.0`) | Apache-2.0 | https://huggingface.co/hexgrad/Kokoro-82M |
+| Kokoro-82M weights, config and voice packs (`af_heart`, `am_michael`; Spanish `ef_dora`, `em_alex`, `em_santa`) | `hexgrad/Kokoro-82M` HF revision `f3ff3571791e39611d31c381e3a41a3af07b4987` (card: `license: apache-2.0`) | Apache-2.0 | https://huggingface.co/hexgrad/Kokoro-82M |
 | `kokoro` Python package | 0.9.4 | Apache-2.0 | https://pypi.org/project/kokoro/ |
 | `misaki` G2P package | 0.9.4 | Apache-2.0 | https://pypi.org/project/misaki/ |
 | spaCy `en_core_web_sm` (used by misaki) | 3.8.0 | MIT | https://github.com/explosion/spacy-models |
@@ -59,6 +59,16 @@ sidecar's private virtual environment, and run as a separate process behind `too
 Nothing GPL is committed to or shipped by this repository. **Do not redistribute that virtual environment, a container
 image containing it, or the espeak-ng binaries with this product without satisfying the GPL (source offer, licence
 text).** This was flagged to the owner when the runtime was installed.
+
+**Spanish (DEV_ONLY speech lanes).** Spanish synthesis (Kokoro language code `e`) uses the same `misaki` package with
+its `espeak-ng` grapheme-to-phoneme backend for `es` (GPL-3.0-or-later, supplied locally by `espeakng-loader`), so the
+GPL notice above applies unchanged: local to the operator's machine, never committed or redistributed. The three
+Spanish stock voice packs come from the same pinned `hexgrad/Kokoro-82M` revision (Apache-2.0); their SHA-256 values
+equal the revision's Git-LFS object ids and are recorded in the installed manifest. Spanish was admitted by the Media
+owner delegate on 2026-11-15 (decision quoted verbatim in `docs/development/evidence/media-dev-es-roundtrip-2026-11-15.json`'s
+manifest record and in `LocalModelManifest.SPANISH_ADMISSION_QUOTE`) for the DEV_ONLY lanes only, gated on measured
+round-trip evidence; it is not a quality qualification and `productionEligible` stays false. Machine translation uses
+the already-admitted local Qwen2.5-VL-7B-Instruct (Apache-2.0, see the vision section) in text-only mode.
 
 <!-- SECTION: local-vision-and-multimodal (begin) -->
 ## Local vision and multimodal models (Florence-2, Qwen2.5-VL-7B-Instruct)

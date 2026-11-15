@@ -138,6 +138,11 @@ public final class LocalKokoroSynthesizer {
             return new Synthesis(served.wav(), 24_000, served.samples(), voice, config.modelSha256(),
                     Duration.ofNanos(System.nanoTime() - workerStarted).toMillis());
         }
+        if (voice.charAt(0) != 'a' && voice.charAt(0) != 'b') {
+            // The pinned one-shot script only serves the English language codes; other languages need the worker.
+            throw new LocalTtsException(LocalTtsException.Code.WORKER_UNAVAILABLE,
+                    "voices of this language are served only by the persistent Kokoro worker");
+        }
         Path work = null;
         long started = System.nanoTime();
         try {

@@ -48,7 +48,9 @@ MAX_WAV_BYTES = 8 * 1024 * 1024
 MAX_DEADLINE_MILLIS = 180_000
 MAX_WAITING = 2
 VOICE_PATTERN = re.compile(r"^[a-z]{2}_[a-z]{2,16}$")
-LANG_CODES = {"a", "b"}
+# a/b: English (US/UK); e: Spanish (needs the espeak-ng G2P, installed locally as GPL, never redistributed).
+# A voice pack is usable only with its own language code (the first letter of the voice id).
+LANG_CODES = {"a", "b", "e"}
 CONTROL = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f]")
 
 
@@ -96,7 +98,15 @@ class Verifier:
         if runtime.get("name") != "kokoro" or not re.fullmatch(r"[0-9a-f]{64}", pinned):
             raise IntegrityError("manifest pins no worker script digest")
         self.script = os.path.abspath(script_path)
-        self.expected[self.script] = pinned
+        # A manifest may accept more than one worker revision (runtime.additionalWorkerSha256) so older and newer
+        # checkouts of this script can share one installed manifest; the script on disk must match one of them.
+        accepted = {pinned}
+        for extra in runtime.get("additionalWorkerSha256", []) or []:
+            if not isinstance(extra, str) or not re.fullmatch(r"[0-9a-f]{64}", extra):
+                raise IntegrityError("manifest lists a malformed additional worker digest")
+            accepted.add(extra)
+        actual = _sha256(self.script)
+        self.expected[self.script] = actual if actual in accepted else pinned
         self.keys = {}
         for path, sha in self.expected.items():
             self._verify_one(path, sha)
@@ -269,6 +279,8 @@ def make_handler(worker):
                     raise ValueError("voice is not part of the verified model installation")
                 if lang not in LANG_CODES:
                     raise ValueError("unsupported language code")
+                if voice[0] != lang:
+                    raise ValueError("voice pack does not belong to the requested language")
                 if isinstance(speed, bool) or not isinstance(speed, (int, float)) or not 0.5 <= speed <= 2.0:
                     raise ValueError("speed outside [0.5, 2.0]")
                 if isinstance(deadline_ms, bool) or not isinstance(deadline_ms, int) \
