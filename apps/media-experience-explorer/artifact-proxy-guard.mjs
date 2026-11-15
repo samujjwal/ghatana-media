@@ -96,6 +96,11 @@ const devProjectRoutes = [
   { method: "GET", path: new RegExp(`^/dev/v1/quality/optimizations/${OPAQUE_ID}$`, "u") },
   { method: "GET", path: new RegExp(`^/dev/v1/quality/lineages/${OPAQUE_ID}$`, "u") },
   { method: "POST", path: new RegExp(`^/dev/v1/quality/lineages/${OPAQUE_ID}/undo$`, "u") },
+  // DEV_ONLY tracked region edit (J-11) used by the "Region edit" page (status, lineage, edit, undo; no DELETE).
+  { method: "GET", path: /^\/dev\/v1\/region-edits\/status$/u },
+  { method: "POST", path: /^\/dev\/v1\/region-edits\/lineages$/u },
+  { method: "GET", path: new RegExp(`^/dev/v1/region-edits/lineages/${OPAQUE_ID}$`, "u") },
+  { method: "POST", path: new RegExp(`^/dev/v1/region-edits/lineages/${OPAQUE_ID}/(edits|undo)$`, "u") },
   // DEV_ONLY erasure and legal-hold lane used by the "Erasure and legal hold" page (plan, confirm-erase, receipt, hold,
   // release). The hold listing takes a query string and is deliberately not proxied; the plan carries active holds.
   { method: "GET", path: new RegExp(`^/dev/v1/erasure-plans/${OPAQUE_ID}$`, "u") },

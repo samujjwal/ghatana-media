@@ -1,0 +1,47 @@
+@import "@audio-video/ui/styles.css";
+:root { color-scheme: light dark; font-family: system-ui, sans-serif; color: CanvasText; background: Canvas; }
+body { margin: 0; }
+.shell { width: min(1100px, calc(100% - 2rem)); margin: 2rem auto; }
+.panel, .notice, .region, .region-result, .region-segments { background: Canvas; border: 1px solid GrayText; border-radius: 12px; padding: 1.25rem; margin: 1rem 0; }
+.notice { border-left: 5px solid GrayText; }
+.eyebrow { color: GrayText; text-transform: uppercase; letter-spacing: .08em; }
+form { display: grid; gap: .75rem; max-width: 40rem; }
+.region-field { display: grid; gap: .3rem; }
+.region-count { margin: 0; color: GrayText; font-size: .85rem; }
+input, select, textarea, button { font: inherit; padding: .65rem .8rem; max-width: 100%; min-height: 2.75rem; box-sizing: border-box; }
+button { width: fit-content; cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible, h3:focus-visible { outline: 3px solid Highlight; outline-offset: 2px; }
+dl { display: grid; grid-template-columns: minmax(8rem, 12rem) 1fr; gap: .4rem .75rem; }
+dt { font-weight: 700; }
+dd { margin: 0; overflow-wrap: anywhere; }
+.region-failure, .region-errors, [role="alert"] { border-left: 5px solid CanvasText; padding-left: .75rem; }
+@media (max-width: 640px) {
+  .shell { width: calc(100% - 1.5rem); margin: 1rem auto; }
+  dl { grid-template-columns: 1fr; }
+  button { width: 100%; }
+}
+table { border-collapse: collapse; width: 100%; margin: .75rem 0; }
+caption { text-align: left; font-weight: 700; padding: .4rem 0; }
+th, td { border: 1px solid GrayText; padding: .45rem .6rem; text-align: left; vertical-align: top; }
+textarea { width: 100%; }
+.region-count { display: block; color: GrayText; font-size: .85rem; }
+.region-field input, .region-field select { max-width: 40rem; }
+.region-scroll { overflow-x: auto; max-width: 100%; }
+.region-scroll:focus-visible { outline: 3px solid Highlight; outline-offset: 2px; }
+.region-scroll table { min-width: 36rem; }
+table [role="alert"], tr { overflow-wrap: anywhere; }
+
+body, p, li, dd, code { overflow-wrap: anywhere; }
+.shell, .shell > * { min-width: 0; }
+code { word-break: break-all; }
+video { width: 100%; max-width: 40rem; margin: .5rem 0; background: #000; }
+.region fieldset { margin: .75rem 0; border: 1px solid GrayText; border-radius: 8px; }
+.region fieldset fieldset { margin-left: .5rem; }
+.region-field { margin: .4rem 0; }
+.region-error { display: block; color: CanvasText; border-left: 5px solid CanvasText; padding-left: .5rem; margin-top: .25rem; }
+input[type="range"] { width: 100%; max-width: 40rem; }
+.region-stage { position: relative; width: 100%; max-width: 40rem; }
+.region-stage video { display: block; width: 100%; max-width: 100%; margin: 0; }
+.region-overlay { position: absolute; left: 0; top: 0; width: 100%; height: auto; pointer-events: none; }
+.region-stage p { margin-top: .5rem; }

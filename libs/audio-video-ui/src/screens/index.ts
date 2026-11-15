@@ -138,3 +138,12 @@ export type {
   DevDubbingDubRequest, DevDubbingHostResponse, DevDubbingPort, DevDubbingReviseRequest, DevDubbingTranslateRequest, DubbingCapabilities,
   DubbingFailure, DubbingFit, DubbingOverflowSegment, DubbingSegment, DubbingTiming, DubbingTimingSegment, DubView, TranslationView,
 } from "./devDubbing";
+
+export { DevRegionEditPanel } from "./DevRegionEditPanel";
+export type { DevRegionEditPanelProps } from "./DevRegionEditPanel";
+export {
+  DevRegionEditHostError, describeRegionFailure, frameAt as regionFrameAt, parseRegionEditStatus, parseRegionLineage, parseRegionOutcome,
+} from "./devRegionEdit";
+export type {
+  DevRegionEditHostResponse, DevRegionEditPort, DevRegionEditRequest, RegionEditStatus, RegionFailure, RegionLineageView, RegionManifest, RegionOutcome,
+} from "./devRegionEdit";
