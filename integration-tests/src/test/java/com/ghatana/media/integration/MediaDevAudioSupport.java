@@ -128,9 +128,13 @@ final class MediaDevAudioSupport {
                 #!/bin/sh
                 PATH=/usr/bin:/bin
                 D='%s'
-                case " $* " in *" -af "*) echo "$$" >> "$D/invocations.log";; esac
-                if [ -f "$D/kill-once" ]; then rm -f "$D/kill-once"; echo "$$" > "$D/pid"; exec '%s' -re "$@"; fi
-                if [ -f "$D/slow" ]; then exec '%s' -re "$@"; fi
+                case " $* " in
+                *" -af "*)
+                  echo "$$" >> "$D/invocations.log"
+                  if [ -f "$D/kill-once" ]; then rm -f "$D/kill-once"; echo "$$" > "$D/pid"; exec '%s' -re "$@"; fi
+                  if [ -f "$D/slow" ]; then exec '%s' -re "$@"; fi
+                  ;;
+                esac
                 exec '%s' "$@"
                 """.formatted(directory, real, real, real));
         Files.setPosixFilePermissions(script, PosixFilePermissions.fromString("rwx------"));

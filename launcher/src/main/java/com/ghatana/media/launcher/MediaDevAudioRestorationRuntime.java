@@ -410,7 +410,10 @@ public final class MediaDevAudioRestorationRuntime {
     private AudioOutput produceRestoration(String tenantId, String principalId, RestoreRequest request, MediaArtifact source,
                                            MediaDevAudioWav.Pcm pcm, String filterGraph, Map<String, Object> lineage) {
         byte[] sourceBytes = readContent(tenantId, principalId, source);
-        byte[] restored = runFfmpeg(sourceBytes, filterGraph, source.sizeBytes());
+        // The registered artifact is content-addressed per tenant (unique sha256+size), so the WAV carries its own
+        // provenance comment (validated request id and source digest): a second request never collides with the first.
+        String provenance = "ghatana-media DEV_ONLY audio restoration requestId=" + request.requestId() + " source=sha256:" + source.sha256();
+        byte[] restored = runFfmpeg(sourceBytes, filterGraph, source.sizeBytes(), provenance);
         MediaDevAudioWav.Pcm out;
         try {
             out = MediaDevAudioWav.parse(restored);
@@ -436,7 +439,7 @@ public final class MediaDevAudioRestorationRuntime {
     }
 
     /** Stages the source privately, runs the bounded FFmpeg graph and returns the exact output bytes. */
-    private byte[] runFfmpeg(byte[] input, String filterGraph, long sourceSize) {
+    private byte[] runFfmpeg(byte[] input, String filterGraph, long sourceSize, String provenance) {
         Path dir = null;
         try {
             dir = Files.createTempDirectory("media-dev-audio-",
@@ -448,7 +451,7 @@ public final class MediaDevAudioRestorationRuntime {
             long ceiling = sourceSize + 64 * 1024L;
             BoundedProcessRunner.Result result = BoundedProcessRunner.run(
                     List.of(ffmpeg.toString(), "-nostdin", "-v", "error", "-nostats", "-i", in.toString(), "-af", filterGraph,
-                            "-map_metadata", "-1", "-fflags", "+bitexact", "-flags:a", "+bitexact",
+                            "-map_metadata", "-1", "-metadata", "comment=" + provenance, "-fflags", "+bitexact", "-flags:a", "+bitexact",
                             "-c:a", "pcm_s16le", "-f", "wav", "-y", out.toString()),
                     dir, Map.of(), timeout, 1024, 8192, BoundedProcessRunner.CancellationToken.NEVER, out, ceiling);
             // A signalled child is reported as 128 + signal; FFmpeg's own failures are 1 or 234/255, never in that band.
@@ -537,6 +540,7 @@ public final class MediaDevAudioRestorationRuntime {
                                           String sourceRights, String referenceRights, LocalWhisperCppRunner whisper) {
         Map<String, Object> document = new LinkedHashMap<>();
         document.put("schema", SCHEMA_COMPARISON);
+        document.put("requestId", request.requestId());
         document.put("source", sourceRef(source));
         document.put("restored", sourceRef(restored));
         if (reference != null) document.put("reference", sourceRef(reference));
