@@ -166,9 +166,11 @@ class MediaLocalSpeechCanonicalToolIT extends EventloopTestBase {
         byte[] wav = PcmWav.encode(pcm16k);
         String wavSha = sha(wav);
 
+        Path artifactRoot = Files.createTempDirectory("media-speech-artifacts");
+        String[] successfulStt = new String[5]; // job id, source version, transcript version, source SHA, text
         try (AutoCloseable installed = TestAwsStateInstall.install(environment());
              var artifactStore = new LocalMediaRuntimeSupport.FileArtifactStore(
-                     Files.createTempDirectory("media-speech-artifacts"));
+                     artifactRoot);
              var jobStore = new PostgresqlMediaJobStore();
              var streamStore = new PostgresqlMediaStreamSessionStore();
              var consentAuthority = new PostgresqlMediaConsentAuthority();
@@ -223,10 +225,15 @@ class MediaLocalSpeechCanonicalToolIT extends EventloopTestBase {
             assertThat(sttOut).containsEntry("status", "COMPLETED").containsEntry("jobType", "SPEECH_TO_TEXT");
             String jobId = (String) sttOut.get("jobId");
             var binding = transcriptStore.readAttemptBinding(TENANT, PRINCIPAL, "transcript:" + jobId, 1);
+            successfulStt[0] = jobId;
+            successfulStt[1] = source.version().value();
+            successfulStt[2] = binding.transcriptVersionRef();
+            successfulStt[3] = source.sha256();
             var transcript = transcriptStore.revisionByVersionRef(TENANT, PRINCIPAL,
                     binding.transcriptVersionRef()).orElseThrow();
             assertThat(transcript.admissionStatus()).isEqualTo("ADMITTED");
             String text = transcript.draft().text();
+            successfulStt[4] = text;
             System.out.println("LOCAL_SPEECH_CANONICAL_STT input=\"" + SENTENCE + "\" transcript=\"" + text + "\"");
             String normalized = text.toLowerCase(Locale.ROOT).replaceAll("[^a-z ]", " ");
             for (String word : List.of("quick", "brown", "fox", "jumps", "lazy", "dog")) {
@@ -327,6 +334,48 @@ class MediaLocalSpeechCanonicalToolIT extends EventloopTestBase {
                         "sourceArtifactId", source.artifactId(), "sourceArtifactVersion", source.version().value()));
                 assertThat(ogg.status()).isEqualTo(ToolExecutionStatus.FAILED);
                 assertThat(ogg.failure().code()).isEqualTo("TTS_AUDIO_ENCODING_NOT_SUPPORTED");
+            }
+
+            // Reopen only after all tool calls: MediaRuntime owns and closes its injected stores/providers.
+            // Fresh store clients prove the successful canonical job and transcript CAS lineage survived restart.
+            runtime.close();
+            try (var restartedArtifacts = new LocalMediaRuntimeSupport.FileArtifactStore(artifactRoot);
+                 var restartedJobs = new PostgresqlMediaJobStore();
+                 var restartedStreams = new PostgresqlMediaStreamSessionStore();
+                 var restartedConsent = new PostgresqlMediaConsentAuthority();
+                 var restartedAuthority = new PostgresqlMediaSourceAuthorizationAuthority(new AllowPolicy());
+                 var restartedTranscripts = new PostgresqlMediaTranscriptStore();
+                 var restartedRuntime = new MediaRuntime(
+                         new MediaRuntimeConfig(true, "test", 8094, 8 * 1024 * 1024, 4 * 1024 * 1024,
+                                 64L * 1024 * 1024, Duration.ofMinutes(5), 4, "", "", false, false,
+                                 Files.createTempDirectory("media-speech-restart-root")),
+                         restartedArtifacts, restartedJobs, restartedStreams, restartedConsent,
+                         MediaSemanticRedactionRuntime.disabled(Duration.ofSeconds(2)),
+                         MediaLifecyclePublisher.disabled(),
+                         List.of(LocalWhisperCppSttProvider.fromEnvironment(speechEnvironment()),
+                                 LocalKokoroTtsProvider.fromEnvironment(speechEnvironment())),
+                         List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()), List.of(),
+                         restartedAuthority, restartedTranscripts, Clock.systemUTC())) {
+                var persistedJob = restartedRuntime.job(TENANT, PRINCIPAL, successfulStt[0]).orElseThrow();
+                var persistedAttempt = restartedJobs.latestAttempt(TENANT, successfulStt[0]).orElseThrow();
+                var persistedBinding = restartedTranscripts.readAttemptBinding(
+                        TENANT, PRINCIPAL, "transcript:" + successfulStt[0], 1);
+                var persistedTranscript = restartedTranscripts.revisionByVersionRef(
+                        TENANT, PRINCIPAL, successfulStt[2]).orElseThrow();
+                assertThat(persistedJob.status()).isEqualTo(com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus.COMPLETED);
+                assertThat(persistedAttempt.status()).isEqualTo(
+                        com.ghatana.media.runtime.MediaRuntimeContracts.JobAttemptStatus.COMPLETED);
+                assertThat(persistedBinding.jobId()).isEqualTo(successfulStt[0]);
+                assertThat(persistedBinding.fencingToken()).isEqualTo(persistedAttempt.fencingToken());
+                assertThat(persistedBinding.sourceArtifactVersionRef()).isEqualTo(successfulStt[1]);
+                assertThat(persistedBinding.transcriptVersionRef()).isEqualTo(successfulStt[2]);
+                assertThat(persistedTranscript.draft().sourceVersion()).isEqualTo(successfulStt[1]);
+                assertThat(persistedTranscript.draft().sourceSha256()).isEqualTo(successfulStt[3]);
+                assertThat(persistedTranscript.draft().text()).isEqualTo(successfulStt[4]);
+                assertThat(persistedTranscript.admissionStatus()).isEqualTo("ADMITTED");
+                var persistedSource = restartedRuntime.artifact(TENANT, PRINCIPAL, source.artifactId()).orElseThrow();
+                assertThat(persistedSource.version().value()).isEqualTo(successfulStt[1]);
+                assertThat(persistedSource.sha256()).isEqualTo(successfulStt[3]);
             }
         }
     }
