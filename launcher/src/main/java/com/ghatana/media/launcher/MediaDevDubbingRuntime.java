@@ -49,7 +49,7 @@ final class MediaDevDubbingRuntime {
     static final String KIND_TIMING = "LOCAL_DUB_TIMING";
     static final String LANE_DUB = "dub.create";
     static final List<String> LINEAGE_KEYS = List.of("dubSchema", "scope", "kind", "requestId", "targetLanguage",
-            "translatedTranscript", "sourceTranscript", "source", "voice", "voiceCloning", "engine", "model", "runtime",
+            "translatedTranscript", "parent", "sourceTranscript", "source", "voice", "voiceCloning", "engine", "model", "runtime",
             "rightsDecision", "audio", "segmentCount", "tempoAdjustedCount", "overflowCount", "overflowPolicy",
             "siblings", "note");
     private static final Duration SEGMENT_BUDGET = Duration.ofMinutes(2);
@@ -340,6 +340,7 @@ final class MediaDevDubbingRuntime {
         shared.put("requestId", request.requestId());
         shared.put("targetLanguage", translation.targetLanguage());
         shared.put("translatedTranscript", MediaDevDubSupport.ref(base));
+        shared.put("parent", MediaDevDubSupport.ref(base)); // erasure follows parent/source references
         for (String key : List.of("sourceTranscript", "source")) {
             if (base.metadata().get(key) instanceof Map<?, ?> inherited) shared.put(key, inherited);
         }

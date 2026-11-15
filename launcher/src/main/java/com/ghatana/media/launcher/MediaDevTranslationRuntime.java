@@ -300,6 +300,7 @@ final class MediaDevTranslationRuntime {
                 request.targetLanguage(), KIND_TRANSLATED, rights, translated);
         Map<String, Object> transcriptRef = MediaDevDubSupport.ref(source);
         lineage.put("sourceTranscript", transcriptRef);
+        lineage.put("parent", transcriptRef); // erasure and rights follow parent/source references to derived outputs
         Object original = source.metadata().get("source");
         if (original instanceof Map<?, ?> originalMap) lineage.put("source", originalMap);
         lineage.put("model", engine.model());
