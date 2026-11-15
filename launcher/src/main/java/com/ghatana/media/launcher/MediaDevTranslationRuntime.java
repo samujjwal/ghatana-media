@@ -216,10 +216,6 @@ final class MediaDevTranslationRuntime {
                     Map.of("sourceLanguage", request.sourceLanguage(), "targetLanguage", request.targetLanguage(),
                             "admittedTargets", List.copyOf(admitted)));
         }
-        if (!engine.ready()) {
-            throw new MediaDevSpeechRuntime.SpeechRefusedException(503, "TRANSLATION_UNAVAILABLE",
-                    "no verified local translation model is available for this server");
-        }
         MediaArtifact source = support.exact(tenantId, principalId, request.transcriptArtifactId(),
                 request.transcriptArtifactVersionId());
         if (!MediaDevSpeechRuntime.SCHEMA.equals(source.metadata().get("speechSchema"))
@@ -236,6 +232,12 @@ final class MediaDevTranslationRuntime {
         }
         List<Segment> segments = sourceSegments(document);
         MediaDevDubSupport.Rights rights = support.requireProcessing(tenantId, principalId, source);
+        // Rights are decided before model readiness, so a refused source is reported as refused even while the model
+        // is still loading (for example just after a restart).
+        if (!engine.ready()) {
+            throw new MediaDevSpeechRuntime.SpeechRefusedException(503, "TRANSLATION_UNAVAILABLE",
+                    "no verified local translation model is available for this server");
+        }
         String fingerprint = MediaDevRequestLedger.fingerprint("media.dev.translation.translate.v1", source.artifactId(),
                 source.version().value(), source.sha256(), request.sourceLanguage(), request.targetLanguage());
         return ledger.run(tenantId, principalId, LANE_TRANSLATE, request.requestId(), fingerprint,
