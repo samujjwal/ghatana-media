@@ -140,6 +140,58 @@ test("manifest accepts only safe integer milliseconds for scenes and caption cue
   }
 });
 
+test("manifest rejects blank labels and preserves non-blank authored text", () => {
+  const paddedLabelManifest = {
+    ...manifest,
+    scenes: manifest.scenes.map((scene) => scene.id === "intro"
+      ? {
+          ...scene,
+          label: "  Introduction  ",
+          branches: scene.branches.map((branch) => ({ ...branch, label: "Continue" })),
+        }
+      : scene),
+  };
+  const validState = createDemoPlayerState(paddedLabelManifest, {
+    attest: () => ({
+      manifestId: paddedLabelManifest.id,
+      revision: paddedLabelManifest.revision,
+      sha256: paddedLabelManifest.integrity.sha256,
+      actualEmbeddingOrigin: hostOrigin,
+      sourceTruth: paddedLabelManifest.sourceTruth,
+      originPermissions: paddedLabelManifest.originPermissions,
+    }),
+  });
+  assert.equal(validState.status, "READY");
+  assert.match(validState.announcement, /  Introduction  /);
+
+  for (const invalidManifest of [
+    {
+      ...manifest,
+      scenes: manifest.scenes.map((scene) => scene.id === "intro" ? { ...scene, label: " \t " } : scene),
+    },
+    {
+      ...manifest,
+      scenes: manifest.scenes.map((scene) => scene.id === "intro"
+        ? { ...scene, branches: scene.branches.map((branch) => ({ ...branch, label: "\n  " })) }
+        : scene),
+    },
+  ]) {
+    const state = createDemoPlayerState(invalidManifest, {
+      attest: () => ({
+        manifestId: invalidManifest.id,
+        revision: invalidManifest.revision,
+        sha256: invalidManifest.integrity.sha256,
+        actualEmbeddingOrigin: hostOrigin,
+        sourceTruth: invalidManifest.sourceTruth,
+        originPermissions: invalidManifest.originPermissions,
+      }),
+    });
+    assert.equal(state.status, "UNAVAILABLE");
+    assert.equal(state.failure, "INVALID_BUNDLE");
+    assert.deepEqual(state.route, []);
+  }
+});
+
 test("manifest accepts an explicitly typed audio scene", () => {
   const audioManifest = {
     ...manifest,

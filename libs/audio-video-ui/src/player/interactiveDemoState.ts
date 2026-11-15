@@ -372,7 +372,7 @@ function validateManifest(
       typeof scene.captions !== "object" || typeof scene.captions.language !== "string" ||
       typeof scene.captions.assetVersion !== "string" || !Array.isArray(scene.captions.cues) ||
       !Array.isArray(scene.branches) ||
-      !scene.id || !scene.label || !Number.isSafeInteger(scene.startMs) || !Number.isSafeInteger(scene.endMs) ||
+      !scene.id || !scene.label.trim() || !Number.isSafeInteger(scene.startMs) || !Number.isSafeInteger(scene.endMs) ||
       scene.startMs < 0 || scene.endMs <= scene.startMs || scene.asset.version.length === 0
     ) return "INVALID_BUNDLE";
     if (readDemoMediaKind(scene.asset) === null) return "INVALID_BUNDLE";
@@ -415,7 +415,7 @@ function validateManifest(
     for (const branch of scene.branches) {
       if (
         !branch || typeof branch.id !== "string" || typeof branch.label !== "string" ||
-        typeof branch.targetSceneId !== "string" || !branch.id || !branch.label ||
+        typeof branch.targetSceneId !== "string" || !branch.id || !branch.label.trim() ||
         !sceneIds.has(branch.targetSceneId) || branchIds.has(branch.id)
       ) return "INVALID_BUNDLE";
       branchIds.add(branch.id);
