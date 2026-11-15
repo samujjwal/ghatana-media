@@ -129,7 +129,12 @@ try {
   // Accessibility: labelled region, captioned table, labelled controls, keyboard reachable refresh.
   assert.equal(await page.locator("#provider-table caption").count(), 1);
   assert.ok(await page.getByLabel("Live refresh").isChecked(), "live refresh starts on");
-  await page.getByRole("button", { name: "Refresh now" }).focus();
+  // Reach the button the way a keyboard user does (focus-visible only applies after keyboard interaction).
+  for (let step = 0; step < 40; step += 1) {
+    await page.keyboard.press("Tab");
+    if (await page.evaluate(() => document.activeElement?.textContent?.trim() === "Refresh now")) break;
+  }
+  assert.equal(await page.evaluate(() => document.activeElement?.textContent?.trim()), "Refresh now", "Tab reaches the refresh button");
   const focusRing = await page.evaluate(() => getComputedStyle(document.activeElement).outlineStyle);
   assert.notEqual(focusRing, "none", "the refresh button must show a focus indicator");
   await page.keyboard.press("Tab");

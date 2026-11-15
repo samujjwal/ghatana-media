@@ -386,7 +386,8 @@ class MediaDevProviderOutageLiveIT {
         CompletableFuture<HttpResponse<String>> inFlight = async(() -> send(port, tenant, t, "POST", "/dev/v1/speech/syntheses",
                 JSON.writeValueAsString(unknownBody)));
         ProcessHandle worker = MediaDevFaultInjector.awaitDescendant(launcher, "kokoro_worker.py", Duration.ofSeconds(30));
-        Thread.sleep(500);
+        // Let the request reach the worker first: a kill before dispatch would (truthfully) be UNAVAILABLE, not UNKNOWN.
+        Thread.sleep(1_500);
         MediaDevFaultInjector.signal(worker, "SEGV");
         HttpResponse<String> lost = inFlight.get(150, TimeUnit.SECONDS);
         outage(lost, 503, "SPEECH_OUTCOME_UNKNOWN", "UNKNOWN");
