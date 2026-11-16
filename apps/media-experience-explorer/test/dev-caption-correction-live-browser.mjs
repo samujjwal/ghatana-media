@@ -76,7 +76,7 @@ let browser;
 try {
   const baseUrl = `http://127.0.0.1:${vitePort}`;
   let ready = false;
-  for (let attempt = 0; attempt < 80; attempt += 1) {
+  for (let attempt = 0; attempt < 480; attempt += 1) { // up to 120 s: a cold Vite start in a fresh checkout optimizes deps first
     if (viteProcess.exitCode !== null) throw new Error(`Vite exited before ready:\n${viteOutput}`);
     try { if ((await fetch(`${baseUrl}/dev-caption-correction.html`)).ok) { ready = true; break; } } catch { /* starting */ }
     await delay(250);

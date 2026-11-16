@@ -45,14 +45,14 @@ class MediaPublicLifecycleEventCompatibilityTest {
         assertThat(event.eventType()).isEqualTo(MediaLifecycleEventType.JOB_COMPLETED);
         assertThat(event.appendFinality()).isEqualTo(MediaPublicLifecycleEvent.AppendFinality.NON_FINAL_APPEND);
         assertThat(event.terminalReadbackRequired()).isTrue();
-        assertThat(JSON.valueToTree(event.toPayload())).isEqualTo(JSON.readTree(golden));
+        assertThat((Object) JSON.readTree(JSON.writeValueAsString(event.toPayload()))).isEqualTo(JSON.readTree(golden));
     }
 
     @Test
     void everyPublicEventTypeProducesAPayloadThatValidatesAgainstTheSchema() throws Exception {
         JsonNode golden = JSON.readTree(resource("/contracts/media-public-lifecycle-event-v1.golden.json"));
         for (MediaLifecycleEventType type : MediaLifecycleEventType.values()) {
-            ObjectNode payload = golden.deepCopy();
+            ObjectNode payload = (ObjectNode) golden.deepCopy();
             payload.put("eventType", type.wireName());
             payload.put("aggregateType", type.aggregateType());
             payload.put("terminalReadbackRequired", type.terminalReadbackRequired());
@@ -72,7 +72,7 @@ class MediaPublicLifecycleEventCompatibilityTest {
                 node -> node.put("tenantRef", "tenant-raw"),
                 node -> node.put("aggregateVersion", 0),
                 node -> node.remove("correlationRef"))) {
-            ObjectNode mutated = golden.deepCopy();
+            ObjectNode mutated = (ObjectNode) golden.deepCopy();
             mutation.accept(mutated);
             assertThat(schema().validate(mutated.toString(), InputFormat.JSON)).as(mutated.toString()).isNotEmpty();
             Map<String, Object> asMap = new LinkedHashMap<>(JSON.convertValue(mutated,

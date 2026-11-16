@@ -45,7 +45,7 @@ const reply = (value) => process.stdout.write(`${JSON.stringify(value)}\n`);
 try {
   const origin = `http://127.0.0.1:${vitePort}`;
   let ready = false;
-  for (let attempt = 0; attempt < 80; attempt += 1) {
+  for (let attempt = 0; attempt < 480; attempt += 1) { // up to 120 s: a cold Vite start in a fresh checkout optimizes deps first
     try { const response = await fetch(`${origin}/dev-job-recovery.html`); if (response.ok) { ready = true; break; } } catch {}
     await delay(250);
   }
