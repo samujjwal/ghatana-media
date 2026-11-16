@@ -75,6 +75,8 @@ final class MediaDevOnlyRoutePermissions {
         // Versioned storyboard (J-09); the routes additionally require media:artifact:{read,create} (read-only for GETs).
         if ("GET".equals(method) && path.matches("^/dev/v1/storyboards(/capabilities|/[^/]+(/(versions|readiness))?|/[^/]+/versions/[0-9]+(/(render|review))?)$")) return PROJECT_READ;
         if ("POST".equals(method) && path.matches("^/dev/v1/storyboards(/[^/]+/(versions|renders)|/[^/]+/versions/[0-9]+/review)?$")) return PROJECT_WRITE;
+        // Lifecycle feed and authoritative job readback; the routes additionally require media:job:read.
+        if ("GET".equals(method) && path.matches("^/dev/v1/lifecycle-events(/schema|/jobs/r1_[0-9a-f]{64})?$")) return PROJECT_READ;
         if ("POST".equals(method) && "/dev/v1/dubs".equals(path)) return PROJECT_WRITE;
         if ("GET".equals(method) && path.matches("^/dev/v1/dubs/[^/]+$")) return PROJECT_READ;
         if ("GET".equals(method) && "/dev/v1/grounded-answers/status".equals(path)) return PROJECT_READ;

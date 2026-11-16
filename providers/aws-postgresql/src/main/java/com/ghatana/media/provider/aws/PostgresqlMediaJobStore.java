@@ -111,7 +111,8 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                                 persistable.tenantId(), persistable.principalId(), "MEDIA_JOB_ACCEPTED",
                                 Map.of("jobId", persistable.jobId(), "requestId", persistable.requestId(),
                                         "artifactId", persistable.artifactId(), "jobType", persistable.jobType().name(),
-                                        "providerId", persistable.providerId(), "status", persistable.status().name()),
+                                        "providerId", persistable.providerId(), "status", persistable.status().name(),
+                                        "aggregateVersion", persistable.version()),
                                 persistable.createdAt(), persistable.requestId()), state);
                 connection.commit();
                 return persistable;
@@ -174,7 +175,8 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                                     Map.of("jobId", persistable.jobId(), "requestId", persistable.requestId(),
                                             "artifactId", persistable.artifactId(), "jobType", persistable.jobType().name(),
                                             "providerId", persistable.providerId(), "status", persistable.status().name(),
-                                            "failureCode", persistable.failureCode()), occurredAt, persistable.requestId()), state);
+                                            "failureCode", persistable.failureCode(),
+                                            "aggregateVersion", persistable.version()), occurredAt, persistable.requestId()), state);
                 }
                 connection.commit();
                 return persistable;
@@ -235,7 +237,8 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                                     Map.of("jobId", persistable.jobId(), "requestId", persistable.requestId(),
                                             "artifactId", persistable.artifactId(), "jobType", persistable.jobType().name(),
                                             "providerId", persistable.providerId(), "status", persistable.status().name(),
-                                            "failureCode", persistable.failureCode()), occurredAt, persistable.requestId()), state);
+                                            "failureCode", persistable.failureCode(),
+                                            "aggregateVersion", persistable.version()), occurredAt, persistable.requestId()), state);
                 }
                 connection.commit();
                 return persistable;

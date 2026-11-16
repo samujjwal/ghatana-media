@@ -456,6 +456,9 @@ handlers additionally require the artifact permissions noted, so access is never
 | GET | `/dev/v1/translations/{artifactId}` | `media:project:dev:read` | `media:artifact:read` | translation |
 | POST | `/dev/v1/dubs` | `media:project:dev:write` | `media:artifact:{read,create}`, same rights chain; a `voiceReference`/`likenessReference` is refused as in plain synthesis | local Kokoro TTS (+ `MEDIA_DEV_RENDER_FFMPEG` for tempo) |
 | GET | `/dev/v1/dubs/{dubId}` | `media:project:dev:read` | `media:artifact:read` | dubbing |
+| GET | `/dev/v1/lifecycle-events?after={cursor}&limit={n}` | `media:project:dev:read` | `media:job:read` | `MEDIA_DEV_LIFECYCLE_FEED=true` + `MEDIA_DEV_LIFECYCLE_FEED_REDACTION_KEY`; PostgreSQL V043 feed. Cursor pull, at-least-once, caller's own principal within the tenant; entries are `media.lifecycle-event.v1` NON_FINAL_APPEND |
+| GET | `/dev/v1/lifecycle-events/schema` | `media:project:dev:read` | `media:job:read` | the published JSON Schema `urn:ghatana:media-public-lifecycle-event:v1` |
+| GET | `/dev/v1/lifecycle-events/jobs/{aggregateRef}` | `media:project:dev:read` | `media:job:read` | authoritative job-store readback (`status`, `logicalStatus`, `version`, `terminal`) for a job reference taken from an event |
 | GET | `/dev/v1/composite-renders/capabilities` | `media:project:dev:read` | `media:artifact:read` | FFmpeg composite render |
 | POST | `/dev/v1/composite-renders` | `media:project:dev:write` | `media:artifact:{read,create}`; every source version needs an ADMITTED PROCESSING rights decision (403 when denied/revoked, 422 when no statement) | `MEDIA_DEV_RENDER_FFMPEG/FFPROBE`, request ledger |
 | GET | `/dev/v1/composite-renders/{renderId}` | `media:project:dev:read` | `media:artifact:read` | composite render |
@@ -1483,3 +1486,38 @@ and content-addressed `assets/<sha256>.<ext>` / `captions/<sha256>.vtt`. The pla
 play and refuses a changed asset (`ASSET_DIGEST_MISMATCH`), changed captions (`CAPTION_DIGEST_MISMATCH`), captions bound to
 another video (`CAPTION_VERSION_MISMATCH`) and an off-package path (`ASSET_PATH_INVALID`) with a visible `role=alert`.
 Serve it from its own origin; send the same policy as a header where the host can.
+
+## DEV_ONLY lifecycle feed (transactional outbox relay and public event channel)
+
+Decision record. No broker image is available locally, so the consumer-facing channel is a durable PostgreSQL feed
+(V043 `media_dev_lifecycle_feed`) read through a cursor-based HTTP pull endpoint. Pull was chosen over SSE or a push
+webhook because the cursor is the consumer's only state: any number of consumers each see every entry once per their own
+cursor, a lost acknowledgement is simply re-asking from the old cursor, and nothing is stored per consumer.
+
+Flow: the job store appends `MEDIA_JOB_ACCEPTED`/`COMPLETED`/`FAILED`/`CANCELLED` rows to `media_lifecycle_outbox` in the
+same transaction as the job transition (the payload now also records `aggregateVersion`). The existing
+`MediaLifecycleOutboxRelay` (Shared `ClaimedOutboxPublisher` with fenced claims, one active publisher lease) claims rows and
+publishes through `MediaDevLifecycleFeedBus`, which maps the row onto the public ABI and commits it to the feed. Only after
+that commit does the relay mark the outbox row published. A crash after the feed commit but before the mark leaves the row
+unpublished: it is relayed again and appended again with a higher `deliveryNo`, so consumers dedupe by `eventRef`.
+
+Semantics: delivery is at-least-once; first deliveries of one aggregate are in strictly increasing `aggregateVersion`
+(the relay claims in creation order and stops a batch at the first failure); there is no order across aggregates. Every
+entry is `appendFinality: NON_FINAL_APPEND`: neither an event nor a consumer's cursor advance is job finality, and a lost
+acknowledgement changes no job state. Finality is established only by `GET /dev/v1/lifecycle-events/jobs/{aggregateRef}`
+(job store readback). Rows without a public v1 event type (`MEDIA_JOB_OUTCOME_UNKNOWN`, rows written before
+`aggregateVersion` was recorded) are acknowledged without a feed entry. Public `classification` is `INTERNAL` for these
+rows (the job store does not carry the artifact classification). Identifiers are HMAC-redacted (`r1_...`) with
+`MEDIA_DEV_LIFECYCLE_FEED_REDACTION_KEY`; the raw job id is kept server-side to resolve the readback. The feed shows a
+caller only entries of its own principal within its tenant; the readback additionally applies the job owner check.
+Crash seam: `MEDIA_DEV_LIFECYCLE_FEED_FAULT_MARKER=<path>` halts the launcher once after the first committed append.
+Two outbox families feed the channel, drained in order by one scheduler (job-store family first, and the second stage is
+skipped for a tick whenever the first was partial or failed): `media_lifecycle_outbox` (job accepted and terminal events
+written by `update`) through the shared relay above, and `media_processing_lifecycle_outbox` (terminal events of
+attempt-aware jobs, written in the finality transaction and already carrying the public wire names) through
+`MediaLifecycleOutboxSource` with the same "append, then mark" order; its claim lease can be shortened with
+`-Dmedia.lifecycle.outbox.claimLeaseMillis`. The feed refuses to start when `MEDIA_EVENT_PLANE_URL` is set, because the
+Event Plane publisher drains the second family too. Known limits: no broker (no partition test against a real broker; the
+partition case is covered by the relay's failed-publication tests and the bus failure test), a job whose terminal is
+written by the J-20 reconciliation path appears only in the second family, and order across the two families is best
+effort beyond the stage ordering above (consumers must also order by `aggregateVersion`).

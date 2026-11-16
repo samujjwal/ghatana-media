@@ -105,8 +105,13 @@ public final class MediaLauncher {
                             finalDevRights == null ? null : finalDevRights.resolver(), finalDevLedger);
             MediaDevLiveSessionRuntime finalDevLive = finalDevRights == null ? null
                     : MediaDevLiveSessionRuntime.compose(runtime, environment, finalDevRights.resolver());
+            MediaDevLifecycleFeedComposition finalDevFeed = MediaDevLifecycleFeedComposition.compose(runtime, environment);
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 RuntimeException failure = null;
+                if (finalDevFeed != null) {
+                    try { finalDevFeed.close(); }
+                    catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
+                }
                 if (devStoryboards != null) {
                     try { devStoryboards.close(); }
                     catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
@@ -206,6 +211,7 @@ public final class MediaLauncher {
                                     .withDevRequestOutcomes(finalDevLedger)
                                     .withDevComposite(devComposite)
                                     .withDevStoryboards(devStoryboards)
+                                    .withDevLifecycleFeed(finalDevFeed == null ? null : finalDevFeed.routes())
                                     .withDevDub(finalDevSpeech == null ? null
                                             : MediaDevDubbingComposition.compose(runtime, environment, System.getenv(),
                                                     finalDevRights == null ? null : finalDevRights.resolver(),

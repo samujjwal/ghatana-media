@@ -37,7 +37,8 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
 
     public PostgresqlMediaLifecycleOutboxSource() {
         this(integerProperty("media.lifecycle.outbox.maxAttempts", DEFAULT_MAX_ATTEMPTS),
-                DEFAULT_CLAIM_LEASE, DEFAULT_RETRY_BASE, DEFAULT_RETRY_MAX,
+                Duration.ofMillis(longProperty("media.lifecycle.outbox.claimLeaseMillis",
+                        DEFAULT_CLAIM_LEASE.toMillis())), DEFAULT_RETRY_BASE, DEFAULT_RETRY_MAX,
                 () -> ThreadLocalRandom.current().nextDouble());
     }
 
@@ -309,6 +310,18 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
         long selected = (long) Math.floor(sample * (double) ceiling);
         if (selected >= ceiling) selected = ceiling - 1;
         return selected + 1;
+    }
+
+    private static long longProperty(String property, long fallback) {
+        String configured = System.getProperty(property, "").trim();
+        if (configured.isEmpty()) return fallback;
+        try {
+            long value = Long.parseLong(configured);
+            if (value < 100 || value > 3_600_000L) throw new IllegalArgumentException(property + " must be 100..3600000");
+            return value;
+        } catch (NumberFormatException failure) {
+            throw new IllegalArgumentException(property + " must be an integer", failure);
+        }
     }
 
     private static int integerProperty(String property, int fallback) {
