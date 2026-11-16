@@ -40,6 +40,7 @@ public final class MediaLauncher {
         MediaDevQualityOptimizationRuntime devQuality = null;
         MediaDevRegionEditRuntime devRegionEdit = null;
         MediaDevErasureRuntime devErasure = null;
+        MediaDevArtifactContentCache devContentCache = null;
         try {
             privacyMaintenance = MediaPrivacyMaintenanceRuntime.compose(environment);
             consentAdministration = MediaConsentAdministrationRuntime.compose(environment);
@@ -74,7 +75,11 @@ public final class MediaLauncher {
                 MediaDevReviewRuntime gateReview = devReview;
                 devDelivery.requireReview(gateReview::deliveryAdmission);
             }
-            devErasure = MediaDevErasureRuntime.compose(environment, devLedger, devDelivery, null);
+            devContentCache = MediaDevArtifactContentCache.compose(environment, runtime, devRights);
+            MediaDevArtifactContentCache finalDevContentCache = devContentCache;
+            // Erasure fails closed for derived caches: every cached entry of the tenant is dropped before the receipt.
+            devErasure = MediaDevErasureRuntime.compose(environment, devLedger, devDelivery,
+                    devContentCache == null ? null : devContentCache::invalidateTenant);
             MediaDevErasureRuntime finalDevErasure = devErasure;
             MediaPrivacyMaintenanceRuntime finalPrivacyMaintenance = privacyMaintenance;
             MediaConsentAdministrationRuntime finalConsentAdministration = consentAdministration;
@@ -112,6 +117,10 @@ public final class MediaLauncher {
                 }
                 if (finalDevErasure != null) {
                     try { finalDevErasure.close(); }
+                    catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
+                }
+                if (finalDevContentCache != null) {
+                    try { finalDevContentCache.close(); }
                     catch (RuntimeException cleanupFailure) { failure = appendShutdownFailure(failure, cleanupFailure); }
                 }
                 if (finalDevQuality != null) {
@@ -190,6 +199,7 @@ public final class MediaLauncher {
                                     captions, finalDevProjectTimeline, finalDevReview,
                                     finalDevProjectTimeline == null ? null : new MediaDevCreativeOutputRuntime(runtime)).withDevDelivery(finalDevDelivery).withDevRights(finalDevRights)
                                     .withDevIntake(finalDevIntake)
+                                    .withDevArtifactContentCache(finalDevContentCache)
                                     .withDevErasure(finalDevErasure, "true".equalsIgnoreCase(
                                             environment.getOrDefault("MEDIA_DEV_ERASURE_REQUIRE_OIDC", "false")))
                                     .withDevSpeech(finalDevSpeech)

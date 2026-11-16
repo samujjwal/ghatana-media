@@ -56,6 +56,11 @@ final class MediaDevRightsRuntime implements AutoCloseable {
     private final MediaRightsConsentAuthority authority;
     private final Clock clock;
     private final AtomicBoolean closed = new AtomicBoolean();
+    private final java.util.List<java.util.function.BiConsumer<String, String>> changeListeners =
+            new java.util.concurrent.CopyOnWriteArrayList<>();
+
+    /** The rights state of one exact artifact version: a monotone event count and a fingerprint of what is live now. */
+    record RightsState(long epoch, String fingerprint) { }
 
     MediaDevRightsRuntime(MediaRuntime runtime, AttestationStore store, Clock clock) {
         this.runtime = Objects.requireNonNull(runtime, "runtime");
@@ -88,6 +93,42 @@ final class MediaDevRightsRuntime implements AutoCloseable {
                 Clock.systemUTC());
     }
 
+    /**
+     * Registers a listener called with {@code (tenantId, artifactId)} after every committed statement change
+     * (attest, confirm, revoke), before the call returns to its caller, so derived caches drop entries immediately.
+     */
+    void onRightsChange(java.util.function.BiConsumer<String, String> listener) {
+        changeListeners.add(Objects.requireNonNull(listener, "listener"));
+    }
+
+    private void changed(String tenantId, String artifactId) {
+        for (var listener : changeListeners) listener.accept(tenantId, artifactId);
+    }
+
+    /**
+     * Live rights state of the exact version, read from the durable store on every call (never cached here). The
+     * epoch counts every recorded statement event (attest, confirm, revoke), so it only increases; the fingerprint
+     * digests each statement's status at this instant, so a time-based expiry also changes it. Store failure throws.
+     */
+    RightsState rightsState(String tenantId, String artifactId, String versionId) {
+        ensureOpen();
+        long epoch = 0;
+        java.util.List<String> lines = new java.util.ArrayList<>();
+        Instant now = clock.instant();
+        for (AttestationRecord record : authority.listForVersion(tenantId, artifactId, versionId)) {
+            epoch += 1 + (record.confirmation() == null ? 0 : 1) + (record.revocation() == null ? 0 : 1);
+            lines.add(record.attestation().attestationId() + "=" + record.statusAt(now));
+        }
+        java.util.Collections.sort(lines);
+        try {
+            byte[] digest = java.security.MessageDigest.getInstance("SHA-256")
+                    .digest(String.join("\n", lines).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            return new RightsState(epoch, java.util.HexFormat.of().formatHex(digest, 0, 16));
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException(impossible);
+        }
+    }
+
     /** The injectable resolver port backed by the durable attestation records. */
     RightsConsentResolver resolver() { return authority; }
 
@@ -103,20 +144,28 @@ final class MediaDevRightsRuntime implements AutoCloseable {
             }
             exactArtifact(tenantId, principalId, supporting.substring(0, at), supporting.substring(at + 1));
         }
-        return authority.attest(new AuthenticatedPrincipal(tenantId, principalId, Instant.now()), new AttestRequest(
-                artifact.artifactId(), artifact.version().value(), artifact.sha256(), statement.kind(),
-                statement.scopes(), statement.basis(), supporting, statement.requestedConfirmerPrincipalId(),
-                statement.expiresAt()));
+        AttestationRecord created = authority.attest(new AuthenticatedPrincipal(tenantId, principalId, Instant.now()),
+                new AttestRequest(artifact.artifactId(), artifact.version().value(), artifact.sha256(), statement.kind(),
+                        statement.scopes(), statement.basis(), supporting, statement.requestedConfirmerPrincipalId(),
+                        statement.expiresAt()));
+        changed(tenantId, artifact.artifactId());
+        return created;
     }
 
     AttestationRecord confirm(String tenantId, String principalId, String attestationId, String note) {
         ensureOpen();
-        return authority.confirm(new AuthenticatedPrincipal(tenantId, principalId, Instant.now()), attestationId, note);
+        AttestationRecord confirmed = authority.confirm(
+                new AuthenticatedPrincipal(tenantId, principalId, Instant.now()), attestationId, note);
+        changed(tenantId, confirmed.attestation().artifactId());
+        return confirmed;
     }
 
     AttestationRecord revoke(String tenantId, String principalId, String attestationId, String reason) {
         ensureOpen();
-        return authority.revoke(new AuthenticatedPrincipal(tenantId, principalId, Instant.now()), attestationId, reason);
+        AttestationRecord revoked = authority.revoke(
+                new AuthenticatedPrincipal(tenantId, principalId, Instant.now()), attestationId, reason);
+        changed(tenantId, revoked.attestation().artifactId());
+        return revoked;
     }
 
     /**

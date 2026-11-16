@@ -2,6 +2,7 @@ package com.ghatana.media.launcher;
 
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
+import com.ghatana.audio.video.infrastructure.cache.RightsAwareContentCache;
 import com.sun.net.httpserver.HttpExchange;
 
 import java.io.ByteArrayOutputStream;
@@ -36,6 +37,15 @@ final class MediaDevArtifactContentRoutes {
 
     private final MediaRuntime runtime;
     private final long ceilingBytes;
+    private MediaDevArtifactContentCache cache;
+
+    /** Installs the optional rights-aware content cache (null keeps every read on the uncached verified path). */
+    MediaDevArtifactContentRoutes withCache(MediaDevArtifactContentCache cache) {
+        this.cache = cache;
+        return this;
+    }
+
+    MediaDevArtifactContentCache cache() { return cache; }
 
     MediaDevArtifactContentRoutes(MediaRuntime runtime, long ceilingBytes) {
         if (ceilingBytes < 1 || ceilingBytes > MAX_CEILING_BYTES) {
@@ -142,8 +152,14 @@ final class MediaDevArtifactContentRoutes {
             return;
         }
         ByteArrayOutputStream buffer = new ByteArrayOutputStream((int) Math.min(length, 1 << 20));
+        String cacheDisposition = null;
         try {
-            if (ranged) {
+            if (cache != null && MediaDevArtifactContentCache.cacheable(total)) {
+                RightsAwareContentCache.Result cached = cache.read(tenantId, principalId, artifactId,
+                        expected.get(), total);
+                cacheDisposition = cached.disposition().name();
+                buffer.write(cached.bytes(), (int) offset, (int) length);
+            } else if (ranged) {
                 var receipt = runtime.copyArtifactContentRange(tenantId, principalId, artifactId, expected.get(),
                         offset, length, buffer, ceilingBytes);
                 if (receipt.isEmpty()) { notFound(exchange, out); return; }
@@ -158,6 +174,15 @@ final class MediaDevArtifactContentRoutes {
                     throw new IOException("Content receipt does not match the artifact record");
                 }
             }
+        } catch (RightsAwareContentCache.AuthorityUnavailableException failure) {
+            // Fail closed: a cached byte is never released while the owning authority cannot be read.
+            out.error(exchange, 503, "ARTIFACT_AUTHORITY_UNAVAILABLE",
+                    "The artifact and rights authority could not be read; no bytes were released", Map.of());
+            return;
+        } catch (RightsAwareContentCache.AuthorityRejectedException failure) {
+            out.error(exchange, 409, "ARTIFACT_CONTENT_AUTHORITY_CHANGED",
+                    "The artifact or its rights changed while it was read; no bytes were released, retry", Map.of());
+            return;
         } catch (IOException failure) {
             // Nothing has been written to the exchange: verification failed before any byte was released.
             out.error(exchange, 500, "ARTIFACT_CONTENT_INTEGRITY_FAILED",
@@ -188,6 +213,7 @@ final class MediaDevArtifactContentRoutes {
         headers.set("Content-Type", artifact.contentType());
         headers.set("ETag", "\"" + artifact.version().value() + "\"");
         headers.set("Accept-Ranges", "bytes");
+        if (cacheDisposition != null) headers.set("X-Media-Content-Cache", cacheDisposition);
         headers.set("Cache-Control", "private, no-store");
         headers.set("X-Content-Type-Options", "nosniff");
         headers.set("Content-Security-Policy", "default-src 'none'; sandbox");

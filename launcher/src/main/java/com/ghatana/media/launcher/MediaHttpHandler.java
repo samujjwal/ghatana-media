@@ -196,7 +196,14 @@ public final class MediaHttpHandler implements HttpHandler {
 
     /** Overrides the DEV_ONLY artifact content read ceiling (default from MEDIA_DEV_ARTIFACT_CONTENT_MAX_BYTES). */
     MediaHttpHandler withDevArtifactContentCeiling(long maxBytes) {
-        this.devArtifactContent = new MediaDevArtifactContentRoutes(runtime, maxBytes);
+        this.devArtifactContent = new MediaDevArtifactContentRoutes(runtime, maxBytes)
+                .withCache(devArtifactContent.cache());
+        return this;
+    }
+
+    /** Installs the optional rights-aware cache of verified artifact content (null leaves reads uncached). */
+    MediaHttpHandler withDevArtifactContentCache(MediaDevArtifactContentCache cache) {
+        this.devArtifactContent.withCache(cache);
         return this;
     }
 

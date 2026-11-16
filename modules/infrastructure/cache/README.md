@@ -72,3 +72,14 @@ Focused unit tests:
 ```
 
 The Redis integration test uses Testcontainers and the Shared `DistributedCachePort`/`DistributedCacheService`. It verifies that unscoped transcript methods do not persist protected values, source-backed reads evict seeded legacy snapshots and return the current source result, deleted sources invalidate the exact legacy key, and explicit key invalidation works. Unit coverage verifies tenant/source/policy key partitioning, fail-closed authority denial, cache load coalescing, bounded coordination, cache outage fallback, and TTL/value limits. Existing client/service recreation in one test JVM checks loss of process-local state; it is not an OS process restart. These are synthetic-loader tests: the cache module has no Media runtime read-path caller, so they do not establish end-to-end Postgres/job read-path integration or external rights/retention event wiring. Transcript reads call the supplied current-source loader on each request, and transcript writes are intentionally skipped until their API carries complete protected scope.
+
+## Rights-aware content cache (launcher DEV_ONLY wiring)
+
+`RightsAwareContentCache` composes `AudioVideoCache` (scoped authority readback, single-flight, epoch fencing) over the
+bounded in-process `BoundedLocalCacheBackend` (total bytes, entry count and TTL clamp; always cold after a restart). Callers
+supply an `Authority` that returns the current owner-authoritative scope (tenant, principal, artifact, exact version and
+digest, rights epoch and fingerprint) or empty; the cache reads it before every lookup, again before any write and again
+before disclosure. Rejected is `AuthorityRejectedException`, unreadable is `AuthorityUnavailableException` (fail closed; the cache
+is never a fallback authority). Payloads are stored as base64 text so the Shared 1 MiB value bound gives 786432 raw bytes;
+larger objects bypass the cache. The launcher uses it for `GET /dev/v1/artifacts/{id}/content`
+(`MediaDevArtifactContentCache`); see `docs/surfaces/launcher/README.md`.

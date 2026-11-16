@@ -1192,6 +1192,19 @@ ranges. The whole object is verified (owner, version, size, SHA-256) before any 
 for `image/png|gif|jpeg`, `video/mp4` and `audio/wav` and `attachment` for every other type (conservative: SVG, HTML,
 PDF, JSON and GLB are never rendered inline). Only GET is supported (no HEAD).
 
+Rights-aware content cache (opt-in, `MEDIA_DEV_CONTENT_CACHE_ENABLED=true`; `..._MAX_BYTES` default 33554432, `..._MAX_ENTRIES`
+default 256, `..._TTL_SECONDS` default 300; in-process, so every start is cold): `modules/infrastructure/cache`
+`RightsAwareContentCache` holds only bytes that already passed the verification above, for objects up to 786432 bytes
+(larger objects stay on the uncached path). Every read re-reads the owning authorities first (the artifact record for
+tenant, owner and exact version, and the durable rights store) and keys the entry by tenant, principal, artifact id,
+exact version and digest, plus the version's rights epoch and a fingerprint of the live statements, so a new version, a
+rights change or a time-based expiry addresses another key. Attest, confirm and revoke drop the artifact's entries
+before they return, and an erasure drops every entry of the tenant (receipt item `CACHE_TENANT_INVALIDATION`). If the
+artifact or rights authority cannot be read the read is `503 ARTIFACT_AUTHORITY_UNAVAILABLE` and no cached byte is
+released; a change during a read is `409 ARTIFACT_CONTENT_AUTHORITY_CHANGED` (retry). Concurrent misses for one key load
+the source once. Responses carry `X-Media-Content-Cache: HIT|MISS` only when the cache is enabled. Owner reads are not
+rights-gated by this route (unchanged); the rights state only partitions and invalidates cache entries.
+
 ## Public operations
 
 | Entry point | Contents |
