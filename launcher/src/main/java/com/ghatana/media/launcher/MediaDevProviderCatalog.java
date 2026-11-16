@@ -66,6 +66,8 @@ final class MediaDevProviderCatalog {
     static final String SCHEMA = "media.dev.provider-catalog.v1";
     static final String TTL_ENV = "MEDIA_DEV_PROVIDER_CATALOG_TTL_SECONDS";
     static final String CONCURRENCY_ENV = "MEDIA_DEV_PROVIDER_CATALOG_MAX_CONCURRENT_PROBES";
+    static final String REFRESH_ENV = "MEDIA_DEV_PROVIDER_CATALOG_REFRESH_SECONDS";
+    static final Duration DEFAULT_REFRESH = Duration.ofSeconds(15);
     static final Duration DEFAULT_TTL = Duration.ofSeconds(5);
     static final int DEFAULT_CONCURRENCY = 3;
     static final Duration PROBE_DEADLINE = Duration.ofSeconds(12);
@@ -318,7 +320,32 @@ final class MediaDevProviderCatalog {
         return device;
     }
 
-    void close() { pool.shutdownNow(); }
+    void close() {
+        pool.shutdownNow();
+        java.util.concurrent.ScheduledExecutorService scheduler = refresher;
+        if (scheduler != null) scheduler.shutdownNow();
+    }
+
+    private volatile java.util.concurrent.ScheduledExecutorService refresher;
+
+    /**
+     * Re-observe every provider on a fixed cadence even when nobody reads the catalog, so the exported readiness
+     * gauges and their {@code checked_at} timestamps stay a live observation (never a value cached from an earlier
+     * read). The first observation is taken immediately.
+     */
+    MediaDevProviderCatalog startBackgroundRefresh(Duration interval) {
+        java.util.concurrent.ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(runnable -> {
+            Thread thread = new Thread(runnable, "media-dev-provider-refresh");
+            thread.setDaemon(true);
+            return thread;
+        });
+        long millis = Math.max(1_000, interval.toMillis());
+        scheduler.scheduleWithFixedDelay(() -> {
+            try { view(); } catch (RuntimeException ignored) { /* the next tick observes again */ }
+        }, 0, millis, TimeUnit.MILLISECONDS);
+        this.refresher = scheduler;
+        return this;
+    }
 
     // ------------------------------------------------------------------------------------------- composition
 
@@ -335,11 +362,17 @@ final class MediaDevProviderCatalog {
                 new VisionProbe(LocalProvider.FLORENCE, "VISION", vision, false),
                 new VisionProbe(LocalProvider.QWEN, "MULTIMODAL_QA", vision, true),
                 new FfmpegProbe(environment));
+        Duration refresh = seconds(environment, REFRESH_ENV, DEFAULT_REFRESH, 1, 300);
         var metrics = runtime.workflowMetrics();
         return new MediaDevProviderCatalog(probes, ttl, concurrency, runtime.config().productionLike(),
-                Clock.systemUTC(), PROBE_DEADLINE, entry -> metrics.recordLocalProviderState(entry.provider(),
-                        com.ghatana.audiovideo.observability.MediaWorkflowMetrics.LocalProviderState
-                                .valueOf(entry.observation().state().name()), entry.checkedAt()));
+                Clock.systemUTC(), PROBE_DEADLINE, entry -> {
+                    metrics.recordLocalProviderState(entry.provider(),
+                            com.ghatana.audiovideo.observability.MediaWorkflowMetrics.LocalProviderState
+                                    .valueOf(entry.observation().state().name()), entry.checkedAt());
+                    Object loaded = entry.observation().extras().get("modelLoaded");
+                    metrics.recordLocalProviderModelLoaded(entry.provider(), loaded instanceof Boolean flag ? flag : null);
+                })
+                .startBackgroundRefresh(refresh);
     }
 
     private static Duration seconds(Map<String, String> environment, String name, Duration fallback, long min, long max) {

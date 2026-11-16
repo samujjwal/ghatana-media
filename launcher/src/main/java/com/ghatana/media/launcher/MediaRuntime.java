@@ -171,6 +171,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     private final PrometheusMeterRegistry metricsRegistry;
     private final MediaDevRenderAdmission devAdmission;
     private final MediaWorkflowMetrics workflowMetrics;
+    private final com.ghatana.audiovideo.observability.MediaLaneMetrics laneMetrics;
     private final List<MediaProcessingProvider> processingProviders;
     private final List<MediaStreamingProvider> streamingProviders;
     private final ConcurrentMap<String, JobControl> activeJobs = new ConcurrentHashMap<>();
@@ -287,11 +288,16 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         this.lifecycleOutboxSources = List.copyOf(lifecycleOutboxSources);
         this.metricsRegistry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
         this.workflowMetrics = new MediaWorkflowMetrics(metricsRegistry, "launcher");
+        this.laneMetrics = new com.ghatana.audiovideo.observability.MediaLaneMetrics(metricsRegistry, "launcher");
         this.devAdmission = new MediaDevRenderAdmission(metricsRegistry,
                 config.devRenderMaxConcurrent(), config.devRenderMaxConcurrentPerTenant());
         this.processingProviders = List.copyOf(processingProviders);
         this.streamingProviders = List.copyOf(streamingProviders);
         this.concurrency = new Semaphore(config.maximumConcurrentJobs(), true);
+        laneMetrics.registerBudget(com.ghatana.audiovideo.observability.MediaLaneMetrics.Budget.JOB_CONCURRENCY,
+                config::maximumConcurrentJobs, this.concurrency::availablePermits);
+        laneMetrics.registerBudget(com.ghatana.audiovideo.observability.MediaLaneMetrics.Budget.RENDER_CONCURRENCY,
+                config::devRenderMaxConcurrent, this.devAdmission::availableGlobalPermits);
         bindDelegatedProviderCapabilities(this.processingProviders, config.productionLike());
         reconcileJobsAfterRestart();
         pruneDevFfmpegSpool();
@@ -2496,6 +2502,11 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     /** The runtime's bounded-label metrics, shared by the DEV_ONLY provider catalog and outage counters. */
     MediaWorkflowMetrics workflowMetrics() {
         return workflowMetrics;
+    }
+
+    /** Per-lane outcome/latency and budget metrics shared by the HTTP edge and the DEV lanes. */
+    com.ghatana.audiovideo.observability.MediaLaneMetrics laneMetrics() {
+        return laneMetrics;
     }
 
     void recordHttpRequest() {

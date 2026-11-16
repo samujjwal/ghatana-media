@@ -1521,3 +1521,32 @@ Event Plane publisher drains the second family too. Known limits: no broker (no 
 partition case is covered by the relay's failed-publication tests and the bus failure test), a job whose terminal is
 written by the J-20 reconciliation path appears only in the second family, and order across the two families is best
 effort beyond the stage ordering above (consumers must also order by `aggregateVersion`).
+
+## Service observability (`media.dev.service-observability`)
+
+Everything below is exported on the existing `/metrics` route (Prometheus text or OpenMetrics) and is derived from a live
+observation; an unreadable source exports `NaN` (unknown), never a made-up number.
+
+| Series | Meaning |
+| --- | --- |
+| `media_lane_requests_total{lane,outcome,code}` | Requests by fixed lane, typed outcome (`completed`, `failed`, `unknown`, `refused`) and the server-defined error code (`OK` on success; at most 48 distinct codes, then `OTHER`). Refusals (4xx, capacity/backpressure) are never failures. Health and scrape routes are not counted. |
+| `media_lane_request_duration_seconds_bucket{lane}` | Latency histogram per lane, fixed buckets 5 ms to 120 s, all outcomes. |
+| `media_dev_provider_state{provider,state}` | One-hot readiness of whisper, kokoro, florence, qwen, ffmpeg from a real probe (`ready`, `degraded`, `unavailable`, `not_admitted`, `withdrawn`). Re-observed on a fixed cadence (`MEDIA_DEV_PROVIDER_CATALOG_REFRESH_SECONDS`, default 15, with the probe cache TTL) whether or not anybody reads the catalog; `media_dev_provider_checked_at_seconds` is the probe time. |
+| `media_dev_provider_model_loaded{provider}` | 1 resident, 0 not resident, `NaN` unknown. `ready` with `0` means "reachable, loads on demand" (cold start), never warm. |
+| `media_budget_{limit,available,in_use}{resource}` | `render_concurrency`, `job_concurrency` (J-20), `live_sessions` and `live_buffer_bytes` (J-29) from the live semaphores. |
+| `media_disk_{free,reserve}_bytes{volume}` | Usable bytes of `render_scratch` and `live_spool` and the bytes the lane needs free (composite render reserve; live: open sessions x per-session bytes). |
+| `media_workflow_{queue_depth,unknown_backlog,lease_overdue}` | J-20 job gauges from the durable store, refreshed on scrape. |
+
+The lane is derived from the route template (the first segment after `/api/v1/` or `/dev/v1/`, from a fixed allow-list, else
+`other`); no tenant, principal, artifact, request or upload id, path, file name, credential or schema name can reach a label.
+
+Counters and histograms are process-local and reset when the launcher restarts (they are not persisted); `rate()` and
+`increase()` handle the reset. Readiness and budgets are re-read by the new process, never carried over.
+
+Rules: `infra/monitoring/alerts/media-launcher.yml` (`MediaDevProviderUnavailable`, `MediaDevProviderDegradedOrNotAdmitted`,
+`MediaDevProviderObservationStale`, `MediaDevProviderModelCold`, `MediaLaneErrorBudgetBurn`, `MediaBackpressureRefusing`,
+`MediaBackpressureSaturation`, `MediaDiskBudgetLow`, `MediaDiskBudgetExhausted`, `MediaJobUnknownBacklog`,
+`MediaJobLeasesOverdue`, `MediaLauncherDown`), unit-tested by `infra/monitoring/tests/media-launcher.rules.test.yml`
+(`infra/monitoring/tests/promtool-rules.sh`). A provider intentionally not installed on a host reports `unavailable` and
+fires `MediaDevProviderUnavailable`; silence it by `provider` label there. The scrape job is named `media-launcher`.
+Live proof: `MediaDevServiceObservabilityIT` (real launcher, Prometheus and Alertmanager containers).

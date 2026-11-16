@@ -15,7 +15,9 @@ printf '%s\n' "$version"
 
 "$promtool_runner" check rules \
   monitoring/prometheus/rules/media.yml \
-  infra/monitoring/alerts/audio-video.yml
+  infra/monitoring/alerts/audio-video.yml \
+  infra/monitoring/alerts/media-launcher.yml
 "$promtool_runner" test rules infra/monitoring/tests/audio-video.rules.test.yml
+"$promtool_runner" test rules infra/monitoring/tests/media-launcher.rules.test.yml
 
 printf '%s\n' 'PASS: Prometheus rule files and alert scenarios validated with the pinned v3.15.1 promtool.'

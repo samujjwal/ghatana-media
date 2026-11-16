@@ -1,0 +1,151 @@
+rule_files:
+- ../alerts/media-launcher.yml
+evaluation_interval: 15s
+tests:
+- name: provider-unavailable-fires-then-clears-and-unknown-stays-silent
+  interval: 15s
+  input_series:
+  # ffmpeg: ready, then probed unavailable, then recovered. whisper: never observed (NaN) -> silent.
+  - series: media_dev_provider_state{service="launcher",provider="ffmpeg",state="unavailable"}
+    values: '0 0 0 1 1 1 1 1 0 0 0 0'
+  - series: media_dev_provider_state{service="launcher",provider="whisper",state="unavailable"}
+    values: 'stale stale stale stale stale stale stale stale stale stale stale stale'
+  alert_rule_test:
+  - eval_time: 30s
+    alertname: MediaDevProviderUnavailable
+    exp_alerts: []
+  - eval_time: 90s
+    alertname: MediaDevProviderUnavailable
+    exp_alerts:
+    - exp_labels:
+        severity: critical
+        product: audio-video
+        component: media-launcher
+        provider: ffmpeg
+      exp_annotations:
+        summary: Local provider ffmpeg is unavailable
+        description: The latest real probe of ffmpeg found it unavailable or withdrawn. Dependent lanes answer a typed outage; there is no fallback model. A provider intentionally not configured on this host reports the same state.
+        runbook: docs/surfaces/launcher/README.md#service-observability
+  - eval_time: 160s
+    alertname: MediaDevProviderUnavailable
+    exp_alerts: []
+
+- name: error-budget-burn-counts-failures-not-refusals
+  interval: 15s
+  input_series:
+  # lane a: half the requests fail; lane b: half are REFUSED (capacity) -> only lane a burns.
+  - series: media_lane_requests_total{service="launcher",lane="dev_a",outcome="completed",code="OK"}
+    values: '0+5x40'
+  - series: media_lane_requests_total{service="launcher",lane="dev_a",outcome="failed",code="MEDIA_PROVIDER_UNAVAILABLE"}
+    values: '0+5x40'
+  - series: media_lane_requests_total{service="launcher",lane="dev_b",outcome="completed",code="OK"}
+    values: '0+5x40'
+  - series: media_lane_requests_total{service="launcher",lane="dev_b",outcome="refused",code="LIVE_CAPACITY_EXHAUSTED"}
+    values: '0+5x40'
+  alert_rule_test:
+  - eval_time: 8m
+    alertname: MediaLaneErrorBudgetBurn
+    exp_alerts:
+    - exp_labels:
+        severity: critical
+        product: audio-video
+        component: media-launcher
+        lane: dev_a
+      exp_annotations:
+        summary: Lane dev_a is burning its error budget
+        description: More than 14.4% of dev_a requests ended failed or unknown over both 1m and 5m. Refusals (4xx, capacity) are not counted as failures.
+        runbook: docs/surfaces/launcher/README.md#service-observability
+  - eval_time: 8m
+    alertname: MediaBackpressureRefusing
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: media-launcher
+        lane: dev_b
+      exp_annotations:
+        summary: Lane dev_b is refusing work for capacity
+        description: Requests are being refused with a typed capacity or backpressure code; clients should retry later.
+        runbook: docs/surfaces/launcher/README.md#service-observability
+
+- name: error-budget-burn-clears-when-failures-stop
+  interval: 15s
+  input_series:
+  - series: media_lane_requests_total{service="launcher",lane="dev_a",outcome="completed",code="OK"}
+    values: '0+5x20 100+10x60'
+  - series: media_lane_requests_total{service="launcher",lane="dev_a",outcome="failed",code="MEDIA_PROVIDER_UNAVAILABLE"}
+    values: '0+5x20 100x60'
+  alert_rule_test:
+  - eval_time: 4m
+    alertname: MediaLaneErrorBudgetBurn
+    exp_alerts:
+    - exp_labels:
+        severity: critical
+        product: audio-video
+        component: media-launcher
+        lane: dev_a
+      exp_annotations:
+        summary: Lane dev_a is burning its error budget
+        description: More than 14.4% of dev_a requests ended failed or unknown over both 1m and 5m. Refusals (4xx, capacity) are not counted as failures.
+        runbook: docs/surfaces/launcher/README.md#service-observability
+  - eval_time: 14m
+    alertname: MediaLaneErrorBudgetBurn
+    exp_alerts: []
+
+- name: saturation-and-disk-budgets-fire-and-clear
+  interval: 15s
+  input_series:
+  - series: media_budget_limit{service="launcher",resource="live_sessions"}
+    values: '4x20'
+  - series: media_budget_available{service="launcher",resource="live_sessions"}
+    values: '4 4 4 0 0 0 0 0 0 4 4 4 4 4 4 4 4 4 4 4'
+  - series: media_disk_free_bytes{service="launcher",volume="render_scratch"}
+    values: '9000 9000 9000 9000 900 900 900 900 900 900 9000 9000 9000 9000 9000 9000 9000 9000 9000 9000'
+  - series: media_disk_reserve_bytes{service="launcher",volume="render_scratch"}
+    values: '1000x20'
+  alert_rule_test:
+  - eval_time: 1m
+    alertname: MediaBackpressureSaturation
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: media-launcher
+        resource: live_sessions
+        service: launcher
+      exp_annotations:
+        summary: Budget live_sessions is at least 90% in use
+        description: The live capacity budget live_sessions is saturated; further work will be refused with a typed capacity code.
+        runbook: docs/surfaces/launcher/README.md#service-observability
+  - eval_time: 4m
+    alertname: MediaBackpressureSaturation
+    exp_alerts: []
+  - eval_time: 90s
+    alertname: MediaDiskBudgetLow
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+        product: audio-video
+        component: media-launcher
+        volume: render_scratch
+        service: launcher
+      exp_annotations:
+        summary: Free space on render_scratch is under twice the reserve
+        description: Usable bytes on the render_scratch volume are within 2x of the bytes the lane needs free.
+        runbook: docs/surfaces/launcher/README.md#service-observability
+  - eval_time: 90s
+    alertname: MediaDiskBudgetExhausted
+    exp_alerts:
+    - exp_labels:
+        severity: critical
+        product: audio-video
+        component: media-launcher
+        volume: render_scratch
+        service: launcher
+      exp_annotations:
+        summary: Free space on render_scratch is below the reserve
+        description: The lane using render_scratch refuses new work with a typed space-budget refusal until space is freed.
+        runbook: docs/surfaces/launcher/README.md#service-observability
+  - eval_time: 4m
+    alertname: MediaDiskBudgetExhausted
+    exp_alerts: []

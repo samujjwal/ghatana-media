@@ -198,7 +198,7 @@ public final class MediaLauncher {
                     captions == null ? "not-configured" : "ready",
                     devProjectTimeline == null ? "disabled" : "DEV_ONLY-ready");
             ServiceLauncherSupport.startHttpService(
-                    "Media", config.httpPort(), new MediaSecurityFilter(
+                    "Media", config.httpPort(), MediaLaneInstrumentation.wrap(runtime, new MediaSecurityFilter(
                             new MediaHttpHandler(runtime,
                                     consentAdministration == null ? null : consentAdministration.administration(),
                                     captions, finalDevProjectTimeline, finalDevReview,
@@ -257,7 +257,7 @@ public final class MediaLauncher {
                                                                 finalDevLedger));
                                             }).orElse(null))
                                     .withDevProviderCatalog(environment),
-                            config.profile()));
+                            config.profile())));
         } catch (RuntimeException failure) {
             if (devErasure != null) {
                 try { devErasure.close(); }

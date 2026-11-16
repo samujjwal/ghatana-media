@@ -1784,6 +1784,7 @@ public final class MediaHttpHandler implements HttpHandler {
         if (correlationId == null) correlationId = requestId;
         exchange.getResponseHeaders().set("X-Request-ID", requestId);
         exchange.getResponseHeaders().set("X-Correlation-ID", correlationId);
+        exchange.setAttribute(MediaLaneInstrumentation.ERROR_CODE_ATTRIBUTE, code);
         if (status == 429) exchange.getResponseHeaders().set("Retry-After", "1");
         var outage = MediaDevOutage.classify(exchange.getRequestURI().getRawPath(), code);
         if (outage.isPresent()) {

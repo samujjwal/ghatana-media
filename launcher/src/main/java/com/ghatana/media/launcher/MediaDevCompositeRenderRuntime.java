@@ -195,6 +195,8 @@ final class MediaDevCompositeRenderRuntime {
                 new MediaDevDubSupport(runtime, MediaDevProjectRenderRuntime.canonicalRegistrar(runtime), resolver),
                 ledger, config, () -> root.toFile().getUsableSpace());
         composite.sweepOrphans();
+        runtime.laneMetrics().registerDisk(com.ghatana.audiovideo.observability.MediaLaneMetrics.Volume.RENDER_SCRATCH,
+                () -> root.toFile().getUsableSpace(), config::spaceReserveBytes);
         return composite;
     }
 

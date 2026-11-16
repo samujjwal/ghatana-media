@@ -913,6 +913,30 @@ public final class MediaWorkflowMetrics {
         }
     }
 
+    private final ConcurrentMap<LocalProvider, AtomicReference<Double>> localProviderModelLoaded =
+            new ConcurrentHashMap<>();
+
+    /**
+     * Export whether the provider's model is resident now: 1 loaded, 0 not loaded (a lazy sidecar that is up but cold),
+     * NaN when the probe could not tell (provider down or no such notion). A READY state with 0 here means "can load
+     * on demand", never "warm".
+     */
+    public void recordLocalProviderModelLoaded(LocalProvider provider, Boolean loaded) {
+        if (provider == null) return;
+        try {
+            localProviderModelLoaded.computeIfAbsent(provider, ignored -> {
+                AtomicReference<Double> cell = new AtomicReference<>(Double.NaN);
+                Gauge.builder("media.dev.provider.model.loaded", cell, AtomicReference::get)
+                        .description("1 when the provider's model is resident, 0 when it is not, NaN when unknown")
+                        .tag("service", safeService).tag("provider", provider.label())
+                        .tag("contract_version", CONTRACT_VERSION).register(registry);
+                return cell;
+            }).set(loaded == null ? Double.NaN : loaded ? 1.0 : 0.0);
+        } catch (RuntimeException registryFailure) {
+            // observational only
+        }
+    }
+
     /** Count one lane result that reported a provider outage instead of a success. */
     public void recordLocalProviderOutage(OutageLane lane, OutageOutcome outcome) {
         if (lane == null || outcome == null) return;

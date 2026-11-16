@@ -1,0 +1,172 @@
+# Alert rules for the Media launcher scrape job `media-launcher` (journey media.dev.service-observability).
+# Every expression reads a series that the launcher derives from a live observation: provider state from a real
+# probe (media_dev_provider_*), lane outcomes from real responses (media_lane_*), budgets from the live semaphores,
+# job counts from the durable store, disk from the volume itself. NaN (unknown) never satisfies a comparison, so an
+# unreadable source stays silent here and is surfaced by MediaDevProviderObservationStale / MediaLauncherDown instead.
+# Windows are short enough to exercise locally; production-like deployments should lengthen `for`.
+groups:
+  - name: media_launcher.providers
+    rules:
+      - alert: MediaDevProviderUnavailable
+        expr: max by (provider) (media_dev_provider_state{service="launcher", state=~"unavailable|withdrawn"}) == 1
+        for: 15s
+        labels:
+          severity: critical
+          product: audio-video
+          component: media-launcher
+        annotations:
+          summary: "Local provider {{ $labels.provider }} is unavailable"
+          description: "The latest real probe of {{ $labels.provider }} found it unavailable or withdrawn. Dependent lanes answer a typed outage; there is no fallback model. A provider intentionally not configured on this host reports the same state."
+          runbook: "docs/surfaces/launcher/README.md#service-observability"
+
+      - alert: MediaDevProviderDegradedOrNotAdmitted
+        expr: max by (provider) (media_dev_provider_state{service="launcher", state=~"degraded|not_admitted"}) == 1
+        for: 1m
+        labels:
+          severity: warning
+          product: audio-video
+          component: media-launcher
+        annotations:
+          summary: "Local provider {{ $labels.provider }} is degraded or not admitted"
+          description: "The latest probe of {{ $labels.provider }} was slow, partial or failed an identity, licence or digest check."
+          runbook: "docs/surfaces/launcher/README.md#service-observability"
+
+      - alert: MediaDevProviderObservationStale
+        expr: max by (provider) (time() - media_dev_provider_checked_at_seconds{service="launcher"}) > 120
+        for: 15s
+        labels:
+          severity: warning
+          product: audio-video
+          component: media-launcher
+        annotations:
+          summary: "Provider readiness for {{ $labels.provider }} has not been re-observed for over two minutes"
+          description: "The exported readiness is older than the probe cadence allows and must not be trusted."
+          runbook: "docs/surfaces/launcher/README.md#service-observability"
+
+      - alert: MediaDevProviderModelCold
+        expr: (max by (provider) (media_dev_provider_model_loaded{service="launcher"}) == 0) and on (provider) (max by (provider) (media_dev_provider_state{service="launcher", state="ready"}) == 1)
+        for: 5m
+        labels:
+          severity: info
+          product: audio-video
+          component: media-launcher
+        annotations:
+          summary: "Provider {{ $labels.provider }} is reachable but its model is not resident"
+          description: "READY means the sidecar answers and can load on demand; the next request pays a cold start."
+          runbook: "docs/surfaces/launcher/README.md#service-observability"
+
+  - name: media_launcher.lanes
+    rules:
+      - alert: MediaLaneErrorBudgetBurn
+        # 99% availability objective; page when both a short and a long window burn at >14.4x, with enough traffic.
+        expr: |
+          (
+            sum by (lane) (rate(media_lane_requests_total{service="launcher", outcome=~"failed|unknown"}[1m]))
+              / sum by (lane) (rate(media_lane_requests_total{service="launcher"}[1m])) > 0.144
+          )
+          and
+          (
+            sum by (lane) (rate(media_lane_requests_total{service="launcher", outcome=~"failed|unknown"}[5m]))
+              / sum by (lane) (rate(media_lane_requests_total{service="launcher"}[5m])) > 0.144
+          )
+          and
+          (sum by (lane) (increase(media_lane_requests_total{service="launcher"}[5m])) >= 10)
+        for: 30s
+        labels:
+          severity: critical
+          product: audio-video
+          component: media-launcher
+        annotations:
+          summary: "Lane {{ $labels.lane }} is burning its error budget"
+          description: "More than 14.4% of {{ $labels.lane }} requests ended failed or unknown over both 1m and 5m. Refusals (4xx, capacity) are not counted as failures."
+          runbook: "docs/surfaces/launcher/README.md#service-observability"
+
+      - alert: MediaBackpressureRefusing
+        expr: sum by (lane) (rate(media_lane_requests_total{service="launcher", outcome="refused", code=~".*(CAPACITY|BACKPRESSURE|BUSY).*"}[1m])) > 0
+        for: 15s
+        labels:
+          severity: warning
+          product: audio-video
+          component: media-launcher
+        annotations:
+          summary: "Lane {{ $labels.lane }} is refusing work for capacity"
+          description: "Requests are being refused with a typed capacity or backpressure code; clients should retry later."
+          runbook: "docs/surfaces/launcher/README.md#service-observability"
+
+  - name: media_launcher.budgets
+    rules:
+      - alert: MediaBackpressureSaturation
+        expr: ((media_budget_limit{service="launcher"} - media_budget_available{service="launcher"}) / media_budget_limit{service="launcher"}) >= 0.9
+        for: 15s
+        labels:
+          severity: warning
+          product: audio-video
+          component: media-launcher
+        annotations:
+          summary: "Budget {{ $labels.resource }} is at least 90% in use"
+          description: "The live capacity budget {{ $labels.resource }} is saturated; further work will be refused with a typed capacity code."
+          runbook: "docs/surfaces/launcher/README.md#service-observability"
+
+      - alert: MediaDiskBudgetLow
+        expr: media_disk_free_bytes{service="launcher"} < 2 * media_disk_reserve_bytes{service="launcher"}
+        for: 15s
+        labels:
+          severity: warning
+          product: audio-video
+          component: media-launcher
+        annotations:
+          summary: "Free space on {{ $labels.volume }} is under twice the reserve"
+          description: "Usable bytes on the {{ $labels.volume }} volume are within 2x of the bytes the lane needs free."
+          runbook: "docs/surfaces/launcher/README.md#service-observability"
+
+      - alert: MediaDiskBudgetExhausted
+        expr: media_disk_free_bytes{service="launcher"} < media_disk_reserve_bytes{service="launcher"}
+        for: 15s
+        labels:
+          severity: critical
+          product: audio-video
+          component: media-launcher
+        annotations:
+          summary: "Free space on {{ $labels.volume }} is below the reserve"
+          description: "The lane using {{ $labels.volume }} refuses new work with a typed space-budget refusal until space is freed."
+          runbook: "docs/surfaces/launcher/README.md#service-observability"
+
+  - name: media_launcher.jobs
+    rules:
+      - alert: MediaJobUnknownBacklog
+        expr: media_workflow_unknown_backlog{service="launcher"} > 0
+        for: 5m
+        labels:
+          severity: warning
+          product: audio-video
+          component: media-launcher
+        annotations:
+          summary: "Media jobs with unknown finality are waiting"
+          description: "Jobs are in OUTCOME_UNKNOWN; reconcile them before any retry."
+          runbook: "docs/surfaces/launcher/README.md#service-observability"
+
+      - alert: MediaJobLeasesOverdue
+        expr: media_workflow_lease_overdue{service="launcher"} > 0
+        for: 2m
+        labels:
+          severity: warning
+          product: audio-video
+          component: media-launcher
+        annotations:
+          summary: "Media job leases have expired without completion"
+          description: "Expired job leases indicate a stalled or crashed worker."
+          runbook: "docs/surfaces/launcher/README.md#service-observability"
+
+  - name: media_launcher.availability
+    rules:
+      - alert: MediaLauncherDown
+        expr: up{job="media-launcher"} == 0
+        for: 15s
+        labels:
+          severity: critical
+          product: audio-video
+          component: media-launcher
+        annotations:
+          summary: "The Media launcher cannot be scraped"
+          description: "Prometheus cannot scrape {{ $labels.instance }}; all launcher series are absent, not zero."
+          runbook: "docs/surfaces/launcher/README.md#service-observability"

@@ -267,8 +267,22 @@ final class MediaDevLiveSessionRuntime implements AutoCloseable {
 
     static MediaDevLiveSessionRuntime compose(MediaRuntime runtime, Map<String, String> environment,
                                               RightsConsentResolver rights) {
-        return new MediaDevLiveSessionRuntime(runtime, rights, MediaDevProjectRenderRuntime.canonicalRegistrar(runtime),
-                Config.from(environment), Clock.systemUTC());
+        MediaDevLiveSessionRuntime live = new MediaDevLiveSessionRuntime(runtime, rights,
+                MediaDevProjectRenderRuntime.canonicalRegistrar(runtime), Config.from(environment), Clock.systemUTC());
+        live.registerBudgets(runtime.laneMetrics());
+        return live;
+    }
+
+    /** Export the live open-session and reorder-buffer budgets and the spool volume's free space. */
+    void registerBudgets(com.ghatana.audiovideo.observability.MediaLaneMetrics metrics) {
+        metrics.registerBudget(com.ghatana.audiovideo.observability.MediaLaneMetrics.Budget.LIVE_SESSIONS,
+                config::maxOpenSessions,
+                () -> config.maxOpenSessions() - sessions.values().stream().filter(s -> !s.state.terminal()).count());
+        metrics.registerBudget(com.ghatana.audiovideo.observability.MediaLaneMetrics.Budget.LIVE_BUFFER_BYTES,
+                () -> (double) budgetUnits * BUDGET_UNIT, () -> (double) budget.availablePermits() * BUDGET_UNIT);
+        metrics.registerDisk(com.ghatana.audiovideo.observability.MediaLaneMetrics.Volume.LIVE_SPOOL,
+                () -> config.directory().toFile().getUsableSpace(),
+                () -> (double) config.maxOpenSessions() * config.maxSessionBytes());
     }
 
     @Override
