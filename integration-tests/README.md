@@ -55,3 +55,26 @@ The `MediaAuthorizedSttTranscriptRestartIT` is an external qualification profile
 The Compose startup-refusal selectors require `AUDIO_VIDEO_STT_IMAGE` and `AUDIO_VIDEO_TTS_IMAGE` selected by immutable digest and available in Docker Compose. This local digest check does not prove owner approval or provenance. A passing refusal test proves only typed startup refusal, not a successful provider operation. Previously recorded Wave 2 Compose results are tracked separately and are not changed by this inventory.
 
 Other modules own additional integration suites: `:services:media:modules:integration-tests`, `:services:media:providers:aws-postgresql`, and `:services:media:audio-video-observability`. They are outside this module's selector and are listed as unrepresented source areas in the canonical census.
+
+## Journey selectors (J-01..J-30)
+
+[`journey-selectors.v1.json`](journey-selectors.v1.json) maps each Media development journey to the integration test classes its `media.dev.outcome-*` task names in `verificationEvidence` (source: `docs/development/remaining-work.json`). A class is listed only when its simple name appears in that evidence and it exists under `integration-tests/src/test/java`. Journeys whose evidence names no integration class have an empty selection and are not runnable through this manifest.
+
+```bash
+# Validate the manifest against remaining-work.json, the test tree, @Tag("integration") and @Disabled
+node scripts/check-journey-selectors.mjs
+node --test tests/journey-selectors.test.mjs     # or: pnpm run test:journey-selectors
+
+# Gradle --tests arguments for one journey, a CPU-only union, or every runnable class
+node scripts/check-journey-selectors.mjs --print J-24
+node scripts/check-journey-selectors.mjs --print cpu-only
+node scripts/check-journey-selectors.mjs --print all
+
+# Full command with the required -P flags, run from the repository root
+export JAVA_HOME=/home/samujjwal/.gradle/jdks/eclipse_adoptium-27-amd64-linux.2
+node scripts/check-journey-selectors.mjs --print J-24 --command   # copy the printed line and run it
+```
+
+`--command` prints `./gradlew` with the four required `-P` flags (dependency profile, FULL composite scope, and the kernel/tools/lifecycle paths), then `:services:media:integration-tests:test` and the `--tests` arguments. Run it from the repository root. Before a Gradle run, wait for other Gradle builds on the shared machine, and set the FFmpeg variables described in the shared rules.
+
+Flags per class are source-derived and direct only: `needsLocalModel` means the class references a local model root or Whisper profile variable; `needsChromium` means Playwright or Chromium; `needsNode` means a Node helper script; `needsFfmpeg` means an FFmpeg variable. `cpu-only` contains journeys whose classes reference no local model; Chromium, Node and FFmpeg are not excluded by it. Whether a model actually runs on GPU is not determinable from these sources. `faultKinds` are keyword matches in the journey evidence text.

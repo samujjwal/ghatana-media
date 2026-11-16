@@ -1,0 +1,1035 @@
+{
+  "schemaVersion": "media.journey-selectors.v1",
+  "source": "docs/development/remaining-work.json",
+  "testRoot": "integration-tests/src/test/java",
+  "gradleProject": ":services:media:integration-tests",
+  "gradleTag": "integration",
+  "note": "Derived from verificationEvidence of each media.dev.outcome-* task in docs/development/remaining-work.json. A class is listed for a journey only when its simple name appears in that journey's evidence text and the class exists under integration-tests/src/test/java. classes[] maps each FQCN to its source flags: needsLocalModel = direct reference to MEDIA_LOCAL_MODEL_ROOT / MEDIA_LOCAL_VISION_MODELS_ROOT / MEDIA_LOCAL_MODEL_DIGEST_CACHE / MEDIA_LOCAL_MODEL_PRELOAD / GHATANA_MEDIA_WHISPER_* (GPU use itself is not determinable from these sources); needsChromium = Playwright or Chromium reference; needsNode = node or .mjs helper; needsFfmpeg = FFmpeg env reference. Flags are direct references only, not transitive through support classes. faultKinds are keyword matches in the journey evidence text. cpuOnly = runnable and no class needs a local model (Chromium/Node/FFmpeg still allowed). Journeys with evidenceEmpty or runnable=false name no integration class in evidence and must not be run through this manifest until evidence names one. MediaTestHarnessCatalogTest is excluded as a catalog meta-test. Gradle selection needs @Tag(\"integration\") and no @Disabled; the validator enforces both.",
+  "classes": {
+    "com.ghatana.media.integration.MediaDevAgentDelegationIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevAgentDelegationIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": true,
+      "needsChromium": false,
+      "needsNode": false,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevAnimationIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevAnimationIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": false,
+      "needsNode": false,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevCaptionJourneyIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevCaptionJourneyIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": true,
+      "needsChromium": false,
+      "needsNode": true,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevDeliveryAckIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevDeliveryAckIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": false,
+      "needsNode": false,
+      "needsFfmpeg": false
+    },
+    "com.ghatana.media.integration.MediaDevDeliveryRestartIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevDeliveryRestartIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": false,
+      "needsNode": true,
+      "needsFfmpeg": false
+    },
+    "com.ghatana.media.integration.MediaDevExplorerAnimationLiveIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerAnimationLiveIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevExplorerCompositeLiveIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerCompositeLiveIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": false
+    },
+    "com.ghatana.media.integration.MediaDevExplorerDeliveryLiveIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerDeliveryLiveIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": false
+    },
+    "com.ghatana.media.integration.MediaDevExplorerMasterLiveIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerMasterLiveIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevExplorerOfflineReconnectLiveIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerOfflineReconnectLiveIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": false
+    },
+    "com.ghatana.media.integration.MediaDevExplorerReferenceSceneLiveIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerReferenceSceneLiveIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": false
+    },
+    "com.ghatana.media.integration.MediaDevExplorerRegionEditLiveIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerRegionEditLiveIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": true,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevExplorerResumableUploadLiveIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerResumableUploadLiveIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevExplorerRigLiveIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerRigLiveIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevExplorerSimulationLiveIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerSimulationLiveIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevExplorerVersionedReviewLiveIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerVersionedReviewLiveIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevIssuerHeadlessRestartIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevIssuerHeadlessRestartIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": false,
+      "needsNode": true,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevJobRestartRecoveryIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevJobRestartRecoveryIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevMasterIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevMasterIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": false,
+      "needsNode": false,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevMultitrackCompositeIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevMultitrackCompositeIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": false,
+      "needsNode": false,
+      "needsFfmpeg": false
+    },
+    "com.ghatana.media.integration.MediaDevOidcFirstUseJourneyIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevOidcFirstUseJourneyIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": false
+    },
+    "com.ghatana.media.integration.MediaDevProjectTimelineRestartIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevProjectTimelineRestartIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevQualityOptimizationIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevQualityOptimizationIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevReferenceSceneIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevReferenceSceneIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": false,
+      "needsNode": false,
+      "needsFfmpeg": false
+    },
+    "com.ghatana.media.integration.MediaDevRegionEditIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevRegionEditIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": true,
+      "needsChromium": false,
+      "needsNode": false,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevResumableIntakeIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevResumableIntakeIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": false,
+      "needsNode": false,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevRigRenderIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevRigRenderIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": false,
+      "needsNode": true,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevSimulationIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevSimulationIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": false,
+      "needsNode": false,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevSpatialInteractiveIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevSpatialInteractiveIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": false
+    },
+    "com.ghatana.media.integration.MediaDevStructuredCliBatchIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevStructuredCliBatchIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": false,
+      "needsNode": true,
+      "needsFfmpeg": false
+    },
+    "com.ghatana.media.integration.MediaDevVersionedReviewIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevVersionedReviewIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": false,
+      "needsNode": false,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaDevVoiceSynthesisJourneyIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaDevVoiceSynthesisJourneyIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": false,
+      "needsNode": false,
+      "needsFfmpeg": true
+    },
+    "com.ghatana.media.integration.MediaLauncherArtifactIntakeRestartIT": {
+      "file": "integration-tests/src/test/java/com/ghatana/media/integration/MediaLauncherArtifactIntakeRestartIT.java",
+      "tagIntegration": true,
+      "disabled": false,
+      "hasTestMethod": true,
+      "needsLocalModel": false,
+      "needsChromium": false,
+      "needsNode": false,
+      "needsFfmpeg": false
+    }
+  },
+  "journeys": [
+    {
+      "id": "J-01",
+      "taskId": "media.dev.outcome-first-use-project",
+      "taskState": "OPEN",
+      "runnable": true,
+      "selectorCount": 2,
+      "classes": [
+        "com.ghatana.media.integration.MediaDevOidcFirstUseJourneyIT",
+        "com.ghatana.media.integration.MediaDevProjectTimelineRestartIT"
+      ],
+      "cpuOnly": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true,
+      "faultKinds": [
+        "denial",
+        "wrongTenant",
+        "restartKill"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-02",
+      "taskId": "media.dev.outcome-resumable-artifact-intake",
+      "taskState": "OPEN",
+      "runnable": true,
+      "selectorCount": 5,
+      "classes": [
+        "com.ghatana.media.integration.MediaDevExplorerResumableUploadLiveIT",
+        "com.ghatana.media.integration.MediaDevIssuerHeadlessRestartIT",
+        "com.ghatana.media.integration.MediaDevProjectTimelineRestartIT",
+        "com.ghatana.media.integration.MediaDevResumableIntakeIT",
+        "com.ghatana.media.integration.MediaLauncherArtifactIntakeRestartIT"
+      ],
+      "cpuOnly": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true,
+      "faultKinds": [
+        "denial",
+        "wrongTenant",
+        "unknownAmbiguity",
+        "restartKill"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": [
+        "MediaTestHarnessCatalogTest"
+      ]
+    },
+    {
+      "id": "J-03",
+      "taskId": "media.dev.outcome-transcript-to-reviewed-captions",
+      "taskState": "OPEN",
+      "runnable": false,
+      "selectorCount": 0,
+      "classes": [],
+      "cpuOnly": false,
+      "needsLocalModel": null,
+      "needsChromium": null,
+      "needsNode": null,
+      "needsFfmpeg": null,
+      "faultKinds": [],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-04",
+      "taskId": "media.dev.outcome-authorized-voice-synthesis",
+      "taskState": "OPEN",
+      "runnable": false,
+      "selectorCount": 0,
+      "classes": [],
+      "cpuOnly": false,
+      "needsLocalModel": null,
+      "needsChromium": null,
+      "needsNode": null,
+      "needsFfmpeg": null,
+      "faultKinds": [
+        "restartKill"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [
+        "TtsAuthorizedVoiceSynthesisScenarioTest"
+      ],
+      "evidenceNamesExcluded": [
+        "MediaTestHarnessCatalogTest"
+      ]
+    },
+    {
+      "id": "J-05",
+      "taskId": "media.dev.outcome-vision-detection-and-tracking",
+      "taskState": "OPEN",
+      "runnable": false,
+      "selectorCount": 0,
+      "classes": [],
+      "cpuOnly": false,
+      "needsLocalModel": null,
+      "needsChromium": null,
+      "needsNode": null,
+      "needsFfmpeg": null,
+      "faultKinds": [],
+      "evidenceEmpty": true,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-06",
+      "taskId": "media.dev.outcome-grounded-cross-modal-result",
+      "taskState": "OPEN",
+      "runnable": false,
+      "selectorCount": 0,
+      "classes": [],
+      "cpuOnly": false,
+      "needsLocalModel": null,
+      "needsChromium": null,
+      "needsNode": null,
+      "needsFfmpeg": null,
+      "faultKinds": [],
+      "evidenceEmpty": true,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-07",
+      "taskId": "media.dev.outcome-audio-restoration",
+      "taskState": "OPEN",
+      "runnable": false,
+      "selectorCount": 0,
+      "classes": [],
+      "cpuOnly": false,
+      "needsLocalModel": null,
+      "needsChromium": null,
+      "needsNode": null,
+      "needsFfmpeg": null,
+      "faultKinds": [],
+      "evidenceEmpty": true,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-08",
+      "taskId": "media.dev.outcome-video-enhancement",
+      "taskState": "OPEN",
+      "runnable": false,
+      "selectorCount": 0,
+      "classes": [],
+      "cpuOnly": false,
+      "needsLocalModel": null,
+      "needsChromium": null,
+      "needsNode": null,
+      "needsFfmpeg": null,
+      "faultKinds": [],
+      "evidenceEmpty": true,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-09",
+      "taskId": "media.dev.outcome-brief-to-reviewed-media",
+      "taskState": "OPEN",
+      "runnable": false,
+      "selectorCount": 0,
+      "classes": [],
+      "cpuOnly": false,
+      "needsLocalModel": null,
+      "needsChromium": null,
+      "needsNode": null,
+      "needsFfmpeg": null,
+      "faultKinds": [
+        "denial",
+        "cancellation"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-10",
+      "taskId": "media.dev.outcome-reference-continuity",
+      "taskState": "OPEN",
+      "runnable": true,
+      "selectorCount": 5,
+      "classes": [
+        "com.ghatana.media.integration.MediaDevExplorerReferenceSceneLiveIT",
+        "com.ghatana.media.integration.MediaDevExplorerRigLiveIT",
+        "com.ghatana.media.integration.MediaDevReferenceSceneIT",
+        "com.ghatana.media.integration.MediaDevRigRenderIT",
+        "com.ghatana.media.integration.MediaDevSpatialInteractiveIT"
+      ],
+      "cpuOnly": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true,
+      "faultKinds": [
+        "denial",
+        "restartKill"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-11",
+      "taskId": "media.dev.outcome-reversible-tracked-edit",
+      "taskState": "OPEN",
+      "runnable": true,
+      "selectorCount": 5,
+      "classes": [
+        "com.ghatana.media.integration.MediaDevAnimationIT",
+        "com.ghatana.media.integration.MediaDevExplorerRegionEditLiveIT",
+        "com.ghatana.media.integration.MediaDevQualityOptimizationIT",
+        "com.ghatana.media.integration.MediaDevRegionEditIT",
+        "com.ghatana.media.integration.MediaDevSimulationIT"
+      ],
+      "cpuOnly": false,
+      "needsLocalModel": true,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true,
+      "faultKinds": [
+        "denial",
+        "revocation",
+        "wrongTenant",
+        "restartKill"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-12",
+      "taskId": "media.dev.outcome-two-dimensional-animation",
+      "taskState": "OPEN",
+      "runnable": true,
+      "selectorCount": 2,
+      "classes": [
+        "com.ghatana.media.integration.MediaDevAnimationIT",
+        "com.ghatana.media.integration.MediaDevExplorerAnimationLiveIT"
+      ],
+      "cpuOnly": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true,
+      "faultKinds": [
+        "denial",
+        "restartKill"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [
+        "AnimationJ12ScenarioIntegrationTest"
+      ],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-13",
+      "taskId": "media.dev.outcome-three-dimensional-animation",
+      "taskState": "OPEN",
+      "runnable": true,
+      "selectorCount": 5,
+      "classes": [
+        "com.ghatana.media.integration.MediaDevExplorerReferenceSceneLiveIT",
+        "com.ghatana.media.integration.MediaDevExplorerRigLiveIT",
+        "com.ghatana.media.integration.MediaDevReferenceSceneIT",
+        "com.ghatana.media.integration.MediaDevRigRenderIT",
+        "com.ghatana.media.integration.MediaDevSpatialInteractiveIT"
+      ],
+      "cpuOnly": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true,
+      "faultKinds": [
+        "denial",
+        "revocation",
+        "wrongTenant",
+        "restartKill"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-14",
+      "taskId": "media.dev.outcome-scientific-simulation",
+      "taskState": "OPEN",
+      "runnable": true,
+      "selectorCount": 6,
+      "classes": [
+        "com.ghatana.media.integration.MediaDevAnimationIT",
+        "com.ghatana.media.integration.MediaDevExplorerRegionEditLiveIT",
+        "com.ghatana.media.integration.MediaDevExplorerSimulationLiveIT",
+        "com.ghatana.media.integration.MediaDevQualityOptimizationIT",
+        "com.ghatana.media.integration.MediaDevRegionEditIT",
+        "com.ghatana.media.integration.MediaDevSimulationIT"
+      ],
+      "cpuOnly": false,
+      "needsLocalModel": true,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true,
+      "faultKinds": [
+        "restartKill"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [
+        "ScientificSimulationCurrentnessIntegrationTest",
+        "ValidatedSimulationPassIntegrationTest"
+      ],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-15",
+      "taskId": "media.dev.outcome-validated-simulation-pass",
+      "taskState": "OPEN",
+      "runnable": true,
+      "selectorCount": 5,
+      "classes": [
+        "com.ghatana.media.integration.MediaDevAnimationIT",
+        "com.ghatana.media.integration.MediaDevExplorerRegionEditLiveIT",
+        "com.ghatana.media.integration.MediaDevQualityOptimizationIT",
+        "com.ghatana.media.integration.MediaDevRegionEditIT",
+        "com.ghatana.media.integration.MediaDevSimulationIT"
+      ],
+      "cpuOnly": false,
+      "needsLocalModel": true,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true,
+      "faultKinds": [
+        "denial"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [
+        "SimulationSemanticValidatorTest",
+        "ValidatedSimulationPassIntegrationTest"
+      ],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-16",
+      "taskId": "media.dev.outcome-translated-dubbed-video",
+      "taskState": "OPEN",
+      "runnable": false,
+      "selectorCount": 0,
+      "classes": [],
+      "cpuOnly": false,
+      "needsLocalModel": null,
+      "needsChromium": null,
+      "needsNode": null,
+      "needsFfmpeg": null,
+      "faultKinds": [],
+      "evidenceEmpty": true,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-17",
+      "taskId": "media.dev.outcome-music-effects-master",
+      "taskState": "OPEN",
+      "runnable": true,
+      "selectorCount": 4,
+      "classes": [
+        "com.ghatana.media.integration.MediaDevExplorerCompositeLiveIT",
+        "com.ghatana.media.integration.MediaDevExplorerMasterLiveIT",
+        "com.ghatana.media.integration.MediaDevMasterIT",
+        "com.ghatana.media.integration.MediaDevMultitrackCompositeIT"
+      ],
+      "cpuOnly": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true,
+      "faultKinds": [
+        "denial",
+        "restartKill"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-18",
+      "taskId": "media.dev.outcome-multitrack-finished-master",
+      "taskState": "OPEN",
+      "runnable": true,
+      "selectorCount": 4,
+      "classes": [
+        "com.ghatana.media.integration.MediaDevExplorerCompositeLiveIT",
+        "com.ghatana.media.integration.MediaDevExplorerMasterLiveIT",
+        "com.ghatana.media.integration.MediaDevMasterIT",
+        "com.ghatana.media.integration.MediaDevMultitrackCompositeIT"
+      ],
+      "cpuOnly": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true,
+      "faultKinds": [
+        "denial",
+        "wrongTenant",
+        "restartKill",
+        "cancellation"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [
+        "LIMIT"
+      ],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-19",
+      "taskId": "media.dev.outcome-bounded-quality-improvement",
+      "taskState": "OPEN",
+      "runnable": true,
+      "selectorCount": 5,
+      "classes": [
+        "com.ghatana.media.integration.MediaDevAnimationIT",
+        "com.ghatana.media.integration.MediaDevExplorerRegionEditLiveIT",
+        "com.ghatana.media.integration.MediaDevQualityOptimizationIT",
+        "com.ghatana.media.integration.MediaDevRegionEditIT",
+        "com.ghatana.media.integration.MediaDevSimulationIT"
+      ],
+      "cpuOnly": false,
+      "needsLocalModel": true,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true,
+      "faultKinds": [
+        "restartKill",
+        "cancellation"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-20",
+      "taskId": "media.dev.outcome-durable-job-recovery",
+      "taskState": "OPEN",
+      "runnable": true,
+      "selectorCount": 1,
+      "classes": [
+        "com.ghatana.media.integration.MediaDevJobRestartRecoveryIT"
+      ],
+      "cpuOnly": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true,
+      "faultKinds": [
+        "denial",
+        "wrongTenant",
+        "unknownAmbiguity",
+        "restartKill",
+        "cancellation"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [
+        "MediaDevRequestLedgerRetentionTest"
+      ],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-21",
+      "taskId": "media.dev.outcome-version-specific-review",
+      "taskState": "OPEN",
+      "runnable": true,
+      "selectorCount": 2,
+      "classes": [
+        "com.ghatana.media.integration.MediaDevExplorerVersionedReviewLiveIT",
+        "com.ghatana.media.integration.MediaDevVersionedReviewIT"
+      ],
+      "cpuOnly": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true,
+      "faultKinds": [
+        "denial",
+        "revocation",
+        "wrongTenant",
+        "restartKill"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-22",
+      "taskId": "media.dev.outcome-acknowledged-delivery",
+      "taskState": "OPEN",
+      "runnable": true,
+      "selectorCount": 3,
+      "classes": [
+        "com.ghatana.media.integration.MediaDevDeliveryAckIT",
+        "com.ghatana.media.integration.MediaDevDeliveryRestartIT",
+        "com.ghatana.media.integration.MediaDevExplorerDeliveryLiveIT"
+      ],
+      "cpuOnly": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": false,
+      "faultKinds": [
+        "revocation",
+        "wrongTenant",
+        "unknownAmbiguity",
+        "restartKill"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [
+        "DeliveryDestinationReceiptScenarioTest"
+      ],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-23",
+      "taskId": "media.dev.outcome-offline-conflict-reconnect",
+      "taskState": "OPEN",
+      "runnable": true,
+      "selectorCount": 1,
+      "classes": [
+        "com.ghatana.media.integration.MediaDevExplorerOfflineReconnectLiveIT"
+      ],
+      "cpuOnly": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": false,
+      "faultKinds": [
+        "denial"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-24",
+      "taskId": "media.dev.outcome-structured-command-batch",
+      "taskState": "OPEN",
+      "runnable": true,
+      "selectorCount": 1,
+      "classes": [
+        "com.ghatana.media.integration.MediaDevStructuredCliBatchIT"
+      ],
+      "cpuOnly": true,
+      "needsLocalModel": false,
+      "needsChromium": false,
+      "needsNode": true,
+      "needsFfmpeg": false,
+      "faultKinds": [
+        "denial",
+        "unknownAmbiguity",
+        "restartKill",
+        "cancellation"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-25",
+      "taskId": "media.dev.outcome-authorized-agent-outcome",
+      "taskState": "OPEN",
+      "runnable": true,
+      "selectorCount": 3,
+      "classes": [
+        "com.ghatana.media.integration.MediaDevAgentDelegationIT",
+        "com.ghatana.media.integration.MediaDevCaptionJourneyIT",
+        "com.ghatana.media.integration.MediaDevVoiceSynthesisJourneyIT"
+      ],
+      "cpuOnly": false,
+      "needsLocalModel": true,
+      "needsChromium": false,
+      "needsNode": true,
+      "needsFfmpeg": true,
+      "faultKinds": [
+        "denial",
+        "revocation",
+        "wrongTenant",
+        "unknownAmbiguity",
+        "restartKill"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [
+        "AgentOutcomeAdmissionScenarioTest"
+      ],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-26",
+      "taskId": "media.dev.outcome-retention-and-erasure",
+      "taskState": "OPEN",
+      "runnable": false,
+      "selectorCount": 0,
+      "classes": [],
+      "cpuOnly": false,
+      "needsLocalModel": null,
+      "needsChromium": null,
+      "needsNode": null,
+      "needsFfmpeg": null,
+      "faultKinds": [],
+      "evidenceEmpty": true,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-27",
+      "taskId": "media.dev.outcome-provider-outage-safe-path",
+      "taskState": "OPEN",
+      "runnable": false,
+      "selectorCount": 0,
+      "classes": [],
+      "cpuOnly": false,
+      "needsLocalModel": null,
+      "needsChromium": null,
+      "needsNode": null,
+      "needsFfmpeg": null,
+      "faultKinds": [],
+      "evidenceEmpty": true,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-28",
+      "taskId": "media.dev.outcome-spatial-interactive-delivery",
+      "taskState": "OPEN",
+      "runnable": true,
+      "selectorCount": 5,
+      "classes": [
+        "com.ghatana.media.integration.MediaDevExplorerReferenceSceneLiveIT",
+        "com.ghatana.media.integration.MediaDevExplorerRigLiveIT",
+        "com.ghatana.media.integration.MediaDevReferenceSceneIT",
+        "com.ghatana.media.integration.MediaDevRigRenderIT",
+        "com.ghatana.media.integration.MediaDevSpatialInteractiveIT"
+      ],
+      "cpuOnly": true,
+      "needsLocalModel": false,
+      "needsChromium": true,
+      "needsNode": true,
+      "needsFfmpeg": true,
+      "faultKinds": [
+        "denial"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-29",
+      "taskId": "media.dev.outcome-live-session-recovery",
+      "taskState": "OPEN",
+      "runnable": false,
+      "selectorCount": 0,
+      "classes": [],
+      "cpuOnly": false,
+      "needsLocalModel": null,
+      "needsChromium": null,
+      "needsNode": null,
+      "needsFfmpeg": null,
+      "faultKinds": [
+        "revocation",
+        "restartKill"
+      ],
+      "evidenceEmpty": false,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    },
+    {
+      "id": "J-30",
+      "taskId": "media.dev.outcome-eligible-provider-catalog",
+      "taskState": "OPEN",
+      "runnable": false,
+      "selectorCount": 0,
+      "classes": [],
+      "cpuOnly": false,
+      "needsLocalModel": null,
+      "needsChromium": null,
+      "needsNode": null,
+      "needsFfmpeg": null,
+      "faultKinds": [],
+      "evidenceEmpty": true,
+      "evidenceNamesNotInIntegrationTree": [],
+      "evidenceNamesExcluded": []
+    }
+  ]
+}
