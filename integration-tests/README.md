@@ -58,7 +58,7 @@ Other modules own additional integration suites: `:services:media:modules:integr
 
 ## Journey selectors (J-01..J-30)
 
-[`journey-selectors.v1.json`](journey-selectors.v1.json) maps each Media development journey to the integration test classes its `media.dev.outcome-*` task names in `verificationEvidence` (source: `docs/development/remaining-work.json`). A class is listed only when its simple name appears in that evidence and it exists under `integration-tests/src/test/java`. Journeys whose evidence names no integration class have an empty selection and are not runnable through this manifest.
+[`journey-selectors.v1.json`](journey-selectors.v1.json) maps each Media development journey to the integration test classes its `media.dev.outcome-*` task names in `verificationEvidence` (source: `docs/development/remaining-work.json`). A class is listed only when its simple name appears in that evidence and it exists under `integration-tests/src/test/java`. All 30 journeys currently have at least one selector; a journey whose evidence names no integration class would get an empty selection and the CLI exits 3 instead of printing an empty `--tests` list. Class flags (`needsLocalModel`, `needsChromium`, `needsNode`, `needsFfmpeg`) are derived from source references, so `cpu-only` excludes every class that loads a local model (Whisper, Kokoro, Florence-2).
 
 ```bash
 # Validate the manifest against remaining-work.json, the test tree, @Tag("integration") and @Disabled

@@ -115,12 +115,8 @@ test('cli prints the full Gradle command with the required -P flags', () => {
   assert.ok(out.includes(':services:media:integration-tests:test --tests com.ghatana.media.integration.MediaDevStructuredCliBatchIT'));
 });
 
-test('cli reports an empty journey instead of printing an empty selection', () => {
-  let code = 0;
-  try {
-    execFileSync(process.execPath, [script, '--print', 'J-03'], { encoding: 'utf8', stdio: 'pipe' });
-  } catch (e) {
-    code = e.status;
-  }
-  assert.equal(code, 3);
+test('cli prints the selectors for a journey whose evidence names its integration classes', () => {
+  const out = execFileSync(process.execPath, [script, '--print', 'J-03'], { encoding: 'utf8', stdio: 'pipe' });
+  assert.ok(out.includes('--tests com.ghatana.media.integration.MediaDevCaptionJourneyIT'), out);
+  assert.ok(out.includes('--tests com.ghatana.media.integration.MediaDevExplorerCaptionCorrectionLiveIT'), out);
 });
