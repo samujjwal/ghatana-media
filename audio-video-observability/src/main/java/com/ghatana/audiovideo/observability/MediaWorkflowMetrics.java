@@ -322,6 +322,12 @@ public final class MediaWorkflowMetrics {
                 })
                 .description("Configured JVM heap maximum in bytes; NaN when the runtime does not report a limit")
                 .tag("service", safeService).tag("contract_version", CONTRACT_VERSION).register(registry);
+        Gauge.builder("media.runtime.jvm.heap.utilization_ratio", MEMORY, bean -> {
+                    var usage = bean.getHeapMemoryUsage();
+                    return heapUtilizationRatio(usage.getUsed(), usage.getMax());
+                })
+                .description("JVM heap used divided by its reported maximum; NaN when the runtime limit is unavailable")
+                .tag("service", safeService).tag("contract_version", CONTRACT_VERSION).register(registry);
         Gauge.builder("media.runtime.jvm.heap.committed.bytes", MEMORY,
                         bean -> (double) bean.getHeapMemoryUsage().getCommitted())
                 .description("Heap memory committed by the JVM in bytes")
@@ -337,6 +343,12 @@ public final class MediaWorkflowMetrics {
                         ignored -> processCpuLoad())
                 .description("Current process CPU utilization from the JVM operating-system probe; NaN when unsupported")
                 .tag("service", safeService).tag("contract_version", CONTRACT_VERSION).register(registry);
+    }
+
+    /** Ratio of observed JVM heap use to its declared maximum; absent limits remain UNKNOWN. */
+    static double heapUtilizationRatio(long usedBytes, long maximumBytes) {
+        if (usedBytes < 0 || maximumBytes <= 0) return Double.NaN;
+        return (double) usedBytes / (double) maximumBytes;
     }
 
     private static double processCpuLoad() {

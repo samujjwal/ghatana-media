@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "media.pdp0.quality-extension-owner-decision-candidate.v1",
+  "artifactKind": "SOURCE_BOUND_OWNER_DECISION_CANDIDATE_NOT_AUTHORIZATION",
+  "status": "PENDING_ROOT_SOURCE_OWNER_DECISION",
+  "phaseScope": "PDP-0",
+  "decisionRef": ".product-experience/decision-log.md#PXD-227",
+  "currentSourceFingerprints": {
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "68cd7cc6a8e3b7b0667b29a9f95c563219253a67bb7fc690a2c921e3e8197a57",
+    ".product-experience/pdp-0-product-truth/quality-policy.yaml": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+    ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+    ".product-experience/decision-log.md#PXD-227-section": "ee31d57e14b9b649ff768a1d5fca5de54e57bfb925232a1c7d59f7fcdabb220f",
+    "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd225.json": "efbfe052755dfe3af7fcf7ef82736d66d0a03c484feebb48f5880a954566abb8",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-candidate.v2.json": "13e5d65df8c501bc09f6c938614038c304837f899aa23b0478fe6780a6305d3d",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-independent-peer.v2.json": "df8aee7596d83e7adfc3918eacb0bceda89d17441fc306b52f4eb3b4a32ed2a8",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-source-owner-decision.v2.json": "5691a35413dac65942738cf1e4cbe1ca648320e2bfa2228f2431ac5aa8b7fb8c",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-apply-authorization.v2.json": "b2cbd99630b11614cb4ee1f76bb0689b8efbd820725a12f1f01bcf42d8e5c354",
+    "docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-journals/f6feb44574d87a7ee15807b80ac8cf8c95c9ca86ab81ff6c9cddea3ec5799a0a.json": "d35b925bc2545ef6012f53b9f214a40eb0579fb56ea7ee2713a978a74bccce03"
+  },
+  "sourceFacts": {
+    "capabilityRef": "media.recipe.specification.compile",
+    "currentCapabilityExtension": "PXD-226 current-version extension; one current extension, six future-version proposals; quality measurement and qualification not evaluated.",
+    "qualityPolicyExtensionRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalkExtensions/records/@id=media.quality-applicability-extension.media-recipe-specification-compile.v1",
+    "qualityPolicyExtensionStatus": "SOURCE_OWNER_DEFINED_NOT_YET_CURRENT",
+    "qualityDisposition": {
+      "QUALITY-DIM-RIGHTS-SAFETY": "APPLICABLE",
+      "QUALITY-DIM-STRUCTURAL-VALIDITY": "NOT_APPLICABLE",
+      "QUALITY-DIM-PERCEPTUAL": "NOT_APPLICABLE",
+      "QUALITY-DIM-INTENT-FIDELITY": "NOT_APPLICABLE",
+      "QUALITY-DIM-DOMAIN-SCIENTIFIC": "NOT_APPLICABLE",
+      "QUALITY-DIM-DELIVERY-COMPATIBILITY": "NOT_APPLICABLE",
+      "metricCount": 16,
+      "metricDisposition": "NOT_APPLICABLE"
+    },
+    "measurement": "NOT_EVALUATED",
+    "qualification": "NOT_EVALUATED",
+    "thresholds": "NONE_DEFINED_OR_ADDED",
+    "acceptanceEffect": "none",
+    "remainingUnknownRecords": [
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#currentVersionExtensionOwnerAndTrust/qualityApplicability",
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml#currentVersionExtensionOwnerAndTrust/trustReconstructionDispositions/@capabilityRef=media.recipe.specification.compile/qualityApplicability"
+    ],
+    "historicalBoundary": "PXD-225's 462-row quality review remains immutable and excludes all seven extensions."
+  },
+  "decisionOptions": [
+    {
+      "optionId": "RETAIN_UNKNOWN_PENDING_CURRENT_SOURCE_REVIEW",
+      "effect": "Keep the quality-policy extension SOURCE_OWNER_DEFINED_NOT_YET_CURRENT and both capability-leaf-review qualityApplicability fields UNKNOWN; no status or source change."
+    },
+    {
+      "optionId": "AUTHORIZE_NARROW_PXD227_DEPENDENT_SOURCE_SYNC",
+      "effect": "Authorize a new source-bound PDP-0 successor to synchronize only the two listed capability-leaf-review fields to the exact PXD-227 quality-policy extension, preserving the 462 historical quality rows, all PXD-226 owner/trust meanings, NOT_EVALUATED measurement/qualification, and no acceptance or runtime claims. This requires a fresh exact-target source-owner decision, separate technical review, and guarded authorization because existing PXD-227 authority covers only decision-log.md and quality-policy.yaml."
+    },
+    {
+      "optionId": "REOPEN_QUALITY_MEANING",
+      "effect": "If the source owner rejects the existing six-dimension/16-metric applicability choice, retain UNKNOWN and open a new PDP-0 source-definition review before changing any applicability rows."
+    }
+  ],
+  "recommendedNextAction": "Root reviews Options 1–3 and, only if selecting Option 2, authors a new source-owner decision and exact target authorization. This candidate selects no option and authorizes no write.",
+  "authorityBoundary": {
+    "candidateAuthor": "coordinator; PDP-0 source-definition analysis only",
+    "sourceOwnerDecision": "PENDING",
+    "independentAcceptance": "NOT_CLAIMED",
+    "phaseStatusEffect": "NONE",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "measurement": "NOT_EVALUATED",
+    "qualification": "NOT_EVALUATED",
+    "nativeClosure": "NOT_CLAIMED",
+    "delivery": "NOT_CLAIMED"
+  }
+}

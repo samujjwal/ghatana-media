@@ -23,6 +23,34 @@ export function validateTaskPopulation(tasks) {
   const ids = tasks.map(t => t.id);
   if (ids.length !== 38 || new Set(ids).size !== 38 || taskIds.some(id => !ids.includes(id))) throw new Error('Readiness must contain exactly the 38 mandated PDP task identities');
 }
+export function projectPdp0DefinitionExtensionApplicability(surfaceValidation) {
+  const extensionApplicability = surfaceValidation?.proposalApplicability;
+  const counts = extensionApplicability?.counts ?? {};
+  const unknownCellCount = counts.UNKNOWN_PENDING_OWNER_DECISION ?? 0;
+  const complete = extensionApplicability?.ok === true && unknownCellCount === 0;
+  return {
+    complete,
+    projection: {
+      status: extensionApplicability?.status ?? 'UNKNOWN',
+      extensionCount: 6,
+      historicalOwnerAdjudications: 462,
+      surfaceIdentityDenominator: surfaceValidation?.stats?.denominator ?? 0,
+      channelDenominator: extensionApplicability?.channelCount ?? 0,
+      surfaceCellCount: extensionApplicability?.surfaceCellCount ?? 0,
+      channelSurfaceCellCount: extensionApplicability?.records?.length ?? 0,
+      cellCounts: counts,
+      surfaceCellCounts: extensionApplicability?.surfaceCounts ?? {},
+      unknownCellCount,
+      sourceRef: '.product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability',
+      decisionRef: '.product-experience/decision-log.md#PXD-203',
+      ownerApproval: 'NOT_CLAIMED',
+      independentAcceptance: 'NOT_CLAIMED',
+      nextAction: complete
+        ? 'No unresolved definition-extension surface cells remain; owner acceptance and independent acceptance remain separate.'
+        : 'PDP-0 owner applicability decision is required for every UNKNOWN_PENDING_OWNER_DECISION cell before the Discovery barrier can pass.',
+    },
+  };
+}
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const parseYaml=createRequire(path.resolve(root,'../ghatana-tools/package.json'))('yaml').parse;
 const digest = file => crypto.createHash('sha256').update(fs.readFileSync(path.join(root,file))).digest('hex');
@@ -61,6 +89,11 @@ export function pdp0PhaseScopedSourcePins() {
   addDecisionId('.product-experience/decision-log.md#PXD-223');
   addDecisionId('.product-experience/decision-log.md#PXD-225');
   addDecisionId('.product-experience/decision-log.md#PXD-226');
+  // Bind the owner-authored extension quality applicability decision as a
+  // phase-local material input, independently of the earlier PXD-227 apply.
+  addDecisionId('.product-experience/decision-log.md#PXD-229');
+  // Bind the current PDP-0 topology-denominator reconciliation decision.
+  addDecisionId('.product-experience/decision-log.md#PXD-230');
   const pins = {
     [pdp0SourceProjectionPinName]: fingerprint(projectPdp0SourceManifest(
       parseYaml(read('.product-experience/source-manifest.yaml')),
@@ -102,7 +135,7 @@ const suites = {
   'P0-04': ['tests/pdp-0-final.test.mjs', 'tests/media-product-definition-resolved-intents.test.mjs', 'tests/media-pdp0-acceptance-actor-binding.test.mjs'],
   'P0-05': ['tests/pdp-truth-domain.test.mjs', 'tests/pdp0-constitution-normative-completeness.test.mjs', 'tests/pdp0-requirement-source-boundaries.test.mjs', 'tests/pdp0-policy-authority-boundary.test.mjs', 'tests/pdp0-generated-audio-checkpoint-rights.test.mjs'],
   'P0-06': ['tests/pdp-0-06-measures-provenance.test.mjs', 'tests/media-measure-applicability-crosswalk.test.mjs', 'tests/pdp-truth-domain-quality-applicability.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-phase-noise-output-semantics.test.mjs', 'tests/pdp0-quality-current-source-review.test.mjs', 'tests/pdp0-quality-current-source-review-pxd212.test.mjs', 'tests/pdp0-quality-current-source-review-pxd225.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd206.test.mjs'],
-  'P0-07': ['tests/pdp-truth-domain-channel-profile-applicability.test.mjs', 'tests/media-p0-07-feature-channel-review.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-feature-review-current-source-observation.test.mjs', 'tests/pdp0-campaign-extension-surface-matrix.test.mjs', 'tests/media-pdp0-surface-denominator.test.mjs'],
+  'P0-07': ['tests/pdp-truth-domain-channel-profile-applicability.test.mjs', 'tests/media-p0-07-feature-channel-review.test.mjs', 'tests/pdp-truth-domain.test.mjs', 'tests/pdp0-feature-review-current-source-observation.test.mjs', 'tests/pdp0-campaign-extension-surface-matrix.test.mjs', 'tests/media-pdp0-surface-denominator.test.mjs', 'tests/pdp0-surface-matrix-topology.test.mjs'],
   'P0-08': ['tests/pdp-0-final.test.mjs', 'tests/media-product-definition-resolved-intents.test.mjs', 'tests/pdp-migration-current-source-claim-dispositions.test.mjs', 'tests/pdp0-development-handoff.test.mjs', 'tests/pdp0-animation-authored-provenance.test.mjs', 'tests/pdp0-phase-noise-output-semantics.test.mjs', 'tests/pdp0-bounded-resource-admission.test.mjs', 'tests/pdp0-requirement-source-boundaries.test.mjs', 'tests/pdp0-capability-leaf-review-authority-boundary.test.mjs', 'tests/pdp0-capability-intent-current-source-observation.test.mjs', 'tests/pdp0-capability-outcome-meaning.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd206.test.mjs', 'tests/pdp0-policy-authority-boundary.test.mjs', 'tests/pdp0-existing-operation-semantic-corrections.test.mjs', 'tests/media-pdp-readiness.test.mjs', 'tests/pdp-shared-readiness-reporter-source-boundary.test.mjs', 'tests/media-pdp0-501-audit-dispositions.test.mjs', 'tests/media-pdp0-audit-aq-traceability.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd215.test.mjs', 'tests/pdp0-current-source-reconciliation-pxd216.test.mjs', 'tests/pdp0-constitution-single-source-current-claim.test.mjs', 'tests/pdp0-required-family-disposition-coverage.test.mjs', 'tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs', 'tests/media-pdp0-acceptance-actor-binding.test.mjs', 'tests/media-pdp0-surface-denominator.test.mjs', 'tests/pdp0-semantic-corrections.test.mjs'],
   'P1-06': ['tests/media-typed-contract-bindings.test.mjs'],
   'P1-01': ['tests/media-domain-identity-reconciliation.test.mjs', 'tests/pdp-truth-domain-owner-identity-contracts.test.mjs', 'tests/pdp1-lane-a-current-source-review.test.mjs', 'tests/pdp1-versioning-classification.test.mjs'],
@@ -729,6 +762,7 @@ const p1DeferredEvidenceFiles = ['tests/pdp-experience-capability-invocation-ada
 export const p0DirectScripts = [
   'scripts/lib/media-product-definition-residuals.mjs',
   'scripts/lib/pdp0-feature-review-applicability.mjs',
+  'scripts/lib/media-pdp0-surface-matrix-topology.mjs',
   'scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs',
   'scripts/lib/product-definition-domain-rule-mapping.mjs',
   'scripts/generate-media-phase-projections.mjs',
@@ -1765,6 +1799,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     '.product-experience/artifact-identities.yaml',
     '.product-experience/surface-registry.yaml',
     '.product-experience/surfaces/media-physical-topology.v1.json',
+    'docs/surfaces/adapters-agent-tools-media/README.md',
+    'adapters/data-cloud-media/README.md',
     'docs/migration/current-master-plan-claim-dispositions.json',
     'docs/migration/master-plan-source-change-claims.yaml',
     'docs/implementation/verification/pdp-38/migration-p0-current-material-review.json',
@@ -1781,11 +1817,19 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     'docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd218.json',
     'docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd222.json',
     'docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd225.json',
+    'docs/implementation/verification/pdp-38/p0-quality-currentness-successor-pxd225-live-source.json',
+    'docs/implementation/verification/pdp-38/p0-quality-currentness-successor-pxd212-live-source.json',
+    'docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd213-live-source-successor-2026-11-16.json',
+    'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223-live-source-successor-2026-11-16.json',
+    'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v6.json',
+    'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/p0-capability-meaning-20-leaf-current-source-review-pxd216.successor.candidate.v6.json',
     'docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json',
     'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd216.json',
     'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json',
     'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json',
     'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd206.json',
+    'docs/implementation/verification/pdp-38/pdp-0-phase-dev-status.predecessor-pxd230-2026-11-16.json',
+    'docs/implementation/verification/pdp-38/pdp0-status-denominator-successor-pxd230-2026-11-16.json',
     'docs/implementation/verification/pdp-38/p0-quality-current-source-review.json',
     'docs/implementation/verification/pdp-38/feature-review-animation-property-owner-current-source-observation.json',
     'docs/implementation/verification/pdp-38/feature-review-audio-defects-current-source-observation.json',
@@ -1801,6 +1845,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     'docs/implementation/observations/media-attached-third-pass-id-provenance-crosswalk-2026-10-18.json',
     'docs/implementation/observations/media-unified-source-task-and-experiment-crosswalk-2026-10-18.json',
     'docs/implementation/observations/pdp0-semantic-audit-slices',
+    'docs/implementation/observations/media-pdp0-crosswalk-currentness-rebind-2026-11-16-predecessor.json',
+    'docs/implementation/observations/media-pdp0-crosswalk-currentness-rebind-2026-11-16.json',
+    'docs/implementation/verification/pdp-38/p0-quality-currentness-successor-pxd212-live-source.json',
+    'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v5.json',
   ];
   const sourceRoots=phaseStatus==='PDP-1'?p1SourceRoots:phaseStatus==='PDP-2'?p2SourceRoots:phaseStatus==='PDP-3'?p3SourceRoots:p0PinnedSources;
   const phaseScripts=phaseStatus==='PDP-1'?p1DirectScripts:phaseStatus==='PDP-2'?p2DirectScripts:phaseStatus==='PDP-3'?p3DirectScripts:p0DirectScripts;
@@ -1981,30 +2029,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       && p0AuditDispositions.total===501 && p0AuditDispositions.original===428 && p0AuditDispositions.focused===73
       && p0AuditDispositions.unresolvedPdp0===0;
     const p0SurfaceDenominatorComplete=p0SurfaceValidation.ok===true;
-    const extensionApplicability=p0SurfaceValidation.proposalApplicability;
-    const extensionApplicabilityCounts=extensionApplicability?.counts ?? {};
-    const extensionApplicabilityUnknownCells=extensionApplicabilityCounts.UNKNOWN_PENDING_OWNER_DECISION ?? 0;
-    const definitionExtensionApplicabilityComplete=extensionApplicability?.ok===true
-      && extensionApplicabilityUnknownCells===0;
-    const definitionExtensionApplicability={
-      status:extensionApplicability?.status ?? 'UNKNOWN',
-      extensionCount:6,
-      historicalOwnerAdjudications:462,
-      surfaceIdentityDenominator:54,
-      channelDenominator:extensionApplicability?.channelCount ?? 0,
-      surfaceCellCount:extensionApplicability?.surfaceCellCount ?? 0,
-      channelSurfaceCellCount:extensionApplicability?.records?.length ?? 0,
-      cellCounts:extensionApplicabilityCounts,
-      surfaceCellCounts:extensionApplicability?.surfaceCounts ?? {},
-      unknownCellCount:extensionApplicabilityUnknownCells,
-      sourceRef:'.product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability',
-      decisionRef:'.product-experience/decision-log.md#PXD-203',
-      ownerApproval:'NOT_CLAIMED',
-      independentAcceptance:'NOT_CLAIMED',
-      nextAction:definitionExtensionApplicabilityComplete
-        ? 'No unresolved definition-extension surface cells remain; owner acceptance and independent acceptance remain separate.'
-        : 'PDP-0 owner applicability decision is required for every UNKNOWN_PENDING_OWNER_DECISION cell before the Discovery barrier can pass.',
-    };
+    const definitionExtensionProjection = projectPdp0DefinitionExtensionApplicability(p0SurfaceValidation);
+    const definitionExtensionApplicabilityComplete = definitionExtensionProjection.complete;
+    const definitionExtensionApplicability = definitionExtensionProjection.projection;
     const migrationDisposition=JSON.parse(fs.readFileSync(path.join(root,'docs/migration/current-master-plan-claim-dispositions.json'),'utf8'));
     const migrationClaimSource=parseYaml(fs.readFileSync(path.join(root,'docs/migration/master-plan-source-change-claims.yaml'),'utf8'));
     const currentP0LeafReview=parseYaml(fs.readFileSync(path.join(root,'.product-experience/pdp-0-product-truth/capability-leaf-review.yaml'),'utf8'));

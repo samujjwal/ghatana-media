@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.imageio.ImageIO;
 
@@ -307,6 +308,27 @@ class VisionGrpcServiceTest {
     }
 
     @Test
+    @DisplayName("detectObjects: invalid confidence thresholds fail before provider dispatch")
+    void detectObjects_rejectsOutOfRangeAndNonFiniteConfidenceThresholds() {
+        List<Double> invalidThresholds = List.of(-0.01, 1.01, Double.NaN,
+                Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY);
+
+        for (double threshold : invalidThresholds) {
+            CapturingObserver<DetectResponse> observer = new CapturingObserver<>();
+            DetectRequest request = DetectRequest.newBuilder()
+                    .setImageData(ByteString.copyFrom(new byte[] {1}))
+                    .setConfidenceThreshold(threshold)
+                    .build();
+
+            withContext(TENANT_ID, () -> service.detectObjects(request, observer));
+
+            assertStatus(observer, Status.INVALID_ARGUMENT);
+            assertThat(observer.getValue()).isNull();
+        }
+        assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
     @DisplayName("detectObjects: multiple results → processing time included in response")
     void detectObjects_multipleResults_includesProcessingTime() { 
         // GIVEN
@@ -457,6 +479,104 @@ class VisionGrpcServiceTest {
         assertThat(fakeDetector.calls).isZero();
     }
 
+    @Test
+    void analyzeImage_rejectsBlankAnalysisSelectorsAndKeepsValidSelectorNotAdmitted() {
+        for (String invalidSelector : List.of("", "   ", "\t\n")) {
+            AnalyzeRequest malformed = AnalyzeRequest.newBuilder()
+                    .setImageData(ByteString.copyFrom(new byte[] {1}))
+                    .addAnalysisTypes(invalidSelector)
+                    .build();
+            CapturingObserver<AnalyzeResponse> rejected = new CapturingObserver<>();
+            withContext(TENANT_ID, () -> service.analyzeImage(malformed, rejected));
+            assertStatus(rejected, Status.INVALID_ARGUMENT);
+            assertThat(rejected.getValue()).isNull();
+        }
+
+        AnalyzeRequest validSelector = AnalyzeRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[] {1}))
+                .addAnalysisTypes("scene")
+                .build();
+        CapturingObserver<AnalyzeResponse> notAdmitted = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> service.analyzeImage(validSelector, notAdmitted));
+
+        assertUnimplemented(notAdmitted);
+        assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
+    void recognizeSceneText_oversizedCallerCropIsRejectedBeforeSourceOrDiAccess() {
+        java.util.concurrent.atomic.AtomicInteger sourceChecks = new java.util.concurrent.atomic.AtomicInteger();
+        var documentIntelligence = mock(
+                com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.class);
+        var sceneText = new com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService(
+                Optional.of(documentIntelligence), check -> {
+                    sourceChecks.incrementAndGet();
+                    return com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Decision.of(
+                            com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.SourceStatus.UNAVAILABLE);
+                }, new com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Policy(
+                        "di.ocr.en", "2.4.1", "model.scene-text.en", "2026.09.2",
+                        Set.of("image/png"), Set.of("en"), 5_000, Map.of()));
+        service.bindSceneTextService(sceneText);
+
+        String sourceSha = "a".repeat(64);
+        SceneTextRecognizeRequest request = validSceneTextRequest(sourceSha)
+                .setCroppedBytes(ByteString.copyFrom(new byte[
+                        com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.MAX_CROP_BYTES + 1]))
+                .setCroppedFrameSha256("b".repeat(64))
+                .build();
+        CapturingObserver<SceneTextRecognizeResponse> observer = new CapturingObserver<>();
+
+        withAuthenticatedSubject(() -> service.recognizeSceneText(request, observer));
+
+        assertThat(observer.getValue()).isNotNull();
+        assertThat(observer.getValue().hasRejected()).isTrue();
+        assertThat(observer.getValue().getRejected().getCode()).isEqualTo("INVALID_REQUEST");
+        assertThat(observer.getValue().getRejected().getRetryable()).isFalse();
+        assertThat(sourceChecks).hasValue(0);
+        verifyNoInteractions(documentIntelligence);
+    }
+
+    @Test
+    void recognizeSceneText_validOmittedCropUsesSourceGateAndStillAvoidsUnadmittedDi() {
+        java.util.concurrent.atomic.AtomicInteger sourceChecks = new java.util.concurrent.atomic.AtomicInteger();
+        var documentIntelligence = mock(
+                com.ghatana.audio.video.vision.scenetext.DocumentIntelligenceV1.class);
+        var sceneText = new com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService(
+                Optional.of(documentIntelligence), check -> {
+                    sourceChecks.incrementAndGet();
+                    return com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Decision.of(
+                            com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.SourceStatus.NOT_ADMITTED);
+                }, new com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Policy(
+                        "di.ocr.en", "2.4.1", "model.scene-text.en", "2026.09.2",
+                        Set.of("image/png"), Set.of("en"), 5_000, Map.of()));
+        service.bindSceneTextService(sceneText);
+        CapturingObserver<SceneTextRecognizeResponse> observer = new CapturingObserver<>();
+
+        withAuthenticatedSubject(() -> service.recognizeSceneText(
+                validSceneTextRequest("a".repeat(64)).build(), observer));
+
+        assertThat(observer.getValue()).isNotNull();
+        assertThat(observer.getValue().hasRejected()).isTrue();
+        assertThat(observer.getValue().getRejected().getCode()).isEqualTo("SOURCE_DENIED");
+        assertThat(sourceChecks).hasValue(1);
+        verifyNoInteractions(documentIntelligence);
+    }
+
+    private static SceneTextRecognizeRequest.Builder validSceneTextRequest(String sourceSha) {
+        return SceneTextRecognizeRequest.newBuilder()
+                .setOperationId("operation-1")
+                .setPurposeRef("captioning")
+                .setSourceArtifactId("artifact-1")
+                .setSourceVersion("sha256:" + sourceSha)
+                .setFrameId("frame-1")
+                .setPtsUs(0)
+                .setFrameWidth(100)
+                .setFrameHeight(80)
+                .setRoi(SceneTextRoi.newBuilder().setX(10).setY(20).setWidth(40).setHeight(30))
+                .setMediaType("image/png")
+                .setOriginalFrameSha256(sourceSha);
+    }
+
     @ParameterizedTest
     @EnumSource(VisionCapabilityDisposition.class)
     @DisplayName("registered Vision intents return NOT_ADMITTED before detector dispatch")
@@ -513,6 +633,53 @@ class VisionGrpcServiceTest {
                 .contains(VisionCapabilityDisposition.Status.NOT_ADMITTED.name());
         assertThat(observer.getValue()).isNull();
         assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
+    void resolveSourceFrameRejectsNegativePtsAndNonCanonicalOrdinalsBeforeSourceAdmission() {
+        List<SourceFrameResolveRequest> malformed = List.of(
+                validSourceFrameRequest().setPtsUs(-1).build(),
+                validSourceFrameRequest().setFrameId("00").build(),
+                validSourceFrameRequest().setFrameId("10000001").build());
+
+        for (SourceFrameResolveRequest request : malformed) {
+            CapturingObserver<SourceFrameResolveResponse> observer = new CapturingObserver<>();
+            withAuthenticatedSubject(() -> service.resolveSourceFrame(request, observer));
+            assertThat(observer.getValue()).isNotNull();
+            assertThat(observer.getValue().hasRejected()).isTrue();
+            assertThat(observer.getValue().getRejected().getCode()).isEqualTo("INVALID_REQUEST");
+            assertThat(observer.getValue().getRejected().getRetryable()).isFalse();
+        }
+    }
+
+    @Test
+    void resolveSourceFrameValidRequestRemainsNotAdmittedWhenReaderIsAbsent() {
+        CapturingObserver<SourceFrameResolveResponse> observer = new CapturingObserver<>();
+        withAuthenticatedSubject(() -> service.resolveSourceFrame(validSourceFrameRequest().build(), observer));
+
+        assertThat(observer.getValue()).isNotNull();
+        assertThat(observer.getValue().hasRejected()).isTrue();
+        assertThat(observer.getValue().getRejected().getCode()).isEqualTo("SOURCE_NOT_ADMITTED");
+        assertThat(observer.getValue().getRejected().getRetryable()).isFalse();
+    }
+
+    private static SourceFrameResolveRequest.Builder validSourceFrameRequest() {
+        return SourceFrameResolveRequest.newBuilder()
+                .setSourceArtifactId("artifact-vision-test")
+                .setSourceVersion("sha256:" + "a".repeat(64))
+                .setFrameId("0")
+                .setPtsUs(0)
+                .setFrameWidth(8)
+                .setFrameHeight(8)
+                .setRoi(SceneTextRoi.newBuilder().setX(1).setY(1).setWidth(4).setHeight(4))
+                .setPurposeRef("captioning");
+    }
+
+    private static void withAuthenticatedSubject(Runnable action) {
+        Context.current()
+                .withValue(JwtServerInterceptor.CTX_TENANT, TENANT_ID)
+                .withValue(JwtServerInterceptor.CTX_SUBJECT, "principal-vision-test")
+                .run(action);
     }
 
     @Test
@@ -632,6 +799,44 @@ class VisionGrpcServiceTest {
     }
 
     @Test
+    void classifyImage_rejectsMalformedTopKAndConfidenceBeforeProviderDisposition() {
+        List<ClassifyRequest> invalidRequests = List.of(
+                ClassifyRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[] {1}))
+                        .setTopK(-1).build(),
+                ClassifyRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[] {1}))
+                        .setConfidenceThreshold(-0.01).build(),
+                ClassifyRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[] {1}))
+                        .setConfidenceThreshold(1.01).build(),
+                ClassifyRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[] {1}))
+                        .setConfidenceThreshold(Double.NaN).build(),
+                ClassifyRequest.newBuilder().setImageData(ByteString.copyFrom(new byte[] {1}))
+                        .setConfidenceThreshold(Double.POSITIVE_INFINITY).build());
+
+        for (ClassifyRequest request : invalidRequests) {
+            CapturingObserver<ClassifyResponse> observer = new CapturingObserver<>();
+            withContext(TENANT_ID, () -> service.classifyImage(request, observer));
+            assertStatus(observer, Status.INVALID_ARGUMENT);
+            assertThat(observer.getValue()).isNull();
+        }
+        assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
+    void classifyImage_validDefaultAndThresholdBoundaryRemainNotAdmitted() {
+        ClassifyRequest request = ClassifyRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(new byte[] {1}))
+                .setTopK(0) // proto default means use the declared default of five labels
+                .setConfidenceThreshold(1.0)
+                .build();
+        CapturingObserver<ClassifyResponse> observer = new CapturingObserver<>();
+
+        withContext(TENANT_ID, () -> service.classifyImage(request, observer));
+
+        assertUnimplemented(observer);
+        assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
     @DisplayName("classifyImage: unsupported classification does not dispatch to detector")
     void classifyImage_unsupportedClassificationDoesNotCallDetector() {
         fakeDetector.setThrowOnDetect(new VisionDetector.DetectionException("model error", null));
@@ -680,6 +885,38 @@ class VisionGrpcServiceTest {
         assertThat(((StatusRuntimeException) excessiveFrames.getError()).getStatus().getCode())
                 .isEqualTo(Status.INVALID_ARGUMENT.getCode());
         assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
+    void analyzeVideoFile_rejectsOutOfRangeAndNonFiniteThresholdBeforeCodecOrProvider() {
+        List<Double> invalidThresholds = List.of(-0.01, 1.01, Double.NaN,
+                Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY);
+
+        for (double threshold : invalidThresholds) {
+            CapturingObserver<VideoFileResponse> observer = new CapturingObserver<>();
+            VideoFileRequest request = VideoFileRequest.newBuilder()
+                    .setVideoData(ByteString.copyFrom(new byte[] {1, 2, 3}))
+                    .setConfidenceThreshold(threshold)
+                    .build();
+
+            withContext(TENANT_ID, () -> service.analyzeVideoFile(request, observer));
+
+            assertStatus(observer, Status.INVALID_ARGUMENT);
+            assertThat(observer.getValue()).isNull();
+        }
+        assertThat(fakeDetector.calls).isZero();
+        verifyNoInteractions(frameExtractor);
+    }
+
+    @Test
+    void analyzeVideoFile_confidenceThresholdBoundsAndProtoDefaultAreStable() {
+        assertThat(VisionGrpcService.isValidVideoConfidenceThreshold(0.0)).isTrue();
+        assertThat(VisionGrpcService.isValidVideoConfidenceThreshold(1.0)).isTrue();
+        assertThat(VisionGrpcService.effectiveVideoConfidenceThreshold(0.0)).isEqualTo(0.5);
+        assertThat(VisionGrpcService.effectiveVideoConfidenceThreshold(0.73)).isEqualTo(0.73);
+        assertThat(VisionGrpcService.effectiveVideoConfidenceThreshold(1.0)).isEqualTo(1.0);
+        assertThat(VisionGrpcService.isValidVideoConfidenceThreshold(Double.NaN)).isFalse();
+        assertThat(VisionGrpcService.isValidVideoConfidenceThreshold(Double.POSITIVE_INFINITY)).isFalse();
     }
 
     @Test
@@ -735,6 +972,47 @@ class VisionGrpcServiceTest {
     }
 
     @Test
+    void processVideo_negativeFrameOrdinalRejectsBeforeProviderDispatch() {
+        CapturingObserver<VideoFrameResponse> observer = new CapturingObserver<>();
+        java.util.concurrent.atomic.AtomicReference<StreamObserver<VideoFrameRequest>> requestStream =
+                new java.util.concurrent.atomic.AtomicReference<>();
+
+        withContext(TENANT_ID, () -> requestStream.set(service.processVideo(observer)));
+        withContext(TENANT_ID, () -> requestStream.get().onNext(VideoFrameRequest.newBuilder()
+                .setFrameData(ByteString.copyFrom(new byte[] {0x42}))
+                .setFrameNumber(-1)
+                .build()));
+
+        assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getDescription())
+                .isEqualTo("frameNumber must be non-negative");
+        assertThat(observer.getValue()).isNull();
+        assertThat(fakeDetector.calls).isZero();
+    }
+
+    @Test
+    void processVideo_zeroBasedFirstFrameIsAcceptedAndEchoed() {
+        CapturingObserver<VideoFrameResponse> observer = new CapturingObserver<>();
+        java.util.concurrent.atomic.AtomicReference<StreamObserver<VideoFrameRequest>> requestStream =
+                new java.util.concurrent.atomic.AtomicReference<>();
+
+        withContext(TENANT_ID, () -> requestStream.set(service.processVideo(observer)));
+        withContext(TENANT_ID, () -> requestStream.get().onNext(VideoFrameRequest.newBuilder()
+                .setFrameData(ByteString.copyFrom(new byte[] {0x42}))
+                .setFrameNumber(0)
+                .setTimestampMs(0)
+                .build()));
+
+        assertThat(observer.getError()).isNull();
+        assertThat(observer.getValue()).isNotNull();
+        assertThat(observer.getValue().getFrameNumber()).isZero();
+        assertThat(observer.getValue().getTimestampMs()).isZero();
+        assertThat(fakeDetector.calls).isEqualTo(1);
+    }
+
+    @Test
     void processVideo_providerTimeoutMapsToDeadlineExceededAndRedactsDetails() {
         String privateDetail = "private vision provider timeout detail";
         fakeDetector.setThrowOnDetect(new java.util.concurrent.CompletionException(
@@ -766,7 +1044,7 @@ class VisionGrpcServiceTest {
     void loadModel_blankModelId_returnsInvalidArgument() { 
         CapturingObserver<LoadModelResponse> observer = new CapturingObserver<>(); 
 
-        withContext(TENANT_ID, () -> service.loadModel(LoadModelRequest.getDefaultInstance(), observer));
+        withAuthenticatedSubject(() -> service.loadModel(LoadModelRequest.getDefaultInstance(), observer));
 
         assertThat(observer.hasError()).isTrue(); 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
@@ -777,7 +1055,7 @@ class VisionGrpcServiceTest {
     @DisplayName("loadModel: valid modelId without provider admission → UNAVAILABLE")
     void loadModel_validModelId_returnsUnavailableWithoutRegistryMutation() {
         CapturingObserver<LoadModelResponse> observer = new CapturingObserver<>();
-        withContext(TENANT_ID, () -> service.loadModel(
+        withAuthenticatedSubject(() -> service.loadModel(
                 LoadModelRequest.newBuilder().setModelId("yolov8n").build(), observer));
         assertStatus(observer, Status.UNAVAILABLE);
     }
@@ -791,7 +1069,7 @@ class VisionGrpcServiceTest {
     void unloadModel_blankModelId_returnsInvalidArgument() { 
         CapturingObserver<UnloadModelResponse> observer = new CapturingObserver<>(); 
 
-        withContext(TENANT_ID, () -> service.unloadModel(UnloadModelRequest.getDefaultInstance(), observer));
+        withAuthenticatedSubject(() -> service.unloadModel(UnloadModelRequest.getDefaultInstance(), observer));
 
         assertThat(observer.hasError()).isTrue(); 
         assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode()) 
@@ -802,7 +1080,7 @@ class VisionGrpcServiceTest {
     @DisplayName("unloadModel: modelId without provider admission → UNAVAILABLE")
     void unloadModel_modelId_returnsUnavailableWithoutRegistryMutation() {
         CapturingObserver<UnloadModelResponse> observer = new CapturingObserver<>();
-        withContext(TENANT_ID, () -> service.unloadModel(
+        withAuthenticatedSubject(() -> service.unloadModel(
                 UnloadModelRequest.newBuilder().setModelId("unknown-model").build(), observer));
         assertStatus(observer, Status.UNAVAILABLE);
     }
@@ -830,22 +1108,32 @@ class VisionGrpcServiceTest {
                 fakeDetector, frameExtractor, MediaProcessingMetrics.noop(), null, registry);
 
         CapturingObserver<LoadModelResponse> blankLoad = new CapturingObserver<>();
-        withContext(TENANT_ID, () -> unadmittedService.loadModel(
+        withAuthenticatedSubject(() -> unadmittedService.loadModel(
                 LoadModelRequest.getDefaultInstance(), blankLoad));
         assertStatus(blankLoad, Status.INVALID_ARGUMENT);
 
         CapturingObserver<UnloadModelResponse> blankUnload = new CapturingObserver<>();
-        withContext(TENANT_ID, () -> unadmittedService.unloadModel(
+        withAuthenticatedSubject(() -> unadmittedService.unloadModel(
                 UnloadModelRequest.getDefaultInstance(), blankUnload));
         assertStatus(blankUnload, Status.INVALID_ARGUMENT);
 
-        CapturingObserver<LoadModelResponse> load = new CapturingObserver<>();
+        CapturingObserver<LoadModelResponse> missingActorLoad = new CapturingObserver<>();
         withContext(TENANT_ID, () -> unadmittedService.loadModel(
+                LoadModelRequest.newBuilder().setModelId("caller-selected-model").build(), missingActorLoad));
+        assertStatus(missingActorLoad, Status.UNAUTHENTICATED);
+
+        CapturingObserver<UnloadModelResponse> missingActorUnload = new CapturingObserver<>();
+        withContext(TENANT_ID, () -> unadmittedService.unloadModel(
+                UnloadModelRequest.newBuilder().setModelId("caller-selected-model").build(), missingActorUnload));
+        assertStatus(missingActorUnload, Status.UNAUTHENTICATED);
+
+        CapturingObserver<LoadModelResponse> load = new CapturingObserver<>();
+        withAuthenticatedSubject(() -> unadmittedService.loadModel(
                 LoadModelRequest.newBuilder().setModelId("candidate").build(), load));
         assertStatus(load, Status.UNAVAILABLE);
 
         CapturingObserver<UnloadModelResponse> unload = new CapturingObserver<>();
-        withContext(TENANT_ID, () -> unadmittedService.unloadModel(
+        withAuthenticatedSubject(() -> unadmittedService.unloadModel(
                 UnloadModelRequest.newBuilder().setModelId("candidate").build(), unload));
         assertStatus(unload, Status.UNAVAILABLE);
 

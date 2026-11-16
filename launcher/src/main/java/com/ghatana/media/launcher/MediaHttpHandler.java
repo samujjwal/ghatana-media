@@ -77,6 +77,7 @@ public final class MediaHttpHandler implements HttpHandler {
     private static final Pattern CHUNK_PATH = Pattern.compile("^/api/v1/artifacts/uploads/([^/]+)/chunks/(-?\\d+)$");
     private static final Pattern COMPLETE_PATH = Pattern.compile("^/api/v1/artifacts/uploads/([^/]+)/complete$");
     private static final Pattern ARTIFACT_PATH = Pattern.compile("^/api/v1/artifacts/([^/]+)$");
+    private static final Pattern OPAQUE_ARTIFACT_ID = Pattern.compile("^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$");
     private static final Pattern JOB_PATH = Pattern.compile("^/api/v1/jobs/([^/]+)$");
     private static final Pattern CANCEL_PATH = Pattern.compile("^/api/v1/jobs/([^/]+)/cancel$");
     private static final Pattern STREAM_PATH = Pattern.compile("^/api/v1/streams/([^/]+)$");
@@ -388,8 +389,8 @@ public final class MediaHttpHandler implements HttpHandler {
             }
 
             if ("/api/v1/consents".equals(path)) {
-                if ("POST".equals(method)) grantConsent(exchange, tenantId);
-                else if ("GET".equals(method)) listConsents(exchange, tenantId);
+                if ("POST".equals(method)) grantConsent(exchange, tenantId, principalId);
+                else if ("GET".equals(method)) listConsents(exchange, tenantId, principalId);
                 else methodNotAllowed(exchange, "GET, POST");
                 return;
             }
@@ -399,8 +400,8 @@ public final class MediaHttpHandler implements HttpHandler {
                 if (consentId.isEmpty() || consentId.codePointCount(0, consentId.length()) > 255) {
                     throw new IllegalArgumentException("consentId must contain between 1 and 255 characters");
                 }
-                if ("GET".equals(method)) readConsent(exchange, tenantId, consentId);
-                else if ("DELETE".equals(method)) revokeConsent(exchange, tenantId, consentId);
+                if ("GET".equals(method)) readConsent(exchange, tenantId, principalId, consentId);
+                else if ("DELETE".equals(method)) revokeConsent(exchange, tenantId, principalId, consentId);
                 else methodNotAllowed(exchange, "GET, DELETE");
                 return;
             }
@@ -433,7 +434,11 @@ public final class MediaHttpHandler implements HttpHandler {
             Matcher artifact = ARTIFACT_PATH.matcher(path);
             if (artifact.matches()) {
                 if (!"GET".equals(method)) { methodNotAllowed(exchange, "GET"); return; }
-                artifact(exchange, tenantId, principalId, decodePathSegment(artifact.group(1))); return;
+                String artifactId = decodePathSegment(artifact.group(1));
+                if (!OPAQUE_ARTIFACT_ID.matcher(artifactId).matches()) {
+                    throw new IllegalArgumentException("artifactId must be a bounded opaque identifier");
+                }
+                artifact(exchange, tenantId, principalId, artifactId); return;
             }
             if ("/api/v1/jobs".equals(path)) {
                 if ("POST".equals(method)) submit(exchange, tenantId, principalId);
@@ -523,9 +528,8 @@ public final class MediaHttpHandler implements HttpHandler {
         }
     }
 
-    private void grantConsent(HttpExchange exchange, String tenantId) throws IOException {
+    private void grantConsent(HttpExchange exchange, String tenantId, String principalId) throws IOException {
         MediaConsentAdministration administration = requireConsentAdministration();
-        String principalId = requiredHeader(exchange, "X-Principal-Id");
         ConsentGrantBody body;
         try {
             body = mapper.readValue(
@@ -1139,16 +1143,15 @@ public final class MediaHttpHandler implements HttpHandler {
         }
     }
 
-    private void listConsents(HttpExchange exchange, String tenantId) throws IOException {
+    private void listConsents(HttpExchange exchange, String tenantId, String principalId) throws IOException {
         MediaConsentAdministration administration = requireConsentAdministration();
-        String principalId = requiredHeader(exchange, "X-Principal-Id");
         var values = administration.list(tenantId, principalId, queryLimit(exchange, 100));
         json(exchange, 200, Map.of("consents", values, "count", values.size()));
     }
 
-    private void readConsent(HttpExchange exchange, String tenantId, String consentId) throws IOException {
+    private void readConsent(HttpExchange exchange, String tenantId, String principalId, String consentId)
+            throws IOException {
         MediaConsentAdministration administration = requireConsentAdministration();
-        String principalId = requiredHeader(exchange, "X-Principal-Id");
         var record = administration.find(tenantId, principalId, consentId);
         if (record.isEmpty()) {
             error(exchange, 404, "CONSENT_NOT_FOUND", "Media consent not found");
@@ -1157,9 +1160,9 @@ public final class MediaHttpHandler implements HttpHandler {
         json(exchange, 200, record.orElseThrow());
     }
 
-    private void revokeConsent(HttpExchange exchange, String tenantId, String consentId) throws IOException {
+    private void revokeConsent(HttpExchange exchange, String tenantId, String principalId, String consentId)
+            throws IOException {
         MediaConsentAdministration administration = requireConsentAdministration();
-        String principalId = requiredHeader(exchange, "X-Principal-Id");
         String correlationId = requiredCorrelationHeader(exchange);
         var record = administration.revoke(tenantId, principalId, consentId, correlationId);
         if (record.isEmpty()) {
@@ -1494,13 +1497,20 @@ public final class MediaHttpHandler implements HttpHandler {
     }
 
     private void health(HttpExchange exchange, String path) throws IOException {
-        boolean ready = runtime.ready();
-        if ("/health/live".equals(path)) json(exchange, 200, Map.of("status", "LIVE"));
-        else if ("/health/ready".equals(path) || "/ready".equals(path)) {
-            json(exchange, ready ? 200 : 503, Map.of("status", ready ? "READY" : "NOT_READY"));
-        } else if ("/health/startup".equals(path)) {
-            json(exchange, ready ? 200 : 503, Map.of("status", ready ? "STARTED" : "STARTING"));
-        } else if ("/metrics".equals(path)) {
+        // Liveness answers only whether the HTTP process can serve requests. Dependency
+        // probes belong to readiness and may call remote stores/providers; do not make a
+        // live process look dead because a dependency is unavailable.
+        if ("/health/live".equals(path)) {
+            json(exchange, 200, Map.of("status", "LIVE"));
+            return;
+        }
+        // This endpoint only runs after MediaRuntime composition has completed and the
+        // HTTP service has started accepting requests. Dependency health belongs to readiness.
+        if ("/health/startup".equals(path)) {
+            json(exchange, 200, Map.of("status", "STARTED"));
+            return;
+        }
+        if ("/metrics".equals(path)) {
             String accept = exchange.getRequestHeaders().getFirst("Accept");
             String metricsContentType = metricsContentType(accept);
             if (metricsContentType != null) {
@@ -1509,20 +1519,31 @@ public final class MediaHttpHandler implements HttpHandler {
                 exchange.getResponseHeaders().set("Cache-Control", "no-store");
                 exchange.sendResponseHeaders(200, bytes.length);
                 try (var output = exchange.getResponseBody()) { output.write(bytes); }
-            } else {
-                Map<String, Object> snapshot = runtime.healthSnapshot();
-                json(exchange, 200, Map.of(
-                        "service", "media", "ready", ready,
-                        "activeJobs", snapshot.get("activeJobs"),
-                        "activeStreams", snapshot.get("activeStreams")));
+                return;
             }
-        } else if ("/info".equals(path)) {
+        }
+        if ("/info".equals(path)) {
             json(exchange, 200, Map.of(
                     "service", "media",
                     "metadataIntegration", "data-cloud-capability",
                     "genericModelIntegration", "ai-inference-capability"));
-        } else {
-            json(exchange, ready ? 200 : 503, Map.of("status", ready ? "UP" : "DOWN"));
+            return;
+        }
+        if ("/health".equals(path) || "/api/v1/health".equals(path)) {
+            Map<String, Object> snapshot = runtime.healthSnapshot();
+            int status = "UP".equals(snapshot.get("status")) ? 200 : 503;
+            json(exchange, status, snapshot);
+            return;
+        }
+        boolean ready = runtime.ready();
+        if ("/health/ready".equals(path) || "/ready".equals(path)) {
+            json(exchange, ready ? 200 : 503, Map.of("status", ready ? "READY" : "NOT_READY"));
+        } else if ("/metrics".equals(path)) {
+            Map<String, Object> snapshot = runtime.healthSnapshot();
+            json(exchange, 200, Map.of(
+                    "service", "media", "ready", ready,
+                    "activeJobs", snapshot.get("activeJobs"),
+                    "activeStreams", snapshot.get("activeStreams")));
         }
     }
 

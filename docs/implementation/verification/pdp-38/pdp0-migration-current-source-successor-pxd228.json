@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "media.pdp0-migration-current-source-successor.v1",
+  "successorKind": "CURRENT_SOURCE_OBSERVATION_ONLY",
+  "decisionRef": ".product-experience/decision-log.md#PXD-228",
+  "decisionSectionSha256": "a2c8469af9b3cf91daffc77a75f5bda6ee9bb751c7bda8a3a5e881a22fb16eec",
+  "scope": "Additive PDP-0 current-source observation for MPSEM-0023-C002. It distinguishes retained SDK path identity from method dispatch state, preserves the immutable candidate's predecessor pins, and makes no semantic parity, admission, owner acceptance, or release claim.",
+  "predecessorArtifact": {
+    "artifactRef": "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json",
+    "artifactSha256": "b686f2c56fbf7c1b7fb9dd015877674328d77b4318fe175b020ebe2530f98a49",
+    "recordRef": "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json#/records/@claimId=MPSEM-0023-C002/currentProposalObservation",
+    "preservedCurrentSourceFileSha256": "27bc34748b22e6a59ff7dd4f2e50df18a3e5415ee6acad55e466ef7bb4016bcf",
+    "preservedCurrentTargetValueSha256": "da8e3c5c664c3b677415d038464005ef5e1691331cab533b2d71b225c6e06dfa",
+    "preservedPendingDriftTargetValueSha256": "a7d96ddd4381e79d03add69eb021176f1a2ecbadb3abb32bcd4e86eb90f19313"
+  },
+  "sourceFingerprints": {
+    ".product-experience/interface-parity/operation-parity.yaml": "5a6e513cc4a04f1d839cfefb57f92d78983f0ffd91557b17361fe4342ee2f2da",
+    "config/route-manifest.json": "aadbad036d79f92a3ee17a595bcbb82fd41b0129943726d258ebf81da4fad509",
+    ".product-experience/decision-log.md#PXD-228-section": "a2c8469af9b3cf91daffc77a75f5bda6ee9bb751c7bda8a3a5e881a22fb16eec"
+  },
+  "records": [
+    {
+      "observationId": "P0-MIGRATION-CURRENT-228",
+      "claimId": "MPSEM-0023-C002",
+      "sourceArtifactRef": ".product-experience/interface-parity/operation-parity.yaml",
+      "sourceRecordRef": ".product-experience/interface-parity/operation-parity.yaml#compatibilityRouteFindings",
+      "targetRef": ".product-experience/interface-parity/operation-parity.yaml#compatibilityRouteFindings/currentComparison",
+      "predecessorObservationRef": "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json#/records/@claimId=MPSEM-0023-C002/currentProposalObservation",
+      "predecessorSourceFileSha256": "27bc34748b22e6a59ff7dd4f2e50df18a3e5415ee6acad55e466ef7bb4016bcf",
+      "predecessorTargetValueSha256": "da8e3c5c664c3b677415d038464005ef5e1691331cab533b2d71b225c6e06dfa",
+      "predecessorPendingDriftTargetValueSha256": "a7d96ddd4381e79d03add69eb021176f1a2ecbadb3abb32bcd4e86eb90f19313",
+      "currentSourceFileSha256": "5a6e513cc4a04f1d839cfefb57f92d78983f0ffd91557b17361fe4342ee2f2da",
+      "currentTargetValueSha256": "ad47c936417926f200418e95bdcbd7949ab990eea2711c7e1eb5597f12d32b0c",
+      "currentTargetValue": "Six legacy/candidate SDK path identities remain in source but are absent from the 30-route active manifest; five corresponding methods remain dispatchable and the retained provider-capabilities method fails closed. Eight other operation-client methods are retired and fail closed before transport. None is admitted to the active manifest or parity-accepted.",
+      "routeManifestSha256": "aadbad036d79f92a3ee17a595bcbb82fd41b0129943726d258ebf81da4fad509",
+      "findingCounts": {
+        "total": 14,
+        "pathIdentityRetained": 6,
+        "pathIdentityRetired": 8,
+        "retainedMethodDispatchable": 5,
+        "retainedMethodFailClosed": 1,
+        "activeManifestPresent": 0
+      },
+      "status": "PENDING_COORDINATOR_MATERIAL_REVIEW",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "semanticPromotion": false,
+      "acceptanceEffect": "none",
+      "claimDisposition": "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED",
+      "runtimeAdmission": "NOT_ADMITTED"
+    }
+  ]
+}

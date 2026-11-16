@@ -358,6 +358,14 @@ class PostgresqlProjectTimelineStoreTest {
                             .isEqualTo(child.revisionId());
                     assertThat(restartedStore.revision(fixtureActor, projectId, child.revisionId()))
                             .isEqualTo(child);
+                    assertThat(restartedStore.commit(fixtureActor, projectId, timelineCreated.revisionId(),
+                            child.revisionId(), child.timelines())).isEqualTo(child);
+                    assertThat(restartedEngine.project(fixtureActor, projectId).headRevisionId())
+                            .isEqualTo(child.revisionId());
+                    assertThatThrownBy(() -> restartedStore.commit(fixtureActor, projectId,
+                            timelineCreated.revisionId(), child.revisionId(), List.of()))
+                            .isInstanceOf(IllegalStateException.class)
+                            .hasMessage("revision identity was replayed with a different payload");
                     assertThat(restartedStore.revision(fixtureActor, projectId, initialRevisionId).timelines()).isEmpty();
 
                     var restartReplay = restartedEngine.createProject(fixtureActor, "workspace-j01-fixture",

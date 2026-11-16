@@ -2914,3 +2914,107 @@ currentness repair does not assert PDP-0 `DEV_COMPLETE` by itself.
 **Limits:** This applicability decision defines no measurement method, threshold, qualification, acceptance, runtime admission, or phase-status change. Measurement and qualification remain not evaluated; acceptance effect is none. It does not alter PDP-1 or any later phase.
 
 **Effect:** If adopted, this section and the exact quality-policy extension are source-definition changes only. Canonical source apply remains pending a distinct source-owner decision, exact apply authorization, and the repository's guarded two-target CAS. Independent acceptance and native proof are not claimed.
+
+### PXD-228 — Separate retained SDK path identities from retired methods
+
+**Authority:** This bounded PDP-0 migration source-owner decision uses the user-delegated coordinator authority for missing Media source decisions. It clarifies only the exact source observation for `MPSEM-0023-C002`; it does not establish claim parity, owner acceptance, runtime admission, or release.
+
+**Source basis:** The source cut is `.product-experience/interface-parity/operation-parity.yaml#compatibilityRouteFindings` at SHA-256 `5a6e513cc4a04f1d839cfefb57f92d78983f0ffd91557b17361fe4342ee2f2da` and `config/route-manifest.json` at SHA-256 `aadbad036d79f92a3ee17a595bcbb82fd41b0129943726d258ebf81da4fad509`. Every one of the fourteen method/path identities is absent from the exact thirty-route manifest.
+
+**Decision:** Record two separate dimensions for each finding: whether its legacy/candidate path identity remains in source, and whether the corresponding SDK method can dispatch. Six identities remain in source: the retained provider-capabilities path plus the five `index.ts` paths. Five of these methods remain dispatchable; the provider-capabilities method fails closed before transport. The other eight operation-client method identities are retired and fail closed before transport. Their retained audit rows do not make them live client methods.
+
+**Current comparison:** The summary is “Six legacy/candidate SDK path identities remain in source but are absent from the 30-route active manifest; five corresponding methods remain dispatchable and the retained provider-capabilities method fails closed. Eight other operation-client methods are retired and fail closed before transport. None is admitted to the active manifest or parity-accepted.” The row-level identifiers and both dimensions are explicit on all fourteen source findings.
+
+**Disposition:** Keep `MPSEM-0023-C002` `PARTIAL` / not accepted and retain `CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED`. The source observation establishes route-identity and dispatch state only. It does not establish semantic equivalence, wire compatibility, operation binding, runtime admission, owner acceptance, or external compatibility.
+
+**Acceptance criterion:** The focused source check resolves all fourteen unique finding IDs, verifies the two classifications and exact `6 retained / 8 retired`, `5 dispatchable / 1 fail-closed retained`, confirms all fourteen exact method/path pairs are absent from the thirty-route manifest, and derives the current comparison text from those counts. The current C002 observation successor preserves the candidate's historical source/value pins and records the live raw UTF-8 target digest with no acceptance or parity promotion.
+
+**Effect:** Source-definition clarification and current-source observation only. The candidate, PDP status, phase matrix, runtime contracts, implementation, and acceptance records are unchanged. Acceptance effect is none.
+
+### PXD-229 — Adopt the source-defined compile quality applicability
+
+**Authority:** This delegated PDP-0 product-owner decision resolves only the
+current quality-applicability disposition for media.recipe.specification.compile.
+It is based on the already source-applied PXD-227 quality-policy extension and
+does not amend PXD-225's historical 462-row review or the PXD-226 capability
+meaning, owner, or trust records.
+
+**Source basis:** The exact existing quality-policy row is
+.product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalkExtensions/records/@id=media.quality-applicability-extension.media-recipe-specification-compile.v1.
+Its record projection SHA-256 is
+74c1ef29f767bb3b2db9028fa5d8c63be00875be3a61edeec81a0e0e2c2a9675.
+PXD-227's exact two-target apply is preserved at
+docs/implementation/observations/pdp0-semantic-audit-slices/source-amendment-journals/f6feb44574d87a7ee15807b80ac8cf8c95c9ca86ab81ff6c9cddea3ec5799a0a.json
+(SHA-256 d35b925bc2545ef6012f53b9f214a40eb0579fb56ea7ee2713a978a74bccce03);
+that journal records exact readback for the PXD-227 decision-log and
+quality-policy targets. The prepared source-owner decision candidate is
+docs/implementation/observations/pdp0-semantic-audit-slices/AUD-SPEC-002-quality-extension-pdp0-owner-decision-candidate.v1.json
+(SHA-256 927f66e31d2ae5b4cd74c02214c514f2be4552536cba7bea8d25852f0539bc0a).
+
+**Decision:** Adopt the row's exact source-derived applicability: rights/safety
+is APPLICABLE; structural validity, perceptual, intent fidelity, domain
+scientific, and delivery compatibility are NOT_APPLICABLE; all sixteen
+quality metrics are NOT_APPLICABLE under their exact typed source rules.
+Bind the current-version extension owner/trust record to this quality-policy
+row. Keep the historical 462 quality rows unchanged and ordered; the extension
+remains one separate current-version row, with six future proposals.
+
+**Limits:** Measurement and qualification remain NOT_EVALUATED; no threshold,
+measurement method, rights determination, provider qualification, specialist
+approval, independent acceptance, runtime admission, PDP closure, or release
+claim is made. This updates PDP-0 source definition only and does not alter the
+PDP-1 handoff or the PDP-0 phase status/matrix.
+
+**Acceptance criterion:** The focused PDP-0 validator confirms that the current
+quality-policy extension row exactly matches this decision and that both
+capability-leaf-review references resolve to it; the 462 historical rows remain
+unchanged, and measurement, qualification, and acceptance effects remain
+unclaimed.
+
+### PXD-230 — Reconcile the current PDP-0 topology denominator to 56
+
+**Authority:** This delegated source-owner decision resolves the stale PDP-0
+status denominator from the exact current Media topology. It does not claim
+independent acceptance, native closure, implementation completion, or release.
+
+**Source basis:** The canonical topology
+`.product-experience/surfaces/media-physical-topology.v1.json` is SHA-256
+`a1f524c498fcdbde61f48cc3b8bb589e8803a0007d7b82908d7da81ea9065c9d` and declares
+28 physical manifest candidates, 7 compositions, and 21 logical consumers. The
+current PXD-207 topology review
+`docs/implementation/verification/pdp-38/pdp0-topology-currentness-pxd207-successor-2026-11-16.json`
+is SHA-256 `9ccab26113b3439af00b619b16404252c6f06e1eeb0fe69fd91126b1bc083d8a`.
+The native surface-denominator validator recomputes 56 unique identities with
+no findings. It retains the PXD-207 PDP-0 review rows for
+`media.physical.adapters-agent-tools-media` and
+`media.physical.adapters-data-cloud-media`.
+
+**Decision:** The current PDP-0 topology denominator is 56: 28 physical
+identities, 7 compositions, and 21 logical consumers. All 56 identities remain
+in the denominator. The prior phase-status record reports 26 physical
+candidates, 7 compositions, and 21 logical consumers (54 total). Its pinned
+topology source at the recorded `mainSha` already contains 28 physical
+candidates, 7 compositions, and 21 logical consumers (56 total); therefore 54
+is a historical status-projection mismatch, not the complete predecessor
+identity set. Preserve that status record and its SHA as the predecessor when
+the native phase-status producer records the current 56-identity cut. The two PXD-207
+physical rows remain source-reviewed with their exact applicability:
+agent-tools is support-only N/A; Data Cloud remains applicable as an
+integration boundary with three requirement traces and no direct capability
+ownership. The exact status preimage is preserved at
+`docs/implementation/verification/pdp-38/pdp-0-phase-dev-status.predecessor-pxd230-2026-11-16.json`
+(SHA-256 `12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf`); its
+additive denominator successor with all 56 identities is
+`docs/implementation/verification/pdp-38/pdp0-status-denominator-successor-pxd230-2026-11-16.json`.
+
+**Limits:** This reconciles the source denominator only. It does not infer
+surface `DEV_COMPLETE`, owner acceptance, independent acceptance, implementation
+or runtime admission, qualification, phase closure, or Delivery. PDP-0 remains
+`IN_PROGRESS` unless the native readiness producer validates the complete
+current source cut, zero outstanding definition tasks, and all required tests.
+
+**Acceptance criterion:** The denominator validator returns 28/7/21/56 with no
+findings; the current status successor preserves the exact 54-row predecessor
+reference and all 56 topology identities; the generated matrix reports 56 and
+source-current pins; and native PDP-0 readiness reports zero tasks before any
+`DEV_COMPLETE` status is written.

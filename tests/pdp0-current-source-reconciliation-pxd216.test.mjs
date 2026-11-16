@@ -14,14 +14,20 @@ const successorArtifactPath = 'docs/implementation/verification/pdp-38/pdp0-curr
 const crosswalkPath = 'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json';
 const traceabilityPath = 'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json';
 const reviewPath = 'docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json';
+const currentnessCandidatePath = 'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/p0-capability-meaning-20-leaf-current-source-review-pxd216.successor.candidate.v6.json';
+const aq155CurrentnessSuccessorPath = 'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-155-308.successor.candidate.v1.json';
+const aq309CurrentnessSuccessorPath = 'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-309-462.successor.candidate.v1.json';
 const sha256 = file => crypto.createHash('sha256').update(fs.readFileSync(path.join(root, file))).digest('hex');
 
-test('PXD-216 remains historical semantic evidence while PXD-223 binds current source pins', () => {
+test('PXD-216 remains historical semantic evidence while its successor carries current source pins', () => {
   const artifact = JSON.parse(fs.readFileSync(path.join(root, artifactPath), 'utf8'));
   const currentArtifact = JSON.parse(fs.readFileSync(path.join(root, currentArtifactPath), 'utf8'));
   const crosswalk = JSON.parse(fs.readFileSync(path.join(root, crosswalkPath), 'utf8'));
   const traceability = JSON.parse(fs.readFileSync(path.join(root, traceabilityPath), 'utf8'));
   const capabilityReview = JSON.parse(fs.readFileSync(path.join(root, reviewPath), 'utf8'));
+  const currentnessCandidate = JSON.parse(fs.readFileSync(path.join(root, currentnessCandidatePath), 'utf8'));
+  const aq155CurrentnessSuccessor = JSON.parse(fs.readFileSync(path.join(root, aq155CurrentnessSuccessorPath), 'utf8'));
+  const aq309CurrentnessSuccessor = JSON.parse(fs.readFileSync(path.join(root, aq309CurrentnessSuccessorPath), 'utf8'));
 
   assert.equal(artifact.decisionRef, '.product-experience/decision-log.md#PXD-216');
   assert.equal(artifact.phaseScope, 'PDP-0');
@@ -45,15 +51,52 @@ test('PXD-216 remains historical semantic evidence while PXD-223 binds current s
   assert.equal(artifact.sourceFingerprints['.product-experience/pdp-0-product-truth/capabilities.yaml'], '1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26');
   assert.equal(currentArtifact.decisionRef, '.product-experience/decision-log.md#PXD-223');
   assert.equal(currentArtifact.currentSource.capabilitiesPath, '.product-experience/pdp-0-product-truth/capabilities.yaml');
-  assert.equal(currentArtifact.currentSource.capabilitiesSha256, sha256('.product-experience/pdp-0-product-truth/capabilities.yaml'));
+  assert.equal(currentArtifact.currentSource.capabilitiesSha256, 'b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac',
+    'PXD-223 preserves its historical currentness source cut');
+  assert.notEqual(currentArtifact.currentSource.capabilitiesSha256, sha256('.product-experience/pdp-0-product-truth/capabilities.yaml'),
+    'PXD-223 does not claim currentness for later live capabilities bytes');
   assert.equal(currentArtifact.decisionSectionSha256, pxd223PhasePins['.product-experience/decision-log.md#PXD-223-section']);
-  assert.equal(currentArtifact.sourceCut.sourceCount, 2, 'PXD-223 binds the current capabilities bytes and exact decision section');
+  assert.equal(currentArtifact.sourceCut.sourceCount, 2, 'PXD-223 binds its historical capabilities bytes and exact decision section');
   assert.equal(currentArtifact.preservedSemanticReview.reviewedCapabilityCount, 20);
   assert.deepEqual(currentArtifact.preservedSemanticReview.changedReviewedCapabilityIds, []);
   assert.equal(currentArtifact.preservedSemanticReview.currentReviewedRowsSha256,
     currentArtifact.preservedSemanticReview.historicalReviewedRowsSha256,
     'PXD-223 preserves the exact 20-row semantic projection');
   assert.equal(currentArtifact.currentSource.currentCapabilityRecordCount, 469);
+  assert.equal(currentnessCandidate.semanticReviewRef, reviewPath);
+  assert.equal(currentnessCandidate.currentSources['.product-experience/pdp-0-product-truth/capabilities.yaml'],
+    sha256('.product-experience/pdp-0-product-truth/capabilities.yaml'),
+    'the PXD-216 currentness-only successor binds current live bytes');
+  assert.equal(currentnessCandidate.reviewedRowsSha256, currentArtifact.preservedSemanticReview.currentReviewedRowsSha256);
+  assert.deepEqual(currentnessCandidate.changedReviewedCapabilityIds, []);
+  assert.equal(currentnessCandidate.ownerApproval, 'NOT_CLAIMED');
+  assert.equal(currentnessCandidate.independentAcceptance, 'NOT_CLAIMED');
+  assert.equal(aq155CurrentnessSuccessor.predecessorRef,
+    'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-current-source-review-155-308.json');
+  assert.equal(aq155CurrentnessSuccessor.predecessorSha256,
+    sha256(aq155CurrentnessSuccessor.predecessorRef), 'the historical 155-308 review remains immutable');
+  assert.equal(aq155CurrentnessSuccessor.sourceSliceComparison.rowCount, 154);
+  assert.equal(aq155CurrentnessSuccessor.sourceSliceComparison.semanticRowsIdentical, true);
+  assert.deepEqual(aq155CurrentnessSuccessor.sourceSliceComparison.changedCapabilityIds, []);
+  assert.equal(aq155CurrentnessSuccessor.sourceSliceComparison.historicalSemanticRowsSha256,
+    aq155CurrentnessSuccessor.sourceSliceComparison.currentSemanticRowsSha256);
+  assert.equal(aq155CurrentnessSuccessor.authority.ownerAcceptance, 'NOT_CLAIMED');
+  assert.equal(aq155CurrentnessSuccessor.authority.independentReview, 'NOT_CLAIMED');
+  assert.equal(aq155CurrentnessSuccessor.authority.semanticChange, 'NOT_CLAIMED');
+  assert.equal(aq309CurrentnessSuccessor.predecessorRef,
+    'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-current-source-review-309-462.json');
+  assert.equal(aq309CurrentnessSuccessor.predecessorSha256,
+    sha256(aq309CurrentnessSuccessor.predecessorRef), 'the historical 309-462 semantic findings remain immutable');
+  assert.equal(aq309CurrentnessSuccessor.sourceSliceComparison.rowCount, 154);
+  assert.equal(aq309CurrentnessSuccessor.sourceSliceComparison.semanticRowsIdentical, true);
+  assert.deepEqual(aq309CurrentnessSuccessor.sourceSliceComparison.changedCapabilityIds, []);
+  assert.equal(aq309CurrentnessSuccessor.sourceSliceComparison.historicalSemanticRowsSha256,
+    aq309CurrentnessSuccessor.sourceSliceComparison.currentSemanticRowsSha256);
+  assert.equal(aq309CurrentnessSuccessor.referencedRequirementComparison.referencedRequirementCount, 12);
+  assert.deepEqual(aq309CurrentnessSuccessor.referencedRequirementComparison.changedReferencedRequirementIds, []);
+  assert.equal(aq309CurrentnessSuccessor.authority.ownerAcceptance, 'NOT_CLAIMED');
+  assert.equal(aq309CurrentnessSuccessor.authority.independentReview, 'NOT_CLAIMED');
+  assert.equal(aq309CurrentnessSuccessor.authority.semanticChange, 'NOT_CLAIMED');
   const deferredRows = currentArtifact.currentSource.populationDelta.changedRows;
   assert.deepEqual(deferredRows.map(row => row.capabilityId).sort(), [
     'media.generate.video.preset.manage',
@@ -69,7 +112,7 @@ test('PXD-216 remains historical semantic evidence while PXD-223 binds current s
   assert.equal(currentArtifact.currentSource.populationDelta.otherCapabilityFieldsChanged, false);
   const activePhasePins = currentPdp0PhaseScopedSourceFingerprints('PXD-225');
   assert.deepEqual(crosswalk.sourceBaseline.phaseScopedSourceFingerprintsSha256, activePhasePins);
-  assert.deepEqual(crosswalk.coordinatorReview.sourceFingerprints, activePhasePins);
+  assert.deepEqual(crosswalk.coordinatorReview.phaseScopedSourceFingerprintsSha256, activePhasePins);
   assert.equal(crosswalk.coordinatorReview.decisionRef, 'PXD-225');
   assert.equal(crosswalk.coordinatorReview.priorDecisionRef, 'PXD-223');
   const priorCurrentness = crosswalk.coordinatorReview.reviewHistory.find(row => row.decisionRef === 'PXD-223');
@@ -91,7 +134,27 @@ test('PXD-216 remains historical semantic evidence while PXD-223 binds current s
     currentCapabilityDefinitions: 469,
     currentDefinitionExtensions: 7,
   });
-  assert.deepEqual(traceability, buildPdp0AuditAqTraceability());
+  const computedTraceability = buildPdp0AuditAqTraceability();
+  const selectedRecipeExtension = computedTraceability.definitionExtensions.find(row => row.capabilityId === 'media.recipe.specification.compile');
+  assert.equal(selectedRecipeExtension.versionScopeDisposition, 'SELECTED_FOR_CURRENT_VERSION_BY_PXD-226');
+  assert.equal(selectedRecipeExtension.versionDecisionRef, '.product-experience/decision-log.md#PXD-226');
+  assert.equal(selectedRecipeExtension.ownerApproval, 'NOT_CLAIMED');
+  assert.equal(selectedRecipeExtension.independentAcceptance, 'NOT_CLAIMED');
+  assert.equal(selectedRecipeExtension.executionAdmission, 'NOT_ADMITTED');
+  assert.equal(computedTraceability.definitionExtensions.filter(row => row.versionScopeDisposition === 'DEFERRED_TO_LATER_GOVERNED_PDP0_VERSION').length, 6);
+  const spec002Traceability = computedTraceability.rows.find(row => row.auditId === 'AUD-SPEC-002');
+  assert.ok(spec002Traceability.canonicalCapabilityRefs.includes(
+    '.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.recipe.specification.compile'));
+  assert.ok(spec002Traceability.acceptanceCaseRefs.some(ref => ref.endsWith('MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-17')));
+  assert.equal(spec002Traceability.traceabilityStatus, 'SOURCE_BOUND_COMPLETE', 'this status records exact link completeness only');
+  assert.equal(spec002Traceability.featureSpecificCaseApplicability,
+    'SOURCE_BOUND_CASE_LINK_EXISTS_BUT_FEATURE_SEMANTIC_FIT_IS_NOT_CLAIMED');
+  assert.equal(spec002Traceability.priorFamilyCaseSemanticFitFinding.priorTraceabilityStatus,
+    'SOURCE_BOUND_FAMILY_CASE_JOIN_SEMANTIC_FIT_REVIEW_REQUIRED');
+  assert.match(spec002Traceability.priorFamilyCaseSemanticFitFinding.predecessorTraceabilityArtifactRef, /^HEAD:/u);
+  assert.equal(computedTraceability.blockerSummary.priorFamilyCaseSemanticFitReviewRows.length, 1);
+  assert.equal(computedTraceability.blockerSummary.priorFamilyCaseSemanticFitReviewRows[0].auditId, 'AUD-SPEC-002');
+  assert.deepEqual(traceability, computedTraceability);
   assert.deepEqual(validatePdp0AuditAqTraceability().errors, []);
   assert.deepEqual(artifact.capabilityMeaningReview, {
     artifactRef: reviewPath,

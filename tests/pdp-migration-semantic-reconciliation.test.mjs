@@ -42,6 +42,7 @@ const migrationPxd211RouteSuccessor = JSON.parse(readFileSync(resolve(root, "doc
 const migrationPxd214Path = "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd214.json";
 const migrationCoordinatorReview = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/migration-coordinator-review-112.json"), "utf8"));
 const migration199OwnerCandidate = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json"), "utf8"));
+const migrationPxd228CurrentSourceSuccessor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd228-live-source-2026-11-16.json"), "utf8"));
 assert.equal(migrationP0CurrentSourceObservations.decisionRef, ".product-experience/decision-log.md#PXD-130");
 
 
@@ -573,8 +574,23 @@ function assertClaimDisposition(claim) {
             assert.equal(drift.ref, claim.targetRef);
             assert.equal(drift.recordedTargetValueSha256, claim.targetTextSha256,
               `${claim.claimId} original routed target digest remains historical`);
-            assert.equal(drift.observedTargetValueSha256, targetDigest,
-              `${claim.claimId} pending drift observation binds the exact live target`);
+            if (claim.claimId === "MPSEM-0023-C002") {
+              const currentSuccessor = migrationPxd228CurrentSourceSuccessor.records.find(({ claimId }) => claimId === claim.claimId);
+              assert.ok(currentSuccessor, "PXD-228 supplies an additive current-source observation for C002");
+              assert.equal(drift.observedTargetValueSha256, currentSuccessor.predecessorPendingDriftTargetValueSha256,
+                "the immutable owner-candidate drift digest remains the PXD-228 predecessor observation");
+              assert.equal(currentSuccessor.currentTargetValueSha256, targetDigest,
+                "PXD-228's separate current observation binds the exact live target");
+              assert.equal(currentSuccessor.currentSourceFileSha256,
+                sha(readFileSync(resolve(root, claim.targetRef.split("#")[0]))),
+                "PXD-228 binds the current operation-parity source bytes");
+              assert.equal(currentSuccessor.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+              assert.equal(currentSuccessor.semanticEquivalence, "NOT_ASSERTED");
+              assert.equal(currentSuccessor.semanticPromotion, false);
+            } else {
+              assert.equal(drift.observedTargetValueSha256, targetDigest,
+                `${claim.claimId} pending drift observation binds the exact live target`);
+            }
             assert.equal(drift.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
             assert.equal(drift.acceptanceEffect, "none");
             assert.equal(ownerCandidate.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");

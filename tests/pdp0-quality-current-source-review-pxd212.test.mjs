@@ -186,7 +186,7 @@ function livePxd213Fixture() {
   const input = liveFixture();
   input.sourceTexts[PDP0_PXD213_CAPTION_REVIEW_PATH] = readText(PDP0_PXD213_CAPTION_REVIEW_PATH);
   input.captionReview = JSON.parse(input.sourceTexts[PDP0_PXD213_CAPTION_REVIEW_PATH]);
-  input.latestQualityReview = JSON.parse(readText("docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd213.json"));
+  input.latestQualityReview = JSON.parse(readText("docs/implementation/verification/pdp-38/p0-quality-currentness-successor-pxd213-live-source.json"));
   return input;
 }
 
@@ -269,6 +269,29 @@ test("PXD-213 rejects stale successor pins, missing joins, and caption dispositi
   const changedCaption = livePxd213Fixture();
   changedCaption.captionReview.changeAssessment.qualityDispositionChanged = true;
   assert.equal(validatePdp0Pxd213Currentness(changedCaption).valid, false);
+});
+
+test("PXD-213 quality currentness successor preserves its immutable 462-row review", () => {
+  const predecessor = JSON.parse(readText("docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd213.json"));
+  const successor = JSON.parse(readText("docs/implementation/verification/pdp-38/p0-quality-currentness-successor-pxd213-live-source.json"));
+  const prior = predecessor.latestCurrentnessRefresh;
+  const current = successor.latestCurrentnessRefresh;
+  assert.equal(successor.successorKind, "CURRENTNESS_ONLY");
+  assert.equal(successor.predecessorRef, "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd213.json");
+  assert.equal(successor.predecessorSha256, sha256(readText(successor.predecessorRef)));
+  assert.equal(current.sourceFingerprints[".product-experience/pdp-0-product-truth/quality-policy.yaml"],
+    sha256(readText(".product-experience/pdp-0-product-truth/quality-policy.yaml")));
+  for (const field of ["reviewedPopulation", "semanticReview", "changedTypeJoins", "ownerApproval",
+    "independentAcceptance", "acceptanceEffect", "reviewArtifactRef", "reviewArtifactSha256",
+    "preservedSemanticReviewRef", "preservedSemanticReviewArtifactSha256"]) {
+    assert.deepEqual(current[field], prior[field], `${field} remains unchanged`);
+  }
+  assert.equal(current.reviewedPopulation.canonicalCapabilityRows, 462);
+  assert.equal(current.reviewedPopulation.qualityDimensions, 6);
+  assert.equal(current.reviewedPopulation.metricDefinitions, 16);
+  assert.equal(successor.authority.ownerApproval, "NOT_CLAIMED");
+  assert.equal(successor.authority.independentAcceptance, "NOT_CLAIMED");
+  assert.equal(successor.authority.acceptanceEffect, "none");
 });
 
 test("PXD-222 refreshes only currentness and preserves the exact PXD-216 quality closure", () => {

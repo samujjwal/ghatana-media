@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "media.master-plan-claim-disposition-pdp0-current-source-successor.v1",
+  "artifactId": "MEDIA-PDP0-MASTER-PLAN-RESIDUALS-006-007-SOURCE-SUCCESSOR",
+  "successorKind": "ADDITIVE_PDP0_SOURCE_BOUND_REEVALUATION",
+  "phase": "PDP-0",
+  "predecessor": {
+    "artifactRef": "docs/migration/current-master-plan-claim-dispositions.json",
+    "artifactSha256": "b67f8040a01409592b10272b395bbceb31fc9979ba8c4b67668618e9e19f7047",
+    "historicalDispositionPreserved": true
+  },
+  "authorityBasis": {
+    "decisionRef": ".product-experience/decision-log.md#PXD-226",
+    "decisionSectionSha256": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b",
+    "authority": "USER_DELEGATED_PDP0_TECHNICAL_SOURCE_OWNER_AUTHORITY_RECORDED_BY_PXD226",
+    "boundary": "Source-definition disposition only; no product-owner acceptance, independent review, native proof, or phase completion is claimed."
+  },
+  "records": [
+    {
+      "residualId": "MSR-006-RESIDUAL-01",
+      "hunkId": "MSD-006",
+      "predecessor": {
+        "exactResidual": "It is not safe to execute unchanged. Several instructions conflate source relocation with product redesign, presume reusable components without checking their boundaries, leave safety-critical contracts underspecified, or describe desired quality as if it were guaranteed.",
+        "residualTextSha256": "4b011dbb3d92692987273800667c18678ae5096b273878512559959f6572595f",
+        "ownerRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "ownerValueSha256": "3902036ac5605f3d5614c06c574ab1b030572036b4f14200f40912c9deae1439",
+        "classification": "clarified",
+        "acceptanceEffect": "none"
+      },
+      "currentSourceScope": {
+        "requirementRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+        "requirementId": "MEDIA-REQ-CAP-RECIPE-TEMPLATE",
+        "requirementsRawSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        "requirementValueSha256": "d6c9ee2920512bde9869efec334cc54c42fbc33eb52b95f4bea174e10735a53e",
+        "evaluatedAcceptanceCaseIds": [
+          "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-13",
+          "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-14",
+          "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-15",
+          "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-16",
+          "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-17"
+        ],
+        "evaluatedAcceptanceCasesSha256": "0c4d13ed07990c1a420b87a7e7bdfc78162480cd5ff8c48d09a00eaed813eb43",
+        "unaffectedPredecessorAcceptanceCaseIds": [
+          "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-01",
+          "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-02",
+          "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-03",
+          "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-04",
+          "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-05",
+          "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-06",
+          "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-07",
+          "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-08",
+          "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-09",
+          "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-10",
+          "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-11",
+          "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-12"
+        ],
+        "unaffectedPredecessorAcceptanceCasesSha256": "e78b0efccf60426e863708b60c78a1bfb35066c02ef9bc769fbeeef94f560d57",
+        "decisionRef": ".product-experience/decision-log.md#PXD-226",
+        "decisionSectionSha256": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
+      },
+      "sourceDisposition": "CLARIFIED_FOR_SELECTED_SCHEMA_MIGRATION_EXTENSION_ONLY",
+      "scopeLimit": "AC-13 through AC-17 clarify only the selected media.recipe.specification.compile migration extension. The other statements and warnings in the residual remain unresolved and are not adjudicated by this record.",
+      "acceptanceEffect": "none",
+      "productOwnerAcceptance": "NOT_CLAIMED",
+      "independentAcceptance": "NOT_CLAIMED",
+      "implementation": "NOT_CLAIMED",
+      "nativeProof": "NOT_CLAIMED",
+      "phaseCompletion": "NOT_CLAIMED"
+    },
+    {
+      "residualId": "MSR-007-RESIDUAL-01",
+      "hunkId": "MSD-007",
+      "predecessor": {
+        "exactResidual": "Each record must include:",
+        "residualTextSha256": "93f211d39dc1ba2e288bd660addd9381edf03bd5111c1e26461e84a9b20bc4a6",
+        "ownerRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+        "ownerValueSha256": "3902036ac5605f3d5614c06c574ab1b030572036b4f14200f40912c9deae1439",
+        "classification": "clarified",
+        "acceptanceEffect": "none"
+      },
+      "currentSourceScope": {
+        "ownerRef": ".product-experience/pdp-0-product-truth/reuse-decisions.yaml#/decisions",
+        "reuseDecisionsRawSha256": "22319bb51b947ca105f99c8c970c6ae2efdf30ed53b34a91ce2981451278effa",
+        "reuseDecisionsValueSha256": "50ff0caff6838761cf95af7d1d629e0cac8a9ea607a2d7bd061b327bd5d2995c",
+        "predecessorReuseDecisionsValueSha256": "50ff0caff6838761cf95af7d1d629e0cac8a9ea607a2d7bd061b327bd5d2995c",
+        "authorityMapRef": ".product-experience/authority-map.yaml#/artifacts/@id=ART-P0-REUSE-DECISIONS",
+        "authorityState": "AUTHORED_PROPOSAL_ACCEPTANCE_PENDING"
+      },
+      "sourceDisposition": "OWNER_ROUTE_CORRECTION_ONLY",
+      "scopeLimit": "The route identifies the authoritative current PDP-0 reuse-decision register named by the source text. This source route does not assert that the register is accepted or that every register entry satisfies the plan's proposed record template.",
+      "acceptanceEffect": "none",
+      "productOwnerAcceptance": "NOT_CLAIMED",
+      "independentAcceptance": "NOT_CLAIMED",
+      "implementation": "NOT_CLAIMED",
+      "nativeProof": "NOT_CLAIMED",
+      "phaseCompletion": "NOT_CLAIMED"
+    },
+    {
+      "residualId": "MSR-020-RESIDUAL-01",
+      "hunkId": "MSD-020",
+      "predecessor": {
+        "exactResidual": "capabilities.yaml                       # product projection of PDP-0\n  dependencies.yaml                       # ecosystem dependency projection of PDP-0",
+        "residualTextSha256": "cfbad02732714b5aefded8ab193bfe692dc55229ab1ffca8314898854399ded5",
+        "ownerRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+        "ownerValueSha256": "7311582327f6c06b0e7848bfb90507bf0995f6a9217fb5c3769dded187a9b1b5",
+        "classification": "clarified",
+        "acceptanceEffect": "none"
+      },
+      "currentSourceScope": {
+        "authorityMapRef": ".product-experience/authority-map.yaml#/phaseAuthorities/0/artifacts",
+        "authorityMapRawSha256": "94894585f3d87f1221ee5d31760d7c37f153f4fae4987affc5e13faac7f0aaff",
+        "selectedArtifactRefs": [
+          ".product-experience/authority-map.yaml#/phaseAuthorities/0/artifacts/@id=ART-P0-CAPABILITIES",
+          ".product-experience/authority-map.yaml#/phaseAuthorities/0/artifacts/@id=ART-P0-DEPENDENCY-CONTRACTS"
+        ],
+        "selectedArtifactIds": [
+          "ART-P0-CAPABILITIES",
+          "ART-P0-DEPENDENCY-CONTRACTS"
+        ],
+        "selectedArtifactRecordsSha256": "a6b728dbf4a6dc01fb6f34d80bc02577380f2c975a89109e769b9cd7789cc81e",
+        "predecessorSelectedArtifactRecordsSha256": "a6b728dbf4a6dc01fb6f34d80bc02577380f2c975a89109e769b9cd7789cc81e",
+        "capabilitiesArtifactRecordSha256": "0fd989df53890359da6fc13097a9a199fef26afcca89197a8a9d6d59d94cbdbd",
+        "dependencyContractsArtifactRecordSha256": "3d74fba23bbc6a11e42c03b8f9db10fa3f4bfb0de4c545461be0bd986b098b5f",
+        "capabilitiesCurrentRawSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+        "capabilitiesPriorParsedRootSha256": "7311582327f6c06b0e7848bfb90507bf0995f6a9217fb5c3769dded187a9b1b5",
+        "capabilitiesCurrentParsedRootSha256": "91d35c1308033937f0a3ba1d4d5819a629c187258d2e01f3c8ca59c16cfe002e",
+        "dependencyContractsRawSha256": "b698f43e88c61170c1a25f6789062b87ef07bd1edaca2261e077cf5ae2efbaaf",
+        "dependencyContractsParsedRootSha256": "a7121995728d0597111a3aa64c6fa370ba3227be386f7a3eede4de955509c9a9",
+        "acceptanceStates": [
+          "pending-P0-003-and-P0-010",
+          "mixed-boundary-accepted; full-P0-008-pending"
+        ]
+      },
+      "sourceDisposition": "OWNER_ROUTE_CORRECTION_ONLY",
+      "scopeLimit": "The exact residual maps the two named plan paths to the current PDP-0 artifact authority records. The changed capabilities root is retained only as predecessor evidence; its capability semantics are not refreshed or adjudicated here. These source records do not establish acceptance of the capability leaves or full dependency contracts.",
+      "acceptanceEffect": "none",
+      "productOwnerAcceptance": "NOT_CLAIMED",
+      "independentAcceptance": "NOT_CLAIMED",
+      "implementation": "NOT_CLAIMED",
+      "nativeProof": "NOT_CLAIMED",
+      "phaseCompletion": "NOT_CLAIMED"
+    }
+  ]
+}

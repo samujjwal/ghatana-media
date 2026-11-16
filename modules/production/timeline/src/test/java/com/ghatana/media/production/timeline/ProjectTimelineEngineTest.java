@@ -70,6 +70,33 @@ class ProjectTimelineEngineTest {
     }
 
     @Test
+    void revisionCommitReplaysExactImmutablePayloadWithoutMovingHead() {
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        ProjectTimelineEngine engine = new ProjectTimelineEngine(store);
+        Created created = engine.createProject(OWNER, "workspace-replay", "Cut", "create-revision-replay");
+        Revision timeline = engine.createTimeline(OWNER, created.project().projectId(),
+                created.initialRevision().revisionId(), "timeline-replay");
+        Revision edited = engine.edit(OWNER, created.project().projectId(), "timeline-replay",
+                timeline.revisionId(), List.of(
+                        new ProjectTimelineEngine.AddScene(new Scene("scene-replay", 0)),
+                        new ProjectTimelineEngine.AddTrack(new Track("track-replay", "scene-replay", TrackKind.VIDEO, 0)),
+                        new ProjectTimelineEngine.PutClip(clip("clip-replay", "scene-replay", "track-replay"))));
+
+        Revision replay = store.commit(OWNER, created.project().projectId(), timeline.revisionId(),
+                edited.revisionId(), edited.timelines());
+
+        assertThat(replay).isEqualTo(edited);
+        assertThat(replay.timelines().getFirst().graph().clips().getFirst().source())
+                .isEqualTo(new SourceVersion("artifact-1", "version-7"));
+        assertThat(engine.project(OWNER, created.project().projectId()).headRevisionId()).isEqualTo(edited.revisionId());
+        assertThatThrownBy(() -> store.commit(OWNER, created.project().projectId(), timeline.revisionId(),
+                edited.revisionId(), List.of()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("revision identity was replayed with a different payload");
+        assertThat(engine.project(OWNER, created.project().projectId()).headRevisionId()).isEqualTo(edited.revisionId());
+    }
+
+    @Test
     void generatedIdsMustMatchOpaqueIdentityContractBeforeStoreCreate() {
         InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
         AtomicInteger generated = new AtomicInteger();

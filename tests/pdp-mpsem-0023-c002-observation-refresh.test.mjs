@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import test from "node:test";
+import { fingerprintPxdDecisionSection } from "../scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs";
 import {
   OPERATION_PARITY_PATH,
   OWNER_CANDIDATE_PATH,
@@ -110,18 +111,42 @@ test("MPSEM-0023-C002 refuses to call a present SDK path absent from the active 
   assert.throws(() => refreshMpsem0023C002Observation({ candidate, ...input }), /currentComparison|source summary|present in the current manifest/u);
 });
 
-test("checked-in MPSEM-0023-C002 observation matches current bytes without changing semantic disposition", () => {
+test("PXD-228 current-source successor observes MPSEM-0023-C002 without changing the immutable candidate", () => {
   const sourceText = readFileSync(resolve(root, OPERATION_PARITY_PATH), "utf8");
   const operationParity = parse(sourceText);
+  const decisionLogText = readFileSync(resolve(root, ".product-experience/decision-log.md"), "utf8");
   const candidate = JSON.parse(readFileSync(resolve(root, OWNER_CANDIDATE_PATH), "utf8"));
-  const routeManifest = JSON.parse(readFileSync(resolve(root, "config/route-manifest.json"), "utf8"));
-  const result = refreshMpsem0023C002Observation({ candidate, sourceText, operationParity, routeManifest });
-
-  assert.equal(result.changed, false);
-  const row = result.candidate.records.find(({ claimId }) => claimId === "MPSEM-0023-C002");
-  assert.equal(row.currentProposalObservation.currentSourceFileSha256, sha(sourceText));
+  const candidateBytes = readFileSync(resolve(root, OWNER_CANDIDATE_PATH));
+  const successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd228-live-source-2026-11-16.json"), "utf8"));
+  const predecessorSuccessor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd228.json"), "utf8"));
+  const row = candidate.records.find(({ claimId }) => claimId === "MPSEM-0023-C002");
+  const observed = successor.records.find(({ claimId }) => claimId === "MPSEM-0023-C002");
+  assert.equal(successor.successorKind, "CURRENTNESS_ONLY");
+  assert.equal(successor.predecessorRef, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd228.json");
+  assert.equal(successor.predecessorSha256, sha(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd228.json"))));
+  assert.equal(predecessorSuccessor.predecessorArtifact.artifactSha256, sha(candidateBytes));
+  assert.equal(successor.decisionSectionSha256, fingerprintPxdDecisionSection(decisionLogText, "PXD-228").sha256);
+  assert.equal(successor.sourceFingerprints[OPERATION_PARITY_PATH], sha(sourceText));
+  assert.equal(observed.currentSourceFileSha256, sha(sourceText));
+  assert.equal(observed.currentTargetValueSha256, sha(operationParity.compatibilityRouteFindings.currentComparison));
+  assert.equal(observed.currentTargetValue, operationParity.compatibilityRouteFindings.currentComparison);
+  assert.equal(observed.predecessorTargetValueSha256, row.currentTargetValueSha256);
+  assert.equal(observed.predecessorSourceFileSha256, row.currentProposalObservation.currentSourceFileSha256);
+  assert.equal(observed.predecessorPendingDriftTargetValueSha256,
+    row.currentProposalObservation.currentValueDriftObservation.observedTargetValueSha256);
+  assert.equal(observed.findingCounts.total, 14);
+  assert.equal(observed.findingCounts.pathIdentityRetained, 6);
+  assert.equal(observed.findingCounts.pathIdentityRetired, 8);
+  assert.equal(observed.findingCounts.retainedMethodDispatchable, 5);
+  assert.equal(observed.findingCounts.retainedMethodFailClosed, 1);
+  assert.equal(observed.findingCounts.activeManifestPresent, 0);
+  assert.equal(row.currentProposalObservation.currentSourceFileSha256, "27bc34748b22e6a59ff7dd4f2e50df18a3e5415ee6acad55e466ef7bb4016bcf",
+    "the immutable predecessor source pin remains historical");
   assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
-  assert.equal(row.currentProposalObservation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  assert.equal(observed.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  assert.equal(observed.semanticEquivalence, "NOT_ASSERTED");
+  assert.equal(observed.semanticPromotion, false);
+  assert.equal(observed.acceptanceEffect, "none");
   assert.equal(row.currentProposalObservation.acceptanceEffect ?? "none", "none");
   assert.equal(row.ownerSemanticReview.runtimeStatus, "NOT_EVALUATED");
 });

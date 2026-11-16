@@ -1,0 +1,110 @@
+{
+  "schemaVersion": "media.pdp0.applications-channels-denominator-currentness-successor.v1",
+  "artifactId": "MEDIA-PDP0-APPLICATIONS-CHANNELS-DENOMINATOR-CURRENTNESS-2026-11-16",
+  "successorKind": "ADDITIVE_SOURCE_CURRENTNESS_RECONCILIATION",
+  "phaseScope": "PDP-0",
+  "predecessor": {
+    "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+    "expectedSha256": "029d5c861f0c1505a35ace06e8ac010975f8347c6b15ac54aa8f406cba93d426",
+    "predecessorCommit": "ebcbdfca77aecfd8a1d1b3b252259fe914fd0208",
+    "parsedRootSha256": "d65114aeab554da4304064f3e9916f0b82d8aeb297877c09644772137b446a22"
+  },
+  "currentSource": {
+    "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+    "currentSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34",
+    "currentCommit": "86dbc4b1efaabb1f8a7c63d7ee5839d0a9176f8c",
+    "parsedRootSha256": "d13ce6b6d3f1e49fede470a905d598ee4b7891ecdd40b8f24d48c4b950e6e4c9",
+    "coordinatorDefinitionExtensionApplicability": {
+      "predecessorValueSha256": "0c1295ecaf4f0bf1171894b2cc83ac5a8b62f5dec10433b9c7a9f23e212d780a",
+      "currentValueSha256": "42cc2db369cfec9d8dde5308ea2251241f6e28146247338bbaf33ede30178077",
+      "changedFields": [
+        {
+          "ref": "coordinatorDefinitionExtensionApplicability/denominator/physicalSurfaces",
+          "predecessor": 26,
+          "current": 28,
+          "classification": "DENOMINATOR_METADATA_RECONCILED_TO_AUTHORIZED_TOPOLOGY"
+        },
+        {
+          "ref": "coordinatorDefinitionExtensionApplicability/denominator/totalSurfaceIdentities",
+          "predecessor": 54,
+          "current": 56,
+          "classification": "DENOMINATOR_METADATA_RECONCILED_TO_AUTHORIZED_TOPOLOGY"
+        }
+      ],
+      "unchangedFields": {
+        "extensionDecisionRecordsCount": 7,
+        "extensionDecisionRecordsSha256": "9ef7cf1b43a06bdd36d9d324da1687217d5c33de7bdbc6405255fbabb0f9b79f",
+        "dispositionRuleSha256": "b7ec3ae27cb26a6c02e62ddf7cc83108d228138651202ce8a56792a5a7f1e596"
+      }
+    }
+  },
+  "authoritativeSuccessor": {
+    "sourceReconciliationRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json",
+    "sourceReconciliationSha256": "c6d9d214f46332169404e9201beff133b606c60bd4ea8e807ec6866ac46e5f11",
+    "topologySuccessorRef": "docs/implementation/observations/media-discovery-topology-56-surface-successor-2026-10-31.json",
+    "topologySuccessorSha256": "36fd5d406516013d167f939c00820ee3554242185c723c500fb0345ccb87ef0e",
+    "topologySuccessorCommit": "86dbc4b1efaabb1f8a7c63d7ee5839d0a9176f8c",
+    "topologySuccessorParentCommit": "8e470c5dbd837c4c44429bc9d6aba6b6de51d313",
+    "topologySuccessorParentApplicationsChannelsSha256": "029d5c861f0c1505a35ace06e8ac010975f8347c6b15ac54aa8f406cba93d426",
+    "topologySuccessorPostimageApplicationsChannelsSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34",
+    "decisionRef": ".product-experience/decision-log.md#PXD-207",
+    "decisionSectionSha256": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
+    "decisionSectionPredecessorSha256": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
+    "disposition": "NO_PDP0_MEANING_CHANGE",
+    "scopeNote": "PXD-207 feature applicability decision records and disposition rule are unchanged; the two denominator fields now reflect the already-authorized 56-identity topology."
+  },
+  "affectedSurfaceIds": [
+    {
+      "surfaceId": "media.physical.adapters-agent-tools-media",
+      "topologyPdp0Disposition": "NOT_APPLICABLE_SUPPORT",
+      "directCapabilityFamilyIds": [],
+      "directCapabilityIntentIds": [],
+      "directRequirementIds": [],
+      "supportRationale": "Optional Tools SPI support remains behind media.surface.agent-tools; no direct Media capability meaning is assigned to the physical support node."
+    },
+    {
+      "surfaceId": "media.physical.adapters-data-cloud-media",
+      "topologyPdp0Disposition": "APPLICABLE",
+      "requirementRefs": [
+        "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+        "MEDIA-REQ-CAP-VISION",
+        "MEDIA-REQ-CAP-MULTIMODAL"
+      ],
+      "requirementRefDisposition": "BOUNDARY_TRACE_ONLY_NOT_DIRECT_CAPABILITY_OWNERSHIP",
+      "directCapabilityFamilyIds": [],
+      "directCapabilityIntentIds": [],
+      "directProductIntentIds": [],
+      "boundaryRationale": "The adapter boundary is applicable, while requirement references trace existing modality requirements and assign no direct capability ownership or execution availability to Data Cloud."
+    }
+  ],
+  "dependentSourcesAndProjections": [
+    "docs/implementation/pdp-0-phase-dev-status.json#sourceShaSet/.product-experience/pdp-0-product-truth/applications-channels.yaml",
+    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json#sourceFingerprints/.product-experience/pdp-0-product-truth/applications-channels.yaml",
+    "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json#denominatorValidation",
+    "scripts/check-media-pdp0-surface-denominator.mjs",
+    "scripts/generate-media-pdp0-surface-phase-status-matrix.mjs",
+    "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json#currentSource"
+  ],
+  "validation": {
+    "focusedTestRef": "tests/media-pdp0-surface-denominator.test.mjs",
+    "focusedTestSha256": "ecc702be147615a4992be18c42643172d7cac2ecda3989a66f4000c7dcc8b00e",
+    "command": "node --test tests/media-pdp0-surface-denominator.test.mjs",
+    "result": "PASS",
+    "testCount": 20,
+    "passedTestCount": 20,
+    "failedTestCount": 0,
+    "skippedTestCount": 0,
+    "durationMs": 45372
+  },
+  "sourceCurrentnessDisposition": "CURRENT_TO_AUTHORIZED_PXD207_TOPOLOGY_SUCCESSOR",
+  "statusAndMatrixEffect": "NONE; this record does not rewrite source status, matrix, sourceShaSet, or per-surface status.",
+  "claimsBoundary": {
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "implementation": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "qualification": "NOT_EVALUATED",
+    "nativeClosure": "NOT_CLAIMED",
+    "delivery": "NOT_CLAIMED"
+  }
+}

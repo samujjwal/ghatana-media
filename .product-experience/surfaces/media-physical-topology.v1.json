@@ -36,7 +36,50 @@
      "capabilityIntentIds": [],
      "requirementIds": [],
      "rationale": "No direct Media capability ownership is established for this support/tool node; retained as scoped support only.",
-     "intentIds": []
+     "intentIds": [],
+     "sourceDefinitionReview": {
+      "authority": "USER_EXPLICITLY_DELEGATED_SOURCE_DEFINITION_DECISION",
+      "reviewerRole": "delegated-agent; source-definition scope only",
+      "phase": "PDP-0",
+      "status": "DELEGATED_SOURCE_DEFINITION_REVIEW_COMPLETE",
+      "reviewedSourceRefs": [
+       ".product-experience/surfaces/media-physical-topology.v1.json",
+       ".product-experience/pdp-0-product-truth/capabilities.yaml",
+       ".product-experience/pdp-0-product-truth/requirements.yaml",
+       ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+       ".product-experience/pdp-0-product-truth/dependency-contracts.yaml",
+       "docs/surfaces/adapters-agent-tools-media/README.md"
+      ],
+      "phaseLocalTaskIds": [],
+      "taskDisposition": "ZERO_OUTSTANDING_PDP0_DEFINITION_TASKS",
+      "nonClaims": [
+       "owner acceptance",
+       "independent acceptance",
+       "PDP-1/PDP-2/PDP-3 completion",
+       "runtime admission",
+       "qualification",
+       "release"
+      ],
+      "reviewedSurfaceId": "media.physical.adapters-agent-tools-media",
+      "scopeDisposition": "NOT_APPLICABLE_SUPPORT",
+      "criterionCoverage": [
+       {
+        "criterionId": "P0-01",
+        "coverage": "The support adapter owns no direct Media capability intent."
+       },
+       {
+        "criterionId": "P0-07",
+        "coverage": "PDP-0 applicability is explicitly NOT_APPLICABLE_SUPPORT with empty family, capability, requirement, and intent references."
+       },
+       {
+        "criterionId": "P0-08",
+        "coverage": "The physical identity remains in the 56-surface denominator; N/A does not remove it."
+       }
+      ],
+      "acceptanceCriterion": "Retain the stable physical topology identity as support-only; require zero direct Media capability families, capability intents, requirements, and product intents; preserve the explicit N/A rationale and support boundary.",
+      "taskRationale": "The optional Tools SPI adapter remains support implementation behind the logical media.surface.agent-tools consumer. Capability meaning is traced at that logical consumer and is not directly attributed to this physical support node.",
+      "nextLegalAction": "Re-pin and revalidate the exact PDP-0 reviewed source references and full PDP-0 phase sourceShaSet before reusing this review; downstream phases retain their separately declared obligations."
+     }
     },
     "PDP-1": {
      "disposition": "REFERENCED_ONLY",
@@ -108,7 +151,62 @@
       "MEDIA-REQ-CAP-MULTIMODAL"
      ],
      "intentIds": [],
-     "rationale": "The Media-owned Data Cloud adapter boundary is defined under the existing DEP-DATA-CLOUD owner boundary; it does not assign Data Cloud ownership of Media artifact, job, consent, or processing semantics. The adapter delegates MediaProcessorPort transcription, vision, and multimodal operations to the Media-owned modality services, so its PDP-0 scope binds the exact delegated requirements it fronts: MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION, MEDIA-REQ-CAP-VISION, and MEDIA-REQ-CAP-MULTIMODAL."
+     "rationale": "The Media-owned Data Cloud compatibility adapter is an applicable integration boundary, and these three existing requirement references provide boundary trace only. The legacy MediaProcessorPort adapters currently report unavailable for all operations and invoke no persistent modality service; the boundary therefore owns no direct Media capability family, capability intent, or product intent. Data Cloud remains outside Media ownership of artifact, job, consent, or processing semantics.",
+     "sourceDefinitionReview": {
+      "authority": "USER_EXPLICITLY_DELEGATED_SOURCE_DEFINITION_DECISION",
+      "reviewerRole": "delegated-agent; source-definition scope only",
+      "phase": "PDP-0",
+      "status": "DELEGATED_SOURCE_DEFINITION_REVIEW_COMPLETE",
+      "reviewedSurfaceId": "media.physical.adapters-data-cloud-media",
+      "reviewedSourceRefs": [
+       ".product-experience/surfaces/media-physical-topology.v1.json",
+       ".product-experience/pdp-0-product-truth/capabilities.yaml",
+       ".product-experience/pdp-0-product-truth/requirements.yaml",
+       ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+       ".product-experience/pdp-0-product-truth/dependency-contracts.yaml",
+       "adapters/data-cloud-media/README.md"
+      ],
+      "scopeDisposition": "APPLICABLE_INTEGRATION_BOUNDARY; REQUIREMENT_REFS_ARE_BOUNDARY_TRACE_ONLY",
+      "requirementRefDisposition": "BOUNDARY_TRACE_ONLY_NOT_DIRECT_CAPABILITY_OWNERSHIP",
+      "reviewedRequirementRefs": [
+       "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+       "MEDIA-REQ-CAP-VISION",
+       "MEDIA-REQ-CAP-MULTIMODAL"
+      ],
+      "evaluatedCanonicalCapabilityCount": 43,
+      "candidateCapabilityDisposition": "NO_DIRECT_ADAPTER_CAPABILITY_OWNERSHIP; the three requirement families resolve to 43 modality capability leaves, but none is assigned to this currently unavailable compatibility adapter.",
+      "criterionCoverage": [
+       {
+        "criterionId": "P0-01",
+        "coverage": "Reviewed 43 canonical capabilities across the three referenced modality families; no direct capability intent is assigned to this adapter because its current MediaProcessorPort operations report unavailable."
+       },
+       {
+        "criterionId": "P0-04",
+        "coverage": "No direct product intent is assigned at the adapter boundary; modality capabilities retain their existing media.intent.understand owner links on their canonical surfaces."
+       },
+       {
+        "criterionId": "P0-07",
+        "coverage": "No channel applicability is introduced by this physical-to-physical compatibility adapter."
+       },
+       {
+        "criterionId": "P0-08",
+        "coverage": "The physical identity remains one row in the 56-surface denominator; requirement references are boundary trace only."
+       }
+      ],
+      "phaseLocalTaskIds": [],
+      "taskDisposition": "ZERO_OUTSTANDING_PDP0_DEFINITION_TASKS",
+      "taskRationale": "The boundary rationale, three requirement trace references, and no-direct-capability/no-direct-intent disposition are now explicit in PDP-0 source. Operation selectors, source version/timebase, principal/purpose/rights admission, request/result mapping, and runtime availability remain later-phase contract/implementation work and are not missing PDP-0 product intent.",
+      "acceptanceCriterion": "Preserve the applicable Media-owned integration boundary and exactly the three existing requirement trace references; keep capabilityFamilyIds, capabilityIntentIds, and intentIds empty; retain all 43 modality capability meanings on their canonical modality surfaces; claim no Data Cloud capability execution or availability.",
+      "nextLegalAction": "Re-pin and revalidate the exact PDP-0 reviewed source references and full PDP-0 phase sourceShaSet before reusing this review; downstream phases retain their separately declared obligations.",
+      "nonClaims": [
+       "owner acceptance",
+       "independent acceptance",
+       "PDP-1/PDP-2/PDP-3 completion",
+       "runtime admission",
+       "qualification",
+       "release"
+      ]
+     }
     },
     "PDP-1": {
      "disposition": "REFERENCED_ONLY",

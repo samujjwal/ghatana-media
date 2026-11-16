@@ -1,15 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {createHash} from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {buildMediaPdp0AqPxd216CurrentnessSuccessors} from '../scripts/prepare-media-pdp0-aq-pxd216-currentness-successors.mjs';
+import {fingerprintPxdDecisionSection} from '../scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const candidateRef = 'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v5.json';
-const pxd216Ref = 'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/p0-capability-meaning-20-leaf-current-source-review-pxd216.successor.candidate.v5.json';
-const ownerInputRef = 'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/source-owner-decision-input.candidate.v5.json';
-const rootInputRef = 'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/root-application-input.candidate.v5.json';
+const candidateRef = 'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v6.json';
+const pxd216Ref = 'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/p0-capability-meaning-20-leaf-current-source-review-pxd216.successor.candidate.v6.json';
+const ownerInputRef = 'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/source-owner-decision-input.candidate.v6.json';
+const rootInputRef = 'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/root-application-input.candidate.v6.json';
+const v5Ref = 'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v5.json';
+const sha256File = ref => createHash('sha256').update(fs.readFileSync(path.join(root, ref))).digest('hex');
 
 test('AQ 1-154 and PXD-216 currentness successors prove exact out-of-slice deltas without acceptance', () => {
   const prepared = buildMediaPdp0AqPxd216CurrentnessSuccessors({repositoryRoot: root});
@@ -17,7 +21,24 @@ test('AQ 1-154 and PXD-216 currentness successors prove exact out-of-slice delta
   const pxd216 = prepared.outputFiles[pxd216Ref];
   const ownerInput = prepared.outputFiles[ownerInputRef];
   const rootInput = prepared.outputFiles[rootInputRef];
+  const v5 = JSON.parse(fs.readFileSync(path.join(root, v5Ref), 'utf8'));
+  const currentPxd225 = JSON.parse(fs.readFileSync(path.join(root, 'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json'), 'utf8'));
 
+  assert.deepEqual(aggregate.campaign, {
+    phase: 'PDP-0', macroStage: 'DISCOVERY', identityDenominator: 56, phaseCells: 224, auditRows: 501, historicalOwnerRows: 462,
+  });
+  const decisionLog = fs.readFileSync(path.join(root, '.product-experience/decision-log.md'), 'utf8');
+  assert.equal(aggregate.currentDecisionSectionPins['.product-experience/decision-log.md#PXD-229-section'],
+    fingerprintPxdDecisionSection(decisionLog, 'PXD-229').sha256);
+  assert.equal(aggregate.currentDecisionSectionPins['.product-experience/decision-log.md#PXD-230-section'],
+    fingerprintPxdDecisionSection(decisionLog, 'PXD-230').sha256);
+  assert.equal(aggregate.predecessors.pxd216CurrentnessV5.ref, v5Ref);
+  assert.equal(aggregate.predecessors.pxd216CurrentnessV5.sha256, sha256File(v5Ref));
+  assert.equal(pxd216.pxd225Selector.historicalV5SuccessorSha256, sha256File(v5Ref));
+  assert.equal(pxd216.pxd225Selector.currentRef, 'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json');
+  assert.equal(pxd216.pxd225Selector.currentSha256, sha256File(pxd216.pxd225Selector.currentRef));
+  assert.equal(pxd216.pxd225Selector.currentDecisionSectionSha256, currentPxd225.decisionSectionSha256);
+  assert.deepEqual(pxd216.pxd225Selector.changedFields, v5.pxd216Successor.pxd225Selector.changedFields);
   assert.equal(aggregate.candidateState, 'SOURCE_BOUND_CURRENTNESS_ONLY_CANDIDATE; OWNER_DECISION_NOT_RECORDED');
   assert.equal(aggregate.sourceDelta.aq1To154.classification, 'NO_MEANING_CHANGE_IN_AQ_ROWS_1_TO_154');
   assert.deepEqual(aggregate.sourceDelta.aq1To154.capabilityRowsChanged, []);
@@ -45,9 +66,9 @@ test('AQ 1-154 and PXD-216 currentness successors prove exact out-of-slice delta
   assert.equal(rootInput.state, 'PREPARED_INPUT_ONLY; OWNER_AND_ROOT_DECISION_NOT_RECORDED');
   assert.equal(rootInput.canonicalApply, 'NONE');
   assert.equal(rootInput.protectedInputs.pdp0Status.sha256,
-    '6e92932ba4173c6dea7e3dcee0c1d44a44ae90245804d363c0d22c2f28028b7c');
+    sha256File('docs/implementation/pdp-0-phase-dev-status.json'));
   assert.equal(rootInput.protectedInputs.crosswalk.sha256,
-    '02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4');
+    sha256File('docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json'));
 
   for (const ref of [candidateRef, pxd216Ref, ownerInputRef, rootInputRef]) {
     assert.ok(fs.existsSync(path.join(root, ref)), `${ref} is the append-only prepared postimage`);

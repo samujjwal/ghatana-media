@@ -31,7 +31,8 @@ test("project creation requires a title without claiming initial project content
 });
 
 test("all project capability leaves have distinct source-backed intent results and safe unknown handling", () => {
-  const projects = source.capabilities.filter(({ id }) => id.startsWith("media.project."));
+  const projects = source.capabilities.filter(({ id, scopeStatus }) =>
+    id.startsWith("media.project.") && scopeStatus !== "DEFERRED");
   assert.equal(projects.length, 16);
   assert.equal(new Set(projects.map(({ outcome }) => outcome)).size, 16);
   for (const project of projects) {
@@ -60,6 +61,20 @@ test("all project capability leaves have distinct source-backed intent results a
   assert.match(meanings.get("media.project.composition.update"), /composition/u);
   assert.match(meanings.get("media.project.settings.update"), /settings/u);
   assert.match(meanings.get("media.project.version"), /does not specify|not specified/u);
+
+  const deferredScenePatchMerge = leaf("media.project.scene.patch-merge");
+  assert.equal(deferredScenePatchMerge.scopeStatus, "DEFERRED");
+  assert.equal(deferredScenePatchMerge.definitionState, "IN_SCOPE_DRAFT");
+  assert.equal(deferredScenePatchMerge.coverageDisposition, "PROPOSED_PENDING_OWNER_REVIEW");
+  assert.equal(deferredScenePatchMerge.coverageDecisionRef, "NOT_CLAIMED");
+  assert.match(deferredScenePatchMerge.actorBindingState, /owner-acceptance-not-claimed/u);
+  assert.match(deferredScenePatchMerge.intentBindingState, /owner-acceptance-not-claimed/u);
+  assert.match(deferredScenePatchMerge.stateModelBindingState, /owner-acceptance-not-claimed/u);
+  assert.match(deferredScenePatchMerge.requirementTraceState, /owner-acceptance-not-claimed/u);
+  assert.equal(review.ownerCapabilityLeafAdjudication.records.some(({ capabilityRef }) =>
+    capabilityRef === deferredScenePatchMerge.id), false);
+  assert.equal(review.currentVersionExtensionOwnerAndTrust.ownerAdjudications.some(({ capabilityRef }) =>
+    capabilityRef === deferredScenePatchMerge.id), false);
 });
 
 test("phase analysis allows a typed observation or measurement without asserting a noise-floor metric", () => {

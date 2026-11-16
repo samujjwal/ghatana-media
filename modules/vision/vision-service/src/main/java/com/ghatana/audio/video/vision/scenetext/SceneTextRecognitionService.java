@@ -41,7 +41,8 @@ public final class SceneTextRecognitionService {
     private static final Pattern IDENTITY = Pattern.compile("[A-Za-z0-9][A-Za-z0-9_.:-]{0,255}");
     private static final Pattern SHA256 = Pattern.compile("[a-f0-9]{64}");
     private static final Pattern GENERATION = Pattern.compile("[a-f0-9]{32}");
-    private static final int MAX_CROP_BYTES = 20 * 1024 * 1024;
+    /** Shared ingress bound so the gRPC adapter can reject before copying caller bytes. */
+    public static final int MAX_CROP_BYTES = 20 * 1024 * 1024;
     private static final int MAX_OBSERVATIONS = 5_000;
 
     private final Optional<DocumentIntelligenceV1> documentIntelligence;
@@ -583,6 +584,11 @@ public final class SceneTextRecognitionService {
         return value != null && !value.isEmpty() && value.length() <= maximumLength;
     }
 
+    public static boolean isValidDeclaredCrop(int byteLength, String digest) {
+        return byteLength > 0 && byteLength <= MAX_CROP_BYTES
+                && digest != null && SHA256.matcher(digest).matches();
+    }
+
     private static boolean valid(FrameRequest request) {
         if (request == null) return false;
         for (String value : new String[] {request.operationId(), request.tenantId(), request.principalId(), request.purposeRef(),
@@ -593,8 +599,7 @@ public final class SceneTextRecognitionService {
         byte[] declaredCrop = request.croppedBytes();
         boolean cropConsistent = (declaredCrop == null) == (request.croppedFrameSha256() == null)
                 && (declaredCrop == null
-                    || (declaredCrop.length > 0 && declaredCrop.length <= MAX_CROP_BYTES
-                        && SHA256.matcher(request.croppedFrameSha256()).matches()));
+                    || isValidDeclaredCrop(declaredCrop.length, request.croppedFrameSha256()));
         return request.ptsUs() >= 0 && request.frameWidth() > 0 && request.frameHeight() > 0 && roi != null
                 && roi.x() >= 0 && roi.y() >= 0 && roi.width() > 0 && roi.height() > 0
                 && (long) roi.x() + roi.width() <= request.frameWidth() && (long) roi.y() + roi.height() <= request.frameHeight()

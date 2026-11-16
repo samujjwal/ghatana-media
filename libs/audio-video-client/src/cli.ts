@@ -24,6 +24,9 @@ import { isCanonicalMediaContentType } from './upload-validation.js';
 
 const PRODUCTION_COMMAND_IDS: Readonly<Record<string, string>> = {
   'artifact inspect': 'media.cli.artifact.inspect',
+  'job get': 'media.cli.job.get',
+  'job submit': 'media.cli.job.submit',
+  'job list': 'media.cli.job.list',
 };
 const LOCAL_DEVELOPMENT_COMMAND_IDS: Readonly<Record<string, string>> = {
   'artifact upload': 'media.cli.local-development.artifact.upload',
@@ -51,7 +54,7 @@ const DEV_TYPED_ERROR_CODES: Readonly<Record<number, ReadonlySet<string>>> = {
   503: new Set(['RENDER_CODEC_UNAVAILABLE', 'DELIVERY_DESTINATION_UNAVAILABLE', 'EXPORT_AUTHORIZATION_UNAVAILABLE', 'DELIVERY_STATE_UNAVAILABLE']),
 };
 const DEV_TYPED_422_PATTERN = /^(?:RENDER|EXPORT|TIMELINE|TRACK|SOURCE)_[A-Z0-9_]{1,56}$/u;
-const PRODUCTION_USAGE = 'Usage: ghatanamedia-api artifact inspect --endpoint URL --tenant ID --principal ID --artifact ID';
+const PRODUCTION_USAGE = 'Usage: ghatanamedia-api artifact inspect --endpoint URL --tenant ID --principal ID --artifact ID | job get --endpoint URL --tenant ID --principal ID --job ID [--request-id ID] | job submit --endpoint URL --tenant ID --principal ID --artifact ID --request-id ID [--job-type TYPE] [--provider-hint ID] | job list --endpoint URL --tenant ID --principal ID [--limit N]';
 const LOCAL_DEVELOPMENT_USAGE = 'Usage: ghatanamedia-api-dev artifact upload --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH --content-type TYPE --classification CLASS --retention PERIOD --idempotency-key KEY | artifact inspect --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID | job get --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID [--request-id ID] [--await-finality-ms N] | job submit --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID --request-id ID [--job-type TYPE] [--provider-hint ID] [--await-finality-ms N] | job cancel --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID --request-id ID [--expected-version N] | project render --endpoint LOOPBACK_URL --tenant ID --principal ID --project-id ID --revision-id ID --timeline-id ID --request-id ID --width N --height N --fps N [--format gif|mp4] | project render-get --endpoint LOOPBACK_URL --tenant ID --principal ID --project-id ID --render-id ID | export create --endpoint LOOPBACK_URL --tenant ID --principal ID --request-id ID --artifact-id ID --artifact-version-id ID --destination-id ID | export get --endpoint LOOPBACK_URL --tenant ID --principal ID --request-id ID | batch run --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH [--continue-on-error]';
 const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
 const MAX_REQUEST_TIMEOUT_MS = 300_000;
@@ -79,6 +82,12 @@ const COMMAND_OPTIONS: Readonly<Record<string, readonly string[]>> = {
   'job get': ['--endpoint', '--tenant', '--principal', '--job', '--request-id'],
   'job cancel': ['--endpoint', '--tenant', '--principal', '--job'],
 };
+const PRODUCTION_COMMAND_OPTIONS: Readonly<Record<string, readonly string[]>> = {
+  'artifact inspect': COMMAND_OPTIONS['artifact inspect']!,
+  'job get': COMMAND_OPTIONS['job get']!,
+  'job submit': ['--endpoint', '--tenant', '--principal', '--artifact', '--request-id', '--job-type', '--provider-hint'],
+  'job list': ['--endpoint', '--tenant', '--principal', '--limit'],
+};
 
 const LOCAL_DEVELOPMENT_COMMAND_OPTIONS: Readonly<Record<string, readonly string[]>> = {
   ...COMMAND_OPTIONS,
@@ -94,6 +103,7 @@ const LOCAL_DEVELOPMENT_COMMAND_OPTIONS: Readonly<Record<string, readonly string
 const OPTIONAL_COMMAND_OPTIONS: Readonly<Record<string, readonly string[]>> = {
   'job get': ['--request-id', '--await-finality-ms'],
   'job submit': ['--job-type', '--provider-hint', '--await-finality-ms'],
+  'job list': ['--limit'],
   'job cancel': ['--expected-version'],
   'project render': ['--format'],
 };
@@ -102,7 +112,7 @@ function parseArguments(argv: readonly string[], channel: CliChannel): Arguments
   const command = `${argv[0] ?? ''} ${argv[1] ?? ''}`;
   const commandIds = channel === 'production' ? PRODUCTION_COMMAND_IDS : LOCAL_DEVELOPMENT_COMMAND_IDS;
   const commandOptions = channel === 'production'
-    ? { 'artifact inspect': COMMAND_OPTIONS['artifact inspect']! }
+    ? PRODUCTION_COMMAND_OPTIONS
     : LOCAL_DEVELOPMENT_COMMAND_OPTIONS;
   if (!Object.hasOwn(commandIds, command)) throw new Error('Unknown command.');
   const values = new Map<string, string>();
@@ -187,6 +197,10 @@ function parseArguments(argv: readonly string[], channel: CliChannel): Arguments
   const awaitRaw = values.get('--await-finality-ms');
   if (awaitRaw !== undefined && (!/^(?:0|[1-9]\d{0,6})$/u.test(awaitRaw) || Number(awaitRaw) > MAX_AWAIT_FINALITY_MS)) {
     throw new Error(`await-finality-ms must be an integer in 0..${MAX_AWAIT_FINALITY_MS}.`);
+  }
+  const limitRaw = values.get('--limit');
+  if (limitRaw !== undefined && (!/^[1-9]\d{0,3}$/u.test(limitRaw) || Number(limitRaw) > 1_000)) {
+    throw new Error('limit must be an integer in 1..1000.');
   }
   if (command === 'artifact upload') {
     const contentType = values.get('--content-type')!;
@@ -861,6 +875,15 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
       return;
     }
     const canonical = createMediaCanonicalClient(config);
+    if (args.command === 'job list') {
+      const jobs = await canonical.listJobs({ limit: Number(args.values['--limit'] ?? 100) });
+      if (containsCredential(jobs, bearerToken)) {
+        writeError('INVALID_MEDIA_RESPONSE', 'Media returned a job-list response containing credential material.', {}, 1, args.command, commandIds);
+        return;
+      }
+      process.stdout.write(`${JSON.stringify({ schemaVersion: 'media.cli-result.v1', commandId: commandIds[args.command], jobs: canonicalizeJsonValue(jobs) })}\n`);
+      return;
+    }
     const awaitMs = Number(args.values['--await-finality-ms'] ?? 0);
     const readJob = (jobId: string) => args.values['--request-id'] === undefined || args.command === 'job submit'
       ? canonical.getJob(jobId)
@@ -891,12 +914,21 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
         JOB_NOT_FINAL_EXIT_CODE, args.command, commandIds);
       return;
     }
-    writeJob(job, bearerToken, args.command, commandIds);
+    const jobWritten = writeJob(job, bearerToken, args.command, commandIds);
+    if (jobWritten && channel === 'production'
+      && (args.command === 'job get' || args.command === 'job submit')
+      && job.status === 'OUTCOME_UNKNOWN') {
+      // The GET succeeded, but its observed job outcome is explicitly unresolved.
+      // Preserve the structured observation on stdout while making automation fail closed.
+      process.exitCode = JOB_NOT_FINAL_EXIT_CODE;
+    }
   } catch (error) {
     if (error instanceof MediaOperationAmbiguousError) {
       if (DEV_MUTATING_COMMANDS.has(args.command)) {
-        writeError('OUTCOME_UNKNOWN', 'The operation may have taken effect. Retry with the same request ID to reconcile; do not use a new request ID.',
-          { requestId: args.values['--request-id'] }, 1, args.command, commandIds);
+        writeError('OUTCOME_UNKNOWN', 'The operation may have taken effect. Reconcile with the same request ID and idempotency key; do not submit a new request identity.',
+          { requestId: args.values['--request-id'] },
+          channel === 'production' && args.command === 'job submit' ? JOB_NOT_FINAL_EXIT_CODE : 1,
+          args.command, commandIds);
       } else if (args.command === 'artifact upload') {
         writeError('OUTCOME_UNKNOWN', knownUploadId === undefined
           ? 'Upload begin may have taken effect, but no upload ID was returned. Do not retry until the outcome can be reconciled.'
@@ -1029,4 +1061,6 @@ function isMainEntrypoint(expectedFileName: string): boolean {
   }
 }
 
-if (isMainEntrypoint('cli.js')) void run(process.argv.slice(2), process.env.GHATANA_MEDIA_BEARER_TOKEN, 'production');
+if (isMainEntrypoint('cli.js')) {
+  void run(process.argv.slice(2), process.env.GHATANA_MEDIA_BEARER_TOKEN, 'production');
+}

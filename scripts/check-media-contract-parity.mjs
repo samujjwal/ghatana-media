@@ -496,10 +496,14 @@ export function parseNotAdmittedSdkRoutes(parityMatrix) {
   if (!findings?.disposition?.startsWith("NOT_ADMITTED_TO_CURRENT_RUNTIME_ROUTE_MANIFEST")) return [];
   return (Array.isArray(findings.sourceFindings) ? findings.sourceFindings : [])
     .filter((entry) => entry?.source && entry?.method && entry?.path
-      // A finding explicitly retired from the live client source is not a
-      // route-disposition pin: the retired-route census proves non-dispatch
-      // against the current method body instead of expecting a live divergence.
-      && !String(entry.currentObservation ?? "").startsWith("RETIRED_FROM_SOURCE"))
+      // Path identity and method dispatch are separate axes. When the source
+      // supplies the explicit identity classification, only retained path
+      // identities participate in this route-disposition projection; a
+      // fail-closed retained method remains unadmitted. Keep the legacy rule
+      // for older/parity test fixtures without the new field.
+      && (entry.pathIdentityStatus !== undefined
+        ? entry.pathIdentityStatus === "RETAINED_LEGACY_CANDIDATE"
+        : !String(entry.currentObservation ?? "").startsWith("RETIRED_FROM_SOURCE")))
     .map((entry) => ({ source: String(entry.source).trim(), method: entry.method, path: entry.path, disposition: "NOT_ADMITTED" }));
 }
 

@@ -77,6 +77,8 @@ public final class GuardedVideoStreamSession {
         HELD,
         /** Duplicate of an acked or held frame. */
         DUPLICATE,
+        /** A held sequence was replayed with different content. */
+        CONFLICTING_REPLAY,
         /** Pending reorder set or bounded egress-candidate capacity is full. */
         OVERFLOW
     }
@@ -232,6 +234,7 @@ public final class GuardedVideoStreamSession {
         return switch (disposition) {
             case HELD -> FrameVerdict.HELD;
             case DUPLICATE -> FrameVerdict.DUPLICATE;
+            case CONFLICTING_REPLAY -> FrameVerdict.CONFLICTING_REPLAY;
             case OVERFLOW -> FrameVerdict.OVERFLOW;
             default -> throw new IllegalStateException("unmapped disposition " + disposition);
         };

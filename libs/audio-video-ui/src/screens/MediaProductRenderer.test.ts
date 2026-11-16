@@ -211,7 +211,24 @@ describe("MediaProductRenderer", () => {
   });
 
   it("forwards the optional canonical job reader without creating a product route", () => {
-    const canonicalJobReadClient = { getJob: vi.fn(async () => ({ jobId: "media-job-42", status: "COMPLETED" as const, version: 3 })) };
+    const canonicalJobReadClient = { getJob: vi.fn(async () => ({
+      jobId: "media-job-42",
+      requestId: "request-42",
+      tenantId: "tenant-1",
+      principalId: "principal-1",
+      artifactId: "artifact-42",
+      jobType: "TRANSCODE" as const,
+      providerId: null,
+      status: "COMPLETED" as const,
+      createdAt: "2026-11-16T10:00:00Z",
+      startedAt: "2026-11-16T10:00:01Z",
+      completedAt: "2026-11-16T10:01:00Z",
+      result: {},
+      failureCode: null,
+      version: 3,
+      expectedArtifactVersion: `sha256:${"c".repeat(64)}`,
+      requestFingerprint: `sha256:${"b".repeat(64)}`,
+    })) };
     const props: MediaProductRendererProps = {
       kind: "job-recovery",
       ...common,

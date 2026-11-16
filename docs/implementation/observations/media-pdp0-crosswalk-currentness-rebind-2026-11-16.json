@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "media.pdp0.source-currentness-refresh.v1",
+  "recordId": "MEDIA-PDP0-CROSSWALK-CURRENTNESS-REBIND-2026-11-16",
+  "recordedAt": "2026-11-16T05:24:05.840Z",
+  "phase": "PDP-0",
+  "decisionRef": ".product-experience/decision-log.md#PXD-225",
+  "classification": "CURRENT_SOURCE_PIN_REBIND_ONLY; NO_CROSSWALK_ROW_OR_REVIEW_HISTORY_CHANGE",
+  "authority": "Source-currentness derivation performed under the user-authorized PDP-0 reconciliation task; no owner approval or independent acceptance is claimed.",
+  "predecessor": {
+    "path": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+    "sha256": "sha256:02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
+    "snapshotPath": "docs/implementation/observations/media-pdp0-crosswalk-currentness-rebind-2026-11-16-predecessor.json"
+  },
+  "resultingCrosswalkSha256": "sha256:41b655f9914fba4c67554fab9e614be1c3e2b66d3fcd5b5b70cffda5e4feabab",
+  "sourceDelta": [
+    {
+      "sourceRef": ".product-experience/artifact-identities.yaml",
+      "previousSha256": "42f4899cd6fea41ca35275911ed9422d6ea489fe8c5ff6da7051921ef0767ed5",
+      "currentSha256": "1f3ab193451562d27befa210e7b0b3741e6f91e257b25e58033d089f78b83c70",
+      "disposition": "CURRENT_SOURCE_FINGERPRINT_REBIND"
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+      "previousSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+      "currentSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34",
+      "disposition": "CURRENT_SOURCE_FINGERPRINT_REBIND"
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+      "previousSha256": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
+      "currentSha256": "bd6b71877f9a3b0c40b8f530119ef18c7102ae60ddf6e478852b3bc24d4807ea",
+      "disposition": "CURRENT_SOURCE_FINGERPRINT_REBIND"
+    },
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "previousSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      "currentSha256": "03cc8f252d7ff0c1357b50437d326023be14a40e47198831ee60f0dcabd8691f",
+      "disposition": "CURRENT_SOURCE_FINGERPRINT_REBIND"
+    },
+    {
+      "sourceRef": ".product-experience/source-manifest.yaml#PDP-0-projection",
+      "previousSha256": "7b5304be79250c67099a1dcc7a250704156d40ca347eb9390a8d98a3d5f999db",
+      "currentSha256": "d2e77f94228aba330f52f8785cde7044587cb058e2e829e03d1bca15282a076e",
+      "disposition": "PDP0_SELECTOR_PROJECTION_CURRENTNESS_REBIND"
+    },
+    {
+      "sourceRef": "scripts/check-media-pdp0-audit-aq-traceability.mjs",
+      "previousSha256": "539c12b0c69d0b69dcddfcfdef6b9fd4da10d4b7f1f912ac136588caae924c78",
+      "currentSha256": "59997aee7df502c857c908ab8f4a66e400500d67f855007fde67dd4d4944b71d",
+      "disposition": "CURRENT_SOURCE_FINGERPRINT_REBIND"
+    },
+    {
+      "sourceRef": "tests/pdp-migration-semantic-reconciliation.test.mjs",
+      "previousSha256": "93ddf2a0231420f8064f3cc16139e21718c1a078ea2be6b7536aef36f32eb719",
+      "currentSha256": "1212853677c85b0b4d47d2dd7a5eb291d3ad7633a7e80e286c986f03cbeffc53",
+      "disposition": "CURRENT_SOURCE_FINGERPRINT_REBIND"
+    },
+    {
+      "sourceRef": "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs",
+      "previousSha256": "f6c1a9107d9e120e9408e7d9aed7e9f64bdb6db345666d651509e343b8e78a61",
+      "currentSha256": "a6c764f7a3bd23eee7331ebfe4ab6355162c0c9e6764215de54ddbac4ca7e6a2",
+      "disposition": "CURRENT_SOURCE_FINGERPRINT_REBIND"
+    },
+    {
+      "sourceRef": "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection",
+      "previousSha256": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
+      "currentSha256": "213abc572b9d7f1c44a13bdd672381cab61ebc0b96bf9c9f37f92acb8ae32514",
+      "disposition": "PDP0_SELECTOR_PROJECTION_CURRENTNESS_REBIND"
+    }
+  ],
+  "preserved": {
+    "auditRows": 501,
+    "originalAuditRows": 428,
+    "focusedRows": 73,
+    "reviewHistory": [
+      "PXD-186",
+      "PXD-190",
+      "PXD-191",
+      "PXD-192",
+      "PXD-193",
+      "PXD-194",
+      "PXD-198",
+      "PXD-199",
+      "PXD-200",
+      "PXD-201",
+      "PXD-202",
+      "PXD-203",
+      "PXD-204",
+      "PXD-205",
+      "PXD-206",
+      "PXD-207",
+      "PXD-212",
+      "PXD-213",
+      "PXD-214",
+      "PXD-215",
+      "PXD-216",
+      "PXD-223"
+    ],
+    "semanticRowDelta": []
+  },
+  "validation": {
+    "status": "PASS",
+    "errors": 0,
+    "total": 501,
+    "boundExisting": 499,
+    "postPdpImplementationOnly": 2
+  },
+  "authorityBoundary": {
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "acceptanceEffect": "none",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "qualification": "NOT_EVALUATED",
+    "closure": "NOT_CLAIMED",
+    "delivery": "NOT_CLAIMED"
+  },
+  "supersededResultingCrosswalkPins": [
+    {
+      "sha256": "sha256:19577d6f6c7baa30df0bc7c865a75c95f75d3a99bc20a4908d58514decea8239",
+      "disposition": "SUPERSEDED_CURRENTNESS_ONLY",
+      "supersededBySha256": "sha256:41b655f9914fba4c67554fab9e614be1c3e2b66d3fcd5b5b70cffda5e4feabab",
+      "reason": "The earlier result pin predates restoration of coordinatorReview.sourceFingerprints to the three current PDP-0 phase-scoped pins. This updates only the currentness pointer; the 501 crosswalk row objects and review history are unchanged."
+    }
+  ]
+}

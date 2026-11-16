@@ -377,16 +377,17 @@ test("MPSEM-0058-C002 and MPSEM-0101-C003 refresh stable current source files wi
   assert.equal(requirementObservation.acceptanceEffect ?? "none", "none");
 });
 
-test("MPSEM-0023-C002 preserves the prior route summary and records current manifest drift as pending", { skip: skipPdp1CandidateAssertions }, () => {
+test("MPSEM-0023-C002 preserves the historical candidate and exposes the current comparison in a separate successor", { skip: skipPdp1CandidateAssertions }, () => {
   const row = candidate.records.find(({ claimId }) => claimId === "MPSEM-0023-C002");
   const observation = row.currentProposalObservation;
+  const successor = JSON.parse(readFileSync(resolve(root, "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd228.json"), "utf8"));
+  const currentObservation = successor.records.find(({ claimId }) => claimId === row.claimId);
   const historicalSource = execFileSync("git", ["show", "5476e2ef61ad124546bf3b177510514514c13e3d:.product-experience/interface-parity/operation-parity.yaml"], { cwd: root, encoding: "utf8" });
   const historicalManifest = JSON.parse(execFileSync("git", ["show", "5476e2ef61ad124546bf3b177510514514c13e3d:config/route-manifest.json"], { cwd: root, encoding: "utf8" }));
   const historicalValue = parse(historicalSource).compatibilityRouteFindings.currentComparison;
   const current = resolveSelector(row.priorLocatorRef);
   const currentValueSha = sha(typeof current.value === "string" ? current.value : JSON.stringify(current.value));
   const currentManifest = JSON.parse(readFileSync(resolve(root, "config/route-manifest.json"), "utf8"));
-  const drift = observation.currentValueDriftObservation;
 
   assert.equal(observation.sourceFileSha256History[0], sha(historicalSource),
     "the original frozen source pin remains in observation history");
@@ -395,16 +396,23 @@ test("MPSEM-0023-C002 preserves the prior route summary and records current mani
   assert.equal(observation.sourceFileSha256History.at(-1), observation.supersededCurrentSourceFileSha256);
   assert.equal(historicalManifest.routes.length, 27, "the preserved predecessor summary used the 27-route manifest");
   assert.match(historicalValue, /absent from the 27-route active manifest/u);
-  assert.equal(observation.currentSourceFileSha256, sha(current.source));
+  assert.equal(observation.currentSourceFileSha256, "27bc34748b22e6a59ff7dd4f2e50df18a3e5415ee6acad55e466ef7bb4016bcf",
+    "the immutable candidate retains its historical current-source pin");
   assert.equal(observation.currentTargetValueSha256, row.currentTargetValueSha256,
-    "the previously recorded value pin remains unchanged while drift is separately observed");
-  assert.equal(drift.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
-  assert.equal(drift.ref, row.priorLocatorRef);
-  assert.equal(drift.recordedTargetValueSha256, row.currentTargetValueSha256);
-  assert.equal(drift.observedTargetValueSha256, currentValueSha);
-  assert.equal(drift.acceptanceEffect, "none");
-  assert.equal(drift.observedTargetValuePreview, current.value);
-  assert.match(current.value, new RegExp(`absent from the ${currentManifest.routes.length}-route active manifest`));
+    "the historical target pin remains unchanged");
+  assert.equal(currentObservation.currentSourceFileSha256, sha(current.source),
+    "the additive successor binds the current source bytes");
+  assert.equal(currentObservation.currentTargetValueSha256, currentValueSha,
+    "the successor records the exact current comparison value");
+  assert.equal(currentObservation.currentTargetValue, current.value);
+  assert.equal(currentObservation.routeManifestSha256, sha(readFileSync(resolve(root, "config/route-manifest.json"))));
+  assert.equal(currentManifest.routes.length, 30);
+  assert.equal(currentObservation.status, "PENDING_COORDINATOR_MATERIAL_REVIEW");
+  assert.equal(currentObservation.semanticEquivalence, "NOT_ASSERTED");
+  assert.equal(currentObservation.semanticPromotion, false);
+  assert.equal(currentObservation.acceptanceEffect, "none");
+  assert.equal(currentObservation.claimDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
+  assert.equal(currentObservation.runtimeAdmission, "NOT_ADMITTED");
   assert.equal(row.currentTargetValueSha256, observation.priorTargetValueSha256);
   assert.equal(row.semanticDisposition, "CLAIM_SPECIFIC_PARITY_NOT_YET_VERIFIED");
   assert.equal(row.targetSnapshotStatus, "LIVE_OBSERVATION_UNREVIEWED");

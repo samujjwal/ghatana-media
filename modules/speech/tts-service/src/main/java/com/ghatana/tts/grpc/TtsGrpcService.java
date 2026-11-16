@@ -89,6 +89,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase
 
     private static final Logger LOG = LoggerFactory.getLogger(TtsGrpcService.class);
     private static final int MAX_TEXT_LENGTH = 5_000;
+    private static final int MAX_VOICE_ID_LENGTH = 256;
     private static final int MAX_STREAM_CHUNK_BYTES = 64 * 1024;
     private static final long MAX_STREAM_OUTPUT_BYTES = PcmAudioValidator.MAX_AUDIO_BYTES;
     private static final String SYNTHESIS_WORKERS_PROPERTY = "media.tts.synthesis.workers";
@@ -302,6 +303,7 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase
         final JwtServerInterceptor.VerifiedIdentity callerIdentity;
         try {
             text = validateText(request.getText());
+            validateVoiceId(request.getVoiceId());
             SynthesisControlPolicy.rejectUnqualifiedSsml(text);
             options = options(request);
             callerIdentity = JwtServerInterceptor.verifiedIdentity();
@@ -1076,10 +1078,12 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase
             GetVoicesRequest request,
             StreamObserver<GetVoicesResponse> responseObserver) {
         try {
+            Locale requestedLanguage = request.getLanguage().isBlank()
+                    ? null : SynthesisControlPolicy.parseLanguageTag(request.getLanguage());
             TtsEngine engine = library.getTtsEngine();
-            List<VoiceInfo> voices = request.getLanguage().isBlank()
+            List<VoiceInfo> voices = requestedLanguage == null
                     ? engine.getAvailableVoices()
-                    : engine.getAvailableVoices(Locale.forLanguageTag(request.getLanguage()));
+                    : engine.getAvailableVoices(requestedLanguage);
             try (AudioVideoGrpcInstrumentation.BoundaryMeasurement responseBoundary =
                          instrumentation.beginBoundaryMeasurement(
                                  MediaWorkflowMetrics.Modality.TTS,
@@ -1299,6 +1303,12 @@ public class TtsGrpcService extends TTSServiceGrpc.TTSServiceImplBase
                     "text exceeds " + MAX_TEXT_LENGTH + " characters");
         }
         return normalized;
+    }
+
+    private static void validateVoiceId(String voiceId) {
+        if (voiceId != null && !voiceId.isBlank() && voiceId.length() > MAX_VOICE_ID_LENGTH) {
+            throw new IllegalArgumentException("voice_id exceeds " + MAX_VOICE_ID_LENGTH + " characters");
+        }
     }
 
     @SuppressWarnings("unchecked")

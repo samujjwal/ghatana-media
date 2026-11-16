@@ -65,6 +65,153 @@ class MediaHttpDeclaredRouteParityTest {
     }
 
     @Test
+    void artifactReadParsesBoundedOpaqueIdentityBeforeTenantScopedLookup() throws Exception {
+        var root = Files.createTempDirectory("media-http-artifact-opaque-id-");
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(new InertProvider(new AtomicInteger())),
+                List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        try {
+            MediaHttpHandler handler = new MediaHttpHandler(runtime);
+            String maximumId = "a".repeat(128);
+            ExchangeResult maximum = request(handler, "GET", "/api/v1/artifacts/" + maximumId, true);
+            ExchangeResult encodedAllowedCharacters = request(
+                    handler, "GET", "/api/v1/artifacts/artifact%3Av1.owner%5Fone", true);
+            List<String> malformedPaths = List.of(
+                    "/api/v1/artifacts/" + "a".repeat(129),
+                    "/api/v1/artifacts/-invalid-start",
+                    "/api/v1/artifacts/encoded%20space",
+                    "/api/v1/artifacts/plus+is-not-in-the-id-grammar");
+            List<ExchangeResult> malformed = malformedPaths.stream()
+                    .map(path -> {
+                        try { return request(handler, "GET", path, true); }
+                        catch (Exception failure) { throw new RuntimeException(failure); }
+                    })
+                    .toList();
+
+            assertThat(maximum.status()).as(maximum.body()).isEqualTo(404);
+            assertThat(maximum.body()).contains("ARTIFACT_NOT_FOUND");
+            assertThat(encodedAllowedCharacters.status()).as(encodedAllowedCharacters.body()).isEqualTo(404);
+            for (int index = 0; index < malformed.size(); index++) {
+                assertThat(malformed.get(index).status()).as(malformedPaths.get(index)).isEqualTo(400);
+                assertThat(malformed.get(index).body()).contains("INVALID_REQUEST")
+                        .doesNotContain("INTERNAL_ERROR");
+            }
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void consentGrantUsesAuthenticatedPrincipalInsteadOfCallerHeader() throws Exception {
+        var root = Files.createTempDirectory("media-http-consent-authenticated-principal-");
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(new InertProvider(new AtomicInteger())),
+                List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        MediaConsentAdministration administration = mock(MediaConsentAdministration.class);
+        when(administration.ready()).thenReturn(true);
+        AtomicReference<MediaConsentAdministration.GrantRequest> captured = new AtomicReference<>();
+        doAnswer(invocation -> {
+            captured.set(invocation.getArgument(0));
+            return null;
+        }).when(administration).grant(org.mockito.ArgumentMatchers.any(
+                MediaConsentAdministration.GrantRequest.class));
+        try {
+            MediaHttpHandler handler = new MediaHttpHandler(runtime, administration);
+            ExchangeResult result = request(handler, "POST", "/api/v1/consents", true, null,
+                    "{\"purposes\":[\"transcription\"],\"allowedRegions\":[],"
+                            + "\"externalProcessingAllowed\":false,\"biometricProcessingAllowed\":false}",
+                    Map.of("X-Principal-Id", "forged-principal"));
+
+            assertThat(result.status()).as(result.body()).isEqualTo(201);
+            assertThat(captured.get()).isNotNull();
+            assertThat(captured.get().principalId()).isEqualTo(PRINCIPAL);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void consentListReadAndRevokeUseAuthenticatedPrincipalInsteadOfCallerHeader() throws Exception {
+        var root = Files.createTempDirectory("media-http-consent-authenticated-principal-reads-");
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(new InertProvider(new AtomicInteger())),
+                List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        MediaConsentAdministration administration = mock(MediaConsentAdministration.class);
+        when(administration.ready()).thenReturn(true);
+        when(administration.list(TENANT, PRINCIPAL, 100)).thenReturn(List.of());
+        when(administration.find(TENANT, PRINCIPAL, "consent-a")).thenReturn(java.util.Optional.empty());
+        when(administration.revoke(TENANT, PRINCIPAL, "consent-a", "correlation-a"))
+                .thenReturn(java.util.Optional.empty());
+        try {
+            MediaHttpHandler handler = new MediaHttpHandler(runtime, administration);
+            ExchangeResult listed = request(handler, "GET", "/api/v1/consents", true, null, "",
+                    Map.of("X-Principal-Id", "forged-principal"));
+            ExchangeResult read = request(handler, "GET", "/api/v1/consents/consent-a", true, null, "",
+                    Map.of("X-Principal-Id", "forged-principal"));
+            ExchangeResult revoked = request(handler, "DELETE", "/api/v1/consents/consent-a", true, null, "",
+                    Map.of("X-Principal-Id", "forged-principal", "X-Correlation-Id", "correlation-a"));
+
+            assertThat(listed.status()).as(listed.body()).isEqualTo(200);
+            assertThat(read.status()).as(read.body()).isEqualTo(404);
+            assertThat(revoked.status()).as(revoked.body()).isEqualTo(404);
+            org.mockito.Mockito.verify(administration).list(TENANT, PRINCIPAL, 100);
+            org.mockito.Mockito.verify(administration).find(TENANT, PRINCIPAL, "consent-a");
+            org.mockito.Mockito.verify(administration).revoke(TENANT, PRINCIPAL, "consent-a", "correlation-a");
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void consentRoutesRejectMissingAuthenticatedActorBeforeAdministrationCalls() throws Exception {
+        var root = Files.createTempDirectory("media-http-consent-missing-actor-");
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(new InertProvider(new AtomicInteger())),
+                List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        MediaConsentAdministration administration = mock(MediaConsentAdministration.class);
+        try {
+            MediaHttpHandler handler = new MediaHttpHandler(runtime, administration);
+            List<ExchangeResult> results = List.of(
+                    request(handler, "POST", "/api/v1/consents", false, null,
+                            "{\"purposes\":[\"transcription\"],\"allowedRegions\":[],"
+                                    + "\"externalProcessingAllowed\":false,\"biometricProcessingAllowed\":false}",
+                            Map.of()),
+                    request(handler, "GET", "/api/v1/consents", false),
+                    request(handler, "GET", "/api/v1/consents/consent-a", false),
+                    request(handler, "DELETE", "/api/v1/consents/consent-a", false, null, "",
+                            Map.of("X-Correlation-Id", "correlation-a")));
+
+            assertThat(results).allSatisfy(result -> {
+                assertThat(result.status()).isEqualTo(401);
+                assertThat(result.body()).contains("UNAUTHENTICATED");
+            });
+            org.mockito.Mockito.verifyNoInteractions(administration);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void consentRevokeRequiresCorrelationHeaderWithinDeclaredMaximum() throws Exception {
         var root = Files.createTempDirectory("media-http-consent-correlation-bound-");
         var runtime = new MediaRuntime(
@@ -204,6 +351,150 @@ class MediaHttpDeclaredRouteParityTest {
                 assertThat(result.status()).as("method mismatch for %s", route.path()).isEqualTo(405);
                 assertThat(result.body()).contains("METHOD_NOT_ALLOWED");
             }
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void livenessDoesNotProbeRuntimeDependencies() throws Exception {
+        var root = Files.createTempDirectory("media-http-liveness-is-independent-");
+        AtomicInteger readinessChecks = new AtomicInteger();
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(new ReadinessCountingProvider(readinessChecks, true)),
+                List.of());
+        try {
+            // Ignore any composition-time capability binding. The liveness request itself
+            // must not probe dependency readiness or provider readiness.
+            readinessChecks.set(0);
+            ExchangeResult result = request(new MediaHttpHandler(runtime), "GET", "/health/live", false);
+
+            assertThat(result.status()).isEqualTo(200);
+            assertThat(result.body()).contains("\"status\":\"LIVE\"");
+            assertThat(readinessChecks).hasValue(0);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void startupCompletionDoesNotDependOnProviderReadiness() throws Exception {
+        var root = Files.createTempDirectory("media-http-startup-is-independent-");
+        AtomicInteger readinessChecks = new AtomicInteger();
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(new ReadinessCountingProvider(readinessChecks, false)),
+                List.of());
+        try {
+            // A handler can be installed only after runtime composition, even if an
+            // external provider is still unavailable. Startup and readiness are distinct.
+            readinessChecks.set(0);
+            MediaHttpHandler handler = new MediaHttpHandler(runtime);
+            ExchangeResult startup = request(handler, "GET", "/health/startup", false);
+
+            assertThat(startup.status()).isEqualTo(200);
+            assertThat(startup.body()).contains("\"status\":\"STARTED\"");
+            assertThat(readinessChecks).hasValue(0);
+
+            ExchangeResult readiness = request(handler, "GET", "/health/ready", false);
+            assertThat(readiness.status()).isEqualTo(503);
+            assertThat(readiness.body()).contains("NOT_READY");
+            assertThat(readinessChecks.get()).isGreaterThan(0);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void prometheusScrapeDoesNotProbeProviderReadiness() throws Exception {
+        var root = Files.createTempDirectory("media-http-metrics-is-independent-");
+        AtomicInteger readinessChecks = new AtomicInteger();
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(new ReadinessCountingProvider(readinessChecks, false)),
+                List.of());
+        try {
+            readinessChecks.set(0);
+            ExchangeResult scrape = request(new MediaHttpHandler(runtime), "GET", "/metrics", false,
+                    null, "", Map.of("Accept", "text/plain; version=0.0.4"));
+
+            assertThat(scrape.status()).isEqualTo(200);
+            assertThat(scrape.responseHeaders().getFirst("Content-Type"))
+                    .startsWith("text/plain; version=0.0.4");
+            assertThat(scrape.body()).contains("media_workflow_events_total");
+            assertThat(readinessChecks).hasValue(0);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void runtimeInfoDoesNotProbeProviderReadiness() throws Exception {
+        var root = Files.createTempDirectory("media-http-info-is-independent-");
+        AtomicInteger readinessChecks = new AtomicInteger();
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(new ReadinessCountingProvider(readinessChecks, false)),
+                List.of());
+        try {
+            readinessChecks.set(0);
+            ExchangeResult result = request(new MediaHttpHandler(runtime), "GET", "/info", false);
+
+            assertThat(result.status()).isEqualTo(200);
+            assertThat(result.body()).contains(
+                    "\"service\":\"media\"",
+                    "\"metadataIntegration\":\"data-cloud-capability\"",
+                    "\"genericModelIntegration\":\"ai-inference-capability\"");
+            assertThat(readinessChecks).hasValue(0);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void overallHealthRoutesReturnRuntimeSnapshotWhenNotReady() throws Exception {
+        var root = Files.createTempDirectory("media-http-overall-health-snapshot-");
+        AtomicInteger readinessChecks = new AtomicInteger();
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(new ReadinessCountingProvider(readinessChecks, false)),
+                List.of());
+        try {
+            readinessChecks.set(0);
+            MediaHttpHandler handler = new MediaHttpHandler(runtime);
+            for (String path : List.of("/health", "/api/v1/health")) {
+                ExchangeResult result = request(handler, "GET", path, false);
+
+                assertThat(result.status()).as(path).isEqualTo(503);
+                assertThat(result.body()).as(path).contains(
+                        "\"status\":\"DOWN\"",
+                        "\"readiness\"",
+                        "\"activeJobs\"",
+                        "\"activeStreams\"",
+                        "\"providerHealth\"");
+            }
+            assertThat(readinessChecks.get()).isGreaterThan(0);
         } finally {
             runtime.close();
         }
@@ -495,6 +786,19 @@ class MediaHttpDeclaredRouteParityTest {
         @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
         @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
             calls.incrementAndGet();
+            return CompletableFuture.completedFuture(Map.of("status", "completed"));
+        }
+    }
+
+    private record ReadinessCountingProvider(AtomicInteger checks, boolean isReady) implements MediaProcessingProvider {
+        @Override public String providerId() { return "liveness-readiness-probe"; }
+        @Override public String providerVersion() { return "test-v1"; }
+        @Override public Set<JobType> capabilities() { return Set.of(JobType.TRANSCODE); }
+        @Override public boolean ready() { checks.incrementAndGet(); return isReady; }
+        @Override public boolean productionEligible() { return false; }
+        @Override public int priority() { return 0; }
+        @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+        @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
             return CompletableFuture.completedFuture(Map.of("status", "completed"));
         }
     }

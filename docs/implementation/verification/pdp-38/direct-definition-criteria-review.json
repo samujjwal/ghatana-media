@@ -363,10 +363,10 @@
           ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce",
           "docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json": "2177e350b2c8eeda74af2f498df7452477db24141daf94e9c875e7872b76fe54",
           "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json": "33b9da4aef5c83f6f8c3695494fba9f012954bec0059708fccc584ad1775cfd6",
-          "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json": "4efe9bd5385dd083fab802aa98f39df081cde3304db5355779b8b71720d211fd",
+          "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json": "c6d9d214f46332169404e9201beff133b606c60bd4ea8e807ec6866ac46e5f11",
           ".product-experience/decision-log.md#PXD-216-section": "1adcd700671d93ba0d05dbc271dd1c1e2b9184970f384f1a15b210122b43e95c",
           ".product-experience/decision-log.md#PXD-223-section": "479616805ea45d5d49a093e2a3d189284090e2776e31f20dce498b431c77e206",
-          ".product-experience/decision-log.md#PXD-225-section": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9"
+          ".product-experience/decision-log.md#PXD-225-section": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811"
         },
         "acceptanceBoundary": "PDP-0 current-source reconciliation only. PXD-216 remains the semantic review for its exact 20 capability IDs and PXD-223 remains the capabilities currentness predecessor. No new semantic review, owner approval, independent acceptance, implementation verification, runtime admission, qualification, phase closure, or Delivery readiness is claimed.",
         "acceptanceEffect": "none",
@@ -1775,7 +1775,7 @@
         "currentnessAuthority": {
           "decisionRef": ".product-experience/decision-log.md#PXD-225",
           "artifactRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json",
-          "artifactSha256": "4efe9bd5385dd083fab802aa98f39df081cde3304db5355779b8b71720d211fd",
+          "artifactSha256": "c6d9d214f46332169404e9201beff133b606c60bd4ea8e807ec6866ac46e5f11",
           "decisionSectionSha256": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9"
         }
       },
@@ -2917,7 +2917,7 @@
         "currentnessAuthority": {
           "decisionRef": ".product-experience/decision-log.md#PXD-225",
           "artifactRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json",
-          "artifactSha256": "4efe9bd5385dd083fab802aa98f39df081cde3304db5355779b8b71720d211fd",
+          "artifactSha256": "c6d9d214f46332169404e9201beff133b606c60bd4ea8e807ec6866ac46e5f11",
           "decisionSectionSha256": "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9"
         }
       }

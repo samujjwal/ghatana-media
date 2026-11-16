@@ -29,7 +29,13 @@ globalThis.fetch = async (input, init = {}) => {
     })}\n`);
   };
   const isUploadFixture = mode === 'upload-success' || mode === 'upload-readback-mismatch';
-  if (!isUploadFixture) recordRequest();
+  if (!isUploadFixture) {
+    if (url.pathname === '/api/v1/jobs' && init.method === 'POST') {
+      recordRequest({ request: JSON.parse(String(init.body)) });
+    } else {
+      recordRequest();
+    }
+  }
 
   const json = (body, status) => new Response(JSON.stringify(body), {
     status,
@@ -116,6 +122,12 @@ globalThis.fetch = async (input, init = {}) => {
   const configuredJob = process.env.GHATANA_MEDIA_CLI_TEST_JOB;
   if (!configuredJob) throw new Error('CLI test fixture job is missing.');
   const job = JSON.parse(configuredJob);
+
+  if (url.pathname === '/api/v1/jobs' && init.method === 'GET') {
+    if (mode === 'job-list-malformed') return json({ jobs: [{ jobId: job.jobId }] }, 200);
+    const configuredJobs = process.env.GHATANA_MEDIA_CLI_TEST_JOBS;
+    return json({ jobs: configuredJobs ? JSON.parse(configuredJobs) : [job] }, 200);
+  }
 
   if (url.pathname === `/dev/v1/jobs/${encodeURIComponent(job.jobId)}/cancel` && init.method === 'POST') {
     const body = JSON.parse(String(init.body));

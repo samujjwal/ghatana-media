@@ -14,8 +14,20 @@ const capabilities = require("yaml").parse(readFileSync(resolve(
   root,
   ".product-experience/pdp-0-product-truth/capabilities.yaml",
 ), "utf8"));
+const phaseMatrices = ["pdp0", "pdp1", "pdp2", "pdp3"].map((phase) => JSON.parse(readFileSync(resolve(
+  root,
+  `docs/implementation/verification/pdp-38/${phase}-surface-phase-status-matrix.json`,
+), "utf8")));
+const canonicalSurfaceIds = new Set(phaseMatrices.flatMap(({ surfaces }) =>
+  surfaces.map(({ surfaceId }) => surfaceId)));
+const phaseCellIds = new Set(phaseMatrices.flatMap(({ campaign, surfaces }) =>
+  surfaces.map(({ surfaceId }) => `${surfaceId}::${campaign.phase}`)));
 
-const activeSections = ["ownerCapabilityLeafAdjudication", "ownerTrustReconstructionDispositions"];
+const activeSections = [
+  "ownerCapabilityLeafAdjudication",
+  "ownerTrustReconstructionDispositions",
+  "currentVersionExtensionOwnerAndTrust",
+];
 const p0Prefix = ".product-experience/pdp-0-product-truth/";
 
 function collectKeys(value, found = new Set()) {
@@ -36,6 +48,10 @@ test("capability leaf review distinguishes active P0 authority from retained his
   assert.deepEqual(boundary.activePdp0Authority.sections, activeSections);
   assert.match(boundary.activePdp0Authority.sourceRule, /no PDP-1 operation, wire schema, or domain-object identity is required/u);
   assert.equal(boundary.activePdp0Authority.provenanceObservations.section, "ownerTrustReconstructionDispositions");
+  assert.equal(boundary.activePdp0Authority.provenanceObservations.currentVersionExtensionSection,
+    "currentVersionExtensionOwnerAndTrust");
+  assert.equal(boundary.activePdp0Authority.provenanceObservations.currentVersionExtensionRecordsPath,
+    "trustReconstructionDispositions[]");
   assert.equal(boundary.activePdp0Authority.independentAcceptance, "P0-010-independent-review-open");
   assert.equal(boundary.activePdp0Authority.executionAdmission, "NOT_ADMITTED");
   assert.equal(boundary.activePdp0Authority.qualification, "NOT_EVALUATED");
@@ -81,6 +97,31 @@ test("capability leaf review distinguishes active P0 authority from retained his
     ...outputBranches.map(({ sourceArtifactTypeRef }) => sourceArtifactTypeRef),
   ]);
   assert.ok(trustRefs.every((ref) => ref.startsWith(p0Prefix)));
+  const currentExtension = review.currentVersionExtensionOwnerAndTrust;
+  assert.equal(currentExtension.sourceOwnerDecisionRef, ".product-experience/decision-log.md#PXD-226");
+  assert.equal(currentExtension.population.historicalBaseCount, 462);
+  assert.equal(currentExtension.population.currentVersionExtensionCount, 1);
+  assert.equal(currentExtension.population.futureVersionExtensionCount, 6);
+  assert.equal(currentExtension.population.currentVersionTotal, 463);
+  assert.equal(currentExtension.population.totalCapabilityDefinitions, 469);
+  assert.equal(canonicalSurfaceIds.size, 56);
+  assert.equal(phaseCellIds.size, 224);
+  // PXD-226 preserves its 54-surface / 216-cell decision snapshot. Live PDP-0 has 56 surface rows/cells;
+  // 224 is the arithmetic sum across the PDP-0 through PDP-3 projections, not the PDP-0 count.
+  assert.equal(currentExtension.population.surfaceIdentityCount, 54);
+  assert.equal(currentExtension.population.phaseCellCount, 216);
+  assert.equal(currentExtension.ownerAdjudications.length, 1);
+  assert.equal(currentExtension.trustReconstructionDispositions.length, 1);
+  assert.equal(currentExtension.qualityApplicability.status,
+    "SOURCE_OWNER_DECIDED_DEFINITION_ONLY");
+  assert.equal(currentExtension.qualityApplicability.sourceOwnerDecisionRef,
+    ".product-experience/decision-log.md#PXD-229");
+  assert.equal(currentExtension.qualityApplicability.measurementState, "NOT_EVALUATED");
+  assert.equal(currentExtension.qualityApplicability.qualificationState, "NOT_EVALUATED");
+  assert.equal(currentExtension.qualityApplicability.acceptanceEffect, "none");
+  assert.equal(currentExtension.ownerAcceptance, "NOT_CLAIMED");
+  assert.equal(currentExtension.independentAcceptance, "NOT_CLAIMED");
+  assert.equal(currentExtension.phaseStatusEffect, "NONE");
   const activeKeys = new Set([
     ...collectKeys(capabilityAuthority),
     ...collectKeys(trustAuthority),
@@ -88,7 +129,7 @@ test("capability leaf review distinguishes active P0 authority from retained his
   for (const key of ["operationRefs", "operationContractRef", "operationKind", "wireSchemaRefs", "domainObjectRefs", "payloadSchemaRef"]) {
     assert.ok(!activeKeys.has(key), `active P0 authority has no ${key}`);
   }
-  const activeText = JSON.stringify({ capabilityAuthority, trustAuthority });
+  const activeText = JSON.stringify({ capabilityAuthority, trustAuthority, currentExtension });
   assert.doesNotMatch(activeText, /\.product-experience\/pdp-[13]-/u);
 });
 

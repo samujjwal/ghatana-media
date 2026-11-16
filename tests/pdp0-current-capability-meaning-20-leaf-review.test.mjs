@@ -48,7 +48,7 @@ const expected = [
 ];
 
 const reviewPath = "docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json";
-const currentnessSuccessorPath = "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v5.json";
+const currentnessSuccessorPath = "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v6.json";
 const refs = {
   requirement: id => `${paths.requirements}#requirements/@id=${id}`,
   channelRecord: id => `${paths.trust}#ownerCapabilityLeafAdjudication/records/@capabilityRef=${id}/channelApplicability`,
@@ -245,11 +245,12 @@ test("PXD-225 refreshes archived-channel currentness while retaining PXD-216 mea
   assert.equal(currentness.phaseScope, "PDP-0");
   assert.equal(currentness.currentSource.channelsPath, channelsPath);
   assert.equal(currentness.currentSource.channelsSha256, sha256(readText(channelsPath)));
-  assert.equal(currentness.decisionSectionSha256,
+  assert.equal(pxd225Selector.oldDecisionSectionSha256,
     "cb2d928f85f3f791ac68f85a3d02e80040a19c7c6efb9a0d6bbb4273662e80e9",
-    "the historical PXD-225 reconciliation retains its recorded section digest");
-  assert.equal(pxd225Selector.oldDecisionSectionSha256, currentness.decisionSectionSha256);
-  assert.equal(pxd225Selector.currentDecisionSectionSha256, sectionFingerprint.sha256);
+    "the selector preserves the historical PXD-225 section digest separately");
+  assert.equal(pxd225Selector.currentDecisionSectionSha256, currentness.decisionSectionSha256);
+  assert.equal(currentness.decisionSectionSha256, sectionFingerprint.sha256,
+    "the PXD-225 reconciliation current section digest matches the live selector");
   assert.deepEqual(pxd225Selector.changedFields, ["decisionSectionSha256"]);
   assert.equal(currentness.sourceCut.sourceCount, 2);
   assert.equal(currentness.preservedSemanticReview.decisionRef, ".product-experience/decision-log.md#PXD-216");

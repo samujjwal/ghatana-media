@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import test from "node:test";
+import { fingerprintPxdDecisionSection } from "../scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const { parse } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
@@ -11,6 +12,7 @@ const sha = (value) => createHash("sha256").update(value).digest("hex");
 const read = (path) => readFileSync(resolve(root, path), "utf8");
 const readYaml = (path) => parse(read(path));
 const artifactPath = "docs/migration/current-master-plan-claim-dispositions.json";
+const pdp0SuccessorPath = "docs/migration/current-master-plan-claim-dispositions-pdp0-current-source-successor.json";
 const sourcePath = "docs/migration/expert-reviewed-master-plan.md";
 const ledgerPath = "docs/migration/master-plan-source-change-claims.yaml";
 const classes = new Set(["adopted", "clarified", "superseded", "execution-only", "external-owner", "out-of-current-product-scope"]);
@@ -127,6 +129,8 @@ test("all current master-plan source claims have one exact, non-accepting owner 
 
 test("all non-whitespace changed-text residuals have exactly one source-bound disposition", () => {
   const audit = JSON.parse(read(artifactPath));
+  const successorBytes = read(pdp0SuccessorPath);
+  const successor = JSON.parse(successorBytes);
   const ledger = readYaml(ledgerPath);
   const dispositions = audit.hunkResidualDispositions;
   const sourceLines = read(sourcePath).split("\n");
@@ -144,6 +148,11 @@ test("all non-whitespace changed-text residuals have exactly one source-bound di
   assert.equal(new Set(dispositions.map(({ residualId }) => residualId)).size, dispositions.length, "residual IDs are unique");
   assert.equal(new Set(dispositions.map(({ hunkId }) => hunkId)).size, dispositions.length, "no hunk residual is duplicated");
   assert.deepEqual(new Set(dispositions.map(({ hunkId }) => hunkId)), expectedHunks);
+  const successorsByResidualId = new Map(successor.records.map((record) => [record.residualId, record]));
+  assert.equal(successor.schemaVersion, "media.master-plan-claim-disposition-pdp0-current-source-successor.v1");
+  assert.equal(successor.predecessor.artifactRef, artifactPath);
+  assert.equal(successor.predecessor.artifactSha256, sha(read(artifactPath)));
+  assert.equal(successor.predecessor.historicalDispositionPreserved, true);
   const allowedClasses = new Set([...classes, "source-structure"]);
 
   for (const disposition of dispositions) {
@@ -172,12 +181,112 @@ test("all non-whitespace changed-text residuals have exactly one source-bound di
     assert.equal(disposition.acceptanceEffect, "none");
     assert.ok(disposition.ownerRole?.trim());
     assert.equal(disposition.validationRef, disposition.ownerRef, "validation route names the same current authority target");
-    if (!p0Only || !downstreamOwner(disposition.ownerRef, disposition.ownerRole)) {
+    const sourceSuccessor = successorsByResidualId.get(disposition.residualId);
+    if (sourceSuccessor) {
+      assert.equal(sourceSuccessor.hunkId, disposition.hunkId, `${disposition.residualId} successor preserves its hunk identity`);
+      assert.deepEqual(sourceSuccessor.predecessor, {
+        exactResidual: disposition.exactResidual,
+        residualTextSha256: disposition.residualTextSha256,
+        ownerRef: disposition.ownerRef,
+        ownerValueSha256: disposition.ownerValueSha256,
+        classification: disposition.classification,
+        acceptanceEffect: disposition.acceptanceEffect,
+      }, `${disposition.residualId} successor preserves the immutable predecessor values`);
+      assert.equal(sourceSuccessor.acceptanceEffect, "none");
+      assert.equal(sourceSuccessor.productOwnerAcceptance, "NOT_CLAIMED");
+      assert.equal(sourceSuccessor.independentAcceptance, "NOT_CLAIMED");
+      assert.equal(sourceSuccessor.implementation, "NOT_CLAIMED");
+      assert.equal(sourceSuccessor.nativeProof, "NOT_CLAIMED");
+      assert.equal(sourceSuccessor.phaseCompletion, "NOT_CLAIMED");
+    } else if (!p0Only || !downstreamOwner(disposition.ownerRef, disposition.ownerRole)) {
       const ownerValue = resolveOwner(disposition.ownerRef);
       const ownerText = typeof ownerValue === "string" ? ownerValue : JSON.stringify(ownerValue);
       assert.equal(sha(ownerText), disposition.ownerValueSha256, `${disposition.residualId} current authority digest matches`);
     }
   }
+
+  assert.deepEqual([...successorsByResidualId.keys()].sort(), ["MSR-006-RESIDUAL-01", "MSR-007-RESIDUAL-01", "MSR-020-RESIDUAL-01"]);
+  const decisionLogText = read(".product-experience/decision-log.md");
+  assert.equal(successor.authorityBasis.decisionRef, ".product-experience/decision-log.md#PXD-226");
+  assert.equal(successor.authorityBasis.decisionSectionSha256,
+    fingerprintPxdDecisionSection(decisionLogText, "PXD-226").sha256);
+  assert.match(successor.authorityBasis.authority, /USER_DELEGATED_PDP0_TECHNICAL_SOURCE_OWNER_AUTHORITY/u);
+  assert.match(successor.authorityBasis.boundary, /no product-owner acceptance, independent review, native proof, or phase completion/u);
+
+  const msr006 = successorsByResidualId.get("MSR-006-RESIDUAL-01");
+  const requirementPath = ".product-experience/pdp-0-product-truth/requirements.yaml";
+  const requirementsBytes = read(requirementPath);
+  const requirements = parse(requirementsBytes);
+  const recipeRequirement = requirements.requirements.find(({ id }) => id === "MEDIA-REQ-CAP-RECIPE-TEMPLATE");
+  assert.ok(recipeRequirement, "MSR-006 current target resolves the exact recipe-template requirement");
+  assert.equal(msr006.currentSourceScope.requirementRef,
+    `${requirementPath}#/requirements/@id=MEDIA-REQ-CAP-RECIPE-TEMPLATE`);
+  assert.equal(msr006.currentSourceScope.requirementId, recipeRequirement.id);
+  assert.equal(msr006.currentSourceScope.requirementsRawSha256, sha(requirementsBytes));
+  assert.equal(msr006.currentSourceScope.requirementValueSha256, sha(JSON.stringify(recipeRequirement)));
+  const affectedCaseIds = [13, 14, 15, 16, 17].map((index) => `MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-${String(index).padStart(2, "0")}`);
+  const priorCaseIds = Array.from({ length: 12 }, (_, index) => `MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-${String(index + 1).padStart(2, "0")}`);
+  const affectedCases = recipeRequirement.acceptanceCases.filter(({ id }) => affectedCaseIds.includes(id));
+  const priorCases = recipeRequirement.acceptanceCases.filter(({ id }) => priorCaseIds.includes(id));
+  assert.deepEqual(msr006.currentSourceScope.evaluatedAcceptanceCaseIds, affectedCaseIds);
+  assert.deepEqual(affectedCases.map(({ id }) => id), affectedCaseIds);
+  assert.equal(msr006.currentSourceScope.evaluatedAcceptanceCasesSha256, sha(JSON.stringify(affectedCases)));
+  assert.deepEqual(msr006.currentSourceScope.unaffectedPredecessorAcceptanceCaseIds, priorCaseIds);
+  assert.deepEqual(priorCases.map(({ id }) => id), priorCaseIds);
+  assert.equal(msr006.currentSourceScope.unaffectedPredecessorAcceptanceCasesSha256, sha(JSON.stringify(priorCases)));
+  assert.equal(msr006.currentSourceScope.decisionRef, successor.authorityBasis.decisionRef);
+  assert.equal(msr006.currentSourceScope.decisionSectionSha256, successor.authorityBasis.decisionSectionSha256);
+  assert.equal(msr006.sourceDisposition, "CLARIFIED_FOR_SELECTED_SCHEMA_MIGRATION_EXTENSION_ONLY");
+  assert.match(msr006.scopeLimit, /other statements and warnings.*remain unresolved/u);
+
+  const msr007 = successorsByResidualId.get("MSR-007-RESIDUAL-01");
+  const reuseDecisionsPath = ".product-experience/pdp-0-product-truth/reuse-decisions.yaml";
+  const reuseDecisionsBytes = read(reuseDecisionsPath);
+  const reuseDecisions = resolveOwner(`${reuseDecisionsPath}#/decisions`);
+  assert.equal(msr007.currentSourceScope.ownerRef, `${reuseDecisionsPath}#/decisions`);
+  assert.equal(msr007.currentSourceScope.reuseDecisionsRawSha256, sha(reuseDecisionsBytes));
+  assert.equal(msr007.currentSourceScope.reuseDecisionsValueSha256, sha(JSON.stringify(reuseDecisions)));
+  assert.equal(msr007.currentSourceScope.predecessorReuseDecisionsValueSha256, msr007.currentSourceScope.reuseDecisionsValueSha256);
+  assert.equal(msr007.currentSourceScope.authorityMapRef,
+    ".product-experience/authority-map.yaml#/artifacts/@id=ART-P0-REUSE-DECISIONS");
+  assert.equal(msr007.currentSourceScope.authorityState, "AUTHORED_PROPOSAL_ACCEPTANCE_PENDING");
+  assert.equal(msr007.sourceDisposition, "OWNER_ROUTE_CORRECTION_ONLY");
+  assert.match(msr007.scopeLimit, /does not assert that the register is accepted/u);
+
+  const msr020 = successorsByResidualId.get("MSR-020-RESIDUAL-01");
+  const authorityMapPath = ".product-experience/authority-map.yaml";
+  const authorityMapBytes = read(authorityMapPath);
+  const authorityMap = parse(authorityMapBytes);
+  const pdp0AuthorityArtifacts = authorityMap.phaseAuthorities.find(({ phase }) => phase === "PDP-0").artifacts;
+  const selectedArtifactIds = ["ART-P0-CAPABILITIES", "ART-P0-DEPENDENCY-CONTRACTS"];
+  const selectedArtifactRecords = selectedArtifactIds.map((id) => pdp0AuthorityArtifacts.find(({ id: candidateId }) => candidateId === id));
+  assert.ok(selectedArtifactRecords.every(Boolean), "MSR-020 current target resolves both PDP-0 authority records");
+  assert.equal(msr020.currentSourceScope.authorityMapRef, `${authorityMapPath}#/phaseAuthorities/0/artifacts`);
+  assert.equal(msr020.currentSourceScope.authorityMapRawSha256, sha(authorityMapBytes));
+  assert.deepEqual(msr020.currentSourceScope.selectedArtifactIds, selectedArtifactIds);
+  assert.deepEqual(msr020.currentSourceScope.selectedArtifactRefs, selectedArtifactIds.map((id) =>
+    `${authorityMapPath}#/phaseAuthorities/0/artifacts/@id=${id}`));
+  assert.deepEqual(selectedArtifactRecords.map(({ id }) => id), selectedArtifactIds);
+  assert.equal(selectedArtifactRecords[0].path, "pdp-0-product-truth/capabilities.yaml");
+  assert.equal(selectedArtifactRecords[1].path, "pdp-0-product-truth/dependency-contracts.yaml");
+  assert.deepEqual(selectedArtifactRecords.map(({ acceptanceState }) => acceptanceState), msr020.currentSourceScope.acceptanceStates);
+  assert.equal(msr020.currentSourceScope.capabilitiesArtifactRecordSha256, sha(JSON.stringify(selectedArtifactRecords[0])));
+  assert.equal(msr020.currentSourceScope.dependencyContractsArtifactRecordSha256, sha(JSON.stringify(selectedArtifactRecords[1])));
+  assert.equal(msr020.currentSourceScope.selectedArtifactRecordsSha256, sha(JSON.stringify(selectedArtifactRecords)));
+  assert.equal(msr020.currentSourceScope.predecessorSelectedArtifactRecordsSha256,
+    msr020.currentSourceScope.selectedArtifactRecordsSha256);
+  const capabilitiesBytes = read(".product-experience/pdp-0-product-truth/capabilities.yaml");
+  const capabilities = parse(capabilitiesBytes);
+  assert.equal(msr020.currentSourceScope.capabilitiesCurrentRawSha256, sha(capabilitiesBytes));
+  assert.equal(msr020.currentSourceScope.capabilitiesCurrentParsedRootSha256, sha(JSON.stringify(capabilities)));
+  assert.notEqual(msr020.predecessor.ownerValueSha256, msr020.currentSourceScope.capabilitiesCurrentParsedRootSha256,
+    "MSR-020 preserves the changed capabilities-root digest as predecessor evidence rather than rebinding it as current");
+  const dependencyContractsBytes = read(".product-experience/pdp-0-product-truth/dependency-contracts.yaml");
+  const dependencyContracts = parse(dependencyContractsBytes);
+  assert.equal(msr020.currentSourceScope.dependencyContractsRawSha256, sha(dependencyContractsBytes));
+  assert.equal(msr020.currentSourceScope.dependencyContractsParsedRootSha256, sha(JSON.stringify(dependencyContracts)));
+  assert.equal(msr020.sourceDisposition, "OWNER_ROUTE_CORRECTION_ONLY");
+  assert.match(msr020.scopeLimit, /changed capabilities root is retained only as predecessor evidence/u);
 
   const requiredP0Residual = dispositions.find(({ hunkId }) => hunkId === "MSD-014");
   assert.match(requiredP0Residual.exactResidual, /required product-definition scope/u);

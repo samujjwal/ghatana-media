@@ -2115,88 +2115,146 @@ compatibilityRouteFindings:
   comparisonRule: Compare the exact observed client method and path to the active
     runtime route manifest; a client path, canonical-route constant, or test
     stub alone does not admit a runtime route.
-  currentComparison: 6 active legacy/candidate SDK paths remain absent from
-    the 30-route active manifest; eight source-compatible methods fail closed
-    before transport and are separately counted as retired source findings.
+  currentComparison: Six legacy/candidate SDK path identities remain in source
+    but are absent from the 30-route active manifest; five corresponding methods
+    remain dispatchable and the retained provider-capabilities method fails
+    closed. Eight other operation-client methods are retired and fail closed
+    before transport. None is admitted to the active manifest or parity-accepted.
   sourceFindings:
     - {
+        findingId: MPSEM-0023-C002-R01,
         source: libs/audio-video-client/src/operations.ts,
         method: GET,
         path: '/api/v1/media/providers/capabilities',
-        currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
+        pathIdentityStatus: RETAINED_LEGACY_CANDIDATE,
+        methodDispatchStatus: FAIL_CLOSED_BEFORE_TRANSPORT,
+        activeManifestStatus: ABSENT,
+        currentObservation: RETAINED_PATH_IDENTITY; provider-capabilities-method-fails-closed-before-any-transport
       }
     - {
+        findingId: MPSEM-0023-C002-R02,
         source: libs/audio-video-client/src/operations.ts,
         method: GET,
         path: '/api/v1/media/operations/{parameter}',
+        pathIdentityStatus: RETIRED_OPERATION_METHOD,
+        methodDispatchStatus: FAIL_CLOSED_BEFORE_TRANSPORT,
+        activeManifestStatus: ABSENT,
         currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
+        findingId: MPSEM-0023-C002-R03,
         source: libs/audio-video-client/src/operations.ts,
         method: POST,
         path: '/api/v1/media/operations/{parameter}:cancel',
+        pathIdentityStatus: RETIRED_OPERATION_METHOD,
+        methodDispatchStatus: FAIL_CLOSED_BEFORE_TRANSPORT,
+        activeManifestStatus: ABSENT,
         currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
+        findingId: MPSEM-0023-C002-R04,
         source: libs/audio-video-client/src/operations.ts,
         method: GET,
         path: '/api/v1/media/operations/{parameter}/result',
+        pathIdentityStatus: RETIRED_OPERATION_METHOD,
+        methodDispatchStatus: FAIL_CLOSED_BEFORE_TRANSPORT,
+        activeManifestStatus: ABSENT,
         currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
+        findingId: MPSEM-0023-C002-R05,
         source: libs/audio-video-client/src/operations.ts,
         method: POST,
         path: '/api/v1/media/transcriptions',
+        pathIdentityStatus: RETIRED_OPERATION_METHOD,
+        methodDispatchStatus: FAIL_CLOSED_BEFORE_TRANSPORT,
+        activeManifestStatus: ABSENT,
         currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
+        findingId: MPSEM-0023-C002-R06,
         source: libs/audio-video-client/src/operations.ts,
         method: POST,
         path: '/api/v1/media/syntheses',
+        pathIdentityStatus: RETIRED_OPERATION_METHOD,
+        methodDispatchStatus: FAIL_CLOSED_BEFORE_TRANSPORT,
+        activeManifestStatus: ABSENT,
         currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
+        findingId: MPSEM-0023-C002-R07,
         source: libs/audio-video-client/src/operations.ts,
         method: POST,
         path: '/api/v1/media/voice-models:train',
+        pathIdentityStatus: RETIRED_OPERATION_METHOD,
+        methodDispatchStatus: FAIL_CLOSED_BEFORE_TRANSPORT,
+        activeManifestStatus: ABSENT,
         currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
+        findingId: MPSEM-0023-C002-R08,
         source: libs/audio-video-client/src/operations.ts,
         method: POST,
         path: '/api/v1/media/voice-conversions',
+        pathIdentityStatus: RETIRED_OPERATION_METHOD,
+        methodDispatchStatus: FAIL_CLOSED_BEFORE_TRANSPORT,
+        activeManifestStatus: ABSENT,
         currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
+        findingId: MPSEM-0023-C002-R09,
         source: libs/audio-video-client/src/operations.ts,
         method: POST,
         path: '/api/v1/media/multimodal-analyses',
+        pathIdentityStatus: RETIRED_OPERATION_METHOD,
+        methodDispatchStatus: FAIL_CLOSED_BEFORE_TRANSPORT,
+        activeManifestStatus: ABSENT,
         currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
+        findingId: MPSEM-0023-C002-R10,
         source: libs/audio-video-client/src/index.ts,
         method: POST,
-        path: '/api/stt/transcribe'
+        path: '/api/stt/transcribe',
+        pathIdentityStatus: RETAINED_LEGACY_CANDIDATE,
+        methodDispatchStatus: DISPATCHABLE,
+        activeManifestStatus: ABSENT
       }
     - {
+        findingId: MPSEM-0023-C002-R11,
         source: libs/audio-video-client/src/index.ts,
         method: POST,
-        path: '/api/tts/synthesize'
+        path: '/api/tts/synthesize',
+        pathIdentityStatus: RETAINED_LEGACY_CANDIDATE,
+        methodDispatchStatus: DISPATCHABLE,
+        activeManifestStatus: ABSENT
       }
     - {
+        findingId: MPSEM-0023-C002-R12,
         source: libs/audio-video-client/src/index.ts,
         method: POST,
-        path: '/api/ai-voice/process'
+        path: '/api/ai-voice/process',
+        pathIdentityStatus: RETAINED_LEGACY_CANDIDATE,
+        methodDispatchStatus: DISPATCHABLE,
+        activeManifestStatus: ABSENT
       }
     - {
+        findingId: MPSEM-0023-C002-R13,
         source: libs/audio-video-client/src/index.ts,
         method: POST,
-        path: '/api/vision/analyze'
+        path: '/api/vision/analyze',
+        pathIdentityStatus: RETAINED_LEGACY_CANDIDATE,
+        methodDispatchStatus: DISPATCHABLE,
+        activeManifestStatus: ABSENT
       }
     - {
+        findingId: MPSEM-0023-C002-R14,
         source: libs/audio-video-client/src/index.ts,
         method: POST,
-        path: '/api/multimodal/process'
+        path: '/api/multimodal/process',
+        pathIdentityStatus: RETAINED_LEGACY_CANDIDATE,
+        methodDispatchStatus: DISPATCHABLE,
+        activeManifestStatus: ABSENT
       }
 
 typedUiActionDispositions:

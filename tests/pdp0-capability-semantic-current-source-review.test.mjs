@@ -31,6 +31,7 @@ test("P0 capability semantic review pins current source checks without claiming 
   const pxd212QualityReview = JSON.parse(read("docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd212.json").toString("utf8"));
   const pxd213QualityCurrentness = JSON.parse(read("docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd213.json").toString("utf8"));
   const pxd216Review = JSON.parse(read("docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json").toString("utf8"));
+  const pxd216CurrentnessSuccessor = JSON.parse(read("docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/p0-capability-meaning-20-leaf-current-source-review-pxd216.successor.candidate.v6.json").toString("utf8"));
   const pxd223Currentness = JSON.parse(read("docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json").toString("utf8"));
   const pxd225Currentness = JSON.parse(read("docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json").toString("utf8"));
   const adjudications = leafReview.ownerCapabilityLeafAdjudication.records;
@@ -63,15 +64,31 @@ test("P0 capability semantic review pins current source checks without claiming 
   assert.equal(pxd216Review.ownerApproval, "NOT_CLAIMED");
   assert.equal(pxd216Review.independentAcceptance, "NOT_CLAIMED");
   assert.equal(pxd216Review.acceptanceEffect, "none");
-  const archivedChannelsPath = ".product-experience/pdp-0-product-truth/applications-channels.yaml";
-  for (const [path, digest] of Object.entries(pxd216Review.sourceFingerprints)
-    .filter(([path]) => path !== sourcePath && path !== archivedChannelsPath)) {
-    assert.equal(sha(read(path)), digest, `${path} PXD-216 current source pin`);
+  const currentTrustPath = leafReviewPath;
+  assert.deepEqual(pxd216CurrentnessSuccessor.historicalSourceFingerprints, pxd216Review.sourceFingerprints,
+    "the PXD-216 successor preserves every original source pin as history");
+  for (const [path, digest] of Object.entries(pxd216CurrentnessSuccessor.currentSources)) {
+    assert.equal(sha(read(path)), digest, `${path} PXD-216 successor current source pin`);
   }
   assert.equal(pxd216Review.sourceFingerprints[sourcePath], pxd223Currentness.preservedSemanticReview.historicalCapabilitiesSha256,
     "PXD-216's full-file pin remains historical evidence after the PXD-221 deferral");
-  assert.equal(sha(read(sourcePath)), pxd223Currentness.currentSource.capabilitiesSha256,
-    "PXD-223 binds the current capabilities source bytes");
+  assert.equal(pxd216Review.sourceFingerprints[currentTrustPath],
+    "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+    "PXD-216 retains its original full-file trust-source pin");
+  assert.equal(pxd223Currentness.currentSource.capabilitiesSha256,
+    "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "PXD-223 preserves its historical currentness source cut");
+  assert.notEqual(pxd223Currentness.currentSource.capabilitiesSha256, sha(read(sourcePath)),
+    "PXD-223 does not claim currentness for the later live capabilities bytes");
+  assert.equal(pxd216CurrentnessSuccessor.currentSources[sourcePath], sha(read(sourcePath)),
+    "the currentness-only PXD-216 successor binds the live capabilities source");
+  assert.equal(pxd216CurrentnessSuccessor.currentSources[currentTrustPath], sha(read(currentTrustPath)),
+    "the PXD-216 successor binds the later trust source without rewriting its historical pin");
+  assert.equal(pxd216CurrentnessSuccessor.reviewedRowsSha256,
+    pxd223Currentness.preservedSemanticReview.currentReviewedRowsSha256);
+  assert.deepEqual(pxd216CurrentnessSuccessor.changedReviewedCapabilityIds, []);
+  assert.equal(pxd216CurrentnessSuccessor.ownerApproval, "NOT_CLAIMED");
+  assert.equal(pxd216CurrentnessSuccessor.independentAcceptance, "NOT_CLAIMED");
   assert.equal(pxd223Currentness.preservedSemanticReview.semanticReviewStatus,
     "PXD-216_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW");
   assert.deepEqual(pxd223Currentness.preservedSemanticReview.changedReviewedCapabilityIds, []);

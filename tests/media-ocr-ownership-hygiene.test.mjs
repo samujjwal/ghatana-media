@@ -1,11 +1,15 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { existsSync, readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const read = (p) => readFileSync(resolve(root, p), 'utf8');
+const { parse } = createRequire(resolve(root, '../ghatana-tools/package.json'))('yaml');
+const sha = (value) => createHash('sha256').update(typeof value === 'string' ? value : JSON.stringify(value)).digest('hex');
 
 test('retired Media OCR implementations remain absent', () => {
   for (const source of [
@@ -63,6 +67,82 @@ test('MDI-001 is the sole OCR execution owner and Media has no generic recognize
   assert.match(contract, /DOCUMENT_INTELLIGENCE_PROTOCOL_V1/u);
   assert.match(architecture, /prior idea of adding an independent Media Vision OCR provider is/u);
   assert.doesNotMatch(architecture, /OR qualified Media model/u);
+});
+
+test('PXD-210 OCR currentness successor preserves unchanged selected values under the MDI-001 boundary', () => {
+  const sourcePath = '.product-experience/pdp-0-product-truth/ocr-ownership.yaml';
+  const sourceText = read(sourcePath);
+  const source = parse(sourceText);
+  const sourceSha = sha(sourceText);
+  const requirements = parse(read('.product-experience/pdp-0-product-truth/requirements.yaml')).requirements;
+  const sceneTextRequirement = requirements.find(record => record.id === 'MEDIA-REQ-CAP-VISION-SCENE-TEXT');
+  const topology = JSON.parse(read('.product-experience/surfaces/media-physical-topology.v1.json'));
+  const predecessor = JSON.parse(read('docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd210.json'));
+  const successorPath = 'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd210-ocr-successor-2026-11-16.json';
+  const successor = JSON.parse(read(successorPath));
+  const ownerDecision = read('docs/migration/decisions/MDI-001-document-intelligence-ownership.md');
+  const liveRecords = new Map(successor.records.map(record => [record.claimId, record]));
+  const previousRecords = new Map(predecessor.records.map(record => [record.recordId, record]));
+  const valueFor = (selectorRef) => {
+    if (selectorRef.endsWith('/registrations/@id=media.ocr.provider-manifest-entry/note')) {
+      return source.registrations.find(record => record.id === 'media.ocr.provider-manifest-entry').note;
+    }
+    if (selectorRef.endsWith('/classifications/@id=media.ocr.semantic-capability/target')) {
+      return source.classifications.find(record => record.id === 'media.ocr.semantic-capability').target;
+    }
+    throw new Error(`unexpected OCR selector ${selectorRef}`);
+  };
+
+  assert.equal(successor.predecessorArtifact.artifactSha256, sha(read('docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd210.json')));
+  assert.equal(successor.historicalSourceChain.originalOwnerCandidateOcrSourceSha256,
+    '3eb27caa45b582312ec80f371d5f67d94588459609195060247c6c71b0e496b0');
+  assert.equal(successor.historicalSourceChain.pxd210CurrentOcrSourceSha256,
+    predecessor.sourceFingerprints[sourcePath]);
+  assert.equal(successor.historicalSourceChain.currentOcrSourceSha256, sourceSha);
+  assert.equal(successor.sourceFingerprints[sourcePath], sourceSha);
+  assert.equal(successor.sourceFingerprints['docs/migration/decisions/MDI-001-document-intelligence-ownership.md'],
+    sha(ownerDecision));
+  assert.match(ownerDecision, /All OCR\s+execution anywhere in Ghatana is exposed \*\*exclusively through Document/u);
+  assert.match(ownerDecision, /Media remains a consumer, not an OCR producer/u);
+  assert.equal(successor.counts.records, 2);
+  assert.equal(successor.counts.unchangedSelectedProjections, 2);
+  assert.equal(successor.counts.changedSelectedProjections, 0);
+  assert.equal(source.packagingSupersession.state, 'PROPOSED');
+  assert.equal(source.packagingSupersession.architecturalReview, 'NOT_PERFORMED');
+  const acceptedBoundary = source.decisions.find(record => record.id === 'PDP0-003-D4');
+  assert.equal(acceptedBoundary.state, 'accepted-boundary');
+  assert.equal(acceptedBoundary.authority, 'docs/migration/decisions/MDI-001-document-intelligence-ownership.md');
+  assert.deepEqual(sceneTextRequirement.capabilityIds, [
+    'media.vision.scene-text.region.track',
+    'media.vision.scene-text.observation.create',
+  ]);
+  assert.equal(sceneTextRequirement.source.sourcePhrase,
+    'Consume public Document Intelligence text results only for Media-specific temporal/scene-text semantics; generic OCR/document parsing is platform-owned');
+  const physical = topology.manifestCandidates.find(record => record.surfaceId === 'media.physical.modules-vision-vision-service');
+  const composition = topology.compositions.find(record => record.surfaceId === 'media.composition.vision-and-multimodal-analysis');
+  assert.ok(physical.phaseApplicability['PDP-0'].requirementIds.includes('MEDIA-REQ-CAP-VISION-SCENE-TEXT'));
+  assert.ok(composition.phaseApplicability['PDP-0'].requirementIds.includes('MEDIA-REQ-CAP-VISION-SCENE-TEXT'));
+
+  for (const [claimId, priorRecordId] of [
+    ['MPSEM-0157-C003', 'PDP0-199:MPSEM-0157-C003:136'],
+    ['MPSEM-0172-C001', 'PDP0-199:MPSEM-0172-C001:139'],
+  ]) {
+    const record = liveRecords.get(claimId);
+    const prior = previousRecords.get(priorRecordId);
+    assert.ok(record && prior, `${claimId} predecessor/current records exist`);
+    assert.equal(record.predecessorRef,
+      `docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd210.json#/records/@recordId=${priorRecordId}`);
+    assert.equal(record.predecessorRawSourceSha256, prior.currentRawSourceSha256);
+    assert.equal(record.currentRawSourceSha256, sourceSha);
+    assert.equal(record.predecessorProjectionSha256, prior.currentProjectionSha256);
+    assert.equal(record.currentProjectionSha256, sha(valueFor(record.selectorRef)));
+    assert.equal(record.currentProjectionSha256, record.predecessorProjectionSha256);
+    assert.equal(record.selectorEquality, true);
+    assert.equal(record.status, 'CURRENT_SOURCE_PIN_REFRESH_ONLY');
+    assert.equal(record.semanticEquivalence, 'NOT_ASSERTED');
+    assert.equal(record.ownerApproval, 'NOT_CLAIMED');
+    assert.equal(record.acceptanceEffect, 'none');
+  }
 });
 
 test('development consumer migration accounts for every DI-only adoption and retirement stage', () => {

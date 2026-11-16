@@ -20,6 +20,13 @@ const artifact = {
   contentType: 'audio/wav', sizeBytes: 42, sha256: 'a'.repeat(64), objectReference: 'opaque://stored/object',
   classification: 'INTERNAL', createdAt: timestamp, expiresAt: '2026-11-08T12:00:00.000Z', metadata: { purpose: 'inspect' },
 };
+const canonicalJob = (overrides: Record<string, unknown> = {}) => ({
+  jobId: 'job-a', requestId: 'request-a', tenantId: 'tenant-a', principalId: 'principal-a',
+  artifactId: 'artifact-a', jobType: 'TRANSCODE', providerId: null, status: 'RUNNING',
+  createdAt: timestamp, startedAt: timestamp, completedAt: null, result: {}, failureCode: null,
+  version: 2, expectedArtifactVersion: '', requestFingerprint: `sha256:${'b'.repeat(64)}`,
+  ...overrides,
+});
 function invokeEntry(entry: string, args: string[], tokenValue = token, node = true, envOverrides: NodeJS.ProcessEnv = {}, preload?: string): Promise<{ status: number | null; stdout: string; stderr: string }> {
   return new Promise((resolve, reject) => {
     const child = spawn(node ? process.execPath : entry, node ? [...(preload ? ['--import', preload] : []), entry, ...args] : args, {
@@ -172,6 +179,21 @@ function command(endpoint: string, extra: string[] = []) {
   return ['artifact', 'inspect', '--endpoint', endpoint, '--tenant', 'tenant-a', '--principal', 'principal-a', '--artifact', 'artifact-a', ...extra];
 }
 
+function productionJobCommand(endpoint: string, requestId?: string) {
+  return ['job', 'get', '--endpoint', endpoint, '--tenant', 'tenant-a', '--principal', 'principal-a',
+    '--job', 'job-a', ...(requestId === undefined ? [] : ['--request-id', requestId])];
+}
+
+function productionJobSubmitCommand(endpoint: string, requestId: string, extra: string[] = []) {
+  return ['job', 'submit', '--endpoint', endpoint, '--tenant', 'tenant-a', '--principal', 'principal-a',
+    '--artifact', 'artifact-a', '--request-id', requestId, ...extra];
+}
+
+function productionJobListCommand(endpoint: string, limit?: number) {
+  return ['job', 'list', '--endpoint', endpoint, '--tenant', 'tenant-a', '--principal', 'principal-a',
+    ...(limit === undefined ? [] : ['--limit', String(limit)])];
+}
+
 function uploadCommand(endpoint: string, filePath: string) {
   return ['artifact', 'upload', '--endpoint', endpoint, '--tenant', 'tenant-a', '--principal', 'principal-a',
     '--file', filePath, '--content-type', 'application/octet-stream', '--classification', 'INTERNAL',
@@ -193,6 +215,291 @@ function routeFixtureEnvironment(mode: string, logPath: string, values: { artifa
 }
 
 describe('ghatanamedia-api production executable', () => {
+  it('lists only caller-scoped canonical jobs with the bounded limit and strict JSON envelope', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-production-job-list-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    const jobs = [canonicalJob(), canonicalJob({ jobId: 'job-b', requestId: 'request-b' })];
+    try {
+      const result = await invoke(productionJobListCommand('https://media.example.test', 25), token, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
+        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(jobs[0]),
+        GHATANA_MEDIA_CLI_TEST_JOBS: JSON.stringify(jobs),
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+      }, fetchFixture);
+      expect(result.status).toBe(0);
+      expect(result.stderr).toBe('');
+      expect(JSON.parse(result.stdout)).toEqual({
+        schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.job.list', jobs,
+      });
+      const [request] = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+      expect(request).toMatchObject({
+        method: 'GET', path: '/api/v1/jobs', search: '?limit=25', tenant: 'tenant-a', principal: 'principal-a',
+        authenticated: true, bearerMatches: true,
+      });
+      expect(JSON.stringify(request)).not.toContain(token);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it('uses the canonical default list bound and fails closed on out-of-scope job rows', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-production-job-list-scope-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    try {
+      const defaultLimit = await invoke(productionJobListCommand('https://media.example.test'), token, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
+        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(canonicalJob()),
+        GHATANA_MEDIA_CLI_TEST_JOBS: JSON.stringify([canonicalJob()]),
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+      }, fetchFixture);
+      expect(defaultLimit.status).toBe(0);
+      expect(JSON.parse(defaultLimit.stdout).jobs).toHaveLength(1);
+
+      const outOfScope = await invoke(productionJobListCommand('https://media.example.test'), token, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
+        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(canonicalJob()),
+        GHATANA_MEDIA_CLI_TEST_JOBS: JSON.stringify([canonicalJob({ principalId: 'principal-b' })]),
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+      }, fetchFixture);
+      expect(outOfScope.status).toBe(1);
+      expect(outOfScope.stdout).toBe('');
+      expect(JSON.parse(outOfScope.stderr)).toMatchObject({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.list', code: 'INVALID_MEDIA_RESPONSE',
+      });
+      const requests = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+      expect(requests.map(request => request.search)).toEqual(['?limit=100', '?limit=100']);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it.each(['0', '1001', '01', '1e2'])('rejects a noncanonical job-list limit %s before dispatch', async (limit) => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-production-job-list-limit-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    try {
+      const result = await invoke(['job', 'list', '--endpoint', 'https://media.example.test', '--tenant', 'tenant-a',
+        '--principal', 'principal-a', '--limit', limit], token, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
+        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(canonicalJob()),
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+      }, fetchFixture);
+      expect(result.status).toBe(2);
+      expect(result.stdout).toBe('');
+      expect(JSON.parse(result.stderr)).toMatchObject({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.list', code: 'INVALID_INVOCATION',
+      });
+      await expect(readFile(requestLogPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it('submits through the canonical idempotent route and reports acceptance without claiming completion', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-production-job-submit-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    const requestId = 'submit-a';
+    const acceptedJob = canonicalJob({ requestId, jobType: 'SPEECH_TO_TEXT', status: 'ACCEPTED', startedAt: null });
+    try {
+      const result = await invoke(productionJobSubmitCommand('https://media.example.test', requestId,
+        ['--job-type', 'SPEECH_TO_TEXT', '--provider-hint', 'provider-a']), token, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
+        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(acceptedJob),
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+      }, fetchFixture);
+      expect(result.status, JSON.stringify(result)).toBe(0);
+      expect(result.stderr).toBe('');
+      expect(JSON.parse(result.stdout)).toEqual({
+        schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.job.submit', job: acceptedJob,
+      });
+      expect(result.stdout).not.toContain('COMPLETED');
+      const [request] = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+      expect(request).toMatchObject({
+        method: 'POST', path: '/api/v1/jobs', tenant: 'tenant-a', principal: 'principal-a',
+        idempotencyKey: requestId, authenticated: true, bearerMatches: true,
+        request: {
+          requestId, tenantId: 'tenant-a', principalId: 'principal-a', correlationId: `cli-${requestId}`,
+          artifactId: 'artifact-a', jobType: 'SPEECH_TO_TEXT', providerHint: 'provider-a', parameters: {},
+        },
+      });
+      expect(JSON.stringify(request)).not.toContain(token);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it('reuses the same request identity to reconcile a duplicate submission after process restart', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-production-job-submit-replay-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    const statePath = join(directory, 'state.json');
+    const requestId = 'submit-replay-a';
+    const acceptedJob = canonicalJob({ requestId, status: 'ACCEPTED', startedAt: null });
+    try {
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        const result = await invoke(productionJobSubmitCommand('https://media.example.test', requestId), token, {
+          GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'restart',
+          GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+          GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(acceptedJob),
+          GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+          GHATANA_MEDIA_CLI_TEST_STATE: statePath,
+        }, fetchFixture);
+        expect(result.status).toBe(0);
+        expect(JSON.parse(result.stdout).job).toEqual(acceptedJob);
+      }
+      const state = JSON.parse(await readFile(statePath, 'utf8'));
+      expect(state.effectCount).toBe(1);
+      const requests = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+      expect(requests).toHaveLength(2);
+      expect(requests.map(request => request.idempotencyKey)).toEqual([requestId, requestId]);
+      expect(requests.map(request => request.request.requestId)).toEqual([requestId, requestId]);
+      expect(requests[0].request).toEqual(requests[1].request);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it.each([
+    ['timeout', 'OUTCOME_UNKNOWN'],
+    ['malformed', 'OUTCOME_UNKNOWN'],
+  ])('preserves %s submission acknowledgement as UNKNOWN and never reports success', async (mode, code) => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-production-job-submit-unknown-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    const requestId = 'submit-unknown-a';
+    try {
+      const result = await invoke(productionJobSubmitCommand('https://media.example.test', requestId), token, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: mode,
+        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(canonicalJob({ requestId })),
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+        ...(mode === 'timeout' ? { GHATANA_MEDIA_REQUEST_TIMEOUT_MS: '50' } : {}),
+      }, fetchFixture);
+      expect(result.status).toBe(6);
+      expect(result.stdout).toBe('');
+      expect(JSON.parse(result.stderr)).toMatchObject({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.submit', code,
+        requestId,
+      });
+      expect(result.stderr).not.toContain(token);
+      const [request] = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+      expect(request).toMatchObject({ method: 'POST', path: '/api/v1/jobs', idempotencyKey: requestId });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it('returns an authenticated OUTCOME_UNKNOWN job observation with a nonzero exit after submission', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-production-job-submit-status-unknown-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    const requestId = 'submit-status-unknown-a';
+    try {
+      const result = await invoke(productionJobSubmitCommand('https://media.example.test', requestId), token, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'unknown',
+        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(canonicalJob({ requestId, status: 'OUTCOME_UNKNOWN' })),
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+      }, fetchFixture);
+      expect(result.status).toBe(6);
+      expect(result.stderr).toBe('');
+      expect(JSON.parse(result.stdout)).toMatchObject({
+        schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.job.submit',
+        job: { requestId, status: 'OUTCOME_UNKNOWN' },
+      });
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it('reads a canonical job with exact scope and refreshes it across CLI process restart', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-production-job-get-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    const runningJob = canonicalJob();
+    const completedJob = canonicalJob({ status: 'COMPLETED', completedAt: timestamp });
+    try {
+      const first = await invoke(productionJobCommand('https://media.example.test', 'request-a'), token, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
+        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(runningJob),
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+      }, fetchFixture);
+      expect(first.status).toBe(0);
+      expect(first.stderr).toBe('');
+      expect(JSON.parse(first.stdout)).toEqual({
+        schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.job.get', job: runningJob,
+      });
+
+      // A separate executable process observes current canonical state instead of local cached status.
+      const afterRestart = await invoke(productionJobCommand('https://media.example.test', 'request-a'), token, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
+        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(completedJob),
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+      }, fetchFixture);
+      expect(afterRestart.status).toBe(0);
+      expect(JSON.parse(afterRestart.stdout).job.status).toBe('COMPLETED');
+
+      const requests = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+      expect(requests).toHaveLength(2);
+      expect(requests).toEqual([0, 1].map(() => expect.objectContaining({
+        method: 'GET', path: '/api/v1/jobs/job-a', search: '?requestId=request-a',
+        tenant: 'tenant-a', principal: 'principal-a', authenticated: true, bearerMatches: true,
+      })));
+      expect(JSON.stringify(requests)).not.toContain(token);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it('returns the structured OUTCOME_UNKNOWN observation with a distinct nonzero exit code', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-production-job-unknown-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    try {
+      const result = await invoke(productionJobCommand('https://media.example.test'), token, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'unknown',
+        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(canonicalJob()),
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+      }, fetchFixture);
+      expect(result.status).toBe(6);
+      expect(result.stderr).toBe('');
+      expect(JSON.parse(result.stdout)).toMatchObject({
+        schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.job.get',
+        job: { jobId: 'job-a', status: 'OUTCOME_UNKNOWN' },
+      });
+      expect(result.stdout).not.toContain(token);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it.each([
+    ['timeout', 'OBSERVATION_UNAVAILABLE'],
+    ['malformed', 'INVALID_MEDIA_RESPONSE'],
+  ])('reports %s as a typed non-success result for production job reads', async (mode, expectedCode) => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-production-job-error-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    try {
+      const result = await invoke(productionJobCommand('https://media.example.test'), token, {
+        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: mode,
+        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
+        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(canonicalJob()),
+        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
+        ...(mode === 'timeout' ? { GHATANA_MEDIA_REQUEST_TIMEOUT_MS: '50' } : {}),
+      }, fetchFixture);
+      expect(result.status).toBe(1);
+      expect(result.stdout).toBe('');
+      expect(JSON.parse(result.stderr)).toMatchObject({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.get', code: expectedCode,
+      });
+      expect(result.stderr).not.toContain(token);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   it('denies artifact inspection without bearer authentication before endpoint dispatch', async () => {
     const result = await invoke(command('https://media.example.test'), '');
 
@@ -1413,10 +1720,8 @@ describe('ghatanamedia-api-dev local-development executable', () => {
 describe('ghatanamedia-api production command boundary', () => {
   it.each([
     { command: 'artifact upload', args: ['artifact', 'upload', '--file', 'source.bin', '--content-type', 'application/octet-stream', '--classification', 'INTERNAL', '--retention', 'P30D', '--idempotency-key', 'request-a'] },
-    { command: 'job get', args: ['job', 'get', '--job', 'job-a'] },
     { command: 'job cancel', args: ['job', 'cancel', '--job', 'job-a', '--request-id', 'request-a'] },
     { command: 'artifact upload-inspect', args: ['artifact', 'upload-inspect', '--upload', 'upload-1'] },
-    { command: 'job submit', args: ['job', 'submit', '--artifact', 'artifact-1', '--job-type', 'TRANSCODE', '--request-id', 'request-1', '--correlation-id', 'correlation-1', '--idempotency-key', 'request-1'] },
     { command: 'job status', args: ['job', 'status', '--job', 'job-1'] },
     { command: 'artifact delete', args: ['artifact', 'delete', '--artifact', 'artifact-1'] },
     { command: 'capture start', args: ['capture', 'start'] },
@@ -1437,7 +1742,7 @@ describe('ghatanamedia-api production command boundary', () => {
           schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.invocation', code: 'INVALID_INVOCATION',
         });
         expect(JSON.parse(result.stderr).message).toContain('Usage: ghatanamedia-api artifact inspect');
-        expect(JSON.parse(result.stderr).message).not.toContain('job submit');
+        expect(JSON.parse(result.stderr).message).not.toContain('job cancel');
         expect(JSON.parse(result.stderr).message).not.toContain('artifact upload-inspect');
         expect(result.stderr).not.toContain(token);
       }

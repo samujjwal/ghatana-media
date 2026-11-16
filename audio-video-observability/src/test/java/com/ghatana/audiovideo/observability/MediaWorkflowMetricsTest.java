@@ -473,12 +473,38 @@ class MediaWorkflowMetricsTest {
         double heapMaximum = registry.get("media.runtime.jvm.heap.max.bytes")
                 .tag("service", "vision").gauge().value();
         assertThat(Double.isNaN(heapMaximum) || heapMaximum > 0).isTrue();
+        double heapUtilization = registry.get("media.runtime.jvm.heap.utilization_ratio")
+                .tag("service", "vision").gauge().value();
+        assertThat(Double.isNaN(heapMaximum)
+                ? Double.isNaN(heapUtilization)
+                : heapUtilization >= 0.0).isTrue();
 
         assertThat(registry.getMeters().stream()
                 .filter(meter -> meter.getId().getName().startsWith("media.runtime."))
                 .flatMap(meter -> meter.getId().getTags().stream())
                 .map(tag -> tag.getKey()))
                 .containsOnly("service", "contract_version");
+    }
+
+    @Test
+    void heapUtilizationIsUnknownWithoutADeclaredLimitAndScrapedWithFixedLabels() {
+        assertThat(Double.isNaN(MediaWorkflowMetrics.heapUtilizationRatio(25, -1))).isTrue();
+        assertThat(Double.isNaN(MediaWorkflowMetrics.heapUtilizationRatio(25, 0))).isTrue();
+        assertThat(Double.isNaN(MediaWorkflowMetrics.heapUtilizationRatio(-1, 100))).isTrue();
+        assertThat(MediaWorkflowMetrics.heapUtilizationRatio(25, 100)).isEqualTo(0.25);
+
+        PrometheusMeterRegistry registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
+        try {
+            new MediaWorkflowMetrics(registry, "vision");
+            String scrape = registry.scrape();
+            assertThat(scrape).contains("media_runtime_jvm_heap_utilization_ratio{");
+            assertThat(registry.get("media.runtime.jvm.heap.utilization_ratio")
+                    .tag("service", "vision").tag("contract_version", "v1").gauge().value())
+                    .isGreaterThanOrEqualTo(0.0);
+            assertThat(scrape).doesNotContain("tenant_id", "provider_id", "source_id", "request_id");
+        } finally {
+            registry.close();
+        }
     }
 
     @Test

@@ -79,13 +79,33 @@ test('PDP-0 joins, family scope, implementation handoffs, and A–Q recommendati
     'media.job.schedule.manage',
     'media.master.audio.creative-effect.apply',
   ]);
-  assert.ok(artifact.definitionExtensions.every(item => item.disposition === 'COORDINATOR_AUTHORED_PROPOSAL_PENDING_OWNER_REVIEW'
+  const currentVersionExtension = artifact.definitionExtensions.find(item => item.capabilityId === 'media.recipe.specification.compile');
+  assert.equal(currentVersionExtension.disposition, 'SOURCE_AUTHORED_CURRENT_VERSION_EXTENSION_PENDING_OWNER_REVIEW');
+  assert.equal(currentVersionExtension.versionScopeDisposition, 'SELECTED_FOR_CURRENT_VERSION_BY_PXD-226');
+  assert.equal(currentVersionExtension.versionDecisionRef, '.product-experience/decision-log.md#PXD-226');
+  assert.equal(currentVersionExtension.ownerApproval, 'NOT_CLAIMED');
+  assert.equal(currentVersionExtension.independentAcceptance, 'NOT_CLAIMED');
+  assert.equal(currentVersionExtension.executionAdmission, 'NOT_ADMITTED');
+  assert.equal(currentVersionExtension.admittedToHistoricalOwnerAdjudication, false);
+  const futureVersionExtensions = artifact.definitionExtensions.filter(item => item.capabilityId !== 'media.recipe.specification.compile');
+  assert.ok(futureVersionExtensions.every(item => item.disposition === 'COORDINATOR_AUTHORED_PROPOSAL_PENDING_OWNER_REVIEW'
     && item.ownerApproval === 'NOT_CLAIMED' && item.independentAcceptance === 'NOT_CLAIMED'
     && item.admittedToHistoricalOwnerAdjudication === false && item.executionAdmission === 'NOT_ADMITTED'
     && item.versionScopeDisposition === 'DEFERRED_TO_LATER_GOVERNED_PDP0_VERSION'
     && item.acceptanceCaseRefs.length > 0 && item.sourceAuditIds.length > 0 && item.sourceAuditRefs.length === item.sourceAuditIds.length));
-  assert.equal(artifact.definitionExtensions.filter(item => item.versionDecisionRef === '.product-experience/decision-log.md#PXD-220').length, 6);
+  assert.equal(artifact.definitionExtensions.filter(item => item.versionDecisionRef === '.product-experience/decision-log.md#PXD-220').length, 5);
   assert.equal(artifact.definitionExtensions.filter(item => item.versionDecisionRef === '.product-experience/decision-log.md#PXD-221').length, 1);
+  const spec002 = artifact.rows.find(row => row.auditId === 'AUD-SPEC-002');
+  assert.equal(spec002.traceabilityStatus, 'SOURCE_BOUND_COMPLETE');
+  assert.equal(spec002.featureSpecificCaseApplicability, 'SOURCE_BOUND_CASE_LINK_EXISTS_BUT_FEATURE_SEMANTIC_FIT_IS_NOT_CLAIMED');
+  assert.equal(spec002.priorFamilyCaseSemanticFitFinding.priorTraceabilityStatus,
+    'SOURCE_BOUND_FAMILY_CASE_JOIN_SEMANTIC_FIT_REVIEW_REQUIRED');
+  assert.match(spec002.priorFamilyCaseSemanticFitFinding.predecessorTraceabilityArtifactRef, /^HEAD:/u);
+  assert.equal(spec002.priorFamilyCaseSemanticFitFinding.predecessorTraceabilityArtifactSha256,
+    'b9eb443bfbb58a8b97db19b15ca063205841969b28130745971a57eb83a6431c');
+  assert.equal(artifact.blockerSummary.priorFamilyCaseSemanticFitReviewRows.length, 1);
+  assert.equal(artifact.denominators.currentVersionExtensionLeaves, 1);
+  assert.equal(artifact.denominators.futureVersionProposalLeaves, 6);
   assert.deepEqual(artifact.capabilityMappings.map(item => item.sourceOrder1Based), Array.from({length: artifact.capabilityMappings.length}, (_, index) => index + 1));
   assert.equal(new Set(artifact.capabilityMappings.map(item => item.capabilityId)).size, artifact.capabilityMappings.length);
   assert.ok(artifact.capabilityMappings.every(item => item.capabilitySourceRef === `.product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=${item.capabilityId}`));

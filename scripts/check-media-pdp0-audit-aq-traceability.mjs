@@ -23,10 +23,25 @@ export const CAPABILITY_REVIEW_PATHS = [
   'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-309-462.json',
 ];
 export const CAPABILITY_CURRENT_SOURCE_REVIEW_PATHS = [
-  'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v5.json',
-  'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-current-source-review-155-308.json',
-  'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-current-source-review-309-462.json',
+  'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v6.json',
+  'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-155-308.successor.candidate.v1.json',
+  'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-309-462.successor.candidate.v1.json',
 ];
+const PXD226_PRIOR_FAMILY_CASE_FIT_HISTORY = {
+  auditId: 'AUD-SPEC-002',
+  predecessorTraceabilityArtifactRef: `HEAD:${PDP0_AUDIT_AQ_TRACEABILITY_PATH}`,
+  predecessorTraceabilityWorkingPath: PDP0_AUDIT_AQ_TRACEABILITY_PATH,
+  predecessorTraceabilityArtifactSha256: 'b9eb443bfbb58a8b97db19b15ca063205841969b28130745971a57eb83a6431c',
+  priorTraceabilityStatus: 'SOURCE_BOUND_FAMILY_CASE_JOIN_SEMANTIC_FIT_REVIEW_REQUIRED',
+  priorCapabilityRefs: [`${CAPABILITIES_PATH}#capabilities/@id=media.profile.validate`],
+  priorAcceptanceCaseRefs: [
+    `${REQUIREMENTS_PATH}#requirements/@id=MEDIA-REQ-CAP-PROFILE/acceptanceCases/@id=MEDIA-REQ-CAP-PROFILE-AC-01`,
+    `${REQUIREMENTS_PATH}#requirements/@id=MEDIA-REQ-CAP-PROFILE/acceptanceCases/@id=MEDIA-REQ-CAP-PROFILE-AC-02`,
+  ],
+  priorCandidateCaseRefs: [],
+  priorFeatureSpecificCaseApplicability: 'REVIEW_REQUIRED_PARENT_CASES_ARE_NOT_FEATURE_SPECIFIC',
+  historyNote: 'Preserved from the predecessor projection. The live PXD-226 source join now binds the recipe compiler and its requirement cases; this prior fit finding is retained as history and no new feature semantic-fit, owner, or independent acceptance is claimed.',
+};
 const PDP0_DECISION_LOG_PATH = '.product-experience/decision-log.md';
 const INPUTS = [PDP0_AUDIT_SOURCE_PATH, PDP0_AUDIT_DISPOSITION_CROSSWALK_PATH, BLUEPRINT_PATH, REQUIREMENTS_PATH, CAPABILITIES_PATH, CAPABILITY_LEAF_REVIEW_PATH, CAMPAIGN_EXTENSIONS_PATH, ...AQ_REVIEW_PATHS, ...CAPABILITY_REVIEW_PATHS, ...CAPABILITY_CURRENT_SOURCE_REVIEW_PATHS];
 const parseYaml = createRequire(path.resolve(root, '../ghatana-tools/package.json'))('yaml').parse;
@@ -420,26 +435,47 @@ function normalizeDefinitionExtensions(campaignDocument, capabilityDocument, req
   const records = campaignDocument.currentDefinitionPopulation?.records ?? [];
   const versionDisposition = campaignDocument.currentDefinitionPopulation?.versionDisposition;
   const deferredById = new Map((versionDisposition?.futureVersionProposals ?? []).map(proposal => [proposal.capabilityId, proposal]));
+  const currentVersionExtensionIds = versionDisposition?.currentVersionExtensionCapabilityIds ?? [];
+  const currentVersionExtensionId = 'media.recipe.specification.compile';
   const capabilities = new Map((capabilityDocument.capabilities ?? []).map(capability => [capability.id, capability]));
   const requirements = new Map((requirementDocument.requirements ?? []).map(requirement => [requirement.id, requirement]));
   if (records.length !== 7 || new Set(records.map(row => row.capabilityId)).size !== 7) throw new Error(`campaign extensions must contain exactly seven unique definition-extension proposals; found ${records.length}`);
   if (versionDisposition?.historicalCanonicalCapabilityLeaves !== 462
-      || versionDisposition?.currentVersionCapabilityLeaves !== 462
-      || versionDisposition?.futureVersionProposalCapabilityLeaves !== 7
+      || versionDisposition?.currentVersionCapabilityLeaves !== 463
+      || versionDisposition?.futureVersionProposalCapabilityLeaves !== 6
       || versionDisposition?.totalSourceCapabilityDefinitions !== 469
-      || deferredById.size !== 7 || (versionDisposition?.currentVersionExtensionCapabilityIds ?? []).length !== 0) {
-    throw new Error('PDP-0 version disposition must preserve 462 current leaves, 7 deferred extensions, and 469 source definitions');
+      || deferredById.size !== 6
+      || currentVersionExtensionIds.length !== 1
+      || currentVersionExtensionIds[0] !== currentVersionExtensionId
+      || !(versionDisposition?.decisionRefs ?? []).includes(`${PDP0_DECISION_LOG_PATH}#PXD-226`)) {
+    throw new Error('PDP-0 version disposition must preserve 462 historical leaves, select the PXD-226 recipe extension (463 current leaves), defer six extensions, and retain 469 source definitions');
   }
   return records.map(record => {
     const capability = capabilities.get(record.capabilityId);
     if (!capability) throw new Error(`extension proposal references missing capability ${record.capabilityId}`);
+    const isCurrentVersionExtension = record.capabilityId === currentVersionExtensionId;
+    if (isCurrentVersionExtension) {
+      if (!currentVersionExtensionIds.includes(record.capabilityId)
+          || deferredById.has(record.capabilityId)
+          || !(versionDisposition?.decisionRefs ?? []).includes(`${PDP0_DECISION_LOG_PATH}#PXD-226`)) {
+        throw new Error(`${record.capabilityId} must be selected only by the explicit PXD-226 current-version disposition`);
+      }
+    } else if (currentVersionExtensionIds.includes(record.capabilityId)) {
+      throw new Error(`${record.capabilityId} cannot be both a future proposal and a current-version extension`);
+    }
     const versionProposal = deferredById.get(record.capabilityId);
-    if (!versionProposal || versionProposal.scopeStatus !== 'DEFERRED' || capability.scopeStatus !== 'DEFERRED') {
+    if (!isCurrentVersionExtension && (!versionProposal || versionProposal.scopeStatus !== 'DEFERRED' || capability.scopeStatus !== 'DEFERRED')) {
       throw new Error(`${record.capabilityId} must be retained as a source proposal and explicitly deferred from the current version`);
     }
-    const expectedVersionDecision = record.capabilityId === 'media.master.audio.creative-effect.apply'
-      ? `${PDP0_DECISION_LOG_PATH}#PXD-221` : TAXONOMY_DECISION_REF;
-    if (versionProposal.decisionRef !== expectedVersionDecision) throw new Error(`${record.capabilityId} must bind its exact current-version deferral decision`);
+    const expectedVersionDecision = isCurrentVersionExtension
+      ? `${PDP0_DECISION_LOG_PATH}#PXD-226`
+      : record.capabilityId === 'media.master.audio.creative-effect.apply'
+        ? `${PDP0_DECISION_LOG_PATH}#PXD-221` : TAXONOMY_DECISION_REF;
+    if (isCurrentVersionExtension
+      ? !(record.decisionRef === `${PDP0_DECISION_LOG_PATH}#PXD-207` && (versionDisposition?.decisionRefs ?? []).includes(expectedVersionDecision))
+      : versionProposal.decisionRef !== expectedVersionDecision) {
+      throw new Error(`${record.capabilityId} must bind its exact current-version or deferral decision`);
+    }
     const requirementId = record.requirementRef?.match(/#requirements\/@id=([^/]+)/)?.[1];
     const requirement = requirements.get(requirementId);
     if (!requirement || !(requirement.capabilityIds ?? []).includes(record.capabilityId)) throw new Error(`${record.capabilityId} lacks its exact parent requirement edge`);
@@ -459,10 +495,16 @@ function normalizeDefinitionExtensions(campaignDocument, capabilityDocument, req
       sourceAuditIds: [...(record.sourceAuditIds ?? [])],
       sourceAuditRefs: matchingAuditRows.map(row => row.sourceTextRef),
       campaignExtensionSourceRef: `${CAMPAIGN_EXTENSIONS_PATH}#currentDefinitionPopulation/records/@capabilityId=${record.capabilityId}`,
-      versionScopeDisposition: 'DEFERRED_TO_LATER_GOVERNED_PDP0_VERSION',
-      versionDispositionRef: `${CAMPAIGN_EXTENSIONS_PATH}#currentDefinitionPopulation/versionDisposition/futureVersionProposals/@capabilityId=${record.capabilityId}`,
-      versionDecisionRef: versionProposal.decisionRef,
-      disposition: 'COORDINATOR_AUTHORED_PROPOSAL_PENDING_OWNER_REVIEW',
+      versionScopeDisposition: isCurrentVersionExtension
+        ? 'SELECTED_FOR_CURRENT_VERSION_BY_PXD-226'
+        : 'DEFERRED_TO_LATER_GOVERNED_PDP0_VERSION',
+      versionDispositionRef: isCurrentVersionExtension
+        ? `${CAMPAIGN_EXTENSIONS_PATH}#currentDefinitionPopulation/versionDisposition/currentVersionExtensionCapabilityIds/@value=${record.capabilityId}`
+        : `${CAMPAIGN_EXTENSIONS_PATH}#currentDefinitionPopulation/versionDisposition/futureVersionProposals/@capabilityId=${record.capabilityId}`,
+      versionDecisionRef: expectedVersionDecision,
+      disposition: isCurrentVersionExtension
+        ? 'SOURCE_AUTHORED_CURRENT_VERSION_EXTENSION_PENDING_OWNER_REVIEW'
+        : 'COORDINATOR_AUTHORED_PROPOSAL_PENDING_OWNER_REVIEW',
       ownerApproval: record.ownerApproval ?? 'NOT_CLAIMED',
       independentAcceptance: record.independentAcceptance ?? 'NOT_CLAIMED',
       admittedToHistoricalOwnerAdjudication: false,
@@ -548,6 +590,8 @@ export function buildPdp0AuditAqTraceability(repositoryRoot = root) {
     }
     return row;
   });
+  const priorFitRow = rows.find(row => row.auditId === PXD226_PRIOR_FAMILY_CASE_FIT_HISTORY.auditId);
+  if (priorFitRow) priorFitRow.priorFamilyCaseSemanticFitFinding = PXD226_PRIOR_FAMILY_CASE_FIT_HISTORY;
   for (const mapping of reviews) if (!rows.some(row => row.auditId === mapping.auditId && row.sourcePartition === 'originalAudit')) {
     throw new Error(`A–Q review contains unexpected or non-original audit ID ${mapping.auditId}`);
   }
@@ -610,6 +654,8 @@ export function buildPdp0AuditAqTraceability(repositoryRoot = root) {
       canonicalCapabilityLeaves: capabilityMappings.length,
       currentCapabilityDefinitions: capabilityDocument.capabilities.length,
       proposalExtensionLeaves: definitionExtensions.length,
+      currentVersionExtensionLeaves: definitionExtensions.filter(row => row.versionScopeDisposition === 'SELECTED_FOR_CURRENT_VERSION_BY_PXD-226').length,
+      futureVersionProposalLeaves: definitionExtensions.filter(row => row.versionScopeDisposition === 'DEFERRED_TO_LATER_GOVERNED_PDP0_VERSION').length,
       capabilityLeavesWithClusterRecommendation: capabilityMappings.filter(row => row.primaryCluster).length,
       capabilityLeavesWithoutClusterRecommendation: capabilityMappings.filter(row => !row.primaryCluster).length,
       capabilityLeavesAcceptedAsIndexClassification: capabilityMappings.filter(row => row.classificationDisposition.startsWith('ACCEPTED_')).length,
@@ -636,6 +682,7 @@ export function buildPdp0AuditAqTraceability(repositoryRoot = root) {
       clusterMembership: 'All 428 original audit rows are accepted as indexing classifications under PXD-219. Of 462 capability taxonomy rows, 456 classifications are accepted as indexing-only, six ambiguous rows are deferred under PXD-220, and row 371 drops unsupported related cluster P under PXD-221. The 73 third-pass rows remain outside the original A–Q inventory taxonomy. Capability-meaning owner approval and independent acceptance are not claimed.',
       auditCaseJoins: missing.map(row => ({auditId: row.auditId, missingExactJoins: row.missingExactJoins})),
       familyCaseSemanticFitReviewRows: rows.filter(row => row.traceabilityStatus === 'SOURCE_BOUND_FAMILY_CASE_JOIN_SEMANTIC_FIT_REVIEW_REQUIRED').map(row => ({auditId: row.auditId, capabilityRefs: row.canonicalCapabilityRefs, acceptanceCaseRefs: row.acceptanceCaseRefs, candidateCaseRefs: row.acceptanceCaseCandidateRefs, featureSpecificCaseApplicability: row.featureSpecificCaseApplicability})),
+      priorFamilyCaseSemanticFitReviewRows: rows.filter(row => row.priorFamilyCaseSemanticFitFinding).map(row => row.priorFamilyCaseSemanticFitFinding),
       postPdpImplementationOnlyRows: postPdpImplementationRows.map(row => ({auditId: row.auditId, exactBuildAndLaterPhaseHandoffs: row.laterPhaseHandoffs})),
       familyScopeOnlyRows: familyScopeRows.map(row => ({auditId: row.auditId, capabilityRefs: row.canonicalCapabilityRefs, acceptanceCaseRefs: row.acceptanceCaseRefs, capabilityScopeDisposition: row.capabilityScopeDisposition})),
       unboundAcceptanceClauses,
@@ -659,12 +706,14 @@ export function validatePdp0AuditAqTraceability({repositoryRoot = root, artifact
   }
   if (JSON.stringify(actual.clusters) !== JSON.stringify(expected.clusters)) errors.push('A–Q cluster source text and accepted original-audit index classifications must match PXD-219');
   if (JSON.stringify(actual.capabilityMappings) !== JSON.stringify(expected.capabilityMappings)) errors.push('all 462 capability mappings must match source order, current-source rechecks, 456 accepted index classifications, six deferred rows, and the PXD-221 row-371 correction');
-  if (JSON.stringify(actual.definitionExtensions) !== JSON.stringify(expected.definitionExtensions)) errors.push('seven proposal extensions must remain source-linked and deferred from the current version');
+  if (JSON.stringify(actual.definitionExtensions) !== JSON.stringify(expected.definitionExtensions)) errors.push('seven source-linked extensions must preserve the PXD-226 current-version recipe selection and six deferred proposals');
   if (JSON.stringify(actual.rows) !== JSON.stringify(expected.rows)) errors.push('audit row joins must exactly project the current source-bound PDP-0 evidence refs');
   if (actual.denominators?.sourceAuditRows !== 501 || actual.rows?.length !== 501
       || actual.denominators?.canonicalCapabilityLeaves !== 462
       || actual.denominators?.currentCapabilityDefinitions !== 469
       || actual.denominators?.proposalExtensionLeaves !== 7
+      || actual.denominators?.currentVersionExtensionLeaves !== 1
+      || actual.denominators?.futureVersionProposalLeaves !== 6
       || actual.denominators?.capabilityLeavesWithClusterRecommendation !== 456
       || actual.denominators?.capabilityLeavesAcceptedAsIndexClassification !== 456
       || actual.denominators?.capabilityLeavesDeferredFromIndexClassification !== 6
@@ -672,7 +721,7 @@ export function validatePdp0AuditAqTraceability({repositoryRoot = root, artifact
       || actual.denominators?.rowsOutsidePdp0DefinitionJoinAsImplementationOnly !== 2
       || actual.denominators?.rowsWithExplicitFamilyScopeOnlyCapability !== 1
       || actual.denominators?.rowsBlockedMissingExactJoin !== 0) {
-    errors.push('traceability must preserve 501 audit rows, all 462 historical canonical leaves, 456 accepted and 6 deferred classifications, 7 deferred extension definitions, and the 499/2/1 PDP-0 join/handoff/family-scope denominator');
+    errors.push('traceability must preserve 501 audit rows, 462 historical canonical leaves, 456 accepted and 6 deferred classifications, one PXD-226 current extension plus six deferred extensions, and the 499/2/1 PDP-0 join/handoff/family-scope denominator');
   }
   const dispositionResult = validatePdp0AuditDispositions({repositoryRoot});
   if (dispositionResult.errors.length) errors.push(`source disposition crosswalk invalid: ${dispositionResult.errors[0]}`);

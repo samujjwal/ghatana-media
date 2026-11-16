@@ -242,6 +242,11 @@ public final class MediaProjectTimelineContracts {
                        String projectId, String initialRevisionId);
         Project project(Actor actor, String projectId);
         Revision revision(Actor actor, String projectId, String revisionId);
+        /**
+         * Commits one immutable successor using expected-head CAS. Repeating the same new revision identity,
+         * parent and timeline snapshots returns that exact stored revision without moving the project head;
+         * reusing the identity with different content is rejected.
+         */
         Revision commit(Actor actor, String projectId, String expectedHeadRevisionId,
                        String newRevisionId, List<TimelineSnapshot> timelines);
     }

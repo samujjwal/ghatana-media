@@ -126,10 +126,20 @@ public final class PostgresqlProjectTimelineStore implements ManagedProjectTimel
         projectId = MediaProjectTimelineContracts.requiredOpaqueId(projectId, "projectId");
         String expected = MediaProjectTimelineContracts.requiredOpaqueId(expectedHeadRevisionId, "expectedHeadRevisionId");
         String revisionId = MediaProjectTimelineContracts.requiredOpaqueId(newRevisionId, "newRevisionId");
+        Revision candidate = new Revision(actor.tenantId(), projectId, revisionId, expected, timelines);
         try (Connection connection = state.connection()) {
             connection.setAutoCommit(false);
             try {
                 Project project = ownedProject(connection, actor, projectId);
+                Revision prior = readRevisionIfPresent(connection, actor.tenantId(), projectId, revisionId);
+                if (prior != null) {
+                    if (!Objects.equals(prior.parentRevisionId(), expected)
+                            || !prior.timelines().equals(candidate.timelines())) {
+                        throw new IllegalStateException("revision identity was replayed with a different payload");
+                    }
+                    connection.rollback();
+                    return prior;
+                }
                 if (!project.headRevisionId().equals(expected)) {
                     throw new RevisionConflictException(expected, project.headRevisionId());
                 }
@@ -144,10 +154,9 @@ public final class PostgresqlProjectTimelineStore implements ManagedProjectTimel
                         throw new RevisionConflictException(expected, latest.headRevisionId());
                     }
                 }
-                Revision revision = new Revision(actor.tenantId(), projectId, revisionId, expected, timelines);
-                insertRevision(connection, revision);
+                insertRevision(connection, candidate);
                 connection.commit();
-                return revision;
+                return candidate;
             } catch (SQLException | RuntimeException failure) {
                 connection.rollback();
                 throw failure;
@@ -210,6 +219,20 @@ public final class PostgresqlProjectTimelineStore implements ManagedProjectTimel
             select.setString(1, tenantId); select.setString(2, projectId); select.setString(3, revisionId);
             try (ResultSet row = select.executeQuery()) {
                 if (!row.next()) throw new ProjectNotFoundException();
+                return new Revision(tenantId, projectId, revisionId, row.getString(1), timelines(row.getString(2)));
+            }
+        }
+    }
+
+    private Revision readRevisionIfPresent(Connection connection, String tenantId, String projectId, String revisionId)
+            throws SQLException {
+        try (PreparedStatement select = connection.prepareStatement("""
+                SELECT parent_revision_id,timeline_snapshots::text FROM media_timeline_revisions
+                WHERE tenant_id=? AND project_id=? AND revision_id=?
+                """)) {
+            select.setString(1, tenantId); select.setString(2, projectId); select.setString(3, revisionId);
+            try (ResultSet row = select.executeQuery()) {
+                if (!row.next()) return null;
                 return new Revision(tenantId, projectId, revisionId, row.getString(1), timelines(row.getString(2)));
             }
         }

@@ -51,13 +51,21 @@ public final class InMemoryProjectTimelineStore implements ProjectTimelineStore 
                                                   String newRevisionId, java.util.List<TimelineSnapshot> timelines) {
         timelines = java.util.List.copyOf(Objects.requireNonNull(timelines, "timelines"));
         Aggregate aggregate = owned(actor, projectId);
+        String revisionId = required(newRevisionId, "newRevisionId");
+        Revision candidate = new Revision(aggregate.project.tenantId(), aggregate.project.projectId(), revisionId,
+                expectedHeadRevisionId, timelines);
+        Revision replay = aggregate.revisions.get(revisionId);
+        if (replay != null) {
+            if (!Objects.equals(replay.parentRevisionId(), expectedHeadRevisionId)
+                    || !replay.timelines().equals(candidate.timelines())) {
+                throw new IllegalStateException("revision identity was replayed with a different payload");
+            }
+            return replay;
+        }
         if (!aggregate.project.headRevisionId().equals(expectedHeadRevisionId)) {
             throw new RevisionConflictException(expectedHeadRevisionId, aggregate.project.headRevisionId());
         }
-        String revisionId = required(newRevisionId, "newRevisionId");
-        if (aggregate.revisions.containsKey(revisionId)) throw new IllegalStateException("revision identity cannot be reused");
-        Revision revision = new Revision(aggregate.project.tenantId(), aggregate.project.projectId(), revisionId,
-                aggregate.project.headRevisionId(), timelines);
+        Revision revision = candidate;
         aggregate.revisions.put(revisionId, revision);
         Project old = aggregate.project;
         aggregate.project = new Project(old.tenantId(), old.projectId(), old.workspaceId(), old.ownerPrincipalId(),

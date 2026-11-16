@@ -323,6 +323,20 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
                 return;
             }
 
+            // Zero is the proto3 omission sentinel for the provider's configured default.
+            // Explicit thresholds must stay in the same [0,1] range as provider scores;
+            // DetectionOptions clamps values, so validate here rather than silently changing
+            // an invalid wire request into a different threshold.
+            double confidenceThreshold = request.getConfidenceThreshold();
+            if (!Double.isFinite(confidenceThreshold)
+                    || confidenceThreshold < 0.0 || confidenceThreshold > 1.0) {
+                recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
+                    .withDescription("confidenceThreshold must be finite and between 0 and 1")
+                    .asRuntimeException());
+                mediaMetrics.recordFailed("vision.detect");
+                return;
+            }
+
             if (rejectWhenProviderUnavailable(responseObserver, "Object detection")) {
                 mediaMetrics.recordFailed("vision.detect");
                 return;
@@ -722,6 +736,13 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
             return;
         }
         for (String requestedIntent : request.getAnalysisTypesList()) {
+            if (requestedIntent.isBlank()) {
+                mediaMetrics.recordFailed("vision.analyze");
+                recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
+                        .withDescription("analysisTypes entries must not be blank")
+                        .asRuntimeException());
+                return;
+            }
             var disposition = VisionCapabilityDisposition.forIntentId(requestedIntent);
             if (disposition.isPresent()) {
                 mediaMetrics.recordFailed("vision.analyze");
@@ -765,6 +786,20 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
                     .asRuntimeException());
             return;
         }
+        boolean cropDeclarationAbsent = request.getCroppedBytes().isEmpty()
+                && request.getCroppedFrameSha256().isEmpty();
+        if (!cropDeclarationAbsent && !com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService
+                .isValidDeclaredCrop(request.getCroppedBytes().size(), request.getCroppedFrameSha256())) {
+            mediaMetrics.recordFailed("vision.scene-text");
+            responseObserver.onNext(SceneTextRecognizeResponse.newBuilder()
+                    .setRejected(SceneTextRejected.newBuilder()
+                            .setCode(com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.Code
+                                    .INVALID_REQUEST.name())
+                            .setRetryable(false))
+                    .build());
+            responseObserver.onCompleted();
+            return;
+        }
         AuthenticatedPrincipal authenticatedPrincipal = new AuthenticatedPrincipal(
                 tenantId, principalId, Instant.now());
         var service = sceneTextService;
@@ -775,8 +810,6 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
                     .asRuntimeException());
             return;
         }
-        boolean cropDeclarationAbsent = request.getCroppedBytes().isEmpty()
-                && request.getCroppedFrameSha256().isEmpty();
         byte[] declaredCropBytes = cropDeclarationAbsent ? null : request.getCroppedBytes().toByteArray();
         String declaredCropSha256 = cropDeclarationAbsent ? null : request.getCroppedFrameSha256();
         var frameRequest = new com.ghatana.audio.video.vision.scenetext.SceneTextRecognitionService.FrameRequest(
@@ -939,16 +972,11 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
                 observerRef.onCompleted();
                 return;
             }
-            var reader = mediaRuntimeSceneTextSource;
-            if (reader == null) {
-                observerRef.onNext(sourceFrameRejected("SOURCE_NOT_ADMITTED", false));
-                observerRef.onCompleted();
-                return;
-            }
             if (!request.hasRoi() || request.getSourceArtifactId().isBlank()
                     || request.getSourceVersion().isBlank() || request.getFrameId().isBlank()
                     || request.getPurposeRef().isBlank()
-                    || request.getFrameWidth() <= 0 || request.getFrameHeight() <= 0) {
+                    || request.getFrameWidth() <= 0 || request.getFrameHeight() <= 0
+                    || request.getPtsUs() < 0 || !isCanonicalSourceFrameOrdinal(request.getFrameId())) {
                 observerRef.onNext(sourceFrameRejected("INVALID_REQUEST", false));
                 observerRef.onCompleted();
                 return;
@@ -959,6 +987,12 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
                     || (long) requestedRoi.getX() + requestedRoi.getWidth() > request.getFrameWidth()
                     || (long) requestedRoi.getY() + requestedRoi.getHeight() > request.getFrameHeight()) {
                 observerRef.onNext(sourceFrameRejected("INVALID_REQUEST", false));
+                observerRef.onCompleted();
+                return;
+            }
+            var reader = mediaRuntimeSceneTextSource;
+            if (reader == null) {
+                observerRef.onNext(sourceFrameRejected("SOURCE_NOT_ADMITTED", false));
                 observerRef.onCompleted();
                 return;
             }
@@ -1001,6 +1035,16 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
                 .setCode(code).setRetryable(retryable)).build();
     }
 
+    /** Matches the source reader's zero-based canonical frame ordinal boundary. */
+    private static boolean isCanonicalSourceFrameOrdinal(String frameId) {
+        if (frameId == null || !frameId.matches("0|[1-9][0-9]{0,7}")) return false;
+        try {
+            return Integer.parseInt(frameId) <= 10_000_000;
+        } catch (NumberFormatException malformed) {
+            return false;
+        }
+    }
+
     // ── AV-003.5: classifyImage ────────────────────────────────────────────
 
     @Override
@@ -1031,6 +1075,22 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
                     .asRuntimeException());
             return;
         }
+        if (request.getTopK() < 0) {
+            mediaMetrics.recordFailed("vision.classify");
+            recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
+                    .withDescription("topK must be non-negative")
+                    .asRuntimeException());
+            return;
+        }
+        double confidenceThreshold = request.getConfidenceThreshold();
+        if (!Double.isFinite(confidenceThreshold)
+                || confidenceThreshold < 0.0 || confidenceThreshold > 1.0) {
+            mediaMetrics.recordFailed("vision.classify");
+            recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
+                    .withDescription("confidenceThreshold must be finite and between 0 and 1")
+                    .asRuntimeException());
+            return;
+        }
         mediaMetrics.recordFailed("vision.classify");
         recordResponseFailure(responseObserver, io.grpc.Status.UNIMPLEMENTED
                 .withDescription("Image classification is not admitted by the active Vision provider")
@@ -1046,6 +1106,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
         responseObserver = traced.observer;
         try (Scope scope = tracingService.createScope(traced.span)) {
         if (!hasTenantContext(responseObserver)) return;
+        if (!hasAuthenticatedSubject(responseObserver)) return;
         String modelId = request.getModelId();
         if (modelId == null || modelId.isBlank()) {
             recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
@@ -1067,6 +1128,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
         responseObserver = traced.observer;
         try (Scope scope = tracingService.createScope(traced.span)) {
         if (!hasTenantContext(responseObserver)) return;
+        if (!hasAuthenticatedSubject(responseObserver)) return;
         String modelId = request.getModelId();
         if (modelId == null || modelId.isBlank()) {
             recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
@@ -1143,6 +1205,15 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
                 return;
             }
 
+            double requestedConfidenceThreshold = request.getConfidenceThreshold();
+            if (!isValidVideoConfidenceThreshold(requestedConfidenceThreshold)) {
+                recordResponseFailure(responseObserver, io.grpc.Status.INVALID_ARGUMENT
+                    .withDescription("confidenceThreshold must be finite and between 0 and 1")
+                    .asRuntimeException());
+                mediaMetrics.recordFailed("vision.analyzeVideo");
+                return;
+            }
+
             if (rejectWhenProviderUnavailable(responseObserver, "Video analysis")) return;
 
             // The production composition has no trusted OS-level per-worker codec sandbox.
@@ -1201,8 +1272,7 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
             LOG.info("Extracted {} frames for analysis", frames.size());
 
             DetectionOptions detectionOptions = DetectionOptions.builder()
-                .confidenceThreshold(request.getConfidenceThreshold() > 0 ?
-                    request.getConfidenceThreshold() : 0.5)
+                .confidenceThreshold(effectiveVideoConfidenceThreshold(requestedConfidenceThreshold))
                 .maxDetections(50)
                 .targetClasses(request.getTargetClassesList().isEmpty() ?
                     null : new HashSet<>(request.getTargetClassesList()))
@@ -1287,6 +1357,18 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
         }
         return result.setTimestampStatus(SourceTimestampStatus.SOURCE_TIMESTAMP_UNKNOWN)
                 .setTimestampUnknownReason(timestamp.reason());
+    }
+
+    /** The proto3 zero value retains the existing default; explicit thresholds are finite [0,1]. */
+    static boolean isValidVideoConfidenceThreshold(double threshold) {
+        return Double.isFinite(threshold) && threshold >= 0.0 && threshold <= 1.0;
+    }
+
+    static double effectiveVideoConfidenceThreshold(double threshold) {
+        if (!isValidVideoConfidenceThreshold(threshold)) {
+            throw new IllegalArgumentException("confidenceThreshold must be finite and between 0 and 1");
+        }
+        return threshold == 0.0 ? 0.5 : threshold;
     }
 
     @Override
@@ -1391,6 +1473,15 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
                     if (request.getFrameData().isEmpty()) {
                         sendFailure(io.grpc.Status.INVALID_ARGUMENT
                             .withDescription("Frame data cannot be empty")
+                            .asRuntimeException());
+                        return;
+                    }
+
+                    // A frame ordinal cannot precede the first frame. Reject the malformed
+                    // envelope before spending stream budget or dispatching inference.
+                    if (request.getFrameNumber() < 0) {
+                        sendFailure(io.grpc.Status.INVALID_ARGUMENT
+                            .withDescription("frameNumber must be non-negative")
                             .asRuntimeException());
                         return;
                     }
@@ -1710,6 +1801,16 @@ public class VisionGrpcService extends VisionServiceGrpc.VisionServiceImplBase
         if (tenantContextAvailable(resolveTenantId())) return true;
         recordResponseFailure(responseObserver, io.grpc.Status.UNAUTHENTICATED
                 .withDescription("Missing tenant context")
+                .asRuntimeException());
+        return false;
+    }
+
+    /** Model lifecycle requests are actor-scoped even though their current disposition is unavailable. */
+    private boolean hasAuthenticatedSubject(StreamObserver<?> responseObserver) {
+        String principalId = resolveUserId();
+        if (principalId != null && !principalId.isBlank()) return true;
+        recordResponseFailure(responseObserver, io.grpc.Status.UNAUTHENTICATED
+                .withDescription("Missing authenticated subject context")
                 .asRuntimeException());
         return false;
     }

@@ -4,20 +4,25 @@
   "campaign": {
     "macroStage": "DISCOVERY",
     "phase": "PDP-0",
-    "sourceBaselineCommit": "ebcbdfca77aecfd8a1d1b3b252259fe914fd0208",
+    "sourceBaselineCommit": "292ea81b868406c690f2da7c28e52396378ff4a7",
     "status": "IN_PROGRESS"
   },
-  "generatedAt": "2026-11-02T07:33:40.713Z",
+  "generatedAt": "2026-11-16T13:29:59.621Z",
   "statusRecordRef": "docs/implementation/pdp-0-phase-dev-status.json",
-  "statusRecordSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
-  "sourceFingerprintSetSha256": "13a6d8c3a7150de81655633ef7e57ad5be506c0bf2980dfc560d094e23eda30b",
+  "statusRecordSha256": "bb6f3088532a79cc54416a91004a429fb7447ab192f6f252729ffd9b7efd7f8c",
+  "sourceFingerprintSetSha256": "0de959fac5b388e30f9e0b0a8daa82cf9ca1d743123a95a0d3bea10d0dee6873",
   "sourceFingerprints": {
     ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
-    ".product-experience/surfaces/media-physical-topology.v1.json": "4d3af5ddec05b80de8187a1551c5f92862455842b3a44f0e84ecb64f582f5892",
+    ".product-experience/surfaces/media-physical-topology.v1.json": "a1f524c498fcdbde61f48cc3b8bb589e8803a0007d7b82908d7da81ea9065c9d",
     ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34",
     ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+    ".product-experience/pdp-0-product-truth/requirements.yaml": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+    ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
+    ".product-experience/pdp-0-product-truth/dependency-contracts.yaml": "b698f43e88c61170c1a25f6789062b87ef07bd1edaca2261e077cf5ae2efbaaf",
     ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "bd6b71877f9a3b0c40b8f530119ef18c7102ae60ddf6e478852b3bc24d4807ea",
-    "docs/implementation/pdp-0-phase-dev-status.json": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
+    "docs/surfaces/adapters-agent-tools-media/README.md": "4b53f6397f6c1f4516ed64fb6dd9ca332d07e06a3f967ec118aac6cbdf7a1867",
+    "adapters/data-cloud-media/README.md": "e26e044784b5d95b6158f34fa9e0c8eb7cb4fcdaf30e46a4009e690c476a4845",
+    "docs/implementation/pdp-0-phase-dev-status.json": "bb6f3088532a79cc54416a91004a429fb7447ab192f6f252729ffd9b7efd7f8c",
     ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
     ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
     ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
@@ -56,14 +61,14 @@
     "archivedLogicalConsumers": 1,
     "physicalNoImplementationAdmitted": 3,
     "activeLogicalScopesResolved": 20,
-    "remainingPhaseLocalTaskCount": null,
+    "remainingPhaseLocalTaskCount": 3,
     "inProgressCells": 46,
     "remainingPhaseLocalSurfaceCount": 46,
     "proposedDirectChannelSurfaceCells": 14,
     "derivedAggregateProposalCells": 21,
     "unknownExtensionApplicabilityCells": 0,
-    "remainingPhaseLocalTaskCountKnown": false,
-    "unknownPhaseLocalSurfaceCount": 1
+    "remainingPhaseLocalTaskCountKnown": true,
+    "unknownPhaseLocalSurfaceCount": 0
   },
   "claimsBoundary": {
     "coordinatorDefinitionReview": "SOURCE_CURRENT_PDP0_DEFINITION_EXTENSION_APPLICABILITY_REVIEW",
@@ -105,25 +110,33 @@
         ".product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability/records/@capabilityRef=media.recipe.specification.compile",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
-        ".product-experience/surfaces/media-physical-topology.v1.json"
+        ".product-experience/pdp-0-product-truth/dependency-contracts.yaml",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        "docs/surfaces/adapters-agent-tools-media/README.md"
       ],
       "sourceFingerprints": {
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
-        ".product-experience/surfaces/media-physical-topology.v1.json": "4d3af5ddec05b80de8187a1551c5f92862455842b3a44f0e84ecb64f582f5892",
+        ".product-experience/surfaces/media-physical-topology.v1.json": "a1f524c498fcdbde61f48cc3b8bb589e8803a0007d7b82908d7da81ea9065c9d",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "bd6b71877f9a3b0c40b8f530119ef18c7102ae60ddf6e478852b3bc24d4807ea",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
-        ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
+        ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b",
+        ".product-experience/pdp-0-product-truth/requirements.yaml": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
+        ".product-experience/pdp-0-product-truth/dependency-contracts.yaml": "b698f43e88c61170c1a25f6789062b87ef07bd1edaca2261e077cf5ae2efbaaf",
+        "docs/surfaces/adapters-agent-tools-media/README.md": "4b53f6397f6c1f4516ed64fb6dd9ca332d07e06a3f967ec118aac6cbdf7a1867"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "This topology row still requires source-owner review; matching phase-wide byte pins cannot establish row currentness.",
-      "sourceOwnerReviewState": "PENDING",
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
+      "sourceOwnerReviewState": "DELEGATED_SOURCE_DEFINITION_REVIEW_COMPLETE",
       "developmentStatus": "NOT_APPLICABLE",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
-      "acceptanceCriterion": "Bind this source-owned topology identity to a current PDP-0 full-denominator review and exact phase-local task ownership before claiming completion.",
+      "acceptanceCriterion": "Retain the stable physical topology identity as support-only; require zero direct Media capability families, capability intents, requirements, and product intents; preserve the explicit N/A rationale and support boundary.",
       "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1.",
       "repositoryPath": "adapters/agent-tools-media",
       "manifestPath": "adapters/agent-tools-media/build.gradle.kts",
@@ -1698,7 +1711,50 @@
           "executionAdmission": "NOT_ADMITTED",
           "rationale": "No direct Media capability ownership is established for this support/tool node; retained as scoped support only."
         }
-      ]
+      ],
+      "sourceDefinitionReview": {
+        "authority": "USER_EXPLICITLY_DELEGATED_SOURCE_DEFINITION_DECISION",
+        "reviewerRole": "delegated-agent; source-definition scope only",
+        "phase": "PDP-0",
+        "status": "DELEGATED_SOURCE_DEFINITION_REVIEW_COMPLETE",
+        "reviewedSourceRefs": [
+          ".product-experience/surfaces/media-physical-topology.v1.json",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          ".product-experience/pdp-0-product-truth/requirements.yaml",
+          ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+          ".product-experience/pdp-0-product-truth/dependency-contracts.yaml",
+          "docs/surfaces/adapters-agent-tools-media/README.md"
+        ],
+        "phaseLocalTaskIds": [],
+        "taskDisposition": "ZERO_OUTSTANDING_PDP0_DEFINITION_TASKS",
+        "nonClaims": [
+          "owner acceptance",
+          "independent acceptance",
+          "PDP-1/PDP-2/PDP-3 completion",
+          "runtime admission",
+          "qualification",
+          "release"
+        ],
+        "reviewedSurfaceId": "media.physical.adapters-agent-tools-media",
+        "scopeDisposition": "NOT_APPLICABLE_SUPPORT",
+        "criterionCoverage": [
+          {
+            "criterionId": "P0-01",
+            "coverage": "The support adapter owns no direct Media capability intent."
+          },
+          {
+            "criterionId": "P0-07",
+            "coverage": "PDP-0 applicability is explicitly NOT_APPLICABLE_SUPPORT with empty family, capability, requirement, and intent references."
+          },
+          {
+            "criterionId": "P0-08",
+            "coverage": "The physical identity remains in the 56-surface denominator; N/A does not remove it."
+          }
+        ],
+        "acceptanceCriterion": "Retain the stable physical topology identity as support-only; require zero direct Media capability families, capability intents, requirements, and product intents; preserve the explicit N/A rationale and support boundary.",
+        "taskRationale": "The optional Tools SPI adapter remains support implementation behind the logical media.surface.agent-tools consumer. Capability meaning is traced at that logical consumer and is not directly attributed to this physical support node.",
+        "nextLegalAction": "Re-pin and revalidate the exact PDP-0 reviewed source references and full PDP-0 phase sourceShaSet before reusing this review; downstream phases retain their separately declared obligations."
+      }
     },
     {
       "surfaceId": "media.physical.adapters-data-cloud-media",
@@ -1710,7 +1766,7 @@
       "phase": "PDP-0",
       "applicability": {
         "disposition": "APPLICABLE",
-        "rationale": "The Media-owned Data Cloud adapter boundary is defined under the existing DEP-DATA-CLOUD owner boundary; it does not assign Data Cloud ownership of Media artifact, job, consent, or processing semantics. The adapter delegates MediaProcessorPort transcription, vision, and multimodal operations to the Media-owned modality services, so its PDP-0 scope binds the exact delegated requirements it fronts: MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION, MEDIA-REQ-CAP-VISION, and MEDIA-REQ-CAP-MULTIMODAL.",
+        "rationale": "The Media-owned Data Cloud compatibility adapter is an applicable integration boundary, and these three existing requirement references provide boundary trace only. The legacy MediaProcessorPort adapters currently report unavailable for all operations and invoke no persistent modality service; the boundary therefore owns no direct Media capability family, capability intent, or product intent. Data Cloud remains outside Media ownership of artifact, job, consent, or processing semantics.",
         "authorityRef": ".product-experience/pdp-0-product-truth/dependency-contracts.yaml",
         "capabilityFamilyIds": [],
         "capabilityIntentIds": [],
@@ -1736,25 +1792,32 @@
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
         ".product-experience/pdp-0-product-truth/capabilities.yaml",
         ".product-experience/pdp-0-product-truth/dependency-contracts.yaml",
-        ".product-experience/surfaces/media-physical-topology.v1.json"
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+        ".product-experience/pdp-0-product-truth/requirements.yaml",
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        "adapters/data-cloud-media/README.md"
       ],
       "sourceFingerprints": {
-        ".product-experience/surfaces/media-physical-topology.v1.json": "4d3af5ddec05b80de8187a1551c5f92862455842b3a44f0e84ecb64f582f5892",
+        ".product-experience/surfaces/media-physical-topology.v1.json": "a1f524c498fcdbde61f48cc3b8bb589e8803a0007d7b82908d7da81ea9065c9d",
         ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34",
         ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "bd6b71877f9a3b0c40b8f530119ef18c7102ae60ddf6e478852b3bc24d4807ea",
         ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
         ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
         ".product-experience/decision-log.md#PXD-220-section": "618885574ac42dfd1e8095c62b1ee89bc11662d55c4d3abe672dc2079b6d52f5",
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
-        ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
+        ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b",
+        ".product-experience/pdp-0-product-truth/requirements.yaml": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+        ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
+        ".product-experience/pdp-0-product-truth/dependency-contracts.yaml": "b698f43e88c61170c1a25f6789062b87ef07bd1edaca2261e077cf5ae2efbaaf",
+        "adapters/data-cloud-media/README.md": "e26e044784b5d95b6158f34fa9e0c8eb7cb4fcdaf30e46a4009e690c476a4845"
       },
       "sourceCurrent": false,
-      "sourceCurrentBasis": "This topology row still requires source-owner review; matching phase-wide byte pins cannot establish row currentness.",
-      "sourceOwnerReviewState": "PENDING",
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
+      "sourceOwnerReviewState": "DELEGATED_SOURCE_DEFINITION_REVIEW_COMPLETE",
       "developmentStatus": "IN_PROGRESS",
-      "remainingPhaseLocalTaskIds": null,
-      "blockerOwner": "UNKNOWN_PHASE_LOCAL_OWNER",
-      "acceptanceCriterion": "Bind this source-owned topology identity to a current PDP-0 full-denominator review and exact phase-local task ownership before claiming completion.",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "Preserve the applicable Media-owned integration boundary and exactly the three existing requirement trace references; keep capabilityFamilyIds, capabilityIntentIds, and intentIds empty; retain all 43 modality capability meanings on their canonical modality surfaces; claim no Data Cloud capability execution or availability.",
       "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1.",
       "repositoryPath": "adapters/data-cloud-media",
       "manifestPath": "adapters/data-cloud-media/build.gradle.kts",
@@ -3333,7 +3396,62 @@
           "executionAdmission": "NOT_ADMITTED",
           "rationale": "PXD-207 excludes media.recipe.specification.compile from media.physical.adapters-data-cloud-media: this exact feature is scoped to media.surface.recorder-orchestrator, its designated PDP-0 physical source media.physical.libs-audio-video-client, and the three declared recursive aggregate surfaces; this identity is outside that source-backed feature owner path. The surface topology identifies physical identity but no exact owner capability path for this feature here."
         }
-      ]
+      ],
+      "sourceDefinitionReview": {
+        "authority": "USER_EXPLICITLY_DELEGATED_SOURCE_DEFINITION_DECISION",
+        "reviewerRole": "delegated-agent; source-definition scope only",
+        "phase": "PDP-0",
+        "status": "DELEGATED_SOURCE_DEFINITION_REVIEW_COMPLETE",
+        "reviewedSurfaceId": "media.physical.adapters-data-cloud-media",
+        "reviewedSourceRefs": [
+          ".product-experience/surfaces/media-physical-topology.v1.json",
+          ".product-experience/pdp-0-product-truth/capabilities.yaml",
+          ".product-experience/pdp-0-product-truth/requirements.yaml",
+          ".product-experience/pdp-0-product-truth/goals-jtbd.yaml",
+          ".product-experience/pdp-0-product-truth/dependency-contracts.yaml",
+          "adapters/data-cloud-media/README.md"
+        ],
+        "scopeDisposition": "APPLICABLE_INTEGRATION_BOUNDARY; REQUIREMENT_REFS_ARE_BOUNDARY_TRACE_ONLY",
+        "requirementRefDisposition": "BOUNDARY_TRACE_ONLY_NOT_DIRECT_CAPABILITY_OWNERSHIP",
+        "reviewedRequirementRefs": [
+          "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+          "MEDIA-REQ-CAP-VISION",
+          "MEDIA-REQ-CAP-MULTIMODAL"
+        ],
+        "evaluatedCanonicalCapabilityCount": 43,
+        "candidateCapabilityDisposition": "NO_DIRECT_ADAPTER_CAPABILITY_OWNERSHIP; the three requirement families resolve to 43 modality capability leaves, but none is assigned to this currently unavailable compatibility adapter.",
+        "criterionCoverage": [
+          {
+            "criterionId": "P0-01",
+            "coverage": "Reviewed 43 canonical capabilities across the three referenced modality families; no direct capability intent is assigned to this adapter because its current MediaProcessorPort operations report unavailable."
+          },
+          {
+            "criterionId": "P0-04",
+            "coverage": "No direct product intent is assigned at the adapter boundary; modality capabilities retain their existing media.intent.understand owner links on their canonical surfaces."
+          },
+          {
+            "criterionId": "P0-07",
+            "coverage": "No channel applicability is introduced by this physical-to-physical compatibility adapter."
+          },
+          {
+            "criterionId": "P0-08",
+            "coverage": "The physical identity remains one row in the 56-surface denominator; requirement references are boundary trace only."
+          }
+        ],
+        "phaseLocalTaskIds": [],
+        "taskDisposition": "ZERO_OUTSTANDING_PDP0_DEFINITION_TASKS",
+        "taskRationale": "The boundary rationale, three requirement trace references, and no-direct-capability/no-direct-intent disposition are now explicit in PDP-0 source. Operation selectors, source version/timebase, principal/purpose/rights admission, request/result mapping, and runtime availability remain later-phase contract/implementation work and are not missing PDP-0 product intent.",
+        "acceptanceCriterion": "Preserve the applicable Media-owned integration boundary and exactly the three existing requirement trace references; keep capabilityFamilyIds, capabilityIntentIds, and intentIds empty; retain all 43 modality capability meanings on their canonical modality surfaces; claim no Data Cloud capability execution or availability.",
+        "nextLegalAction": "Re-pin and revalidate the exact PDP-0 reviewed source references and full PDP-0 phase sourceShaSet before reusing this review; downstream phases retain their separately declared obligations.",
+        "nonClaims": [
+          "owner acceptance",
+          "independent acceptance",
+          "PDP-1/PDP-2/PDP-3 completion",
+          "runtime admission",
+          "qualification",
+          "release"
+        ]
+      }
     },
     {
       "surfaceId": "media.physical.adapters-ledger",
@@ -3379,8 +3497,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "NOT_APPLICABLE",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -5016,8 +5134,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -6640,8 +6758,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -8270,8 +8388,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "NOT_APPLICABLE",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -9897,8 +10015,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -11625,8 +11743,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -13424,8 +13542,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -15218,8 +15336,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -17118,8 +17236,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "NOT_APPLICABLE",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -18742,8 +18860,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "NOT_APPLICABLE",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -20369,8 +20487,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "NOT_APPLICABLE",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -22006,8 +22124,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -23659,8 +23777,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "NOT_APPLICABLE",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -25300,8 +25418,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "NOT_APPLICABLE",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -26941,8 +27059,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -28676,8 +28794,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -30322,8 +30440,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "NOT_APPLICABLE",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -31945,8 +32063,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -33582,8 +33700,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -35273,8 +35391,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -36979,8 +37097,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -38644,8 +38762,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -40305,8 +40423,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -41959,8 +42077,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -43630,8 +43748,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -45358,8 +45476,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -47108,8 +47226,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -48774,8 +48892,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -50478,8 +50596,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -52149,8 +52267,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -53847,8 +53965,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -55531,8 +55649,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -57315,8 +57433,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -59092,8 +59210,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -60827,8 +60945,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -62961,8 +63079,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -65104,8 +65222,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -66894,8 +67012,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -68558,8 +68676,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -70223,8 +70341,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -71894,8 +72012,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -73588,8 +73706,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -75735,8 +75853,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -77883,8 +78001,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -79534,8 +79652,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -81171,8 +81289,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -82826,8 +82944,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -84586,8 +84704,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -86442,8 +86560,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -88073,8 +88191,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "NOT_ACTIVE_ARCHIVED",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -89718,8 +89836,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -91396,8 +91514,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -93051,8 +93169,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -94742,8 +94860,8 @@
         ".product-experience/decision-log.md#PXD-221-section": "a5c54e23cf513b37a150f6b351b7f038ec2e437f29eaa583f19df0fda65f00fe",
         ".product-experience/decision-log.md#PXD-226-section": "83a4c776fd0ec63529eff8a5e0637a6ac12c70bebacf0f43fe61be3ffc7ae56b"
       },
-      "sourceCurrent": false,
-      "sourceCurrentBasis": "PDP-0 phase source currentness is STALE: 18 of 188 required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.",
+      "sourceCurrent": true,
+      "sourceCurrentBasis": "All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.",
       "developmentStatus": "IN_PROGRESS",
       "remainingPhaseLocalTaskIds": [],
       "blockerOwner": null,
@@ -96352,8 +96470,8 @@
   "sourcePinImpactReview": {
     "phase": "PDP-0",
     "reviewedPath": "docs/implementation/pdp-0-phase-dev-status.json",
-    "predecessorSha256": "71d801cd97076e708d1ee705e6f2cf5a7ff40edcfdaf06cc6903b5bd0114353d",
-    "currentSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
+    "predecessorSha256": "858be2d517a302721ddbb04e3ba58a163e635f48a2bd9ccbc1af2799325f3c69",
+    "currentSha256": "bb6f3088532a79cc54416a91004a429fb7447ab192f6f252729ffd9b7efd7f8c",
     "disposition": "PDP0_DEFINITION_EXTENSION_APPLICABILITY_MATRIX_REFRESH; PXD207_EXPLICIT_PARTITION_SOURCE_CURRENT",
     "impact": "The 56-identity matrix carries all 4,312 channel-by-surface cells and 392 extension-by-surface summaries. Counts: 14 direct proposal cells, 21 derived aggregate proposal cells, 3507 explicit owner-decided N/A cells, 693 source-backed support-only N/A cells, and 77 source-backed archived N/A cells. PXD-207 source decisions preserve owner approval and independent acceptance as unclaimed.",
     "pdp0Retest": "P0_TESTS_RECORDED; PDP0_EXTENSION_APPLICABILITY_SOURCE_CURRENT",
@@ -96547,106 +96665,45 @@
   },
   "unassignedPhaseLevelWork": {
     "sourceRecordRef": "docs/implementation/pdp-0-phase-dev-status.json",
-    "failedCriteria": [],
-    "outstandingMeaningTasks": [],
+    "failedCriteria": [
+      {
+        "taskId": "P0-03:failed-development-criteria",
+        "criterionId": "P0-03",
+        "testStatus": "FAIL",
+        "failedTestCount": 3,
+        "surfaceIds": [],
+        "owner": null,
+        "assignment": "UNASSIGNED_PHASE_LEVEL",
+        "blocker": "Source-pinned direct development criterion is failing; the status record does not assign it to an exact surface."
+      },
+      {
+        "taskId": "P0-08:failed-development-criteria",
+        "criterionId": "P0-08",
+        "testStatus": "FAIL",
+        "failedTestCount": 1,
+        "surfaceIds": [],
+        "owner": null,
+        "assignment": "UNASSIGNED_PHASE_LEVEL",
+        "blocker": "Source-pinned direct development criterion is failing; the status record does not assign it to an exact surface."
+      }
+    ],
+    "outstandingMeaningTasks": [
+      {
+        "taskId": "P0-03:501-audit-disposition-crosswalk",
+        "kind": "OUTSTANDING_MEANING",
+        "surfaceIds": [],
+        "owner": null,
+        "assignment": "UNASSIGNED_PHASE_LEVEL"
+      }
+    ],
     "note": "These phase-level items have no exact surface ownership in the source status record and are not fanned out to surface rows."
   },
   "phaseSourceCurrentness": {
-    "status": "STALE",
-    "sourcePinCount": 188,
-    "staleSourcePinCount": 18,
-    "staleSourcePins": [
-      {
-        "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
-        "expectedSha256": "029d5c861f0c1505a35ace06e8ac010975f8347c6b15ac54aa8f406cba93d426",
-        "currentSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34"
-      },
-      {
-        "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
-        "expectedSha256": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
-        "currentSha256": "cc75ae3c47590051f5c15b750fc31e2ca3c5a18a5478a0809e827f29b31dc511"
-      },
-      {
-        "sourceRef": ".product-experience/pdp-0-product-truth/ocr-ownership.yaml",
-        "expectedSha256": "6b812753f1c9350d32f73770c7f1e3285fc5f10dfd36e4099c5300068b73d7da",
-        "currentSha256": "6765d851b24027b709ed36979db9242f8d700712a5f95f34f4d26602edf324d2"
-      },
-      {
-        "sourceRef": ".product-experience/surfaces/media-physical-topology.v1.json",
-        "expectedSha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
-        "currentSha256": "4d3af5ddec05b80de8187a1551c5f92862455842b3a44f0e84ecb64f582f5892"
-      },
-      {
-        "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-independent-review-original-selected-80-2026-10-19.json",
-        "expectedSha256": "bdebed5194ca703f95435090d4841d4bf09af18d2c564834d9fd207291523a0f",
-        "currentSha256": "eb982ad8fb66a0b4b2a2ea1290797b71b0df4ed4f7e31b0bbc394d7f9cd2856c"
-      },
-      {
-        "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-independent-semantic-review-originals-b.json",
-        "expectedSha256": "f78e242fd1e9568778b52f7720f2b9152eef721b47ab42e2950d482801b8c263",
-        "currentSha256": "9df0b6f687b77949492185a88a3b5b29fcc15986fb21486dbc426adf2e35821f"
-      },
-      {
-        "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-independent-semantic-review-third-pass.json",
-        "expectedSha256": "fbf71bdedc7e04719c69017cd5e3ccdabfc165bdb104b7a85cb95d4d8c6bb7b2",
-        "currentSha256": "71f28c7ee1b19cd8ccbfcc063c32591675574d8654d0f294b77109946ed64102"
-      },
-      {
-        "sourceRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd206.json",
-        "expectedSha256": "8ff99b946e19e6c8ea806947694dc068f0c2d1d391827d37ca546ae0a8128155",
-        "currentSha256": "36d42c8754a871307db4bd052cd58ec1e4eb16551dc411b11ed47f1cf1693c7b"
-      },
-      {
-        "sourceRef": "scripts/check-media-pdp0-surface-denominator.mjs",
-        "expectedSha256": "6ff8027ab787ae7b18ed6363eaadb7aa96ecffff33730c71057c6a28daa703a4",
-        "currentSha256": "510d556add248113de7b7e05d0f60b72bc68ffcfdbae1529b03c4f94bc834ee6"
-      },
-      {
-        "sourceRef": "scripts/check-product-definition-authority.mjs",
-        "expectedSha256": "0d3503b098c753642d10b4a9b6940d0c327fd6522ad1d72cab7a34bcdb19441e",
-        "currentSha256": "383e08416b774e6a14735b92af394705c2f378805e20caa065c74a493bf3216c"
-      },
-      {
-        "sourceRef": "scripts/generate-media-pdp0-surface-phase-status-matrix.mjs",
-        "expectedSha256": "3426ddb0567ac1a64e6d3f1b2827cea76d60298e88af20d452b5b914e6ef8832",
-        "currentSha256": "847981ee3ae38078f807a630f3f14ceaf2bcc9f41ddca524275993db86614de2"
-      },
-      {
-        "sourceRef": "tests/pdp-migration-semantic-reconciliation.test.mjs",
-        "expectedSha256": "93ddf2a0231420f8064f3cc16139e21718c1a078ea2be6b7536aef36f32eb719",
-        "currentSha256": "1212853677c85b0b4d47d2dd7a5eb291d3ad7633a7e80e286c986f03cbeffc53"
-      },
-      {
-        "sourceRef": "tests/pdp-migration-preservation-identity-wire-claims.test.mjs",
-        "expectedSha256": "9b24dc18d65af9020f7c0aad1ad698252d2104d3a529a23b691eb9a08f8b9b66",
-        "currentSha256": "7ca86a83747755b321bd93a8d2ef99d3761fed02490623b08b761189862bedfd"
-      },
-      {
-        "sourceRef": "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs",
-        "expectedSha256": "f6c1a9107d9e120e9408e7d9aed7e9f64bdb6db345666d651509e343b8e78a61",
-        "currentSha256": "44d5c1f6050c09711e3aed9e49af71894a46cc4c35423bd314febaa4d65b755c"
-      },
-      {
-        "sourceRef": "tests/media-pdp0-surface-denominator.test.mjs",
-        "expectedSha256": "cacef08e635c114abbd92cfa795989f19895ebdcf06908fde4a54d598020a5ea",
-        "currentSha256": "ecc702be147615a4992be18c42643172d7cac2ecda3989a66f4000c7dcc8b00e"
-      },
-      {
-        "sourceRef": "tests/media-pdp-readiness.test.mjs",
-        "expectedSha256": "909d17e5bce12cd49f9ff3dba4e4968458bbeecfa45f413ae941c6d6726e18f7",
-        "currentSha256": "c96e6e9eae39a8a8d56dd250489b0196a091938d2275738621ed150acabb137d"
-      },
-      {
-        "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json#PDP-0-projection",
-        "expectedSha256": "d4bcc9b9aa64534afe6d49d136dd130ba63d9fd7c1649a04d7c2a413b98c7006",
-        "currentSha256": "4cfbad167a7f430c6e309340aaf49edbb11f37ef21acec384b3364dfaa3d2239"
-      },
-      {
-        "sourceRef": "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection",
-        "expectedSha256": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
-        "currentSha256": "213abc572b9d7f1c44a13bdd672381cab61ebc0b96bf9c9f37f92acb8ae32514"
-      }
-    ],
+    "status": "CURRENT",
+    "sourcePinCount": 322,
+    "staleSourcePinCount": 0,
+    "staleSourcePins": [],
+    "missingPhaseSourcePins": [],
     "note": "Live byte pins are checked by file path; #fragment pins are compared with pdp0PhaseScopedSourcePins() projections."
   }
 }
