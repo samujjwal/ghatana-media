@@ -2,90 +2,90 @@ TAP version 13
 # Subtest: actual PDP-0 owner applicability source closes all pairs and exact binding projections
 ok 1 - actual PDP-0 owner applicability source closes all pairs and exact binding projections
   ---
-  duration_ms: 9843.423334
+  duration_ms: 18092.144681
   type: 'test'
   ...
 # Subtest: P0 applicability needs exact capability intent and rejects operation or wire schemas as substitutes
 ok 2 - P0 applicability needs exact capability intent and rejects operation or wire schemas as substitutes
   ---
-  duration_ms: 9893.590834
+  duration_ms: 16620.596315
   type: 'test'
   ...
 # Subtest: same-count substitution, duplicates and stale binding projections are rejected
 ok 3 - same-count substitution, duplicates and stale binding projections are rejected
   ---
-  duration_ms: 1.746291
+  duration_ms: 3.039041
   type: 'test'
   ...
 # Subtest: unknown applicability, missing evidence and invented measurements remain errors
 ok 4 - unknown applicability, missing evidence and invented measurements remain errors
   ---
-  duration_ms: 0.94475
+  duration_ms: 2.132275
   type: 'test'
   ...
 1..0
-# Subtest: /Users/samujjwal/Development/ghatana-media/tests/pdp-0-06-measures-provenance.test.mjs
-ok 2 - /Users/samujjwal/Development/ghatana-media/tests/pdp-0-06-measures-provenance.test.mjs
+# Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp-0-06-measures-provenance.test.mjs
+ok 2 - /home/samujjwal/Developments/ghatana-media/tests/pdp-0-06-measures-provenance.test.mjs
   ---
-  duration_ms: 146.269042
+  duration_ms: 183.029745
   type: 'test'
   ...
 # Subtest: P0 quality applicability is complete from capability intent and semantic artifact types alone
 ok 6 - P0 quality applicability is complete from capability intent and semantic artifact types alone
   ---
-  duration_ms: 128.739416
+  duration_ms: 113.649861
   type: 'test'
   ...
 # Subtest: P0 quality checks reject foreign semantic types and missing applicability decisions
 ok 7 - P0 quality checks reject foreign semantic types and missing applicability decisions
   ---
-  duration_ms: 118.14925
+  duration_ms: 146.229042
   type: 'test'
   ...
 # Subtest: P0-06 maps all measures to stable capability meaning without inventing measured results
 ok 8 - P0-06 maps all measures to stable capability meaning without inventing measured results
   ---
-  duration_ms: 3573.085083
+  duration_ms: 7381.307391
   type: 'test'
   ...
 1..0
-# Subtest: /Users/samujjwal/Development/ghatana-media/tests/pdp0-current-source-reconciliation-pxd206.test.mjs
-ok 5 - /Users/samujjwal/Development/ghatana-media/tests/pdp0-current-source-reconciliation-pxd206.test.mjs
+# Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-current-source-reconciliation-pxd206.test.mjs
+ok 5 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-current-source-reconciliation-pxd206.test.mjs
   ---
-  duration_ms: 144.662875
+  duration_ms: 354.706169
   type: 'test'
   ...
 1..0
-# Subtest: /Users/samujjwal/Development/ghatana-media/tests/pdp0-phase-noise-output-semantics.test.mjs
-ok 6 - /Users/samujjwal/Development/ghatana-media/tests/pdp0-phase-noise-output-semantics.test.mjs
+# Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-phase-noise-output-semantics.test.mjs
+ok 6 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-phase-noise-output-semantics.test.mjs
   ---
-  duration_ms: 185.256125
+  duration_ms: 291.356317
   type: 'test'
   ...
 1..0
-# Subtest: /Users/samujjwal/Development/ghatana-media/tests/pdp0-quality-current-source-review-pxd212.test.mjs
-ok 7 - /Users/samujjwal/Development/ghatana-media/tests/pdp0-quality-current-source-review-pxd212.test.mjs
+# Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-quality-current-source-review-pxd212.test.mjs
+ok 7 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-quality-current-source-review-pxd212.test.mjs
   ---
-  duration_ms: 184.558709
+  duration_ms: 414.758879
   type: 'test'
   ...
 # Subtest: PXD-225 quality currentness preserves PXD-222 history and binds the live dependent inputs
 ok 12 - PXD-225 quality currentness preserves PXD-222 history and binds the live dependent inputs
   ---
-  duration_ms: 6692.212792
+  duration_ms: 12684.789051
   type: 'test'
   ...
 # Subtest: PXD-225 quality currentness rejects stale dependent pins and changed semantic joins
 ok 13 - PXD-225 quality currentness rejects stale dependent pins and changed semantic joins
   ---
-  duration_ms: 19080.236708
+  duration_ms: 33514.665796
   type: 'test'
   ...
 1..0
-# Subtest: /Users/samujjwal/Development/ghatana-media/tests/pdp0-quality-current-source-review.test.mjs
-ok 9 - /Users/samujjwal/Development/ghatana-media/tests/pdp0-quality-current-source-review.test.mjs
+# Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-quality-current-source-review.test.mjs
+ok 9 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-quality-current-source-review.test.mjs
   ---
-  duration_ms: 164.273625
+  duration_ms: 366.103721
   type: 'test'
   ...
 1..14
@@ -96,4 +96,4 @@ ok 9 - /Users/samujjwal/Development/ghatana-media/tests/pdp0-quality-current-sou
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 26446.728333
+# duration_ms 47839.118807

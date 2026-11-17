@@ -9,16 +9,17 @@ import {PDP0_AUDIT_DISPOSITION_CROSSWALK_PATH} from '../scripts/check-media-pdp0
 
 const sha256 = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 
-test('PDP-0 crosswalk currentness candidate rebinds current source pins only', () => {
-  const beforeBytes = fs.readFileSync(PDP0_AUDIT_DISPOSITION_CROSSWALK_PATH);
-  const before = JSON.parse(beforeBytes.toString('utf8'));
+test('PDP-0 crosswalk currentness successor is adopted and remains idempotent', () => {
+  const currentBytes = fs.readFileSync(PDP0_AUDIT_DISPOSITION_CROSSWALK_PATH);
+  const current = JSON.parse(currentBytes.toString('utf8'));
   const result = buildPdp0CrosswalkCurrentnessSuccessor();
   const candidate = result.candidate;
 
-  assert.equal(result.preimageSha256, sha256(beforeBytes));
-  assert.deepEqual(candidate.rows, before.rows);
-  assert.deepEqual(candidate.dispositionCounts, before.dispositionCounts);
-  assert.deepEqual(candidate.coordinatorReview.reviewHistory, before.coordinatorReview.reviewHistory);
+  assert.equal(result.preimageSha256, sha256(currentBytes));
+  assert.deepEqual(candidate, current);
+  assert.deepEqual(candidate.rows, current.rows);
+  assert.deepEqual(candidate.dispositionCounts, current.dispositionCounts);
+  assert.deepEqual(candidate.coordinatorReview.reviewHistory, current.coordinatorReview.reviewHistory);
   assert.equal(candidate.coordinatorReview.decisionRef, 'PXD-225');
   assert.ok(candidate.rows.some(row => row.auditId === 'AUD-SPEC-002' && row.decisionRef?.id === 'PXD-226'));
   assert.equal(result.validation.total, 501);
@@ -26,9 +27,6 @@ test('PDP-0 crosswalk currentness candidate rebinds current source pins only', (
   assert.equal(result.validation.focused, 73);
   assert.equal(result.validation.dispositionCounts.BOUND_EXISTING, 499);
   assert.equal(result.validation.dispositionCounts.POST_PDP_IMPLEMENTATION_ONLY, 2);
-  assert.deepEqual(result.sourceDelta.map(row => row.sourceRef).filter(ref => ref.startsWith('tests/')).sort(), [
-    'tests/pdp-migration-semantic-reconciliation.test.mjs',
-    'tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs',
-  ]);
-  assert.deepEqual(fs.readFileSync(PDP0_AUDIT_DISPOSITION_CROSSWALK_PATH), beforeBytes);
+  assert.deepEqual(result.sourceDelta, []);
+  assert.deepEqual(fs.readFileSync(PDP0_AUDIT_DISPOSITION_CROSSWALK_PATH), currentBytes);
 });

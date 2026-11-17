@@ -33,9 +33,9 @@ test('PDP-0 surface matrix accounts for source-pinned phase work without assigni
   assert.equal(agentTools.developmentStatus, 'NOT_APPLICABLE');
   assert.equal(dataCloud.applicability.disposition, 'APPLICABLE');
   assert.equal(dataCloud.developmentStatus, 'IN_PROGRESS');
-  assert.equal(dataCloud.sourceCurrent, false);
-  assert.equal(matrix.summary.remainingPhaseLocalTaskCount, null);
-  assert.equal(matrix.summary.remainingPhaseLocalTaskCountKnown, false);
+  assert.equal(dataCloud.sourceCurrent, true);
+  assert.equal(matrix.summary.remainingPhaseLocalTaskCount, 0);
+  assert.equal(matrix.summary.remainingPhaseLocalTaskCountKnown, true);
   assert.equal(matrix.summary.remainingPhaseLocalSurfaceCount, 46);
   assert.deepEqual(matrix.unassignedPhaseLevelWork.failedCriteria.map(({ criterionId }) => criterionId),
     failedCriteria.map(([criterionId]) => criterionId));

@@ -2,217 +2,197 @@ TAP version 13
 # Subtest: capability families are exact leaf groupings without inherited operations or readiness
 ok 1 - capability families are exact leaf groupings without inherited operations or readiness
   ---
-  duration_ms: 3.724342
+  duration_ms: 3.976771
   type: 'test'
   ...
 # Subtest: all 462 leaves have exact profile-channel applicability or a source-backed exclusion
 ok 2 - all 462 leaves have exact profile-channel applicability or a source-backed exclusion
   ---
-  duration_ms: 52.577742
+  duration_ms: 82.46329
   type: 'test'
   ...
 # Subtest: 15 review dimensions resolve every requirement type and all 462 exact leaf joins
 ok 3 - 15 review dimensions resolve every requirement type and all 462 exact leaf joins
   ---
-  duration_ms: 11203.944793
+  duration_ms: 14811.185566
   type: 'test'
   ...
 # Subtest: P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
 ok 4 - P0 assigns every capability leaf explicit channel applicability without treating proposals as admission
   ---
-  duration_ms: 10248.980384
+  duration_ms: 13271.023183
   type: 'test'
   ...
 # Subtest: source-free animation authoring does not claim a source-derived transformation
 ok 5 - source-free animation authoring does not claim a source-derived transformation
   ---
-  duration_ms: 10579.325519
+  duration_ms: 13054.464867
   type: 'test'
   ...
 # Subtest: P0 asset search filters exact rights-permitted immutable versions and reports unresolved candidates as unknown
 ok 6 - P0 asset search filters exact rights-permitted immutable versions and reports unresolved candidates as unknown
   ---
-  duration_ms: 3.655214
+  duration_ms: 11.435427
   type: 'test'
   ...
 # Subtest: P0 owner intent binding observation pins the exact 462-leaf source delta without acceptance effect
 ok 7 - P0 owner intent binding observation pins the exact 462-leaf source delta without acceptance effect
   ---
-  duration_ms: 9345.856124
+  duration_ms: 13535.318228
   type: 'test'
   ...
 1..0
 # Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-capability-leaf-review-authority-boundary.test.mjs
 ok 7 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-capability-leaf-review-authority-boundary.test.mjs
   ---
-  duration_ms: 9933.530071
+  duration_ms: 14143.505048
   type: 'test'
   ...
 # Subtest: P0 capability outcomes state exact result meaning without operation claims
 ok 9 - P0 capability outcomes state exact result meaning without operation claims
   ---
-  duration_ms: 13381.422713
+  duration_ms: 18762.113387
   type: 'test'
   ...
 # Subtest: P0 outcome validation rejects generic, incomplete, or operation-specific result claims
 ok 10 - P0 outcome validation rejects generic, incomplete, or operation-specific result claims
   ---
-  duration_ms: 4079.993172
+  duration_ms: 4866.547607
   type: 'test'
   ...
 # Subtest: project creation requires a title without claiming initial project contents
 ok 11 - project creation requires a title without claiming initial project contents
   ---
-  duration_ms: 6.084321
+  duration_ms: 3.54411
   type: 'test'
   ...
 # Subtest: scientific demo separates visual plausibility from domain-validated results
 ok 12 - scientific demo separates visual plausibility from domain-validated results
   ---
-  duration_ms: 3.885252
+  duration_ms: 0.897149
   type: 'test'
   ...
 # Subtest: export creates a delivery package or explicit outcome; publish and acknowledgment remain separate
 ok 13 - export creates a delivery package or explicit outcome; publish and acknowledgment remain separate
   ---
-  duration_ms: 2.195486
+  duration_ms: 1.105249
   type: 'test'
   ...
 # Subtest: PXD-216 enumerates and pins the current 20-leaf PDP-0 meaning review
-not ok 14 - PXD-216 enumerates and pins the current 20-leaf PDP-0 meaning review
+ok 14 - PXD-216 enumerates and pins the current 20-leaf PDP-0 meaning review
   ---
-  duration_ms: 15672.251986
+  duration_ms: 22686.087046
   type: 'test'
-  location: '/home/samujjwal/Developments/ghatana-media/tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs:76:1'
-  failureType: 'testCodeFailure'
-  error: |-
-    .product-experience/pdp-0-product-truth/capability-leaf-review.yaml currentness successor pin
-    + actual - expected
-    
-    + '68cd7cc6a8e3b7b0667b29a9f95c563219253a67bb7fc690a2c921e3e8197a57'
-    - 'e4e1616a651c55f8bc060d2889e49e8e29751083fc57690edfbc3f386dbfa6b6'
-    
-  code: 'ERR_ASSERTION'
-  name: 'AssertionError'
-  expected: 'e4e1616a651c55f8bc060d2889e49e8e29751083fc57690edfbc3f386dbfa6b6'
-  actual: '68cd7cc6a8e3b7b0667b29a9f95c563219253a67bb7fc690a2c921e3e8197a57'
-  operator: 'strictEqual'
-  stack: |-
-    TestContext.<anonymous> (file:///home/samujjwal/Developments/ghatana-media/tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs:105:12)
-    Test.runInAsyncScope (node:async_hooks:227:14)
-    Test.run (node:internal/test_runner/test:1402:25)
-    Test.start (node:internal/test_runner/test:1262:17)
-    startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
   ...
 # Subtest: PXD-225 refreshes archived-channel currentness while retaining PXD-216 meanings and PXD-223 currentness
 ok 15 - PXD-225 refreshes archived-channel currentness while retaining PXD-216 meanings and PXD-223 currentness
   ---
-  duration_ms: 17.688802
+  duration_ms: 24.168733
   type: 'test'
   ...
 # Subtest: the 20 current meanings retain source, uncertainty, trust, candidate and fallback invariants
 ok 16 - the 20 current meanings retain source, uncertainty, trust, candidate and fallback invariants
   ---
-  duration_ms: 9129.467233
+  duration_ms: 12760.431645
   type: 'test'
   ...
 1..0
 # Subtest: /home/samujjwal/Developments/ghatana-media/tests/pdp0-current-source-reconciliation-pxd206.test.mjs
 ok 11 - /home/samujjwal/Developments/ghatana-media/tests/pdp0-current-source-reconciliation-pxd206.test.mjs
   ---
-  duration_ms: 183.519425
+  duration_ms: 158.976032
   type: 'test'
   ...
 # Subtest: PXD-225 pins current applications-channels and exact decision section while preserving PXD-216 20-leaf semantics
 ok 18 - PXD-225 pins current applications-channels and exact decision section while preserving PXD-216 20-leaf semantics
   ---
-  duration_ms: 14075.373067
+  duration_ms: 19615.425609
   type: 'test'
   ...
 # Subtest: PXD-225 fails closed when a reviewed capability row changes
 ok 19 - PXD-225 fails closed when a reviewed capability row changes
   ---
-  duration_ms: 7278.701699
+  duration_ms: 9628.540741
   type: 'test'
   ...
 # Subtest: PDP-0 hands off all 462 stable capability intents with complete product meaning independent of PDP-1 operations
 ok 20 - PDP-0 hands off all 462 stable capability intents with complete product meaning independent of PDP-1 operations
   ---
-  duration_ms: 9659.245211
+  duration_ms: 13868.631423
   type: 'test'
   ...
 # Subtest: PDP-0 handoff rejects missing, duplicate, or weakened capability meaning
 ok 21 - PDP-0 handoff rejects missing, duplicate, or weakened capability meaning
   ---
-  duration_ms: 4062.898981
+  duration_ms: 5621.918147
   type: 'test'
   ...
 # Subtest: source-asset attachment names the exact source and project versions
 ok 22 - source-asset attachment names the exact source and project versions
   ---
-  duration_ms: 2.367372
+  duration_ms: 3.593038
   type: 'test'
   ...
 # Subtest: artifact derivation types source version, profile version, output type, purpose, and rights
 ok 23 - artifact derivation types source version, profile version, output type, purpose, and rights
   ---
-  duration_ms: 0.263041
+  duration_ms: 0.4548
   type: 'test'
   ...
 # Subtest: output registration types candidate lineage, digest, media metadata, policy, and optional project revision
 ok 24 - output registration types candidate lineage, digest, media metadata, policy, and optional project revision
   ---
-  duration_ms: 0.369241
+  duration_ms: 0.632631
   type: 'test'
   ...
 # Subtest: conditional upload, import, inspection, and transcription outputs are not guaranteed on every success
 ok 25 - conditional upload, import, inspection, and transcription outputs are not guaranteed on every success
   ---
-  duration_ms: 63.092482
+  duration_ms: 112.832027
   type: 'test'
   ...
 # Subtest: J-10 continuity observations stay bound to the exact generated candidate identity and version
 ok 26 - J-10 continuity observations stay bound to the exact generated candidate identity and version
   ---
-  duration_ms: 1.636538
+  duration_ms: 1.935433
   type: 'test'
   ...
 # Subtest: PXD-117 phase/noise-floor capability keeps its exact P0 measurement identity
 ok 27 - PXD-117 phase/noise-floor capability keeps its exact P0 measurement identity
   ---
-  duration_ms: 4292.955656
+  duration_ms: 6156.335438
   type: 'test'
   ...
 # Subtest: current P0 owner review and trust records preserve measurement semantics and fail closed
 ok 28 - current P0 owner review and trust records preserve measurement semantics and fail closed
   ---
-  duration_ms: 3896.579725
+  duration_ms: 5698.328014
   type: 'test'
   ...
 # Subtest: current P0 quality joins use the measurement record as the phase metric subject
 ok 29 - current P0 quality joins use the measurement record as the phase metric subject
   ---
-  duration_ms: 8507.44236
+  duration_ms: 12068.306649
   type: 'test'
   ...
 # Subtest: PDP-0 preserves required capability-family scope and explicit dispositions
 ok 30 - PDP-0 preserves required capability-family scope and explicit dispositions
   ---
-  duration_ms: 43.173946
+  duration_ms: 22.622557
   type: 'test'
   ...
 # Subtest: PXD-128 result variants cover every audited leaf and bind to one exact trust outcome
 ok 31 - PXD-128 result variants cover every audited leaf and bind to one exact trust outcome
   ---
-  duration_ms: 4.875774
+  duration_ms: 6.451124
   type: 'test'
   ...
 1..31
 # tests 31
 # suites 0
-# pass 30
-# fail 1
+# pass 31
+# fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 26951.683204
+# duration_ms 38003.120175

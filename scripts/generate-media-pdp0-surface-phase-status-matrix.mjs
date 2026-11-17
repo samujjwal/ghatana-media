@@ -231,9 +231,10 @@ for (const row of matrix.surfaces) {
     [decisionSectionPin]: sourceFingerprints[decisionSectionPin],
     ...Object.fromEntries(versionDecisionSectionPins.map((pin) => [pin, sourceFingerprints[pin]])),
   };
-  const sourceDefinitionReview = topologyRows.find((surface) => surface.surfaceId === row.surfaceId)?.phaseApplicability?.['PDP-0']?.sourceDefinitionReview;
+  const sourceCell = topologyRows.find((surface) => surface.surfaceId === row.surfaceId)?.phaseApplicability?.['PDP-0'] ?? {};
+  const sourceDefinitionReview = sourceCell.sourceDefinitionReview;
   const sourceDefinitionReviewCurrent = isPdp0SourceDefinitionReviewCurrent(
-    sourceDefinitionReview, row.surfaceId, sourceFingerprints, status.sourceShaSet ?? {},
+    sourceDefinitionReview, row.surfaceId, sourceFingerprints, status.sourceShaSet ?? {}, sourceCell,
   );
   row.sourceCurrent = isPdp0RowSourceCurrent({
     phaseSourceCurrentnessStatus: phaseSourceCurrentness.status,
