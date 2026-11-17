@@ -237,7 +237,40 @@ class SttGrpcServiceTest {
         assertThat(observedDigests).containsExactly(
                 java.util.HexFormat.of().formatHex(
                         java.security.MessageDigest.getInstance("SHA-256").digest(alteredBytes)),
-                sourceDigest, sourceDigest);
+                sourceDigest, sourceDigest, sourceDigest);
+        verify(mockEngine).transcribe(any(), any(TranscriptionOptions.class));
+    }
+
+    @Test
+    @DisplayName("transcribe: rights revoked during inference prevent transcript disclosure")
+    void transcribe_rechecksRightsAfterInferenceBeforeDisclosingResult() throws Exception {
+        byte[] audio = new byte[] {1, 2, 3, 4};
+        String sourceDigest = java.util.HexFormat.of().formatHex(
+                java.security.MessageDigest.getInstance("SHA-256").digest(audio));
+        AtomicInteger authorizationCalls = new AtomicInteger();
+        SttGrpcService revokingService = new SttGrpcService(mockLibrary, meterRegistry,
+                (SttRequestAuthorization) request -> {
+                    assertThat(request.sourceSha256()).isEqualTo(sourceDigest);
+                    return authorizationCalls.incrementAndGet() < 3
+                            ? SttRequestAuthorization.Decision.ADMITTED
+                            : SttRequestAuthorization.Decision.REVOKED;
+                });
+        when(mockEngine.transcribe(any(), any(TranscriptionOptions.class))).thenReturn(
+                new TranscriptionResult("must not be disclosed", 0.8, List.of(), List.of(),
+                        Duration.ofMillis(1), "en", "fixture-engine"));
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+
+        revokingService.transcribe(TranscribeRequest.newBuilder()
+                .setArtifactId("artifact-1")
+                .setAudioData(ByteString.copyFrom(audio))
+                .setSampleRate(16_000).build(), observer);
+
+        assertThat(authorizationCalls).hasValue(3);
+        assertThat(observer.getValue()).isNull();
+        assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.getError();
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.PERMISSION_DENIED.getCode());
+        assertThat(failure.getStatus().getDescription()).startsWith("STT_RIGHTS_REVOKED:");
         verify(mockEngine).transcribe(any(), any(TranscriptionOptions.class));
     }
 

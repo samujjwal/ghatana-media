@@ -114,7 +114,11 @@ public interface DocumentIntelligenceV1 {
         return List.copyOf(copy);
     }
 
-    /** Cooperative cancellation; listeners fire once, immediately if already cancelled. */
+    /**
+     * Cooperative cancellation; listeners fire once, immediately if already cancelled.
+     * Cancellation attempts every registered listener and rethrows the first unchecked
+     * callback failure only after the listener registry has been cleared.
+     */
     final class Cancellation {
         private final java.util.concurrent.atomic.AtomicBoolean cancelled = new java.util.concurrent.atomic.AtomicBoolean();
         private final java.util.List<ListenerRegistration> listeners =
@@ -129,8 +133,28 @@ public interface DocumentIntelligenceV1 {
                 // Each registration arbitrates its own fire/remove race. Keep callback
                 // invocation outside any registry lock, and release captured closures once
                 // the cancellation snapshot has been delivered.
-                listeners.forEach(ListenerRegistration::fire);
-                listeners.clear();
+                Throwable callbackFailure = null;
+                try {
+                    for (ListenerRegistration registration : listeners) {
+                        try {
+                            registration.fire();
+                        } catch (RuntimeException | Error failure) {
+                            if (callbackFailure == null) {
+                                callbackFailure = failure;
+                            } else if (callbackFailure != failure) {
+                                callbackFailure.addSuppressed(failure);
+                            }
+                        }
+                    }
+                } finally {
+                    listeners.clear();
+                }
+                if (callbackFailure instanceof RuntimeException runtimeFailure) {
+                    throw runtimeFailure;
+                }
+                if (callbackFailure instanceof Error errorFailure) {
+                    throw errorFailure;
+                }
             }
         }
 
@@ -142,8 +166,11 @@ public interface DocumentIntelligenceV1 {
             ListenerRegistration registration = new ListenerRegistration(listener);
             listeners.add(registration);
             if (cancelled.get()) {
-                registration.fire();
-                listeners.remove(registration);
+                try {
+                    registration.fire();
+                } finally {
+                    listeners.remove(registration);
+                }
             }
             return () -> {
                 listeners.remove(registration);

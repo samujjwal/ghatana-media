@@ -13,6 +13,9 @@ import { ClamdEngine, SecurityScannerProvider, ed25519Signer } from '../src/inde
 const host = process.env.CLAMD_HOST ?? '127.0.0.1', port = Number(process.env.CLAMD_PORT ?? 13310);
 const container = process.env.CLAMD_CONTAINER ?? 'media-clamav-qual';
 const out = process.argv[process.argv.indexOf('--out') + 1];
+const MAX_DEFINITIONS_AGE_MS = 7 * 86_400_000;
+const DEFINITION_PREFLIGHT_TIMEOUT_MS = 60_000;
+const DEFINITION_PREFLIGHT_POLL_MS = 2_000;
 const sha = (b) => createHash('sha256').update(b).digest('hex');
 const eicar = Buffer.from('X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*');
 
@@ -57,12 +60,48 @@ const MAX = 90 * 1024 * 1024;
 const { privateKey, publicKey } = generateKeyPairSync('ed25519');
 const signer = ed25519Signer('dev-ephemeral-ed25519', privateKey); // TEST-ONLY ephemeral key, never KMS custody
 const engine = new ClamdEngine({ endpoint: { kind: 'tcp', host, port }, maxBytes: MAX, connectTimeoutMs: 1500, commandTimeoutMs: 20000, maxAttempts: 1 });
-const ident = await engine.identity();
+function hasFreshDefinitions(identity, now = Date.now()) {
+  const definitionDate = identity?.definitionsDate instanceof Date
+    ? identity.definitionsDate
+    : new Date(identity?.definitionsDate ?? NaN);
+  const ageMs = now - definitionDate.getTime();
+  return Number.isFinite(definitionDate.getTime()) && ageMs >= 0 && ageMs <= MAX_DEFINITIONS_AGE_MS;
+}
+async function waitForFreshIdentity() {
+  const deadline = Date.now() + DEFINITION_PREFLIGHT_TIMEOUT_MS;
+  let attempts = 0, lastIdentity = null, lastError = null;
+  while (Date.now() < deadline) {
+    attempts++;
+    try {
+      lastIdentity = await engine.identity();
+      if (hasFreshDefinitions(lastIdentity)) return { identity: lastIdentity, attempts, lastError: null };
+      lastError = `clamd definitions are stale or have no valid date (limit ${MAX_DEFINITIONS_AGE_MS} ms)`;
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : String(error);
+    }
+    await new Promise((resolve) => setTimeout(resolve, Math.min(DEFINITION_PREFLIGHT_POLL_MS, Math.max(0, deadline - Date.now()))));
+  }
+  return { identity: lastIdentity, attempts, lastError };
+}
+const preflight = await waitForFreshIdentity();
+const ident = preflight.identity;
+if (!ident || !hasFreshDefinitions(ident)) {
+  const report = {
+    schemaVersion: 'ghatana.media.scanner-dev-qualification.v1', classification: 'DEV_ONLY_NOT_QUALIFICATION', admission: 'NOT_ADMITTED', verification: 'ABSENT',
+    engine: { identity: ident, image: `clamav/clamav@${process.env.IMAGE_DIGEST}`, definitions: 'freshclam at container start' },
+    preflight: { status: 'FAILED', attempts: preflight.attempts, timeoutMs: DEFINITION_PREFLIGHT_TIMEOUT_MS, maxDefinitionsAgeMs: MAX_DEFINITIONS_AGE_MS, lastError: preflight.lastError },
+    results: [], crashDrill: null,
+    assertions: { status: 'FAIL', corpusVerdictsMatch: false, midScanKillNeverClean: false, downIsNotClean: false, recoversClean: false },
+  };
+  writeFileSync(out, JSON.stringify(report, null, 2) + '\n');
+  console.error(JSON.stringify(report, null, 1));
+  process.exit(1);
+}
 console.log('engine identity', JSON.stringify(ident));
 const mk = (content) => new SecurityScannerProvider({
   engine, source: { read: async () => ({ tenantId: 't1', content }) }, signer, scannerRef: 'dev-real-clamd',
   pinnedEngineVersions: [ident.engineVersion ?? ident.version ?? String(ident.engine ?? '')].filter(Boolean),
-  maxBytes: MAX, maxDefinitionsAgeMs: 7 * 86_400_000, attestationTtlMs: 120_000,
+  maxBytes: MAX, maxDefinitionsAgeMs: MAX_DEFINITIONS_AGE_MS, attestationTtlMs: 120_000,
 });
 const reqOf = (b, mimeType = 'application/pdf') => ({ documentId: 'd', version: 1, tenantId: 't1', checksum: { algorithm: 'SHA-256', value: sha(b) }, sizeBytes: b.length, mimeType });
 const results = [];
@@ -93,7 +132,7 @@ execFileSync('docker', ['start', container], { stdio: 'ignore' });
 await waitReady();
 const back = await mk(corpus[0].bytes).scan(reqOf(corpus[0].bytes, 'application/pdf'));
 drill.afterRestart = { verdict: back.verdict, status: back.status };
-async function waitReady() { for (let i = 0; i < 120; i++) { try { await engine.identity(); return; } catch { await new Promise((r) => setTimeout(r, 2000)); } } throw new Error('clamd did not come back'); }
+async function waitReady() { for (let i = 0; i < 120; i++) { try { const current = await engine.identity(); if (hasFreshDefinitions(current)) return; } catch {} await new Promise((r) => setTimeout(r, 2000)); } throw new Error('clamd did not return with fresh definitions'); }
 
 const report = {
   schemaVersion: 'ghatana.media.scanner-dev-qualification.v1', classification: 'DEV_ONLY_NOT_QUALIFICATION', admission: 'NOT_ADMITTED', verification: 'ABSENT',
@@ -101,7 +140,18 @@ const report = {
   signing: 'ephemeral in-process Ed25519 key; no KMS custody, no trust root', corpus: 'generated: EICAR + clean PDFs/PNG/text + EICAR polyglot/zip (no rights clearance needed)',
   results, falseNegativesOnEicarVariants: falseNegatives,
   findings: results.filter((r) => r.expect !== 'CLEAN' && r.verdict === 'CLEAN').map((r) => `${r.id}: real clamd reported CLEAN (no signature matched). The EICAR signature is file-anchored, so an appended payload after %%EOF is not detected; CLEAN only ever means 'no signature matched', never 'safe'. Needs a false-negative policy and a real polyglot/obfuscation corpus before any admission.`), crashDrill: drill,
-  invariants: { noInfectedEverClean: falseNegatives === 0, midScanKillNeverClean: drill.midScanAttempts.some((a) => a.verdict !== 'CLEAN') && drill.midScanAttempts.every((a) => a.verdict !== 'CLEAN' || a === drill.midScanAttempts.at(-1)), downIsNotClean: down.verdict !== 'CLEAN', recoversClean: back.verdict === 'CLEAN' },
+  invariants: { noInfectedEverClean: falseNegatives === 0, midScanKillNeverClean: drill.midScanAttempts.length > 0 && drill.midScanAttempts.every((a) => a.verdict !== 'CLEAN'), downIsNotClean: down.verdict !== 'CLEAN', recoversClean: back.verdict === 'CLEAN' && back.status === 'CLEAN' },
+};
+report.assertions = {
+  status: results.length === corpus.length && results.every((r) => r.correct)
+    && report.invariants.noInfectedEverClean && report.invariants.midScanKillNeverClean
+    && report.invariants.downIsNotClean && report.invariants.recoversClean ? 'PASS' : 'FAIL',
+  corpusVerdictsMatch: results.length === corpus.length && results.every((r) => r.correct),
+  ...report.invariants,
 };
 writeFileSync(out, JSON.stringify(report, null, 2) + '\n');
 console.log(JSON.stringify({ results: results.map((r) => [r.id, r.verdict, r.reasonCode]), drill, invariants: report.invariants }, null, 1));
+if (report.assertions.status !== 'PASS') {
+  console.error('real-clamd development assertions failed; diagnostic report written to', out);
+  process.exitCode = 1;
+}

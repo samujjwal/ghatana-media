@@ -349,6 +349,14 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase
                             }
                         }
 
+                        // Processing may outlive a consent or source-rights grant. Re-read the
+                        // same server-owned source facts after inference and before disclosing
+                        // the transcript; the initial admission cannot authorize later disclosure.
+                        if (observerCancelled.get() || isCancelled(responseObserver)) return;
+                        if (!authorizeCapturedRequest(tracedObserver, verifiedIdentity,
+                                SttRequestAuthorization.Operation.TRANSCRIBE,
+                                request.getArtifactId(), sourceSha256)) return;
+
                         try (AudioVideoGrpcInstrumentation.BoundaryMeasurement responseBoundary =
                                      boundaryInstrumentation.beginBoundaryMeasurement(
                                              MediaWorkflowMetrics.Modality.STT,

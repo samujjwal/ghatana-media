@@ -7,9 +7,12 @@ Optional, independently versioned malware-scanner provider adapter. It implement
   imports this package; it has zero runtime dependencies (only `node:*`). Kernel binds to it
   structurally (`const port: DocumentContentScanPort = provider`); it never compiles against the
   ClamAV binary. `test/shared-port-compat.typecheck.ts` proves assignability to the real Shared port.
-* **Production admission: NOT_ADMITTED.** Only a fake clamd protocol double is exercised here. No
-  real ClamAV engine, malicious/safe/polyglot corpus, false-negative policy, or isolation/host
-  qualification has been run. Obligations are listed below.
+* **Production admission: NOT_ADMITTED.** The automated package suite uses a fake clamd protocol
+  double. A separate dev-only ClamAV 1.5.4 exercise is recorded in
+  `qualification/real-clamd-dev-2026-11-13.json`; its evidence remains unverified and uses only a
+  generated 10-item EICAR/clean/polyglot corpus plus a single-container crash drill. No
+  rights-cleared malware corpus, measured false-negative rate, or production isolation/host
+  qualification has been established. Obligations are listed below.
 
 ## Public API (`dist/index.js`)
 
@@ -77,6 +80,8 @@ fails closed) exposes the provider over typed JSON. Authentication is mandatory 
 | `DELETE /v1/scans/{id}` | cancel (idempotent, aborts clamd I/O, result discarded; `409` after completion) |
 | `GET /v1/health` | authenticated: engine + definitions version, pinned/fresh, `admissionState: NOT_ADMITTED`, `productionEligible: false`; `503` DEGRADED when engine unreachable/unpinned/stale |
 | `GET /healthz` | unauthenticated liveness only |
+
+`FilesystemQuarantineSource` resolves tenant/object names relative to open directory descriptors and rejects symlink substitutions. It uses `/proc/self/fd` on Linux and `/dev/fd` on Darwin, FreeBSD, OpenBSD, and NetBSD; unsupported platforms fail closed. Hosts without those descriptor paths must provide another confinement-safe `QuarantineSource` implementation.
 
 Bounds: 16 KiB request body, strict field allow-list and identifier patterns, max active scans (429), bounded retained
 results with TTL, header/request timeouts, principal-to-tenant allow-list (other principals see 404). No TLS termination,
