@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -59,6 +59,16 @@ test('build digest is recomputed from the build directory (tamper detected)', ()
     assert.deepEqual(validateManifest(m, { buildDirs: { doctor: root } }), []);
     writeFileSync(path.join(root, 'assets/app.js'), 'console.log(2)');
     assert.ok(validateManifest(m, { buildDirs: { doctor: root } }).some((p) => /does not match recomputed/.test(p)));
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('build digest refuses symlinks instead of hashing bytes outside the build', () => {
+  const root = mkdtempSync(path.join(tmpdir(), 'phr-build-link-'));
+  try {
+    const build = path.join(root, 'build'); const outside = path.join(root, 'outside.txt');
+    mkdirSync(build); writeFileSync(outside, 'external mutable content');
+    symlinkSync(outside, path.join(build, 'external.txt'));
+    assert.throws(() => digestDirectory(build), /must not contain symlinks/);
   } finally { rmSync(root, { recursive: true, force: true }); }
 });
 

@@ -3018,3 +3018,13 @@ findings; the current status successor preserves the exact 54-row predecessor
 reference and all 56 topology identities; the generated matrix reports 56 and
 source-current pins; and native PDP-0 readiness reports zero tasks before any
 `DEV_COMPLETE` status is written.
+
+### PXD-231 — Resolve the three exact AUD-SPEC-020 surface applicability cells
+
+**Authority:** Under the user's existing delegation for Media PDP-0 definition coordination, this delegated assistant decision resolves only the three surface/channel pairs below. It is a source definition decision, not a human signer or owner acceptance. Preserve owner approval and independent acceptance as `NOT_CLAIMED`; preserve implementation and runtime availability as `UNKNOWN`, qualification as `NOT_EVALUATED`, and execution admission as `NOT_ADMITTED`.
+
+**Source basis:** PXD-185 defines the coordinator-authored `AUD-SPEC-020` / `media.rules.manage` proposal and its author/inspect/validate/reuse boundaries. PXD-188 maps the proposed channels to existing consumer topology without asserting support. The current topology at `.product-experience/surfaces/media-physical-topology.v1.json` remains 28 physical manifest candidates, 7 compositions, and 21 logical consumers (56 identities total), as reconciled by PXD-230. Each selected surface below already exists in that denominator.
+
+**Decision:** `media.rules.manage` definition applicability is `APPLICABLE` for exactly these pairs: `media.surface.grpc.stt` via `media.channel.grpc-api`; `media.surface.integrations` via `media.channel.product-integration`; and `media.surface.recorder-orchestrator` via `media.channel.cli`. The protocol-neutral `media.channel.api` remains an umbrella inheriting the gRPC consumer reference; this decision adds no transport. PXD-188's mappings for other surfaces and channels, and its scoped exclusions, remain unchanged. No surface identity or denominator changes.
+
+This resolves definition scope only. It does not assert that a gRPC service, product integration, or CLI command is implemented, available, qualified, or admitted. PDP-1/2/3 contracts and experience remain their own downstream definitions.

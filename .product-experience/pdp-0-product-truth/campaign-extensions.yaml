@@ -766,6 +766,45 @@ records:
                   - media.composition.client-and-machine-interfaces
                 ownerApproval: NOT_CLAIMED
               id: AUD-SPEC-020-CHANNEL-EVENT
+          surfaceApplicabilityDecisions:
+            decisionRef: .product-experience/decision-log.md#PXD-231
+            decisionKind: DELEGATED_PDP0_DEFINITION_SCOPE_ONLY
+            topologyRef: .product-experience/surfaces/media-physical-topology.v1.json
+            denominator: 56
+            ownerApproval: NOT_CLAIMED
+            independentAcceptance: NOT_CLAIMED
+            implementationState: UNKNOWN
+            qualificationState: NOT_EVALUATED
+            runtimeAvailability: UNKNOWN
+            executionAdmission: NOT_ADMITTED
+            records:
+              - surfaceRef: media.surface.grpc.stt
+                channelRef: media.channel.grpc-api
+                applicability: APPLICABLE
+                status: DELEGATED_PDP0_APPLICABILITY_DECISION
+                channelResolutionRef: AUD-SPEC-020-CHANNEL-GRPC-API
+                rationale: The current topology registers this existing gRPC logical consumer and PXD-188 maps it to the gRPC API channel. The protocol-neutral API umbrella inherits this exact consumer through its gRPC mapping; this is definition scope only and asserts no service, transport support, or runtime invocation.
+                ownerApproval: NOT_CLAIMED
+                independentAcceptance: NOT_CLAIMED
+                executionAdmission: NOT_ADMITTED
+              - surfaceRef: media.surface.integrations
+                channelRef: media.channel.product-integration
+                applicability: APPLICABLE
+                status: DELEGATED_PDP0_APPLICABILITY_DECISION
+                channelResolutionRef: AUD-SPEC-020-CHANNEL-PRODUCT-INTEGRATION
+                rationale: The current topology registers this existing logical integration consumer and PXD-188 maps it to the product-integration channel. This defines applicability only; it does not assert an active integration or runtime invocation.
+                ownerApproval: NOT_CLAIMED
+                independentAcceptance: NOT_CLAIMED
+                executionAdmission: NOT_ADMITTED
+              - surfaceRef: media.surface.recorder-orchestrator
+                channelRef: media.channel.cli
+                applicability: APPLICABLE
+                status: DELEGATED_PDP0_APPLICABILITY_DECISION
+                channelResolutionRef: AUD-SPEC-020-CHANNEL-CLI
+                rationale: The current topology registers this existing logical recorder-orchestrator consumer and PXD-188 maps it to the CLI channel. This defines applicability only; it does not assert a CLI command, implementation, or runtime invocation.
+                ownerApproval: NOT_CLAIMED
+                independentAcceptance: NOT_CLAIMED
+                executionAdmission: NOT_ADMITTED
           implementationState: UNKNOWN
           qualificationState: NOT_EVALUATED
           runtimeAvailability: UNKNOWN

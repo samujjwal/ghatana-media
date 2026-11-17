@@ -1,0 +1,141 @@
+{
+  "schemaVersion": "media.pdp0.p0-03-crosswalk-status-reconciliation.v1",
+  "recordId": "MEDIA-PDP0-P0-03-CROSSWALK-RECONCILIATION-2026-11-16",
+  "recordedAt": "2026-11-16T22:18:38Z",
+  "phase": "PDP-0",
+  "selectedCriterion": "P0-03",
+  "selectedTaskId": "P0-03:501-audit-disposition-crosswalk",
+  "decisionRef": ".product-experience/decision-log.md#PXD-231",
+  "authority": {
+    "basis": "User-delegated Media PDP-0 definition coordination; scoped to the existing 501-row crosswalk evidence and the PXD-231 source delta.",
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "acceptanceEffect": "none",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "qualification": "NOT_EVALUATED",
+    "closure": "NOT_CLAIMED",
+    "delivery": "NOT_CLAIMED"
+  },
+  "denominator": {
+    "physical": 28,
+    "composites": 7,
+    "logicalConsumers": 21,
+    "totalSurfaceIdentities": 56,
+    "change": "NONE"
+  },
+  "sourceCut": {
+    "campaignExtensions": {
+      "path": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+      "sha256": "sha256:72ddbef91f7426d704effa153fc9e9af3491ec27f3b66476a9969e4af63ebf4b"
+    },
+    "decisionSection": {
+      "path": ".product-experience/decision-log.md#PXD-231",
+      "sha256": "sha256:dccff56943b4cc4fce36de130991bbd0e8b76bb71fb7d6b63d200c0e303777b5"
+    },
+    "topology": {
+      "path": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "sha256": "sha256:a1f524c498fcdbde61f48cc3b8bb589e8803a0007d7b82908d7da81ea9065c9d"
+    }
+  },
+  "predecessorEvidence": {
+    "recordPath": "docs/implementation/observations/media-pdp0-crosswalk-currentness-rebind-2026-11-16.json",
+    "recordSha256": "sha256:aba30d7b5371923db851a8c588c0e2b8103c5ad11de9f2ed0b81b137d35d36f9",
+    "crosswalkSha256": "sha256:41b655f9914fba4c67554fab9e614be1c3e2b66d3fcd5b5b70cffda5e4feabab",
+    "validation": {
+      "status": "PASS",
+      "errors": 0,
+      "total": 501,
+      "boundExisting": 499,
+      "postPdpImplementationOnly": 2
+    },
+    "semanticRowDelta": [],
+    "authorityBoundary": {
+      "ownerApproval": "NOT_CLAIMED",
+      "independentAcceptance": "NOT_CLAIMED",
+      "acceptanceEffect": "none",
+      "runtimeAdmission": "NOT_ADMITTED"
+    }
+  },
+  "reconciliation": {
+    "crosswalkMeaning": "The existing rebind records 501 rows, zero unresolved PDP-0 joins, and no semantic row delta; this reconciles the task against that exact predecessor PASS.",
+    "currentness": "REVALIDATION_REQUIRED",
+    "taskState": "RECONCILED_TO_PREDECESSOR_PASS; CURRENT_SOURCE_CUT_NOT_VALIDATED",
+    "reason": "PXD-231 changes the AUD-SPEC-020 campaign-extension source after the predecessor rebind. Live source validators report stale current-source pins, so the predecessor PASS is retained as evidence but is not promoted as a current PASS for this post-PXD-231 cut.",
+    "liveSourceValidators": [
+      {
+        "command": "node scripts/check-media-pdp0-501-audit-dispositions.mjs",
+        "status": "FAIL",
+        "findings": [
+          "stale source fingerprint: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+          "stale source fingerprint: .product-experience/pdp-0-product-truth/quality-policy.yaml",
+          "stale source fingerprint: .product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+          "stale source fingerprint: tests/pdp-migration-semantic-reconciliation.test.mjs",
+          "stale source fingerprint: tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs",
+          "stale source fingerprint: scripts/check-media-pdp0-audit-aq-traceability.mjs"
+        ],
+        "observedCounts": {
+          "total": 501,
+          "boundExisting": 499,
+          "pdp0MeaningChangeRequired": 0,
+          "explicitNotApplicable": 0,
+          "postPdpImplementationOnly": 2,
+          "blockedExternalOwnerDecision": 0
+        }
+      },
+      {
+        "command": "node scripts/check-media-pdp0-audit-aq-traceability.mjs",
+        "status": "FAIL",
+        "observedCounts": {
+          "totalRows": 501,
+          "rowsWithPdp0DefinitionJoin": 499,
+          "unresolvedExactJoinRows": 0,
+          "blockedRows": 0,
+          "postPdpImplementationOnlyRows": 2,
+          "dispositionCrosswalkValid": false
+        },
+        "findings": [
+          "stale or missing source fingerprint: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+          "stale or missing source fingerprint: .product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+          "stale or missing source fingerprint: docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v6.json",
+          "462 capability mappings fail current-source assertions",
+          "source disposition crosswalk is invalid due to stale capability-leaf-review pin"
+        ]
+      }
+    ]
+  },
+  "preservedPhaseStatus": {
+    "phaseStatusPath": "docs/implementation/pdp-0-phase-dev-status.json",
+    "phaseStatusSha256": "sha256:bb6f3088532a79cc54416a91004a429fb7447ab192f6f252729ffd9b7efd7f8c",
+    "reportedPhaseStatus": "IN_PROGRESS",
+    "directCriteria": {
+      "P0-03": {
+        "status": "FAIL",
+        "testCount": 148,
+        "passedTestCount": 115,
+        "skippedTestCount": 30,
+        "failedTestCount": 3,
+        "outputSha256": "sha256:14fde5559a63cbec762838eeb2d2aa687fb0194f39f5b600329f75e9f6447e97"
+      },
+      "P0-08": {
+        "status": "FAIL",
+        "testCount": 125,
+        "passedTestCount": 124,
+        "skippedTestCount": 0,
+        "failedTestCount": 1,
+        "outputSha256": "sha256:fd9866e1c3fc624d28a2e5b4e59ef1cf6d8fd40881e2e228e644b39d9440a114"
+      }
+    },
+    "statusProjectionUpdated": false,
+    "statusProjectionCurrentness": "REVALIDATION_REQUIRED_AFTER_PXD-231",
+    "surfaceMatrixPath": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+    "surfaceMatrixSha256": "sha256:5964f50efb53da4eb0524f67715c96523523ba0cd30888b9868ee515f7e0f2a0",
+    "surfaceMatrixUpdated": false
+  },
+  "nextAllowedAction": "Perform a bounded source-currentness rebind for the exact 501-row crosswalk inputs and affected capability-review pins, then refresh only the owning status projection through its native producer. Do not change the three P0-03 or one P0-08 recorded test outcomes without fresh authorized validation.",
+  "claims": {
+    "phaseDevComplete": false,
+    "nativeClosure": "NOT_PERFORMED",
+    "build": "NOT_EVALUATED",
+    "delivery": "NOT_CLAIMED"
+  }
+}

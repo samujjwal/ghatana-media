@@ -7,7 +7,7 @@
 //   node scripts/phr-synthetic-capture-manifest.mjs validate <manifest.json> [--build-dir <audience>=<dir> ...]
 //   node scripts/phr-synthetic-capture-manifest.mjs digest <dir>
 import { createHash } from 'node:crypto';
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { lstatSync, readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -21,8 +21,13 @@ export function digestDirectory(dir) {
   (function walk(current) {
     for (const entry of readdirSync(current).sort()) {
       const full = path.join(current, entry);
-      if (statSync(full).isDirectory()) walk(full);
-      else files.push(full);
+      const info = lstatSync(full);
+      // A build digest must describe only bytes contained in that build. Following
+      // symlinks could include mutable files outside the artifact or loop forever.
+      if (info.isSymbolicLink()) throw new Error(`build directory must not contain symlinks: ${full}`);
+      if (info.isDirectory()) walk(full);
+      else if (info.isFile()) files.push(full);
+      else throw new Error(`build directory contains a non-regular entry: ${full}`);
     }
   })(dir);
   const hash = createHash('sha256');
