@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.technical-reviewer-authority.v1",
+  "title": "Explicit PDP-0 technical reviewer authority record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "status", "reviewerIdentity", "role", "authorizedScopes", "authorityRef"],
+  "properties": {
+    "schemaVersion": {"const": "media.pdp0.technical-reviewer-authority.v1"},
+    "status": {"enum": ["ACTIVE", "REVOKED"]},
+    "reviewerIdentity": {"type": "string", "minLength": 1},
+    "role": {"const": "DISTINCT_TECHNICAL_REVIEWER"},
+    "authorizedScopes": {
+      "type": "array",
+      "uniqueItems": true,
+      "contains": {"const": "PDP-0 current-source review"}
+    },
+    "authorityRef": {"type": "string", "pattern": "^\\.product-experience/decision-log\\.md#PXD-[0-9]{3}$"}
+  }
+}

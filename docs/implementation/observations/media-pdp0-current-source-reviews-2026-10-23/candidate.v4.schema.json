@@ -38,6 +38,9 @@
         "sourceShaSet",
         "reviewedCurrentSourceFingerprints",
         "sourceRecordCount",
+        "phaseStatusPinInventory",
+        "historicalReviewBaselines",
+        "currentDenominatorAuthority",
         "campaignDenominator"
       ],
       "properties": {
@@ -79,6 +82,44 @@
             "minimum": 0
           }
         },
+        "phaseStatusPinInventory": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["totalRefs", "wholeFileRefs", "selectorRefs", "currentnessEvaluation"],
+          "properties": {
+            "totalRefs": {"type": "integer", "minimum": 0},
+            "wholeFileRefs": {"type": "integer", "minimum": 0},
+            "selectorRefs": {"type": "integer", "minimum": 0},
+            "currentnessEvaluation": {"const": "CURRENT; ALL_DECLARED_STATUS_PINS_RECOMPUTED"}
+          }
+        },
+        "historicalReviewBaselines": {
+          "type": "array",
+          "minItems": 8,
+          "maxItems": 8,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["criterionId", "repositoryHead", "registeredIdentityDenominator", "requestedMaterialPathDenominator"],
+            "properties": {
+              "criterionId": {"type": "string", "pattern": "^P0-0[1-8]$"},
+              "repositoryHead": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
+              "registeredIdentityDenominator": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["physicalCandidates", "compositionSurfacesIncludingRoot", "logicalConsumers", "registeredIdentities"],
+                "properties": {
+                  "physicalCandidates": {"type": "integer", "minimum": 0},
+                  "compositionSurfacesIncludingRoot": {"type": "integer", "minimum": 0},
+                  "logicalConsumers": {"type": "integer", "minimum": 0},
+                  "registeredIdentities": {"type": "integer", "minimum": 0}
+                }
+              },
+              "requestedMaterialPathDenominator": {"type": "integer", "minimum": 1}
+            }
+          }
+        },
+        "currentDenominatorAuthority": {"type": "string", "minLength": 20},
         "campaignDenominator": {
           "type": "object",
           "additionalProperties": false,
@@ -90,10 +131,10 @@
           ],
           "properties": {
             "totalSurfaceIdentities": {
-              "const": 54
+              "const": 56
             },
             "physical": {
-              "const": 26
+              "const": 28
             },
             "compositions": {
               "const": 7

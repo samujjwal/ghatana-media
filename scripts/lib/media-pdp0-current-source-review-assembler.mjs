@@ -4,6 +4,7 @@ import {fingerprintPxdDecisionSection} from '../lib/pdp0-phase-scoped-source-fin
 import {pdp0PhaseScopedSourcePins} from '../report-media-pdp-readiness.mjs';
 
 export const PDP0_CRITERIA = Object.freeze(Array.from({length: 8}, (_, index) => `P0-${String(index + 1).padStart(2, '0')}`));
+export const PDP0_CURRENTNESS_REVIEW_SCOPE = Object.freeze(['P0-01', 'P0-02', 'P0-05', 'P0-06', 'P0-07']);
 export const PDP0_STATUS_REF = 'docs/implementation/pdp-0-phase-dev-status.json';
 export const PDP0_READINESS_REF = 'docs/implementation/media-pdp-38-readiness.json';
 export const PDP0_DIRECT_REVIEW_REF = 'docs/implementation/verification/pdp-38/direct-definition-criteria-review.json';
@@ -13,6 +14,7 @@ export const PDP0_REVIEW_INPUT_DIRECTORY = 'docs/implementation/observations/med
 const sha256 = value => createHash('sha256').update(value).digest('hex');
 const isSha = value => typeof value === 'string' && /^[a-f0-9]{64}$/u.test(value);
 const requireValue = (condition, message) => { if (!condition) throw new Error(message); };
+let currentPhaseScopedPins;
 
 function assertKeys(value, allowed, label) {
   requireValue(value && typeof value === 'object' && !Array.isArray(value), `${label} must be an object`);
@@ -26,11 +28,24 @@ export function reviewRecordPath(criterionId) {
 }
 
 export function directDefinitionDecisionRef(directRecord) {
-  return typeof directRecord?.decisionRef === 'string' ? directRecord.decisionRef : null;
+  const candidates = [
+    directRecord?.currentSourceReview?.decisionRef,
+    directRecord?.currentCorrectiveReview?.decisionRef,
+    directRecord?.decisionRef,
+  ];
+  return candidates.find(value => typeof value === 'string' && value.trim().length > 0) ?? null;
 }
 
 function currentRefHash(sourceRef, {status, read}) {
   const phasePins = status.sourceShaSet ?? {};
+  if (sourceRef.includes('#') && !sourceRef.includes('#PXD-') && Object.hasOwn(phasePins, sourceRef)) {
+    currentPhaseScopedPins ??= pdp0PhaseScopedSourcePins();
+    const currentScopedPin = currentPhaseScopedPins[sourceRef];
+    if (currentScopedPin) {
+      requireValue(phasePins[sourceRef] === currentScopedPin, `current PDP-0 phase source pin is stale for ${sourceRef}`);
+      return currentScopedPin;
+    }
+  }
   const hash = sourceRef.match(/^(.*)#PXD-(\d{3})-section$/u);
   if (hash) {
     const decisionLog = read('.product-experience/decision-log.md');
@@ -83,17 +98,26 @@ export function validatePdp0CurrentSourceReviewRecord(record, criterionId, {stat
     && observations.criterionIdentity?.criterionId === criterionId
     && observations.criterionIdentity.readinessTaskRef === `${PDP0_READINESS_REF}#tasks/${criterionId}`
     && observations.baseline?.exactPhase === 'PDP-0 Product Truth'
-    && observations.baseline.repositoryHead === status.mainSha
-    && observations.baseline.registeredIdentityDenominator?.physicalCandidates === 26
-    && observations.baseline.registeredIdentityDenominator?.compositionSurfacesIncludingRoot === 7
-    && observations.baseline.registeredIdentityDenominator?.logicalConsumers === 21
-    && observations.baseline.registeredIdentityDenominator?.registeredIdentities === 54
-    && observations.baseline.requestedCurrentMaterialPathDenominator === 207
-    && observations.baseline.sourcePinObservation.reportedCurrentMaterialPathDenominator === 207
+    // The baseline is immutable review provenance. It must remain valid, but it
+    // must not be mistaken for today's status head or topology denominator.
+    && /^[a-f0-9]{40}$/u.test(observations.baseline.repositoryHead)
+    && ['physicalCandidates', 'compositionSurfacesIncludingRoot', 'logicalConsumers', 'registeredIdentities']
+      .every(key => Number.isInteger(observations.baseline.registeredIdentityDenominator?.[key])
+        && observations.baseline.registeredIdentityDenominator[key] >= 0)
+    && observations.baseline.registeredIdentityDenominator.registeredIdentities
+      === observations.baseline.registeredIdentityDenominator.physicalCandidates
+        + observations.baseline.registeredIdentityDenominator.compositionSurfacesIncludingRoot
+        + observations.baseline.registeredIdentityDenominator.logicalConsumers
+    && Number.isInteger(observations.baseline.requestedCurrentMaterialPathDenominator)
+    && observations.baseline.requestedCurrentMaterialPathDenominator > 0
+    && Number.isInteger(observations.baseline.sourcePinObservation.reportedCurrentMaterialPathDenominator)
     && Number.isInteger(observations.baseline.sourcePinObservation.phaseStatusSourcePinRefs)
     && Number.isInteger(observations.baseline.sourcePinObservation.wholeFilePinsComparedAgainstLiveBytes)
     && observations.baseline.sourcePinObservation.wholeFilePinMismatches === 0
     && Number.isInteger(observations.baseline.sourcePinObservation.sectionPins)
+    && observations.baseline.sourcePinObservation.phaseStatusSourcePinRefs
+      === observations.baseline.sourcePinObservation.wholeFilePinsComparedAgainstLiveBytes
+        + observations.baseline.sourcePinObservation.sectionPins
     && typeof observations.baseline.sourcePinObservation.sectionPinCurrentness === 'string'
     && typeof observations.baseline.sourcePinObservation.wholeCutCurrentnessClaim === 'string'
     && observations.baseline.sourcePinObservation.wholeCutCurrentnessClaim === 'NOT_MADE'
@@ -113,10 +137,20 @@ export function validatePdp0CurrentSourceReviewRecord(record, criterionId, {stat
   const directRecord = directReview.records.find(item => item.taskId === criterionId);
   const directDecisionRef = directDefinitionDecisionRef(directRecord);
   requireValue(observations.criterionIdentity.directDefinitionCriterionRecord === (directRecord?.status ?? 'ABSENT')
-    && observations.criterionIdentity.directDefinitionDecisionRef === directDecisionRef
     && observations.criterionIdentity.readinessCriterionState === readinessTask.taskSpecificSourceDone
     && observations.criterionIdentity.originalTaskState === readinessTask.originalLedgerStatus,
   `${criterionId} structured criterion identity contradicts exact current task/direct-review sources`);
+  const directDecisionBindingFinding = observations.criterionIdentity.directDefinitionDecisionRef === directDecisionRef
+    ? []
+    : [{
+      id: `${criterionId}-DIRECT-DECISION-BINDING-STALE`,
+      classification: 'DIRECT_REVIEW_BINDING_STALE',
+      evidenceRef: `${PDP0_DIRECT_REVIEW_REF}#records/${criterionId}`,
+      finding: `The prior technical review records direct decision ${observations.criterionIdentity.directDefinitionDecisionRef ?? 'NONE'}, while the current direct criterion source resolves to ${directDecisionRef ?? 'NONE'}.`,
+      owner: 'Media PDP-0 current-source review owner',
+      correction: 'Refresh this review binding from the current nested direct-source review record without changing the criterion status or acceptance state.',
+      nextAction: 'Keep the review binding stale until a source-bound current review record is authored.',
+    }];
   for (const [index, finding] of observations.findings.entries()) {
     assertKeys(finding, ['id', 'classification', 'evidenceRef', 'finding', 'owner', 'correction', 'nextAction'], `${criterionId} finding ${index}`);
     requireValue(['id', 'classification', 'evidenceRef', 'finding', 'owner', 'correction', 'nextAction'].every(key => typeof finding[key] === 'string' && finding[key].trim())
@@ -277,7 +311,7 @@ export function validatePdp0CurrentSourceReviewRecord(record, criterionId, {stat
     scopeRef: record.scopeRef,
     reviewConclusion: record.reviewConclusion,
     reviewNotes: observations,
-    findings: structuredClone(observations.findings),
+    findings: [...structuredClone(observations.findings), ...directDecisionBindingFinding],
     knownUnknowns: [...observations.sourceCoverage.knownUnknowns],
     reviewedSourceCount: pins.size,
     reviewedSourceFingerprints: Object.fromEntries([...pins.entries()].sort(([a], [b]) => a.localeCompare(b))),
@@ -313,6 +347,87 @@ function currentPriorReviewPinMismatches({status, directReview, read}) {
   return [...unique.values()].sort((a, b) => `${a.criterionId}:${a.sourceRef}:${a.pinField ?? ''}`.localeCompare(`${b.criterionId}:${b.sourceRef}:${b.pinField ?? ''}`));
 }
 
+export function inspectPdp0CurrentSourceReviewCurrentness({status, readiness, directReview, matrix, reviewRecords, read}) {
+  const sourcePinMismatches = [];
+  for (const [sourceRef, expectedSha256] of Object.entries(status?.sourceShaSet ?? {})) {
+    try {
+      const actualSha256 = currentRefHash(sourceRef, {status, read});
+      if (actualSha256 !== expectedSha256) sourcePinMismatches.push({sourceRef, expectedSha256, actualSha256});
+    } catch (error) {
+      sourcePinMismatches.push({sourceRef, expectedSha256, error: error.message});
+    }
+  }
+  const criteria = PDP0_CRITERIA.map(criterionId => {
+    const record = reviewRecords?.[criterionId];
+    const directRecord = directReview?.records?.find(item => item.taskId === criterionId);
+    const reviewTask = readiness?.tasks?.find(item => item.id === criterionId);
+    const staleReviewSourceRefs = [];
+    for (const source of record?.reviewedSources ?? []) {
+      try {
+        const actualSha256 = currentRefHash(source.sourceRef, {status, read});
+        if (actualSha256 !== source.sha256) staleReviewSourceRefs.push({sourceRef: source.sourceRef, priorSha256: source.sha256, currentSha256: actualSha256});
+      } catch (error) {
+        staleReviewSourceRefs.push({sourceRef: source.sourceRef, priorSha256: source.sha256, error: error.message});
+      }
+    }
+    let priorDecisionRef = null;
+    try { priorDecisionRef = JSON.parse(record.reviewNotes).criterionIdentity.directDefinitionDecisionRef; } catch { /* reported as a missing prior binding */ }
+    const currentDecisionRef = directDefinitionDecisionRef(directRecord);
+    const directReviewPinMismatches = [];
+    for (const review of [directRecord?.currentSourceReview, directRecord?.currentCorrectiveReview]) {
+      for (const [sourceRef, priorSha256] of Object.entries(review?.sourceFingerprints ?? {})) {
+        try {
+          const currentSha256 = currentRefHash(sourceRef, {status, read});
+          if (priorSha256 !== currentSha256) directReviewPinMismatches.push({sourceRef, priorSha256, currentSha256});
+        } catch (error) {
+          directReviewPinMismatches.push({sourceRef, priorSha256, error: error.message});
+        }
+      }
+    }
+    return {
+      criterionId,
+      inCurrentnessReviewScope: PDP0_CURRENTNESS_REVIEW_SCOPE.includes(criterionId),
+      readinessState: reviewTask?.taskSpecificSourceDone ?? 'UNKNOWN',
+      directCriterionStatus: directRecord?.status ?? 'ABSENT',
+      historicalReviewHead: (() => { try { return JSON.parse(record.reviewNotes).baseline.repositoryHead; } catch { return null; } })(),
+      historicalReviewDenominator: (() => { try { return JSON.parse(record.reviewNotes).baseline.registeredIdentityDenominator; } catch { return null; } })(),
+      priorDecisionRef,
+      currentDecisionRef,
+      decisionBindingCurrent: priorDecisionRef === currentDecisionRef,
+      staleReviewSourceRefs,
+      directReviewPinMismatches,
+      technicalReviewCurrentness: staleReviewSourceRefs.length === 0 && priorDecisionRef === currentDecisionRef && directReviewPinMismatches.length === 0
+        ? 'SOURCE_CURRENT'
+        : 'STALE_OR_INCOMPLETE',
+    };
+  });
+  const denominator = matrix?.summary ?? null;
+  return {
+    schemaVersion: 'media.pdp0.current-source-review-currentness-observation.v1',
+    phaseScope: 'PDP-0',
+    currentDenominator: denominator ? {
+      totalSurfaceIdentities: denominator.totalSurfaceIdentities,
+      physical: denominator.physical,
+      compositions: denominator.compositions,
+      logicalConsumers: denominator.logicalConsumers,
+    } : null,
+    phaseStatusPinInventory: {
+      totalRefs: Object.keys(status?.sourceShaSet ?? {}).length,
+      wholeFileRefs: Object.keys(status?.sourceShaSet ?? {}).filter(sourceRef => !sourceRef.includes('#')).length,
+      selectorRefs: Object.keys(status?.sourceShaSet ?? {}).filter(sourceRef => sourceRef.includes('#')).length,
+      staleOrUnreadableRefCount: sourcePinMismatches.length,
+      staleOrUnreadableRefs: sourcePinMismatches,
+      currentness: sourcePinMismatches.length === 0 ? 'CURRENT' : 'STALE',
+    },
+    criteria,
+    currentnessStatus: sourcePinMismatches.length === 0 && criteria.every(row => row.technicalReviewCurrentness === 'SOURCE_CURRENT')
+      ? 'ALL_REVIEW_INPUTS_SOURCE_CURRENT'
+      : 'SOURCE_STATUS_CURRENT; REVIEW_INPUTS_REQUIRE_REFRESH',
+    statusBoundary: {ownerApproval: 'NOT_CLAIMED', independentAcceptance: 'NOT_CLAIMED', pdp010Acceptance: 'NOT_PERFORMED', phaseStatusEffect: 'NONE'},
+    claimBoundary: 'Read-only source pin and review-binding observation. It does not refresh or approve direct reviews and does not change PDP status, acceptance, closure, qualification, or Delivery.',
+  };
+}
+
 export function buildPdp0CurrentSourceReviewCandidate({status, readiness, directReview, matrix, reviewRecords, read}) {
   requireValue(status?.phase === 'PDP-0' && status.schemaVersion, 'current PDP-0 phase status is required');
   requireValue(readiness?.tasks && Array.isArray(readiness.tasks), 'current readiness task inventory is required');
@@ -324,6 +439,23 @@ export function buildPdp0CurrentSourceReviewCandidate({status, readiness, direct
     requireValue(JSON.stringify(actual) === JSON.stringify(value), `supplied ${ref} object differs from the exact current source`);
   }
   requireValue(reviewRecords && typeof reviewRecords === 'object', 'eight criterion review inputs are required');
+  const denominator = matrix.summary;
+  requireValue(denominator
+    && ['totalSurfaceIdentities', 'physical', 'compositions', 'logicalConsumers'].every(key => Number.isInteger(denominator[key]) && denominator[key] >= 0)
+    && denominator.totalSurfaceIdentities === denominator.physical + denominator.compositions + denominator.logicalConsumers,
+  'current surface matrix denominator is incomplete or internally inconsistent');
+  const phaseSourcePinMismatches = [];
+  for (const [sourceRef, expectedSha256] of Object.entries(status.sourceShaSet ?? {})) {
+    let actualSha256;
+    try { actualSha256 = currentRefHash(sourceRef, {status, read}); }
+    catch (error) {
+      phaseSourcePinMismatches.push({sourceRef, expectedSha256, error: error.message});
+      continue;
+    }
+    if (actualSha256 !== expectedSha256) phaseSourcePinMismatches.push({sourceRef, expectedSha256, actualSha256});
+  }
+  requireValue(phaseSourcePinMismatches.length === 0,
+    `current PDP-0 sourceShaSet has ${phaseSourcePinMismatches.length} stale or unreadable source pin${phaseSourcePinMismatches.length === 1 ? '' : 's'}: ${phaseSourcePinMismatches.map(item => item.sourceRef).join(', ')}`);
   const missingIds = PDP0_CRITERIA.filter(id => !reviewRecords[id]);
   const extraIds = Object.keys(reviewRecords).filter(id => !PDP0_CRITERIA.includes(id));
   requireValue(!missingIds.length && !extraIds.length, `review input inventory mismatch; missing=[${missingIds.join(',')}], extra=[${extraIds.join(',')}]`);
@@ -346,6 +478,19 @@ export function buildPdp0CurrentSourceReviewCandidate({status, readiness, direct
     sourceShaSet: status.sourceShaSet,
     reviewedCurrentSourceFingerprints: Object.fromEntries(Object.entries(reviewedCurrentSourceFingerprints).sort(([a], [b]) => a.localeCompare(b))),
     sourceRecordCount: status.sourceRecordCount,
+    phaseStatusPinInventory: {
+      totalRefs: Object.keys(status.sourceShaSet ?? {}).length,
+      wholeFileRefs: Object.keys(status.sourceShaSet ?? {}).filter(sourceRef => !sourceRef.includes('#')).length,
+      selectorRefs: Object.keys(status.sourceShaSet ?? {}).filter(sourceRef => sourceRef.includes('#')).length,
+      currentnessEvaluation: 'CURRENT; ALL_DECLARED_STATUS_PINS_RECOMPUTED',
+    },
+    historicalReviewBaselines: reviews.map(review => ({
+      criterionId: review.criterionId,
+      repositoryHead: review.reviewNotes.baseline.repositoryHead,
+      registeredIdentityDenominator: structuredClone(review.reviewNotes.baseline.registeredIdentityDenominator),
+      requestedMaterialPathDenominator: review.reviewNotes.baseline.requestedCurrentMaterialPathDenominator,
+    })),
+    currentDenominatorAuthority: 'The current matrix summary below is authoritative for this candidate; historical per-review baselines are provenance only.',
     campaignDenominator: matrix.summary ? {
       totalSurfaceIdentities: matrix.summary.totalSurfaceIdentities,
       physical: matrix.summary.physical,

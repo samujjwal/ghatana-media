@@ -65,7 +65,8 @@
       ],
       "properties": {
         "identity": {
-          "const": "agent:/root"
+          "type": "string",
+          "minLength": 1
         },
         "role": {
           "const": "PDP0_SOURCE_OWNER"
@@ -79,7 +80,9 @@
         "identity",
         "role",
         "reviewedCandidateSha256",
-        "reviewedPostimageSha256"
+        "reviewedPostimageSha256",
+        "reviewRecordRef",
+        "reviewRecordSha256"
       ],
       "properties": {
         "identity": {
@@ -94,6 +97,14 @@
           "pattern": "^[a-f0-9]{64}$"
         },
         "reviewedPostimageSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "reviewRecordRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reviewRecordSha256": {
           "type": "string",
           "pattern": "^[a-f0-9]{64}$"
         }

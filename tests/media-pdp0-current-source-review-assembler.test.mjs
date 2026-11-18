@@ -7,7 +7,7 @@ import {createRequire} from 'node:module';
 import {fileURLToPath} from 'node:url';
 import {
   PDP0_CRITERIA, PDP0_DIRECT_REVIEW_REF, PDP0_MATRIX_REF, PDP0_READINESS_REF, PDP0_STATUS_REF,
-  PDP0_REVIEW_INPUT_DIRECTORY, buildPdp0CurrentSourceReviewCandidate, directDefinitionDecisionRef, reviewRecordPath,
+  PDP0_REVIEW_INPUT_DIRECTORY, buildPdp0CurrentSourceReviewCandidate, directDefinitionDecisionRef, inspectPdp0CurrentSourceReviewCurrentness, resolveReviewRecordFiles, reviewRecordPath,
   validatePdp0CurrentSourceReviewRecord,
 } from '../scripts/lib/media-pdp0-current-source-review-assembler.mjs';
 
@@ -37,7 +37,7 @@ function fixture() {
   const readiness = {tasks: PDP0_CRITERIA.map(id => ({id, priorEvidenceSources: [`.product-experience/pdp-0-product-truth/${id}.yaml`], taskSpecificSourceDone: 'VERIFIED_IN_CURRENT_SOURCE', originalLedgerStatus: 'partial'}))};
   const directReview = {records: PDP0_CRITERIA.map(id => ({taskId: id, status: 'APPROVED_DIRECT_DEFINITION_CRITERION',
     currentCorrectiveReview: {sourceFingerprints: {}} , historicalCorrectiveReviews: [{decisionRef: `.product-experience/decision-log.md#HIST-${id}`}]}))};
-  const matrix = {recordKind: 'PDP_SURFACE_PHASE_STATUS_MATRIX', summary: {totalSurfaceIdentities: 54, physical: 26, compositions: 7, logicalConsumers: 21}};
+  const matrix = {recordKind: 'PDP_SURFACE_PHASE_STATUS_MATRIX', summary: {totalSurfaceIdentities: 56, physical: 28, compositions: 7, logicalConsumers: 21}};
   files.set(PDP0_STATUS_REF, `${JSON.stringify(status)}\n`);
   files.set(PDP0_READINESS_REF, `${JSON.stringify(readiness)}\n`);
   files.set(PDP0_DIRECT_REVIEW_REF, `${JSON.stringify(directReview)}\n`);
@@ -93,11 +93,15 @@ function fixture() {
   return {status, readiness, directReview, matrix, records, read};
 }
 
-test('assembles all eight criterion technical source reviews against current test receipts and frozen 54-surface source cut', () => {
+test('assembles all eight criterion technical source reviews against current source pins and derives the 56-surface denominator', () => {
   const input = fixture();
   const candidate = buildPdp0CurrentSourceReviewCandidate({...input, reviewRecords: input.records});
   assert.deepEqual(candidate.criteria.map(row => row.criterionId), PDP0_CRITERIA);
-  assert.equal(candidate.sourceCut.campaignDenominator.totalSurfaceIdentities, 54);
+  assert.equal(candidate.sourceCut.campaignDenominator.totalSurfaceIdentities, 56);
+  assert.deepEqual(candidate.sourceCut.campaignDenominator, {totalSurfaceIdentities: 56, physical: 28, compositions: 7, logicalConsumers: 21});
+  assert.equal(candidate.sourceCut.phaseStatusPinInventory.totalRefs, Object.keys(input.status.sourceShaSet).length);
+  assert.equal(candidate.sourceCut.phaseStatusPinInventory.currentnessEvaluation, 'CURRENT; ALL_DECLARED_STATUS_PINS_RECOMPUTED');
+  assert.equal(candidate.sourceCut.historicalReviewBaselines[0].registeredIdentityDenominator.registeredIdentities, 54);
   assert.equal(candidate.criteria.length, 8);
   assert.equal(candidate.statusBoundary.openFindingCount, 2);
   assert.deepEqual(candidate.findings.map(row => row.id), ['P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231', 'P0-08-P0-010-INDEPENDENT-OUTCOME-ABSENT']);
@@ -159,23 +163,36 @@ test('rejects source edits after the current phase status captured its source cu
   input.read = ref => ref === '.product-experience/pdp-0-product-truth/P0-04.yaml'
     ? 'changed after verifier cut\n'
     : baseRead(ref);
-  assert.throws(() => buildPdp0CurrentSourceReviewCandidate({...input, reviewRecords: input.records}), /phase source pin is stale/u);
+  assert.throws(() => buildPdp0CurrentSourceReviewCandidate({...input, reviewRecords: input.records}), /stale or unreadable source pin/u);
 });
 
-test('validates the four frozen v4 technical reviews against live source-cut selectors and exact PXD bytes', () => {
+test('keeps frozen v4 reviews historical when their status source pin is stale', () => {
   const read = ref => fs.readFileSync(path.resolve(root, ref), 'utf8');
   const status = JSON.parse(read(PDP0_STATUS_REF));
   const readiness = JSON.parse(read(PDP0_READINESS_REF));
   const directReview = JSON.parse(read(PDP0_DIRECT_REVIEW_REF));
   for (const id of ['P0-01', 'P0-02', 'P0-03', 'P0-04']) {
     const record = JSON.parse(read(reviewRecordPath(id)));
-    validatePdp0CurrentSourceReviewRecord(record, id, {status, readiness, directReview, read});
-    const notes = JSON.parse(record.reviewNotes);
-    assert.equal(notes.baseline.sourcePinObservation.wholeCutCurrentnessClaim, 'NOT_MADE');
-    if (notes.baseline.sourcePinObservation.sectionPinBackerFilesMissing.length > 0) {
-      assert.ok(notes.findings.some(finding => finding.classification === 'SOURCE_PIN_COVERAGE_INCOMPLETE'));
-    }
+    assert.throws(() => validatePdp0CurrentSourceReviewRecord(record, id, {status, readiness, directReview, read}), /source fingerprint is stale/u);
   }
+});
+
+test('observes the live 56-surface cut and keeps stale review bindings distinct from current phase pins', () => {
+  const read = ref => fs.readFileSync(path.resolve(root, ref), 'utf8');
+  const observation = inspectPdp0CurrentSourceReviewCurrentness({
+    status: JSON.parse(read(PDP0_STATUS_REF)),
+    readiness: JSON.parse(read(PDP0_READINESS_REF)),
+    directReview: JSON.parse(read(PDP0_DIRECT_REVIEW_REF)),
+    matrix: JSON.parse(read(PDP0_MATRIX_REF)),
+    reviewRecords: resolveReviewRecordFiles({read}),
+    read,
+  });
+  assert.deepEqual(observation.currentDenominator, {totalSurfaceIdentities: 56, physical: 28, compositions: 7, logicalConsumers: 21});
+  assert.equal(observation.phaseStatusPinInventory.totalRefs, 322);
+  assert.equal(observation.phaseStatusPinInventory.staleOrUnreadableRefCount, 0);
+  assert.equal(observation.phaseStatusPinInventory.currentness, 'CURRENT');
+  assert.equal(observation.currentnessStatus, 'SOURCE_STATUS_CURRENT; REVIEW_INPUTS_REQUIRE_REFRESH');
+  assert.deepEqual(observation.criteria.filter(row => ['P0-01', 'P0-02', 'P0-05', 'P0-06', 'P0-07'].includes(row.criterionId)).map(row => row.decisionBindingCurrent), [false, false, false, false, false]);
 });
 
 test('v3 accepts fresh review without predecessor and rejects missing or forged reuse predecessor', () => {
@@ -195,7 +212,7 @@ test('v3 accepts fresh review without predecessor and rejects missing or forged 
   assert.throws(() => buildPdp0CurrentSourceReviewCandidate({...input, reviewRecords: falseFresh}), /fresh review cannot claim/u);
 });
 
-test('v4 JSON Schemas validate the fresh records and nullable direct-decision facts exactly', () => {
+test('v4 JSON Schemas retain historical baselines and distinguish stale direct-decision bindings', () => {
   const input = fixture();
   const candidate = buildPdp0CurrentSourceReviewCandidate({...input, reviewRecords: input.records});
   const folder = path.join(root, 'docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23');
@@ -217,13 +234,16 @@ test('v4 JSON Schemas validate the fresh records and nullable direct-decision fa
   }
   assert.ok(validateCandidate(candidate), JSON.stringify(validateCandidate.errors));
   const actual = JSON.parse(fs.readFileSync(path.join(root, PDP0_DIRECT_REVIEW_REF), 'utf8'));
-  for (const id of ['P0-01', 'P0-02', 'P0-03', 'P0-04']) {
+  for (const id of ['P0-01', 'P0-02', 'P0-05', 'P0-06', 'P0-07']) {
     const row = actual.records.find(record => record.taskId === id);
-    assert.equal(directDefinitionDecisionRef(row), null, `${id} direct decisionRef is absent and must remain null`);
+    const notes = JSON.parse(JSON.parse(fs.readFileSync(path.join(root, reviewRecordPath(id)), 'utf8')).reviewNotes);
+    assert.ok(directDefinitionDecisionRef(row), `${id} must resolve the current nested direct decision`);
+    assert.notEqual(notes.criterionIdentity.directDefinitionDecisionRef, directDefinitionDecisionRef(row), `${id} prior review must retain its stale binding as a finding`);
   }
   const invented = structuredClone(input.records);
   const notes = JSON.parse(invented['P0-01'].reviewNotes);
   notes.criterionIdentity.directDefinitionDecisionRef = '.product-experience/decision-log.md#PXD-216';
   invented['P0-01'].reviewNotes = JSON.stringify(notes);
-  assert.throws(() => buildPdp0CurrentSourceReviewCandidate({...input, reviewRecords: invented}), /contradicts exact current task\/direct-review sources/u);
+  const withStaleBinding = buildPdp0CurrentSourceReviewCandidate({...input, reviewRecords: invented});
+  assert.ok(withStaleBinding.findings.some(finding => finding.id === 'P0-01-DIRECT-DECISION-BINDING-STALE'));
 });

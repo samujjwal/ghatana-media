@@ -44,7 +44,7 @@ test("X-04 crosswalk is bounded by the observed worker v1 client and Media OCR b
   assert.match(workerContract, /zero-based, end-exclusive UTF-16 code-unit offsets/u);
   assert.match(workerContract, /stale token cannot cancel a newer operation/u);
 
-  assert.match(crosswalk, /source-observed conformance crosswalk; no runtime binding or owner/u);
+  assert.match(crosswalk, /This is a source\/consumer crosswalk, not proof of real model admission/u);
   assert.match(crosswalk, /No tenant or consent propagation is established/u);
   assert.match(crosswalk, /No timestamp or temporal association/u);
   assert.match(crosswalk, /Not a direct field mapping/u);

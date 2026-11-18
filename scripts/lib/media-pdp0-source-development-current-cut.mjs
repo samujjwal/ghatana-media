@@ -4,6 +4,7 @@ import path from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 import { fileURLToPath } from 'node:url';
 import { pdp0PhaseScopedSourcePins } from '../report-media-pdp-readiness.mjs';
+import { resolveMediaPdp0Cells } from '../media-discovery-currentness.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../');
 const predecessorRefs = {
@@ -12,13 +13,6 @@ const predecessorRefs = {
   currentnessRef: 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json',
   currentnessSha256: 'sha256:14882e245fa1676138cfc5bd51ef0403cb96cf2f77542caa2c57dc683ca8b159',
 };
-
-const addedConsumerIds = [
-  'media.surface.capture-adapters',
-  'media.surface.interactive-demo-player',
-  'media.surface.production-studio',
-  'media.surface.recorder-orchestrator',
-];
 
 const sourceBoundPaths = [
   '.product-experience/surfaces/media-physical-topology.v1.json',
@@ -45,15 +39,17 @@ function fileDigest(repoRoot, relativePath) {
   return sha256(fs.readFileSync(path.join(repoRoot, relativePath)));
 }
 
-function normalizeTechnicalPeerReview(repoRoot, review, currentSourcePins) {
+function normalizeTechnicalPeerReview(repoRoot, review, currentSourcePins, requiredSurfaceIds) {
   if (!review || typeof review !== 'object'
       || typeof review.recordRef !== 'string' || path.isAbsolute(review.recordRef)
       || path.relative(repoRoot, path.resolve(repoRoot, review.recordRef)).startsWith('..')
-      || typeof review.reviewer !== 'string' || !review.reviewer.startsWith('agent:')
-      || review.reviewer === 'agent:/root/phase_io'
+      || typeof review.reviewer !== 'string' || !review.reviewer.trim()
+      || !review.reviewerAuthority || typeof review.reviewerAuthority.recordRef !== 'string'
+      || path.isAbsolute(review.reviewerAuthority.recordRef)
+      || path.relative(repoRoot, path.resolve(repoRoot, review.reviewerAuthority.recordRef)).startsWith('..')
       || !['PASS', 'PASS_WITH_LIMITATIONS'].includes(review.assessment)
       || !Array.isArray(review.reviewedSurfaceIds)
-      || review.reviewedSurfaceIds.slice().sort().join('\n') !== addedConsumerIds.slice().sort().join('\n')
+      || review.reviewedSurfaceIds.slice().sort().join('\n') !== requiredSurfaceIds.slice().sort().join('\n')
       || !isDeepStrictEqual(review.sourceFingerprints, currentSourcePins)
       || review.ownerAcceptance !== 'NOT_CLAIMED'
       || review.independentAcceptance !== 'NOT_CLAIMED'
@@ -61,12 +57,31 @@ function normalizeTechnicalPeerReview(repoRoot, review, currentSourcePins) {
       || !Array.isArray(review.findings)) {
     throw new Error('Distinct PDP-0 technical peer review is missing or does not bind the exact current source cut');
   }
+  const authorityPath = path.resolve(repoRoot, review.reviewerAuthority.recordRef);
+  const authorityBytes = fs.readFileSync(authorityPath);
+  const authorityDigest = sha256(authorityBytes);
+  if (review.reviewerAuthority.recordSha256 !== authorityDigest) {
+    throw new Error('PDP-0 peer reviewer authority record digest does not match its source bytes');
+  }
+  const authority = JSON.parse(authorityBytes.toString('utf8'));
+  if (authority.schemaVersion !== 'media.pdp0.technical-reviewer-authority.v1'
+      || authority.status !== 'ACTIVE'
+      || authority.reviewerIdentity !== review.reviewer
+      || authority.role !== 'DISTINCT_TECHNICAL_REVIEWER'
+      || !Array.isArray(authority.authorizedScopes)
+      || !authority.authorizedScopes.includes('PDP-0 current-source review')) {
+    throw new Error('PDP-0 peer reviewer authority record does not authorize this reviewer and scope');
+  }
   const reviewDigest = fileDigest(repoRoot, review.recordRef);
   if (review.recordSha256 !== reviewDigest) throw new Error('PDP-0 technical peer review digest does not match its source bytes');
   return {
     recordRef: review.recordRef,
     recordSha256: reviewDigest,
     reviewer: review.reviewer,
+    reviewerAuthority: {
+      recordRef: review.reviewerAuthority.recordRef,
+      recordSha256: authorityDigest,
+    },
     assessment: review.assessment,
     reviewedSurfaceIds: review.reviewedSurfaceIds.slice().sort(),
     sourceFingerprints: structuredClone(review.sourceFingerprints),
@@ -102,12 +117,14 @@ export function deriveMediaPdp0SourceDevelopmentDelta(historical, currentness) {
   }));
   const addedPaths = currentPaths.filter((sourcePath) => !priorPathSet.has(sourcePath));
   const removedPaths = priorPaths.filter((sourcePath) => !currentPathSet.has(sourcePath));
-  if (previousCells.length !== 50 || priorPaths.length !== 146
-      || cells.length !== 54 || currentPaths.length !== 207
-      || addedCells.join('\n') !== addedConsumerIds.map((id) => `${id}:PDP-0`).sort().join('\n')
-      || removedCells.length !== 0 || new Set(currentIds).size !== 54
-      || new Set(currentPaths).size !== 207) {
-    throw new Error('PDP-0 source-development delta is not the exact immutable 50/146 to current 54/207 cut');
+  if (!previousCells.length || !priorPaths.length || !cells.length || !currentPaths.length
+      || new Set(previousIds).size !== previousIds.length
+      || new Set(currentIds).size !== currentIds.length
+      || new Set(priorPaths).size !== priorPaths.length
+      || new Set(currentPaths).size !== currentPaths.length
+      || (currentness?.denominators?.totalCells !== undefined && currentness.denominators.totalCells !== cells.length)
+      || (currentness?.materialPathDenominator?.uniquePaths !== undefined && currentness.materialPathDenominator.uniquePaths !== currentPaths.length)) {
+    throw new Error('PDP-0 source-development delta has a duplicate or inconsistent source-bound denominator');
   }
   return {
     addedCellIds: addedCells,
@@ -128,6 +145,8 @@ function assertCurrentPdp0Sources(repoRoot, currentness) {
   const projectionDigest = pdp0PhaseScopedSourcePins()['.product-experience/source-manifest.yaml#PDP-0-projection'];
   const currentFiles = currentness?.sourceContentDigests ?? {};
   const cells = currentness?.physicalCompositeConsumerCells ?? [];
+  const topology = resolveMediaPdp0Cells(repoRoot);
+  const topologyCellIds = topology.cells.map(cellId).sort();
   const directCriteria = status.directDevelopmentCriteria ?? {};
   const criteriaPass = Object.keys(directCriteria).sort().join(',') === 'P0-01,P0-02,P0-03,P0-04,P0-05,P0-06,P0-07,P0-08'
     && Object.values(directCriteria).every((criterion) => criterion.testStatus === 'PASS');
@@ -139,11 +158,12 @@ function assertCurrentPdp0Sources(repoRoot, currentness) {
       || status.sourceShaSet?.['.product-experience/source-manifest.yaml#PDP-0-projection'] !== projectionDigest
       || currentness?.phaseDisposition?.sourceCurrent !== true
       || currentness?.phaseDisposition?.currentSourceCurrentness !== 'PASS'
-      || cells.length !== 54 || cells.some((cell) => cell.sourceCurrentness !== 'CURRENT' || (cell.blockers?.length ?? 0) > 0)
-      || Object.keys(currentFiles).length !== 207
-      || currentness?.denominators?.totalCells !== 54
-      || currentness?.materialPathDenominator?.uniquePaths !== 207) {
-    throw new Error('Current PDP-0 source-development cut is not complete and source-current for the 54-cell, 207-path cut');
+      || cells.length !== topology.denominator.totalCells
+      || cells.map(cellId).sort().join('\n') !== topologyCellIds.join('\n')
+      || cells.some((cell) => cell.sourceCurrentness !== 'CURRENT' || (cell.blockers?.length ?? 0) > 0)
+      || Object.keys(currentFiles).length !== currentness?.materialPathDenominator?.uniquePaths
+      || currentness?.denominators?.totalCells !== topology.denominator.totalCells) {
+    throw new Error(`Current PDP-0 source-development cut is not complete and source-current for the topology-derived ${topology.denominator.totalCells}-cell source cut`);
   }
   return { status, candidatePath, candidateDigest, projectionDigest, cells, currentFiles };
 }
@@ -158,7 +178,6 @@ export function buildMediaPdp0SourceDevelopmentCurrentCut({
   repositoryRoot = root,
   currentness,
   technicalPeerReview = null,
-  actor = 'agent:/root/phase_io',
 } = {}) {
   const repoRoot = path.resolve(repositoryRoot);
   const historicalPath = 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r12.json';
@@ -168,7 +187,8 @@ export function buildMediaPdp0SourceDevelopmentCurrentCut({
   const { status, candidatePath, candidateDigest, projectionDigest, cells, currentFiles } = assertCurrentPdp0Sources(repoRoot, currentness);
   const delta = deriveMediaPdp0SourceDevelopmentDelta(historical, currentness);
   const currentSourcePins = Object.fromEntries(sourceBoundPaths.map((sourcePath) => [sourcePath, fileDigest(repoRoot, sourcePath)]));
-  const peerReview = normalizeTechnicalPeerReview(repoRoot, technicalPeerReview, currentSourcePins);
+  const addedSurfaceIds = delta.addedCellIds.map((id) => id.replace(/:PDP-0$/u, '')).sort();
+  const peerReview = normalizeTechnicalPeerReview(repoRoot, technicalPeerReview, currentSourcePins, addedSurfaceIds);
   const pxd207Digest = pdp0PhaseScopedSourcePins()['.product-experience/decision-log.md#PXD-207-section'];
   const matrix = JSON.parse(fs.readFileSync(path.join(repoRoot, 'docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json'), 'utf8'));
   const pxd207BackedCellIds = cells.filter((cell) => cell.surfaceId && matrix.surfaces?.some((row) =>
@@ -202,11 +222,11 @@ export function buildMediaPdp0SourceDevelopmentCurrentCut({
       repository: 'samujjwal/ghatana-media',
       macroStage: 'DISCOVERY',
       phase: 'PDP-0',
-      scope: 'Current source-development cut for the complete 54-identity Media campaign; includes the four source-owned Recorder/Studio logical consumers and their current PDP-0 applicability/meaning records.',
+      scope: `Current source-development cut for the topology-derived ${currentness.denominators.totalCells}-identity Media campaign; includes every added physical, composite, and consumer identity in the current source cut.`,
     },
     authority: {
-      technicalSourceAuthor: actor,
-      basis: 'Explicit root-delegated technical-owner authority within the user-authorized Media Discovery source lane.',
+      technicalSourceAuthor: 'AI technical source author (identity not independently attested)',
+      basis: 'Technical source authorship only; this record does not assert owner authority or owner acceptance.',
       independentTechnicalReview: 'RECORDED_SEPARATELY',
       ownerAcceptance: 'NOT_CLAIMED',
       independentAcceptance: 'NOT_CLAIMED',
@@ -242,7 +262,7 @@ export function buildMediaPdp0SourceDevelopmentCurrentCut({
     },
     sourceDevelopment: {
       classification: 'CURRENT_SOURCE_DEVELOPMENT_SCOPE_EXTENSION',
-      surfaceIds: addedConsumerIds,
+      surfaceIds: addedSurfaceIds,
       pxd207BackedCellIds,
       semanticEquivalenceToPredecessor: 'NOT_CLAIMED',
       currentPdp0MeaningEvidence: p0MeaningEvidence,
