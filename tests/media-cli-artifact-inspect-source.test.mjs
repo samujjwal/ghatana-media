@@ -9,7 +9,7 @@ const root = fileURLToPath(new URL('..', import.meta.url));
 const { parse } = createRequire(resolve(root, '../ghatana-tools/package.json'))('yaml');
 const readYaml = path => parse(readFileSync(resolve(root, path), 'utf8'));
 
-test('one installed CLI identity maps to the accepted scoped artifact query without merging fixture populations', () => {
+test('five installed CLI identities map to current artifact and job operations without merging fixture populations', () => {
   const fixture = readYaml('.product-experience/pdp-3-product-experience/cli/command-registry.yaml');
   const proposals = readYaml('.product-experience/pdp-3-product-experience/cli-command-registry.yaml');
   const registry = readYaml('.product-experience/pdp-3-product-experience/cli/production-command-registry.yaml');
@@ -25,14 +25,21 @@ test('one installed CLI identity maps to the accepted scoped artifact query with
   assert.ok(proposals.commands.some(item => item.id === 'media.cli.upload.inspect'));
   assert.ok(!proposals.commands.some(item => item.id === command.id), 'the installed artifact-inspect ID is distinct from the proposed upload-inspect ID');
   assert.equal(crosswalk.populations.unresolvedHistoricalAndProposedIdentities.reconciliation,
-    'all-12-identities-remain-individually-unresolved; the-new-host-configured-query-does-not-close-or-alias-any-historical-entry');
+    'all-12-identities-remain-individually-unresolved; the-five-current-host-configured-commands-do-not-close-or-alias-any-historical-entry');
   assert.equal(crosswalk.populations.unresolvedHistoricalAndProposedIdentities.nonEquivalentNearbyIdentity.commandId,
     'media.cli.upload.inspect');
   assert.match(crosswalk.populations.unresolvedHistoricalAndProposedIdentities.nonEquivalentNearbyIdentity.distinction,
     /upload-session-inspection-is-not-artifact-identity-inspection/u);
   assert.equal(registry.fixturePopulation.count, 11);
-  assert.equal(registry.productionCommandPopulation.count, 1);
-  assert.equal(registry.commands.length, 1);
+  const productionIds = [
+    'media.cli.artifact.inspect',
+    'media.cli.job.get',
+    'media.cli.job.submit',
+    'media.cli.job.list',
+    'media.cli.job.cancel',
+  ];
+  assert.equal(registry.productionCommandPopulation.count, productionIds.length);
+  assert.deepEqual(registry.commands.map(item => item.id), productionIds);
   assert.equal(command.canonicalCommand, 'ghatanamedia-api artifact inspect');
   assert.equal(pkg.bin['ghatanamedia-api'], './dist/cli.js');
   assert.equal(command.operationRef.endsWith('media.operation-slice.inspect-artifact'), true);
@@ -44,15 +51,22 @@ test('one installed CLI identity maps to the accepted scoped artifact query with
   assert.equal(artifactRead.ownerDecisionRef, '.product-experience/decision-log.md#PXD-040');
   assert.equal(command.ownerDecisionRefs.includes('.product-experience/decision-log.md#PXD-044'), true);
   assert.equal(crosswalk.populations.explorerFixtureCommands.count, 11);
-  assert.equal(crosswalk.populations.hostConfiguredRuntimeConsumers.count, 1);
+  assert.equal(crosswalk.populations.hostConfiguredRuntimeConsumers.count, productionIds.length);
+  assert.deepEqual(crosswalk.populations.hostConfiguredRuntimeConsumers.identities.map(item => item.commandId), productionIds);
   assert.equal(crosswalk.populations.unresolvedHistoricalAndProposedIdentities.sourcePopulation, 12);
   const parityFixture = parity.surfaces.find(item => item.surface === 'CLI fixture commands');
   const parityRuntime = parity.surfaces.find(item => item.surface === 'CLI host-configured runtime consumers');
   assert.equal(parityFixture.denominator, 11);
-  assert.deepEqual(parityRuntime.identities, ['media.cli.artifact.inspect']);
-  assert.equal(parityRuntime.denominator, 1);
+  assert.deepEqual(parityRuntime.identities, productionIds);
+  assert.equal(parityRuntime.denominator, productionIds.length);
   assert.equal(parityRuntime.exactBindings[0].httpOperationId, 'getMediaArtifact');
   assert.equal(parityRuntime.exactBindings[0].operationRef, 'media.operation-slice.inspect-artifact');
+  assert.deepEqual(parityRuntime.dispositionCounts,
+    { boundedCanonicalRead: 2, boundedCanonicalMutation: 2, boundedCanonicalQuery: 1, unresolved: 0 });
+  assert.equal(parityRuntime.exactBindings.find(item => item.commandId === 'media.cli.job.cancel').httpOperationId,
+    'cancelMediaJob');
+  assert.equal(parityRuntime.exactBindings.find(item => item.commandId === 'media.cli.job.cancel').operationRef,
+    'media.operation-slice.cancel-job');
   assert.match(parityRuntime.qualification, /production-qualification-open/u);
   assert.match(command.credentialSource, /environment-only/u);
   assert.match(registry.status, /production-host-qualification-open/u);
@@ -73,5 +87,5 @@ test('source crosswalk rejects claims that the fixture CLI is production or that
   assert.equal(crosswalk.populations.unresolvedHistoricalAndProposedIdentities.sourcePopulation, 12);
   assert.match(crosswalk.populations.unresolvedHistoricalAndProposedIdentities.reconciliation,
     /all-12-identities-remain-individually-unresolved/u,
-    "the host-configured read does not resolve any historical CLI identity");
+    "the host-configured commands do not resolve any historical CLI identity");
 });

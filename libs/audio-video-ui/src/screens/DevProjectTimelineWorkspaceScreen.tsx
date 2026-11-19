@@ -1,4 +1,5 @@
 import React from "react";
+import { MediaDevProjectTimelineError } from "@audio-video/client/dev-project-timeline";
 import type {
   DevOwnedArtifact,
   DevProject,
@@ -26,9 +27,9 @@ export interface DevProjectTimelineWorkspaceScreenProps {
 }
 
 type PendingMutation =
-  | { readonly kind: "timeline"; readonly timelineId: string; readonly baseRevisionId: string }
-  | { readonly kind: "edit"; readonly timelineId: string; readonly edit: DevTimelineEdit; readonly baseRevisionId: string }
-  | { readonly kind: "restore"; readonly targetRevisionId: string; readonly baseRevisionId: string };
+  | { readonly kind: "timeline"; readonly timelineId: string; readonly baseRevisionId: string; readonly requestId: string }
+  | { readonly kind: "edit"; readonly timelineId: string; readonly edit: DevTimelineEdit; readonly baseRevisionId: string; readonly requestId: string }
+  | { readonly kind: "restore"; readonly targetRevisionId: string; readonly baseRevisionId: string; readonly requestId: string };
 type PendingOperation = PendingMutation | { readonly kind: "reopen"; readonly baseRevisionId: string };
 type ViewState =
   | { readonly kind: "ready"; readonly project: DevProject; readonly revision: DevProjectRevision; readonly message: string }
@@ -40,6 +41,13 @@ const ID_PATTERN = "[A-Za-z0-9][A-Za-z0-9._:\\x2d]{0,127}";
 const ID = new RegExp(`^${ID_PATTERN}$`, "u");
 const DECIMAL = /^(0|[1-9][0-9]*)$/u;
 const MAX_INT64 = 9_223_372_036_854_775_807n;
+let requestCounter = 0;
+const defaultRequestId = (): string => {
+  const random = typeof globalThis.crypto?.randomUUID === "function"
+    ? globalThis.crypto.randomUUID()
+    : `${Date.now().toString(36)}-${(requestCounter++).toString(36)}`;
+  return `timeline-ui-${random}`;
+};
 const isCurrentHead = (project: DevProject, revision: DevProjectRevision): boolean =>
   project.projectId === revision.projectId && project.tenantId === revision.tenantId && project.headRevisionId === revision.revisionId;
 const graphFor = (revision: DevProjectRevision, timelineId: string) =>
@@ -163,6 +171,38 @@ function DevProjectTimelineWorkspaceInstance({ client, project, revision, output
   const setBusy = (message: string): void => save({ kind: "busy", project: view.project, revision: view.revision, message });
   const setReady = (nextProject: DevProject, nextRevision: DevProjectRevision, message: string): void =>
     save({ kind: "ready", project: nextProject, revision: nextRevision, message });
+  const nextRequestId = (): string => (newRequestId ?? defaultRequestId)();
+
+  const recoverRevisionConflict = async (
+    error: unknown,
+    pending: PendingMutation,
+    action: string,
+  ): Promise<boolean> => {
+    if (!(error instanceof MediaDevProjectTimelineError)
+      || error.status !== 409 || error.code !== "REVISION_CONFLICT") return false;
+    try {
+      let base = view.revision;
+      if (pending.baseRevisionId !== view.revision.revisionId) {
+        const baseRead = await client.getRevision(project.projectId, pending.baseRevisionId);
+        if (baseRead.scope !== "DEV_ONLY") throw new Error("The attempted project revision was not read in DEV_ONLY scope.");
+        base = baseRead.revision;
+      }
+      if (base.projectId !== project.projectId || base.tenantId !== project.tenantId
+        || base.revisionId !== pending.baseRevisionId) {
+        throw new Error("The attempted project revision could not be verified.");
+      }
+      const current = await acceptedProjectRead();
+      setComparison(compareProjectRevisions(base, current.revision));
+      setReadback(current.revision);
+      setReady(current.project, current.revision,
+        `REVISION_CONFLICT: ${action} was not applied. The current owner head is ${current.revision.revisionId}; review the revision changes below before explicitly submitting a new command.`);
+    } catch {
+      save({ kind: "unknown", project: view.project, revision: view.revision,
+        pending: { kind: "reopen", baseRevisionId: pending.baseRevisionId }, retryConfirmed: false,
+        message: `REVISION_CONFLICT: ${action} was not applied. The current owner head could not be refreshed; read it before reviewing or submitting a new command.` });
+    }
+    return true;
+  };
 
   const mutationResult = async (pending: PendingMutation, result: DevRevisionRead): Promise<{ project: DevProject; revision: DevProjectRevision }> => {
     const next = result.revision;
@@ -181,21 +221,26 @@ function DevProjectTimelineWorkspaceInstance({ client, project, revision, output
     if (!ID.test(id) || locked) return;
     const existing = graphFor(view.revision, id);
     if (existing) { setActiveTimelineId(id); save({ kind: "ready", project: view.project, revision: view.revision, message: `Timeline ${id} is already present in the current owner head ${view.revision.revisionId}; no mutation was sent.` }); return; }
-    const pending: PendingMutation = { kind: "timeline", timelineId: id, baseRevisionId: view.revision.revisionId };
+    const pending: PendingMutation = {
+      kind: "timeline", timelineId: id, baseRevisionId: view.revision.revisionId, requestId: nextRequestId(),
+    };
     setBusy(`Creating empty timeline ${id}…`);
     try {
-      const result = await client.createTimeline(project.projectId, { expectedHeadRevisionId: pending.baseRevisionId, timelineId: id });
+      const result = await client.createTimeline(project.projectId, {
+        expectedHeadRevisionId: pending.baseRevisionId, timelineId: id, requestId: pending.requestId,
+      });
       const snapshot = result.revision.timelines.filter((item) => item.graph.timelineId === id);
       if (snapshot.length !== 1 || snapshot[0]!.graph.scenes.length || snapshot[0]!.graph.tracks.length || snapshot[0]!.graph.clips.length) throw new Error("Timeline creation was not empty or unique.");
       const current = await mutationResult(pending, result);
       setActiveTimelineId(id); setReadback(current.revision);
       setReady(current.project, current.revision, `Created empty timeline ${id}; exact revision ${current.revision.revisionId} reopened.`);
     } catch (error) {
+      if (await recoverRevisionConflict(error, pending, `Creating timeline ${id}`)) return;
       save({ kind: "unknown", project: view.project, revision: view.revision, pending, retryConfirmed: false, message: `OUTCOME_UNKNOWN: the owner head could not confirm timeline ${id}. Reconcile before retrying.` });
     }
   };
 
-  const edit = async (operation: DevTimelineEdit, retryConfirmed = false): Promise<void> => {
+  const edit = async (operation: DevTimelineEdit, retryConfirmed = false, requestId?: string): Promise<void> => {
     if ((locked && !retryConfirmed) || !selectedTimelineId || !graph) return;
     let problem: string | null = null;
     if (operation.type === "addScene"
@@ -230,14 +275,20 @@ function DevProjectTimelineWorkspaceInstance({ client, project, revision, output
       problem = `Clip ID ${operation.clipId} is not in the current timeline; no mutation was sent.`;
     }
     if (problem) { save({ kind: "ready", project: view.project, revision: view.revision, message: problem }); return; }
-    const pending: PendingMutation = { kind: "edit", timelineId: selectedTimelineId, edit: operation, baseRevisionId: view.revision.revisionId };
+    const pending: PendingMutation = {
+      kind: "edit", timelineId: selectedTimelineId, edit: operation, baseRevisionId: view.revision.revisionId,
+      requestId: requestId ?? nextRequestId(),
+    };
     setBusy(`Saving ${operation.type}…`);
     try {
-      const result = await client.editTimeline(project.projectId, selectedTimelineId, { expectedHeadRevisionId: pending.baseRevisionId, edits: [operation] });
+      const result = await client.editTimeline(project.projectId, selectedTimelineId, {
+        expectedHeadRevisionId: pending.baseRevisionId, edits: [operation], requestId: pending.requestId,
+      });
       const current = await mutationResult(pending, result);
       setActiveTimelineId(selectedTimelineId); setReadback(current.revision);
       save({ kind: "ready", project: current.project, revision: current.revision, message: `Committed and reopened ${operation.type} in revision ${current.revision.revisionId}.` });
     } catch (error) {
+      if (await recoverRevisionConflict(error, pending, operation.type)) return;
       if (operation.type === "putClip" && error instanceof Error && "status" in error
         && ((error as { status?: unknown }).status === 403 || (error as { status?: unknown }).status === 404)) {
         setObservedArtifactRecord(null);
@@ -312,17 +363,19 @@ function DevProjectTimelineWorkspaceInstance({ client, project, revision, output
       setTimelineId(pending.timelineId);
       const next: ViewState = { kind: "ready", project: view.project, revision: view.revision, message: "Retrying the timeline ID confirmed absent from the owner head." };
       save(next);
-      void client.createTimeline(project.projectId, { expectedHeadRevisionId: view.revision.revisionId, timelineId: pending.timelineId }).then(async (result) => {
+      void client.createTimeline(project.projectId, {
+        expectedHeadRevisionId: view.revision.revisionId, timelineId: pending.timelineId, requestId: pending.requestId,
+      }).then(async (result) => {
         const current = await mutationResult(pending, result);
         setActiveTimelineId(pending.timelineId); setReadback(current.revision);
         setReady(current.project, current.revision, `Created empty timeline ${pending.timelineId}; exact revision ${current.revision.revisionId} reopened.`);
       }).catch(() => save({ kind: "unknown", project: view.project, revision: view.revision, pending, retryConfirmed: false, message: "OUTCOME_UNKNOWN: retry remains unresolved. Reconcile before another mutation." }));
     } else if (pending.kind === "edit") {
       setReady(view.project, view.revision, "Retrying graph edit after owner-head absence was confirmed.");
-      await edit(pending.edit, true);
+      await edit(pending.edit, true, pending.requestId);
     } else {
       setReady(view.project, view.revision, "Retrying restore after owner-head absence was confirmed.");
-      await restoreObserved(pending.targetRevisionId);
+      await restoreObserved(pending.targetRevisionId, pending);
     }
   };
 
@@ -375,20 +428,34 @@ function DevProjectTimelineWorkspaceInstance({ client, project, revision, output
     }
   };
 
-  const restoreObserved = async (targetRevisionId = observedRevision?.revisionId): Promise<void> => {
+  const restoreObserved = async (
+    targetRevisionId = observedRevision?.revisionId,
+    retry?: Extract<PendingMutation, { readonly kind: "restore" }>,
+  ): Promise<void> => {
     if (!targetRevisionId || busy) return;
     const target = targetRevisionId === observedRevision?.revisionId ? observedRevision : null;
     if (!target) return;
-    let pending: PendingMutation = { kind: "restore", targetRevisionId, baseRevisionId: view.revision.revisionId };
+    let pending: PendingMutation = retry ?? {
+      kind: "restore", targetRevisionId, baseRevisionId: view.revision.revisionId, requestId: nextRequestId(),
+    };
     setBusy(`Restoring exact revision ${targetRevisionId} as a successor…`);
     try {
-      const current = await acceptedProjectRead();
-      pending = { kind: "restore", targetRevisionId, baseRevisionId: current.revision.revisionId };
-      const result = await client.restoreRevision(project.projectId, { expectedHeadRevisionId: current.revision.revisionId, targetRevisionId });
+      const current = retry
+        ? { project: view.project, revision: view.revision }
+        : await acceptedProjectRead();
+      pending = {
+        kind: "restore", targetRevisionId,
+        baseRevisionId: retry?.baseRevisionId ?? current.revision.revisionId,
+        requestId: pending.requestId,
+      };
+      const result = await client.restoreRevision(project.projectId, {
+        expectedHeadRevisionId: current.revision.revisionId, targetRevisionId, requestId: pending.requestId,
+      });
       const restored = await mutationResult(pending, result);
       setReadback(restored.revision); setObservedRecord(null);
       setReady(restored.project, restored.revision, `Restored exact graph state from ${targetRevisionId} as new head ${restored.revision.revisionId}; prior revisions remain available.`);
-    } catch {
+    } catch (error) {
+      if (await recoverRevisionConflict(error, pending, "Restore")) return;
       save({ kind: "unknown", project: view.project, revision: view.revision, pending, retryConfirmed: false, message: `OUTCOME_UNKNOWN: restore is still unresolved for ${targetRevisionId}. Reconcile before retrying.` });
     }
   };

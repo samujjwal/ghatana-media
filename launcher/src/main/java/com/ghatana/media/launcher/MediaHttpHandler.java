@@ -514,6 +514,14 @@ public final class MediaHttpHandler implements HttpHandler {
             error(exchange, 503, "UNKNOWN_OUTCOME",
                     "Media stream frame outcome is uncertain; inspect the session before retrying",
                     false, Map.of());
+        } catch (MediaRuntime.JobCancellationNotFoundException failure) {
+            error(exchange, 404, "JOB_NOT_FOUND", "Media job not found");
+        } catch (MediaRuntime.JobCancellationVersionConflictException failure) {
+            error(exchange, 409, "VERSION_CONFLICT", "Job version changed before cancellation was reserved",
+                    Map.of("expectedVersion", failure.expected(), "currentVersion", failure.actual()));
+        } catch (MediaRuntime.JobCancellationRequestConflictException failure) {
+            error(exchange, 409, "IDEMPOTENCY_CONFLICT",
+                    "A different cancellation request already owns this job; inspect the durable job state");
         } catch (SecurityException failure) {
             runtime.recordDeniedRequest();
             error(exchange, 403, "TENANT_FORBIDDEN", "Request tenant is not permitted");
@@ -978,7 +986,7 @@ public final class MediaHttpHandler implements HttpHandler {
                 Map<String, Object> body = mapper.readValue(
                         boundedBody(exchange, runtime.config().maximumBodyBytes()), new TypeReference<>() { });
                 if (body == null) throw new IllegalArgumentException("timeline edit request is required");
-                requireExactKeys(body, Set.of("expectedHeadRevisionId", "edits"), "timeline edit request");
+                requireExactKeys(body, Set.of("expectedHeadRevisionId", "edits", "requestId"), "timeline edit request");
                 List<Edit> edits = toTimelineEdits(body.get("edits"));
                 List<Clip> putClips = edits.stream().filter(PutClip.class::isInstance)
                         .map(PutClip.class::cast).map(PutClip::clip).toList();
@@ -999,18 +1007,23 @@ public final class MediaHttpHandler implements HttpHandler {
                 }
                 Revision revision = devProjectTimeline.editTimeline(tenantId, principalId,
                         decodePathSegment(timelineEdits.group(1)), decodePathSegment(timelineEdits.group(2)),
-                        requiredString(body.get("expectedHeadRevisionId"), "expectedHeadRevisionId"), edits);
+                        requiredString(body.get("expectedHeadRevisionId"), "expectedHeadRevisionId"), edits,
+                        requiredString(body.get("requestId"), "requestId"));
                 json(exchange, 201, Map.of("revision", devRevisionView(revision), "scope", "DEV_ONLY"));
                 return;
             }
             Matcher restoreProject = Pattern.compile("^/dev/v1/projects/([^/]+)/restore$").matcher(path);
             if (restoreProject.matches()) {
                 if (!"POST".equals(method)) { methodNotAllowed(exchange, "POST"); return; }
-                DevRestoreProjectBody body = mapper.readValue(
-                        boundedBody(exchange, runtime.config().maximumBodyBytes()), DevRestoreProjectBody.class);
+                Map<String, Object> body = mapper.readValue(
+                        boundedBody(exchange, runtime.config().maximumBodyBytes()), new TypeReference<>() { });
                 if (body == null) throw new IllegalArgumentException("restore body is required");
+                requireExactKeys(body, Set.of("expectedHeadRevisionId", "targetRevisionId", "requestId"), "restore request");
                 Revision revision = devProjectTimeline.restoreRevision(tenantId, principalId,
-                        decodePathSegment(restoreProject.group(1)), body.expectedHeadRevisionId(), body.targetRevisionId());
+                        decodePathSegment(restoreProject.group(1)),
+                        requiredString(body.get("expectedHeadRevisionId"), "expectedHeadRevisionId"),
+                        requiredString(body.get("targetRevisionId"), "targetRevisionId"),
+                        requiredString(body.get("requestId"), "requestId"));
                 json(exchange, 201, Map.of("revision", devRevisionView(revision), "scope", "DEV_ONLY"));
                 return;
             }
@@ -1027,10 +1040,15 @@ public final class MediaHttpHandler implements HttpHandler {
             Matcher timelines = Pattern.compile("^/dev/v1/projects/([^/]+)/timelines$").matcher(path);
             if (timelines.matches()) {
                 if (!"POST".equals(method)) { methodNotAllowed(exchange, "POST"); return; }
-                DevCreateTimelineBody body = mapper.readValue(
-                        boundedBody(exchange, runtime.config().maximumBodyBytes()), DevCreateTimelineBody.class);
+                Map<String, Object> body = mapper.readValue(
+                        boundedBody(exchange, runtime.config().maximumBodyBytes()), new TypeReference<>() { });
+                if (body == null) throw new IllegalArgumentException("timeline creation request is required");
+                requireExactKeys(body, Set.of("expectedHeadRevisionId", "timelineId", "requestId"), "timeline creation request");
                 var revision = devProjectTimeline.createTimeline(tenantId, principalId,
-                        decodePathSegment(timelines.group(1)), body.expectedHeadRevisionId(), body.timelineId());
+                        decodePathSegment(timelines.group(1)),
+                        requiredString(body.get("expectedHeadRevisionId"), "expectedHeadRevisionId"),
+                        requiredString(body.get("timelineId"), "timelineId"),
+                        requiredString(body.get("requestId"), "requestId"));
                 json(exchange, 201, Map.of("revision", devRevisionView(revision), "scope", "DEV_ONLY"));
                 return;
             }
@@ -1122,7 +1140,7 @@ public final class MediaHttpHandler implements HttpHandler {
             runtime.recordDeniedRequest();
             error(exchange, 403, "PROJECT_ACCESS_DENIED", "Principal is not authorized to access this project");
         } catch (IdempotencyConflictException failure) {
-            error(exchange, 409, "IDEMPOTENCY_CONFLICT", "Project create requestId was already used with another payload");
+            error(exchange, 409, "IDEMPOTENCY_CONFLICT", "Request ID was already used for this operation with another payload");
         } catch (MediaRuntime.DevJobCancellationVersionConflictException failure) {
             error(exchange, 409, "JOB_VERSION_CONFLICT", "Job version changed before cancellation was reserved",
                     Map.of("expectedVersion", failure.expected(), "currentVersion", failure.actual()));
@@ -1285,11 +1303,38 @@ public final class MediaHttpHandler implements HttpHandler {
     }
 
     private void cancel(HttpExchange exchange, String tenantId, String principalId, String jobId) throws IOException {
-        ProcessingJob existing = runtime.job(tenantId, principalId, jobId).orElse(null);
-        if (existing == null) {
-            error(exchange, 404, "JOB_NOT_FOUND", "Media job not found"); return;
+        Map<String, Object> body = mapper.readValue(
+                boundedBody(exchange, runtime.config().maximumBodyBytes()), new TypeReference<>() { });
+        if (body == null || body.keySet().stream()
+                .anyMatch(key -> !Set.of("requestId", "expectedJobVersion", "reason").contains(key))
+                || !body.containsKey("requestId") || !body.containsKey("expectedJobVersion")) {
+            throw new IllegalArgumentException("job cancellation request fields do not match its declared shape");
         }
-        json(exchange, 200, runtime.projectJobView(runtime.cancel(tenantId, principalId, jobId)));
+        String requestId = requiredString(body.get("requestId"), "requestId");
+        String idempotencyKey = requiredHeader(exchange, "Idempotency-Key");
+        if (!requestId.equals(idempotencyKey)) {
+            throw new IllegalArgumentException("Idempotency-Key must equal the cancellation requestId");
+        }
+        Object rawVersion = body.get("expectedJobVersion");
+        if (!(rawVersion instanceof Number number)) {
+            throw new IllegalArgumentException("expectedJobVersion must be an integer");
+        }
+        long expectedVersion;
+        try {
+            expectedVersion = new java.math.BigDecimal(number.toString()).longValueExact();
+        } catch (ArithmeticException invalid) {
+            throw new IllegalArgumentException("expectedJobVersion must be a positive 64-bit integer", invalid);
+        }
+        String reason = body.containsKey("reason") ? requiredString(body.get("reason"), "reason") : "USER_REQUEST";
+        MediaRuntime.JobCancellationResponse response = runtime.requestJobCancellation(
+                tenantId, principalId, jobId, requestId, expectedVersion, reason);
+        String statusPath = "/api/v1/jobs/" + jobId;
+        exchange.getResponseHeaders().set("Location", statusPath);
+        if (response.state() != MediaRuntime.JobCancellationState.ALREADY_TERMINAL) {
+            exchange.getResponseHeaders().set("Retry-After", "1");
+        }
+        json(exchange, response.state() == MediaRuntime.JobCancellationState.ALREADY_TERMINAL ? 200 : 202,
+                response);
     }
 
     private void openStream(HttpExchange exchange, String tenantId, String principalId) throws IOException {
@@ -1932,8 +1977,6 @@ public final class MediaHttpHandler implements HttpHandler {
         return view;
     }
 
-    private record DevCreateTimelineBody(String expectedHeadRevisionId, String timelineId) { }
-    private record DevRestoreProjectBody(String expectedHeadRevisionId, String targetRevisionId) { }
 
     private static List<Edit> toTimelineEdits(Object rawEdits) {
         if (!(rawEdits instanceof List<?> edits) || edits.isEmpty() || edits.size() > 10_000) {

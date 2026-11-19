@@ -39,6 +39,88 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class MediaRuntimeRestartReconciliationTest {
 
     @Test
+    void durableCancellationRequestBecomesCancelledOnlyAfterRestartConfirmsNoDispatch() throws Exception {
+        var root = Files.createTempDirectory("media-canonical-cancel-restart-");
+        var jobs = new LocalMediaRuntimeSupport.JobStore(false);
+        var providerCalls = new AtomicInteger();
+        MediaProcessingProvider provider = pendingProvider(new CompletableFuture<>(), providerCalls);
+        ProcessingJob cancellable = new ProcessingJob(
+                "job-cancel-request", "submit-cancel-request", "tenant-a", "principal-a", "artifact-a",
+                JobType.VISION, provider.providerId(), JobStatus.ACCEPTED, java.time.Instant.now(),
+                null, null, Map.of(), "", 1);
+        ProcessingJob stale = new ProcessingJob(
+                "job-cancel-stale", "submit-cancel-stale", "tenant-a", "principal-a", "artifact-b",
+                JobType.VISION, provider.providerId(), JobStatus.ACCEPTED, java.time.Instant.now(),
+                null, null, Map.of(), "", 1);
+
+        MediaRuntime initialRuntime = runtime(root, new LocalMediaRuntimeSupport.FileArtifactStore(root), jobs,
+                new LocalMediaRuntimeSupport.StreamStore(), provider);
+        try {
+            jobs.create(cancellable);
+            jobs.create(stale);
+
+            var first = initialRuntime.requestJobCancellation(
+                    "tenant-a", "principal-a", cancellable.jobId(), "cancel-request-1", 1, "USER_REQUEST");
+            assertThat(first.state()).isEqualTo(MediaRuntime.JobCancellationState.CANCEL_REQUESTED);
+            assertThat(first.replayed()).isFalse();
+            assertThat(jobs.find("tenant-a", cancellable.jobId()).orElseThrow().status())
+                    .isEqualTo(JobStatus.ACCEPTED);
+
+            var replay = initialRuntime.requestJobCancellation(
+                    "tenant-a", "principal-a", cancellable.jobId(), "cancel-request-1", 1, "USER_REQUEST");
+            assertThat(replay.state()).isEqualTo(MediaRuntime.JobCancellationState.CANCEL_REQUESTED);
+            assertThat(replay.replayed()).isTrue();
+            assertThatThrownBy(() -> initialRuntime.requestJobCancellation(
+                    "tenant-a", "principal-a", cancellable.jobId(), "cancel-request-1", 1, "POLICY_CHANGE"))
+                    .isInstanceOf(MediaRuntime.JobCancellationRequestConflictException.class);
+            assertThatThrownBy(() -> initialRuntime.requestJobCancellation(
+                    "tenant-a", "principal-a", cancellable.jobId(), "cancel-request-2", 2, "USER_REQUEST"))
+                    .isInstanceOf(MediaRuntime.JobCancellationRequestConflictException.class);
+            assertThatThrownBy(() -> initialRuntime.requestJobCancellation(
+                    "tenant-b", "principal-a", cancellable.jobId(), "foreign-cancel", 1, "USER_REQUEST"))
+                    .isInstanceOf(MediaRuntime.JobCancellationNotFoundException.class);
+            assertThatThrownBy(() -> initialRuntime.requestJobCancellation(
+                    "tenant-a", "principal-a", stale.jobId(), "stale-cancel", 2, "USER_REQUEST"))
+                    .isInstanceOf(MediaRuntime.JobCancellationVersionConflictException.class);
+            assertThat(providerCalls).hasValue(0);
+        } finally {
+            initialRuntime.close();
+        }
+
+        MediaRuntime reopenedRuntime = runtime(root, new LocalMediaRuntimeSupport.FileArtifactStore(root), jobs,
+                new LocalMediaRuntimeSupport.StreamStore(), provider);
+        try {
+            ProcessingJob terminal = jobs.find("tenant-a", cancellable.jobId()).orElseThrow();
+            assertThat(terminal.status()).isEqualTo(JobStatus.CANCELLED);
+            @SuppressWarnings("unchecked")
+            Map<String, Object> cancellation = (Map<String, Object>) terminal.result().get("cancellationRequest");
+            assertThat(cancellation).containsEntry("state", "CANCELLED")
+                    .containsEntry("providerOutcome", "NO_DISPATCH_PROVEN");
+            assertThat(reopenedRuntime.job("tenant-a", "principal-a", cancellable.jobId()).orElseThrow().status())
+                    .isEqualTo(JobStatus.CANCELLED);
+
+            var duplicate = reopenedRuntime.requestJobCancellation(
+                    "tenant-a", "principal-a", cancellable.jobId(), "cancel-request-1", 1, "USER_REQUEST");
+            assertThat(duplicate.state()).isEqualTo(MediaRuntime.JobCancellationState.ALREADY_TERMINAL);
+            assertThat(duplicate.replayed()).isTrue();
+            long terminalVersion = terminal.version();
+            assertThatThrownBy(() -> reopenedRuntime.requestJobCancellation(
+                    "tenant-a", "principal-a", cancellable.jobId(), "terminal-cancel-stale", terminalVersion - 1,
+                    "USER_REQUEST"))
+                    .isInstanceOf(MediaRuntime.JobCancellationVersionConflictException.class);
+            var newRequestOnTerminal = reopenedRuntime.requestJobCancellation(
+                    "tenant-a", "principal-a", cancellable.jobId(), "terminal-cancel-new", terminalVersion,
+                    "USER_REQUEST");
+            assertThat(newRequestOnTerminal.state()).isEqualTo(MediaRuntime.JobCancellationState.ALREADY_TERMINAL);
+            assertThat(newRequestOnTerminal.replayed()).isFalse();
+            assertThat(jobs.find("tenant-a", cancellable.jobId()).orElseThrow().version()).isEqualTo(terminalVersion);
+            assertThat(providerCalls).hasValue(0);
+        } finally {
+            reopenedRuntime.close();
+        }
+    }
+
+    @Test
     void speechRestartQueriesExactAttemptOnceAndPersistsOnlyUnknownReceiptDigest() throws Exception {
         var root = Files.createTempDirectory("media-stt-restart-readback-");
         var jobs = new LocalMediaRuntimeSupport.JobStore(false);
@@ -315,7 +397,7 @@ class MediaRuntimeRestartReconciliationTest {
         AtomicInteger calls = new AtomicInteger();
         MediaProcessingProvider provider = pendingProvider(pending, calls);
 
-        MediaRuntime first = runtime(root, artifacts, jobs, streams, provider);
+        MediaRuntime first = runtime(root, artifacts, jobs, streams, provider, "dev");
         String jobId;
         try {
             byte[] bytes = "media".getBytes(StandardCharsets.UTF_8);
@@ -330,10 +412,12 @@ class MediaRuntimeRestartReconciliationTest {
                     artifact.artifactId(), JobType.VISION, "remote", Map.of()));
             jobId = accepted.jobId();
 
-            var requested = first.cancel("tenant-a", "principal-a", jobId);
-            assertThat(requested.status()).isEqualTo(JobStatus.RUNNING);
-            assertThat(requested.result())
-                    .containsEntry("cancellationOutcome", "REQUESTED_UNCONFIRMED");
+            var running = first.job("tenant-a", "principal-a", jobId).orElseThrow();
+            var requested = first.cancelLocalDevelopmentJob(
+                    "tenant-a", "principal-a", jobId, "cancel-request-restart", running.version());
+            assertThat(requested.outcome()).isEqualTo("REQUESTED_UNCONFIRMED");
+            assertThat(requested.job().status()).isEqualTo(JobStatus.RUNNING);
+            assertThat(devCancellationOutcome(requested.job().result())).isEqualTo("REQUESTED_UNCONFIRMED");
             assertThat(pending).isNotCancelled();
         } finally {
             first.close();
@@ -343,20 +427,19 @@ class MediaRuntimeRestartReconciliationTest {
                 .extracting(job -> job.status())
                 .isEqualTo(JobStatus.RUNNING);
 
-        MediaRuntime restarted = runtime(root, artifacts, jobs, streams, provider);
+        MediaRuntime restarted = runtime(root, artifacts, jobs, streams, provider, "dev");
         try {
             var reconciled = restarted.job("tenant-a", "principal-a", jobId).orElseThrow();
             assertThat(reconciled.status()).isEqualTo(JobStatus.RUNNING);
             assertThat(reconciled.failureCode()).isEmpty();
 
-            assertThat(reconciled.result())
-                    .containsEntry("cancellationOutcome", "REQUESTED_UNCONFIRMED");
+            assertThat(devCancellationOutcome(reconciled.result())).isEqualTo("REQUESTED_UNCONFIRMED");
             assertThat(reconciled.status()).isNotEqualTo(JobStatus.CANCELLED);
             assertThat(calls).hasValue(1);
 
             var readReplay = restarted.job("tenant-a", "principal-a", jobId).orElseThrow();
             assertThat(readReplay).isEqualTo(reconciled);
-            assertThat(readReplay.result()).containsEntry("cancellationOutcome", "REQUESTED_UNCONFIRMED");
+            assertThat(devCancellationOutcome(readReplay.result())).isEqualTo("REQUESTED_UNCONFIRMED");
             assertThat(calls).hasValue(1);
         } finally {
             restarted.close();
@@ -483,9 +566,19 @@ class MediaRuntimeRestartReconciliationTest {
             MediaJobStore jobs,
             LocalMediaRuntimeSupport.StreamStore streams,
             MediaProcessingProvider provider) {
+        return runtime(root, artifacts, jobs, streams, provider, "local");
+    }
+
+    private static MediaRuntime runtime(
+            java.nio.file.Path root,
+            LocalMediaRuntimeSupport.FileArtifactStore artifacts,
+            MediaJobStore jobs,
+            LocalMediaRuntimeSupport.StreamStore streams,
+            MediaProcessingProvider provider,
+            String profile) {
         return new MediaRuntime(
                 new MediaRuntimeConfig(
-                        true, "local", 8093, 1_024, 64, 1_024,
+                        true, profile, 8093, 1_024, 64, 1_024,
                         Duration.ofSeconds(2), 2, "", "", true, false, root),
                 artifacts,
                 jobs,
@@ -510,6 +603,12 @@ class MediaRuntimeRestartReconciliationTest {
     private static String sha256(String value) throws Exception {
         return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
                 .digest(value.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    private static String devCancellationOutcome(Map<String, Object> result) {
+        Object value = result.get("devOnlyCancellation");
+        return value instanceof Map<?, ?> record && record.get("outcome") instanceof String outcome
+                ? outcome : null;
     }
 
     private static MediaJobStore attemptStore(

@@ -151,7 +151,8 @@ class MediaDevProjectTimelineHttpTest {
 
             String timelineBody = JSON.writeValueAsString(Map.of(
                     "expectedHeadRevisionId", initialRevisionId,
-                    "timelineId", "timeline-main"));
+                    "timelineId", "timeline-main",
+                    "requestId", "timeline-create-main"));
             HttpResponse<String> timeline = send(base, "POST", "/dev/v1/projects/" + projectId + "/timelines",
                     timelineBody, PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
             assertThat(timeline.statusCode()).isEqualTo(201);
@@ -159,9 +160,11 @@ class MediaDevProjectTimelineHttpTest {
             String currentRevisionId = (String) timelineRevision.get("revisionId");
             assertThat(timelineRevision.get("parentRevisionId")).isEqualTo(initialRevisionId);
             assertThat(timelineRevision.get("timelines").toString()).contains("timeline-main");
+            String timelineRevisionId = currentRevisionId;
 
             String editBody = JSON.writeValueAsString(Map.of(
                     "expectedHeadRevisionId", currentRevisionId,
+                    "requestId", "timeline-edit-main",
                     "edits", List.of(
                             Map.of("type", "addScene", "sceneId", "scene-main", "order", 0),
                             Map.of("type", "addTrack", "trackId", "video-main", "sceneId", "scene-main",
@@ -175,6 +178,27 @@ class MediaDevProjectTimelineHttpTest {
             assertThat(editedRevision.get("parentRevisionId")).isEqualTo(currentRevisionId);
             assertThat(editedRevision.get("timelines").toString()).contains("scene-main", "video-main", "VIDEO");
             currentRevisionId = editedRevisionId;
+
+            HttpResponse<String> timelineReplay = send(base, "POST", "/dev/v1/projects/" + projectId + "/timelines",
+                    timelineBody, PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
+            assertThat(timelineReplay.statusCode()).isEqualTo(201);
+            assertThat(object(read(timelineReplay.body()).get("revision")).get("revisionId")).isEqualTo(timelineRevisionId);
+            HttpResponse<String> editReplay = send(base, "POST",
+                    "/dev/v1/projects/" + projectId + "/timelines/timeline-main/edits", editBody,
+                    PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
+            assertThat(editReplay.statusCode()).isEqualTo(201);
+            assertThat(object(read(editReplay.body()).get("revision")).get("revisionId")).isEqualTo(editedRevisionId);
+            HttpResponse<String> reboundRequest = send(base, "POST",
+                    "/dev/v1/projects/" + projectId + "/timelines/timeline-main/edits",
+                    JSON.writeValueAsString(Map.of("expectedHeadRevisionId", timelineRevisionId,
+                            "requestId", "timeline-edit-main",
+                            "edits", List.of(Map.of("type", "addScene", "sceneId", "different-scene", "order", 1)))),
+                    PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
+            assertThat(reboundRequest.statusCode()).isEqualTo(409);
+            assertThat(reboundRequest.body()).contains("IDEMPOTENCY_CONFLICT");
+            assertThat(object(read(send(base, "GET", "/dev/v1/projects/" + projectId,
+                    null, PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true).body()).get("currentRevision"))
+                    .get("revisionId")).isEqualTo(editedRevisionId);
 
             HttpResponse<String> reopened = send(base, "GET", "/dev/v1/projects/" + projectId,
                     null, PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
@@ -193,6 +217,7 @@ class MediaDevProjectTimelineHttpTest {
             HttpResponse<String> staleEdit = send(base, "POST",
                     "/dev/v1/projects/" + projectId + "/timelines/timeline-main/edits",
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", initialRevisionId,
+                            "requestId", "timeline-edit-stale",
                             "edits", List.of(Map.of("type", "addScene", "sceneId", "scene-stale", "order", 1)))),
                     PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
             assertThat(staleEdit.statusCode()).isEqualTo(409);
@@ -201,6 +226,7 @@ class MediaDevProjectTimelineHttpTest {
             HttpResponse<String> malformedEdit = send(base, "POST",
                     "/dev/v1/projects/" + projectId + "/timelines/timeline-main/edits",
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", currentRevisionId,
+                            "requestId", "timeline-edit-detached-track",
                             "edits", List.of(Map.of("type", "addTrack", "trackId", "detached-track",
                                     "sceneId", "missing-scene", "trackKind", "VIDEO", "order", 0)))),
                     PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
@@ -212,6 +238,7 @@ class MediaDevProjectTimelineHttpTest {
             HttpResponse<String> blockedSceneRemoval = send(base, "POST",
                     "/dev/v1/projects/" + projectId + "/timelines/timeline-main/edits",
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", currentRevisionId,
+                            "requestId", "timeline-edit-blocked-scene-remove",
                             "edits", List.of(Map.of("type", "removeScene", "sceneId", "scene-main")))),
                     PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
             assertThat(blockedSceneRemoval.statusCode()).isEqualTo(400);
@@ -223,6 +250,7 @@ class MediaDevProjectTimelineHttpTest {
             HttpResponse<String> removeTrack = send(base, "POST",
                     "/dev/v1/projects/" + projectId + "/timelines/timeline-main/edits",
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", currentRevisionId,
+                            "requestId", "timeline-edit-remove-track",
                             "edits", List.of(Map.of("type", "removeTrack", "trackId", "video-main")))),
                     PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
             assertThat(removeTrack.statusCode()).isEqualTo(201);
@@ -236,6 +264,7 @@ class MediaDevProjectTimelineHttpTest {
             HttpResponse<String> removeScene = send(base, "POST",
                     "/dev/v1/projects/" + projectId + "/timelines/timeline-main/edits",
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", currentRevisionId,
+                            "requestId", "timeline-edit-remove-scene",
                             "edits", List.of(Map.of("type", "removeScene", "sceneId", "scene-main")))),
                     PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
             assertThat(removeScene.statusCode()).isEqualTo(201);
@@ -248,7 +277,7 @@ class MediaDevProjectTimelineHttpTest {
 
             HttpResponse<String> undoSceneRemoval = send(base, "POST", "/dev/v1/projects/" + projectId + "/restore",
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", currentRevisionId,
-                            "targetRevisionId", trackRemovedRevisionId)),
+                            "targetRevisionId", trackRemovedRevisionId, "requestId", "timeline-restore-undo-scene")),
                     PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
             assertThat(undoSceneRemoval.statusCode()).isEqualTo(201);
             Map<String, Object> undoSceneRevision = object(read(undoSceneRemoval.body()).get("revision"));
@@ -261,7 +290,7 @@ class MediaDevProjectTimelineHttpTest {
 
             HttpResponse<String> undoTrackRemoval = send(base, "POST", "/dev/v1/projects/" + projectId + "/restore",
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", currentRevisionId,
-                            "targetRevisionId", editedRevisionId)),
+                            "targetRevisionId", editedRevisionId, "requestId", "timeline-restore-undo-track")),
                     PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
             assertThat(undoTrackRemoval.statusCode()).isEqualTo(201);
             Map<String, Object> undoTrackRevision = object(read(undoTrackRemoval.body()).get("revision"));
@@ -273,7 +302,7 @@ class MediaDevProjectTimelineHttpTest {
 
             HttpResponse<String> redoTrackRemoval = send(base, "POST", "/dev/v1/projects/" + projectId + "/restore",
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", currentRevisionId,
-                            "targetRevisionId", trackRemovedRevisionId)),
+                            "targetRevisionId", trackRemovedRevisionId, "requestId", "timeline-restore-redo-track")),
                     PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
             assertThat(redoTrackRemoval.statusCode()).isEqualTo(201);
             Map<String, Object> redoTrackRevision = object(read(redoTrackRemoval.body()).get("revision"));
@@ -285,7 +314,7 @@ class MediaDevProjectTimelineHttpTest {
 
             HttpResponse<String> redoSceneRemoval = send(base, "POST", "/dev/v1/projects/" + projectId + "/restore",
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", currentRevisionId,
-                            "targetRevisionId", sceneRemovedRevisionId)),
+                            "targetRevisionId", sceneRemovedRevisionId, "requestId", "timeline-restore-redo-scene")),
                     PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
             assertThat(redoSceneRemoval.statusCode()).isEqualTo(201);
             Map<String, Object> redoSceneRevision = object(read(redoSceneRemoval.body()).get("revision"));
@@ -328,14 +357,14 @@ class MediaDevProjectTimelineHttpTest {
                     .contains("scene-main", "video-main");
             HttpResponse<String> staleRestore = send(base, "POST", "/dev/v1/projects/" + projectId + "/restore",
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", editedRevisionId,
-                            "targetRevisionId", timelineRevision.get("revisionId"))),
+                            "targetRevisionId", timelineRevision.get("revisionId"), "requestId", "timeline-restore-stale")),
                     PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
             assertThat(staleRestore.statusCode()).isEqualTo(409);
             assertThat(staleRestore.body()).contains("REVISION_CONFLICT", currentRevisionId);
             HttpResponse<String> missingRestoreTarget = send(base, "POST",
                     "/dev/v1/projects/" + projectId + "/restore",
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", currentRevisionId,
-                            "targetRevisionId", "missing-revision")),
+                            "targetRevisionId", "missing-revision", "requestId", "timeline-restore-missing")),
                     PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
             assertThat(missingRestoreTarget.statusCode()).isEqualTo(404);
 
@@ -346,13 +375,13 @@ class MediaDevProjectTimelineHttpTest {
             HttpResponse<String> missingRestoreWritePermission = send(base, "POST",
                     "/dev/v1/projects/" + projectId + "/restore",
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", currentRevisionId,
-                            "targetRevisionId", editedRevisionId)),
+                            "targetRevisionId", editedRevisionId, "requestId", "timeline-restore-denied")),
                     PRINCIPAL, TENANT, Set.of("media:project:dev:read"), true);
             assertThat(missingRestoreWritePermission.statusCode()).isEqualTo(403);
 
             HttpResponse<String> stale = send(base, "POST", "/dev/v1/projects/" + projectId + "/timelines",
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", initialRevisionId,
-                            "timelineId", "timeline-stale")), PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
+                            "timelineId", "timeline-stale", "requestId", "timeline-create-stale")), PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
             assertThat(stale.statusCode()).isEqualTo(409);
             assertThat(stale.body()).contains("REVISION_CONFLICT", currentRevisionId);
 
@@ -361,7 +390,7 @@ class MediaDevProjectTimelineHttpTest {
             assertThat(otherOwner.statusCode()).isEqualTo(403);
             HttpResponse<String> otherOwnerRestore = send(base, "POST", "/dev/v1/projects/" + projectId + "/restore",
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", currentRevisionId,
-                            "targetRevisionId", timelineRevision.get("revisionId"))),
+                            "targetRevisionId", timelineRevision.get("revisionId"), "requestId", "timeline-restore-other-owner")),
                     "principal-other", TENANT, PROJECT_PERMISSIONS, true);
             assertThat(otherOwnerRestore.statusCode()).isEqualTo(403);
             HttpResponse<String> otherTenant = send(base, "GET", "/dev/v1/projects/" + projectId,
@@ -369,7 +398,7 @@ class MediaDevProjectTimelineHttpTest {
             assertThat(otherTenant.statusCode()).isEqualTo(404);
             HttpResponse<String> otherTenantRestore = send(base, "POST", "/dev/v1/projects/" + projectId + "/restore",
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", currentRevisionId,
-                            "targetRevisionId", timelineRevision.get("revisionId"))),
+                            "targetRevisionId", timelineRevision.get("revisionId"), "requestId", "timeline-restore-other-tenant")),
                     PRINCIPAL, "tenant-other", PROJECT_PERMISSIONS, true);
             assertThat(otherTenantRestore.statusCode()).isEqualTo(404);
 
@@ -413,11 +442,12 @@ class MediaDevProjectTimelineHttpTest {
             String projectId = (String) object(read(created.body()).get("project")).get("projectId");
             String revisionId = (String) object(read(created.body()).get("initialRevision")).get("revisionId");
             HttpResponse<String> timeline = send(base, "POST", "/dev/v1/projects/" + projectId + "/timelines",
-                    JSON.writeValueAsString(Map.of("expectedHeadRevisionId", revisionId, "timelineId", "timeline-main")),
+                    JSON.writeValueAsString(Map.of("expectedHeadRevisionId", revisionId, "timelineId", "timeline-main",
+                            "requestId", "clip-timeline-create")),
                     PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
             revisionId = (String) object(read(timeline.body()).get("revision")).get("revisionId");
             HttpResponse<String> nodes = send(base, "POST", "/dev/v1/projects/" + projectId + "/timelines/timeline-main/edits",
-                    JSON.writeValueAsString(Map.of("expectedHeadRevisionId", revisionId, "edits", List.of(
+                    JSON.writeValueAsString(Map.of("expectedHeadRevisionId", revisionId, "requestId", "clip-node-create", "edits", List.of(
                             Map.of("type", "addScene", "sceneId", "scene-main", "order", 0),
                             Map.of("type", "addTrack", "trackId", "video-main", "sceneId", "scene-main",
                                     "trackKind", "VIDEO", "order", 0)))), PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
@@ -434,6 +464,7 @@ class MediaDevProjectTimelineHttpTest {
             String clipEditPath = "/dev/v1/projects/" + projectId + "/timelines/timeline-main/edits";
             HttpResponse<String> noReadPermission = send(base, "POST", clipEditPath,
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", revisionId,
+                            "requestId", "clip-put-no-permission",
                             "edits", List.of(Map.of("type", "putClip", "clip", clip)))),
                     PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
             assertThat(noReadPermission.statusCode()).isEqualTo(403);
@@ -445,6 +476,7 @@ class MediaDevProjectTimelineHttpTest {
             editorPermissions.add("media:artifact:read");
             HttpResponse<String> put = send(base, "POST", clipEditPath,
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", revisionId,
+                            "requestId", "clip-put-exact",
                             "edits", List.of(Map.of("type", "putClip", "clip", clip)))),
                     PRINCIPAL, TENANT, editorPermissions, true);
             assertThat(put.statusCode()).as(put.body()).isEqualTo(201);
@@ -455,6 +487,7 @@ class MediaDevProjectTimelineHttpTest {
 
             HttpResponse<String> remove = send(base, "POST", clipEditPath,
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", putRevisionId,
+                            "requestId", "clip-remove-exact",
                             "edits", List.of(Map.of("type", "removeClip", "clipId", "clip-main")))),
                     PRINCIPAL, TENANT, editorPermissions, true);
             assertThat(remove.statusCode()).as(remove.body()).isEqualTo(201);
@@ -468,6 +501,7 @@ class MediaDevProjectTimelineHttpTest {
                     "artifactVersionId", "sha256:" + foreignArtifact.get("sha256")));
             HttpResponse<String> wrongPrincipal = send(base, "POST", clipEditPath,
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", removedRevisionId,
+                            "requestId", "clip-put-foreign-owner",
                             "edits", List.of(Map.of("type", "putClip", "clip", foreignSourceClip)))),
                     PRINCIPAL, TENANT, editorPermissions, true);
             assertThat(wrongPrincipal.statusCode()).isEqualTo(404);
@@ -476,6 +510,7 @@ class MediaDevProjectTimelineHttpTest {
             missingArtifactClip.put("source", Map.of("artifactId", "artifact-missing", "artifactVersionId", artifactVersionId));
             HttpResponse<String> missingArtifact = send(base, "POST", clipEditPath,
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", removedRevisionId,
+                            "requestId", "clip-put-missing-source",
                             "edits", List.of(Map.of("type", "putClip", "clip", missingArtifactClip)))),
                     PRINCIPAL, TENANT, editorPermissions, true);
             assertThat(missingArtifact.statusCode()).isEqualTo(404);
@@ -483,6 +518,7 @@ class MediaDevProjectTimelineHttpTest {
             staleSourceClip.put("source", Map.of("artifactId", artifactId, "artifactVersionId", "sha256:" + "0".repeat(64)));
             HttpResponse<String> staleVersion = send(base, "POST", clipEditPath,
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", removedRevisionId,
+                            "requestId", "clip-put-stale-source",
                             "edits", List.of(Map.of("type", "putClip", "clip", staleSourceClip)))),
                     PRINCIPAL, TENANT, editorPermissions, true);
             assertThat(staleVersion.statusCode()).isEqualTo(404);
@@ -490,11 +526,12 @@ class MediaDevProjectTimelineHttpTest {
             wrongClockClip.put("sourceIn", Map.of("ticks", "1", "rateNumerator", "1", "rateDenominator", "1", "clock", "STORY"));
             HttpResponse<String> wrongClock = send(base, "POST", clipEditPath,
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", removedRevisionId,
+                            "requestId", "clip-put-wrong-clock",
                             "edits", List.of(Map.of("type", "putClip", "clip", wrongClockClip)))),
                     PRINCIPAL, TENANT, editorPermissions, true);
             assertThat(wrongClock.statusCode()).isEqualTo(400);
             HttpResponse<String> extraField = send(base, "POST", clipEditPath,
-                    "{\"expectedHeadRevisionId\":\"" + removedRevisionId + "\",\"unexpected\":true,\"edits\":[]}",
+                    "{\"expectedHeadRevisionId\":\"" + removedRevisionId + "\",\"requestId\":\"clip-edit-extra-field\",\"unexpected\":true,\"edits\":[]}",
                     PRINCIPAL, TENANT, editorPermissions, true);
             assertThat(extraField.statusCode()).isEqualTo(400);
 
@@ -729,6 +766,16 @@ class MediaDevProjectTimelineHttpTest {
         @Override public Revision commit(Actor actor, String projectId, String expectedHeadRevisionId,
                                          String newRevisionId, List<TimelineSnapshot> timelines) {
             return delegate.commit(actor, projectId, expectedHeadRevisionId, newRevisionId, timelines);
+        }
+        @Override public Revision replayCommand(Actor actor, String projectId, String operationRef,
+                                                 String requestId, String fingerprint) {
+            return delegate.replayCommand(actor, projectId, operationRef, requestId, fingerprint);
+        }
+        @Override public Revision commitCommand(Actor actor, String projectId, String expectedHeadRevisionId,
+                                                 String operationRef, String requestId, String fingerprint,
+                                                 String newRevisionId, List<TimelineSnapshot> timelines) {
+            return delegate.commitCommand(actor, projectId, expectedHeadRevisionId, operationRef, requestId,
+                    fingerprint, newRevisionId, timelines);
         }
         @Override public void close() { }
     }

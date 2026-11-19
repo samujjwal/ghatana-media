@@ -106,6 +106,7 @@ const clientBoundRoutes: Route[] = [
   { method: "POST", path: "/api/v1/jobs", operationId: "submitMediaJob" },
   { method: "GET", path: "/api/v1/jobs", operationId: "listMediaJobs" },
   { method: "GET", path: "/api/v1/jobs/{jobId}", operationId: "getMediaJob" },
+  { method: "POST", path: "/api/v1/jobs/{jobId}/cancel", operationId: "cancelMediaJob" },
   { method: "POST", path: "/api/v1/streams", operationId: "openMediaStream" },
   { method: "GET", path: "/api/v1/streams/{sessionId}", operationId: "getMediaStream" },
   { method: "POST", path: "/api/v1/streams/{sessionId}/connect", operationId: "connectMediaStream" },
@@ -148,10 +149,10 @@ describe("SK-01 canonical Media route parity", () => {
         local: [],
       },
       MediaCanonicalClient: {
-        canonicalHttp: ["submitJob", "getJob", "getJobByRequest", "getArtifact", "listJobs", "openStream", "getStream", "connectStream", "submitStreamFrame", "closeStream"],
+        canonicalHttp: ["submitJob", "getJob", "getJobByRequest", "cancelJob", "getArtifact", "listJobs", "openStream", "getStream", "connectStream", "submitStreamFrame", "closeStream"],
         legacyUnboundHttp: [],
         unboundNotAdmitted: [],
-        noRoute: ["watchStream", "checkOutcome", "listJobsPage", "readJobStatusDimensions", "cancelJob"],
+        noRoute: ["watchStream", "checkOutcome", "listJobsPage", "readJobStatusDimensions"],
         local: [],
       },
     };
@@ -180,6 +181,7 @@ describe("SK-01 canonical Media route parity", () => {
         submitJob: "canonicalMediaHttpRoutes.submitJob",
         getJob: "this.readJob(jobId, undefined, signal)",
         getJobByRequest: "this.readJob(jobId, requestedRequestId, signal)",
+        cancelJob: "canonicalMediaHttpRoutes.cancelJob.replace",
         getArtifact: "canonicalMediaHttpRoutes.getArtifact.replace",
         listJobs: "canonicalMediaHttpRoutes.listJobs",
         openStream: '"POST", "/api/v1/streams"',
@@ -260,7 +262,7 @@ describe("SK-01 canonical Media route parity", () => {
     for (const method of methodDisposition.MediaCanonicalClient.noRoute) {
       expect(publicSdkMethods.MediaCanonicalClient.get(method)).toContain("MediaOperationNotAdmittedError");
     }
-    expect(methodDisposition.MediaCanonicalClient.canonicalHttp).toHaveLength(10);
+    expect(methodDisposition.MediaCanonicalClient.canonicalHttp).toHaveLength(11);
     expect(methodDisposition.MediaOperationClient.canonicalHttp).toHaveLength(5);
     expect(methodDisposition.AudioVideoClient.legacyUnboundHttp).toHaveLength(1);
     expect(methodDisposition.AudioVideoClient.unboundNotAdmitted).toHaveLength(5);
@@ -268,7 +270,7 @@ describe("SK-01 canonical Media route parity", () => {
     expect(methodDisposition.MediaOperationClient.unboundNotAdmitted).toHaveLength(8);
     expect(Object.values(publicSdkMethods).reduce((total, methods) => total + methods.size, 0)).toBe(40);
     expect(methodDisposition.MediaCanonicalClient.canonicalHttp.length
-      + methodDisposition.MediaOperationClient.canonicalHttp.length).toBe(15);
+      + methodDisposition.MediaOperationClient.canonicalHttp.length).toBe(16);
     expect(methodDisposition.AudioVideoClient.legacyUnboundHttp.length
       + methodDisposition.AudioVideoClient.unboundNotAdmitted.length
       + methodDisposition.MediaOperationClient.unboundNotAdmitted.length).toBe(14);
@@ -284,6 +286,7 @@ describe("SK-01 canonical Media route parity", () => {
       submitMediaJob: { owner: MediaCanonicalClient.prototype, method: "submitJob" },
       listMediaJobs: { owner: MediaCanonicalClient.prototype, method: "listJobs" },
       getMediaJob: { owner: MediaCanonicalClient.prototype, method: "getJob" },
+      cancelMediaJob: { owner: MediaCanonicalClient.prototype, method: "cancelJob" },
       openMediaStream: { owner: MediaCanonicalClient.prototype, method: "openStream" },
       getMediaStream: { owner: MediaCanonicalClient.prototype, method: "getStream" },
       connectMediaStream: { owner: MediaCanonicalClient.prototype, method: "connectStream" },

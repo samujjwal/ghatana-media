@@ -5,7 +5,7 @@ sourceDisposition:
   decisionRef: .product-experience/decision-log.md#PXD-051
   scope: explicit-local-development-source-contract-extension
   supersedesPlanConflict: true
-  clarification: PXD-051's no-upload-CLI-command exclusion predates this explicit local-development disposition; this registry defines the four listed local-development command identities only and does not amend the production CLI registry.
+  clarification: PXD-051's no-upload-CLI-command exclusion predates this explicit local-development disposition; this registry defines the five listed local-development command identities only and does not amend the production CLI registry.
   productionAdmission: OPEN
 executionScope:
   binary: libs/audio-video-client/package.json#bin.ghatanamedia-api-dev
@@ -19,8 +19,13 @@ executionScope:
 productionAdmission:
   status: OPEN
   productionRegistryRef: .product-experience/pdp-3-product-experience/cli/production-command-registry.yaml
-  productionIdentityCount: 1
-  productionIdentities: [media.cli.artifact.inspect]
+  productionIdentityCount: 5
+  productionIdentities:
+    - media.cli.artifact.inspect
+    - media.cli.job.get
+    - media.cli.job.submit
+    - media.cli.job.list
+    - media.cli.job.cancel
 commands:
   - id: media.cli.local-development.artifact.upload
     canonicalCommand: ghatanamedia-api-dev artifact upload
@@ -60,6 +65,20 @@ commands:
     requiredOptions: [--endpoint, --tenant, --principal, --job]
     optionalOptions: [--request-id]
     outcome: caller-scoped-point-in-time-job-observation; not-a-provider-finality-receipt; no-command-replay
+    productionAdmission: OPEN
+  - id: media.cli.local-development.job.submit
+    canonicalCommand: ghatanamedia-api-dev job submit
+    runtimeBinding: EXISTING_DEV_ONLY_LOOPBACK_HTTP_OPERATION
+    sdkMethods: [libs/audio-video-client/src/canonical-operations.ts#MediaCanonicalClient.submitJob]
+    operationRefs: [media.operation-slice.submit-job]
+    httpOperations: [submitMediaJob]
+    requiredOptions: [--endpoint, --tenant, --principal, --artifact, --request-id]
+    optionalOptions: [--job-type, --provider-hint, --await-finality-ms]
+    ownerDecisionRefs: [.product-experience/decision-log.md#PXD-042]
+    submissionSemantics: 202-is-a-submission-receipt-only; never-queued-running-dispatched-or-provider-finality
+    requestIdentity: tenantId-and-requestId-bind-the-canonical-payload-fingerprint; same-fingerprint-replay-returns-the-same-logical-job-without-redispatch; different-payload-replay-conflicts
+    unknownOutcome: preserve-the-original-requestId-idempotencyKey-and-payload; no-automatic-retry-or-new-identity; same-key-replay-only-under-the-owner-fingerprint-contract; job-readback-requires-a-known-jobId; without-it-remain-UNKNOWN
+    exclusions: [no-rights-or-consent-proof, no-provider-qualification, no-production-host-admission, no-jobId-from-requestId-inference]
     productionAdmission: OPEN
   - id: media.cli.local-development.job.cancel
     canonicalCommand: ghatanamedia-api-dev job cancel

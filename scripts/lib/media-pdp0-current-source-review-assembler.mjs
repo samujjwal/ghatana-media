@@ -1,5 +1,6 @@
 import {createHash} from 'node:crypto';
 import path from 'node:path';
+import {parse as parseYaml} from 'yaml';
 import {fingerprintPxdDecisionSection} from '../lib/pdp0-phase-scoped-source-fingerprints.mjs';
 import {pdp0PhaseScopedSourcePins} from '../report-media-pdp-readiness.mjs';
 
@@ -10,6 +11,11 @@ export const PDP0_READINESS_REF = 'docs/implementation/media-pdp-38-readiness.js
 export const PDP0_DIRECT_REVIEW_REF = 'docs/implementation/verification/pdp-38/direct-definition-criteria-review.json';
 export const PDP0_MATRIX_REF = 'docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json';
 export const PDP0_REVIEW_INPUT_DIRECTORY = 'docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23';
+export const PDP0_APPLICATIONS_CHANNELS_REF = '.product-experience/pdp-0-product-truth/applications-channels.yaml';
+export const PDP0_CLI_AVAILABILITY_FIELD_REF = `${PDP0_APPLICATIONS_CHANNELS_REF}#/channels/@id=media.channel.cli/ownerCliDefinitionContract/remoteCancellationRule/scopeStatus`;
+
+const CLI_AVAILABILITY_CLAIM = /host-configured\s+source-bound\s+CLI\s+command\s+(?:now\s+)?(?:exists|is\s+available|is\s+implemented)/iu;
+const CLI_AVAILABILITY_REVIEW_ID = 'PDP0-CLI-AVAILABILITY-OWNER-DECISION-REQUIRED';
 
 const sha256 = value => createHash('sha256').update(value).digest('hex');
 const isSha = value => typeof value === 'string' && /^[a-f0-9]{64}$/u.test(value);
@@ -34,6 +40,57 @@ export function directDefinitionDecisionRef(directRecord) {
     directRecord?.decisionRef,
   ];
   return candidates.find(value => typeof value === 'string' && value.trim().length > 0) ?? null;
+}
+
+function exactDecisionBindsCliAvailability(decisionRef, decisionLogText, currentScopeStatus) {
+  const id = decisionRef?.match(/^\.product-experience\/decision-log\.md#(PXD-\d{3})$/u)?.[1];
+  if (!id || typeof decisionLogText !== 'string') return false;
+  const marker = new RegExp(`^### ${id}(?:\\s|—).*?$`, 'gmu');
+  const matches = [...decisionLogText.matchAll(marker)];
+  if (matches.length !== 1) return false;
+  const start = matches[0].index;
+  const rest = decisionLogText.slice(start + matches[0][0].length);
+  const next = rest.search(/^### PXD-\d{3}(?:\s|—)/mu);
+  const section = decisionLogText.slice(start, next < 0 ? undefined : start + matches[0][0].length + next);
+  return section.includes(PDP0_CLI_AVAILABILITY_FIELD_REF)
+    && section.includes(currentScopeStatus)
+    && /PDP-0/u.test(section);
+}
+
+/** Classify this one exact claim without turning a source observation into owner approval. */
+export function inspectPdp0CliAvailabilityReview({reviewRecords, read, decisionLogText}) {
+  let productTruth;
+  try { productTruth = parseYaml(read(PDP0_APPLICATIONS_CHANNELS_REF)); }
+  catch { return {status: 'SOURCE_UNAVAILABLE', affectedCriterionIds: [], unaffectedCriterionIds: []}; }
+  const cli = productTruth?.channels?.find(channel => channel.id === 'media.channel.cli');
+  const remoteCancellationRule = cli?.ownerCliDefinitionContract?.remoteCancellationRule;
+  const scopeStatus = remoteCancellationRule?.scopeStatus;
+  if (typeof scopeStatus !== 'string' || !CLI_AVAILABILITY_CLAIM.test(scopeStatus)) {
+    return {status: 'NO_UNREVIEWED_AVAILABILITY_CLAIM', affectedCriterionIds: [], unaffectedCriterionIds: [...PDP0_CURRENTNESS_REVIEW_SCOPE]};
+  }
+  const exactDecisionRef = remoteCancellationRule.sourceDecisionRef ?? remoteCancellationRule.ownerDecisionRef ?? null;
+  if (exactDecisionBindsCliAvailability(exactDecisionRef, decisionLogText, scopeStatus)) {
+    return {status: 'SOURCE_DECISION_BOUND', fieldRef: PDP0_CLI_AVAILABILITY_FIELD_REF, sourceDecisionRef: exactDecisionRef,
+      affectedCriterionIds: [], unaffectedCriterionIds: [...PDP0_CURRENTNESS_REVIEW_SCOPE]};
+  }
+  const affectedCriterionIds = PDP0_CURRENTNESS_REVIEW_SCOPE.filter(criterionId =>
+    (reviewRecords?.[criterionId]?.reviewedSources ?? []).some(source => source.sourceRef === PDP0_APPLICATIONS_CHANNELS_REF));
+  return {
+    id: CLI_AVAILABILITY_REVIEW_ID,
+    status: 'REVIEW_REQUIRED',
+    classification: 'MATERIAL_SOURCE_REVIEW_REQUIRED',
+    fieldRef: PDP0_CLI_AVAILABILITY_FIELD_REF,
+    currentScopeStatus: scopeStatus,
+    executionAdmission: remoteCancellationRule.executionAdmission ?? cli.executionAdmission ?? 'UNKNOWN',
+    sourceDecisionRef: exactDecisionRef,
+    affectedCriterionIds,
+    unaffectedCriterionIds: PDP0_CURRENTNESS_REVIEW_SCOPE.filter(id => !affectedCriterionIds.includes(id)),
+    blocker: 'No exact PDP-0 source-owner decision is bound to the CLI remote-cancellation availability claim. Existing CLI definitions keep execution NOT_ADMITTED; this finding does not admit runtime behavior.',
+    nextAction: 'Keep only reviews consuming this source field REVIEW_REQUIRED until an attributable source-owner decision resolves the exact claim; reuse unaffected criterion meanings and retain NOT_ADMITTED execution status.',
+    ownerApproval: 'NOT_CLAIMED',
+    independentAcceptance: 'NOT_CLAIMED',
+    phaseStatusEffect: 'NONE',
+  };
 }
 
 function currentRefHash(sourceRef, {status, read}) {
@@ -348,6 +405,9 @@ function currentPriorReviewPinMismatches({status, directReview, read}) {
 }
 
 export function inspectPdp0CurrentSourceReviewCurrentness({status, readiness, directReview, matrix, reviewRecords, read}) {
+  let decisionLogText = '';
+  try { decisionLogText = read('.product-experience/decision-log.md'); } catch { /* reported as an unattributed source claim below */ }
+  const cliAvailabilityReview = inspectPdp0CliAvailabilityReview({reviewRecords, read, decisionLogText});
   const sourcePinMismatches = [];
   for (const [sourceRef, expectedSha256] of Object.entries(status?.sourceShaSet ?? {})) {
     try {
@@ -394,6 +454,11 @@ export function inspectPdp0CurrentSourceReviewCurrentness({status, readiness, di
       priorDecisionRef,
       currentDecisionRef,
       decisionBindingCurrent: priorDecisionRef === currentDecisionRef,
+      cliAvailabilityDeltaDisposition: cliAvailabilityReview.affectedCriterionIds?.includes(criterionId)
+        ? 'REVIEW_REQUIRED'
+        : PDP0_CURRENTNESS_REVIEW_SCOPE.includes(criterionId) && cliAvailabilityReview.status === 'REVIEW_REQUIRED'
+          ? 'REUSE_PRIOR_REVIEW_FOR_THIS_DELTA'
+          : 'NOT_AFFECTED_BY_CURRENT_CLI_AVAILABILITY_DELTA',
       staleReviewSourceRefs,
       directReviewPinMismatches,
       technicalReviewCurrentness: staleReviewSourceRefs.length === 0 && priorDecisionRef === currentDecisionRef && directReviewPinMismatches.length === 0
@@ -420,9 +485,12 @@ export function inspectPdp0CurrentSourceReviewCurrentness({status, readiness, di
       currentness: sourcePinMismatches.length === 0 ? 'CURRENT' : 'STALE',
     },
     criteria,
-    currentnessStatus: sourcePinMismatches.length === 0 && criteria.every(row => row.technicalReviewCurrentness === 'SOURCE_CURRENT')
-      ? 'ALL_REVIEW_INPUTS_SOURCE_CURRENT'
-      : 'SOURCE_STATUS_CURRENT; REVIEW_INPUTS_REQUIRE_REFRESH',
+    currentnessStatus: sourcePinMismatches.length > 0
+      ? 'SOURCE_STATUS_STALE; REVIEW_INPUTS_REQUIRE_REFRESH'
+      : criteria.every(row => row.technicalReviewCurrentness === 'SOURCE_CURRENT')
+        ? 'ALL_REVIEW_INPUTS_SOURCE_CURRENT'
+        : 'SOURCE_STATUS_CURRENT; REVIEW_INPUTS_REQUIRE_REFRESH',
+    cliAvailabilityReview,
     statusBoundary: {ownerApproval: 'NOT_CLAIMED', independentAcceptance: 'NOT_CLAIMED', pdp010Acceptance: 'NOT_PERFORMED', phaseStatusEffect: 'NONE'},
     claimBoundary: 'Read-only source pin and review-binding observation. It does not refresh or approve direct reviews and does not change PDP status, acceptance, closure, qualification, or Delivery.',
   };
@@ -459,9 +527,26 @@ export function buildPdp0CurrentSourceReviewCandidate({status, readiness, direct
   const missingIds = PDP0_CRITERIA.filter(id => !reviewRecords[id]);
   const extraIds = Object.keys(reviewRecords).filter(id => !PDP0_CRITERIA.includes(id));
   requireValue(!missingIds.length && !extraIds.length, `review input inventory mismatch; missing=[${missingIds.join(',')}], extra=[${extraIds.join(',')}]`);
+  let decisionLogText = '';
+  try { decisionLogText = read('.product-experience/decision-log.md'); } catch { /* an unattributed claim remains review-required */ }
+  const cliAvailabilityReview = inspectPdp0CliAvailabilityReview({reviewRecords, read, decisionLogText});
   const statusSha256 = sha256(read(PDP0_STATUS_REF));
   const matrixSha256 = sha256(read(PDP0_MATRIX_REF));
   const reviews = PDP0_CRITERIA.map(id => validatePdp0CurrentSourceReviewRecord(reviewRecords[id], id, {status, readiness, directReview, read}));
+  if (cliAvailabilityReview.status === 'REVIEW_REQUIRED') {
+    for (const criterionId of cliAvailabilityReview.affectedCriterionIds) {
+      const review = reviews.find(item => item.criterionId === criterionId);
+      review.findings.push({
+        id: `${criterionId}-${CLI_AVAILABILITY_REVIEW_ID}`,
+        classification: 'MATERIAL_SOURCE_REVIEW_REQUIRED',
+        evidenceRef: cliAvailabilityReview.fieldRef,
+        finding: cliAvailabilityReview.blocker,
+        owner: 'Media PDP-0 Product Truth source owner',
+        correction: `Review the exact CLI scopeStatus claim at ${cliAvailabilityReview.fieldRef} and bind any disposition to a source-owner decision; preserve execution admission as NOT_ADMITTED.`,
+        nextAction: cliAvailabilityReview.nextAction,
+      });
+    }
+  }
   const distinctReviewers = new Set(reviews.map(review => review.reviewer.identity));
   requireValue(distinctReviewers.size >= 2, 'PDP-0 current-source review must include distinct technical reviewer identities');
   const reviewedCurrentSourceFingerprints = {};

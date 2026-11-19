@@ -267,17 +267,18 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase
         }
         if (!authorizeCapturedRequest(responseObserver, verifiedIdentity,
                 SttRequestAuthorization.Operation.TRANSCRIBE, request.getArtifactId(), sourceSha256)) return;
-        // The shared audio-video contract bounds language tags to 64 characters, and
-        // SttLanguageSupport supplies the canonical IETF syntax/base-language rules.
-        // Reject before this request can enter the bounded transcription worker.
-        if (!isValidLanguageHint(request.getLanguage())) {
-            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                    .withDescription("Unsupported language").asRuntimeException());
-            return;
-        }
         Span span = tracingService.startTranscriptionSpan(null, null, request.getLanguage());
         TracingObserver<TranscribeResponse> tracedObserver = new TracingObserver<>(
                 responseObserver, tracingService, span);
+        // The shared audio-video contract bounds language tags to 64 characters, and
+        // SttLanguageSupport supplies the canonical IETF syntax/base-language rules.
+        // Start the span only after trusted identity, source binding and authorization,
+        // then record a redacted error span before refusing invalid language hints.
+        if (!isValidLanguageHint(request.getLanguage())) {
+            tracedObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                    .withDescription("Unsupported language").asRuntimeException());
+            return;
+        }
         java.util.concurrent.atomic.AtomicBoolean observerCancelled = new java.util.concurrent.atomic.AtomicBoolean();
         java.util.concurrent.atomic.AtomicReference<ContextAwareBoundedExecutor.Submission<Void>> pending =
                 new java.util.concurrent.atomic.AtomicReference<>();
@@ -352,7 +353,15 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase
                         // Processing may outlive a consent or source-rights grant. Re-read the
                         // same server-owned source facts after inference and before disclosing
                         // the transcript; the initial admission cannot authorize later disclosure.
-                        if (observerCancelled.get() || isCancelled(responseObserver)) return;
+                        if (observerCancelled.get() || isCancelled(responseObserver)) {
+                            try (AudioVideoGrpcInstrumentation.BoundaryMeasurement responseBoundary =
+                                         boundaryInstrumentation.beginBoundaryMeasurement(
+                                                 MediaWorkflowMetrics.Modality.STT,
+                                                 MediaWorkflowMetrics.Boundary.RESPONSE)) {
+                                responseBoundary.complete(MediaWorkflowMetrics.Outcome.UNKNOWN);
+                            }
+                            return;
+                        }
                         if (!authorizeCapturedRequest(tracedObserver, verifiedIdentity,
                                 SttRequestAuthorization.Operation.TRANSCRIBE,
                                 request.getArtifactId(), sourceSha256)) return;

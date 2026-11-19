@@ -12,6 +12,10 @@ function base() {
     sourceCut: {sourceRecordSha256: 'a'.repeat(64)}, preservedHistoricalReviewRefs: ['PXD-OLD'],
     findings: [
       {id: 'P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231', classification: 'UNKNOWN_REVIEW_REQUIRED'},
+      {id: 'P0-01-OWNER-CURRENTNESS', classification: 'OWNER_CURRENTNESS_NOT_REVALIDATED'},
+      {id: 'PDP0-MATRIX-STATUS-PIN-MISMATCH', classification: 'PDP0_STATUS_PROJECTION_STALE'},
+      {id: 'PDP0-WHOLE-CUT-CURRENTNESS', classification: 'WHOLE_CUT_CURRENTNESS_NOT_CLAIMED'},
+      {id: 'P0-02-DIRECT-BINDING', classification: 'DIRECT_REVIEW_BINDING_STALE'},
       {id: 'P0-08-P0-010-INDEPENDENT-OUTCOME-ABSENT', classification: 'BLOCKED_EXTERNAL_INDEPENDENT'},
     ],
     statusBoundary: {phaseStatusEffect: 'NONE', pdp010Acceptance: 'NOT_PERFORMED', independentAcceptance: 'NOT_CLAIMED'},
@@ -27,12 +31,63 @@ test('successor planning is compare-and-swap only and retains independent accept
   assert.equal(plan.planDisposition, 'BLOCKED');
   assert.deepEqual(plan.missingCriterionIds, ['P0-01', 'P0-02', 'P0-03', 'P0-04', 'P0-05', 'P0-06', 'P0-07', 'P0-08']);
   assert.deepEqual(plan.openMeaningFindingIds, ['P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231']);
+  assert.deepEqual(plan.openTechnicalReviewFindingIds, [
+    'P0-01-OWNER-CURRENTNESS',
+    'PDP0-MATRIX-STATUS-PIN-MISMATCH',
+    'PDP0-WHOLE-CUT-CURRENTNESS',
+    'P0-02-DIRECT-BINDING',
+  ]);
   assert.deepEqual(plan.independentAcceptanceFindingIds, ['P0-08-P0-010-INDEPENDENT-OUTCOME-ABSENT']);
+  assert.ok(plan.blockers.includes('TECHNICAL_REVIEW_FINDINGS_REQUIRE_REBIND'));
+  assert.equal(plan.planDisposition, 'BLOCKED');
   assert.equal(plan.expectedDirectReviewSha256, digest(base().directReviewText));
   assert.equal(plan.predecessorPreservation.currentCanonicalWritePermitted, false);
   assert.equal(plan.ownerDecisionRequirement.peerIdentityAloneIsSufficient, false);
   assert.equal(plan.effects.phaseStatusEffect, 'NONE');
 });
+
+test('keeps review-required semantic criteria scoped while reusing unaffected prior meanings', () => {
+  const {directReviewText, decisionLogText} = base();
+  const directReview = JSON.parse(directReviewText);
+  const candidate = {
+    schemaVersion: 'media.pdp0.current-source-review-candidate.v4',
+    artifactKind: 'COORDINATOR_ASSEMBLED_TECHNICAL_SOURCE_REVIEW_INPUTS',
+    sourceCut: {reviewedCurrentSourceFingerprints: {}},
+    preservedHistoricalReviewRefs: [],
+    criteria: [
+      ['P0-01', 'MATERIAL_SOURCE_REVIEW_REQUIRED'],
+      ['P0-02', 'MATERIAL_SOURCE_REVIEW_REQUIRED'],
+      ['P0-05', 'OWNER_CURRENTNESS_NOT_REVALIDATED'],
+      ['P0-06', 'DIRECT_REVIEW_BINDING_STALE'],
+      ['P0-07', 'UNKNOWN_REVIEW_REQUIRED'],
+    ].map(([criterionId, classification]) => ({
+      criterionId,
+      findings: [{id: `${criterionId}-FINDING`, classification}],
+    })),
+    findings: [
+      ...['P0-01', 'P0-02', 'P0-07'].map(criterionId => ({criterionId, id: `${criterionId}-FINDING`, classification: candidateClassification(criterionId)})),
+      {criterionId: 'P0-05', id: 'P0-05-FINDING', classification: 'OWNER_CURRENTNESS_NOT_REVALIDATED'},
+      {criterionId: 'P0-06', id: 'P0-06-FINDING', classification: 'DIRECT_REVIEW_BINDING_STALE'},
+    ],
+    statusBoundary: {phaseStatusEffect: 'NONE', pdp010Acceptance: 'NOT_PERFORMED', independentAcceptance: 'NOT_CLAIMED'},
+  };
+  const candidateText = `${JSON.stringify(candidate)}\n`;
+  const plan = planPdp0ReviewSuccessor({candidate, candidateText, directReview, directReviewText, decisionLogText, reviewRecords: {}});
+  assert.deepEqual(plan.reviewRequiredCriterionIds, ['P0-01', 'P0-02', 'P0-07']);
+  assert.deepEqual(plan.reusablePriorMeaningCriterionIds, ['P0-05', 'P0-06']);
+  assert.deepEqual(plan.criterionReviewDispositions.find(row => row.criterionId === 'P0-05'), {
+    criterionId: 'P0-05',
+    disposition: 'REUSE_PRIOR_MEANING; REVIEW_BINDING_REFRESH_REQUIRED',
+    openMeaningFindingIds: [],
+    openTechnicalReviewFindingIds: ['P0-05-FINDING'],
+  });
+  assert.equal(plan.effects.canonicalWrite, 'NOT_PERFORMED');
+  assert.equal(plan.effects.phaseStatusEffect, 'NONE');
+});
+
+function candidateClassification(criterionId) {
+  return criterionId === 'P0-07' ? 'UNKNOWN_REVIEW_REQUIRED' : 'MATERIAL_SOURCE_REVIEW_REQUIRED';
+}
 
 test('rejects stale target and identity-only peer claims before any canonical effect', () => {
   const {plan, directReviewText, decisionLogText} = base();

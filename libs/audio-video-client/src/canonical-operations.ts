@@ -114,6 +114,27 @@ export interface SubmitMediaJobRequest {
   readonly idempotencyKey: string;
 }
 
+export interface CancelCanonicalJobRequest {
+  readonly requestId: string;
+  readonly expectedJobVersion: number;
+  readonly reason?: "USER_REQUEST" | "POLICY_CHANGE" | "ADMINISTRATIVE_STOP";
+}
+
+export interface CanonicalJobCancellationResponse {
+  readonly operationRef: "media.operation-slice.cancel-job";
+  readonly requestId: string;
+  readonly cancellationRequestId: string;
+  readonly state: "CANCEL_REQUESTED" | "ALREADY_TERMINAL" | "UNKNOWN_OUTCOME";
+  readonly replayed: boolean;
+  readonly observedAt: string;
+  readonly jobId: string;
+  readonly currentJobState: CanonicalJobStatus;
+  readonly currentAttemptStates: readonly ("DISPATCH_INTENT" | "RUNNING" | "COMPLETED" | "FAILED" | "OUTCOME_UNKNOWN")[];
+  readonly reconcilePath: string;
+  readonly automaticRetryAllowed: false;
+  readonly job: CanonicalProcessingJob;
+}
+
 export interface OpenMediaStreamRequest {
   readonly correlationId: string;
   readonly streamKind: CanonicalStreamKind;
@@ -128,6 +149,9 @@ export interface OpenMediaStreamRequest {
 
 const JOB_TYPES = new Set(["TRANSCODE", "SPEECH_TO_TEXT", "TEXT_TO_SPEECH", "VISION", "MULTIMODAL"]);
 const JOB_STATUSES = new Set(["ACCEPTED", "RUNNING", "OUTCOME_UNKNOWN", "COMPLETED", "FAILED", "CANCELLED"]);
+const CANCELLATION_STATES = new Set(["CANCEL_REQUESTED", "ALREADY_TERMINAL", "UNKNOWN_OUTCOME"]);
+const CANCELLATION_REASONS = new Set(["USER_REQUEST", "POLICY_CHANGE", "ADMINISTRATIVE_STOP"]);
+const CANCELLATION_ATTEMPT_STATES = new Set(["DISPATCH_INTENT", "RUNNING", "COMPLETED", "FAILED", "OUTCOME_UNKNOWN"]);
 const STREAM_KINDS = new Set(["AUDIO", "VIDEO", "MULTIMODAL"]);
 const STREAM_STATES = new Set(["OPEN", "CONNECTED", "DEGRADED", "DRAINING", "CLOSED", "FAILED"]);
 const FINALITIES = new Set(["NONE", "FINAL_ACKNOWLEDGED", "UNKNOWN"]);
@@ -137,7 +161,8 @@ const ARTIFACT_CLASSIFICATIONS = new Set(["PUBLIC", "INTERNAL", "CONFIDENTIAL", 
 function isDefinitiveClientRejection(failure: unknown): failure is MediaClientError {
   return failure instanceof MediaClientError
     && ([400, 401, 403].includes(failure.statusCode ?? 0)
-      || failure.detail.code === "IDEMPOTENCY_CONFLICT");
+      || failure.statusCode === 404 && failure.detail.code === "JOB_NOT_FOUND"
+      || failure.statusCode === 409 && ["IDEMPOTENCY_CONFLICT", "VERSION_CONFLICT"].includes(failure.detail.code));
 }
 
 const STREAM_SESSION_FIELDS = new Set([
@@ -316,6 +341,58 @@ export function parseCanonicalProcessingJob(input: unknown): CanonicalProcessing
     version: requiredInt(value, "version", 1, "Canonical Media job"),
     expectedArtifactVersion,
     requestFingerprint,
+  };
+}
+
+function parseCanonicalJobCancellationResponse(input: unknown): CanonicalJobCancellationResponse {
+  const value = asRecord(input, "Canonical Media job cancellation");
+  const fields = new Set(["operationRef", "requestId", "cancellationRequestId", "state", "replayed", "observedAt",
+    "jobId", "currentJobState", "currentAttemptStates", "reconcilePath", "automaticRetryAllowed", "job"]);
+  if (Object.keys(value).some((key) => !fields.has(key))
+    || [...fields].some((key) => !Object.hasOwn(value, key))) {
+    throw new TypeError("Canonical Media job cancellation fields do not match the runtime DTO.");
+  }
+  const state = requiredText(value, "state", "Canonical Media job cancellation");
+  if (!CANCELLATION_STATES.has(state)) {
+    throw new TypeError("Canonical Media job cancellation state is outside the runtime enum.");
+  }
+  if (value.operationRef !== "media.operation-slice.cancel-job") {
+    throw new TypeError("Canonical Media job cancellation operationRef does not match the request.");
+  }
+  if (typeof value.replayed !== "boolean") {
+    throw new TypeError("Canonical Media job cancellation replayed must be a boolean.");
+  }
+  if (value.automaticRetryAllowed !== false) {
+    throw new TypeError("Canonical Media job cancellation must not permit automatic retry.");
+  }
+  const jobId = requiredText(value, "jobId", "Canonical Media job cancellation");
+  const currentJobState = requiredText(value, "currentJobState", "Canonical Media job cancellation");
+  if (!JOB_STATUSES.has(currentJobState)) {
+    throw new TypeError("Canonical Media job cancellation currentJobState is outside the runtime enum.");
+  }
+  if (!Array.isArray(value.currentAttemptStates)
+    || value.currentAttemptStates.some((state) => typeof state !== "string" || !CANCELLATION_ATTEMPT_STATES.has(state))) {
+    throw new TypeError("Canonical Media job cancellation currentAttemptStates is outside the runtime enum.");
+  }
+  const reconcilePath = requiredText(value, "reconcilePath", "Canonical Media job cancellation");
+  const job = parseCanonicalProcessingJob(value.job);
+  if (jobId !== job.jobId || currentJobState !== job.status
+    || reconcilePath !== `/api/v1/jobs/${encodeURIComponent(job.jobId)}`) {
+    throw new TypeError("Canonical Media cancellation reconciliation identity does not match the job.");
+  }
+  return {
+    operationRef: "media.operation-slice.cancel-job",
+    requestId: requiredText(value, "requestId", "Canonical Media job cancellation"),
+    cancellationRequestId: requiredText(value, "cancellationRequestId", "Canonical Media job cancellation"),
+    state: state as CanonicalJobCancellationResponse["state"],
+    replayed: value.replayed,
+    observedAt: requiredDateTime(value.observedAt, "observedAt"),
+    jobId,
+    currentJobState: currentJobState as CanonicalJobStatus,
+    currentAttemptStates: value.currentAttemptStates as CanonicalJobCancellationResponse["currentAttemptStates"],
+    reconcilePath,
+    automaticRetryAllowed: false,
+    job,
   };
 }
 
@@ -566,13 +643,56 @@ export class MediaCanonicalClient {
     return jobs.map((job) => this.assertJobScope(job, principalId));
   }
 
-  /**
-   * Cancellation stays NOT_ADMITTED until the owner request/replay contract is
-   * reconciled with the current HTTP route. The route's ProcessingJob response
-   * cannot represent the PDP cancellation-request outcome or its finality.
-   */
-  public cancelJob(_jobId: string, _signal?: AbortSignal): Promise<never> {
-    return Promise.reject(new MediaOperationNotAdmittedError("media.operation-slice.cancel-job"));
+  /** POST /api/v1/jobs/{jobId}/cancel — durable request; finality remains on the job. */
+  public async cancelJob(
+    jobId: string,
+    request: CancelCanonicalJobRequest,
+    signal?: AbortSignal,
+  ): Promise<CanonicalJobCancellationResponse> {
+    const principalId = this.requirePrincipalId("job cancellation");
+    const requested = safePathSegment("jobId", jobId);
+    const allowed = new Set(["requestId", "expectedJobVersion", "reason"]);
+    if (!request || Object.keys(request).some((key) => !allowed.has(key))) {
+      throw new Error("Job cancellation contains fields outside the canonical request.");
+    }
+    const requestId = safeIdentityHeader("requestId", request.requestId);
+    if (!requestId || !/^[A-Za-z0-9][A-Za-z0-9._~:-]{0,127}$/u.test(requestId)) {
+      throw new Error("Job cancellation requestId must be a bounded opaque identity.");
+    }
+    if (!Number.isSafeInteger(request.expectedJobVersion) || request.expectedJobVersion < 1) {
+      throw new Error("expectedJobVersion must be a positive safe integer.");
+    }
+    const reason = request.reason ?? "USER_REQUEST";
+    if (!CANCELLATION_REASONS.has(reason)) {
+      throw new Error("Job cancellation reason is outside the canonical enum.");
+    }
+    const path = canonicalMediaHttpRoutes.cancelJob.replace("{jobId}", encodeURIComponent(requested));
+    let dispatched = false;
+    let transportRequestId: string | undefined;
+    let response: CanonicalJobCancellationResponse;
+    try {
+      response = await this.transport.request(
+        "POST", path,
+        { requestId, expectedJobVersion: request.expectedJobVersion, reason },
+        { parse: parseCanonicalJobCancellationResponse }, signal,
+        { "Idempotency-Key": requestId },
+        (id) => { dispatched = true; transportRequestId = id; },
+      );
+      this.assertJobScope(response.job, principalId);
+      if (response.job.jobId !== requested || response.requestId !== requestId
+        || response.cancellationRequestId !== requestId) {
+        throw new TypeError("Canonical Media cancellation response identity does not match the request.");
+      }
+    } catch (failure) {
+      if (dispatched && !isDefinitiveClientRejection(failure)) {
+        throw new MediaOperationAmbiguousError(path, failure, {
+          requestId,
+          requestKey: requestId,
+        });
+      }
+      throw failure;
+    }
+    return response;
   }
 
   /** POST /api/v1/streams — open a session and receive the one-time token. */

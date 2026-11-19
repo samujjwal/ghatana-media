@@ -639,4 +639,33 @@ class FileInvocationLedgerTest {
                 .isInstanceOf(RuntimeException.class);
         assertThat(writer.claim(fence("expiry-bound-inv", id))).isEqualTo(ClaimResult.ALREADY_CLAIMED);
     }
+
+    @Test
+    void expiredResultIsPurgedAfterRestartButInvocationFenceStillPreventsRedispatch() throws Exception {
+        Instant createdAt = Instant.parse("2026-11-05T12:00:00Z");
+        SecretKeySpec fixtureKey = new SecretKeySpec(new byte[32], "AES");
+        RequestIdentity id = identity("stt", "fp-expired-result");
+        FileInvocationLedger writer = ledger(dir, fixtureKey, Duration.ofMinutes(5),
+                Clock.fixed(createdAt, ZoneOffset.UTC));
+
+        assertThat(writer.claim(fence("expired-result-inv", id))).isEqualTo(ClaimResult.CLAIMED);
+        assertThat(writer.complete(terminal("expired-result-inv", id))).isTrue();
+
+        // A new process observes the result exactly at its retention boundary. The body is
+        // removed, but the durable invocation tombstone remains so an expired replay cannot
+        // acquire a fresh claim and repeat the external effect.
+        FileInvocationLedger restarted = ledger(dir, fixtureKey, Duration.ofMinutes(5),
+                Clock.fixed(createdAt.plus(Duration.ofMinutes(5)), ZoneOffset.UTC));
+        assertThat(restarted.find("expired-result-inv")).isEmpty();
+        assertThat(restarted.claim(fence("expired-result-inv", id))).isEqualTo(ClaimResult.ALREADY_CLAIMED);
+        assertThat(restarted.find("expired-result-inv")).isEmpty();
+
+        Path record;
+        try (Stream<Path> files = Files.list(dir)) {
+            record = files.filter(path -> path.getFileName().toString().endsWith(".json")).findFirst().orElseThrow();
+        }
+        String tombstone = Files.readString(record);
+        assertThat(tombstone).contains("\"resultExpired\":true")
+                .doesNotContain("resultCiphertext", "resultNonce", "transcript", "hello");
+    }
 }

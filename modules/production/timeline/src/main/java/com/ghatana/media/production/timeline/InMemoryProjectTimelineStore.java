@@ -10,6 +10,7 @@ import java.util.Objects;
 public final class InMemoryProjectTimelineStore implements ProjectTimelineStore {
     private final Map<ProjectKey, Aggregate> projects = new HashMap<>();
     private final Map<RequestKey, CreateReceipt> requests = new HashMap<>();
+    private final Map<CommandKey, CommandReceipt> commands = new HashMap<>();
 
     @Override
     public synchronized Created create(Actor actor, String workspaceId, String title, String requestId,
@@ -73,6 +74,55 @@ public final class InMemoryProjectTimelineStore implements ProjectTimelineStore 
         return revision;
     }
 
+    @Override public synchronized Revision replayCommand(Actor actor, String projectId, String canonicalOperationRef,
+                                                        String requestId, String requestFingerprint) {
+        validateCommandIdentity(actor, projectId, canonicalOperationRef, requestId, requestFingerprint);
+        CommandReceipt receipt = commands.get(commandKey(actor, canonicalOperationRef, requestId));
+        if (receipt == null) return null;
+        if (!receipt.projectId.equals(projectId) || !receipt.requestFingerprint.equals(requestFingerprint)) {
+            throw new IdempotencyConflictException();
+        }
+        Aggregate aggregate = owned(actor, projectId);
+        Revision revision = aggregate.revisions.get(receipt.revisionId);
+        if (revision == null) throw new IllegalStateException("project command receipt references a missing revision");
+        return revision;
+    }
+
+    @Override public synchronized Revision commitCommand(Actor actor, String projectId, String expectedHeadRevisionId,
+                                                          String canonicalOperationRef, String requestId,
+                                                          String requestFingerprint, String newRevisionId,
+                                                          java.util.List<TimelineSnapshot> timelines) {
+        validateCommandIdentity(actor, projectId, canonicalOperationRef, requestId, requestFingerprint);
+        requiredOpaqueId(expectedHeadRevisionId, "expectedHeadRevisionId");
+        requiredOpaqueId(newRevisionId, "newRevisionId");
+        CommandKey key = commandKey(actor, canonicalOperationRef, requestId);
+        CommandReceipt prior = commands.get(key);
+        if (prior != null) {
+            if (!prior.projectId.equals(projectId) || !prior.requestFingerprint.equals(requestFingerprint)) {
+                throw new IdempotencyConflictException();
+            }
+            Revision replay = owned(actor, projectId).revisions.get(prior.revisionId);
+            if (replay == null) throw new IllegalStateException("project command receipt references a missing revision");
+            return replay;
+        }
+        Revision committed = commit(actor, projectId, expectedHeadRevisionId, newRevisionId, timelines);
+        commands.put(key, new CommandReceipt(requestFingerprint, projectId, committed.revisionId()));
+        return committed;
+    }
+
+    private static void validateCommandIdentity(Actor actor, String projectId, String canonicalOperationRef,
+                                                String requestId, String requestFingerprint) {
+        Objects.requireNonNull(actor, "actor");
+        requiredOpaqueId(projectId, "projectId");
+        requireCanonicalOperationRef(canonicalOperationRef);
+        requireRequestId(requestId);
+        requireRequestFingerprint(requestFingerprint);
+    }
+
+    private static CommandKey commandKey(Actor actor, String operation, String requestId) {
+        return new CommandKey(actor.tenantId(), actor.principalId(), operation, requestId);
+    }
+
     private Aggregate owned(Actor actor, String projectId) {
         Objects.requireNonNull(actor, "actor");
         Aggregate aggregate = projects.get(new ProjectKey(actor.tenantId(), required(projectId, "projectId")));
@@ -85,6 +135,8 @@ public final class InMemoryProjectTimelineStore implements ProjectTimelineStore 
     private record RequestKey(String tenantId, String principalId, String requestId) { }
     private record CreateReceipt(ProjectKey projectKey, String workspaceId, String title,
                                  Project initialProject, String initialRevisionId) { }
+    private record CommandKey(String tenantId, String principalId, String operationRef, String requestId) { }
+    private record CommandReceipt(String requestFingerprint, String projectId, String revisionId) { }
     private static final class Aggregate {
         private Project project;
         private final Map<String, Revision> revisions = new HashMap<>();

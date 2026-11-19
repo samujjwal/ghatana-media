@@ -164,6 +164,103 @@ public final class PostgresqlProjectTimelineStore implements ManagedProjectTimel
         } catch (SQLException failure) { throw new IllegalStateException("project revision commit failed", failure); }
     }
 
+    @Override public Revision replayCommand(Actor actor, String projectId, String canonicalOperationRef,
+                                            String requestId, String requestFingerprint) {
+        validateCommandIdentity(actor, projectId, canonicalOperationRef, requestId, requestFingerprint);
+        try (Connection connection = state.connection()) {
+            return replayCommand(connection, actor, projectId, canonicalOperationRef, requestId, requestFingerprint);
+        } catch (SQLException failure) {
+            throw new IllegalStateException("project command receipt readback failed", failure);
+        }
+    }
+
+    @Override public Revision commitCommand(Actor actor, String projectId, String expectedHeadRevisionId,
+                                            String canonicalOperationRef, String requestId, String requestFingerprint,
+                                            String newRevisionId, List<TimelineSnapshot> timelines) {
+        validateCommandIdentity(actor, projectId, canonicalOperationRef, requestId, requestFingerprint);
+        String expected = MediaProjectTimelineContracts.requiredOpaqueId(expectedHeadRevisionId, "expectedHeadRevisionId");
+        String revisionId = MediaProjectTimelineContracts.requiredOpaqueId(newRevisionId, "newRevisionId");
+        List<TimelineSnapshot> snapshots = List.copyOf(Objects.requireNonNull(timelines, "timelines"));
+        Revision candidate = new Revision(actor.tenantId(), projectId, revisionId, expected, snapshots);
+        try (Connection connection = state.connection()) {
+            connection.setAutoCommit(false);
+            try {
+                Revision prior = replayCommand(connection, actor, projectId, canonicalOperationRef,
+                        requestId, requestFingerprint);
+                if (prior != null) {
+                    connection.rollback();
+                    return prior;
+                }
+                Project project = ownedProject(connection, actor, projectId);
+                if (!project.headRevisionId().equals(expected)) {
+                    throw new RevisionConflictException(expected, project.headRevisionId());
+                }
+                try (PreparedStatement update = connection.prepareStatement("""
+                        UPDATE media_timeline_projects SET head_revision_id=?
+                        WHERE tenant_id=? AND project_id=? AND owner_principal_id=? AND head_revision_id=?
+                        """)) {
+                    update.setString(1, revisionId); update.setString(2, actor.tenantId());
+                    update.setString(3, projectId); update.setString(4, actor.principalId()); update.setString(5, expected);
+                    if (update.executeUpdate() != 1) {
+                        Project latest = ownedProject(connection, actor, projectId);
+                        throw new RevisionConflictException(expected, latest.headRevisionId());
+                    }
+                }
+                insertRevision(connection, candidate);
+                try (PreparedStatement receipt = connection.prepareStatement("""
+                        INSERT INTO media_timeline_command_receipts
+                          (tenant_id,principal_id,canonical_operation_ref,request_id,request_fingerprint,project_id,revision_id)
+                        VALUES (?,?,?,?,?,?,?)
+                        """)) {
+                    receipt.setString(1, actor.tenantId()); receipt.setString(2, actor.principalId());
+                    receipt.setString(3, canonicalOperationRef); receipt.setString(4, requestId);
+                    receipt.setString(5, requestFingerprint); receipt.setString(6, projectId);
+                    receipt.setString(7, revisionId); receipt.executeUpdate();
+                }
+                connection.commit();
+                return candidate;
+            } catch (SQLException | RuntimeException failure) {
+                connection.rollback();
+                if (failure instanceof RevisionConflictException
+                        || failure instanceof SQLException sql && "23505".equals(sql.getSQLState())) {
+                    Revision replay = replayCommand(actor, projectId, canonicalOperationRef, requestId, requestFingerprint);
+                    if (replay != null) return replay;
+                }
+                throw failure;
+            }
+        } catch (SQLException failure) {
+            throw new IllegalStateException("project command commit failed", failure);
+        }
+    }
+
+    private Revision replayCommand(Connection connection, Actor actor, String projectId, String canonicalOperationRef,
+                                   String requestId, String requestFingerprint) throws SQLException {
+        try (PreparedStatement select = connection.prepareStatement("""
+                SELECT request_fingerprint,project_id,revision_id FROM media_timeline_command_receipts
+                WHERE tenant_id=? AND principal_id=? AND canonical_operation_ref=? AND request_id=?
+                """)) {
+            select.setString(1, actor.tenantId()); select.setString(2, actor.principalId());
+            select.setString(3, canonicalOperationRef); select.setString(4, requestId);
+            try (ResultSet row = select.executeQuery()) {
+                if (!row.next()) return null;
+                if (!row.getString(1).equals(requestFingerprint) || !row.getString(2).equals(projectId)) {
+                    throw new MediaProjectTimelineContracts.IdempotencyConflictException();
+                }
+                ownedProject(connection, actor, projectId);
+                return readRevision(connection, actor.tenantId(), projectId, row.getString(3));
+            }
+        }
+    }
+
+    private static void validateCommandIdentity(Actor actor, String projectId, String canonicalOperationRef,
+                                                String requestId, String requestFingerprint) {
+        Objects.requireNonNull(actor, "actor");
+        MediaProjectTimelineContracts.requiredOpaqueId(projectId, "projectId");
+        MediaProjectTimelineContracts.requireCanonicalOperationRef(canonicalOperationRef);
+        MediaProjectTimelineContracts.requireRequestId(requestId);
+        MediaProjectTimelineContracts.requireRequestFingerprint(requestFingerprint);
+    }
+
     private Created replay(Connection connection, Actor actor, String requestId, String fingerprint) throws SQLException {
         try (PreparedStatement select = connection.prepareStatement("""
                 SELECT request_fingerprint,project_id,initial_revision_id FROM media_timeline_create_receipts

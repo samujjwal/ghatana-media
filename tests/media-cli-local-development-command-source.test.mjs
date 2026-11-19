@@ -8,8 +8,15 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('..', import.meta.url));
 const { parse } = createRequire(resolve(root, '../ghatana-tools/package.json'))('yaml');
 const readYaml = path => parse(readFileSync(resolve(root, path), 'utf8'));
+const productionIds = [
+  'media.cli.artifact.inspect',
+  'media.cli.job.get',
+  'media.cli.job.submit',
+  'media.cli.job.list',
+  'media.cli.job.cancel',
+];
 
-test('four local-development CLI definitions stay separate from fixture and production populations', () => {
+test('five local-development CLI definitions stay separate from fixture and production populations', () => {
   const source = readYaml('.product-experience/pdp-3-product-experience/cli/local-development-command-registry.yaml');
   const crosswalk = readYaml('.product-experience/pdp-3-product-experience/cli/source-crosswalk.yaml');
   const production = readYaml('.product-experience/pdp-3-product-experience/cli/production-command-registry.yaml');
@@ -21,6 +28,7 @@ test('four local-development CLI definitions stay separate from fixture and prod
     'media.cli.local-development.artifact.upload',
     'media.cli.local-development.artifact.inspect',
     'media.cli.local-development.job.get',
+    'media.cli.local-development.job.submit',
     'media.cli.local-development.job.cancel',
   ];
 
@@ -28,7 +36,7 @@ test('four local-development CLI definitions stay separate from fixture and prod
   assert.equal(source.sourceDisposition.scope, 'explicit-local-development-source-contract-extension');
   assert.equal(source.sourceDisposition.decisionRef, '.product-experience/decision-log.md#PXD-051');
   assert.equal(source.sourceDisposition.supersedesPlanConflict, true);
-  assert.match(source.sourceDisposition.clarification, /four listed local-development command identities only/u);
+  assert.match(source.sourceDisposition.clarification, /five listed local-development command identities only/u);
   assert.equal(source.sourceDisposition.productionAdmission, 'OPEN');
   assert.equal(source.executionScope.binary, 'libs/audio-video-client/package.json#bin.ghatanamedia-api-dev');
   assert.equal(source.executionScope.runtimeProfile, 'MEDIA_PROFILE-exactly-dev');
@@ -38,29 +46,32 @@ test('four local-development CLI definitions stay separate from fixture and prod
   assert.equal(source.executionScope.expectedAudience, 'ghatana-media-dev');
   assert.match(source.executionScope.signatureValidation, /Media-host-verifies-HMAC/u);
   assert.equal(source.productionAdmission.status, 'OPEN');
-  assert.equal(source.productionAdmission.productionIdentityCount, 1);
-  assert.deepEqual(source.productionAdmission.productionIdentities, ['media.cli.artifact.inspect']);
+  assert.equal(source.productionAdmission.productionIdentityCount, productionIds.length);
+  assert.deepEqual(source.productionAdmission.productionIdentities, productionIds);
 
-  assert.equal(crosswalk.populations.localDevelopmentCommandDefinitions.count, 4);
+  assert.equal(crosswalk.populations.localDevelopmentCommandDefinitions.count, 5);
   assert.equal(crosswalk.populations.localDevelopmentCommandDefinitions.entrypoint, 'libs/audio-video-client/src/cli-dev.ts');
   assert.equal(crosswalk.populations.localDevelopmentCommandDefinitions.implementation,
     'libs/audio-video-client/src/cli.ts#runLocalDevelopmentCli');
   assert.equal(crosswalk.verification.localDevelopmentSourceTest, 'tests/media-cli-local-development-command-source.test.mjs');
   assert.deepEqual(crosswalk.populations.localDevelopmentCommandDefinitions.identities.map(item => item.commandId), expectedIds);
   assert.equal(crosswalk.populations.localDevelopmentCommandDefinitions.productionAdmission, 'OPEN');
-  assert.equal(production.productionCommandPopulation.count, 1);
-  assert.deepEqual(production.commands.map(command => command.id), ['media.cli.artifact.inspect']);
+  assert.equal(production.productionCommandPopulation.count, productionIds.length);
+  assert.deepEqual(production.commands.map(command => command.id), productionIds);
   assert.equal(fixture.commands.length, 11);
   assert.equal(packageJson.bin['ghatanamedia-api-dev'], './dist/cli-dev.js');
 
   const localDispatch = cliSource.match(/const LOCAL_DEVELOPMENT_COMMAND_IDS: Readonly<Record<string, string>> = \{([\s\S]*?)\n\};/u);
   assert.ok(localDispatch, 'local-development identities are implemented in the documented dispatcher');
   assert.deepEqual(
-    [...localDispatch[1].matchAll(/'([^']+)': '([^']+)'/gu)].map(([, command, identity]) => `${command}:${identity}`),
+    [...localDispatch[1].matchAll(/'([^']+)': '([^']+)'/gu)]
+      .filter(([, , identity]) => expectedIds.includes(identity))
+      .map(([, command, identity]) => `${command}:${identity}`),
     [
       'artifact upload:media.cli.local-development.artifact.upload',
       'artifact inspect:media.cli.local-development.artifact.inspect',
       'job get:media.cli.local-development.job.get',
+      'job submit:media.cli.local-development.job.submit',
       'job cancel:media.cli.local-development.job.cancel',
     ],
   );
@@ -68,14 +79,20 @@ test('four local-development CLI definitions stay separate from fixture and prod
   assert.ok(productionDispatch, 'production command identities remain separately declared');
   assert.deepEqual(
     [...productionDispatch[1].matchAll(/'([^']+)': '([^']+)'/gu)].map(([, command, identity]) => `${command}:${identity}`),
-    ['artifact inspect:media.cli.artifact.inspect'],
+    [
+      'artifact inspect:media.cli.artifact.inspect',
+      'job get:media.cli.job.get',
+      'job submit:media.cli.job.submit',
+      'job list:media.cli.job.list',
+      'job cancel:media.cli.job.cancel',
+    ],
   );
 
   const localParity = parity.surfaces.find(surface => surface.surface === 'CLI local-development command definitions');
   const productionParity = parity.surfaces.find(surface => surface.surface === 'CLI host-configured runtime consumers');
-  assert.equal(localParity.denominator, 4);
+  assert.equal(localParity.denominator, 5);
   assert.deepEqual(localParity.identities, expectedIds);
-  assert.deepEqual(productionParity.identities, ['media.cli.artifact.inspect']);
+  assert.deepEqual(productionParity.identities, productionIds);
   assert.equal(localParity.productionAdmission, 'OPEN');
 });
 
@@ -134,6 +151,41 @@ test('local-dev bindings are exact and cancellation stays isolated from producti
   assert.deepEqual(jobRead.httpOperations, ['getMediaJob']);
   assert.match(jobRead.outcome, /not-a-provider-finality-receipt/u);
 
+  const submit = source.commands.find(item => item.id.endsWith('.job.submit'));
+  const ownerSubmit = ownerOperation('media.operation-slice.submit-job');
+  const openApiSubmit = getOperation('submitMediaJob');
+  assert.equal(submit.canonicalCommand, 'ghatanamedia-api-dev job submit');
+  assert.equal(submit.runtimeBinding, 'EXISTING_DEV_ONLY_LOOPBACK_HTTP_OPERATION');
+  assert.deepEqual(submit.operationRefs, ['media.operation-slice.submit-job']);
+  assert.deepEqual(submit.httpOperations, ['submitMediaJob']);
+  assert.deepEqual(submit.requiredOptions, ['--endpoint', '--tenant', '--principal', '--artifact', '--request-id']);
+  assert.deepEqual(submit.optionalOptions, ['--job-type', '--provider-hint', '--await-finality-ms']);
+  assert.equal(submit.ownerDecisionRefs[0], '.product-experience/decision-log.md#PXD-042');
+  assert.match(submit.submissionSemantics, /202-is-a-submission-receipt-only/u);
+  assert.match(submit.unknownOutcome, /preserve-the-original-requestId-idempotencyKey-and-payload/u);
+  assert.match(submit.unknownOutcome, /job-readback-requires-a-known-jobId/u);
+  assert.deepEqual(submit.exclusions, [
+    'no-rights-or-consent-proof', 'no-provider-qualification',
+    'no-production-host-admission', 'no-jobId-from-requestId-inference',
+  ]);
+  assert.equal(submit.productionAdmission, 'OPEN');
+  assert.equal(ownerSubmit.sourceOperation, 'submitMediaJob');
+  assert.match(ownerSubmit.finality, /202\/ACCEPTED is submission receipt/u);
+  assert.equal(openApiSubmit.requestBody.required, true);
+  const crosswalkSubmit = crosswalk.populations.localDevelopmentCommandDefinitions.identities
+    .find(item => item.commandId === submit.id);
+  assert.equal(crosswalkSubmit.httpOperation, 'submitMediaJob');
+  assert.equal(crosswalkSubmit.route, 'POST-/api/v1/jobs');
+  assert.equal(crosswalkSubmit.runtimeBinding, 'EXISTING_DEV_ONLY_LOOPBACK_HTTP_OPERATION');
+  assert.deepEqual(crosswalkSubmit.sourceRefs, [
+    'docs/development/FEATURE-COMPLETE-EXECUTION.md#usable-headless-artifact-and-job-api',
+    '.product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.submit-job',
+    '.product-experience/pdp-2-design-interface-system/cli/conventions.yaml',
+    '.product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml',
+  ]);
+  assert.match(crosswalkSubmit.unknownOutcome, /no-read-by-requestId-without-known-jobId/u);
+  assert.equal(crosswalkSubmit.productionAdmission, 'OPEN');
+
   const cancel = source.commands.find(item => item.id.endsWith('.job.cancel'));
   const ownerCancel = ownerOperation('media.operation-slice.cancel-job');
   const openApiCancel = getOperation('cancelMediaJob');
@@ -156,9 +208,12 @@ test('local-dev bindings are exact and cancellation stays isolated from producti
   assert.equal(crosswalkCancel.productionAdmission, 'OPEN');
   assert.ok(!openapi.paths['/dev/v1/jobs/{jobId}/cancel'], 'DEV_ONLY cancellation stays outside canonical OpenAPI');
   assert.ok(ownerCancel.ownerDefinition.requestSchema.required.includes('requestId'));
-  // Canonical production cancellation remains bodyless and outside the inspect-only CLI registry.
-  assert.equal(openApiCancel.requestBody, undefined);
-  assert.equal(openApiCancel['x-ghatana-idempotency'].required, false);
+  // The canonical production CLI carries the durable request identity and expected-version CAS.
+  assert.equal(openApiCancel.requestBody.required, true);
+  assert.equal(openApiCancel.requestBody.content['application/json'].schema.$ref,
+    '#/components/schemas/JobCancellationRequest');
+  assert.ok(openApiCancel.parameters.some(parameter => parameter.$ref === '#/components/parameters/IdempotencyKeyHeader'));
+  assert.equal(openApiCancel['x-ghatana-idempotency'].required, true);
   assert.equal(ownerCancel.status, 'proposed-local-source-contract');
   assert.match(ownerCancel.ownerDefinition.scopeStatus, /runtime-NOT_ADMITTED/u);
   assert.ok(ownerCancel.ownerDefinition.requestSchema.required.includes('requestId'));
@@ -170,7 +225,7 @@ test('local-dev bindings are exact and cancellation stays isolated from producti
   assert.match(ownerCancel.ownerDefinition.authority, /current-trusted-principal-and-current-job-cancel-policy/u);
   assert.match(ownerCancel.ownerDefinition.guards.join(' '), /current-attempt-and-dispatch-evidence/u);
   assert.match(ownerCancel.ownerDefinition.childCancellationRule.scopeStatus, /fan-out execution.*NOT_EVALUATED/u);
-  assert.equal(production.productionCommandPopulation.count, 1);
-  assert.deepEqual(production.commands.map(command => command.id), ['media.cli.artifact.inspect']);
+  assert.equal(production.productionCommandPopulation.count, productionIds.length);
+  assert.deepEqual(production.commands.map(command => command.id), productionIds);
   assert.equal(source.productionAdmission.status, 'OPEN');
 });

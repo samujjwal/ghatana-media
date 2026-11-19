@@ -236,10 +236,24 @@ class ProjectTimelineRevisionModelTest {
             return revisionOverrides.getOrDefault(revisionId, delegate.revision(actor, projectId, revisionId));
         }
 
+        @Override public Revision replayCommand(Actor actor, String projectId, String canonicalOperationRef,
+                                                String requestId, String requestFingerprint) {
+            return delegate.replayCommand(actor, projectId, canonicalOperationRef, requestId, requestFingerprint);
+        }
+
         @Override public Revision commit(Actor actor, String projectId, String expectedHeadRevisionId,
                                          String newRevisionId, List<TimelineSnapshot> timelines) {
             commits++;
             return delegate.commit(actor, projectId, expectedHeadRevisionId, newRevisionId, timelines);
+        }
+
+        @Override public Revision commitCommand(Actor actor, String projectId, String expectedHeadRevisionId,
+                                                String canonicalOperationRef, String requestId,
+                                                String requestFingerprint, String newRevisionId,
+                                                List<TimelineSnapshot> timelines) {
+            commits++;
+            return delegate.commitCommand(actor, projectId, expectedHeadRevisionId, canonicalOperationRef,
+                    requestId, requestFingerprint, newRevisionId, timelines);
         }
     }
 }

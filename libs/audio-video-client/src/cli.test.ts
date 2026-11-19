@@ -194,6 +194,23 @@ function productionJobListCommand(endpoint: string, limit?: number) {
     ...(limit === undefined ? [] : ['--limit', String(limit)])];
 }
 
+function productionJobCancelCommand(endpoint: string, requestId: string, expectedVersion = 2) {
+  return ['job', 'cancel', '--endpoint', endpoint, '--tenant', 'tenant-a', '--principal', 'principal-a',
+    '--job', 'job-a', '--request-id', requestId, '--expected-version', String(expectedVersion)];
+}
+
+function jobCancellationFingerprint(requestId: string, expectedVersion: number, reason = 'USER_REQUEST') {
+  const hash = createHash('sha256');
+  for (const value of ['media.operation-slice.cancel-job', 'tenant-a', 'principal-a', 'job-a',
+    requestId, String(expectedVersion), reason]) {
+    const bytes = Buffer.from(value, 'utf8');
+    const length = Buffer.allocUnsafe(4);
+    length.writeInt32BE(bytes.length);
+    hash.update(length).update(bytes);
+  }
+  return hash.digest('hex');
+}
+
 function uploadCommand(endpoint: string, filePath: string) {
   return ['artifact', 'upload', '--endpoint', endpoint, '--tenant', 'tenant-a', '--principal', 'principal-a',
     '--file', filePath, '--content-type', 'application/octet-stream', '--classification', 'INTERNAL',
@@ -215,6 +232,56 @@ function routeFixtureEnvironment(mode: string, logPath: string, values: { artifa
 }
 
 describe('ghatanamedia-api production executable', () => {
+  it('sends a durable production cancellation request with expected-version fencing', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-production-job-cancel-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    try {
+      const result = await invoke(productionJobCancelCommand('https://media.example.test', 'cancel-a'), token, {
+        ...fixtureEnvironment('job-cancel-success', requestLogPath),
+        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(canonicalJob()),
+      }, fetchFixture);
+      expect(result.status).toBe(0);
+      expect(JSON.parse(result.stdout)).toMatchObject({
+        schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.job.cancel',
+        cancellation: { state: 'CANCEL_REQUESTED', requestId: 'cancel-a', job: { jobId: 'job-a' } },
+      });
+      const requests = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+      expect(requests).toHaveLength(1);
+      expect(requests[0]).toMatchObject({
+        method: 'POST', path: '/api/v1/jobs/job-a/cancel', idempotencyKey: 'cancel-a',
+        request: { requestId: 'cancel-a', expectedJobVersion: 2, reason: 'USER_REQUEST' },
+      });
+    } finally { await rm(directory, { recursive: true, force: true }); }
+  });
+
+  it('reconciles a lost cancellation acknowledgement by GET and never posts a second request', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-production-job-cancel-reconcile-'));
+    const requestLogPath = join(directory, 'requests.jsonl');
+    const requestId = 'cancel-reconcile-a';
+    const job = canonicalJob({ result: { cancellationRequest: {
+      operationRef: 'media.operation-slice.cancel-job', requestId,
+      requestFingerprint: jobCancellationFingerprint(requestId, 2), expectedJobVersion: 2,
+      reason: 'USER_REQUEST', state: 'CANCEL_REQUESTED', providerOutcome: 'DISPATCH_STARTED',
+      requestedAt: timestamp,
+    } } });
+    try {
+      const result = await invoke(productionJobCancelCommand('https://media.example.test', requestId), token, {
+        ...fixtureEnvironment('job-cancel-ack-lost', requestLogPath),
+        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(job),
+      }, fetchFixture);
+      expect(result.status).toBe(6);
+      expect(JSON.parse(result.stderr)).toMatchObject({
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.cancel', code: 'OUTCOME_UNKNOWN',
+        requestId, state: 'UNKNOWN_OUTCOME', currentJobState: 'RUNNING',
+        reconcilePath: '/api/v1/jobs/job-a', automaticRetryAllowed: false, job: { jobId: 'job-a' },
+      });
+      const requests = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
+      expect(requests.map(({ method, path }) => `${method} ${path}`)).toEqual([
+        'POST /api/v1/jobs/job-a/cancel', 'GET /api/v1/jobs/job-a',
+      ]);
+    } finally { await rm(directory, { recursive: true, force: true }); }
+  });
+
   it('lists only caller-scoped canonical jobs with the bounded limit and strict JSON envelope', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'media-cli-production-job-list-'));
     const requestLogPath = join(directory, 'requests.jsonl');
@@ -1720,7 +1787,6 @@ describe('ghatanamedia-api-dev local-development executable', () => {
 describe('ghatanamedia-api production command boundary', () => {
   it.each([
     { command: 'artifact upload', args: ['artifact', 'upload', '--file', 'source.bin', '--content-type', 'application/octet-stream', '--classification', 'INTERNAL', '--retention', 'P30D', '--idempotency-key', 'request-a'] },
-    { command: 'job cancel', args: ['job', 'cancel', '--job', 'job-a', '--request-id', 'request-a'] },
     { command: 'artifact upload-inspect', args: ['artifact', 'upload-inspect', '--upload', 'upload-1'] },
     { command: 'job status', args: ['job', 'status', '--job', 'job-1'] },
     { command: 'artifact delete', args: ['artifact', 'delete', '--artifact', 'artifact-1'] },
@@ -1742,8 +1808,7 @@ describe('ghatanamedia-api production command boundary', () => {
           schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.invocation', code: 'INVALID_INVOCATION',
         });
         expect(JSON.parse(result.stderr).message).toContain('Usage: ghatanamedia-api artifact inspect');
-        expect(JSON.parse(result.stderr).message).not.toContain('job cancel');
-        expect(JSON.parse(result.stderr).message).not.toContain('artifact upload-inspect');
+        expect(JSON.parse(result.stderr).message).not.toContain(command);
         expect(result.stderr).not.toContain(token);
       }
       await expect(readFile(requestLogPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });

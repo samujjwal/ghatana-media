@@ -1351,8 +1351,10 @@ channels:
               authorized job query before any retry.
             providerTermination: never implied by command receipt, process exit,
               or observer interruption.
-        scopeStatus: OWNER_DEFINED_CLI_COMMAND_SEMANTICS; no CLI executable,
-          parser, route, server cancellation, or runtime support is admitted.
+        scopeStatus: OWNER_DEFINED_CLI_COMMAND_SEMANTICS; a host-configured
+          source-bound CLI command now exists; production-host identity and
+          qualification, provider-stop execution, and runtime admission remain
+          NOT_ADMITTED.
         executionAdmission: NOT_ADMITTED
       submissionWaitRule:
         id: media.cli.submission-wait.v1

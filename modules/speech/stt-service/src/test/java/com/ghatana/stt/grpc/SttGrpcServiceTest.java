@@ -115,7 +115,9 @@ class SttGrpcServiceTest {
         assertThat(observer.getValue().getConfidence()).isEqualTo(0.95f); 
         assertThat(observer.getValue().getProcessingTimeMs()).isEqualTo(120L); 
         assertThat(observer.getValue().getModelUsed()).isEqualTo("whisper-base");
-        assertAdmissionBoundary("success", 3);
+        // Identity, initial request authorization, provider-boundary recheck, and
+        // post-inference authorization are measured as four distinct controls.
+        assertAdmissionBoundary("success", 4);
         assertDecodeBoundary("success");
         assertProviderBoundary("success");
         assertResponseBoundary("success");

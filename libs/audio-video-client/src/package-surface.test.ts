@@ -57,12 +57,16 @@ describe("package surface", () => {
     expect(typeof offlineReconnect.OfflineReconnectCoordinator).toBe("function");
     const devCancellation = await import("@audio-video/client/dev-job-cancellation");
     expect(typeof devCancellation.MediaDevOnlyJobCancellationClient).toBe("function");
+    const devRender = await import("@audio-video/client/dev-project-render");
+    expect(typeof devRender.MediaDevOnlyProjectRenderClient).toBe("function");
     // The CJS files are emitted independently and keep Node <22 consumers supported.
     const require = createRequire(resolve(packageRoot, "package.json"));
     const cjs = require("./dist-cjs/canonical-operations.js") as Record<string, unknown>;
     expect(typeof cjs.createMediaCanonicalClient).toBe("function");
     const devCancellationCjs = require("./dist-cjs/dev-job-cancellation.js") as Record<string, unknown>;
     expect(typeof devCancellationCjs.MediaDevOnlyJobCancellationClient).toBe("function");
+    const devRenderCjs = require("./dist-cjs/dev-project-render.js") as Record<string, unknown>;
+    expect(typeof devRenderCjs.MediaDevOnlyProjectRenderClient).toBe("function");
   });
 
   it("no source file imports monorepo-private paths outside the package", () => {

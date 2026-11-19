@@ -2,7 +2,7 @@ import {createHash} from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import {
-  PDP0_DIRECT_REVIEW_REF, PDP0_MATRIX_REF, PDP0_READINESS_REF, PDP0_REVIEW_INPUT_DIRECTORY, PDP0_STATUS_REF,
+  PDP0_CURRENTNESS_REVIEW_SCOPE, PDP0_DIRECT_REVIEW_REF, PDP0_MATRIX_REF, PDP0_READINESS_REF, PDP0_REVIEW_INPUT_DIRECTORY, PDP0_STATUS_REF,
   buildPdp0CurrentSourceReviewCandidate, resolveReviewRecordFiles,
 } from './media-pdp0-current-source-review-assembler.mjs';
 import {commitValidatedPdp0ReviewPostimage} from './media-pdp0-review-successor-cas.mjs';
@@ -13,6 +13,12 @@ const canonical = value => JSON.stringify(value);
 const REVIEW_PATH = 'docs/implementation/verification/pdp-38/direct-definition-criteria-review.json';
 const DECISION_LOG = '.product-experience/decision-log.md';
 const CANDIDATE_REF = 'docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/candidate.v4.json';
+const NON_SEMANTIC_REVIEW_FINDING_CLASSIFICATIONS = new Set([
+  'OWNER_CURRENTNESS_NOT_REVALIDATED',
+  'PDP0_STATUS_PROJECTION_STALE',
+  'WHOLE_CUT_CURRENTNESS_NOT_CLAIMED',
+  'DIRECT_REVIEW_BINDING_STALE',
+]);
 
 function decisionSectionExists(text, ref) {
   const id = ref?.match(/^\.product-experience\/decision-log\.md#(PXD-\d{3})$/u)?.[1];
@@ -57,7 +63,29 @@ export function planPdp0ReviewSuccessor({candidate, candidateText, directReview,
   if (candidate.schemaVersion !== 'media.pdp0.current-source-review-candidate.v4'
       || candidate.artifactKind !== 'COORDINATOR_ASSEMBLED_TECHNICAL_SOURCE_REVIEW_INPUTS') blockers.push('CANDIDATE_KIND_INVALID');
   if (missingCriterionIds.length) blockers.push('EIGHT_CRITERION_REVIEW_INVENTORY_INCOMPLETE');
-  const meaningFindings = (candidate.findings ?? []).filter(row => row.classification !== 'BLOCKED_EXTERNAL_INDEPENDENT');
+  const candidateFindings = candidate.findings ?? [];
+  const meaningFindings = candidateFindings.filter(row => row.classification !== 'BLOCKED_EXTERNAL_INDEPENDENT'
+    && !NON_SEMANTIC_REVIEW_FINDING_CLASSIFICATIONS.has(row.classification));
+  const technicalReviewFindings = candidateFindings.filter(row => NON_SEMANTIC_REVIEW_FINDING_CLASSIFICATIONS.has(row.classification));
+  const criterionReviewDispositions = PDP0_CURRENTNESS_REVIEW_SCOPE.map(criterionId => {
+    const criterion = candidate.criteria?.find(row => row.criterionId === criterionId);
+    const criterionFindings = [...new Map([
+      ...(criterion?.findings ?? []),
+      ...candidateFindings.filter(row => row.criterionId === criterionId),
+    ].map(row => [row.id, row])).values()];
+    const openMeaningFindings = criterionFindings.filter(row => row.classification !== 'BLOCKED_EXTERNAL_INDEPENDENT'
+      && !NON_SEMANTIC_REVIEW_FINDING_CLASSIFICATIONS.has(row.classification));
+    const openTechnicalFindings = criterionFindings.filter(row => NON_SEMANTIC_REVIEW_FINDING_CLASSIFICATIONS.has(row.classification));
+    return {
+      criterionId,
+      disposition: openMeaningFindings.length ? 'REVIEW_REQUIRED'
+        : openTechnicalFindings.length ? 'REUSE_PRIOR_MEANING; REVIEW_BINDING_REFRESH_REQUIRED'
+          : 'REUSE_PRIOR_MEANING',
+      openMeaningFindingIds: openMeaningFindings.map(row => row.id),
+      openTechnicalReviewFindingIds: openTechnicalFindings.map(row => row.id),
+    };
+  });
+  if (technicalReviewFindings.length) blockers.push('TECHNICAL_REVIEW_FINDINGS_REQUIRE_REBIND');
   if (candidate.statusBoundary?.phaseStatusEffect !== 'NONE'
       || candidate.statusBoundary?.pdp010Acceptance !== 'NOT_PERFORMED'
       || candidate.statusBoundary?.independentAcceptance !== 'NOT_CLAIMED') blockers.push('CANDIDATE_AUTHORITY_BOUNDARY_INVALID');
@@ -73,7 +101,11 @@ export function planPdp0ReviewSuccessor({candidate, candidateText, directReview,
     requiredCriterionIds: ['P0-01', 'P0-02', 'P0-03', 'P0-04', 'P0-05', 'P0-06', 'P0-07', 'P0-08'],
     missingCriterionIds,
     openMeaningFindingIds: meaningFindings.map(row => row.id),
-    independentAcceptanceFindingIds: (candidate.findings ?? []).filter(row => row.classification === 'BLOCKED_EXTERNAL_INDEPENDENT').map(row => row.id),
+    openTechnicalReviewFindingIds: technicalReviewFindings.map(row => row.id),
+    criterionReviewDispositions,
+    reviewRequiredCriterionIds: criterionReviewDispositions.filter(row => row.disposition === 'REVIEW_REQUIRED').map(row => row.criterionId),
+    reusablePriorMeaningCriterionIds: criterionReviewDispositions.filter(row => row.disposition !== 'REVIEW_REQUIRED').map(row => row.criterionId),
+    independentAcceptanceFindingIds: candidateFindings.filter(row => row.classification === 'BLOCKED_EXTERNAL_INDEPENDENT').map(row => row.id),
     ownerDecisionRequirement: {
       schemaRef: 'docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/revision-decision.v3.schema.json',
       decisionContextFile: DECISION_LOG,
@@ -92,7 +124,9 @@ export function planPdp0ReviewSuccessor({candidate, candidateText, directReview,
       reason: 'This plan cannot apply a canonical successor. A source-owner decision and current consumer-compatible revision schema are required; P0-010 acceptance and phase status are separate authorities.',
     },
     blockers,
-    planDisposition: blockers.length ? 'BLOCKED' : meaningFindings.length ? 'AWAITING_TYPED_SOURCE_OWNER_FINDING_DISPOSITION' : 'AWAITING_TYPED_SOURCE_OWNER_DECISION',
+    planDisposition: blockers.length ? 'BLOCKED'
+      : meaningFindings.length ? 'AWAITING_TYPED_SOURCE_OWNER_FINDING_DISPOSITION'
+        : 'AWAITING_TYPED_SOURCE_OWNER_DECISION',
     effects: {canonicalWrite: 'NOT_PERFORMED', phaseStatusEffect: 'NONE', independentAcceptance: 'NOT_CLAIMED', pdp010Acceptance: 'NOT_PERFORMED', nativeClosure: 'NOT_CLAIMED'},
   };
 }

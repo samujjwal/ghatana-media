@@ -66,7 +66,16 @@ test("ProcessingJob HTTP schema mirrors the serialized runtime record without cl
     { $ref: "#/components/schemas/ProcessingJob" },
   );
   assert.deepEqual(responseSchema("/api/v1/jobs/{jobId}", "get", 200), { $ref: "#/components/schemas/ProcessingJob" });
-  assert.deepEqual(responseSchema("/api/v1/jobs/{jobId}/cancel", "post", 200), { $ref: "#/components/schemas/ProcessingJob" });
+  assert.deepEqual(responseSchema("/api/v1/jobs/{jobId}/cancel", "post", 200), { $ref: "#/components/schemas/JobCancellationResponse" });
+  assert.deepEqual(responseSchema("/api/v1/jobs/{jobId}/cancel", "post", 202), { $ref: "#/components/schemas/JobCancellationResponse" });
+  const cancellationRoute = openApi.paths["/api/v1/jobs/{jobId}/cancel"].post;
+  assert.ok(cancellationRoute.parameters.some((parameter) =>
+    parameter.$ref === "#/components/parameters/IdempotencyKeyHeader"));
+  assert.equal(cancellationRoute["x-ghatana-idempotency"].required, true);
+  assert.equal(cancellationRoute["x-ghatana-idempotency"].scopeTemplate, "tenantId|principalId|jobId|requestId");
+  assert.deepEqual(openApi.components.schemas.JobCancellationRequest.required,
+    ["requestId", "expectedJobVersion"]);
+  assert.equal(openApi.components.schemas.JobCancellationResponse.properties.automaticRetryAllowed.const, false);
 
   const platformOperation = openApi.components.schemas.PlatformOperation;
   assert.ok(!platformOperation.properties.state.enum.includes("OUTCOME_UNKNOWN"),

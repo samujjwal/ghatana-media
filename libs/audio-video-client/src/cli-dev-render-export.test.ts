@@ -44,7 +44,10 @@ const mode = process.env.FIXTURE_MODE;
 const err = (status, code) => json({ error: { code, message: 'host message', retryable: status >= 500 }, meta: { correlationId: 'corr-1' } }, status);
 const lineage = (format, extra = {}) => ({ scope: 'DEV_ONLY', renderSchema: 'media.dev.render.v1', engine: 'fixture-engine', projectId: 'project-a',
   revisionId: 'rev-1', timelineId: 'timeline-main', timelineSemanticVersionId: 'sem-1', requestId: 'req-1', width: 32, height: 24,
-  framesPerSecond: 10, frameCount: 20, format, sources: [{ clipId: 'c1' }, { clipId: 'c2' }], ...extra });
+  framesPerSecond: 10, frameCount: 20, format, sources: [
+    { clipId: 'c1', trackId: 'track-c1', artifactId: 'source-c1', artifactVersionId: 'sha256:' + sha },
+    { clipId: 'c2', trackId: 'track-c2', artifactId: 'source-c2', artifactVersionId: 'sha256:' + sha },
+  ], ...extra });
 const render = (replayed, format = 'gif', extra = {}, lin = {}) => ({ renderId: 'render-1', artifact: { artifactId: 'render-1',
   artifactVersionId: 'sha256:' + sha, contentType: format === 'mp4' ? 'video/mp4' : 'image/gif', sizeBytes: 900, sha256: sha,
   artifactPath: '/api/v1/artifacts/render-1' }, lineage: lineage(format, lin), replayed, scope: 'DEV_ONLY', ...extra });

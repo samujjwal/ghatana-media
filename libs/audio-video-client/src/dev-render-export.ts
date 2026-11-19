@@ -1,7 +1,7 @@
 /**
  * Purpose: DEV_ONLY loopback adapter for the project render and hosted export routes used by the
  * local-development CLI (`media.dev.structured-cli`).
- * Consumers: `cli.ts` local-development channel only; it is not exported from the package index.
+ * Consumers: the local-development CLI and the narrowed `dev-project-render` SDK subpath.
  * Non-goals: production admission, canonical manifest/OpenAPI routes, batch semantics, or inferring
  * success (a render/export is reported only from a strictly validated host response).
  * Change policy: response shapes mirror launcher MediaDevProjectRender/MediaDevDelivery routes exactly.
@@ -42,7 +42,36 @@ export interface DevRenderResult {
     readonly sizeBytes: number;
   };
   readonly replayed: boolean;
-  readonly lineage: Readonly<Record<string, unknown>>;
+  readonly lineage: DevProjectRenderLineage;
+}
+
+export interface DevRenderSourceVersion {
+  readonly clipId: string;
+  readonly trackId: string;
+  readonly artifactId: string;
+  readonly artifactVersionId: string;
+  readonly trackKind?: string;
+  readonly sha256?: string;
+  readonly normalizedFrameSha256?: string;
+  readonly startFrame?: number;
+  readonly endFrameExclusive?: number;
+}
+
+export interface DevProjectRenderLineage extends Readonly<Record<string, unknown>> {
+  readonly scope: "DEV_ONLY";
+  readonly projectId: string;
+  readonly revisionId: string;
+  readonly timelineId: string;
+  readonly timelineSemanticVersionId: string;
+  readonly requestId: string;
+  readonly engine: string;
+  readonly format: DevRenderFormat;
+  readonly width: number;
+  readonly height: number;
+  readonly framesPerSecond: number;
+  readonly frameCount: number;
+  readonly sourceCount: number;
+  readonly sources: readonly DevRenderSourceVersion[];
 }
 
 export interface DevExportRequest {
@@ -100,6 +129,32 @@ function positiveInt(value: unknown, label: string): number {
   return value as number;
 }
 
+function renderSources(input: unknown): readonly DevRenderSourceVersion[] {
+  if (!Array.isArray(input) || input.length < 1 || input.length > 64) {
+    throw new TypeError("Canonical Media DEV_ONLY render sources are invalid.");
+  }
+  return input.map((raw) => {
+    const source = record(raw, "render source");
+    const result: DevRenderSourceVersion = {
+      clipId: text(source.clipId, "render source clip id", 128),
+      trackId: text(source.trackId, "render source track id", 128),
+      artifactId: text(source.artifactId, "render source artifact id", 128),
+      artifactVersionId: text(source.artifactVersionId, "render source artifact version", 384),
+      ...(typeof source.trackKind === "string" ? { trackKind: text(source.trackKind, "render source track kind", 64) } : {}),
+      ...(typeof source.sha256 === "string" ? { sha256: text(source.sha256, "render source sha256", 64) } : {}),
+      ...(typeof source.normalizedFrameSha256 === "string"
+        ? { normalizedFrameSha256: text(source.normalizedFrameSha256, "normalized frame sha256", 64) } : {}),
+      ...(source.startFrame === undefined ? {} : { startFrame: positiveInt(source.startFrame, "render source start frame") }),
+      ...(source.endFrameExclusive === undefined ? {} : { endFrameExclusive: positiveInt(source.endFrameExclusive, "render source end frame") }),
+    };
+    if (!OPAQUE_ID.test(result.clipId) || !OPAQUE_ID.test(result.trackId) || !OPAQUE_ID.test(result.artifactId)
+      || result.artifactVersionId === "") {
+      throw new TypeError("Canonical Media DEV_ONLY render source lacks an exact artifact version.");
+    }
+    return result;
+  });
+}
+
 function parseRender(input: unknown, projectId: string, expected: Partial<DevRenderRequest>,
   expectedRenderId?: string): DevRenderResult {
   const value = record(input, "render result");
@@ -113,39 +168,48 @@ function parseRender(input: unknown, projectId: string, expected: Partial<DevRen
   const renderId = text(value.renderId, "render id", 128);
   const sha256 = text(artifact.sha256, "render sha256", 64);
   const contentType = text(artifact.contentType, "render content type", 127);
+  const artifactVersionId = text(artifact.artifactVersionId, "render artifact version", 384);
   if (renderId !== artifactId || !OPAQUE_ID.test(artifactId) || !SHA256.test(sha256)
+    || artifactVersionId !== `sha256:${sha256}`
     || !Object.values(RENDER_CONTENT_TYPES).includes(contentType)
     || !Number.isSafeInteger(artifact.sizeBytes) || (artifact.sizeBytes as number) < 1
     || (expectedRenderId !== undefined && renderId !== expectedRenderId)) {
     throw new TypeError("Canonical Media DEV_ONLY render artifact identity is invalid.");
   }
-  const artifactVersionId = text(artifact.artifactVersionId, "render artifact version", 384);
   const lineage = record(value.lineage, "render lineage");
+  const sources = renderSources(lineage.sources);
+  const revisionId = text(lineage.revisionId, "render lineage revisionId", 128);
+  const timelineId = text(lineage.timelineId, "render lineage timelineId", 128);
+  const timelineSemanticVersionId = text(lineage.timelineSemanticVersionId, "render lineage timelineSemanticVersionId", 128);
+  const requestId = text(lineage.requestId, "render lineage requestId", 128);
+  const engine = text(lineage.engine, "render lineage engine", 160);
+  const format = lineage.format === "gif" || lineage.format === "mp4" ? lineage.format : null;
+  const width = positiveInt(lineage.width, "render lineage width");
+  const height = positiveInt(lineage.height, "render lineage height");
+  const framesPerSecond = positiveInt(lineage.framesPerSecond, "render lineage framesPerSecond");
+  const frameCount = positiveInt(lineage.frameCount, "render lineage frameCount");
   if (lineage.scope !== "DEV_ONLY" || lineage.projectId !== projectId
-    || typeof lineage.revisionId !== "string" || typeof lineage.timelineId !== "string"
-    || (lineage.format !== "gif" && lineage.format !== "mp4")
-    || contentType !== RENDER_CONTENT_TYPES[lineage.format]
-    || !Number.isSafeInteger(lineage.width) || !Number.isSafeInteger(lineage.height)
-    || !Number.isSafeInteger(lineage.framesPerSecond) || !Number.isSafeInteger(lineage.frameCount)
-    || !Array.isArray(lineage.sources)
-    || (expected.revisionId !== undefined && lineage.revisionId !== expected.revisionId)
-    || (expected.timelineId !== undefined && lineage.timelineId !== expected.timelineId)
-    || (expected.requestId !== undefined && lineage.requestId !== expected.requestId)
-    || (expected.width !== undefined && lineage.width !== expected.width)
-    || (expected.height !== undefined && lineage.height !== expected.height)
-    || (expected.framesPerSecond !== undefined && lineage.framesPerSecond !== expected.framesPerSecond)
-    || (expected.format !== undefined && lineage.format !== expected.format)) {
+    || format === null || contentType !== RENDER_CONTENT_TYPES[format]
+    || width < 1 || height < 1 || framesPerSecond < 1 || frameCount < 1
+    || (expected.revisionId !== undefined && revisionId !== expected.revisionId)
+    || (expected.timelineId !== undefined && timelineId !== expected.timelineId)
+    || (expected.requestId !== undefined && requestId !== expected.requestId)
+    || (expected.width !== undefined && width !== expected.width)
+    || (expected.height !== undefined && height !== expected.height)
+    || (expected.framesPerSecond !== undefined && framesPerSecond !== expected.framesPerSecond)
+    || (expected.format !== undefined && format !== expected.format)) {
     throw new TypeError("Canonical Media DEV_ONLY render lineage does not match the requested render.");
   }
-  const summary: Record<string, unknown> = {
-    projectId, revisionId: lineage.revisionId, timelineId: lineage.timelineId,
-    format: lineage.format, width: lineage.width, height: lineage.height,
-    framesPerSecond: lineage.framesPerSecond, frameCount: lineage.frameCount,
-    sourceCount: lineage.sources.length,
+  const summary: DevProjectRenderLineage = {
+    scope: "DEV_ONLY",
+    projectId, revisionId, timelineId,
+    format, width, height,
+    framesPerSecond, frameCount,
+    sourceCount: sources.length, sources,
+    timelineSemanticVersionId,
+    requestId,
+    engine,
   };
-  for (const key of ["timelineSemanticVersionId", "engine", "requestId"] as const) {
-    if (lineage[key] !== undefined) summary[key] = text(lineage[key], `render lineage ${key}`);
-  }
   return {
     renderId,
     artifact: { artifactId, artifactVersionId, sha256, contentType, sizeBytes: artifact.sizeBytes as number },
@@ -264,6 +328,67 @@ export class MediaDevOnlyRenderExportClient {
     return this.transport.request("GET",
       `/dev/v1/projects/${encodeURIComponent(projectId)}/renders/${encodeURIComponent(renderId)}`, undefined,
       { parse: (input) => parseRender(input, projectId, {}, renderId) }, signal);
+  }
+
+  /** Reads the exact registered render version, then verifies its byte count, MIME type and SHA-256. */
+  public async readRenderContent(render: DevRenderResult, maxBytes = 64 * 1024 * 1024,
+    signal?: AbortSignal): Promise<Uint8Array> {
+    if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > 512 * 1024 * 1024) {
+      throw new TypeError("Render content maxBytes must be within [1, 536870912].");
+    }
+    const artifact = render?.artifact;
+    if (!artifact || !OPAQUE_ID.test(artifact.artifactId) || artifact.artifactVersionId !== `sha256:${artifact.sha256}`
+      || !SHA256.test(artifact.sha256) || !Number.isSafeInteger(artifact.sizeBytes) || artifact.sizeBytes < 1
+      || !Object.values(RENDER_CONTENT_TYPES).includes(artifact.contentType)) {
+      throw new TypeError("Canonical Media DEV_ONLY render artifact identity is invalid.");
+    }
+    if (artifact.sizeBytes > maxBytes) {
+      throw new TypeError(`Render artifact is ${artifact.sizeBytes} bytes, over the ${maxBytes}-byte client limit.`);
+    }
+    const path = `/dev/v1/artifacts/${encodeURIComponent(artifact.artifactId)}/content`;
+    const response = await this.transport.fetchRaw(path, {
+      method: "GET",
+      headers: { Accept: artifact.contentType, "If-Match": artifact.artifactVersionId },
+    }, signal);
+    if (!response.ok) throw await this.transport.errorFromResponse(response);
+    if (response.status !== 200) throw new TypeError(`Canonical Media DEV_ONLY content returned unexpected status ${response.status}.`);
+    const responseType = response.headers.get("Content-Type")?.split(";", 1)[0]?.trim().toLowerCase();
+    if (responseType !== artifact.contentType.toLowerCase()) {
+      await response.body?.cancel().catch(() => undefined);
+      throw new TypeError("Canonical Media DEV_ONLY render content type does not match the registered artifact.");
+    }
+    const declaredLength = response.headers.get("Content-Length");
+    if (declaredLength !== null && (!/^\d+$/u.test(declaredLength) || Number(declaredLength) !== artifact.sizeBytes)) {
+      await response.body?.cancel().catch(() => undefined);
+      throw new TypeError("Canonical Media DEV_ONLY render content length does not match the registered artifact.");
+    }
+    const reader = response.body?.getReader();
+    if (!reader) throw new TypeError("Canonical Media DEV_ONLY render content body is unavailable.");
+    const chunks: Uint8Array[] = [];
+    let total = 0;
+    try {
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        total += value.byteLength;
+        if (total > maxBytes || total > artifact.sizeBytes) {
+          await reader.cancel().catch(() => undefined);
+          throw new TypeError("Canonical Media DEV_ONLY render content exceeds its registered size.");
+        }
+        chunks.push(value);
+      }
+    } catch (failure) {
+      if (failure instanceof TypeError) throw failure;
+      throw new TypeError("Canonical Media DEV_ONLY render content stream ended unexpectedly.");
+    }
+    if (total !== artifact.sizeBytes) throw new TypeError("Canonical Media DEV_ONLY render content size does not match the registered artifact.");
+    const bytes = new Uint8Array(total);
+    let offset = 0;
+    for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+    const digest = new Uint8Array(await globalThis.crypto.subtle.digest("SHA-256", bytes));
+    const actualSha = Array.from(digest, (byte) => byte.toString(16).padStart(2, "0")).join("");
+    if (actualSha !== artifact.sha256) throw new TypeError("Canonical Media DEV_ONLY render content digest does not match the registered artifact.");
+    return bytes;
   }
 
   public createExport(request: DevExportRequest, signal?: AbortSignal): Promise<DevExportResult> {

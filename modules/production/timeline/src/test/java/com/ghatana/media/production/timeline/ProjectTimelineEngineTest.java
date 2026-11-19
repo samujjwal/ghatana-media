@@ -752,6 +752,28 @@ class ProjectTimelineEngineTest {
     }
 
     @Test
+    void explicitTimelineCommandRequestIdsReplayExactReceiptAndRejectPayloadRebinding() {
+        ProjectTimelineEngine engine = engine();
+        Created created = engine.createProject(OWNER, "workspace-command-replay", "Cut", "create-command-replay");
+        String projectId = created.project().projectId();
+        Revision timeline = engine.createTimeline(OWNER, projectId, created.initialRevision().revisionId(),
+                "timeline-command", "timeline-create-request-1");
+        assertThat(engine.createTimeline(OWNER, projectId, created.initialRevision().revisionId(),
+                "timeline-command", "timeline-create-request-1")).isEqualTo(timeline);
+
+        List<ProjectTimelineEngine.Edit> edits = List.of(
+                new ProjectTimelineEngine.AddScene(new Scene("scene-command", 0)));
+        Revision edited = engine.edit(OWNER, projectId, "timeline-command", timeline.revisionId(),
+                edits, "timeline-edit-request-1");
+        assertThat(engine.edit(OWNER, projectId, "timeline-command", timeline.revisionId(),
+                edits, "timeline-edit-request-1")).isEqualTo(edited);
+        assertThatThrownBy(() -> engine.edit(OWNER, projectId, "timeline-command", timeline.revisionId(),
+                List.of(new ProjectTimelineEngine.AddScene(new Scene("different-scene", 0))), "timeline-edit-request-1"))
+                .isInstanceOf(IdempotencyConflictException.class);
+        assertThat(engine.project(OWNER, projectId).headRevisionId()).isEqualTo(edited.revisionId());
+    }
+
+    @Test
     void emptyEditDoesNotCreateARevision() {
         ProjectTimelineEngine engine = engine();
         Created created = engine.createProject(OWNER, "workspace-a", "Cut", "create-6");

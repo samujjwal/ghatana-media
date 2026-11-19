@@ -921,6 +921,16 @@ class MediaDevCreativeOutputHttpTest {
                                          String newRevisionId, List<TimelineSnapshot> timelines) {
             return delegate.commit(actor, projectId, expectedHeadRevisionId, newRevisionId, timelines);
         }
+        @Override public Revision replayCommand(Actor actor, String projectId, String operationRef,
+                                                 String requestId, String fingerprint) {
+            return delegate.replayCommand(actor, projectId, operationRef, requestId, fingerprint);
+        }
+        @Override public Revision commitCommand(Actor actor, String projectId, String expectedHeadRevisionId,
+                                                 String operationRef, String requestId, String fingerprint,
+                                                 String newRevisionId, List<TimelineSnapshot> timelines) {
+            return delegate.commitCommand(actor, projectId, expectedHeadRevisionId, operationRef, requestId,
+                    fingerprint, newRevisionId, timelines);
+        }
         @Override public void close() { }
     }
 
