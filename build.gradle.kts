@@ -77,10 +77,17 @@ subprojects.forEach { project ->
     }
 }
 
-// A focused source composite intentionally omits Kernel, Tools, Ghatana services,
-// Data Cloud, Event Plane, and AI Inference. Reject their coordinates during
-// resolution so an accidental new dependency cannot fall through to Maven.
+// A focused source composite intentionally omits Kernel, most Tools artifacts,
+// Ghatana services, Data Cloud, Event Plane, and AI Inference. The launcher lane
+// admits only the Tool runtime/test-support graph needed by its agent adapter tests.
 if (mediaCompositeScope == "FOCUSED") {
+    val focusedToolArtifacts = if (
+        "launcher" in focusedMediaModules || "runtime-integration" in focusedMediaModules
+    ) {
+        setOf("tool-runtime", "tool-test-support", "tool-runtime-api", "tool-contracts")
+    } else {
+        emptySet()
+    }
     allprojects {
         configurations.configureEach {
             resolutionStrategy.eachDependency {
@@ -89,10 +96,12 @@ if (mediaCompositeScope == "FOCUSED") {
                 val omittedSourceReason = when {
                     dependencyGroup == "com.ghatana.kernel" ->
                         "Kernel source and its OCR adapter are omitted from FOCUSED"
-                    dependencyGroup == "com.ghatana.platform" && dependencyName.startsWith("tool-") ->
+                    dependencyGroup == "com.ghatana.platform" && dependencyName.startsWith("tool-") &&
+                        dependencyName !in focusedToolArtifacts ->
                         "Tools source is omitted from FOCUSED"
                     dependencyGroup == "com.ghatana" && dependencyName == "launcher-support" &&
                         ("launcher" in focusedMediaModules || "runtime-integration" in focusedMediaModules) -> null
+                    dependencyGroup == "com.ghatana.platform" && dependencyName in focusedToolArtifacts -> null
                     dependencyGroup == "com.ghatana.platform" && dependencyName !in focusedSharedPlatformArtifacts ->
                         "this platform coordinate is not in the Shared source substitution allowlist"
                     dependencyGroup == "com.ghatana" ||

@@ -10,6 +10,7 @@ const require = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse } = require("yaml");
 const artifactPath = "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd206.json";
 const pxd212Path = "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd212.json";
+const pxd212CurrentnessPath = "docs/implementation/verification/pdp-38/p0-quality-currentness-successor-pxd212-live-source.json";
 const sourcePaths = {
   capabilities: ".product-experience/pdp-0-product-truth/capabilities.yaml",
   profileSemantics: ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
@@ -124,6 +125,7 @@ test("PXD-206 current PDP-0 projections are source-pinned and preserve owner blo
     }
   }
   const pxd212 = JSON.parse(read(pxd212Path).toString("utf8"));
+  const pxd212Currentness = JSON.parse(read(pxd212CurrentnessPath).toString("utf8"));
   const pxd212JoinedIds = [
     "media.edit.inpaint",
     "media.edit.matte",
@@ -133,23 +135,52 @@ test("PXD-206 current PDP-0 projections are source-pinned and preserve owner blo
     .map((join) => [join.capabilityId, join]));
   const pxd212ExtraDifferences = actualOwnerDifferences.filter((difference) => pxd212JoinedIds.includes(difference.capabilityId));
   const pxd206HistoricalDifferences = actualOwnerDifferences.filter((difference) => !pxd212JoinedIds.includes(difference.capabilityId));
-  assert.equal(actualOwnerDifferences.length, 8, "the live source has the five PXD-206 differences plus three reviewed later joins");
-  assert.equal(pxd206HistoricalDifferences.length, 5);
-  assert.deepEqual(pxd206HistoricalDifferences, review.ownerAdjudicationDifferences,
-    "PXD-206's five owner differences remain its immutable historical cut");
+  const pxd206StillPendingIds = [
+    "media.master.audio.stereo-width",
+    "media.speech.synthesis.speaker.condition",
+  ];
+  const pxd216ResolvedIds = [
+    "media.compose.multitrack-timeline",
+    "media.compose.safe-area",
+    "media.compose.reusable-composition",
+  ];
+  const pxd216 = JSON.parse(read("docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd216.json").toString("utf8"));
+  assert.equal(review.ownerAdjudicationDifferences.length, 5,
+    "PXD-206 preserves its original five-difference historical review");
+  assert.equal(actualOwnerDifferences.length, 5,
+    "the current source has three PXD-212 joins and two still-pending PXD-206 inputs");
+  assert.deepEqual(actualOwnerDifferences.map(({ capabilityId }) => capabilityId).sort(),
+    [...pxd212JoinedIds, ...pxd206StillPendingIds].sort());
+  assert.deepEqual(pxd206HistoricalDifferences.map(({ capabilityId }) => capabilityId).sort(), pxd206StillPendingIds.sort(),
+    "only the two still-pending PXD-206 input differences remain live");
+  assert.deepEqual(review.ownerAdjudicationDifferences.map(({ capabilityId }) => capabilityId).sort(), changedIds.slice().sort(),
+    "the immutable PXD-206 artifact retains its original five capability identities");
+  assert.ok(pxd216ResolvedIds.every((id) => pxd216.capabilityMeaningReview.reviewedCapabilityIds.includes(id)),
+    "PXD-216 explicitly reviews all three compose rows resolved in the current source");
+  assert.ok(pxd216ResolvedIds.every((id) => !actualOwnerDifferences.some(({ capabilityId }) => capabilityId === id)),
+    "PXD-216-resolved compose rows are not carried forward as live differences");
   assert.deepEqual(pxd212ExtraDifferences.map(({ capabilityId }) => capabilityId).sort(), pxd212JoinedIds.slice().sort());
   assert.deepEqual(pxd212.latestCurrentnessRefresh.changedTypeJoins.map(({ capabilityId }) => capabilityId).sort(), pxd212JoinedIds.slice().sort());
   assert.equal(pxd212.latestCurrentnessRefresh.decisionRef, ".product-experience/decision-log.md#PXD-212");
   assert.equal(pxd212.latestCurrentnessRefresh.semanticReview, "PERFORMED_EXACT_TYPE_JOIN_REVIEW");
   assert.equal(pxd212.latestCurrentnessRefresh.ownerApproval, "NOT_CLAIMED");
   assert.equal(pxd212.latestCurrentnessRefresh.independentAcceptance, "NOT_CLAIMED");
+  assert.equal(pxd212Currentness.schemaVersion, "media.pdp0.quality-joined-rows-currentness-successor.v1");
+  assert.equal(pxd212Currentness.status, "CURRENTNESS_REFRESH_ONLY");
+  assert.equal(pxd212Currentness.phaseScope, "PDP-0");
+  assert.equal(pxd212Currentness.preservedSemanticReview.decisionRef, ".product-experience/decision-log.md#PXD-212");
+  assert.equal(pxd212Currentness.preservedSemanticReview.artifactRef, pxd212Path);
+  assert.equal(pxd212Currentness.preservedSemanticReview.artifactSha256, sha(read(pxd212Path)));
+  assert.equal(pxd212Currentness.preservedSemanticReview.semanticChange, "NONE_IN_THE_THREE_REVIEWED_TYPE_JOINS");
+  assert.deepEqual(pxd212Currentness.joinedRows.map(({ capabilityId, currentJoinStatus }) => [capabilityId, currentJoinStatus]),
+    pxd212JoinedIds.map((id) => [id, "UNCHANGED"]));
   for (const [key, sourcePath] of [
     [".product-experience/pdp-0-product-truth/capabilities.yaml", sourcePaths.capabilities],
     [".product-experience/pdp-0-product-truth/quality-policy.yaml", sourcePaths.quality],
     [".product-experience/pdp-0-product-truth/capability-leaf-review.yaml", sourcePaths.leafReview],
     [".product-experience/pdp-0-product-truth/goals-jtbd.yaml", sourcePaths.goals],
   ]) {
-    assert.equal(pxd212.latestCurrentnessRefresh.sourceFingerprints[key], sha(read(sourcePath)), `${key} PXD-212 current source pin`);
+    assert.equal(pxd212Currentness.currentSourceFingerprints[key], sha(read(sourcePath)), `${key} PXD-212 currentness successor pin`);
   }
   const qualityRowsById = new Map(quality.ownerQualityApplicabilityCrosswalk.records.map((row) => [row.capabilityRef, row]));
   const goalRowsById = new Map(goals.successMeasureContracts.ownerCapabilityApplicabilityCrosswalk.records

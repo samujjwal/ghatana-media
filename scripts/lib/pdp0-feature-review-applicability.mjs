@@ -4,14 +4,18 @@ import { fingerprint, fingerprintPxdDecisionSection, projectPdp0SourceManifest }
 export const PDP0_PXD212_QUALITY_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd212.json";
 export const PDP0_PXD212_CAPTION_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd212.json";
 export const PDP0_PXD213_QUALITY_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd213.json";
+export const PDP0_PXD213_QUALITY_CURRENTNESS_SUCCESSOR_PATH = "docs/implementation/verification/pdp-38/p0-quality-currentness-successor-pxd213-pxd229-live-source-successor-2026-11-16.json";
 export const PDP0_PXD213_CAPTION_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd213.json";
+export const PDP0_PXD213_CAPTION_CURRENTNESS_SUCCESSOR_PATH = "docs/implementation/verification/pdp-38/p0-caption-import-current-source-review-pxd213-live-source-successor-2026-11-16.json";
 export const PDP0_PXD212_QUALITY_HISTORY_PATH = "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd212.json";
 export const PDP0_PXD216_MEANING_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json";
 export const PDP0_PXD216_RECONCILIATION_PATH = "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd216.json";
 export const PDP0_PXD218_QUALITY_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd218.json";
 export const PDP0_PXD222_QUALITY_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd222.json";
 export const PDP0_PXD225_QUALITY_REVIEW_PATH = "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd225.json";
+export const PDP0_PXD225_CURRENTNESS_SUCCESSOR_PATH = "docs/implementation/verification/pdp-38/p0-quality-currentness-successor-pxd225-live-source.json";
 export const PDP0_PXD223_RECONCILIATION_PATH = "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json";
+export const PDP0_PXD223_CURRENTNESS_SUCCESSOR_PATH = "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223-live-source-successor-2026-11-16.json";
 export const PDP0_PXD225_RECONCILIATION_PATH = "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json";
 export const PDP0_CAPTION_IMPORT_SELECTOR = ".product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.artifact.import/ownerDefinition/successOutputs/0/optionalSemanticObservations/@id=importedCaptionTrack";
 
@@ -374,7 +378,7 @@ export function validatePdp0Pxd222Currentness(input) {
 /** Validate the PXD-225 dependent quality-currentness refresh, preserving PXD-222 history. */
 export function validatePdp0Pxd225Currentness(input) {
   const decisionPath = ".product-experience/decision-log.md";
-  const reconciliationPath = PDP0_PXD223_RECONCILIATION_PATH;
+  const reconciliationPath = PDP0_PXD223_CURRENTNESS_SUCCESSOR_PATH;
   let reconciliation;
   try {
     reconciliation = JSON.parse(input?.sourceTexts?.[reconciliationPath] ?? "{}");
@@ -403,11 +407,44 @@ export function validatePdp0Pxd225Currentness(input) {
     && new Set(changedRows.map(row => row.capabilityId)).size === expectedDeferredIds.length
     && reconciliation.currentSource?.capabilitiesPath === ".product-experience/pdp-0-product-truth/capabilities.yaml"
     && reconciliation.currentSource?.capabilitiesSha256 === sha256(input?.sourceTexts?.[".product-experience/pdp-0-product-truth/capabilities.yaml"] ?? "");
+  let captionSuccessor;
+  try {
+    captionSuccessor = JSON.parse(input?.sourceTexts?.[PDP0_PXD213_CAPTION_CURRENTNESS_SUCCESSOR_PATH] ?? "{}");
+  } catch {
+    captionSuccessor = {};
+  }
+  const capabilityPath = ".product-experience/pdp-0-product-truth/capabilities.yaml";
+  const requirementsPath = ".product-experience/pdp-0-product-truth/requirements.yaml";
+  const captionReview = {
+    ...input.captionReview,
+    schemaVersion: "media.pdp0.caption-import-current-source-review.v1",
+    decisionRef: captionSuccessor.decisionRef,
+    ...captionSuccessor.preservedReview,
+    // Keep only the immutable PXD-213 capabilities pin for the PXD-218
+    // preservation proof; use the successor's live requirement and decision
+    // pins for current AC-08 validation.
+    sourceFingerprints: {
+      ...captionSuccessor.sourceFingerprints,
+      [capabilityPath]: input.captionReview?.sourceFingerprints?.[capabilityPath],
+    },
+  };
+  const captionSuccessorPins = captionSuccessor.sourceFingerprints ?? {};
+  const captionSuccessorCurrent = captionSuccessor.schemaVersion === "media.pdp0.caption-import-current-source-successor.v1"
+    && captionSuccessor.decisionRef === `${decisionPath}#PXD-213`
+    && captionSuccessor.successorKind === "CURRENTNESS_ONLY"
+    && captionSuccessor.preservedReview?.reviewedField?.currentSha256 === captionReview.reviewedField?.currentSha256
+    && captionSuccessor.preservedReview?.requirementBinding?.caseSha256 === captionReview.requirementBinding?.caseSha256
+    && captionSuccessorPins[capabilityPath] === sha256(input.sourceTexts?.[capabilityPath] ?? "")
+    && captionSuccessorPins[requirementsPath] === sha256(input.sourceTexts?.[requirementsPath] ?? "")
+    && captionSuccessorPins[`${decisionPath}#PXD-213-section`] === fingerprintPxdDecisionSection(input.decisionLogText ?? "", "PXD-213").sha256
+    && captionSuccessor.authority?.ownerApproval === "NOT_CLAIMED"
+    && captionSuccessor.authority?.independentAcceptance === "NOT_CLAIMED"
+    && captionSuccessor.authority?.acceptanceEffect === "none";
   const qualityHistoryReview = {
     ...input.qualityHistoryReview,
     latestCurrentnessRefresh: input.latestQualityReview?.latestCurrentnessRefresh,
   };
-  return validatePdp0QualityCurrentnessSuccessor({ ...input, qualityHistoryReview }, {
+  const result = validatePdp0QualityCurrentnessSuccessor({ ...input, qualityHistoryReview, captionReview }, {
     successorId: "PXD-225",
     preservedReviewId: "PXD-216",
     preservedReviewPath: PDP0_PXD216_MEANING_REVIEW_PATH,
@@ -416,12 +453,16 @@ export function validatePdp0Pxd225Currentness(input) {
     historicalCaptionCapabilityPinProofValid: exactDeferralDelta,
     additionalPins: {
       [PDP0_PXD213_QUALITY_REVIEW_PATH]: sourceDigestFromInput(input, PDP0_PXD213_QUALITY_REVIEW_PATH),
+      [PDP0_PXD213_QUALITY_CURRENTNESS_SUCCESSOR_PATH]: sourceDigestFromInput(input, PDP0_PXD213_QUALITY_CURRENTNESS_SUCCESSOR_PATH),
       [PDP0_PXD218_QUALITY_REVIEW_PATH]: sourceDigestFromInput(input, PDP0_PXD218_QUALITY_REVIEW_PATH),
       [PDP0_PXD216_MEANING_REVIEW_PATH]: sourceDigestFromInput(input, PDP0_PXD216_MEANING_REVIEW_PATH),
       [PDP0_PXD216_RECONCILIATION_PATH]: sourceDigestFromInput(input, PDP0_PXD216_RECONCILIATION_PATH),
       [PDP0_PXD223_RECONCILIATION_PATH]: sourceDigestFromInput(input, PDP0_PXD223_RECONCILIATION_PATH),
+      [PDP0_PXD223_CURRENTNESS_SUCCESSOR_PATH]: sourceDigestFromInput(input, PDP0_PXD223_CURRENTNESS_SUCCESSOR_PATH),
       [PDP0_PXD222_QUALITY_REVIEW_PATH]: sourceDigestFromInput(input, PDP0_PXD222_QUALITY_REVIEW_PATH),
       [PDP0_PXD225_RECONCILIATION_PATH]: sourceDigestFromInput(input, PDP0_PXD225_RECONCILIATION_PATH),
+      ["docs/implementation/verification/pdp-38/p0-quality-currentness-successor-pxd212-live-source.json"]: sourceDigestFromInput(input, "docs/implementation/verification/pdp-38/p0-quality-currentness-successor-pxd212-live-source.json"),
+      [PDP0_PXD213_CAPTION_CURRENTNESS_SUCCESSOR_PATH]: sourceDigestFromInput(input, PDP0_PXD213_CAPTION_CURRENTNESS_SUCCESSOR_PATH),
       [`${decisionPath}#PXD-219-section`]: fingerprintPxdDecisionSection(input.decisionLogText ?? "", "PXD-219").sha256,
       [`${decisionPath}#PXD-220-section`]: fingerprintPxdDecisionSection(input.decisionLogText ?? "", "PXD-220").sha256,
       [`${decisionPath}#PXD-216-section`]: fingerprintPxdDecisionSection(input.decisionLogText ?? "", "PXD-216").sha256,
@@ -432,6 +473,9 @@ export function validatePdp0Pxd225Currentness(input) {
       [`${decisionPath}#PXD-225-section`]: fingerprintPxdDecisionSection(input.decisionLogText ?? "", "PXD-225").sha256,
     },
   });
+  if (!captionSuccessorCurrent) result.errors.push("PXD-213 caption currentness successor must retain the reviewed selector and AC-08 semantics while pinning current capabilities, requirements, and decision section without acceptance");
+  result.valid = result.errors.length === 0;
+  return result;
 }
 
 function sourceDigestFromInput(input, ref) {

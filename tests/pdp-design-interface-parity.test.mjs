@@ -844,6 +844,18 @@ test("legacy and candidate SDK paths stay explicitly unadmitted when absent from
     assert.ok(!routeManifest.routes.some((route) => route.method === finding.method && route.path === finding.path),
       `${finding.method} ${finding.path} must not be described as admitted without an active route`);
   }
+  const retained = findings.filter(({ pathIdentityStatus }) => pathIdentityStatus === "RETAINED_LEGACY_CANDIDATE");
+  const retired = findings.filter(({ pathIdentityStatus }) => pathIdentityStatus === "RETIRED_OPERATION_METHOD");
+  const dispatchable = findings.filter(({ methodDispatchStatus }) => methodDispatchStatus === "DISPATCHABLE");
+  const retainedFailClosed = retained.filter(({ methodDispatchStatus }) => methodDispatchStatus === "FAIL_CLOSED_BEFORE_TRANSPORT");
+  assert.equal(new Set(findings.map(({ findingId }) => findingId)).size, 14);
+  assert.equal(retained.length, 6);
+  assert.equal(retired.length, 8);
+  assert.equal(dispatchable.length, 5);
+  assert.equal(retainedFailClosed.length, 1);
+  assert.ok(findings.every(({ activeManifestStatus }) => activeManifestStatus === "ABSENT"));
+  assert.equal(parity.compatibilityRouteFindings.currentComparison,
+    "Six legacy/candidate SDK path identities remain in source but are absent from the 30-route active manifest; five corresponding methods remain dispatchable and the retained provider-capabilities method fails closed. Eight other operation-client methods are retired and fail closed before transport. None is admitted to the active manifest or parity-accepted.");
   assert.equal(routeManifest.routes.length, 30);
   assert.match(parity.compatibilityRouteFindings.disposition, /NOT_ADMITTED_TO_CURRENT_RUNTIME_ROUTE_MANIFEST/u);
 });

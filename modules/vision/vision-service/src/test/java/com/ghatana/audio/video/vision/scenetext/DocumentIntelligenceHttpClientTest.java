@@ -110,6 +110,31 @@ class DocumentIntelligenceHttpClientTest {
         }
     }
 
+    @Test
+    void listenerFailureDoesNotPreventOtherCancellationListenersOrRetainLateRegistrations() {
+        Cancellation cancellation = new Cancellation();
+        AtomicInteger laterCalls = new AtomicInteger();
+        cancellation.onCancel(() -> { throw new IllegalStateException("listener failed"); });
+        cancellation.onCancel(laterCalls::incrementAndGet);
+
+        assertThatThrownBy(cancellation::cancel)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("listener failed");
+        assertThat(laterCalls).hasValue(1);
+        cancellation.cancel();
+        assertThat(laterCalls).hasValue(1);
+
+        AtomicInteger lateCalls = new AtomicInteger();
+        assertThatThrownBy(() -> cancellation.onCancel(() -> {
+            lateCalls.incrementAndGet();
+            throw new IllegalArgumentException("late listener failed");
+        }))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("late listener failed");
+        cancellation.cancel();
+        assertThat(lateCalls).hasValue(1);
+    }
+
     @BeforeEach
     void start() throws IOException {
         server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);

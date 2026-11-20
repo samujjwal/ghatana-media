@@ -362,17 +362,43 @@ describe("MediaCanonicalClient job operations", () => {
     expect(calls).toHaveLength(0);
   });
 
-  it("fails cancelJob closed with NOT_ADMITTED and performs no fetch", async () => {
-    const { fetchImpl, calls } = recordedFetch(() => jsonResponse(job({ status: "CANCELLED" }), 200));
+  it("submits a request-bound cancellation and parses durable pending state", async () => {
+    const cancellation = {
+      operationRef: "media.operation-slice.cancel-job",
+      requestId: "cancel-1",
+      cancellationRequestId: "cancel-1",
+      state: "CANCEL_REQUESTED",
+      replayed: false,
+      observedAt: timestamp,
+      jobId: "job-1",
+      currentJobState: "RUNNING",
+      currentAttemptStates: ["RUNNING"],
+      reconcilePath: "/api/v1/jobs/job-1",
+      automaticRetryAllowed: false,
+      job: job(),
+    };
+    const { fetchImpl, calls } = recordedFetch(() => jsonResponse(cancellation, 202));
     const client = clientWith(fetchImpl);
-    await expect(client.cancelJob("job-1")).rejects.toMatchObject({
-      name: "MediaOperationNotAdmittedError",
-      operation: "media.operation-slice.cancel-job",
-    });
-    expect(calls).toHaveLength(0);
-    await expect(client.getJob("job-1")).resolves.toMatchObject({ jobId: "job-1" });
+    await expect(client.cancelJob("job-1", {
+      requestId: "cancel-1", expectedJobVersion: 3,
+    })).resolves.toMatchObject({ state: "CANCEL_REQUESTED", requestId: "cancel-1", job: { status: "RUNNING" } });
     expect(calls).toHaveLength(1);
-    expect(calls[0]!.init.method).toBe("GET");
+    expect(calls[0]!.url).toBe("https://media.example.test/api/v1/jobs/job-1/cancel");
+    expect(new Headers(calls[0]!.init.headers).get("Idempotency-Key")).toBe("cancel-1");
+    expect(JSON.parse(String(calls[0]!.init.body))).toEqual({
+      requestId: "cancel-1", expectedJobVersion: 3, reason: "USER_REQUEST",
+    });
+  });
+
+  it("keeps a post-dispatch cancellation acknowledgement loss ambiguous and bound to its request", async () => {
+    const { fetchImpl, calls } = recordedFetch(async () => { throw new TypeError("connection reset"); });
+    const client = clientWith(fetchImpl);
+    const failure = await client.cancelJob("job-1", {
+      requestId: "cancel-1", expectedJobVersion: 3,
+    }).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+    expect(failure).toMatchObject({ requestId: "cancel-1", requestKey: "cancel-1" });
+    expect(calls).toHaveLength(1);
   });
 
   it("listJobs honors the bounded limit and binds every job to scope", async () => {

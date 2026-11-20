@@ -21,19 +21,19 @@
       "docs/implementation/observations/pdp0-semantic-audit-slices/acceptance-case-outcome-qc.json": "6812b39cd6107615b92cc7c2ad89f5fb2af5a67767dc31515b25853c4f6987fa",
       "docs/implementation/observations/pdp0-semantic-audit-slices/capture-time-fidelity-review.json": "e685293898c453e2bf2c2bed8e1404adddfbbe12093ebf6f5a8ef90c93ff9c41",
       ".product-experience/pdp-0-product-truth/actors-responsibilities.yaml": "2359ae53756a4d35d84387707345c439c87050c6efafed40e5426e1c8e3e5ca4",
-      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+      ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "e4e1616a651c55f8bc060d2889e49e8e29751083fc57690edfbc3f386dbfa6b6",
       ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
       ".product-experience/pdp-0-product-truth/intent-resolutions.yaml": "2bbc74c35dfdae2d9e940ff31a5487a5707118fdb76f2ed4a250f51853530898",
       ".product-experience/pdp-0-product-truth/journey-catalog.yaml": "db98413dfc314d85528d87515e8e7b100afe12276bfc8a73ca5401bbc92355eb",
       ".product-experience/pdp-0-product-truth/policy-authority-model.yaml": "faadcc8eaa9c1338d1b3014f899d8ae7c7b69c290d694956e8eae2c477003ac8",
-      ".product-experience/pdp-0-product-truth/quality-policy.yaml": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
-      "tests/pdp-migration-semantic-reconciliation.test.mjs": "93ddf2a0231420f8064f3cc16139e21718c1a078ea2be6b7536aef36f32eb719",
-      ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
-      ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "df94787015aea30fa148355cbb0a7c564c3acd007ea16b277f05c849534b64ed",
-      ".product-experience/artifact-identities.yaml": "42f4899cd6fea41ca35275911ed9422d6ea489fe8c5ff6da7051921ef0767ed5",
+      ".product-experience/pdp-0-product-truth/quality-policy.yaml": "cf07857ae30b8b4b750a06c5af7f37680feea17f3c0034dd7194c6b9d36fb0a4",
+      "tests/pdp-migration-semantic-reconciliation.test.mjs": "c13b219ab49efa7dfc7d16ebe642f1cb98475cf97bb569fe9129c3eb862e2f66",
+      ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34",
+      ".product-experience/pdp-0-product-truth/campaign-extensions.yaml": "72ddbef91f7426d704effa153fc9e9af3491ec27f3b66476a9969e4af63ebf4b",
+      ".product-experience/artifact-identities.yaml": "1f3ab193451562d27befa210e7b0b3741e6f91e257b25e58033d089f78b83c70",
       "docs/implementation/verification/pdp-38/pdp0-migration-current-source-successor-pxd185.json": "c7c7b927839d9f90c302fc99b6e0507ff8dd676505bf79561dffa5ebb10cd3a5",
       "tests/pdp-migration-p0-current-material-reviews.test.mjs": "fbec7f7a9829c3525fb6e44de306ff1b08bb1528c1f5a827309358d2c5bf5ac0",
-      "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs": "f6c1a9107d9e120e9408e7d9aed7e9f64bdb6db345666d651509e343b8e78a61",
+      "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs": "96171768d39fab8f62cad23de9262aea1e3eee2d63cad756591428a110344b61",
       "scripts/check-media-pdp0-501-audit-dispositions.mjs": "d50b96220bf32117d2d211ff159fac65893ab246b0ce086318cf2de72d6250c5",
       "tests/media-pdp0-501-audit-dispositions.test.mjs": "cb21a4cdc44acb1974afc0cf23e7dba94446ae3007aae971c2e9aa23b9ef5077",
       "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081",
@@ -44,17 +44,18 @@
       ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce",
       ".product-experience/pdp-0-product-truth/information-architecture.yaml": "d975ee33c3752ab64f84b10aa4e008206fd84f67b8e68ce5665309cd360f4b9f",
       ".product-experience/pdp-0-product-truth/reuse-decisions.yaml": "22319bb51b947ca105f99c8c970c6ae2efdf30ed53b34a91ce2981451278effa",
-      "scripts/check-media-pdp0-audit-aq-traceability.mjs": "539c12b0c69d0b69dcddfcfdef6b9fd4da10d4b7f1f912ac136588caae924c78",
-      "tests/media-pdp0-audit-aq-traceability.test.mjs": "bbeae8f691861981278e8a96ed582a76d1a2103a1da419e5bafc65e4ad499a60",
-      "tests/pdp0-current-source-reconciliation-pxd215.test.mjs": "c173895d714964c1fd0e8fc2d28d01d0f34b44ec60f763d31aba8d7d58e88bb8"
+      "scripts/check-media-pdp0-audit-aq-traceability.mjs": "466b4ca4ad0ae123e5ae7ea80afb8d733c851dc7d44a18311450b7eb45af49ef",
+      "tests/media-pdp0-audit-aq-traceability.test.mjs": "5cac3d655991473cb3eb5f12df03fcfdf6b7e13e44540095581cca129a529b9f",
+      "tests/pdp0-current-source-reconciliation-pxd215.test.mjs": "c173895d714964c1fd0e8fc2d28d01d0f34b44ec60f763d31aba8d7d58e88bb8",
+      ".product-experience/surfaces/media-physical-topology.v1.json": "a1f524c498fcdbde61f48cc3b8bb589e8803a0007d7b82908d7da81ea9065c9d"
     },
     "fingerprintAlgorithm": "SHA-256 of exact file bytes",
     "fingerprintNotes": "PXD-207 adopts the five current PDP-0 leaf meanings and resolves AUD-DSP-007 with the exact creative-effect capability, family, requirement, AC-03, and production-studio/Web applicability binding. The 501 source identities and source text/anchors are preserved with 499 BOUND_EXISTING and 2 POST_PDP_IMPLEMENTATION_ONLY dispositions; no owner blocker remains in this crosswalk. The historical 462 owner-adjudicated leaf denominator remains separate from the seven delegated definition-extension decisions. Independent acceptance remains NOT_CLAIMED; execution admission, implementation, qualification, closure, and Delivery readiness are not claimed. PXD-213 restores exact speech/dubbing source joins for AUD-TTS-012, AUD-TTS-014, and AUD-DUB-003; all source wording and the 501-row denominator remain unchanged, while audible distinction and synchronization are not claimed. PXD-216 rebinds the exact PDP-0 source cut after the bounded capability-parameter summary correction; all 501 row identities, source wording, dispositions, owner-scope proposals, and phase handoffs remain unchanged, with acceptance NOT_CLAIMED. PXD-223 refreshes the current source cut after the PXD-221 future-version deferrals; it preserves all 501 audit-row identities and dispositions, the 462 historical canonical capability leaves, and PXD-216 semantic history. No owner approval, independent acceptance, runtime admission, implementation, qualification, closure, or Delivery readiness is claimed. PXD-225 removes only the absent archived-channel evidence locator from the archived-only legacy desktop source. The 501 audit row identities, source wording, dispositions, joins, owner-scope proposals and phase handoffs remain unchanged. PXD-216 semantic history and PXD-223 capability currentness are preserved; owner approval and independent acceptance are NOT_CLAIMED.",
     "sourceCutStatus": "CURRENT_PDP0_CROSSWALK_WITH_PXD225_SOURCE_RECONCILIATION",
     "phaseScopedFingerprintAlgorithm": "SHA-256 of canonical PDP-0 projection JSON; PXD sections hash exact UTF-8 bytes",
     "phaseScopedSourceFingerprintsSha256": {
-      ".product-experience/source-manifest.yaml#PDP-0-projection": "7b5304be79250c67099a1dcc7a250704156d40ca347eb9390a8d98a3d5f999db",
-      "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
+      ".product-experience/source-manifest.yaml#PDP-0-projection": "d2e77f94228aba330f52f8785cde7044587cb058e2e829e03d1bca15282a076e",
+      "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "213abc572b9d7f1c44a13bdd672381cab61ebc0b96bf9c9f37f92acb8ae32514",
       ".product-experience/decision-log.md#PXD-225-section": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811"
     }
   },
@@ -69,11 +70,59 @@
     "unexpectedIds": [],
     "allOriginalAuditIdsExact": true,
     "allThirdPassAuditIdsExact": true,
-    "surfaceDenominator": {
+    "historicalAuditScopeSurfaceDenominator": {
       "physicalCandidates": 26,
       "compositionsIncludingRoot": 7,
       "logicalConsumers": 21,
-      "registeredIdentities": 54
+      "registeredIdentities": 54,
+      "scope": "Historical PXD-225 audit-scope topology snapshot; not the live PDP-0 physical/composite denominator."
+    },
+    "currentTopologyDenominator": {
+      "status": "SOURCE_CURRENT_PDP0_TOPOLOGY",
+      "counts": {
+        "physicalManifestCandidates": 28,
+        "compositionsIncludingRoot": 7,
+        "logicalConsumers": 21,
+        "registeredSurfaceIdentities": 56
+      },
+      "sourceRefs": [
+        ".product-experience/surfaces/media-physical-topology.v1.json",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability",
+        ".product-experience/decision-log.md#PXD-207"
+      ],
+      "sourceFingerprintsSha256": {
+        ".product-experience/surfaces/media-physical-topology.v1.json": "a1f524c498fcdbde61f48cc3b8bb589e8803a0007d7b82908d7da81ea9065c9d",
+        ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34",
+        ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a"
+      },
+      "explicitSurfaceDispositions": [
+        {
+          "surfaceId": "media.physical.adapters-agent-tools-media",
+          "scopeDisposition": "NOT_APPLICABLE_SUPPORT",
+          "sourceRef": ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/@surfaceId=media.physical.adapters-agent-tools-media/phaseApplicability/PDP-0",
+          "capabilityFamilyIds": [],
+          "capabilityIntentIds": [],
+          "requirementRefs": [],
+          "intentIds": [],
+          "rationale": "No direct Media capability ownership is established for this support/tool node; retained as scoped support only. The physical identity remains in the 56-row topology denominator."
+        },
+        {
+          "surfaceId": "media.physical.adapters-data-cloud-media",
+          "scopeDisposition": "APPLICABLE",
+          "sourceRef": ".product-experience/surfaces/media-physical-topology.v1.json#/manifestCandidates/@surfaceId=media.physical.adapters-data-cloud-media/phaseApplicability/PDP-0",
+          "requirementRefs": [
+            ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+            ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-VISION",
+            ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-MULTIMODAL"
+          ],
+          "requirementRefMeaning": "BOUNDARY_TRACE_ONLY",
+          "capabilityFamilyIds": [],
+          "capabilityIntentIds": [],
+          "intentIds": [],
+          "rationale": "The Media-owned Data Cloud compatibility adapter is an applicable integration boundary; these three requirement refs are boundary trace only. It owns no direct capability family, capability intent, or product intent. Its physical identity remains in the 56-row topology denominator."
+        }
+      ],
+      "scopeNote": "Counts reflect live Media PDP-0 topology. PXD-207 applicability records are consulted for extension channel/surface decisions; they do not make the 501-row historical audit metadata a live denominator."
     }
   },
   "dispositionCounts": {
@@ -484,13 +533,13 @@
       }
     ],
     "sourceFingerprints": {
-      ".product-experience/source-manifest.yaml#PDP-0-projection": "7b5304be79250c67099a1dcc7a250704156d40ca347eb9390a8d98a3d5f999db",
-      "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
+      ".product-experience/source-manifest.yaml#PDP-0-projection": "d2e77f94228aba330f52f8785cde7044587cb058e2e829e03d1bca15282a076e",
+      "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "213abc572b9d7f1c44a13bdd672381cab61ebc0b96bf9c9f37f92acb8ae32514",
       ".product-experience/decision-log.md#PXD-225-section": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811"
     },
     "phaseScopedSourceFingerprintsSha256": {
-      ".product-experience/source-manifest.yaml#PDP-0-projection": "7b5304be79250c67099a1dcc7a250704156d40ca347eb9390a8d98a3d5f999db",
-      "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "c20f9780558665955e9e20f5f34b5b3b07584b3e1d25d0c52bfaaec7e93364f1",
+      ".product-experience/source-manifest.yaml#PDP-0-projection": "d2e77f94228aba330f52f8785cde7044587cb058e2e829e03d1bca15282a076e",
+      "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection": "213abc572b9d7f1c44a13bdd672381cab61ebc0b96bf9c9f37f92acb8ae32514",
       ".product-experience/decision-log.md#PXD-225-section": "d979ecb41cc0e67f9304f3ba8283a20949ee64e23f70216f4bac53c3cab6f811"
     },
     "independentAcceptance": "NOT_CLAIMED",

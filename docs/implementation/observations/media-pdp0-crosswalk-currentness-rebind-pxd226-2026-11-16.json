@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "media.pdp0.source-currentness-refresh.v1",
+  "recordId": "MEDIA-PDP0-CROSSWALK-CURRENTNESS-REBIND-PXD226-SCOPE-SNAPSHOT-2026-11-16",
+  "phase": "PDP-0",
+  "crosswalkReviewDecisionRef": ".product-experience/decision-log.md#PXD-225",
+  "triggeringSourceDecisionRef": ".product-experience/decision-log.md#PXD-226",
+  "classification": "CURRENT_SOURCE_PIN_REBIND_ONLY; NO_CROSSWALK_ROW_OR_REVIEW_HISTORY_CHANGE",
+  "authority": "Source-currentness derivation for the explicit PXD-226 decision-scope population correction; no owner approval or independent acceptance is claimed.",
+  "predecessor": {
+    "path": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+    "sha256": "sha256:19577d6f6c7baa30df0bc7c865a75c95f75d3a99bc20a4908d58514decea8239",
+    "snapshotPath": "docs/implementation/observations/media-pdp0-crosswalk-currentness-rebind-2026-11-16-predecessor-pxd226.json"
+  },
+  "resultingCrosswalkSha256": "sha256:e5d65870bf13574db52e02b0f9f78ac5bcf58ef48eb12635b2d82eb0acfc0248",
+  "sourceDelta": [
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+      "previousSha256": "03cc8f252d7ff0c1357b50437d326023be14a40e47198831ee60f0dcabd8691f",
+      "currentSha256": "68cd7cc6a8e3b7b0667b29a9f95c563219253a67bb7fc690a2c921e3e8197a57",
+      "disposition": "CURRENT_SOURCE_FINGERPRINT_REBIND; PXD-226 POPULATION SNAPSHOT CORRECTION"
+    }
+  ],
+  "preserved": {
+    "auditRows": 501,
+    "originalAuditRows": 428,
+    "focusedRows": 73,
+    "reviewHistory": [
+      "PXD-186", "PXD-190", "PXD-191", "PXD-192", "PXD-193", "PXD-194",
+      "PXD-198", "PXD-199", "PXD-200", "PXD-201", "PXD-202", "PXD-203",
+      "PXD-204", "PXD-205", "PXD-206", "PXD-207", "PXD-212", "PXD-213",
+      "PXD-214", "PXD-215", "PXD-216", "PXD-223"
+    ],
+    "semanticRowDelta": [],
+    "dispositionCounts": {
+      "BOUND_EXISTING": 499,
+      "POST_PDP_IMPLEMENTATION_ONLY": 2,
+      "unresolvedPdp0": 0
+    }
+  },
+  "authorityBoundary": {
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "acceptanceEffect": "none",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "qualification": "NOT_EVALUATED",
+    "closure": "NOT_CLAIMED",
+    "delivery": "NOT_CLAIMED"
+  }
+}

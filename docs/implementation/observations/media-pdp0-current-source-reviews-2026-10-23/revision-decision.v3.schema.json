@@ -62,7 +62,9 @@
       "required": [
         "identity",
         "role",
-        "reviewedCandidateSha256"
+        "reviewedCandidateSha256",
+        "reviewRecordRef",
+        "reviewRecordSha256"
       ],
       "properties": {
         "identity": {
@@ -73,6 +75,14 @@
           "const": "DISTINCT_TECHNICAL_PEER"
         },
         "reviewedCandidateSha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "reviewRecordRef": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reviewRecordSha256": {
           "type": "string",
           "pattern": "^[a-f0-9]{64}$"
         }

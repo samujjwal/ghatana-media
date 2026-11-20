@@ -699,19 +699,44 @@ paths:
           { $ref: "#/components/parameters/TenantHeader" },
           { $ref: "#/components/parameters/PrincipalHeader" },
           { $ref: "#/components/parameters/JobId" },
+          { $ref: "#/components/parameters/IdempotencyKeyHeader" },
         ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/JobCancellationRequest" }
       responses:
-        "200":
+        "202":
           {
-            description: Cancelled or terminal job,
+            description: Durable cancellation request accepted; this does not establish cancellation finality,
+            headers:
+              {
+                Location: { description: Canonical job status resource for reconciliation, schema: { type: string } },
+                Retry-After: { description: Minimum delay before another status read, schema: { type: integer, minimum: 1 } },
+              },
             content:
               {
                 application/json:
-                  { schema: { $ref: "#/components/schemas/ProcessingJob" } },
+                  { schema: { $ref: "#/components/schemas/JobCancellationResponse" } },
               },
           }
+        "200":
+          {
+            description: The job was already terminal and was returned without rewriting its history,
+            headers:
+              { Location: { description: Canonical job status resource, schema: { type: string } } },
+            content:
+              {
+                application/json:
+                  { schema: { $ref: "#/components/schemas/JobCancellationResponse" } },
+              },
+          }
+        "400": { $ref: "#/components/responses/Error" }
+        "403": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "401": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
         "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: POST /api/v1/jobs/{jobId}/cancel
       x-ghatana-operationId: cancelMediaJob
@@ -721,12 +746,14 @@ paths:
           requiredAccess: OPERATOR,
           requiresAuth: true,
           requiresTenant: true,
-          requiredPermissions: [],
+          requiredPermissions: [media:job:cancel],
         }
       x-ghatana-governance: { requiresPolicy: true, requiresAudit: true }
       x-ghatana-idempotency:
-        required: false
-        reason: No replay-safe idempotency guarantee is declared; clients must not automatically retry this mutation.
+        required: true
+        payloadHashRequired: true
+        scopeTemplate: tenantId|principalId|jobId|requestId
+        retry: Reconcile the same requestId and job before any replay; never automatically retry after a lost acknowledgement.
   /api/v1/streams:
     post:
       tags: [Streams]
@@ -1199,7 +1226,7 @@ components:
       name: Idempotency-Key
       in: header
       required: true
-      description: Tenant- and principal-scoped key. Reuse with a different payload is rejected.
+      description: Tenant- and principal-scoped key. For job cancellation it must equal the body requestId. Reuse with a different payload is rejected.
       schema:
         type: string
         minLength: 1
@@ -1653,6 +1680,67 @@ components:
             SHA-256 semantic request digest (schema media.job-request-fingerprint.v1, digestVersion 1).
             Empty for legacy jobs created before fingerprint admission; such jobs are not safe to replay.
           pattern: "^(|sha256:[0-9a-f]{64})$"
+    JobCancellationRequest:
+      type: object
+      additionalProperties: false
+      required: [requestId, expectedJobVersion]
+      properties:
+        requestId:
+          type: string
+          format: opaque-idempotency-key
+          pattern: "^[A-Za-z0-9][A-Za-z0-9._~:-]{0,127}$"
+          minLength: 1
+          maxLength: 128
+        expectedJobVersion:
+          type: integer
+          minimum: 1
+          maximum: 9007199254740991
+        reason:
+          type: string
+          enum: [USER_REQUEST, POLICY_CHANGE, ADMINISTRATIVE_STOP]
+          default: USER_REQUEST
+    JobCancellationResponse:
+      type: object
+      additionalProperties: false
+      required: [operationRef, requestId, cancellationRequestId, state, replayed, observedAt, jobId,
+        currentJobState, currentAttemptStates, reconcilePath, automaticRetryAllowed, job]
+      properties:
+        operationRef: { const: media.operation-slice.cancel-job }
+        requestId:
+          type: string
+          format: opaque-idempotency-key
+          pattern: "^[A-Za-z0-9][A-Za-z0-9._~:-]{0,127}$"
+          minLength: 1
+          maxLength: 128
+        cancellationRequestId:
+          type: string
+          format: opaque-idempotency-key
+          pattern: "^[A-Za-z0-9][A-Za-z0-9._~:-]{0,127}$"
+          minLength: 1
+          maxLength: 128
+        state:
+          type: string
+          enum: [CANCEL_REQUESTED, ALREADY_TERMINAL, UNKNOWN_OUTCOME]
+          description: >-
+            CANCEL_REQUESTED acknowledges a durable request only. It does not make the job CANCELLED.
+            UNKNOWN_OUTCOME must be reconciled with the same requestId and job.
+        replayed: { type: boolean }
+        observedAt: { type: string, format: date-time }
+        jobId: { type: string, minLength: 1, maxLength: 128 }
+        currentJobState:
+          type: string
+          enum: [ACCEPTED, RUNNING, OUTCOME_UNKNOWN, COMPLETED, FAILED, CANCELLED]
+          description: Durable job state at this observation; CANCEL_REQUESTED does not imply CANCELLED.
+        currentAttemptStates:
+          type: array
+          items: { type: string, enum: [DISPATCH_INTENT, RUNNING, COMPLETED, FAILED, OUTCOME_UNKNOWN] }
+        reconcilePath:
+          type: string
+          description: Read this same job to reconcile; verify its cancellationRequest requestId before any replay.
+        automaticRetryAllowed:
+          type: boolean
+          const: false
+        job: { $ref: "#/components/schemas/ProcessingJob" }
     StreamSessionRequest:
       type: object
       required:

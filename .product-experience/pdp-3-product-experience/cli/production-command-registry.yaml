@@ -1,13 +1,13 @@
 schemaVersion: media.production-cli-command-registry.v1
 productId: media
-status: one-source-bound-host-configured-query; production-host-qualification-open
-executionScope: explicitly-configured-HTTP-host; read-only-GET-only
+status: five-source-bound-host-configured-commands; production-host-qualification-open
+executionScope: explicitly-configured-HTTP-host; scoped-artifact-and-job-operations; provider-execution-and-production-qualification-not-admitted
 fixtureRegistry: .product-experience/pdp-3-product-experience/cli/command-registry.yaml
 fixturePopulation:
   count: 11
   classification: synthetic-Explorer-fixture-commands; not-production-runtime-CLI
 productionCommandPopulation:
-  count: 1
+  count: 5
   classification: installed-package-bin-backed-host-configured-consumer
   productionHostQualification: not-claimed
 commands:
@@ -35,4 +35,69 @@ commands:
       unknownOutcome: read-unavailable-does-not-imply-absent-or-failed; this-command-has-no-domain-mutation-to-replay
       runtimeAdmission: host-configured-source-consumer-only; production-host-identity-and-qualification-open
       missingCommands: [begin-upload, append-upload-chunk, complete-upload, inspect-upload-session, compound-resume]
+    status: implemented-source-bound-consumer; owner-integration-review-pending
+  - id: media.cli.job.get
+    canonicalCommand: ghatanamedia-api job get
+    package: libs/audio-video-client/package.json#bin.ghatanamedia-api
+    implementation: libs/audio-video-client/src/cli.ts
+    sdkMethod: libs/audio-video-client/src/canonical-operations.ts#MediaCanonicalClient.getJob
+    operationRef: .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.inspect-job
+    wireOperationId: getMediaJob
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs~1{jobId}/get
+    ownerDecisionRefs: [.product-experience/decision-log.md#PXD-040]
+    options: [--endpoint, --tenant, --principal, --job, --request-id]
+    credentialSource: GHATANA_MEDIA_BEARER_TOKEN-environment-only
+    output: exact-CanonicalProcessingJob-in-media.cli-result.v1-JSON-envelope
+    readSemantics: owning-principal-scoped-point-in-time-read; never-provider-finality-or-global-absence
+    unknownOutcome: unavailable-read-remains-unavailable; GET-only; no-domain-mutation-to-replay
+    runtimeAdmission: host-configured-source-consumer-only; production-host-identity-and-qualification-open
+    status: implemented-source-bound-consumer; owner-integration-review-pending
+  - id: media.cli.job.submit
+    canonicalCommand: ghatanamedia-api job submit
+    package: libs/audio-video-client/package.json#bin.ghatanamedia-api
+    implementation: libs/audio-video-client/src/cli.ts
+    sdkMethod: libs/audio-video-client/src/canonical-operations.ts#MediaCanonicalClient.submitJob
+    operationRef: .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.submit-job
+    wireOperationId: submitMediaJob
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs/post
+    ownerDecisionRefs: [.product-experience/decision-log.md#PXD-042]
+    options: [--endpoint, --tenant, --principal, --artifact, --request-id, --job-type, --provider-hint]
+    credentialSource: GHATANA_MEDIA_BEARER_TOKEN-environment-only
+    output: exact-CanonicalProcessingJob-in-media.cli-result.v1-JSON-envelope
+    submissionSemantics: 202-is-only-a-submission-receipt; never-queued-running-or-provider-finality
+    unknownOutcome: reconcile-same-job-requestId; never-submit-a-new-request-identity-after-lost-ack
+    runtimeAdmission: NOT_ADMITTED; provider-execution-and-production-host-qualification-open
+    status: implemented-source-bound-consumer; owner-integration-review-pending
+  - id: media.cli.job.list
+    canonicalCommand: ghatanamedia-api job list
+    package: libs/audio-video-client/package.json#bin.ghatanamedia-api
+    implementation: libs/audio-video-client/src/cli.ts
+    sdkMethod: libs/audio-video-client/src/canonical-operations.ts#MediaCanonicalClient.listJobs
+    wireOperationId: listMediaJobs
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs/get
+    operationRef: null
+    operationDisposition: observed-bounded-wire-query; no-individual-PDP1-operation-is-inferred
+    options: [--endpoint, --tenant, --principal, --limit]
+    credentialSource: GHATANA_MEDIA_BEARER_TOKEN-environment-only
+    output: scoped-CanonicalProcessingJob-observations-in-media.cli-result.v1-JSON-envelope
+    readSemantics: owning-principal-scoped-bounded-list; no-provider-finality-or-global-absence
+    runtimeAdmission: host-configured-source-consumer-only; production-host-identity-and-qualification-open
+    status: implemented-observed-wire-consumer; owner-integration-review-pending
+  - id: media.cli.job.cancel
+    canonicalCommand: ghatanamedia-api job cancel
+    package: libs/audio-video-client/package.json#bin.ghatanamedia-api
+    implementation: libs/audio-video-client/src/cli.ts
+    sdkMethod: libs/audio-video-client/src/canonical-operations.ts#MediaCanonicalClient.cancelJob
+    operationRef: .product-experience/pdp-1-domain-data/operations.yaml#/individualOperationContracts/records/media.operation-slice.cancel-job
+    actionRef: media.action.request-cancellation
+    wireOperationId: cancelMediaJob
+    sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs~1{jobId}~1cancel/post
+    ownerDecisionRefs: [.product-experience/decision-log.md#PXD-075]
+    options: [--endpoint, --tenant, --principal, --job, --request-id, --expected-version, --reason]
+    credentialSource: GHATANA_MEDIA_BEARER_TOKEN-environment-only
+    output: durable-cancellation-request-state-with-current-job-and-attempt-observation
+    cancellationSemantics: requestId-and-expected-version-bind-one-tenant-job-principal-request; request-is-not-CANCELLED
+    retry: GET-the-same-job-and-verify-cancellationRequest-requestId-before-any-replay; no-automatic-POST-retry
+    unknownOutcome: preserve-UNKNOWN-until-worker-or-exact-provider-reconciliation-proves-stop
+    runtimeAdmission: NOT_ADMITTED; provider-stop-execution-and-production-host-qualification-open
     status: implemented-source-bound-consumer; owner-integration-review-pending

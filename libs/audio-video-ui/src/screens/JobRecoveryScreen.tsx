@@ -1,17 +1,12 @@
 import React from "react";
+import type { CanonicalProcessingJob, MediaCanonicalClient } from "@audio-video/client/canonical-operations";
 import { MediaTaskScreen, type MediaTaskScreenProps } from "./MediaTaskScreen";
 import { createMediaActionDispatchGuard } from "./MediaActionDispatchGuard";
 
-export type CanonicalJobStatus = "ACCEPTED" | "RUNNING" | "OUTCOME_UNKNOWN" | "COMPLETED" | "FAILED" | "CANCELLED";
+export type CanonicalJobStatus = CanonicalProcessingJob["status"];
 
-/** Structural subset of MediaCanonicalClient. Hosts pass the authenticated, scope-validating SDK instance. */
-export interface CanonicalJobReadClient {
-  getJob(jobId: string, signal?: AbortSignal): Promise<{
-    readonly jobId: string;
-    readonly status: CanonicalJobStatus;
-    readonly version: number;
-  }>;
-}
+/** The screen accepts the canonical authenticated SDK read, not an ad hoc host transport. */
+export type CanonicalJobReadClient = Pick<MediaCanonicalClient, "getJob">;
 
 type CanonicalJobReadState =
   | { readonly state: "NOT_ADMITTED" }
@@ -19,7 +14,7 @@ type CanonicalJobReadState =
   | { readonly state: "LOADING" }
   | { readonly state: "DENIED" }
   | { readonly state: "UNKNOWN" }
-  | { readonly state: "OBSERVED"; readonly status: CanonicalJobStatus; readonly version: number };
+  | { readonly state: "OBSERVED"; readonly job: CanonicalProcessingJob };
 
 export interface JobRecoveryProjection {
   readonly jobId: string;
@@ -93,7 +88,7 @@ export function JobRecoveryScreen({ job, canonicalJobReadClient, ...flow }: JobR
         setReadState({ state: "UNKNOWN" });
         return;
       }
-      setReadState({ state: "OBSERVED", status: snapshot.status, version: snapshot.version });
+      setReadState({ state: "OBSERVED", job: snapshot });
     }).catch((error: unknown) => {
       if (controller.signal.aborted || activeRead.current !== controller) return;
       const statusCode = error && typeof error === "object" && "statusCode" in error
@@ -113,11 +108,11 @@ export function JobRecoveryScreen({ job, canonicalJobReadClient, ...flow }: JobR
       case "DENIED": return "Canonical job status read was denied. No status is disclosed.";
       case "UNKNOWN": return "Canonical job status is unknown. Reconcile the same job before taking another action.";
       case "OBSERVED":
-        return terminalStatuses.has(readState.status)
-          ? `Terminal status observed: ${readState.status} (version ${readState.version}).`
-          : readState.status === "OUTCOME_UNKNOWN"
+        return terminalStatuses.has(readState.job.status)
+          ? `Terminal status observed: ${readState.job.status} (version ${readState.job.version}).`
+          : readState.job.status === "OUTCOME_UNKNOWN"
             ? "Canonical job reports OUTCOME_UNKNOWN. Reconcile the same job before retrying."
-            : `Canonical job status observed: ${readState.status} (version ${readState.version}).`;
+            : `Canonical job status observed: ${readState.job.status} (version ${readState.job.version}).`;
     }
   })();
   return <MediaTaskScreen {...flow} actions={guardedActions} actionPort={dispatchGuard.actionPort}>
@@ -139,6 +134,12 @@ export function JobRecoveryScreen({ job, canonicalJobReadClient, ...flow }: JobR
         <p role="status" aria-live="polite" aria-atomic="true" aria-busy={readState.state === "LOADING"} data-state={readState.state.toLowerCase()}>
           {readStateMessage}
         </p>
+        {readState.state === "OBSERVED" && <dl aria-label="Canonical job details">
+          <div><dt>Request ID</dt><dd><code>{readState.job.requestId}</code></dd></div>
+          <div><dt>Source artifact</dt><dd><code>{readState.job.artifactId}</code></dd></div>
+          {readState.job.expectedArtifactVersion && <div><dt>Pinned source version</dt><dd><code>{readState.job.expectedArtifactVersion}</code></dd></div>}
+          {readState.job.failureCode && <div><dt>Failure code</dt><dd><code>{readState.job.failureCode}</code></dd></div>}
+        </dl>}
         {canonicalJobReadClient && <button type="button" onClick={readCanonicalStatus} disabled={readState.state === "LOADING"}>
           Refresh canonical status
         </button>}

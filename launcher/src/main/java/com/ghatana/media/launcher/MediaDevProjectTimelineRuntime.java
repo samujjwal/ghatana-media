@@ -90,16 +90,34 @@ public final class MediaDevProjectTimelineRuntime implements AutoCloseable {
         return engine.createTimeline(actor(tenantId, principalId), projectId, expectedHeadRevisionId, timelineId);
     }
 
+    public Revision createTimeline(String tenantId, String principalId, String projectId,
+                                   String expectedHeadRevisionId, String timelineId, String requestId) {
+        ensureOpen();
+        return engine.createTimeline(actor(tenantId, principalId), projectId, expectedHeadRevisionId, timelineId, requestId);
+    }
+
     public Revision editTimeline(String tenantId, String principalId, String projectId, String timelineId,
                                  String expectedHeadRevisionId, List<Edit> edits) {
         ensureOpen();
         return engine.edit(actor(tenantId, principalId), projectId, timelineId, expectedHeadRevisionId, edits);
     }
 
+    public Revision editTimeline(String tenantId, String principalId, String projectId, String timelineId,
+                                 String expectedHeadRevisionId, List<Edit> edits, String requestId) {
+        ensureOpen();
+        return engine.edit(actor(tenantId, principalId), projectId, timelineId, expectedHeadRevisionId, edits, requestId);
+    }
+
     public Revision restoreRevision(String tenantId, String principalId, String projectId,
                                     String expectedHeadRevisionId, String targetRevisionId) {
         ensureOpen();
         return engine.restore(actor(tenantId, principalId), projectId, expectedHeadRevisionId, targetRevisionId);
+    }
+
+    public Revision restoreRevision(String tenantId, String principalId, String projectId,
+                                    String expectedHeadRevisionId, String targetRevisionId, String requestId) {
+        ensureOpen();
+        return engine.restore(actor(tenantId, principalId), projectId, expectedHeadRevisionId, targetRevisionId, requestId);
     }
 
     public static String developmentWorkspaceId(String tenantId, String principalId) {

@@ -19,9 +19,16 @@ const sha256 = value => createHash('sha256').update(value).digest('hex');
 const expectedCounts = {
   OWNER_DECIDED_APPLICABLE: 14,
   DERIVED_AGGREGATE_OWNER_DECISION: 21,
-  NOT_APPLICABLE_OWNER_DECISION: 3430,
-  NOT_APPLICABLE_SUPPORT: 616,
+  NOT_APPLICABLE_OWNER_DECISION: 3507,
+  NOT_APPLICABLE_SUPPORT: 693,
   NOT_APPLICABLE_ARCHIVED: 77,
+};
+const expectedSurfaceCounts = {
+  OWNER_DECIDED_APPLICABLE: 14,
+  DERIVED_AGGREGATE_OWNER_DECISION: 21,
+  NOT_APPLICABLE_OWNER_DECISION: 287,
+  NOT_APPLICABLE_SUPPORT: 63,
+  NOT_APPLICABLE_ARCHIVED: 7,
 };
 
 test('PXD-207 source records bind seven exact feature decisions and complete explicit exclusions', () => {
@@ -34,14 +41,13 @@ test('PXD-207 source records bind seven exact feature decisions and complete exp
   assert.equal(campaign.currentDefinitionPopulation.currentCapabilityDefinitions, 469);
   assert.equal(campaign.currentDefinitionPopulation.definitionExtensionCapabilityLeaves, 7);
   const versionDisposition = campaign.currentDefinitionPopulation.versionDisposition;
-  assert.deepEqual(versionDisposition.decisionRefs, [`${decisionPath}#PXD-220`, `${decisionPath}#PXD-221`]);
+  assert.deepEqual(versionDisposition.decisionRefs, [`${decisionPath}#PXD-220`, `${decisionPath}#PXD-221`, `${decisionPath}#PXD-226`]);
   assert.equal(versionDisposition.historicalCanonicalCapabilityLeaves, 462);
-  assert.equal(versionDisposition.currentVersionCapabilityLeaves, 462);
-  assert.equal(versionDisposition.futureVersionProposalCapabilityLeaves, 7);
+  assert.equal(versionDisposition.currentVersionCapabilityLeaves, 463);
+  assert.equal(versionDisposition.futureVersionProposalCapabilityLeaves, 6);
   assert.equal(versionDisposition.totalSourceCapabilityDefinitions, 469);
-  assert.deepEqual(versionDisposition.currentVersionExtensionCapabilityIds, []);
+  assert.deepEqual(versionDisposition.currentVersionExtensionCapabilityIds, ['media.recipe.specification.compile']);
   assert.deepEqual(versionDisposition.futureVersionProposals.map(item => item.capabilityId), [
-    'media.recipe.specification.compile',
     'media.project.scene.patch-merge',
     'media.quality.audio.content-similarity.assess',
     'media.generate.video.preset.manage',
@@ -75,28 +81,34 @@ test('PXD-207 source records bind seven exact feature decisions and complete exp
     assert.equal(decision.independentAcceptance, 'NOT_CLAIMED');
     assert.equal(decision.executionAdmission, 'NOT_ADMITTED');
     assert.equal(decision.excludedChannelRefs.length, 10);
-    assert.equal(decision.excludedSurfaceRefs.length, 40);
+    assert.equal(decision.excludedSurfaceRefs.length, 41);
     assert.ok(decision.excludedChannelRefs.every(item => item.rationale.trim()));
     assert.ok(decision.excludedSurfaceRefs.every(item => item.rationale.trim()));
+    const dataCloudExclusion = decision.excludedSurfaceRefs.find(item => item.surfaceRef === 'media.physical.adapters-data-cloud-media');
+    assert.ok(dataCloudExclusion, `${row.capabilityRef} has an explicit PXD-207 Data Cloud boundary exclusion`);
+    assert.match(dataCloudExclusion.rationale, /PXD-207 excludes .* from media\.physical\.adapters-data-cloud-media/u);
+    assert.equal(decision.excludedSurfaceRefs.some(item => item.surfaceRef === 'media.physical.adapters-agent-tools-media'), false,
+      'Agent Tools remains topology-backed support N/A, not an owner-decision exclusion');
     assert.ok(decision.sourceRefs.includes(`${decisionPath}#PXD-207`));
     assert.ok(decision.sourceRefs.some(ref => ref.includes(`/@audit_id=${row.sourceAuditIds[0]}/owner_surface_proposal`)));
   }
 });
 
-test('PDP-0 matrix projection resolves all 4,158 channel-by-surface cells from PXD-207', () => {
+test('PDP-0 matrix projection resolves all 4,312 channel-by-surface cells from PXD-207', () => {
   const matrix = JSON.parse(read(matrixPath));
   const { registry, topology, authority } = readSources(root);
   const projection = projectPdp0DefinitionExtensionApplicability(registry, topology, authority);
   assert.equal(projection.ok, true, JSON.stringify(projection.findings));
-  assert.equal(projection.records.length, 4158);
-  assert.equal(projection.surfaceCellCount, 378);
+  assert.equal(projection.records.length, 4312);
+  assert.equal(projection.surfaceCellCount, 392);
   assert.deepEqual(projection.counts, expectedCounts);
+  assert.deepEqual(projection.surfaceCounts, expectedSurfaceCounts);
   assert.deepEqual(matrix.definitionExtensionApplicability, {
     status: 'SOURCE_CURRENT_OWNER_DECISIONS_COMPLETE',
     extensionCount: 7,
-    currentVersionExtensionCount: 0,
-    currentVersionExtensionCapabilityIds: [],
-    futureVersionProposalCount: 7,
+    currentVersionExtensionCount: 1,
+    currentVersionExtensionCapabilityIds: ['media.recipe.specification.compile'],
+    futureVersionProposalCount: 6,
     futureVersionProposalCapabilityIds: [
       'media.generate.video.preset.manage',
       'media.generate.video.shot-condition',
@@ -104,13 +116,12 @@ test('PDP-0 matrix projection resolves all 4,158 channel-by-surface cells from P
       'media.master.audio.creative-effect.apply',
       'media.project.scene.patch-merge',
       'media.quality.audio.content-similarity.assess',
-      'media.recipe.specification.compile',
     ],
-    versionDispositionDecisionRefs: [`${decisionPath}#PXD-220`, `${decisionPath}#PXD-221`],
-    surfaceIdentityCount: 54,
+    versionDispositionDecisionRefs: [`${decisionPath}#PXD-220`, `${decisionPath}#PXD-221`, `${decisionPath}#PXD-226`],
+    surfaceIdentityCount: 56,
     channelCount: 11,
-    surfaceCellCount: 378,
-    cellCount: 4158,
+    surfaceCellCount: 392,
+    cellCount: 4312,
     surfaceCellCounts: projection.surfaceCounts,
     cellCounts: expectedCounts,
     outstandingTaskId: null,
@@ -134,7 +145,17 @@ test('PDP-0 matrix projection resolves all 4,158 channel-by-surface cells from P
       assert.deepEqual(item.channelRefs, cell.channelRefs);
     }
   }
-  assert.equal(expected.size, 4158);
+  for (const [surfaceId, disposition] of [
+    ['media.physical.adapters-agent-tools-media', 'NOT_APPLICABLE_SUPPORT'],
+    ['media.physical.adapters-data-cloud-media', 'NOT_APPLICABLE_OWNER_DECISION'],
+  ]) {
+    const surface = matrix.surfaces.find(item => item.surfaceId === surfaceId);
+    assert.ok(surface, `${surfaceId} remains in the current physical surface denominator`);
+    const cells = surface.campaignExtensionApplicability.filter(item => item.definitionExtensionId);
+    assert.equal(cells.length, 77, `${surfaceId} has seven extensions × eleven channels`);
+    assert.ok(cells.every(item => item.disposition === disposition), `${surfaceId} keeps its source-backed PDP-0 applicability disposition`);
+  }
+  assert.equal(expected.size, 4312);
 });
 
 test('support-only topology changes invalidate the source decision instead of promoting a composite', () => {

@@ -13,6 +13,7 @@ import { MediaClientError, MediaOperationAmbiguousError } from './http-core.js';
 import { createMediaOperationClient } from './operations.js';
 import type { CanonicalMediaArtifactObservation, CanonicalMediaUploadSessionObservation } from './operations.js';
 import { createMediaCanonicalClient } from './canonical-operations.js';
+import type { CanonicalJobCancellationResponse } from './canonical-operations.js';
 import { MediaDevProjectTimelineClient } from './dev-project-timeline.js';
 import { MediaDevOnlyJobCancellationClient } from './dev-job-cancellation.js';
 import { MediaDevOnlyRenderExportClient } from './dev-render-export.js';
@@ -24,6 +25,10 @@ import { isCanonicalMediaContentType } from './upload-validation.js';
 
 const PRODUCTION_COMMAND_IDS: Readonly<Record<string, string>> = {
   'artifact inspect': 'media.cli.artifact.inspect',
+  'job get': 'media.cli.job.get',
+  'job submit': 'media.cli.job.submit',
+  'job list': 'media.cli.job.list',
+  'job cancel': 'media.cli.job.cancel',
 };
 const LOCAL_DEVELOPMENT_COMMAND_IDS: Readonly<Record<string, string>> = {
   'artifact upload': 'media.cli.local-development.artifact.upload',
@@ -51,7 +56,7 @@ const DEV_TYPED_ERROR_CODES: Readonly<Record<number, ReadonlySet<string>>> = {
   503: new Set(['RENDER_CODEC_UNAVAILABLE', 'DELIVERY_DESTINATION_UNAVAILABLE', 'EXPORT_AUTHORIZATION_UNAVAILABLE', 'DELIVERY_STATE_UNAVAILABLE']),
 };
 const DEV_TYPED_422_PATTERN = /^(?:RENDER|EXPORT|TIMELINE|TRACK|SOURCE)_[A-Z0-9_]{1,56}$/u;
-const PRODUCTION_USAGE = 'Usage: ghatanamedia-api artifact inspect --endpoint URL --tenant ID --principal ID --artifact ID';
+const PRODUCTION_USAGE = 'Usage: ghatanamedia-api artifact inspect --endpoint URL --tenant ID --principal ID --artifact ID | job get --endpoint URL --tenant ID --principal ID --job ID [--request-id ID] | job submit --endpoint URL --tenant ID --principal ID --artifact ID --request-id ID [--job-type TYPE] [--provider-hint ID] | job cancel --endpoint URL --tenant ID --principal ID --job ID --request-id ID --expected-version N [--reason USER_REQUEST|POLICY_CHANGE|ADMINISTRATIVE_STOP] | job list --endpoint URL --tenant ID --principal ID [--limit N]';
 const LOCAL_DEVELOPMENT_USAGE = 'Usage: ghatanamedia-api-dev artifact upload --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH --content-type TYPE --classification CLASS --retention PERIOD --idempotency-key KEY | artifact inspect --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID | job get --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID [--request-id ID] [--await-finality-ms N] | job submit --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID --request-id ID [--job-type TYPE] [--provider-hint ID] [--await-finality-ms N] | job cancel --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID --request-id ID [--expected-version N] | project render --endpoint LOOPBACK_URL --tenant ID --principal ID --project-id ID --revision-id ID --timeline-id ID --request-id ID --width N --height N --fps N [--format gif|mp4] | project render-get --endpoint LOOPBACK_URL --tenant ID --principal ID --project-id ID --render-id ID | export create --endpoint LOOPBACK_URL --tenant ID --principal ID --request-id ID --artifact-id ID --artifact-version-id ID --destination-id ID | export get --endpoint LOOPBACK_URL --tenant ID --principal ID --request-id ID | batch run --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH [--continue-on-error]';
 const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
 const MAX_REQUEST_TIMEOUT_MS = 300_000;
@@ -79,6 +84,13 @@ const COMMAND_OPTIONS: Readonly<Record<string, readonly string[]>> = {
   'job get': ['--endpoint', '--tenant', '--principal', '--job', '--request-id'],
   'job cancel': ['--endpoint', '--tenant', '--principal', '--job'],
 };
+const PRODUCTION_COMMAND_OPTIONS: Readonly<Record<string, readonly string[]>> = {
+  'artifact inspect': COMMAND_OPTIONS['artifact inspect']!,
+  'job get': COMMAND_OPTIONS['job get']!,
+  'job submit': ['--endpoint', '--tenant', '--principal', '--artifact', '--request-id', '--job-type', '--provider-hint'],
+  'job cancel': ['--endpoint', '--tenant', '--principal', '--job', '--request-id', '--expected-version', '--reason'],
+  'job list': ['--endpoint', '--tenant', '--principal', '--limit'],
+};
 
 const LOCAL_DEVELOPMENT_COMMAND_OPTIONS: Readonly<Record<string, readonly string[]>> = {
   ...COMMAND_OPTIONS,
@@ -94,7 +106,8 @@ const LOCAL_DEVELOPMENT_COMMAND_OPTIONS: Readonly<Record<string, readonly string
 const OPTIONAL_COMMAND_OPTIONS: Readonly<Record<string, readonly string[]>> = {
   'job get': ['--request-id', '--await-finality-ms'],
   'job submit': ['--job-type', '--provider-hint', '--await-finality-ms'],
-  'job cancel': ['--expected-version'],
+  'job list': ['--limit'],
+  'job cancel': ['--expected-version', '--reason'],
   'project render': ['--format'],
 };
 
@@ -102,7 +115,7 @@ function parseArguments(argv: readonly string[], channel: CliChannel): Arguments
   const command = `${argv[0] ?? ''} ${argv[1] ?? ''}`;
   const commandIds = channel === 'production' ? PRODUCTION_COMMAND_IDS : LOCAL_DEVELOPMENT_COMMAND_IDS;
   const commandOptions = channel === 'production'
-    ? { 'artifact inspect': COMMAND_OPTIONS['artifact inspect']! }
+    ? PRODUCTION_COMMAND_OPTIONS
     : LOCAL_DEVELOPMENT_COMMAND_OPTIONS;
   if (!Object.hasOwn(commandIds, command)) throw new Error('Unknown command.');
   const values = new Map<string, string>();
@@ -131,6 +144,7 @@ function parseArguments(argv: readonly string[], channel: CliChannel): Arguments
     }
   }
   const optional = new Set(OPTIONAL_COMMAND_OPTIONS[command] ?? []);
+  if (channel === 'production' && command === 'job cancel') optional.delete('--expected-version');
   for (const required of commandOptions[command]!.slice(3)) {
     if (!optional.has(required) && !values.has(required)) throw new Error(`Missing required option ${required}.`);
   }
@@ -148,7 +162,16 @@ function parseArguments(argv: readonly string[], channel: CliChannel): Arguments
     && requestId !== undefined && !OPAQUE_ID_PATTERN.test(requestId)) {
     throw new Error('Cancellation request ID must be a PDP-1 opaque ID of 1 to 128 characters.');
   }
-  if (channel === 'local-development' && command === 'job cancel'
+  if (channel === 'production' && command === 'job cancel') {
+    if (!OPAQUE_ID_PATTERN.test(requestId!)) {
+      throw new Error('Cancellation request ID must be a PDP-1 opaque ID of 1 to 128 characters.');
+    }
+    const reason = values.get('--reason');
+    if (reason !== undefined && !['USER_REQUEST', 'POLICY_CHANGE', 'ADMINISTRATIVE_STOP'].includes(reason)) {
+      throw new Error('Cancellation reason must be USER_REQUEST, POLICY_CHANGE, or ADMINISTRATIVE_STOP.');
+    }
+  }
+  if (command === 'job cancel'
     && values.has('--expected-version')) {
     const rawVersion = values.get('--expected-version')!;
     const expectedVersion = Number(rawVersion);
@@ -187,6 +210,10 @@ function parseArguments(argv: readonly string[], channel: CliChannel): Arguments
   const awaitRaw = values.get('--await-finality-ms');
   if (awaitRaw !== undefined && (!/^(?:0|[1-9]\d{0,6})$/u.test(awaitRaw) || Number(awaitRaw) > MAX_AWAIT_FINALITY_MS)) {
     throw new Error(`await-finality-ms must be an integer in 0..${MAX_AWAIT_FINALITY_MS}.`);
+  }
+  const limitRaw = values.get('--limit');
+  if (limitRaw !== undefined && (!/^[1-9]\d{0,3}$/u.test(limitRaw) || Number(limitRaw) > 1_000)) {
+    throw new Error('limit must be an integer in 1..1000.');
   }
   if (command === 'artifact upload') {
     const contentType = values.get('--content-type')!;
@@ -465,6 +492,34 @@ function writeJob(
     return false;
   }
   process.stdout.write(`${JSON.stringify({ schemaVersion: 'media.cli-result.v1', commandId: commandIds[command], job: canonicalizeJsonValue(job) })}\n`);
+  return true;
+}
+
+function cancellationRequestMatchesJob(
+  job: Awaited<ReturnType<ReturnType<typeof createMediaCanonicalClient>['getJob']>>,
+  args: Arguments,
+): boolean {
+  const raw = job.result.cancellationRequest;
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return false;
+  const record = raw as Record<string, unknown>;
+  const requestId = args.values['--request-id']!;
+  const expectedJobVersion = Number(args.values['--expected-version']);
+  const reason = args.values['--reason'] ?? 'USER_REQUEST';
+  const values = ['media.operation-slice.cancel-job', args.tenant, args.principal,
+    args.values['--job']!, requestId, String(expectedJobVersion), reason];
+  const digest = createHash('sha256');
+  for (const value of values) {
+    const encoded = Buffer.from(value, 'utf8');
+    const length = Buffer.allocUnsafe(4);
+    length.writeInt32BE(encoded.length);
+    digest.update(length).update(encoded);
+  }
+  if (record.operationRef !== 'media.operation-slice.cancel-job'
+    || record.requestId !== requestId || record.requestFingerprint !== digest.digest('hex')
+    || record.expectedJobVersion !== expectedJobVersion || record.reason !== reason
+    || typeof record.requestedAt !== 'string' || !Number.isFinite(Date.parse(record.requestedAt))) {
+    return false;
+  }
   return true;
 }
 
@@ -861,6 +916,78 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
       return;
     }
     const canonical = createMediaCanonicalClient(config);
+    if (channel === 'production' && args.command === 'job cancel') {
+      const request = {
+        requestId: args.values['--request-id']!,
+        expectedJobVersion: Number(args.values['--expected-version']),
+        ...(args.values['--reason'] === undefined
+          ? {} : { reason: args.values['--reason'] as 'USER_REQUEST' | 'POLICY_CHANGE' | 'ADMINISTRATIVE_STOP' }),
+      };
+      let cancellation: CanonicalJobCancellationResponse;
+      try {
+        cancellation = await canonical.cancelJob(args.values['--job']!, request);
+      } catch (failure) {
+        if (!(failure instanceof MediaOperationAmbiguousError)) throw failure;
+        try {
+          const readback = await canonical.getJob(args.values['--job']!);
+          if (!cancellationRequestMatchesJob(readback, args)) {
+            writeError('OUTCOME_UNKNOWN',
+              'Cancellation acknowledgement was lost and no matching durable request was visible. Reconcile the same job and request ID; do not issue a new cancellation request.',
+              { jobId: args.values['--job'], requestId: request.requestId, finality: 'UNKNOWN',
+                reconcilePath: `/api/v1/jobs/${args.values['--job']}`, automaticRetryAllowed: false },
+              JOB_NOT_FINAL_EXIT_CODE, args.command, commandIds);
+            return;
+          }
+          if (containsCredential(readback, bearerToken)) {
+            writeError('INVALID_MEDIA_RESPONSE', 'Media returned a job response containing credential material.',
+              { jobId: args.values['--job'], requestId: request.requestId }, 1, args.command, commandIds);
+            return;
+          }
+          if (TERMINAL_JOB_STATES.has(readback.status)) {
+            process.stdout.write(`${JSON.stringify({ schemaVersion: 'media.cli-result.v1',
+              commandId: commandIds[args.command], cancellation: {
+                state: 'ALREADY_TERMINAL', requestId: request.requestId,
+                currentJobState: readback.status, reconcilePath: `/api/v1/jobs/${args.values['--job']}`,
+                automaticRetryAllowed: false, job: canonicalizeJsonValue(readback),
+              } })}\n`);
+            return;
+          }
+          const cancellationRequest = readback.result.cancellationRequest as Record<string, unknown>;
+          const state = cancellationRequest.providerOutcome === 'UNKNOWN'
+            || cancellationRequest.providerOutcome === 'DISPATCH_STARTED' ? 'UNKNOWN_OUTCOME' : 'CANCEL_REQUESTED';
+          writeError('OUTCOME_UNKNOWN',
+            'The same cancellation request is durably recorded, but the job is not terminal. Reconcile the same job; do not submit another cancellation identity.',
+            { jobId: readback.jobId, requestId: request.requestId, state, currentJobState: readback.status,
+              reconcilePath: `/api/v1/jobs/${readback.jobId}`, automaticRetryAllowed: false,
+              cancellationRequest: canonicalizeJsonValue(cancellationRequest), job: canonicalizeJsonValue(readback) },
+            JOB_NOT_FINAL_EXIT_CODE, args.command, commandIds);
+          return;
+        } catch (readbackFailure) {
+          if (readbackFailure instanceof MediaOperationAmbiguousError) {
+            // A failed GET cannot settle the already-dispatched cancellation request.
+          }
+          throw failure;
+        }
+      }
+      if (containsCredential(cancellation, bearerToken)) {
+        writeError('INVALID_MEDIA_RESPONSE', 'Media returned a cancellation response containing credential material.',
+          { requestId: request.requestId }, 1, args.command, commandIds);
+        return;
+      }
+      process.stdout.write(`${JSON.stringify({ schemaVersion: 'media.cli-result.v1',
+        commandId: commandIds[args.command], cancellation: canonicalizeJsonValue(cancellation) })}\n`);
+      if (cancellation.state === 'UNKNOWN_OUTCOME') process.exitCode = JOB_NOT_FINAL_EXIT_CODE;
+      return;
+    }
+    if (args.command === 'job list') {
+      const jobs = await canonical.listJobs({ limit: Number(args.values['--limit'] ?? 100) });
+      if (containsCredential(jobs, bearerToken)) {
+        writeError('INVALID_MEDIA_RESPONSE', 'Media returned a job-list response containing credential material.', {}, 1, args.command, commandIds);
+        return;
+      }
+      process.stdout.write(`${JSON.stringify({ schemaVersion: 'media.cli-result.v1', commandId: commandIds[args.command], jobs: canonicalizeJsonValue(jobs) })}\n`);
+      return;
+    }
     const awaitMs = Number(args.values['--await-finality-ms'] ?? 0);
     const readJob = (jobId: string) => args.values['--request-id'] === undefined || args.command === 'job submit'
       ? canonical.getJob(jobId)
@@ -891,12 +1018,21 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
         JOB_NOT_FINAL_EXIT_CODE, args.command, commandIds);
       return;
     }
-    writeJob(job, bearerToken, args.command, commandIds);
+    const jobWritten = writeJob(job, bearerToken, args.command, commandIds);
+    if (jobWritten && channel === 'production'
+      && (args.command === 'job get' || args.command === 'job submit')
+      && job.status === 'OUTCOME_UNKNOWN') {
+      // The GET succeeded, but its observed job outcome is explicitly unresolved.
+      // Preserve the structured observation on stdout while making automation fail closed.
+      process.exitCode = JOB_NOT_FINAL_EXIT_CODE;
+    }
   } catch (error) {
     if (error instanceof MediaOperationAmbiguousError) {
       if (DEV_MUTATING_COMMANDS.has(args.command)) {
-        writeError('OUTCOME_UNKNOWN', 'The operation may have taken effect. Retry with the same request ID to reconcile; do not use a new request ID.',
-          { requestId: args.values['--request-id'] }, 1, args.command, commandIds);
+        writeError('OUTCOME_UNKNOWN', 'The operation may have taken effect. Reconcile with the same request ID and idempotency key; do not submit a new request identity.',
+          { requestId: args.values['--request-id'] },
+          channel === 'production' && args.command === 'job submit' ? JOB_NOT_FINAL_EXIT_CODE : 1,
+          args.command, commandIds);
       } else if (args.command === 'artifact upload') {
         writeError('OUTCOME_UNKNOWN', knownUploadId === undefined
           ? 'Upload begin may have taken effect, but no upload ID was returned. Do not retry until the outcome can be reconciled.'
@@ -979,8 +1115,8 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
           ...safeCorrelationExtra(error.detail.correlationId, bearerToken),
         }, 1, args.command, commandIds);
       } else if (args.command === 'job cancel' && error.statusCode === 409
-        && ['JOB_VERSION_CONFLICT', 'CANCELLATION_REQUEST_CONFLICT'].includes(error.detail.code)) {
-        writeError(error.detail.code, error.detail.code === 'JOB_VERSION_CONFLICT'
+        && ['VERSION_CONFLICT', 'IDEMPOTENCY_CONFLICT'].includes(error.detail.code)) {
+        writeError(error.detail.code, error.detail.code === 'VERSION_CONFLICT'
           ? 'The job version changed before cancellation was reserved. Re-read the job and choose whether to issue a new cancellation request.'
           : 'A different cancellation request already owns this job. Reconcile using the existing request identity before proceeding.',
         { statusCode: 409, requestId: args.values['--request-id'],
@@ -1029,4 +1165,6 @@ function isMainEntrypoint(expectedFileName: string): boolean {
   }
 }
 
-if (isMainEntrypoint('cli.js')) void run(process.argv.slice(2), process.env.GHATANA_MEDIA_BEARER_TOKEN, 'production');
+if (isMainEntrypoint('cli.js')) {
+  void run(process.argv.slice(2), process.env.GHATANA_MEDIA_BEARER_TOKEN, 'production');
+}

@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.pdp0.current-source-review-peer-record.v1",
+  "title": "Source-bound technical peer review for a PDP-0 review successor",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "recordKind",
+    "reviewer",
+    "reviewerAuthority",
+    "candidateRef",
+    "candidateSha256",
+    "expectedDirectReviewSha256",
+    "assessment",
+    "findings",
+    "authorityBoundary"
+  ],
+  "properties": {
+    "schemaVersion": {"const": "media.pdp0.current-source-review-peer-record.v1"},
+    "recordKind": {"const": "DISTINCT_TECHNICAL_SOURCE_REVIEW"},
+    "reviewer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identity", "role"],
+      "properties": {
+        "identity": {"type": "string", "minLength": 1},
+        "role": {"const": "DISTINCT_TECHNICAL_PEER"}
+      }
+    },
+    "reviewerAuthority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["recordRef", "recordSha256"],
+      "properties": {
+        "recordRef": {"type": "string", "minLength": 1},
+        "recordSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "candidateRef": {"const": "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/candidate.v4.json"},
+    "candidateSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "expectedDirectReviewSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "assessment": {"enum": ["PASS", "PASS_WITH_LIMITATIONS"]},
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "classification", "evidenceRef", "finding", "owner", "correction", "nextAction"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[A-Z0-9][A-Z0-9-]+$"},
+          "classification": {"type": "string", "minLength": 1},
+          "evidenceRef": {"type": "string", "minLength": 1},
+          "finding": {"type": "string", "minLength": 1},
+          "owner": {"type": "string", "minLength": 1},
+          "correction": {"type": "string", "minLength": 1},
+          "nextAction": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "authorityBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ownerApproval", "independentAcceptance", "pdp010Acceptance", "phaseStatusEffect", "nativeClosure"],
+      "properties": {
+        "ownerApproval": {"const": "NOT_CLAIMED"},
+        "independentAcceptance": {"const": "NOT_CLAIMED"},
+        "pdp010Acceptance": {"const": "NOT_PERFORMED"},
+        "phaseStatusEffect": {"const": "NONE"},
+        "nativeClosure": {"const": "NOT_CLAIMED"}
+      }
+    }
+  }
+}

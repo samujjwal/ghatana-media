@@ -1,6 +1,6 @@
 schemaVersion: media.cli-source-crosswalk.v1
 productId: media
-status: bounded-local-development-definitions-and-single-production-command; historical-cli-identities-unresolved
+status: bounded-local-development-definitions-and-five-production-commands; historical-cli-identities-unresolved
 populations:
   explorerFixtureCommands:
     source: .product-experience/pdp-3-product-experience/cli/command-registry.yaml
@@ -10,7 +10,7 @@ populations:
     productionRuntimeClaims: 0
   hostConfiguredRuntimeConsumers:
     source: .product-experience/pdp-3-product-experience/cli/production-command-registry.yaml
-    count: 1
+    count: 5
     identities:
       - commandId: media.cli.artifact.inspect
         executable: libs/audio-video-client/package.json#bin.ghatanamedia-api
@@ -22,12 +22,52 @@ populations:
         ownerDecisions: [PXD-040, PXD-044, PXD-051]
         admission: exact-existing-bounded-query-definition; runtime-host-identity-and-production-qualification-open
         productionHost: explicitly-supplied-by-caller; no-host-is-qualified
+      - commandId: media.cli.job.get
+        executable: libs/audio-video-client/package.json#bin.ghatanamedia-api
+        source: libs/audio-video-client/src/cli.ts
+        sdkMethod: libs/audio-video-client/src/canonical-operations.ts#MediaCanonicalClient.getJob
+        httpOperation: getMediaJob
+        route: GET-/api/v1/jobs/{jobId}
+        canonicalOperation: media.operation-slice.inspect-job
+        ownerDecisions: [PXD-040]
+        admission: source-bound-scoped-read; production-host-identity-and-qualification-open
+        productionHost: explicitly-supplied-by-caller; no-host-is-qualified
+      - commandId: media.cli.job.submit
+        executable: libs/audio-video-client/package.json#bin.ghatanamedia-api
+        source: libs/audio-video-client/src/cli.ts
+        sdkMethod: libs/audio-video-client/src/canonical-operations.ts#MediaCanonicalClient.submitJob
+        httpOperation: submitMediaJob
+        route: POST-/api/v1/jobs
+        canonicalOperation: media.operation-slice.submit-job
+        ownerDecisions: [PXD-042]
+        admission: source-bound-submission-contract; provider-execution-not-admitted; production-host-qualification-open
+        productionHost: explicitly-supplied-by-caller; no-host-is-qualified
+      - commandId: media.cli.job.list
+        executable: libs/audio-video-client/package.json#bin.ghatanamedia-api
+        source: libs/audio-video-client/src/cli.ts
+        sdkMethod: libs/audio-video-client/src/canonical-operations.ts#MediaCanonicalClient.listJobs
+        httpOperation: listMediaJobs
+        route: GET-/api/v1/jobs
+        canonicalOperation: null
+        admission: observed-bounded-wire-query; no-individual-PDP1-operation-inferred; production-host-qualification-open
+        productionHost: explicitly-supplied-by-caller; no-host-is-qualified
+      - commandId: media.cli.job.cancel
+        executable: libs/audio-video-client/package.json#bin.ghatanamedia-api
+        source: libs/audio-video-client/src/cli.ts
+        sdkMethod: libs/audio-video-client/src/canonical-operations.ts#MediaCanonicalClient.cancelJob
+        httpOperation: cancelMediaJob
+        route: POST-/api/v1/jobs/{jobId}/cancel
+        canonicalOperation: media.operation-slice.cancel-job
+        actionRef: media.action.request-cancellation
+        ownerDecisions: [PXD-075]
+        admission: source-bound-request-contract; provider-stop-execution-not-admitted; production-host-qualification-open
+        productionHost: explicitly-supplied-by-caller; no-host-is-qualified
   localDevelopmentCommandDefinitions:
     source: .product-experience/pdp-3-product-experience/cli/local-development-command-registry.yaml
     entrypoint: libs/audio-video-client/src/cli-dev.ts
     implementation: libs/audio-video-client/src/cli.ts#runLocalDevelopmentCli
     binary: libs/audio-video-client/package.json#bin.ghatanamedia-api-dev
-    count: 4
+    count: 5
     meaning: explicitly-loopback-only-development-command-definitions
     productionAdmission: OPEN
     identities:
@@ -40,6 +80,20 @@ populations:
       - commandId: media.cli.local-development.job.get
         operationRefs: [media.operation-slice.inspect-job]
         runtimeBinding: EXISTING_LOCAL_DEVELOPMENT_HTTP_OPERATION
+      - commandId: media.cli.local-development.job.submit
+        operationRefs: [media.operation-slice.submit-job]
+        httpOperation: submitMediaJob
+        route: POST-/api/v1/jobs
+        sdkMethod: libs/audio-video-client/src/canonical-operations.ts#MediaCanonicalClient.submitJob
+        runtimeBinding: EXISTING_DEV_ONLY_LOOPBACK_HTTP_OPERATION
+        sourceRefs:
+          - docs/development/FEATURE-COMPLETE-EXECUTION.md#usable-headless-artifact-and-job-api
+          - .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.submit-job
+          - .product-experience/pdp-2-design-interface-system/cli/conventions.yaml
+          - .product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml
+        semantics: 202-receipt-only; explicit-requestId-and-same-payload-fingerprint; exact-replay-does-not-redispatch; changed-payload-conflicts
+        unknownOutcome: retain-requestId-key-and-payload; no-new-identity; no-read-by-requestId-without-known-jobId; otherwise-remain-UNKNOWN
+        productionAdmission: OPEN
       - commandId: media.cli.local-development.job.cancel
         operationRefCandidate: media.operation-slice.cancel-job
         observedHostRoute: POST-/dev/v1/jobs/{jobId}/cancel
@@ -52,7 +106,7 @@ populations:
     source: .product-experience/pdp-3-product-experience/cli-command-registry.yaml
     sourcePopulation: 12
     classification: proposed-command-identities-not-equivalent-to-fixture-commands-or-installed-consumer
-    reconciliation: all-12-identities-remain-individually-unresolved; the-new-host-configured-query-does-not-close-or-alias-any-historical-entry
+    reconciliation: all-12-identities-remain-individually-unresolved; the-five-current-host-configured-commands-do-not-close-or-alias-any-historical-entry
     nonEquivalentNearbyIdentity:
       commandId: media.cli.upload.inspect
       requestIdentity: uploadId-via---upload

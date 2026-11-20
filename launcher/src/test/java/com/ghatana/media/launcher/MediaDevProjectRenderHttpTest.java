@@ -921,10 +921,12 @@ class MediaDevProjectRenderHttpTest {
                                List<Map<String, Object>> edits, boolean createTimeline) throws Exception {
         HttpResponse<String> response = createTimeline
                 ? send(base, "POST", "/dev/v1/projects/" + projectId + "/timelines",
-                        JSON.writeValueAsString(Map.of("expectedHeadRevisionId", head, "timelineId", "timeline-main")),
+                        JSON.writeValueAsString(Map.of("expectedHeadRevisionId", head, "timelineId", "timeline-main",
+                                "requestId", "timeline-create-" + projectId)),
                         PRINCIPAL, RENDER_PERMISSIONS)
                 : send(base, "POST", "/dev/v1/projects/" + projectId + "/timelines/" + timelineId + "/edits",
-                        JSON.writeValueAsString(Map.of("expectedHeadRevisionId", head, "edits", edits)),
+                        JSON.writeValueAsString(Map.of("expectedHeadRevisionId", head, "requestId", "timeline-edit-" + head,
+                                "edits", edits)),
                         PRINCIPAL, RENDER_PERMISSIONS);
         assertThat(response.statusCode()).as(response.body()).isEqualTo(201);
         return (String) object(read(response.body()).get("revision")).get("revisionId");
@@ -1061,6 +1063,16 @@ class MediaDevProjectRenderHttpTest {
         @Override public Revision commit(Actor actor, String projectId, String expectedHeadRevisionId,
                                          String newRevisionId, List<TimelineSnapshot> timelines) {
             return delegate.commit(actor, projectId, expectedHeadRevisionId, newRevisionId, timelines);
+        }
+        @Override public Revision replayCommand(Actor actor, String projectId, String operationRef,
+                                                 String requestId, String fingerprint) {
+            return delegate.replayCommand(actor, projectId, operationRef, requestId, fingerprint);
+        }
+        @Override public Revision commitCommand(Actor actor, String projectId, String expectedHeadRevisionId,
+                                                 String operationRef, String requestId, String fingerprint,
+                                                 String newRevisionId, List<TimelineSnapshot> timelines) {
+            return delegate.commitCommand(actor, projectId, expectedHeadRevisionId, operationRef, requestId,
+                    fingerprint, newRevisionId, timelines);
         }
         @Override public void close() { }
     }

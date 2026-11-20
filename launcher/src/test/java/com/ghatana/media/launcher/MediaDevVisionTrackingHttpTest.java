@@ -27,8 +27,10 @@ import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
+import javax.imageio.ImageIO;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -289,6 +291,17 @@ class MediaDevVisionTrackingHttpTest {
             assertThat(imageOcr.statusCode()).as(new String(imageOcr.body())).isEqualTo(201);
             assertThat(((String) obj(obj(readDocument(runtime, (String) map(imageOcr).get("outputId")).get("results"))
                     .get("sceneText")).get("fullText")).toUpperCase()).contains("GHATANA");
+
+            MediaArtifact rotated = upload(runtime, "still-rotated.jpg", "image/jpeg",
+                    jpegWithExifOrientation(TrackingVideoFixture.background(), 6));
+            int callsBeforeRotated = proxy.analyzeCalls.get();
+            HttpResponse<byte[]> oriented = post(server, ROI, PRINCIPAL, ALL, Map.of("requestId", "roi-img-rotated-1",
+                    "artifactId", rotated.artifactId(), "artifactVersionId", rotated.version().value(),
+                    "tasks", List.of("detect"), "roi", roi(0, 0, 360, 640)));
+            assertThat(oriented.statusCode()).as(new String(oriented.body())).isEqualTo(201);
+            Map<String, Object> orientedDoc = readDocument(runtime, (String) map(oriented).get("outputId"));
+            assertThat(obj(orientedDoc.get("frame"))).containsEntry("width", 360).containsEntry("height", 640);
+            assertThat(proxy.analyzeCalls.get()).isEqualTo(callsBeforeRotated + 1);
         } finally {
             server.stop(0);
         }
@@ -304,6 +317,8 @@ class MediaDevVisionTrackingHttpTest {
             byte[] video = TrackingVideoFixture.generate(ffmpeg, Files.createTempDirectory(work, "gen-"), false);
             MediaArtifact clip = upload(runtime, "bad-roi.mp4", "video/mp4", video);
             MediaArtifact image = upload(runtime, "bad-roi.png", "image/png", TrackingVideoFixture.background());
+            MediaArtifact rotatedImage = upload(runtime, "bad-roi-rotated.jpg", "image/jpeg",
+                    jpegWithExifOrientation(TrackingVideoFixture.background(), 6));
             int calls = proxy.analyzeCalls.get();
             int rightsCalls = RIGHTS.calls.get();
 
@@ -356,6 +371,11 @@ class MediaDevVisionTrackingHttpTest {
                     assertThat(new String(refused.body())).contains("ROI_OUT_OF_FRAME");
                 }
             }
+            HttpResponse<byte[]> rotatedOutside = post(server, ROI, PRINCIPAL, ALL, Map.of("requestId", "oof-rotated",
+                    "artifactId", rotatedImage.artifactId(), "artifactVersionId", rotatedImage.version().value(),
+                    "tasks", List.of("detect"), "roi", roi(360, 0, 1, 1)));
+            assertThat(rotatedOutside.statusCode()).as(new String(rotatedOutside.body())).isEqualTo(422);
+            assertThat(new String(rotatedOutside.body())).contains("ROI_OUT_OF_FRAME");
             // A video frame index beyond the timeline is also a typed refusal.
             HttpResponse<byte[]> badFrame = post(server, ROI, PRINCIPAL, ALL, Map.of("requestId", "bad-frame",
                     "artifactId", clip.artifactId(), "artifactVersionId", clip.version().value(),
@@ -770,6 +790,26 @@ class MediaDevVisionTrackingHttpTest {
                     Arrays.copyOfRange(bytes, offset, Math.min(bytes.length, offset + chunk)));
         }
         return runtime.completeUpload(TENANT, PRINCIPAL, session.uploadId());
+    }
+
+    private static byte[] jpegWithExifOrientation(byte[] png, int orientation) throws Exception {
+        var source = ImageIO.read(new ByteArrayInputStream(png));
+        assertThat(source).isNotNull();
+        ByteArrayOutputStream encoded = new ByteArrayOutputStream();
+        assertThat(ImageIO.write(source, "jpeg", encoded)).isTrue();
+        byte[] jpeg = encoded.toByteArray();
+        byte[] exif = new byte[] {'E', 'x', 'i', 'f', 0, 0, 'I', 'I', 42, 0, 8, 0, 0, 0, 1, 0,
+                0x12, 0x01, 3, 0, 1, 0, 0, 0, (byte) orientation, 0, 0, 0, 0, 0, 0, 0};
+        int segmentLength = exif.length + 2;
+        ByteArrayOutputStream result = new ByteArrayOutputStream(jpeg.length + exif.length + 4);
+        result.write(jpeg, 0, 2);
+        result.write(0xff);
+        result.write(0xe1);
+        result.write((segmentLength >>> 8) & 0xff);
+        result.write(segmentLength & 0xff);
+        result.write(exif);
+        result.write(jpeg, 2, jpeg.length - 2);
+        return result.toByteArray();
     }
 
     private static String sha256(byte[] bytes) throws Exception {

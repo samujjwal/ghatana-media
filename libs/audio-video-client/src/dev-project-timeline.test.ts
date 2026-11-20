@@ -215,6 +215,7 @@ describe("Media DEV_ONLY project timeline client", () => {
     await expect(client.createTimeline("project-1", {
       expectedHeadRevisionId: "revision-1",
       timelineId: "timeline-main",
+      requestId: "timeline-create-1",
     })).resolves.toMatchObject({ revision: { revisionId: "revision-2" }, scope: "DEV_ONLY" });
     expect(fetcher.mock.calls.map(([url]) => url)).toEqual([
       "http://127.0.0.1:8093/dev/v1/projects/project-1",
@@ -246,6 +247,7 @@ describe("Media DEV_ONLY project timeline client", () => {
     const client = new MediaDevProjectTimelineClient({ baseUrl: "http://127.0.0.1:8093", bearerToken: "token", fetch: fetcher });
     const request = {
       expectedHeadRevisionId: "revision-2",
+      requestId: "timeline-edit-1",
       edits: [
         { type: "addScene" as const, sceneId: "scene-main", order: 0 },
         { type: "addTrack" as const, trackId: "video-main", sceneId: "scene-main", trackKind: "VIDEO" as const, order: 0 },
@@ -263,6 +265,7 @@ describe("Media DEV_ONLY project timeline client", () => {
   it("commits track and scene removals through the same exact-head edit route", async () => {
     const request = {
       expectedHeadRevisionId: "revision-with-graph",
+      requestId: "timeline-edit-remove-1",
       edits: [
         { type: "removeTrack" as const, trackId: "video-main" },
         { type: "removeScene" as const, sceneId: "scene-main" },
@@ -313,7 +316,7 @@ describe("Media DEV_ONLY project timeline client", () => {
     };
     const fetcher = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse({ scope: "DEV_ONLY", revision }, 201));
     const client = new MediaDevProjectTimelineClient({ baseUrl: "http://127.0.0.1:8093", bearerToken: "token", fetch: fetcher });
-    const request = { expectedHeadRevisionId: "revision-head", edits: [{ type: "putClip" as const, clip }] };
+    const request = { expectedHeadRevisionId: "revision-head", requestId: "timeline-edit-clip-1", edits: [{ type: "putClip" as const, clip }] };
 
     await expect(client.editTimeline("project-1", "timeline-main", request)).resolves.toMatchObject({
       revision: { timelines: [{ graph: { clips: [{ clipId: "clip-main", sourceIn: { ticks: "9007199254740993" } }] } }] },
@@ -331,7 +334,8 @@ describe("Media DEV_ONLY project timeline client", () => {
     } }, 201));
     const client = new MediaDevProjectTimelineClient({ baseUrl: "http://127.0.0.1:8093", bearerToken: "token", fetch: fetcher });
     await expect(client.editTimeline("project-1", "timeline-main", {
-      expectedHeadRevisionId: "revision-with-clip", edits: [{ type: "removeClip", clipId: "clip-main" }],
+      expectedHeadRevisionId: "revision-with-clip", requestId: "timeline-edit-clip-remove-1",
+      edits: [{ type: "removeClip", clipId: "clip-main" }],
     })).resolves.toMatchObject({ revision: { revisionId: "revision-removed" } });
   });
 
@@ -352,6 +356,7 @@ describe("Media DEV_ONLY project timeline client", () => {
     const client = new MediaDevProjectTimelineClient({ baseUrl: "http://127.0.0.1:8093", bearerToken: "token", fetch: fetcher });
     await client.editTimeline("project:local", "timeline:main", {
       expectedHeadRevisionId: "revision-head",
+      requestId: "timeline-edit-colon-1",
       edits: [{ type: "addScene", sceneId: "scene-main", order: 0 }],
     });
     expect(fetcher.mock.calls[0]?.[0]).toBe(
@@ -373,6 +378,7 @@ describe("Media DEV_ONLY project timeline client", () => {
     const client = new MediaDevProjectTimelineClient({ baseUrl: "http://127.0.0.1:8093", bearerToken: "token", fetch: fetcher });
     await expect(client.editTimeline("project-1", "timeline-main", {
       expectedHeadRevisionId: "revision-2",
+      requestId: "timeline-edit-malformed-1",
       ...override,
     } as never)).rejects.toMatchObject({ code: "INVALID_REQUEST" });
     expect(fetcher).not.toHaveBeenCalled();
@@ -389,7 +395,7 @@ describe("Media DEV_ONLY project timeline client", () => {
     } }, 201));
     const client = new MediaDevProjectTimelineClient({ baseUrl: "http://127.0.0.1:8093", bearerToken: "token", fetch: fetcher });
     await expect(client.editTimeline("project-1", "timeline-main", {
-      expectedHeadRevisionId: "revision-head", edits: [{ type: "putClip", clip }],
+      expectedHeadRevisionId: "revision-head", requestId: "timeline-edit-clip-2", edits: [{ type: "putClip", clip }],
     })).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
   });
 
@@ -400,6 +406,7 @@ describe("Media DEV_ONLY project timeline client", () => {
     const client = new MediaDevProjectTimelineClient({ baseUrl: "http://127.0.0.1:8093", bearerToken: "token", fetch: fetcher });
     await expect(client.editTimeline("project-1", "timeline-main", {
       expectedHeadRevisionId: "revision-2",
+      requestId: "timeline-edit-conflict-1",
       edits: [{ type: "addScene", sceneId: "scene-main", order: 0 }],
     })).rejects.toMatchObject({ code: "REVISION_CONFLICT", status: 409 });
     expect(fetcher).toHaveBeenCalledTimes(1);
@@ -435,6 +442,7 @@ describe("Media DEV_ONLY project timeline client", () => {
     await expect(client.createTimeline("project-1", {
       expectedHeadRevisionId: "revision-1",
       timelineId: "timeline-main",
+      requestId: "timeline-create-response-1",
     })).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
   });
 
@@ -450,6 +458,7 @@ describe("Media DEV_ONLY project timeline client", () => {
     await expect(client.createTimeline("project-1", {
       expectedHeadRevisionId: "revision-1",
       timelineId: "timeline-main",
+      requestId: "timeline-create-conflict-1",
     })).rejects.toMatchObject({
       name: "MediaDevProjectTimelineError",
       code: "REVISION_CONFLICT",
@@ -490,7 +499,7 @@ describe("Media DEV_ONLY project timeline client", () => {
         },
       })),
     };
-    const request = { expectedHeadRevisionId: "revision-head", targetRevisionId: "revision-target" };
+    const request = { expectedHeadRevisionId: "revision-head", targetRevisionId: "revision-target", requestId: "timeline-restore-1" };
     const fetcher = vi.fn<typeof fetch>()
       .mockResolvedValueOnce(jsonResponse({ revision: targetRevision, scope: "DEV_ONLY" }))
       .mockResolvedValueOnce(jsonResponse({ revision: restoredRevision, scope: "DEV_ONLY" }, 201));
@@ -548,6 +557,7 @@ describe("Media DEV_ONLY project timeline client", () => {
     await expect(client.restoreRevision("project-1", {
       expectedHeadRevisionId: "revision-head",
       targetRevisionId: "revision-target",
+      requestId: "timeline-restore-mismatch-1",
     })).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
     expect(fetcher).toHaveBeenCalledTimes(2);
   });
@@ -574,6 +584,7 @@ describe("Media DEV_ONLY project timeline client", () => {
     await expect(client.restoreRevision("project-1", {
       expectedHeadRevisionId: "revision-head",
       targetRevisionId: "revision-target",
+      requestId: "timeline-restore-tenant-1",
     })).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
     expect(fetcher).toHaveBeenCalledTimes(2);
   });
@@ -596,6 +607,7 @@ describe("Media DEV_ONLY project timeline client", () => {
     await expect(client.restoreRevision("project-1", {
       expectedHeadRevisionId: "revision-head",
       targetRevisionId: "revision-target",
+      requestId: "timeline-restore-conflict-1",
     })).rejects.toMatchObject({
       name: "MediaDevProjectTimelineError",
       code: "REVISION_CONFLICT",
@@ -614,11 +626,12 @@ describe("Media DEV_ONLY project timeline client", () => {
     const client = new MediaDevProjectTimelineClient({ baseUrl: "http://127.0.0.1:8093", bearerToken: "token", fetch: fetcher });
     await expect(client.editTimeline("project-1", "timeline-main", {
       expectedHeadRevisionId: "revision-2",
+      requestId: "timeline-edit-unknown-1",
       edits: [{ type: "addScene", sceneId: "scene-main", order: 0 }],
     })).rejects.toMatchObject({
       code: "OUTCOME_UNKNOWN",
       status: 503,
-      details: { responseCode: "HOST_FAILURE" },
+      details: { responseCode: "HOST_FAILURE", requestId: "timeline-edit-unknown-1" },
     });
     expect(fetcher).toHaveBeenCalledTimes(1);
   });
@@ -631,6 +644,7 @@ describe("Media DEV_ONLY project timeline client", () => {
     const client = new MediaDevProjectTimelineClient({ baseUrl: "http://127.0.0.1:8093", bearerToken: "token", fetch: fetcher });
     await expect(client.editTimeline("project-1", "timeline-main", {
       expectedHeadRevisionId: "revision-2",
+      requestId: "timeline-edit-unreadable-1",
       edits: [{ type: "addScene", sceneId: "scene-main", order: 0 }],
     })).rejects.toMatchObject({ code: "OUTCOME_UNKNOWN", status: 201 });
     expect(fetcher).toHaveBeenCalledTimes(1);

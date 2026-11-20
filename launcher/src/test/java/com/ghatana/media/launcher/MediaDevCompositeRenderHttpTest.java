@@ -533,7 +533,8 @@ class MediaDevCompositeRenderHttpTest {
         String head = (String) object(read(send(base, "GET", "/dev/v1/projects/" + projectId, null, OWNER, RENDER_PERMISSIONS)
                 .body()).get("currentRevision")).get("revisionId");
         HttpResponse<String> timeline = send(base, "POST", "/dev/v1/projects/" + projectId + "/timelines",
-                JSON.writeValueAsString(Map.of("expectedHeadRevisionId", head, "timelineId", "timeline-main")), OWNER,
+                JSON.writeValueAsString(Map.of("expectedHeadRevisionId", head, "timelineId", "timeline-main",
+                        "requestId", "timeline-create-" + projectId)), OWNER,
                 RENDER_PERMISSIONS);
         assertThat(timeline.statusCode()).as(timeline.body()).isEqualTo(201);
         head = (String) object(read(timeline.body()).get("revision")).get("revisionId");
@@ -582,7 +583,8 @@ class MediaDevCompositeRenderHttpTest {
 
     private String edit(String base, String projectId, String head, List<Map<String, Object>> edits) throws Exception {
         HttpResponse<String> response = send(base, "POST", "/dev/v1/projects/" + projectId + "/timelines/timeline-main/edits",
-                JSON.writeValueAsString(Map.of("expectedHeadRevisionId", head, "edits", edits)), OWNER, RENDER_PERMISSIONS);
+                JSON.writeValueAsString(Map.of("expectedHeadRevisionId", head, "requestId", "timeline-edit-" + head,
+                        "edits", edits)), OWNER, RENDER_PERMISSIONS);
         assertThat(response.statusCode()).as(response.body()).isEqualTo(201);
         return (String) object(read(response.body()).get("revision")).get("revisionId");
     }

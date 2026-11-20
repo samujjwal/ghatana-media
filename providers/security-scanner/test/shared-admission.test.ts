@@ -18,10 +18,30 @@ const shared = dist
     }
   : undefined;
 
+function minimalPdfFixture(): Buffer {
+  const header = '%PDF-1.4\n';
+  const objects = [
+    '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n',
+    '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n',
+    '3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 1 1] /Resources << >> >>\nendobj\n',
+  ];
+  let document = header;
+  const offsets: number[] = [];
+  for (const object of objects) {
+    offsets.push(Buffer.byteLength(document, 'utf8'));
+    document += object;
+  }
+  const xrefOffset = Buffer.byteLength(document, 'utf8');
+  document += `xref\n0 4\n0000000000 65535 f \n${offsets
+    .map((offset) => `${String(offset).padStart(10, '0')} 00000 n \n`)
+    .join('')}trailer\n<< /Size 4 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF\n`;
+  return Buffer.from(document, 'utf8');
+}
+
 describe('Shared scan admission (@ghatana/documents)', { skip: shared ? false : 'GHATANA_DOCUMENTS_DIST not set' }, () => {
   const signer = hmacSha256Signer('k1', Buffer.alloc(32, 5));
   const now = new Date('2025-11-12T12:00:00Z');
-  const content = Buffer.from('shared-admission');
+  const content = minimalPdfFixture();
   const checksum = { algorithm: 'SHA-256' as const, value: createHash('sha256').update(content).digest('hex') };
 
   async function scan(behavior: 'normal' | 'garbage') {
@@ -34,7 +54,7 @@ describe('Shared scan admission (@ghatana/documents)', { skip: shared ? false : 
         pinnedEngineVersions: ['ClamAV 1.4.2'], maxBytes: 4096, maxDefinitionsAgeMs: 3 * 86_400_000,
         attestationTtlMs: 60_000, now: () => now,
       });
-      return (await p.scan({ documentId: 'd', version: 1, checksum, sizeBytes: content.length, mimeType: 'text/plain',
+      return (await p.scan({ documentId: 'd', version: 1, checksum, sizeBytes: content.length, mimeType: 'application/pdf',
         tenantRef: 'tenant:a', scopeRef: 'scope:documents.scan', sourceRef: 'quarantine://src-1' })) as SignedScanAttestation;
     } finally { await clamd.close(); }
   }

@@ -6,6 +6,7 @@ import { execFileSync } from "node:child_process";
 import { resolve } from "node:path";
 import test from "node:test";
 import { validateMigrationClaimCohort, validateMigrationClaimReview } from "../scripts/lib/pdp-migration-dependency-review.mjs";
+import { fingerprintPxdDecisionSection } from "../scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const { parse } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
@@ -41,7 +42,7 @@ const targets = new Map([
   ["MPSEM-0354-C001", `${glossaryPath}#/terms/@id=media.term.privacy-axes`],
 ]);
 const predicates = new Map([
-  ["MPSEM-0023-C002", [`${compatibilityRouteFindings.sourceFindings.length}-of-${compatibilityRouteFindings.sourceFindings.length} observed legacy/candidate SDK paths`, "absent from the 27-route active manifest", "proves non-admission", "does not choose a replacement route"]],
+  ["MPSEM-0023-C002", ["14-of-14 observed legacy/candidate SDK paths", "absent from the 27-route active manifest", "proves non-admission", "does not choose a replacement route"]],
   ["MPSEM-0023-C003", ["request and result field identity, type, presence and bounds", "units and time bases", "authority and delegation", "idempotency, cancellation and finality", "compatibility tests", "before admitting a new public contract", "explicit compatibility gap"]],
   ["MPSEM-0023-C004", ["canonical operation through an explicit adapter", "compatibility tests", "before admitting a new public contract", "field, unit, authority or outcome"]],
   ["MPSEM-0187-C002", ["is an inference, not an established fact about a person", "method/model identity and version", "evidence/reference", "applicable scope", "uncertainty", "Do not assert ground truth"]],
@@ -109,14 +110,25 @@ test("privacy, preservation, person-inference and wire-compatibility claims bind
   }
 });
 
-test("MPSEM-0023-C002 route summary derives absence and denominator from the active manifest", () => {
+test("MPSEM-0023-C002 separates retained path identities from dispatch state and derives the live route denominator", () => {
   const findings = compatibilityRouteFindings.sourceFindings;
-  assert.ok(findings.length > 0, "the source has explicit legacy/candidate SDK path observations");
+  assert.equal(findings.length, 14, "all explicit source findings remain represented");
+  assert.equal(new Set(findings.map(({ findingId }) => findingId)).size, 14, "finding IDs are stable and unique");
   assert.equal(missingCandidateRoutes.length, findings.length,
     "each observed candidate path remains absent from the current active route manifest");
-  const expected = `${findings.length}-of-${findings.length} observed legacy/candidate SDK paths are absent from the ${routeManifest.routes.length}-route active manifest; this proves non-admission and does not choose a replacement route.`;
+  const retained = findings.filter(({ pathIdentityStatus }) => pathIdentityStatus === "RETAINED_LEGACY_CANDIDATE");
+  const retired = findings.filter(({ pathIdentityStatus }) => pathIdentityStatus === "RETIRED_OPERATION_METHOD");
+  const dispatchable = findings.filter(({ methodDispatchStatus }) => methodDispatchStatus === "DISPATCHABLE");
+  const retainedFailClosed = retained.filter(({ methodDispatchStatus }) => methodDispatchStatus === "FAIL_CLOSED_BEFORE_TRANSPORT");
+  assert.equal(retained.length, 6);
+  assert.equal(retired.length, 8);
+  assert.equal(dispatchable.length, 5);
+  assert.equal(retainedFailClosed.length, 1);
+  assert.ok(findings.every(({ activeManifestStatus }) => activeManifestStatus === "ABSENT"));
+  assert.equal(routeManifest.routes.length, 30);
+  const expected = `Six legacy/candidate SDK path identities remain in source but are absent from the ${routeManifest.routes.length}-route active manifest; five corresponding methods remain dispatchable and the retained provider-capabilities method fails closed. Eight other operation-client methods are retired and fail closed before transport. None is admitted to the active manifest or parity-accepted.`;
   assert.equal(compatibilityRouteFindings.currentComparison, expected,
-    "summary uses the current source finding count and live route-manifest denominator");
+    "summary distinguishes source path identity from method dispatch and uses the live route-manifest denominator");
 });
 
 test("PXD-108 and PXD-100 person-inference observations stay historical while PXD-130 records the live source", () => {
@@ -128,7 +140,12 @@ test("PXD-108 and PXD-100 person-inference observations stay historical while PX
   const p0Observation = JSON.parse(readFileSync(resolve(root, currentP0ObservationPath), "utf8"))
     .records.find((row) => row.claimId === claim.claimId);
   const pxd213QualityReview = JSON.parse(readFileSync(resolve(root,
-    "docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd213.json"), "utf8"));
+    "docs/implementation/verification/pdp-38/p0-quality-currentness-successor-pxd213-pxd229-live-source-successor-2026-11-16.json"), "utf8"));
+  const pxd213QualityReviewPredecessorPath =
+    "docs/implementation/verification/pdp-38/p0-quality-currentness-successor-pxd213-pxd229-live-source-2026-11-16.json";
+  const pxd213QualityReviewPredecessorBytes = readFileSync(resolve(root, pxd213QualityReviewPredecessorPath));
+  const pxd213QualityPredecessorSuccessor = JSON.parse(readFileSync(resolve(root,
+    "docs/implementation/verification/pdp-38/p0-quality-currentness-successor-pxd213-live-source.json"), "utf8"));
   const current = resolveRef(targets.get(claim.claimId));
   const historical = historicalQuality.personAndIdentityInferenceRule;
 
@@ -160,6 +177,24 @@ test("PXD-108 and PXD-100 person-inference observations stay historical while PX
   assert.equal(pxd213QualityReview.latestCurrentnessRefresh.sourceFingerprints[qualityPath],
     createHash("sha256").update(readFileSync(resolve(root, qualityPath))).digest("hex"),
     "PXD-213 supplies the exact current quality-policy whole-file pin");
+  assert.equal(pxd213QualityReview.predecessorSha256,
+    createHash("sha256").update(pxd213QualityReviewPredecessorBytes).digest("hex"),
+    "the additive PXD-229 pin refresh retains its immutable predecessor");
+  assert.equal(pxd213QualityReview.predecessorRef, pxd213QualityReviewPredecessorPath);
+  assert.equal(pxd213QualityReviewPredecessorBytes.toString("utf8").includes(
+    '".product-experience/decision-log.md#PXD-229-section": "2d59e4435e9b486d79b326df5cb2a7f47633504103c2bb95cc571f96f85b65d4"'), true,
+  "the prior PXD-229 decision-section pin remains preserved in the predecessor");
+  assert.equal(pxd213QualityReview.successorKind, "CURRENTNESS_ONLY");
+  assert.deepEqual(pxd213QualityReview.latestCurrentnessRefresh.reviewedPopulation,
+    pxd213QualityPredecessorSuccessor.latestCurrentnessRefresh.reviewedPopulation,
+    "PXD-229's separate extension does not expand or alter PXD-213's historical 462-row population");
+  assert.deepEqual(pxd213QualityReview.latestCurrentnessRefresh.changedTypeJoins,
+    pxd213QualityPredecessorSuccessor.latestCurrentnessRefresh.changedTypeJoins,
+    "the currentness refresh does not change the reviewed joins");
+  assert.equal(pxd213QualityReview.latestCurrentnessRefresh.sourceFingerprints[
+    ".product-experience/decision-log.md#PXD-229-section"],
+  fingerprintPxdDecisionSection(readFileSync(resolve(root, ".product-experience/decision-log.md"), "utf8"), "PXD-229").sha256,
+  "the PXD-229 applicability decision is present in the current source cut");
   assert.equal(pxd213QualityReview.latestCurrentnessRefresh.ownerApproval, "NOT_CLAIMED");
   assert.equal(pxd213QualityReview.latestCurrentnessRefresh.independentAcceptance, "NOT_CLAIMED");
   assert.equal(p0Observation.semanticEquivalence, "NOT_ASSERTED");
@@ -174,7 +209,7 @@ test("PXD-108 and PXD-100 person-inference observations stay historical while PX
 
 test("material mutations cannot erase privacy axes, uncertainty, preservation limits or exact wire compatibility", () => {
   const mutations = [
-    ["MPSEM-0023-C002", "does not choose a replacement route", "chooses a replacement route by name"],
+    ["MPSEM-0023-C002", "Eight other operation-client methods are retired", "Eight other operation-client methods are active"],
     ["MPSEM-0023-C003", "units and time bases", "units omitted"],
     ["MPSEM-0023-C003", "authority and delegation", "authority omitted"],
     ["MPSEM-0023-C004", "before admitting a new public contract", "after automatic contract admission"],

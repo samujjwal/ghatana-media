@@ -190,6 +190,27 @@ class VideoFrameReconcilerTest {
     }
 
     @Test
+    @DisplayName("held sequence replay must match frame metadata and payload")
+    void heldReplayMustMatchExactFrame() {
+        VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));
+        assertThat(rec.offer(frame(0, true, 0))).isEqualTo(Disposition.DELIVERED);
+        var original = new VideoStreamSession.DecodedFrame(2, false, 66, new byte[]{1, 2});
+        assertThat(rec.offer(original)).isEqualTo(Disposition.HELD);
+
+        assertThat(rec.offer(new VideoStreamSession.DecodedFrame(2, false, 66, new byte[]{1, 2})))
+                .isEqualTo(Disposition.DUPLICATE);
+        assertThat(rec.offer(new VideoStreamSession.DecodedFrame(2, false, 66, new byte[]{9, 2})))
+                .isEqualTo(Disposition.CONFLICTING_REPLAY);
+        assertThat(rec.offer(new VideoStreamSession.DecodedFrame(2, true, 66, new byte[]{1, 2})))
+                .isEqualTo(Disposition.CONFLICTING_REPLAY);
+        assertThat(rec.offer(new VideoStreamSession.DecodedFrame(2, false, 67, new byte[]{1, 2})))
+                .isEqualTo(Disposition.CONFLICTING_REPLAY);
+        assertThat(rec.pendingCount()).isEqualTo(1);
+        assertThat(rec.pendingBytes()).isEqualTo(2);
+        assertThat(rec.nextAck()).isZero();
+    }
+
+    @Test
     @DisplayName("resume honors durable ACK/keyframe position; cross-tenant denied")
     void resumeHonorsDurableAndDeniesCrossTenant() {
         SessionIdentity durable = identity("t1");

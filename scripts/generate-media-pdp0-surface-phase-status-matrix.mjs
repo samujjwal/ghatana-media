@@ -5,7 +5,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { projectPdp0DefinitionExtensionApplicability, readSources } from './check-media-pdp0-surface-denominator.mjs';
 import { pdp0PhaseScopedSourcePins } from './report-media-pdp-readiness.mjs';
-import { appendPdp0TopologyRows } from './lib/media-pdp0-surface-matrix-topology.mjs';
+import { appendPdp0TopologyRows, isPdp0RowSourceCurrent, isPdp0SourceDefinitionReviewCurrent, missingPdp0PhaseSourcePins } from './lib/media-pdp0-surface-matrix-topology.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const matrixPath = 'docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json';
@@ -16,7 +16,12 @@ const sourcePaths = [
   '.product-experience/surfaces/media-physical-topology.v1.json',
   '.product-experience/pdp-0-product-truth/applications-channels.yaml',
   '.product-experience/pdp-0-product-truth/capabilities.yaml',
+  '.product-experience/pdp-0-product-truth/requirements.yaml',
+  '.product-experience/pdp-0-product-truth/goals-jtbd.yaml',
+  '.product-experience/pdp-0-product-truth/dependency-contracts.yaml',
   '.product-experience/pdp-0-product-truth/campaign-extensions.yaml',
+  'docs/surfaces/adapters-agent-tools-media/README.md',
+  'adapters/data-cloud-media/README.md',
   statusPath,
 ];
 const digest = (value) => createHash('sha256').update(value).digest('hex');
@@ -30,7 +35,6 @@ const sourceFingerprints = Object.fromEntries(sourcePaths.map((sourcePath) => [s
 if (!projection.ok || projection.records.length !== projection.surfaceCellCount * projection.channelCount) {
   throw new Error('PDP-0 surface matrix requires valid channel-by-surface applicability over the current source topology.');
 }
-const { addedSurfaceIds, topologyRows } = appendPdp0TopologyRows(matrix, topology, sourceFingerprints, topologyPath);
 const extensionById = new Map((authority.campaignExtensions.currentDefinitionPopulation.records ?? []).map((row) => [row.capabilityId, row]));
 const cellBySurface = new Map();
 for (const cell of projection.records) {
@@ -61,13 +65,19 @@ const staleSourcePins = Object.entries(status.sourceShaSet ?? {}).flatMap(([sour
     : fs.existsSync(path.join(root, sourceRef)) ? sha256(sourceRef) : undefined;
   return currentSha256 === expectedSha256 ? [] : [{ sourceRef, expectedSha256, currentSha256: currentSha256 ?? null }];
 });
+const requiredPhaseSourceRefs = [...sourcePaths.filter((sourcePath) => sourcePath !== statusPath), ...Object.keys(projectedPins)];
+const missingPhaseSourcePins = missingPdp0PhaseSourcePins(status.sourceShaSet ?? {}, requiredPhaseSourceRefs);
 const phaseSourceCurrentness = {
-  status: staleSourcePins.length === 0 ? 'CURRENT' : 'STALE',
+  status: staleSourcePins.length === 0 && missingPhaseSourcePins.length === 0 ? 'CURRENT' : 'STALE',
   sourcePinCount: Object.keys(status.sourceShaSet ?? {}).length,
   staleSourcePinCount: staleSourcePins.length,
   staleSourcePins,
+  missingPhaseSourcePins,
   note: 'Live byte pins are checked by file path; #fragment pins are compared with pdp0PhaseScopedSourcePins() projections.',
 };
+const { addedSurfaceIds, topologyRows } = appendPdp0TopologyRows(matrix, topology, sourceFingerprints, topologyPath, {
+  phaseSourceShaSet: status.sourceShaSet ?? {},
+});
 const extensionSourcePrefix = '.product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability';
 const failedCriteria = Object.entries(status.directDevelopmentCriteria ?? {})
   .filter(([, criterion]) => criterion.testStatus === 'FAIL')
@@ -221,16 +231,24 @@ for (const row of matrix.surfaces) {
     [decisionSectionPin]: sourceFingerprints[decisionSectionPin],
     ...Object.fromEntries(versionDecisionSectionPins.map((pin) => [pin, sourceFingerprints[pin]])),
   };
-  row.sourceCurrent = phaseSourceCurrentness.status === 'CURRENT'
-    && !addedSurfaceIds.has(row.surfaceId)
-    && row.sourceOwnerReviewState !== 'PENDING'
-    && row.remainingPhaseLocalTaskIds !== null;
+  const sourceCell = topologyRows.find((surface) => surface.surfaceId === row.surfaceId)?.phaseApplicability?.['PDP-0'] ?? {};
+  const sourceDefinitionReview = sourceCell.sourceDefinitionReview;
+  const sourceDefinitionReviewCurrent = isPdp0SourceDefinitionReviewCurrent(
+    sourceDefinitionReview, row.surfaceId, sourceFingerprints, status.sourceShaSet ?? {}, sourceCell,
+  );
+  row.sourceCurrent = isPdp0RowSourceCurrent({
+    phaseSourceCurrentnessStatus: phaseSourceCurrentness.status,
+    requiresDefinitionReview: Boolean(sourceDefinitionReview) || row.sourceOwnerReviewState === 'DELEGATED_SOURCE_DEFINITION_REVIEW_COMPLETE',
+    reviewCurrent: sourceDefinitionReviewCurrent,
+    sourceOwnerReviewState: row.sourceOwnerReviewState,
+    remainingPhaseLocalTaskIds: row.remainingPhaseLocalTaskIds,
+  });
   row.sourceCurrentBasis = row.sourceOwnerReviewState === 'PENDING'
     ? 'This topology row still requires source-owner review; matching phase-wide byte pins cannot establish row currentness.'
     : row.remainingPhaseLocalTaskIds === null
     ? 'Exact phase-local task ownership is unknown for this row; matching phase-wide byte pins cannot establish row currentness.'
-    : addedSurfaceIds.has(row.surfaceId)
-      ? 'New topology identity remains pending current full-denominator owner review; phase-wide byte-pin currentness alone does not establish row review.'
+    : addedSurfaceIds.has(row.surfaceId) && row.sourceOwnerReviewState !== 'DELEGATED_SOURCE_DEFINITION_REVIEW_COMPLETE'
+      ? 'New topology identity remains pending current full-denominator source-definition review; phase-wide byte-pin currentness alone does not establish row review.'
     : phaseSourceCurrentness.status === 'CURRENT'
     ? 'All current PDP-0 phase sourceShaSet byte and projection pins match; source currentness is separate from definition completeness.'
     : `PDP-0 phase source currentness is STALE: ${staleSourcePins.length} of ${phaseSourceCurrentness.sourcePinCount} required phase pins do not match; per-surface sourceCurrent is gated false. Definition completion remains a separate status.`;

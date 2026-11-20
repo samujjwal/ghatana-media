@@ -498,6 +498,37 @@ describe("CameraCaptureAdapter", () => {
     expect(h.opens).toHaveLength(1);
   });
 
+  it("discards bytes when consent is revoked while the post-read permission check is pending", async () => {
+    let permissionReads = 0;
+    let markFinalCheckStarted!: () => void;
+    let finishFinalCheck!: (decision: CameraPermissionDecision) => void;
+    const finalCheckStarted = new Promise<void>((resolve) => { markFinalCheckStarted = resolve; });
+    const finalCheck = new Promise<CameraPermissionDecision>((resolve) => { finishFinalCheck = resolve; });
+    const track = frameTrack([new Uint8Array([0xde, 0xad])]);
+    const h = harness({
+      tracks: [track],
+      decide: (candidate) => {
+        permissionReads++;
+        if (permissionReads === 5) {
+          markFinalCheckStarted();
+          return finalCheck;
+        }
+        return permissionFor(candidate);
+      },
+    });
+    const session = await h.adapter.openSession(request);
+    const pending = session.nextFrame();
+    await finalCheckStarted;
+
+    h.revoke();
+    await expectCode(pending, "CONSENT_REVOKED");
+    finishFinalCheck(permissionFor(request));
+    await session.close();
+
+    expect(permissionReads).toBe(5);
+    expect(track.stopCalls).toBe(1);
+  });
+
   it("preserves permission denial as denial when it interrupts an in-flight frame", async () => {
     let resolvePending: ((bytes: Uint8Array) => void) | undefined;
     const track: FakeTrack = {

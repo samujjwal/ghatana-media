@@ -25,6 +25,8 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.security.MessageDigest;
 import java.time.Duration;
@@ -34,6 +36,7 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.FutureTask;
 import javax.imageio.ImageIO;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -316,6 +319,18 @@ class FfmpegMultitrackRendererTest {
         Path script = tmp.resolve("fake-ffmpeg-" + System.nanoTime() + ".sh");
         Files.writeString(script, "#!/bin/sh\ncase \"$1\" in -version|-hide_banner) exec " + ffmpeg + " \"$@\";; esac\n"
                 + renderBehaviour + "\n");
+        Files.setPosixFilePermissions(script, PosixFilePermissions.fromString("rwx------"));
+        return script;
+    }
+
+    /** A real ffprobe wrapper that pauses verification so publication races can be controlled. */
+    private Path gatedFfprobe(Path reached, Path release) throws IOException {
+        Path script = tmp.resolve("gated-ffprobe-" + System.nanoTime() + ".sh");
+        Files.writeString(script, "#!/bin/sh\n"
+                + "if [ \"$1\" = \"-version\" ]; then exec \"" + ffprobe + "\" \"$@\"; fi\n"
+                + ": > \"" + reached + "\"\n"
+                + "while [ ! -e \"" + release + "\" ]; do sleep 0.01; done\n"
+                + "exec \"" + ffprobe + "\" \"$@\"\n");
         Files.setPosixFilePermissions(script, PosixFilePermissions.fromString("rwx------"));
         return script;
     }
@@ -625,6 +640,59 @@ class FfmpegMultitrackRendererTest {
         var again = renderer().render(plan, f, dir, null);
         assertThat(again.outcome()).isEqualTo(Outcome.FAILED);
         assertThat(again.reason()).isEqualTo(Reason.OUTPUT_EXISTS);
+    }
+
+    @Test
+    void captionPublishCollisionRollsBackTheAlreadyPublishedVideo() throws Exception {
+        requireTools();
+        Fixture f = standard(false, true);
+        Plan plan = f.plan();
+        Path directory = out();
+        Path reachedVerification = tmp.resolve("ffprobe-reached");
+        Path releaseVerification = tmp.resolve("ffprobe-release");
+        Path fakeProbe = gatedFfprobe(reachedVerification, releaseVerification);
+        var config = new Config(ffmpeg, fakeProbe, root(), ENV,
+                Duration.ofSeconds(30), Duration.ofSeconds(120), true);
+        var task = new FutureTask<>(() -> new FfmpegMultitrackRenderer(config)
+                .render(plan, f, directory, null));
+        Thread renderThread = new Thread(task, "renderer-publication-race-fixture");
+        renderThread.setDaemon(true);
+        renderThread.start();
+
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(60);
+        while (!Files.exists(reachedVerification) && System.nanoTime() < deadline) Thread.sleep(10);
+        Path finalVideo = directory.resolve(plan.manifestSha256() + ".mp4");
+        Path finalCaptions = directory.resolve(plan.manifestSha256() + ".vtt");
+        try {
+            assertThat(reachedVerification).exists();
+            Files.writeString(finalCaptions, "pre-existing sidecar");
+        } finally {
+            if (!Files.exists(releaseVerification)) Files.createFile(releaseVerification);
+        }
+
+        var result = task.get(120, TimeUnit.SECONDS);
+        assertThat(result.outcome()).isEqualTo(Outcome.FAILED);
+        assertThat(result.reason()).isEqualTo(Reason.OUTPUT_EXISTS);
+        assertThat(result.outputPath()).isNull();
+        assertThat(finalVideo).doesNotExist();
+        assertThat(Files.readString(finalCaptions)).isEqualTo("pre-existing sidecar");
+        assertTempEmpty();
+    }
+
+    @Test
+    void rollbackDoesNotDeleteAReplacementAtTheFinalVideoPath() throws Exception {
+        Path target = tmp.resolve("final.mp4");
+        Path replacement = tmp.resolve("replacement.mp4");
+        Files.writeString(target, "this render published this inode");
+        Object ownedFileKey = Files.readAttributes(target, BasicFileAttributes.class,
+                java.nio.file.LinkOption.NOFOLLOW_LINKS).fileKey();
+        assumeTrue(ownedFileKey != null, "SKIPPED: filesystem does not expose file identity");
+
+        Files.writeString(replacement, "another writer replaced the path");
+        Files.move(replacement, target, StandardCopyOption.REPLACE_EXISTING);
+
+        assertThat(FfmpegMultitrackRenderer.rollbackPublishedVideo(target, true, ownedFileKey)).isFalse();
+        assertThat(Files.readString(target)).isEqualTo("another writer replaced the path");
     }
 
     @SuppressWarnings("unused")

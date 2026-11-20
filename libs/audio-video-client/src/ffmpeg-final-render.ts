@@ -312,10 +312,15 @@ export class PinnedFfmpegFinalRenderMuxer implements FinalRenderMuxAndProbePort 
     if (result.code !== 0) throw new Error("FFprobe could not inspect rendered caption packets");
     const metadata = JSON.parse(result.stdout.toString("utf8")) as ProbePacketsDocument;
     if (!Array.isArray(metadata.packets) || metadata.packets.length > 256
-      || metadata.packets.some((packet) => Number(packet.size ?? 0) <= 2)) {
+      || metadata.packets.some((packet) => typeof packet.size !== "string"
+        || !/^\d+$/u.test(packet.size) || Number(packet.size) < 2)) {
       throw new Error("rendered caption packet inventory is invalid");
     }
-    return metadata.packets.map((packet) => ({
+    // FFmpeg's MOV text subtitle stream may begin with a valid two-byte empty
+    // packet that clears the display before the first cue. It is not a caption
+    // cue; count only packets with actual payload and verify those against the
+    // requested caption inventory below.
+    return metadata.packets.filter((packet) => Number(packet.size) > 2).map((packet) => ({
       start: parseProbeTicks(packet.pts_time ?? packet.dts_time ?? "", timeBase),
       duration: parseProbeTicks(packet.duration_time ?? "", timeBase),
     }));

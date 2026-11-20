@@ -10,6 +10,8 @@ const require = createRequire(resolve(root, "../ghatana-tools/package.json"));
 const { parse } = require("yaml");
 const channels = parse(readFileSync(resolve(root, ".product-experience/pdp-0-product-truth/applications-channels.yaml"), "utf8"));
 const operations = parse(readFileSync(resolve(root, ".product-experience/pdp-1-domain-data/operations.yaml"), "utf8"));
+const productionCli = parse(readFileSync(resolve(root,
+  ".product-experience/pdp-3-product-experience/cli/production-command-registry.yaml"), "utf8"));
 
 function resolveRef(ref) {
   const [source, pointer = ""] = ref.split("#", 2);
@@ -25,8 +27,9 @@ function resolveRef(ref) {
   return value;
 }
 
-function validateRemoteCancellation(cli, operation) {
+function validateRemoteCancellation(cli, operation, registry) {
   const rule = cli.remoteCancellationRule;
+  const command = registry.commands.find(({ id }) => id === "media.cli.job.cancel");
   return rule?.id === "media.cli.remote-cancellation.v1"
     && rule.command?.id === "media.cli.job.cancel"
     && rule.command.invocation === "explicit-user-command"
@@ -35,7 +38,13 @@ function validateRemoteCancellation(cli, operation) {
     && rule.command.resultSemantics?.accepted?.includes("job remains nonterminal")
     && rule.command.resultSemantics?.unknown?.includes("OUTCOME_UNKNOWN")
     && rule.command.resultSemantics?.providerTermination?.includes("never implied")
-    && rule.scopeStatus.includes("no CLI executable")
+    && rule.scopeStatus.includes("host-configured source-bound CLI command now exists")
+    && rule.scopeStatus.includes("production-host identity and qualification")
+    && rule.scopeStatus.includes("provider-stop execution")
+    && command?.canonicalCommand === "ghatanamedia-api job cancel"
+    && command.runtimeAdmission.includes("NOT_ADMITTED")
+    && command.runtimeAdmission.includes("provider-stop-execution")
+    && command.runtimeAdmission.includes("production-host-qualification-open")
     && rule.executionAdmission === "NOT_ADMITTED"
     && cli.interruptHandling?.ctrlC?.serverCancellation === false
     && cli.interruptHandling?.ctrlC?.jobStateChange === false
@@ -52,7 +61,7 @@ test("remote job cancellation is a separate exact command and never follows Ctrl
   assert.equal(rule.command.resultSemantics.unknown.includes("OUTCOME_UNKNOWN"), true);
   assert.equal(cli.interruptHandling.ctrlC.serverCancellation, false);
   assert.equal(cli.interruptHandling.ctrlC.jobStateChange, false);
-  assert.equal(validateRemoteCancellation(cli, operation), true);
+  assert.equal(validateRemoteCancellation(cli, operation, productionCli), true);
 
   for (const mutate of [
     (candidate) => { candidate.remoteCancellationRule.command.invocation = "automatic-on-ctrl-c"; },
@@ -64,7 +73,7 @@ test("remote job cancellation is a separate exact command and never follows Ctrl
   ]) {
     const changed = structuredClone(cli);
     mutate(changed);
-    assert.equal(validateRemoteCancellation(changed, operation), false, "unsafe cancellation implication or substituted operation is rejected");
+    assert.equal(validateRemoteCancellation(changed, operation, productionCli), false, "unsafe cancellation implication or substituted operation is rejected");
   }
 });
 

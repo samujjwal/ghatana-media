@@ -6,6 +6,7 @@ import com.ghatana.media.runtime.MediaProjectTimelineContracts.Created;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.IdempotencyConflictException;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectAccessDeniedException;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectNotFoundException;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.Revision;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.RevisionConflictException;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Scene;
 import com.ghatana.media.production.timeline.ProjectTimelineEngine;
@@ -134,6 +135,143 @@ class PostgresqlProjectTimelineStoreTest {
                     assertThat(replay.createdNow()).isFalse();
                     assertThat(replay.project()).isEqualTo(created.project());
                     assertThat(replay.initialRevision()).isEqualTo(created.initialRevision());
+                }
+            } finally { heldState.release(); }
+        }
+    }
+
+    @Test
+    void timelineCommandReceiptReplaysAfterRestartAndRejectsChangedPayload() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            Actor actor = new Actor("tenant-command-replay", "principal-command-replay");
+            AtomicInteger ids = new AtomicInteger();
+            ProjectTimelineEngine engine = new ProjectTimelineEngine(fixture.store,
+                    () -> "command-replay-id-" + ids.incrementAndGet());
+            Created created = engine.createProject(actor, "workspace-command-replay", "Cut", "project-command-replay");
+            Revision timeline = engine.createTimeline(actor, created.project().projectId(),
+                    created.initialRevision().revisionId(), "timeline-replay", "timeline-create-replay");
+            List<ProjectTimelineEngine.Edit> edit = List.of(new AddScene(new Scene("scene-replay", 0)));
+            Revision edited = engine.edit(actor, created.project().projectId(), "timeline-replay",
+                    timeline.revisionId(), edit, "timeline-edit-replay");
+
+            MediaAwsPostgresqlRuntimeState heldState = MediaAwsPostgresqlRuntimeState.acquire();
+            try {
+                fixture.store.close();
+                try (PostgresqlProjectTimelineStore restarted = new PostgresqlProjectTimelineStore()) {
+                    ProjectTimelineEngine restartedEngine = new ProjectTimelineEngine(restarted,
+                            () -> "must-not-be-used-for-replay");
+                    assertThat(restartedEngine.createTimeline(actor, created.project().projectId(),
+                            created.initialRevision().revisionId(), "timeline-replay", "timeline-create-replay"))
+                            .isEqualTo(timeline);
+                    assertThat(restartedEngine.edit(actor, created.project().projectId(), "timeline-replay",
+                            timeline.revisionId(), edit, "timeline-edit-replay")).isEqualTo(edited);
+                    assertThatThrownBy(() -> restartedEngine.edit(actor, created.project().projectId(), "timeline-replay",
+                            timeline.revisionId(), List.of(new AddScene(new Scene("different-scene", 0))), "timeline-edit-replay"))
+                            .isInstanceOf(MediaProjectTimelineContracts.IdempotencyConflictException.class);
+                    assertThat(restarted.project(actor, created.project().projectId()).headRevisionId())
+                            .isEqualTo(edited.revisionId());
+                }
+            } finally { heldState.release(); }
+        }
+    }
+
+    @Test
+    void concurrentIdenticalTimelineCommandReturnsOneCommittedReceipt() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            Actor actor = new Actor("tenant-command-race", "principal-command-race");
+            AtomicInteger ids = new AtomicInteger();
+            ProjectTimelineEngine engine = new ProjectTimelineEngine(fixture.store,
+                    () -> "command-race-id-" + ids.incrementAndGet());
+            Created created = engine.createProject(actor, "workspace-command-race", "Cut", "project-command-race");
+            Revision timeline = engine.createTimeline(actor, created.project().projectId(),
+                    created.initialRevision().revisionId(), "timeline-race", "timeline-create-race");
+            List<ProjectTimelineEngine.Edit> edits = List.of(new AddScene(new Scene("scene-race", 0)));
+            var ready = new CountDownLatch(2);
+            var start = new CountDownLatch(1);
+
+            try (var pool = Executors.newFixedThreadPool(2)) {
+                var first = pool.submit(() -> raceEdit(engine, created.project().projectId(),
+                        timeline.revisionId(), edits, ready, start));
+                var second = pool.submit(() -> raceEdit(engine, created.project().projectId(),
+                        timeline.revisionId(), edits, ready, start));
+                assertThat(ready.await(10, TimeUnit.SECONDS)).isTrue();
+                start.countDown();
+
+                Revision firstReceipt = first.get(20, TimeUnit.SECONDS);
+                Revision secondReceipt = second.get(20, TimeUnit.SECONDS);
+                assertThat(secondReceipt).isEqualTo(firstReceipt);
+                assertThat(fixture.store.project(actor, created.project().projectId()).headRevisionId())
+                        .isEqualTo(firstReceipt.revisionId());
+                assertThat(fixture.store.revision(actor, created.project().projectId(), firstReceipt.revisionId()))
+                        .isEqualTo(firstReceipt);
+            }
+
+            try (var connection = DriverManager.getConnection(scopedJdbcUrl(fixture.schema()),
+                    POSTGRES.getUsername(), POSTGRES.getPassword());
+                 var query = connection.prepareStatement("""
+                         SELECT count(*) FROM media_timeline_revisions
+                         WHERE tenant_id=? AND project_id=? AND parent_revision_id=?
+                         """)) {
+                query.setString(1, actor.tenantId());
+                query.setString(2, created.project().projectId());
+                query.setString(3, timeline.revisionId());
+                try (var rows = query.executeQuery()) {
+                    assertThat(rows.next()).isTrue();
+                    assertThat(rows.getInt(1)).isEqualTo(1);
+                }
+            }
+        }
+    }
+
+    @Test
+    void concurrentDistinctTimelineEditsHaveOneWinnerAndRestartReadsThatWinner() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            Actor actor = new Actor("tenant-distinct-edit-race", "principal-distinct-edit-race");
+            AtomicInteger ids = new AtomicInteger();
+            ProjectTimelineEngine engine = new ProjectTimelineEngine(fixture.store,
+                    () -> "distinct-edit-race-id-" + ids.incrementAndGet());
+            Created created = engine.createProject(actor, "workspace-distinct-edit-race", "Cut",
+                    "project-distinct-edit-race");
+            Revision timeline = engine.createTimeline(actor, created.project().projectId(),
+                    created.initialRevision().revisionId(), "timeline-distinct-race", "timeline-create-distinct-race");
+            CountDownLatch ready = new CountDownLatch(2);
+            CountDownLatch start = new CountDownLatch(1);
+
+            EditAttempt first;
+            EditAttempt second;
+            try (var pool = Executors.newFixedThreadPool(2)) {
+                var a = pool.submit(() -> raceDistinctEdit(engine, actor, created.project().projectId(),
+                        timeline.revisionId(), "scene-race-a", "timeline-edit-race-a", ready, start));
+                var b = pool.submit(() -> raceDistinctEdit(engine, actor, created.project().projectId(),
+                        timeline.revisionId(), "scene-race-b", "timeline-edit-race-b", ready, start));
+                assertThat(ready.await(10, TimeUnit.SECONDS)).isTrue();
+                start.countDown();
+                first = a.get(20, TimeUnit.SECONDS);
+                second = b.get(20, TimeUnit.SECONDS);
+            }
+
+            List<EditAttempt> outcomes = List.of(first, second);
+            assertThat(outcomes.stream().filter(attempt -> !attempt.conflict()).toList()).hasSize(1);
+            assertThat(outcomes.stream().filter(EditAttempt::conflict).toList()).hasSize(1);
+            Revision winner = first.conflict() ? second.revision() : first.revision();
+            assertThat(winner).isNotNull();
+            assertThat(winner.parentRevisionId()).isEqualTo(timeline.revisionId());
+            assertThat(winner.timelines().getFirst().graph().scenes()).hasSize(1);
+            assertThat(winner.timelines().getFirst().graph().scenes().getFirst().sceneId())
+                    .isIn("scene-race-a", "scene-race-b");
+            assertThat(fixture.store.project(actor, created.project().projectId()).headRevisionId())
+                    .isEqualTo(winner.revisionId());
+
+            MediaAwsPostgresqlRuntimeState heldState = MediaAwsPostgresqlRuntimeState.acquire();
+            try {
+                fixture.store.close();
+                try (PostgresqlProjectTimelineStore restarted = new PostgresqlProjectTimelineStore()) {
+                    ProjectTimelineEngine restartedEngine = new ProjectTimelineEngine(restarted,
+                            () -> "must-not-be-used-for-readback");
+                    assertThat(restartedEngine.currentRevision(actor, created.project().projectId()))
+                            .isEqualTo(winner);
+                    assertThat(restarted.revision(actor, created.project().projectId(), timeline.revisionId()))
+                            .isEqualTo(timeline);
                 }
             } finally { heldState.release(); }
         }
@@ -358,6 +496,14 @@ class PostgresqlProjectTimelineStoreTest {
                             .isEqualTo(child.revisionId());
                     assertThat(restartedStore.revision(fixtureActor, projectId, child.revisionId()))
                             .isEqualTo(child);
+                    assertThat(restartedStore.commit(fixtureActor, projectId, timelineCreated.revisionId(),
+                            child.revisionId(), child.timelines())).isEqualTo(child);
+                    assertThat(restartedEngine.project(fixtureActor, projectId).headRevisionId())
+                            .isEqualTo(child.revisionId());
+                    assertThatThrownBy(() -> restartedStore.commit(fixtureActor, projectId,
+                            timelineCreated.revisionId(), child.revisionId(), List.of()))
+                            .isInstanceOf(IllegalStateException.class)
+                            .hasMessage("revision identity was replayed with a different payload");
                     assertThat(restartedStore.revision(fixtureActor, projectId, initialRevisionId).timelines()).isEmpty();
 
                     var restartReplay = restartedEngine.createProject(fixtureActor, "workspace-j01-fixture",
@@ -419,6 +565,31 @@ class PostgresqlProjectTimelineStoreTest {
         try { store.commit(actor, "project-1", "revision-1", revision, List.of()); return true; }
         catch (RevisionConflictException expected) { return false; }
     }
+
+    private static Revision raceEdit(ProjectTimelineEngine engine, String projectId, String expectedHead,
+                                     List<ProjectTimelineEngine.Edit> edits, CountDownLatch ready,
+                                     CountDownLatch start) throws Exception {
+        ready.countDown();
+        if (!start.await(10, TimeUnit.SECONDS)) throw new IllegalStateException("start latch timed out");
+        return engine.edit(new Actor("tenant-command-race", "principal-command-race"), projectId,
+                "timeline-race", expectedHead, edits, "timeline-edit-race");
+    }
+
+    private static EditAttempt raceDistinctEdit(ProjectTimelineEngine engine, Actor actor, String projectId,
+                                                String expectedHead, String sceneId, String requestId,
+                                                CountDownLatch ready, CountDownLatch start) throws Exception {
+        ready.countDown();
+        if (!start.await(10, TimeUnit.SECONDS)) throw new IllegalStateException("start latch timed out");
+        try {
+            Revision revision = engine.edit(actor, projectId, "timeline-distinct-race", expectedHead,
+                    List.of(new AddScene(new Scene(sceneId, 0))), requestId);
+            return new EditAttempt(revision, false);
+        } catch (RevisionConflictException expected) {
+            return new EditAttempt(null, true);
+        }
+    }
+
+    private record EditAttempt(Revision revision, boolean conflict) { }
 
     private static CreateAttempt raceCreate(PostgresqlProjectTimelineStore store, Actor actor, String title,
                                             String projectId, String revisionId, String requestId,

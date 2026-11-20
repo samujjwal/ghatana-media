@@ -193,6 +193,59 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void synthesisAcceptsMaximumContractLanguageTagAndVoiceIdLengths() {
+        String language64 = "en-x-" + "a-".repeat(29) + "a";
+        String voiceId256 = "v".repeat(256);
+        assertThat(language64).hasSize(64);
+        assertThat(SynthesisControlPolicy.parseLanguageTag(language64).getLanguage()).isEqualTo("en");
+        assertThat(voiceId256).hasSize(256);
+
+        TtsGrpcService admitted = admittedService(() -> true, () -> false);
+        when(engine.synthesize(anyString(), any())).thenReturn(new AudioData(
+                audiblePcmFixture(), 22_050, 1, 16, Duration.ofMillis(1), AudioFormat.PCM));
+        CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
+        admitted.synthesize(SynthesizeRequest.newBuilder().setText("hello").setVoiceId(voiceId256)
+                .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
+                        .setLanguage(language64).build()).build(), observer);
+
+        assertThat(observer.error).isNull();
+        assertThat(observer.value).isNotNull();
+        verify(engine).synthesize(eq("hello"), any());
+    }
+
+    @Test
+    void overLimitLanguageAndVoiceAreRejectedBeforeProfileOrProviderEffects() {
+        AtomicBoolean profileChecked = new AtomicBoolean();
+        TtsGrpcService strictProfileService = new TtsGrpcService(
+                library, registry, () -> true, () -> false, null, TEST_ADMITTED_AUTHORIZATION,
+                (voiceId, language) -> {
+                    profileChecked.set(true);
+                    return true;
+                });
+        String language65 = "en-x-" + "a-".repeat(29) + "aa";
+        assertThat(language65).hasSize(65);
+
+        CapturingObserver<SynthesizeResponse> languageObserver = new CapturingObserver<>();
+        strictProfileService.synthesize(SynthesizeRequest.newBuilder().setText("hello")
+                .setOptions(com.ghatana.tts.core.grpc.proto.SynthesisOptions.newBuilder()
+                        .setLanguage(language65).build()).build(), languageObserver);
+
+        assertStatus(languageObserver, Status.Code.INVALID_ARGUMENT);
+        assertThat(profileChecked).isFalse();
+        verify(library, never()).getTtsEngine();
+        verify(engine, never()).synthesize(anyString(), any());
+
+        CapturingObserver<SynthesizeResponse> voiceObserver = new CapturingObserver<>();
+        strictProfileService.synthesize(SynthesizeRequest.newBuilder().setText("hello")
+                .setVoiceId("v".repeat(257)).build(), voiceObserver);
+
+        assertStatus(voiceObserver, Status.Code.INVALID_ARGUMENT);
+        assertThat(profileChecked).isFalse();
+        verify(library, never()).getTtsEngine();
+        verify(engine, never()).synthesize(anyString(), any());
+    }
+
+    @Test
     void productionCompositionCannotReturnRepeatingByteSyntheticFallback() {
         CapturingObserver<SynthesizeResponse> observer = new CapturingObserver<>();
 
@@ -2205,6 +2258,32 @@ class TtsGrpcServiceTest {
         verify(library).getTtsEngine();
         verify(engine, never()).loadVoice(anyString());
         verify(engine, never()).synthesize(anyString(), any());
+    }
+
+    @Test
+    void getVoicesUsesStrictCanonicalLanguageFilter() {
+        Locale requestedLanguage = Locale.forLanguageTag("zh-Hant-TW");
+        when(engine.getAvailableVoices(requestedLanguage)).thenReturn(List.of());
+        CapturingObserver<GetVoicesResponse> observer = new CapturingObserver<>();
+
+        service.getVoices(GetVoicesRequest.newBuilder().setLanguage("zh-Hant-TW").build(), observer);
+
+        assertThat(observer.error).isNull();
+        assertThat(observer.completed).isTrue();
+        assertThat(observer.value.getVoicesList()).isEmpty();
+        verify(library).getTtsEngine();
+        verify(engine).getAvailableVoices(requestedLanguage);
+    }
+
+    @Test
+    void getVoicesRejectsMalformedLanguageFilterBeforeProviderLookup() {
+        CapturingObserver<GetVoicesResponse> observer = new CapturingObserver<>();
+
+        service.getVoices(GetVoicesRequest.newBuilder().setLanguage("en_US").build(), observer);
+
+        assertStatus(observer, Status.Code.INVALID_ARGUMENT);
+        verify(library, never()).getTtsEngine();
+        verify(engine, never()).getAvailableVoices(any(Locale.class));
     }
 
     @Test

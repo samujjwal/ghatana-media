@@ -9,12 +9,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /** Applies deterministic graph edits and commits project revision changes through the store's CAS boundary. */
 public final class ProjectTimelineEngine {
     private static final int MAX_EDIT_OPERATIONS = 10_000;
+    private static final String PROJECT_UPDATE_OPERATION = "media.operation.capability.media-project-update";
+    private static final String PROJECT_RESTORE_OPERATION = "media.operation.capability.media-project-restore";
     private static final String REVISION_SCOPE_MISMATCH =
             "project timeline store returned a revision outside the requested identity scope";
     private static final String PROJECT_SCOPE_MISMATCH =
@@ -67,8 +73,20 @@ public final class ProjectTimelineEngine {
     }
 
     public Revision createTimeline(Actor actor, String projectId, String expectedHeadRevisionId, String timelineId) {
+        return createTimeline(actor, projectId, expectedHeadRevisionId, timelineId, java.util.UUID.randomUUID().toString());
+    }
+
+    public Revision createTimeline(Actor actor, String projectId, String expectedHeadRevisionId, String timelineId,
+                                   String requestId) {
+        Objects.requireNonNull(actor, "actor");
+        requiredOpaqueId(projectId, "projectId");
         requireExpectedHead(expectedHeadRevisionId);
         requiredOpaqueId(timelineId, "timelineId");
+        requireRequestId(requestId);
+        String fingerprint = requestFingerprint(PROJECT_UPDATE_OPERATION, projectId, expectedHeadRevisionId,
+                "create-timeline", timelineId);
+        Revision replay = store.replayCommand(actor, projectId, PROJECT_UPDATE_OPERATION, requestId, fingerprint);
+        if (replay != null) return requireSuccessor(actor, projectId, expectedHeadRevisionId, replay.revisionId(), replay);
         Project project = project(actor, projectId);
         Revision head = revision(actor, projectId, project.headRevisionId());
         if (!head.revisionId().equals(expectedHeadRevisionId)) {
@@ -80,14 +98,30 @@ public final class ProjectTimelineEngine {
         List<TimelineSnapshot> next = new ArrayList<>(head.timelines());
         next.add(new TimelineSnapshot(nextVersionId(), Graph.empty(timelineId)));
         String revisionId = nextId();
-        return requireSuccessor(actor, projectId, expectedHeadRevisionId, revisionId,
-                store.commit(actor, projectId, expectedHeadRevisionId, revisionId, next));
+        return requireCommittedSuccessor(actor, projectId, expectedHeadRevisionId,
+                store.commitCommand(actor, projectId, expectedHeadRevisionId, PROJECT_UPDATE_OPERATION,
+                        requestId, fingerprint, revisionId, next));
     }
 
     public Revision edit(Actor actor, String projectId, String timelineId, String expectedHeadRevisionId,
                          List<Edit> edits) {
+        return edit(actor, projectId, timelineId, expectedHeadRevisionId, edits, java.util.UUID.randomUUID().toString());
+    }
+
+    public Revision edit(Actor actor, String projectId, String timelineId, String expectedHeadRevisionId,
+                         List<Edit> edits, String requestId) {
+        Objects.requireNonNull(actor, "actor");
+        requiredOpaqueId(projectId, "projectId");
         requireExpectedHead(expectedHeadRevisionId);
         requiredOpaqueId(timelineId, "timelineId");
+        requireRequestId(requestId);
+        List<Edit> commandEdits = List.copyOf(Objects.requireNonNull(edits, "edits"));
+        if (commandEdits.size() > MAX_EDIT_OPERATIONS) {
+            throw new IllegalArgumentException("timeline edit exceeds the 10000 operation limit");
+        }
+        String fingerprint = editFingerprint(projectId, timelineId, expectedHeadRevisionId, commandEdits);
+        Revision replay = store.replayCommand(actor, projectId, PROJECT_UPDATE_OPERATION, requestId, fingerprint);
+        if (replay != null) return requireSuccessor(actor, projectId, expectedHeadRevisionId, replay.revisionId(), replay);
         Project project = project(actor, projectId);
         Revision head = revision(actor, projectId, project.headRevisionId());
         if (!head.revisionId().equals(expectedHeadRevisionId)) {
@@ -96,17 +130,30 @@ public final class ProjectTimelineEngine {
         List<TimelineSnapshot> next = new ArrayList<>(head.timelines());
         int selected = indexOfTimeline(next, timelineId);
         TimelineSnapshot current = next.get(selected);
-        Graph graph = apply(current.graph(), edits);
+        Graph graph = apply(current.graph(), commandEdits);
         next.set(selected, new TimelineSnapshot(nextVersionId(), graph));
         String revisionId = nextId();
-        return requireSuccessor(actor, projectId, expectedHeadRevisionId, revisionId,
-                store.commit(actor, projectId, expectedHeadRevisionId, revisionId, next));
+        return requireCommittedSuccessor(actor, projectId, expectedHeadRevisionId,
+                store.commitCommand(actor, projectId, expectedHeadRevisionId, PROJECT_UPDATE_OPERATION,
+                        requestId, fingerprint, revisionId, next));
     }
 
     /** Restore copies the target project's complete timeline set into a new successor revision. */
     public Revision restore(Actor actor, String projectId, String expectedHeadRevisionId, String targetRevisionId) {
+        return restore(actor, projectId, expectedHeadRevisionId, targetRevisionId, java.util.UUID.randomUUID().toString());
+    }
+
+    public Revision restore(Actor actor, String projectId, String expectedHeadRevisionId, String targetRevisionId,
+                            String requestId) {
+        Objects.requireNonNull(actor, "actor");
+        requiredOpaqueId(projectId, "projectId");
         requireExpectedHead(expectedHeadRevisionId);
         requiredOpaqueId(targetRevisionId, "targetRevisionId");
+        requireRequestId(requestId);
+        String fingerprint = requestFingerprint(PROJECT_RESTORE_OPERATION, projectId, expectedHeadRevisionId,
+                targetRevisionId);
+        Revision replay = store.replayCommand(actor, projectId, PROJECT_RESTORE_OPERATION, requestId, fingerprint);
+        if (replay != null) return requireSuccessor(actor, projectId, expectedHeadRevisionId, replay.revisionId(), replay);
         Project project = project(actor, projectId);
         Revision head = revision(actor, projectId, project.headRevisionId());
         if (!head.revisionId().equals(expectedHeadRevisionId)) {
@@ -121,8 +168,75 @@ public final class ProjectTimelineEngine {
                     : new TimelineSnapshot(nextVersionId(), snapshot.graph()));
         }
         String revisionId = nextId();
-        return requireSuccessor(actor, projectId, expectedHeadRevisionId, revisionId,
-                store.commit(actor, projectId, expectedHeadRevisionId, revisionId, restored));
+        return requireCommittedSuccessor(actor, projectId, expectedHeadRevisionId,
+                store.commitCommand(actor, projectId, expectedHeadRevisionId, PROJECT_RESTORE_OPERATION,
+                        requestId, fingerprint, revisionId, restored));
+    }
+
+    private static String editFingerprint(String projectId, String timelineId, String expectedHeadRevisionId,
+                                          List<Edit> edits) {
+        StringBuilder canonical = new StringBuilder();
+        appendField(canonical, PROJECT_UPDATE_OPERATION);
+        appendField(canonical, projectId);
+        appendField(canonical, expectedHeadRevisionId);
+        appendField(canonical, "edit-timeline");
+        appendField(canonical, timelineId);
+        appendField(canonical, Integer.toString(edits.size()));
+        for (Edit edit : edits) {
+            if (edit instanceof AddScene value) {
+                appendField(canonical, "add-scene"); appendField(canonical, value.scene().sceneId());
+                appendField(canonical, Integer.toString(value.scene().order()));
+            } else if (edit instanceof RemoveScene value) {
+                appendField(canonical, "remove-scene"); appendField(canonical, value.sceneId());
+            } else if (edit instanceof AddTrack value) {
+                appendField(canonical, "add-track"); appendField(canonical, value.track().trackId());
+                appendField(canonical, value.track().sceneId()); appendField(canonical, value.track().kind().name());
+                appendField(canonical, Integer.toString(value.track().order()));
+            } else if (edit instanceof RemoveTrack value) {
+                appendField(canonical, "remove-track"); appendField(canonical, value.trackId());
+            } else if (edit instanceof PutClip value) {
+                appendField(canonical, "put-clip"); appendClip(canonical, value.clip());
+            } else if (edit instanceof RemoveClip value) {
+                appendField(canonical, "remove-clip"); appendField(canonical, value.clipId());
+            } else {
+                throw new IllegalArgumentException("unsupported timeline edit operation");
+            }
+        }
+        return digest(canonical);
+    }
+
+    private static String requestFingerprint(String operation, String... fields) {
+        StringBuilder canonical = new StringBuilder();
+        appendField(canonical, operation);
+        for (String field : fields) appendField(canonical, field);
+        return digest(canonical);
+    }
+
+    private static void appendClip(StringBuilder canonical, Clip clip) {
+        appendField(canonical, clip.clipId()); appendField(canonical, clip.sceneId()); appendField(canonical, clip.trackId());
+        appendField(canonical, clip.source().artifactId()); appendField(canonical, clip.source().artifactVersionId());
+        appendTime(canonical, clip.sourceIn()); appendTime(canonical, clip.sourceOut());
+        appendTime(canonical, clip.storyStart()); appendTime(canonical, clip.storyDuration());
+    }
+
+    private static void appendTime(StringBuilder canonical, RationalTime time) {
+        appendField(canonical, Long.toString(time.ticks()));
+        appendField(canonical, Long.toString(time.rateNumerator()));
+        appendField(canonical, Long.toString(time.rateDenominator()));
+        appendField(canonical, time.clock().name());
+    }
+
+    private static void appendField(StringBuilder canonical, String field) {
+        canonical.append(field.length()).append(':').append(field);
+    }
+
+    private static String digest(StringBuilder canonical) {
+        try {
+            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(canonical.toString().getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is unavailable", impossible);
+        }
     }
 
     /** Reads two actor-authorized immutable revisions and returns a stable graph delta between them. */
@@ -163,6 +277,12 @@ public final class ProjectTimelineEngine {
             throw new IllegalStateException(REVISION_SCOPE_MISMATCH);
         }
         return scoped;
+    }
+
+    private static Revision requireCommittedSuccessor(Actor actor, String projectId,
+                                                      String expectedParentRevisionId, Revision revision) {
+        if (revision == null) throw new IllegalStateException(REVISION_SCOPE_MISMATCH);
+        return requireSuccessor(actor, projectId, expectedParentRevisionId, revision.revisionId(), revision);
     }
 
     /** Check live authority for every exact source before an external effect such as rendering. */

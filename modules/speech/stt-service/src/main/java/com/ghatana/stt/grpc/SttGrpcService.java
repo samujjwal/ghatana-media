@@ -30,6 +30,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.IllformedLocaleException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -252,6 +253,8 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase
             // Bound the protobuf payload before hashing it. Hash the exact inbound
             // representation; do not infer equivalence to decoded or transcoded audio.
             requireHashableInputSize(request.getAudioData().size());
+            // Reject invalid request framing before the bounded worker queue is touched.
+            SttAudioInputDecoder.requireSampleRate(request.getSampleRate());
             sourceSha256 = sha256(request.getAudioData());
         } catch (SttAudioInputDecoder.InputException rejectedInput) {
             responseObserver.onError(inputSizeStatus(rejectedInput).asRuntimeException());
@@ -267,6 +270,15 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase
         Span span = tracingService.startTranscriptionSpan(null, null, request.getLanguage());
         TracingObserver<TranscribeResponse> tracedObserver = new TracingObserver<>(
                 responseObserver, tracingService, span);
+        // The shared audio-video contract bounds language tags to 64 characters, and
+        // SttLanguageSupport supplies the canonical IETF syntax/base-language rules.
+        // Start the span only after trusted identity, source binding and authorization,
+        // then record a redacted error span before refusing invalid language hints.
+        if (!isValidLanguageHint(request.getLanguage())) {
+            tracedObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                    .withDescription("Unsupported language").asRuntimeException());
+            return;
+        }
         java.util.concurrent.atomic.AtomicBoolean observerCancelled = new java.util.concurrent.atomic.AtomicBoolean();
         java.util.concurrent.atomic.AtomicReference<ContextAwareBoundedExecutor.Submission<Void>> pending =
                 new java.util.concurrent.atomic.AtomicReference<>();
@@ -300,21 +312,30 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase
                         // Materialize provider input only after exact source-byte authorization.
                         byte[] audioBytes = request.getAudioData().toByteArray();
                         int sampleRate = request.getSampleRate();
-                        SttAudioInputDecoder.requireSampleRate(sampleRate);
-
-                        String language = request.getLanguage();
-                        if (language != null && !language.isBlank()
-                                && !SttLanguageSupport.isSupported(language)) {
-                            tracedObserver.onError(io.grpc.Status.INVALID_ARGUMENT
-                                    .withDescription("Unsupported language").asRuntimeException());
-                            return;
-                        }
 
                         AudioData audio = decodeAudio(audioBytes, sampleRate);
                         TranscriptionResult result;
                         if (!authorizeCapturedRequest(tracedObserver, verifiedIdentity,
                                 SttRequestAuthorization.Operation.TRANSCRIBE,
                                 request.getArtifactId(), sourceSha256)) return;
+                        if (request.hasOptions()) {
+                            float confidenceThreshold = request.getOptions().getConfidenceThreshold();
+                            if (!Float.isFinite(confidenceThreshold)) {
+                                tracedObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                                        .withDescription("Invalid transcription request")
+                                        .asRuntimeException());
+                                return;
+                            }
+                            if (confidenceThreshold != 0.0f) {
+                                // The wire field is an input policy threshold, but the active
+                                // STT engine has no threshold parameter and its output confidence
+                                // is explicitly uncalibrated. Do not silently discard this request.
+                                tracedObserver.onError(io.grpc.Status.FAILED_PRECONDITION
+                                        .withDescription("STT_CONFIDENCE_THRESHOLD_NOT_ADMITTED: active engine cannot apply this policy")
+                                        .asRuntimeException());
+                                return;
+                            }
+                        }
                         try (SttEngine stt = library.getSttEngine()) {
                             try (AudioVideoGrpcInstrumentation.BoundaryMeasurement measurement =
                                          boundaryInstrumentation.beginBoundaryMeasurement(
@@ -328,6 +349,22 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase
                                 }
                             }
                         }
+
+                        // Processing may outlive a consent or source-rights grant. Re-read the
+                        // same server-owned source facts after inference and before disclosing
+                        // the transcript; the initial admission cannot authorize later disclosure.
+                        if (observerCancelled.get() || isCancelled(responseObserver)) {
+                            try (AudioVideoGrpcInstrumentation.BoundaryMeasurement responseBoundary =
+                                         boundaryInstrumentation.beginBoundaryMeasurement(
+                                                 MediaWorkflowMetrics.Modality.STT,
+                                                 MediaWorkflowMetrics.Boundary.RESPONSE)) {
+                                responseBoundary.complete(MediaWorkflowMetrics.Outcome.UNKNOWN);
+                            }
+                            return;
+                        }
+                        if (!authorizeCapturedRequest(tracedObserver, verifiedIdentity,
+                                SttRequestAuthorization.Operation.TRANSCRIBE,
+                                request.getArtifactId(), sourceSha256)) return;
 
                         try (AudioVideoGrpcInstrumentation.BoundaryMeasurement responseBoundary =
                                      boundaryInstrumentation.beginBoundaryMeasurement(
@@ -621,6 +658,27 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase
         return options.build();
     }
 
+    private static boolean isValidLanguageHint(String language) {
+        return language == null || language.isBlank()
+                || (language.length() <= 64 && SttLanguageSupport.isSupported(language));
+    }
+
+    private static Locale parseLanguageFilter(String languageFilter) {
+        if (languageFilter == null || languageFilter.isBlank()) return null;
+        if (languageFilter.length() < 2 || languageFilter.length() > 64) {
+            throw new IllegalArgumentException("language_filter must be 2 to 64 characters");
+        }
+        try {
+            Locale locale = new Locale.Builder().setLanguageTag(languageFilter).build();
+            if (locale.getLanguage().isBlank()) {
+                throw new IllegalArgumentException("language_filter must be a BCP-47 language tag");
+            }
+            return locale;
+        } catch (IllformedLocaleException invalidTag) {
+            throw new IllegalArgumentException("language_filter must be a well-formed BCP-47 tag", invalidTag);
+        }
+    }
+
     @Override
     public void getStatus(StatusRequest request, StreamObserver<StatusResponse> responseObserver) {
         if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
@@ -764,6 +822,14 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase
     public void listModels(ListModelsRequest request, StreamObserver<ListModelsResponse> responseObserver) {
         if (!requireAuthenticatedTenantPrincipalWithMetrics(responseObserver)) return;
         if (!authorizeRequest(responseObserver, SttRequestAuthorization.Operation.LIST_MODELS, null)) return;
+        final Locale filterLocale;
+        try {
+            filterLocale = parseLanguageFilter(request.getLanguageFilter());
+        } catch (IllegalArgumentException invalidFilter) {
+            responseObserver.onError(io.grpc.Status.INVALID_ARGUMENT
+                    .withDescription("Invalid language filter").asRuntimeException());
+            return;
+        }
         try (SttEngine stt = library.getSttEngine()) {
             List<com.ghatana.media.stt.api.ModelInfo> models = stt.getAvailableModels();
             com.ghatana.media.stt.api.ModelInfo activeModel = stt.getActiveModel();
@@ -773,8 +839,7 @@ public class SttGrpcService extends STTServiceGrpc.STTServiceImplBase
 
             for (com.ghatana.media.stt.api.ModelInfo m : models) {
                 // Apply language filter if provided
-                if (!request.getLanguageFilter().isBlank()) {
-                    Locale filterLocale = Locale.forLanguageTag(request.getLanguageFilter());
+                if (filterLocale != null) {
                     boolean matchesLanguage = false;
                     for (Locale lang : m.supportedLanguages()) {
                         if (lang.getLanguage().equals(filterLocale.getLanguage())) {

@@ -10,6 +10,12 @@ const inventory = JSON.parse(fs.readFileSync(path.join(root, INVENTORY_PATH), 'u
 
 test('OCR-C01 inventory accounts for every current Media OCR signal', () => {
   assert.deepEqual(checkMediaOcrConsumerInventory({ root, inventory }), []);
+  const devEvidencePath = 'config/provider-qualification/evidence/document-intelligence.dev-tesseract.json';
+  const devEvidence = JSON.parse(fs.readFileSync(path.join(root, devEvidencePath), 'utf8'));
+  assert.equal(devEvidence.devOnly, true);
+  assert.equal(devEvidence.verification.status, 'ABSENT');
+  assert.equal(scanMediaOcrSignals(root).includes(devEvidencePath), false,
+    'unverified provider evidence is not an executable Media OCR call site');
   const migrated = inventory.mediaEntries.filter(entry => entry.disposition === 'DI_MIGRATED');
   assert.deepEqual(migrated.map(entry => entry.id), ['MEDIA-TS-SCENE-TEXT', 'MEDIA-JAVA-SCENE-TEXT-DI']);
   assert(inventory.mediaEntries.every(entry => entry.disposition !== 'NOT_OCR'), 'Media OCR signals cannot be waved away as NOT_OCR');

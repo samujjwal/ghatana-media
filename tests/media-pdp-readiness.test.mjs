@@ -2,14 +2,25 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
-import { buildReadiness, buildPdp0DevStatus, writePdp0DevStatus, validateTaskPopulation, taskIds, verificationCutChanged, resolveCriterionReviewSourceCut, selectApprovedMediaDecisions, assessCurrentTaskDependencies, pdp0PhaseScopedSourcePins, createSourceOwnerPhaseResolver, sourceOwnerPhase } from '../scripts/report-media-pdp-readiness.mjs';
+import { buildReadiness, buildPdp0DevStatus, writePdp0DevStatus, validateTaskPopulation, taskIds, verificationCutChanged, resolveCriterionReviewSourceCut, selectApprovedMediaDecisions, assessCurrentTaskDependencies, pdp0PhaseScopedSourcePins, createSourceOwnerPhaseResolver, sourceOwnerPhase, projectPdp0DefinitionExtensionApplicability } from '../scripts/report-media-pdp-readiness.mjs';
 import path from 'node:path';
 import os from 'node:os';
 import {createRequire} from 'node:module';
 import { buildMediaProductDefinitionResidualReport } from '../scripts/lib/media-product-definition-residuals.mjs';
 import { fingerprintPxdDecisionSection } from '../scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs';
+import { readSources, validatePdp0SurfaceDenominator } from '../scripts/check-media-pdp0-surface-denominator.mjs';
 const parseYaml=createRequire(path.resolve(process.cwd(),'../ghatana-tools/package.json'))('yaml').parse;
 const audit=JSON.parse(fs.readFileSync('docs/implementation/media-task-completion-blocker-report-2026-10-08.json','utf8'));
+test('PDP-0 extension applicability projection uses the validated full surface denominator', () => {
+ const sources=readSources();
+ const validation=validatePdp0SurfaceDenominator(sources.registry,sources.topology,sources.authority);
+ const projection=projectPdp0DefinitionExtensionApplicability(validation);
+ assert.equal(validation.ok,true);
+ assert.equal(validation.stats.denominator,56);
+ assert.equal(projection.projection.surfaceIdentityDenominator,validation.stats.denominator);
+ assert.equal(projection.projection.ownerApproval,'NOT_CLAIMED');
+ assert.equal(projection.projection.independentAcceptance,'NOT_CLAIMED');
+});
 const residual=buildMediaProductDefinitionResidualReport();
 const p0Only=process.env.PDP_DEV_PHASE==='PDP-0';
 const broadTest=p0Only?test.skip:test;
@@ -197,17 +208,32 @@ test('PXD-225 history preserves semantic review while stale current-source recor
  assert.match(applicability.scope,/Recorder Orchestrator.*25.*13.*12/u);
  assert.match(applicability.scope,/generic Web partition remains 77 applicable and 385 non-applicable/u);
  assert.match(applicability.scope,/CLI runtime admission remains NOT_ADMITTED/u);
- assert.match(applicability.scope,/54 registered identities/u);
+ assert.match(applicability.scope,/PXD-196 records/u);
+ assert.match(applicability.scope,/54 registered identities/u,
+  'the preserved PXD-196 criterion review retains its historical audit-scope denominator');
  assert.match(applicability.scope,/owner approval and independent acceptance remain NOT_CLAIMED/u);
  assert.equal(crosswalk.coordinatorReview.decisionRef,'PXD-225');
  assert.equal(crosswalk.coordinatorReview.priorDecisionRef,'PXD-223');
  assert.equal(crosswalk.coordinatorReview.ownerApproval,'NOT_CLAIMED');
  assert.ok(!crosswalk.coordinatorReview.reviewHistory.some(review=>review.decisionRef==='PXD-195'));
  assert.ok(crosswalk.coordinatorReview.reviewHistory.some(review=>review.decisionRef==='PXD-194'));
- assert.equal(crosswalk.denominator.surfaceDenominator.registeredIdentities,54);
- assert.equal(crosswalk.denominator.surfaceDenominator.logicalConsumers,21);
- assert.equal(crosswalk.denominator.surfaceDenominator.physicalCandidates,26);
- assert.equal(crosswalk.denominator.surfaceDenominator.compositionsIncludingRoot,7);
+ const historicalAuditSurfaceDenominator=crosswalk.denominator.historicalAuditScopeSurfaceDenominator;
+ assert.deepEqual(historicalAuditSurfaceDenominator,{physicalCandidates:26,compositionsIncludingRoot:7,logicalConsumers:21,registeredIdentities:54,
+  scope:'Historical PXD-225 audit-scope topology snapshot; not the live PDP-0 physical/composite denominator.'},
+  'the 501-row audit crosswalk preserves its PXD-212/PXD-214 54-identity historical scope');
+ assert.ok(crosswalk.coordinatorReview.reviewHistory.some(review=>review.decisionRef==='PXD-212'&&/54-identity surface denominator/u.test(review.scope)));
+ assert.ok(crosswalk.coordinatorReview.reviewHistory.some(review=>review.decisionRef==='PXD-214'&&/54-surface denominator/u.test(review.scope)));
+ const liveSurfaceSources=readSources();
+ const liveSurfaceValidation=validatePdp0SurfaceDenominator(
+  liveSurfaceSources.registry,liveSurfaceSources.topology,liveSurfaceSources.authority);
+ assert.equal(liveSurfaceValidation.ok,true,JSON.stringify(liveSurfaceValidation.findings));
+ assert.deepEqual({
+  physicalCandidates:liveSurfaceValidation.stats.physicalManifestCandidates,
+  compositionsIncludingRoot:liveSurfaceValidation.stats.compositions,
+  logicalConsumers:liveSurfaceValidation.stats.logicalConsumers,
+  registeredIdentities:liveSurfaceValidation.stats.denominator,
+ },{physicalCandidates:28,compositionsIncludingRoot:7,logicalConsumers:21,registeredIdentities:56},
+ 'the current PDP-0 denominator comes from the validated live topology, independently of the historical audit snapshot');
 });
 
 broadTest('a corrective approval uses its own reviewed source cut and preserves historical pins',()=>{

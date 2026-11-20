@@ -4,7 +4,7 @@ import { dirname, resolve } from "node:path";
 import { promisify } from "node:util";
 import { createInterface } from "node:readline";
 import { createHash } from "node:crypto";
-import { readFile, realpath } from "node:fs/promises";
+import { mkdir, readFile, realpath, writeFile } from "node:fs/promises";
 import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 
@@ -81,6 +81,79 @@ viteProcess.stderr.setEncoding("utf8").on("data", (chunk) => { viteOutput += chu
 const sha256Of = (bytes) => createHash("sha256").update(bytes).digest("hex");
 
 let browser;
+let diagnosticPage;
+let activeToken = token;
+const browserDiagnostics = {
+  pageErrors: [],
+  consoleErrors: [],
+  failedRequests: [],
+  non2xxResponses: [],
+};
+
+function redact(value) {
+  let text = String(value ?? "");
+  for (const secret of [token, activeToken]) {
+    if (secret) text = text.split(secret).join("[REDACTED]");
+  }
+  return text;
+}
+
+function safeUrl(value) {
+  try {
+    const url = new URL(value);
+    return `${url.origin}${url.pathname}`;
+  } catch {
+    return "<unavailable>";
+  }
+}
+
+async function writeFailureDiagnostics(error, baseUrl) {
+  const outputDir = resolve(appRoot, "../../integration-tests/build/test-results/test");
+  const fileStem = `media-dev-explorer-creative-outputs-live-browser-failure-${process.pid}`;
+  const jsonPath = resolve(outputDir, `${fileStem}.json`);
+  const screenshotPath = resolve(outputDir, `${fileStem}.png`);
+  let pageState = { url: baseUrl, title: "", bodyText: "", screenshot: null };
+  await mkdir(outputDir, { recursive: true });
+
+  if (diagnosticPage) {
+    try {
+      await diagnosticPage.evaluate(() => {
+        const tokenInput = document.querySelector("#dev-token");
+        if (tokenInput instanceof HTMLInputElement) tokenInput.value = "";
+      });
+      const snapshot = await diagnosticPage.evaluate(() => ({
+        url: location.href,
+        title: document.title,
+        bodyText: document.body?.innerText ?? "",
+      }));
+      pageState = {
+        url: safeUrl(snapshot.url),
+        title: redact(snapshot.title),
+        bodyText: redact(snapshot.bodyText).slice(0, 8_000),
+        screenshot: null,
+      };
+      await diagnosticPage.screenshot({ path: screenshotPath, fullPage: true });
+      pageState.screenshot = screenshotPath;
+    } catch (snapshotError) {
+      pageState.snapshotError = redact(snapshotError?.stack ?? snapshotError);
+    }
+  }
+
+  const report = {
+    error: redact(error?.stack ?? error),
+    page: pageState,
+    pageErrors: browserDiagnostics.pageErrors.map(redact),
+    consoleErrors: browserDiagnostics.consoleErrors.map((entry) => ({ ...entry, text: redact(entry.text) })),
+    failedRequests: browserDiagnostics.failedRequests.map((entry) => ({ ...entry, failure: redact(entry.failure) })),
+    non2xxResponses: browserDiagnostics.non2xxResponses,
+    viteOutput: redact(viteOutput).slice(-12_000),
+  };
+
+  await writeFile(jsonPath, `${JSON.stringify(report, null, 2)}\n`);
+  process.stderr.write(`Browser failure diagnostics: ${jsonPath}\n`);
+  if (pageState.screenshot) process.stderr.write(`Browser failure screenshot: ${screenshotPath}\n`);
+}
+
 try {
   const baseUrl = `http://127.0.0.1:${vitePort}`;
   let ready = false;
@@ -96,8 +169,9 @@ try {
 
   browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
-  const pageErrors = [];
-  const consoleErrors = [];
+  diagnosticPage = page;
+  const pageErrors = browserDiagnostics.pageErrors;
+  const consoleErrors = browserDiagnostics.consoleErrors;
   const apiRequests = [];
   const contentRequests = [];
   page.on("pageerror", (error) => pageErrors.push(error.message));
@@ -116,8 +190,25 @@ try {
     apiRequests.push({ method: request.method(), path, body: request.postData(), url: request.url(), headers: request.headers() });
     if (path.endsWith("/content")) contentRequests.push({ url: request.url(), headers: request.headers() });
   });
+  page.on("requestfailed", (request) => {
+    browserDiagnostics.failedRequests.push({
+      method: request.method(),
+      path: new URL(request.url()).pathname,
+      failure: request.failure()?.errorText ?? "unknown request failure",
+    });
+  });
+  page.on("response", (response) => {
+    if (response.status() >= 200 && response.status() < 300) return;
+    browserDiagnostics.non2xxResponses.push({
+      method: response.request().method(),
+      path: new URL(response.url()).pathname,
+      status: response.status(),
+      statusText: response.statusText(),
+    });
+  });
 
   async function connect(bearer) {
+    activeToken = bearer;
     await page.goto(`${baseUrl}/dev-creative-outputs.html`);
     await page.getByLabel("Short-lived DEV_ONLY bearer token").fill(bearer);
     await page.getByRole("button", { name: "Connect", exact: true }).click();
@@ -298,6 +389,13 @@ try {
   const stored = await page.evaluate(() => JSON.stringify({ l: { ...localStorage }, s: { ...sessionStorage }, c: document.cookie }));
   assert.ok(!stored.includes(token) && !stored.includes(freshToken), "token must never be persisted");
   process.stdout.write(`${JSON.stringify({ event: "readback", audioId, simId, glbId, audioSha, simSha, glbSha })}\n`);
+} catch (error) {
+  try {
+    await writeFailureDiagnostics(error, `http://127.0.0.1:${vitePort}/dev-creative-outputs.html`);
+  } catch (diagnosticError) {
+    process.stderr.write(`Could not write browser failure diagnostics: ${redact(diagnosticError?.stack ?? diagnosticError)}\n`);
+  }
+  throw error;
 } finally {
   if (browser) await browser.close();
   if (viteProcess.exitCode === null) {

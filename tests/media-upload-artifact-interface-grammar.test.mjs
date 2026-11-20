@@ -89,11 +89,14 @@ test('SDK methods preserve the guarded workflow without inventing a resume metho
 test('CLI and Agent Tool populations are not inflated to imply unsupported upload interfaces', () => {
   const cli = yaml('.product-experience/pdp-3-product-experience/cli/production-command-registry.yaml');
   const crosswalk = yaml('.product-experience/pdp-3-product-experience/cli/source-crosswalk.yaml');
-  assert.equal(cli.productionCommandPopulation.count, 1);
+  assert.equal(cli.productionCommandPopulation.count, 5);
+  assert.equal(cli.commands.length, 5);
   assert.equal(cli.commands[0].id, 'media.cli.artifact.inspect');
+  assert.ok(!cli.commands.some(command => command.id.endsWith('.artifact.upload')),
+    'production artifact upload remains unadmitted while trusted workspace/right binding is absent');
   assert.ok(cli.commands[0].operationRef.endsWith('#/individualOperationContracts/records/media.operation-slice.inspect-artifact'));
   assert.deepEqual(cli.commands[0].interactionDefinition.missingCommands, ['begin-upload', 'append-upload-chunk', 'complete-upload', 'inspect-upload-session', 'compound-resume']);
-  assert.equal(crosswalk.populations.hostConfiguredRuntimeConsumers.count, 1);
+  assert.equal(crosswalk.populations.hostConfiguredRuntimeConsumers.count, 5);
   assert.equal(crosswalk.populations.explorerFixtureCommands.count, 11);
   assert.match(cli.commands[0].interactionDefinition.unknownOutcome, /no-domain-mutation-to-replay/u);
 

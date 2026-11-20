@@ -29,7 +29,14 @@ globalThis.fetch = async (input, init = {}) => {
     })}\n`);
   };
   const isUploadFixture = mode === 'upload-success' || mode === 'upload-readback-mismatch';
-  if (!isUploadFixture) recordRequest();
+  if (!isUploadFixture) {
+    if ((url.pathname === '/api/v1/jobs' || /^\/api\/v1\/jobs\/[^/]+\/cancel$/u.test(url.pathname))
+      && init.method === 'POST') {
+      recordRequest({ request: JSON.parse(String(init.body)) });
+    } else {
+      recordRequest();
+    }
+  }
 
   const json = (body, status) => new Response(JSON.stringify(body), {
     status,
@@ -116,6 +123,26 @@ globalThis.fetch = async (input, init = {}) => {
   const configuredJob = process.env.GHATANA_MEDIA_CLI_TEST_JOB;
   if (!configuredJob) throw new Error('CLI test fixture job is missing.');
   const job = JSON.parse(configuredJob);
+
+  if (url.pathname === `/api/v1/jobs/${encodeURIComponent(job.jobId)}/cancel` && init.method === 'POST') {
+    const request = JSON.parse(String(init.body));
+    if (mode === 'job-cancel-ack-lost') throw new TypeError('socket reset after cancellation dispatch');
+    if (mode === 'job-cancel-success') return json({
+      operationRef: 'media.operation-slice.cancel-job', requestId: request.requestId,
+      cancellationRequestId: request.requestId, state: 'CANCEL_REQUESTED', replayed: false,
+      observedAt: '2026-10-08T12:00:00.000Z', jobId: job.jobId, currentJobState: job.status,
+      currentAttemptStates: ['RUNNING'], reconcilePath: `/api/v1/jobs/${encodeURIComponent(job.jobId)}`,
+      automaticRetryAllowed: false, job,
+    }, 202);
+  }
+  if (url.pathname === `/api/v1/jobs/${encodeURIComponent(job.jobId)}` && init.method === 'GET'
+    && mode === 'job-cancel-ack-lost') return json(job, 200);
+
+  if (url.pathname === '/api/v1/jobs' && init.method === 'GET') {
+    if (mode === 'job-list-malformed') return json({ jobs: [{ jobId: job.jobId }] }, 200);
+    const configuredJobs = process.env.GHATANA_MEDIA_CLI_TEST_JOBS;
+    return json({ jobs: configuredJobs ? JSON.parse(configuredJobs) : [job] }, 200);
+  }
 
   if (url.pathname === `/dev/v1/jobs/${encodeURIComponent(job.jobId)}/cancel` && init.method === 'POST') {
     const body = JSON.parse(String(init.body));

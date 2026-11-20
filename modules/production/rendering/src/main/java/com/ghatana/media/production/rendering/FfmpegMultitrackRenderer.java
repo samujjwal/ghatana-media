@@ -369,15 +369,43 @@ public final class FfmpegMultitrackRenderer implements MultitrackRenderPlanner.C
 
         // 4. Hash and publish (no overwrite).
         String sha = sha256File(out);
+        boolean videoPublished = false;
+        Object publishedVideoFileKey = null;
         try {
             Files.move(out, finalVideo);
+            videoPublished = true;
+            publishedVideoFileKey = Files.readAttributes(finalVideo, BasicFileAttributes.class,
+                    LinkOption.NOFOLLOW_LINKS).fileKey();
             if (!a.captions.isEmpty()) Files.move(temp.resolve("captions.vtt"), finalCaptions);
         } catch (java.nio.file.FileAlreadyExistsException exists) {
+            if (!rollbackPublishedVideo(finalVideo, videoPublished, publishedVideoFileKey)) {
+                return fail(Reason.IO_ERROR, "partial output rollback could not be confirmed");
+            }
             return fail(Reason.OUTPUT_EXISTS, "output already exists");
+        } catch (IOException publicationFailure) {
+            if (!rollbackPublishedVideo(finalVideo, videoPublished, publishedVideoFileKey)) {
+                return fail(Reason.IO_ERROR, "partial output rollback could not be confirmed");
+            }
+            return fail(Reason.IO_ERROR, "output publication failed");
         }
         return new Result(Outcome.COMPLETED, null, "rendered and verified", finalVideo,
                 a.captions.isEmpty() ? null : finalCaptions, sha, outBytes, ffmpegVersion, ffprobeVersion, v,
                 run.stderrBytes(), run.stderrSha256());
+    }
+
+    /** Remove only the video this render successfully moved when the paired publish fails. */
+    static boolean rollbackPublishedVideo(Path finalVideo, boolean videoPublished, Object expectedFileKey) {
+        if (!videoPublished) return true;
+        try {
+            BasicFileAttributes attributes = Files.readAttributes(finalVideo, BasicFileAttributes.class,
+                    LinkOption.NOFOLLOW_LINKS);
+            if (!attributes.isRegularFile() || expectedFileKey == null
+                    || !expectedFileKey.equals(attributes.fileKey())) return false;
+            Files.deleteIfExists(finalVideo);
+            return true;
+        } catch (IOException rollbackFailure) {
+            return false;
+        }
     }
 
     // ---------------------------------------------------------------------------------- verification

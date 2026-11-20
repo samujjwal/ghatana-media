@@ -2,11 +2,10 @@ import {createHash} from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import {
-  PDP0_DIRECT_REVIEW_REF, PDP0_MATRIX_REF, PDP0_READINESS_REF, PDP0_REVIEW_INPUT_DIRECTORY, PDP0_STATUS_REF,
+  PDP0_CURRENTNESS_REVIEW_SCOPE, PDP0_DIRECT_REVIEW_REF, PDP0_MATRIX_REF, PDP0_READINESS_REF, PDP0_REVIEW_INPUT_DIRECTORY, PDP0_STATUS_REF,
   buildPdp0CurrentSourceReviewCandidate, resolveReviewRecordFiles,
 } from './media-pdp0-current-source-review-assembler.mjs';
 import {commitValidatedPdp0ReviewPostimage} from './media-pdp0-review-successor-cas.mjs';
-import {buildMediaPdp0CurrentnessObservation} from '../record-media-discovery-pdp0-currentness.mjs';
 
 const sha256 = value => createHash('sha256').update(value).digest('hex');
 const ensure = (condition, message) => { if (!condition) throw new Error(message); };
@@ -14,11 +13,30 @@ const canonical = value => JSON.stringify(value);
 const REVIEW_PATH = 'docs/implementation/verification/pdp-38/direct-definition-criteria-review.json';
 const DECISION_LOG = '.product-experience/decision-log.md';
 const CANDIDATE_REF = 'docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/candidate.v4.json';
+const NON_SEMANTIC_REVIEW_FINDING_CLASSIFICATIONS = new Set([
+  'OWNER_CURRENTNESS_NOT_REVALIDATED',
+  'PDP0_STATUS_PROJECTION_STALE',
+  'WHOLE_CUT_CURRENTNESS_NOT_CLAIMED',
+  'DIRECT_REVIEW_BINDING_STALE',
+]);
 
 function decisionSectionExists(text, ref) {
   const id = ref?.match(/^\.product-experience\/decision-log\.md#(PXD-\d{3})$/u)?.[1];
   if (!id) return false;
   return new RegExp(`^### ${id}(?:\\s|—)`, 'mu').test(text);
+}
+
+function decisionSectionText(text, ref) {
+  const id = ref?.match(/^\.product-experience\/decision-log\.md#(PXD-\d{3})$/u)?.[1];
+  if (!id) return null;
+  const marker = new RegExp(`^### ${id}(?:\\s|—).*?$`, 'gmu');
+  const matches = [...text.matchAll(marker)];
+  if (matches.length !== 1) return null;
+  const start = matches[0].index;
+  const rest = text.slice(start + matches[0][0].length);
+  const next = rest.search(/^### PXD-\d{3}(?:\s|—)/mu);
+  const end = next < 0 ? text.length : start + matches[0][0].length + next;
+  return text.slice(start, end);
 }
 
 export function decisionSectionSha256(text, ref) {
@@ -45,7 +63,29 @@ export function planPdp0ReviewSuccessor({candidate, candidateText, directReview,
   if (candidate.schemaVersion !== 'media.pdp0.current-source-review-candidate.v4'
       || candidate.artifactKind !== 'COORDINATOR_ASSEMBLED_TECHNICAL_SOURCE_REVIEW_INPUTS') blockers.push('CANDIDATE_KIND_INVALID');
   if (missingCriterionIds.length) blockers.push('EIGHT_CRITERION_REVIEW_INVENTORY_INCOMPLETE');
-  const meaningFindings = (candidate.findings ?? []).filter(row => row.classification !== 'BLOCKED_EXTERNAL_INDEPENDENT');
+  const candidateFindings = candidate.findings ?? [];
+  const meaningFindings = candidateFindings.filter(row => row.classification !== 'BLOCKED_EXTERNAL_INDEPENDENT'
+    && !NON_SEMANTIC_REVIEW_FINDING_CLASSIFICATIONS.has(row.classification));
+  const technicalReviewFindings = candidateFindings.filter(row => NON_SEMANTIC_REVIEW_FINDING_CLASSIFICATIONS.has(row.classification));
+  const criterionReviewDispositions = PDP0_CURRENTNESS_REVIEW_SCOPE.map(criterionId => {
+    const criterion = candidate.criteria?.find(row => row.criterionId === criterionId);
+    const criterionFindings = [...new Map([
+      ...(criterion?.findings ?? []),
+      ...candidateFindings.filter(row => row.criterionId === criterionId),
+    ].map(row => [row.id, row])).values()];
+    const openMeaningFindings = criterionFindings.filter(row => row.classification !== 'BLOCKED_EXTERNAL_INDEPENDENT'
+      && !NON_SEMANTIC_REVIEW_FINDING_CLASSIFICATIONS.has(row.classification));
+    const openTechnicalFindings = criterionFindings.filter(row => NON_SEMANTIC_REVIEW_FINDING_CLASSIFICATIONS.has(row.classification));
+    return {
+      criterionId,
+      disposition: openMeaningFindings.length ? 'REVIEW_REQUIRED'
+        : openTechnicalFindings.length ? 'REUSE_PRIOR_MEANING; REVIEW_BINDING_REFRESH_REQUIRED'
+          : 'REUSE_PRIOR_MEANING',
+      openMeaningFindingIds: openMeaningFindings.map(row => row.id),
+      openTechnicalReviewFindingIds: openTechnicalFindings.map(row => row.id),
+    };
+  });
+  if (technicalReviewFindings.length) blockers.push('TECHNICAL_REVIEW_FINDINGS_REQUIRE_REBIND');
   if (candidate.statusBoundary?.phaseStatusEffect !== 'NONE'
       || candidate.statusBoundary?.pdp010Acceptance !== 'NOT_PERFORMED'
       || candidate.statusBoundary?.independentAcceptance !== 'NOT_CLAIMED') blockers.push('CANDIDATE_AUTHORITY_BOUNDARY_INVALID');
@@ -61,13 +101,19 @@ export function planPdp0ReviewSuccessor({candidate, candidateText, directReview,
     requiredCriterionIds: ['P0-01', 'P0-02', 'P0-03', 'P0-04', 'P0-05', 'P0-06', 'P0-07', 'P0-08'],
     missingCriterionIds,
     openMeaningFindingIds: meaningFindings.map(row => row.id),
-    independentAcceptanceFindingIds: (candidate.findings ?? []).filter(row => row.classification === 'BLOCKED_EXTERNAL_INDEPENDENT').map(row => row.id),
+    openTechnicalReviewFindingIds: technicalReviewFindings.map(row => row.id),
+    criterionReviewDispositions,
+    reviewRequiredCriterionIds: criterionReviewDispositions.filter(row => row.disposition === 'REVIEW_REQUIRED').map(row => row.criterionId),
+    reusablePriorMeaningCriterionIds: criterionReviewDispositions.filter(row => row.disposition !== 'REVIEW_REQUIRED').map(row => row.criterionId),
+    independentAcceptanceFindingIds: candidateFindings.filter(row => row.classification === 'BLOCKED_EXTERNAL_INDEPENDENT').map(row => row.id),
     ownerDecisionRequirement: {
       schemaRef: 'docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/revision-decision.v3.schema.json',
       decisionContextFile: DECISION_LOG,
       decisionRefMustExistAsExactPxdSection: true,
       technicalSourceOwnerRole: 'PDP0_SOURCE_OWNER',
       distinctTechnicalPeerRequired: true,
+      distinctTechnicalPeerReviewArtifactRequired: true,
+      peerIdentityAloneIsSufficient: false,
       requiredCandidateFingerprint: candidateSha256,
       requiredExpectedTargetFingerprint: expectedDirectReviewSha256,
     },
@@ -78,12 +124,76 @@ export function planPdp0ReviewSuccessor({candidate, candidateText, directReview,
       reason: 'This plan cannot apply a canonical successor. A source-owner decision and current consumer-compatible revision schema are required; P0-010 acceptance and phase status are separate authorities.',
     },
     blockers,
-    planDisposition: blockers.length ? 'BLOCKED' : meaningFindings.length ? 'AWAITING_TYPED_SOURCE_OWNER_FINDING_DISPOSITION' : 'AWAITING_TYPED_SOURCE_OWNER_DECISION',
+    planDisposition: blockers.length ? 'BLOCKED'
+      : meaningFindings.length ? 'AWAITING_TYPED_SOURCE_OWNER_FINDING_DISPOSITION'
+        : 'AWAITING_TYPED_SOURCE_OWNER_DECISION',
     effects: {canonicalWrite: 'NOT_PERFORMED', phaseStatusEffect: 'NONE', independentAcceptance: 'NOT_CLAIMED', pdp010Acceptance: 'NOT_PERFORMED', nativeClosure: 'NOT_CLAIMED'},
   };
 }
 
-export function validatePdp0ReviewSuccessorDecision({decision, decisionLogText, plan, currentDirectReviewText}) {
+function validatePeerReviewArtifact({decision, decisionLogText, plan, currentDirectReviewText, read}) {
+  const peer = decision.distinctTechnicalPeer;
+  ensure(peer?.role === 'DISTINCT_TECHNICAL_PEER'
+    && typeof peer.identity === 'string' && peer.identity.trim().length > 0
+    && peer.identity !== decision.technicalSourceOwner.identity
+    && peer.reviewedCandidateSha256 === plan.candidateSha256
+    && typeof peer.reviewRecordRef === 'string'
+    && !path.posix.isAbsolute(peer.reviewRecordRef)
+    && !peer.reviewRecordRef.split('/').includes('..')
+    && /^[a-f0-9]{64}$/u.test(peer.reviewRecordSha256 ?? ''),
+  'a distinct peer identity, source-bound review artifact, and exact candidate fingerprint are required');
+  ensure(typeof read === 'function', 'source reader is required to verify the distinct peer review artifact');
+  let peerText;
+  try { peerText = read(peer.reviewRecordRef); }
+  catch { throw new Error(`distinct peer review artifact is missing: ${peer.reviewRecordRef}`); }
+  ensure(sha256(peerText) === peer.reviewRecordSha256, 'distinct peer review artifact digest does not match its source bytes');
+  let peerRecord;
+  try { peerRecord = JSON.parse(peerText); }
+  catch { throw new Error('distinct peer review artifact is not valid JSON'); }
+  ensure(peerRecord.schemaVersion === 'media.pdp0.current-source-review-peer-record.v1'
+    && peerRecord.recordKind === 'DISTINCT_TECHNICAL_SOURCE_REVIEW'
+    && peerRecord.reviewer?.identity === peer.identity
+    && peerRecord.reviewer?.role === 'DISTINCT_TECHNICAL_PEER'
+    && peerRecord.candidateRef === plan.candidateRef
+    && peerRecord.candidateSha256 === plan.candidateSha256
+    && peerRecord.expectedDirectReviewSha256 === plan.expectedDirectReviewSha256
+    && ['PASS', 'PASS_WITH_LIMITATIONS'].includes(peerRecord.assessment)
+    && Array.isArray(peerRecord.findings)
+    && peerRecord.authorityBoundary?.ownerApproval === 'NOT_CLAIMED'
+    && peerRecord.authorityBoundary?.independentAcceptance === 'NOT_CLAIMED'
+    && peerRecord.authorityBoundary?.pdp010Acceptance === 'NOT_PERFORMED'
+    && peerRecord.authorityBoundary?.phaseStatusEffect === 'NONE'
+    && peerRecord.authorityBoundary?.nativeClosure === 'NOT_CLAIMED',
+  'distinct peer review artifact does not bind this exact candidate or authority boundary');
+  const authority = peerRecord.reviewerAuthority;
+  ensure(authority && typeof authority.recordRef === 'string'
+    && !path.posix.isAbsolute(authority.recordRef) && !authority.recordRef.split('/').includes('..')
+    && /^[a-f0-9]{64}$/u.test(authority.recordSha256 ?? ''),
+  'distinct peer review artifact must bind a source authority record for the reviewer');
+  let authorityText;
+  try { authorityText = read(authority.recordRef); }
+  catch { throw new Error(`distinct peer reviewer authority record is missing: ${authority.recordRef}`); }
+  ensure(sha256(authorityText) === authority.recordSha256, 'distinct peer reviewer authority record digest does not match its source bytes');
+  let authorityRecord;
+  try { authorityRecord = JSON.parse(authorityText); }
+  catch { throw new Error('distinct peer reviewer authority record is not valid JSON'); }
+  ensure(authorityRecord.schemaVersion === 'media.pdp0.technical-reviewer-authority.v1'
+    && authorityRecord.status === 'ACTIVE'
+    && authorityRecord.reviewerIdentity === peer.identity
+    && authorityRecord.role === 'DISTINCT_TECHNICAL_REVIEWER'
+    && authorityRecord.authorizedScopes?.includes('PDP-0 current-source review')
+    && typeof authorityRecord.authorityRef === 'string'
+    && decisionSectionExists(decisionLogText, authorityRecord.authorityRef),
+  'source authority record does not identify an active PDP-0 technical reviewer grant');
+  const authorityDecision = decisionSectionText(decisionLogText, authorityRecord.authorityRef);
+  ensure(authorityDecision?.includes(peer.identity)
+    && authorityDecision.includes('DISTINCT_TECHNICAL_REVIEWER')
+    && authorityDecision.includes('PDP-0 current-source review'),
+  'reviewer authority PXD section does not name this peer identity and exact review scope');
+  return {peerRecord, peerRecordSha256: peer.reviewRecordSha256, authorityRecord, authorityRecordSha256: authority.recordSha256};
+}
+
+export function validatePdp0ReviewSuccessorDecision({decision, decisionLogText, plan, currentDirectReviewText, read}) {
   ensure(decision && typeof decision === 'object' && !Array.isArray(decision), 'typed source-owner decision is required');
   ensure(plan?.schemaVersion === 'media.pdp0.current-source-review-successor-plan.v2', 'current source-review successor plan is required');
   ensure(plan.blockers?.length === 0, `successor plan is blocked: ${(plan.blockers ?? []).join(', ')}`);
@@ -93,11 +203,10 @@ export function validatePdp0ReviewSuccessorDecision({decision, decisionLogText, 
   ensure(decision.candidateRef === plan.candidateRef && decision.candidateSha256 === plan.candidateSha256, 'decision is not bound to this exact assembled candidate');
   ensure(decision.expectedDirectReviewSha256 === plan.expectedDirectReviewSha256
     && sha256(currentDirectReviewText) === plan.expectedDirectReviewSha256, 'direct-review target changed since plan creation');
-  ensure(decision.technicalSourceOwner?.role === 'PDP0_SOURCE_OWNER' && decision.technicalSourceOwner.identity === 'agent:/root', 'the typed decision must identify the delegated root PDP-0 technical source owner');
-  ensure(decision.distinctTechnicalPeer?.role === 'DISTINCT_TECHNICAL_PEER'
-    && typeof decision.distinctTechnicalPeer.identity === 'string'
-    && decision.distinctTechnicalPeer.identity !== decision.technicalSourceOwner.identity
-    && decision.distinctTechnicalPeer.reviewedCandidateSha256 === plan.candidateSha256, 'distinct peer must review the exact candidate');
+  ensure(decision.technicalSourceOwner?.role === 'PDP0_SOURCE_OWNER'
+    && typeof decision.technicalSourceOwner.identity === 'string' && decision.technicalSourceOwner.identity.trim().length > 0,
+  'the typed decision must identify the PDP-0 technical source owner');
+  const peerReview = validatePeerReviewArtifact({decision, decisionLogText, plan, currentDirectReviewText, read});
   ensure(['SOURCE_REVIEW_SUCCESSOR_APPROVED', 'SOURCE_REVIEW_SUCCESSOR_REJECTED', 'SOURCE_REVIEW_SUCCESSOR_DEFERRED'].includes(decision.semanticDisposition), 'source-owner disposition is invalid');
   ensure(decision.openMeaningFindingDisposition?.unresolvedFindingIds?.length === 0, 'unresolved PDP-0 meaning findings prevent successor approval');
   const expectedMeaningFindingIds = [...plan.openMeaningFindingIds].sort();
@@ -109,11 +218,16 @@ export function validatePdp0ReviewSuccessorDecision({decision, decisionLogText, 
     && decision.authorityBoundary?.phaseStatusEffect === 'NONE'
     && decision.authorityBoundary?.nativeClosure === 'NOT_CLAIMED', 'decision cannot claim acceptance, phase status, or closure');
   ensure(decisionSectionExists(decisionLogText, decision.decisionRef), 'decisionRef must resolve to an exact existing PXD section in the owner decision log');
-  return {valid: true, canonicalWritePermitted: false, reason: 'Validated decision input is still not a canonical postimage; source-owner workflow must define and review the consumer-compatible record successor before apply.', decisionRef: decision.decisionRef};
+  const ownerDecisionSection = decisionSectionText(decisionLogText, decision.decisionRef);
+  ensure(ownerDecisionSection?.includes(decision.technicalSourceOwner.identity)
+    && ownerDecisionSection.includes('PDP0_SOURCE_OWNER')
+    && ownerDecisionSection.includes('SOURCE_REVIEW_SUCCESSOR'),
+  'source-owner PXD section does not name the authorized PDP0_SOURCE_OWNER and exact successor decision');
+  return {valid: true, canonicalWritePermitted: false, reason: 'The exact owner decision and source-bound peer review are validated, but canonical write authorization and consumer-compatible postimage review remain separate.', decisionRef: decision.decisionRef, peerReviewRecordSha256: peerReview.peerRecordSha256};
 }
 
-export function buildPdp0ReviewSuccessorPostimage({decision, decisionLogText, plan, candidate, directReview, currentDirectReviewText}) {
-  const validated = validatePdp0ReviewSuccessorDecision({decision, decisionLogText, plan, currentDirectReviewText});
+export function buildPdp0ReviewSuccessorPostimage({decision, decisionLogText, plan, candidate, directReview, currentDirectReviewText, read}) {
+  const validated = validatePdp0ReviewSuccessorDecision({decision, decisionLogText, plan, currentDirectReviewText, read});
   ensure(validated.valid && decision.semanticDisposition === 'SOURCE_REVIEW_SUCCESSOR_APPROVED', 'only an explicitly approved source-owner disposition can produce a postimage candidate');
   const meaningFindingIds = (candidate.findings ?? []).filter(row => row.classification !== 'BLOCKED_EXTERNAL_INDEPENDENT').map(row => row.id).sort();
   ensure(canonical(decision.openMeaningFindingDisposition.resolvedFindingIds.slice().sort()) === canonical(meaningFindingIds), 'source-owner decision must classify every and only current PDP-0 meaning finding');
@@ -184,18 +298,12 @@ export function applyPdp0ReviewSuccessorPostimage({root, authorization, fsOps = 
   const directReview = JSON.parse(directReviewText);
   const matrix = JSON.parse(read(PDP0_MATRIX_REF));
   const reviewRecords = resolveReviewRecordFiles({read});
-  const currentness = buildMediaPdp0CurrentnessObservation({
-    preserveExistingObservedAt: true,
-    observationOutputPath: 'docs/implementation/observations/media-discovery-pdp0-currentness-2026-10-14-current-cut-r16.json',
-  });
-  ensure(currentness.summary.sourceCurrent === true
-    && currentness.summary.consistencyStable === true
-    && currentness.summary.sourceCellCurrentCount === 54
-    && currentness.summary.sourceCellUnknownCount === 0
-    && currentness.observation.materialPathDenominator?.uniquePaths === 207,
-  'the exact current PDP-0 54-cell/207-path source cut is not current; canonical apply is blocked');
   const sourceInputs = {status, readiness, directReview, matrix, reviewRecords, read};
   const candidate = buildPdp0CurrentSourceReviewCandidate(sourceInputs);
+  const denominator = candidate.sourceCut.campaignDenominator;
+  ensure(candidate.sourceCut.phaseStatusPinInventory.currentnessEvaluation === 'CURRENT; ALL_DECLARED_STATUS_PINS_RECOMPUTED'
+    && denominator?.totalSurfaceIdentities === denominator.physical + denominator.compositions + denominator.logicalConsumers,
+  'the candidate does not contain a topology-derived denominator and a complete source-pin check');
   const candidateText = `${JSON.stringify(candidate, null, 2)}\n`;
   ensure(read(CANDIDATE_REF) === candidateText, 'persisted assembled candidate differs from a fresh source-bound rebuild');
   const plan = planPdp0ReviewSuccessor({candidate, candidateText, directReview, directReviewText, decisionLogText: read(DECISION_LOG), reviewRecords});
@@ -203,7 +311,7 @@ export function applyPdp0ReviewSuccessorPostimage({root, authorization, fsOps = 
   const decision = JSON.parse(decisionText);
   const decisionSha256 = sha256(decisionText);
   const decisionLogText = read(DECISION_LOG);
-  const postimageCandidate = buildPdp0ReviewSuccessorPostimage({decision, decisionLogText, plan, candidate, directReview, currentDirectReviewText: directReviewText});
+  const postimageCandidate = buildPdp0ReviewSuccessorPostimage({decision, decisionLogText, plan, candidate, directReview, currentDirectReviewText: directReviewText, read});
   const postimageArtifactRef = `${PDP0_REVIEW_INPUT_DIRECTORY}/postimage.v3.json`;
   ensure(read(postimageArtifactRef) === `${JSON.stringify(postimageCandidate, null, 2)}\n`, 'persisted postimage artifact differs from a fresh rebuild; exact peer/root review is required');
   const postimageText = `${JSON.stringify(postimageCandidate.postimage, null, 2)}\n`;
@@ -224,13 +332,16 @@ export function applyPdp0ReviewSuccessorPostimage({root, authorization, fsOps = 
     && authorization.sourceOwnerDecisionSha256 === decisionSha256
     && authorization.decisionRef === postimageCandidate.decisionRef,
   'apply authorization is not bound to this exact target, candidate, decision, and postimage');
-  ensure(authorization.technicalSourceOwner?.identity === 'agent:/root' && authorization.technicalSourceOwner.role === 'PDP0_SOURCE_OWNER', 'apply authorization lacks the delegated technical source owner');
+  ensure(authorization.technicalSourceOwner?.identity === decision.technicalSourceOwner.identity
+    && authorization.technicalSourceOwner.role === 'PDP0_SOURCE_OWNER', 'apply authorization lacks the typed technical source owner');
   ensure(authorization.distinctTechnicalPeer?.role === 'DISTINCT_TECHNICAL_PEER'
     && typeof authorization.distinctTechnicalPeer.identity === 'string'
     && authorization.distinctTechnicalPeer.identity !== authorization.technicalSourceOwner.identity
     && authorization.distinctTechnicalPeer.reviewedCandidateSha256 === authorization.candidateSha256
     && authorization.distinctTechnicalPeer.reviewedPostimageSha256 === postimageSha256
-    && authorization.distinctTechnicalPeer.identity === decision.distinctTechnicalPeer.identity,
+    && authorization.distinctTechnicalPeer.identity === decision.distinctTechnicalPeer.identity
+    && authorization.distinctTechnicalPeer.reviewRecordRef === decision.distinctTechnicalPeer.reviewRecordRef
+    && authorization.distinctTechnicalPeer.reviewRecordSha256 === decision.distinctTechnicalPeer.reviewRecordSha256,
   'apply authorization peer did not review the exact candidate and postimage');
   ensure(authorization.authorityBoundary?.independentAcceptance === 'NOT_CLAIMED'
     && authorization.authorityBoundary?.pdp010Acceptance === 'NOT_PERFORMED'

@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Nested;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -114,10 +115,89 @@ class SttGrpcServiceTest {
         assertThat(observer.getValue().getConfidence()).isEqualTo(0.95f); 
         assertThat(observer.getValue().getProcessingTimeMs()).isEqualTo(120L); 
         assertThat(observer.getValue().getModelUsed()).isEqualTo("whisper-base");
-        assertAdmissionBoundary("success", 3);
+        // Identity, initial request authorization, provider-boundary recheck, and
+        // post-inference authorization are measured as four distinct controls.
+        assertAdmissionBoundary("success", 4);
         assertDecodeBoundary("success");
         assertProviderBoundary("success");
         assertResponseBoundary("success");
+    }
+
+    @Test
+    @DisplayName("transcribe accepts the maximum domain language-tag length")
+    void transcribe_acceptsMaximumLanguageTagLength() throws Exception {
+        String language64 = "en-x-" + "a-".repeat(29) + "a";
+        assertThat(language64).hasSize(64);
+        when(mockEngine.transcribe(any(), any(TranscriptionOptions.class))).thenReturn(
+                new TranscriptionResult("hello", 0.9, Collections.emptyList(), Collections.emptyList(),
+                        Duration.ofMillis(1), "en", "whisper-base"));
+        TranscribeRequest request = TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[] {1, 2, 3, 4}))
+                .setSampleRate(16_000)
+                .setLanguage(language64)
+                .build();
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+
+        service.transcribe(request, observer);
+
+        assertThat(observer.getError()).isNull();
+        assertThat(observer.getValue().getText()).isEqualTo("hello");
+        verify(mockEngine).transcribe(any(), argThat(options ->
+                options.language() != null && options.language().getLanguage().equals("en")));
+    }
+
+    @Test
+    @DisplayName("transcribe rejects invalid language hints before worker and provider dispatch")
+    void transcribe_rejectsInvalidLanguageHintsBeforeDispatch() {
+        AtomicInteger workerSubmissions = new AtomicInteger();
+        SttGrpcService preflightService = new SttGrpcService(mockLibrary, meterRegistry,
+                io.opentelemetry.api.GlobalOpenTelemetry.getTracer("stt-language-preflight-test"),
+                request -> SttRequestAuthorization.Decision.ADMITTED,
+                task -> workerSubmissions.incrementAndGet());
+        List<String> invalidLanguageHints = List.of(
+                "en_US", "pt", "en-x-" + "a-".repeat(29) + "aa");
+        try {
+            for (String language : invalidLanguageHints) {
+                TranscribeRequest request = TranscribeRequest.newBuilder()
+                        .setAudioData(ByteString.copyFrom(new byte[] {1, 2, 3, 4}))
+                        .setSampleRate(16_000)
+                        .setLanguage(language)
+                        .build();
+                CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+
+                preflightService.transcribe(request, observer);
+
+                assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
+                assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                        .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+            }
+
+            assertThat(workerSubmissions).hasValue(0);
+            verifyNoInteractions(mockLibrary, mockEngine);
+        } finally {
+            preflightService.close();
+        }
+    }
+
+    @Test
+    @DisplayName("transcribe: unsupported confidence policy is rejected before engine access")
+    void transcribe_rejectsUnmappedConfidenceThreshold() {
+        TranscribeRequest request = TranscribeRequest.newBuilder()
+                .setAudioData(ByteString.copyFrom(new byte[32_000]))
+                .setSampleRate(16_000)
+                .setOptions(com.ghatana.stt.core.grpc.proto.TranscriptionOptions.newBuilder()
+                        .setConfidenceThreshold(0.5f).build())
+                .build();
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+
+        service.transcribe(request, observer);
+
+        assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException error = (StatusRuntimeException) observer.getError();
+        assertThat(error.getStatus().getCode()).isEqualTo(Status.FAILED_PRECONDITION.getCode());
+        assertThat(error.getStatus().getDescription())
+                .contains("STT_CONFIDENCE_THRESHOLD_NOT_ADMITTED");
+        verifyNoInteractions(mockLibrary, mockEngine);
     }
 
     @Test
@@ -159,7 +239,40 @@ class SttGrpcServiceTest {
         assertThat(observedDigests).containsExactly(
                 java.util.HexFormat.of().formatHex(
                         java.security.MessageDigest.getInstance("SHA-256").digest(alteredBytes)),
-                sourceDigest, sourceDigest);
+                sourceDigest, sourceDigest, sourceDigest);
+        verify(mockEngine).transcribe(any(), any(TranscriptionOptions.class));
+    }
+
+    @Test
+    @DisplayName("transcribe: rights revoked during inference prevent transcript disclosure")
+    void transcribe_rechecksRightsAfterInferenceBeforeDisclosingResult() throws Exception {
+        byte[] audio = new byte[] {1, 2, 3, 4};
+        String sourceDigest = java.util.HexFormat.of().formatHex(
+                java.security.MessageDigest.getInstance("SHA-256").digest(audio));
+        AtomicInteger authorizationCalls = new AtomicInteger();
+        SttGrpcService revokingService = new SttGrpcService(mockLibrary, meterRegistry,
+                (SttRequestAuthorization) request -> {
+                    assertThat(request.sourceSha256()).isEqualTo(sourceDigest);
+                    return authorizationCalls.incrementAndGet() < 3
+                            ? SttRequestAuthorization.Decision.ADMITTED
+                            : SttRequestAuthorization.Decision.REVOKED;
+                });
+        when(mockEngine.transcribe(any(), any(TranscriptionOptions.class))).thenReturn(
+                new TranscriptionResult("must not be disclosed", 0.8, List.of(), List.of(),
+                        Duration.ofMillis(1), "en", "fixture-engine"));
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+
+        revokingService.transcribe(TranscribeRequest.newBuilder()
+                .setArtifactId("artifact-1")
+                .setAudioData(ByteString.copyFrom(audio))
+                .setSampleRate(16_000).build(), observer);
+
+        assertThat(authorizationCalls).hasValue(3);
+        assertThat(observer.getValue()).isNull();
+        assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
+        StatusRuntimeException failure = (StatusRuntimeException) observer.getError();
+        assertThat(failure.getStatus().getCode()).isEqualTo(Status.PERMISSION_DENIED.getCode());
+        assertThat(failure.getStatus().getDescription()).startsWith("STT_RIGHTS_REVOKED:");
         verify(mockEngine).transcribe(any(), any(TranscriptionOptions.class));
     }
 
@@ -439,6 +552,31 @@ class SttGrpcServiceTest {
                     .isEqualTo(Status.INVALID_ARGUMENT.getCode());
         }
         verifyNoInteractions(mockEngine);
+    }
+
+    @Test
+    @DisplayName("transcribe rejects an invalid sample rate before worker dispatch")
+    void transcribe_invalidSampleRateDoesNotSubmitWorker() {
+        AtomicInteger workerSubmissions = new AtomicInteger();
+        SttGrpcService preflightService = new SttGrpcService(mockLibrary, meterRegistry,
+                io.opentelemetry.api.GlobalOpenTelemetry.getTracer("stt-preflight-test"),
+                request -> SttRequestAuthorization.Decision.ADMITTED,
+                task -> workerSubmissions.incrementAndGet());
+        CapturingObserver<TranscribeResponse> observer = new CapturingObserver<>();
+        try {
+            preflightService.transcribe(TranscribeRequest.newBuilder()
+                    .setAudioData(ByteString.copyFrom(new byte[] {0x01, 0x02}))
+                    .setSampleRate(48_001)
+                    .build(), observer);
+
+            assertThat(observer.hasError()).isTrue();
+            assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                    .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+            assertThat(workerSubmissions).hasValue(0);
+            verifyNoInteractions(mockLibrary, mockEngine);
+        } finally {
+            preflightService.close();
+        }
     }
 
     @Test
@@ -732,6 +870,38 @@ class SttGrpcServiceTest {
         assertThat(observer.hasError()).isFalse(); 
         assertThat(observer.getValue().getTotalCount()).isEqualTo(1); 
         assertThat(observer.getValue().getModels(0).getModelId()).isEqualTo("whisper-base");
+    }
+
+    @Test
+    @DisplayName("listModels: valid BCP-47 language filter is applied")
+    void listModels_validLanguageFilterReturnsMatchingModels() {
+        ModelInfo english = new ModelInfo("whisper-base", "Whisper Base", "1.0",
+                new Locale[] {Locale.ENGLISH}, 100_000_000L, false);
+        ModelInfo french = new ModelInfo("whisper-fr", "Whisper French", "1.0",
+                new Locale[] {Locale.FRENCH}, 100_000_000L, false);
+        when(mockEngine.getAvailableModels()).thenReturn(List.of(english, french));
+        when(mockEngine.getActiveModel()).thenReturn(null);
+        CapturingObserver<ListModelsResponse> observer = new CapturingObserver<>();
+
+        service.listModels(ListModelsRequest.newBuilder().setLanguageFilter("en-US").build(), observer);
+
+        assertThat(observer.getError()).isNull();
+        assertThat(observer.getValue().getModelsList()).extracting(model -> model.getModelId())
+                .containsExactly("whisper-base");
+        verify(mockLibrary).getSttEngine();
+    }
+
+    @Test
+    @DisplayName("listModels: malformed language filter fails before engine lookup")
+    void listModels_malformedLanguageFilterDoesNotLookupEngine() {
+        CapturingObserver<ListModelsResponse> observer = new CapturingObserver<>();
+
+        service.listModels(ListModelsRequest.newBuilder().setLanguageFilter("en_US").build(), observer);
+
+        assertThat(observer.getError()).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) observer.getError()).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        verifyNoInteractions(mockLibrary, mockEngine);
     }
 
     // ─────────────────────────────────────────────────────────────

@@ -859,9 +859,14 @@ surfaces:
         - eventType: media.job.failed
           contractId: media.event-contract.media-job-failed
   - surface: CLI host-configured runtime consumers
-    denominator: 1
+    denominator: 5
     source: .product-experience/pdp-3-product-experience/cli/production-command-registry.yaml
-    identities: [ media.cli.artifact.inspect ]
+    identities:
+      - media.cli.artifact.inspect
+      - media.cli.job.get
+      - media.cli.job.submit
+      - media.cli.job.list
+      - media.cli.job.cancel
     executable: libs/audio-video-client/package.json#bin.ghatanamedia-api
     exactBindings:
       - commandId: media.cli.artifact.inspect
@@ -875,16 +880,55 @@ surfaces:
         bindingEvidence: installed-bin-loopback-HTTP-test;
           exact-DTO-and-requested-scope-validation;
           read-only-no-rights-or-global-absence-inference
-    dispositionCounts: { boundedCanonicalRead: 1, unresolved: 0 }
+      - commandId: media.cli.job.get
+        implementation: libs/audio-video-client/src/cli.ts
+        sdkMethod: libs/audio-video-client/src/canonical-operations.ts#MediaCanonicalClient.getJob
+        httpMethod: GET
+        httpOperationId: getMediaJob
+        route: /api/v1/jobs/{jobId}
+        operationRef: media.operation-slice.inspect-job
+        bindingEvidence: installed-bin-loopback-HTTP-test;
+          tenant-principal-scoped-point-in-time-job-read
+      - commandId: media.cli.job.submit
+        implementation: libs/audio-video-client/src/cli.ts
+        sdkMethod: libs/audio-video-client/src/canonical-operations.ts#MediaCanonicalClient.submitJob
+        httpMethod: POST
+        httpOperationId: submitMediaJob
+        route: /api/v1/jobs
+        operationRef: media.operation-slice.submit-job
+        bindingEvidence: installed-bin-loopback-HTTP-test;
+          same-request-identity-reconciliation-after-ambiguous-submission;
+          provider-execution-not-admitted
+      - commandId: media.cli.job.list
+        implementation: libs/audio-video-client/src/cli.ts
+        sdkMethod: libs/audio-video-client/src/canonical-operations.ts#MediaCanonicalClient.listJobs
+        httpMethod: GET
+        httpOperationId: listMediaJobs
+        route: /api/v1/jobs
+        operationRef: null
+        bindingEvidence: installed-bin-loopback-HTTP-test;
+          observed-bounded-query-no-PDP1-operation-inferred
+      - commandId: media.cli.job.cancel
+        implementation: libs/audio-video-client/src/cli.ts
+        sdkMethod: libs/audio-video-client/src/canonical-operations.ts#MediaCanonicalClient.cancelJob
+        httpMethod: POST
+        httpOperationId: cancelMediaJob
+        route: /api/v1/jobs/{jobId}/cancel
+        operationRef: media.operation-slice.cancel-job
+        ownerDecisions: [ PXD-075 ]
+        bindingEvidence: installed-bin-loopback-HTTP-test;
+          durable-request-and-expected-version-CAS;
+          worker-or-provider-finality-required-before-CANCELLED
+    dispositionCounts: { boundedCanonicalRead: 2, boundedCanonicalMutation: 2, boundedCanonicalQuery: 1, unresolved: 0 }
     populationSeparation: fixture-registry-still-has-11-synthetic-identities;
       historical-proposal-registry-still-has-12-separate-identities;
       no-history-entry-is-aliased
     qualification: explicit-host-configuration-and-CLI-source-verified;
       backend-host-identity-and-production-qualification-open
-    bindingStatus: one-local-host-configured-consumer-is-bound-to-the-existing-accepted-artifact-query;
+    bindingStatus: five-local-host-configured-consumers-are-bound-to-source-defined-artifact-and-job-operations;
       no-runtime-host-or-release-claim
   - surface: CLI local-development command definitions
-    denominator: 4
+    denominator: 5
     source: .product-experience/pdp-3-product-experience/cli/local-development-command-registry.yaml
     executable: libs/audio-video-client/package.json#bin.ghatanamedia-api-dev
     identities:
@@ -892,6 +936,7 @@ surfaces:
         media.cli.local-development.artifact.upload,
         media.cli.local-development.artifact.inspect,
         media.cli.local-development.job.get,
+        media.cli.local-development.job.submit,
         media.cli.local-development.job.cancel
       ]
     exactBindings:
@@ -908,13 +953,18 @@ surfaces:
         operationRefs: [media.operation-slice.inspect-job]
         httpOperationIds: [getMediaJob]
         bindingEvidence: explicit-local-dev-loopback; point-in-time-scoped-read; requestId-query-is-observation-only
+      - commandId: media.cli.local-development.job.submit
+        operationRefs: [media.operation-slice.submit-job]
+        httpOperationIds: [submitMediaJob]
+        bindingEvidence: explicit-dev-only-loopback; canonical-submit-operation; stable-requestId-idempotencyKey; 202-receipt-only; exact-fingerprint-replay-no-redispatch
+        unknownOutcome: retain-same-requestId-key-and-payload; no-new-identity; no-read-by-requestId-without-jobId; remain-unknown-if-unavailable
       - commandId: media.cli.local-development.job.cancel
         operationRefs: [media.operation-slice.cancel-job]
         httpOperationIds: [cancelMediaJob]
         bindingEvidence: existing-DEV_ONLY-POST-route;stable-requestId-body;durable-reservation-and-replay;typed-outcome-validation
         runtimeBinding: EXISTING_DEV_ONLY_LOOPBACK_HTTP_OPERATION
         canonicalOpenApiBinding: NONE;local-development-route-is-not-canonical-production-wire
-    dispositionCounts: { localDevelopmentSourceDefinitions: 4, boundToExistingRoute: 4, notAdmittedPendingWireBinding: 0 }
+    dispositionCounts: { localDevelopmentSourceDefinitions: 5, boundToExistingRoute: 5, notAdmittedPendingWireBinding: 0 }
     populationSeparation: production-registry-remains-one-inspect-query; fixture-registry-remains-eleven-synthetic-commands
     productionAdmission: OPEN
     bindingStatus: local-development-only-source-definitions; not-production-admission-or-host-qualification
@@ -2115,88 +2165,146 @@ compatibilityRouteFindings:
   comparisonRule: Compare the exact observed client method and path to the active
     runtime route manifest; a client path, canonical-route constant, or test
     stub alone does not admit a runtime route.
-  currentComparison: 6 active legacy/candidate SDK paths remain absent from
-    the 30-route active manifest; eight source-compatible methods fail closed
-    before transport and are separately counted as retired source findings.
+  currentComparison: Six legacy/candidate SDK path identities remain in source
+    but are absent from the 30-route active manifest; five corresponding methods
+    remain dispatchable and the retained provider-capabilities method fails
+    closed. Eight other operation-client methods are retired and fail closed
+    before transport. None is admitted to the active manifest or parity-accepted.
   sourceFindings:
     - {
+        findingId: MPSEM-0023-C002-R01,
         source: libs/audio-video-client/src/operations.ts,
         method: GET,
         path: '/api/v1/media/providers/capabilities',
-        currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
+        pathIdentityStatus: RETAINED_LEGACY_CANDIDATE,
+        methodDispatchStatus: FAIL_CLOSED_BEFORE_TRANSPORT,
+        activeManifestStatus: ABSENT,
+        currentObservation: RETAINED_PATH_IDENTITY; provider-capabilities-method-fails-closed-before-any-transport
       }
     - {
+        findingId: MPSEM-0023-C002-R02,
         source: libs/audio-video-client/src/operations.ts,
         method: GET,
         path: '/api/v1/media/operations/{parameter}',
+        pathIdentityStatus: RETIRED_OPERATION_METHOD,
+        methodDispatchStatus: FAIL_CLOSED_BEFORE_TRANSPORT,
+        activeManifestStatus: ABSENT,
         currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
+        findingId: MPSEM-0023-C002-R03,
         source: libs/audio-video-client/src/operations.ts,
         method: POST,
         path: '/api/v1/media/operations/{parameter}:cancel',
+        pathIdentityStatus: RETIRED_OPERATION_METHOD,
+        methodDispatchStatus: FAIL_CLOSED_BEFORE_TRANSPORT,
+        activeManifestStatus: ABSENT,
         currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
+        findingId: MPSEM-0023-C002-R04,
         source: libs/audio-video-client/src/operations.ts,
         method: GET,
         path: '/api/v1/media/operations/{parameter}/result',
+        pathIdentityStatus: RETIRED_OPERATION_METHOD,
+        methodDispatchStatus: FAIL_CLOSED_BEFORE_TRANSPORT,
+        activeManifestStatus: ABSENT,
         currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
+        findingId: MPSEM-0023-C002-R05,
         source: libs/audio-video-client/src/operations.ts,
         method: POST,
         path: '/api/v1/media/transcriptions',
+        pathIdentityStatus: RETIRED_OPERATION_METHOD,
+        methodDispatchStatus: FAIL_CLOSED_BEFORE_TRANSPORT,
+        activeManifestStatus: ABSENT,
         currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
+        findingId: MPSEM-0023-C002-R06,
         source: libs/audio-video-client/src/operations.ts,
         method: POST,
         path: '/api/v1/media/syntheses',
+        pathIdentityStatus: RETIRED_OPERATION_METHOD,
+        methodDispatchStatus: FAIL_CLOSED_BEFORE_TRANSPORT,
+        activeManifestStatus: ABSENT,
         currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
+        findingId: MPSEM-0023-C002-R07,
         source: libs/audio-video-client/src/operations.ts,
         method: POST,
         path: '/api/v1/media/voice-models:train',
+        pathIdentityStatus: RETIRED_OPERATION_METHOD,
+        methodDispatchStatus: FAIL_CLOSED_BEFORE_TRANSPORT,
+        activeManifestStatus: ABSENT,
         currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
+        findingId: MPSEM-0023-C002-R08,
         source: libs/audio-video-client/src/operations.ts,
         method: POST,
         path: '/api/v1/media/voice-conversions',
+        pathIdentityStatus: RETIRED_OPERATION_METHOD,
+        methodDispatchStatus: FAIL_CLOSED_BEFORE_TRANSPORT,
+        activeManifestStatus: ABSENT,
         currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
+        findingId: MPSEM-0023-C002-R09,
         source: libs/audio-video-client/src/operations.ts,
         method: POST,
         path: '/api/v1/media/multimodal-analyses',
+        pathIdentityStatus: RETIRED_OPERATION_METHOD,
+        methodDispatchStatus: FAIL_CLOSED_BEFORE_TRANSPORT,
+        activeManifestStatus: ABSENT,
         currentObservation: RETIRED_FROM_SOURCE; method-fails-closed-before-any-transport
       }
     - {
+        findingId: MPSEM-0023-C002-R10,
         source: libs/audio-video-client/src/index.ts,
         method: POST,
-        path: '/api/stt/transcribe'
+        path: '/api/stt/transcribe',
+        pathIdentityStatus: RETAINED_LEGACY_CANDIDATE,
+        methodDispatchStatus: DISPATCHABLE,
+        activeManifestStatus: ABSENT
       }
     - {
+        findingId: MPSEM-0023-C002-R11,
         source: libs/audio-video-client/src/index.ts,
         method: POST,
-        path: '/api/tts/synthesize'
+        path: '/api/tts/synthesize',
+        pathIdentityStatus: RETAINED_LEGACY_CANDIDATE,
+        methodDispatchStatus: DISPATCHABLE,
+        activeManifestStatus: ABSENT
       }
     - {
+        findingId: MPSEM-0023-C002-R12,
         source: libs/audio-video-client/src/index.ts,
         method: POST,
-        path: '/api/ai-voice/process'
+        path: '/api/ai-voice/process',
+        pathIdentityStatus: RETAINED_LEGACY_CANDIDATE,
+        methodDispatchStatus: DISPATCHABLE,
+        activeManifestStatus: ABSENT
       }
     - {
+        findingId: MPSEM-0023-C002-R13,
         source: libs/audio-video-client/src/index.ts,
         method: POST,
-        path: '/api/vision/analyze'
+        path: '/api/vision/analyze',
+        pathIdentityStatus: RETAINED_LEGACY_CANDIDATE,
+        methodDispatchStatus: DISPATCHABLE,
+        activeManifestStatus: ABSENT
       }
     - {
+        findingId: MPSEM-0023-C002-R14,
         source: libs/audio-video-client/src/index.ts,
         method: POST,
-        path: '/api/multimodal/process'
+        path: '/api/multimodal/process',
+        pathIdentityStatus: RETAINED_LEGACY_CANDIDATE,
+        methodDispatchStatus: DISPATCHABLE,
+        activeManifestStatus: ABSENT
       }
 
 typedUiActionDispositions:

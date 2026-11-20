@@ -1353,7 +1353,8 @@ ownerNormativeRuleRecords:
 
 ownerQualityApplicabilityCrosswalkExtensions:
   schemaVersion: media.pdp0.quality-applicability-extension.v1
-  status: SOURCE_OWNER_DEFINED_NOT_YET_CURRENT
+  status: SOURCE_OWNER_DECIDED_DEFINITION_ONLY
+  sourceOwnerDecisionRef: .product-experience/decision-log.md#PXD-229
   sourceChoiceRef: ../ghatana-lifecycle/docs/engineering/reviews/gtool-critical-2026-10-23/media-aud-spec-002-quality-applicability-root-choice-r01.json
   sourceChoiceSha256: f26831abe430b0f48b5f00e1fcde0ceca4ed70f6dcb109eecf8577d078589228
   historicalBaseRows: 462

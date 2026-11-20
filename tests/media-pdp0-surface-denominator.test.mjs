@@ -1,6 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import crypto from 'node:crypto';
 import { projectPdp0DefinitionExtensionApplicability, readSources, validatePdp0SurfaceDenominator } from '../scripts/check-media-pdp0-surface-denominator.mjs';
+import { pdp0PhaseScopedSourcePins } from '../scripts/report-media-pdp-readiness.mjs';
+import { fingerprintPxdDecisionSection } from '../scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs';
 
 const sourceBaseline = readSources();
 const cloneSources = () => structuredClone(sourceBaseline);
@@ -25,6 +29,39 @@ test('PDP-0 denominator recomputes exact source populations and validates curren
   });
   assert.deepEqual(result.findings, []);
   assert.equal(result.consumerScopes.length, 20);
+  assert.equal(pdp0PhaseScopedSourcePins()['.product-experience/decision-log.md#PXD-230-section'],
+    fingerprintPxdDecisionSection(readFileSync('.product-experience/decision-log.md', 'utf8'), 'PXD-230').sha256);
+});
+
+test('PXD-230 preserves the 54 status preimage and all 56 topology identities in its additive successor', () => {
+  const predecessorBytes = readFileSync('docs/implementation/verification/pdp-38/pdp-0-phase-dev-status.predecessor-pxd230-2026-11-16.json');
+  const predecessor = JSON.parse(predecessorBytes);
+  const successor = JSON.parse(readFileSync('docs/implementation/verification/pdp-38/pdp0-status-denominator-successor-pxd230-2026-11-16.json', 'utf8'));
+  const { topology } = cloneSources();
+  const currentRows = [
+    ...topology.manifestCandidates.map(row => ({ surfaceId: row.surfaceId, type: 'PHYSICAL' })),
+    ...topology.compositions.map(row => ({ surfaceId: row.surfaceId, type: 'COMPOSITION' })),
+    ...topology.consumerCrosswalk.map(row => ({ surfaceId: row.surfaceId, type: 'LOGICAL' })),
+  ].sort((a, b) => a.surfaceId.localeCompare(b.surfaceId));
+  assert.equal(successor.decisionRef, '.product-experience/decision-log.md#PXD-230');
+  assert.equal(successor.predecessor.statusSha256, crypto.createHash('sha256').update(predecessorBytes).digest('hex'));
+  assert.equal(successor.predecessor.reportedDenominator.denominator, 54);
+  assert.equal(predecessor.campaignDenominator.denominator, 54);
+  assert.equal(successor.currentDenominator.total, 56);
+  assert.deepEqual(successor.identityProjection.rows, currentRows);
+  assert.deepEqual(successor.identityPreservation, {
+    predecessorIdentityCount: 56,
+    currentIdentityCount: 56,
+    removed: [],
+    added: [],
+    changedType: [],
+    allPredecessorIdentitiesRetained: true,
+  });
+  assert.equal(successor.currentSourceFingerprints['.product-experience/decision-log.md#PXD-230-section'],
+    fingerprintPxdDecisionSection(readFileSync('.product-experience/decision-log.md', 'utf8'), 'PXD-230').sha256);
+  assert.equal(successor.phaseStatusEffect, 'NONE');
+  assert.equal(successor.ownerAcceptance, 'NOT_CLAIMED');
+  assert.equal(successor.independentAcceptance, 'NOT_CLAIMED');
 });
 
 test('keeps seven PXD-207 extensions outside the 462 owner denominator and resolves all 11 × 56 applicability cells', () => {

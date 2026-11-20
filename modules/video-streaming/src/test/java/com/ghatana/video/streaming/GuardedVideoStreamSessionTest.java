@@ -94,6 +94,29 @@ class GuardedVideoStreamSessionTest {
     }
 
     @Test
+    @DisplayName("conflicting held replay cannot replace or advance the accepted frame")
+    void conflictingHeldReplayDoesNotReplaceAcceptedFrame() {
+        GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                identity("t1"), consent(ConsentDecision.ADMITTED), "worker-a");
+        assertThat(session.submitFrame("worker-a", 1L, frame(0, true)))
+                .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+        assertThat(session.submitFrame("worker-a", 1L,
+                new VideoStreamSession.DecodedFrame(2, false, 66L, new byte[]{0x4})))
+                .isEqualTo(FrameVerdict.HELD);
+
+        assertThat(session.submitFrame("worker-a", 1L,
+                new VideoStreamSession.DecodedFrame(2, false, 66L, new byte[]{0x7})))
+                .isEqualTo(FrameVerdict.CONFLICTING_REPLAY);
+        assertThat(session.pendingCount()).isEqualTo(1);
+        assertThat(session.nextAck("worker-a", 1L)).isEqualTo(0);
+
+        assertThat(session.submitFrame("worker-a", 1L, frame(1, false)))
+                .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+        assertThat(session.takeDelivered("worker-a", 1L).payload()).containsExactly(0x4);
+        assertThat(session.nextAck("worker-a", 1L)).isEqualTo(2);
+    }
+
+    @Test
     @DisplayName("a claim replayed at an equal-or-older token is stale, never a takeover")
     void claimMonotonicFencing() {
         GuardedVideoStreamSession session = GuardedVideoStreamSession.open(

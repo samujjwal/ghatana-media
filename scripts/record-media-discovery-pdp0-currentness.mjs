@@ -167,7 +167,7 @@ function parseScalar(value) {
   return trimmed;
 }
 
-function parseExternalObservations(source) {
+export function parseExternalObservations(source) {
   const start = source.indexOf('\n  repositories:\n');
   const end = source.indexOf('\nsupplementalDecisionReference:', start);
   if (start < 0 || end < 0) throw new Error('source-manifest externalOwnerObservations section is incomplete');
@@ -204,8 +204,14 @@ function parseExternalObservations(source) {
   }
   flushFile();
   const count = repositories.reduce((total, entry) => total + entry.files.length, 0);
-  if (repositories.length !== 6 || count !== 30 || repositories.some((entry) => !externalRoots[entry.repositoryId])) {
-    throw new Error(`Unexpected external contract denominator: ${repositories.length} repositories, ${count} files`);
+  const repositoryIds = repositories.map(entry => entry.repositoryId);
+  const invalidRepositories = repositories.filter((entry) => !externalRoots[entry.repositoryId]
+    || new Set(entry.files.map(file => file.path)).size !== entry.files.length).map(entry => entry.repositoryId);
+  const missingRepositories = Object.keys(externalRoots).filter(repositoryId => !repositoryIds.includes(repositoryId));
+  if (repositories.length !== Object.keys(externalRoots).length
+      || new Set(repositoryIds).size !== repositoryIds.length
+      || missingRepositories.length > 0 || invalidRepositories.length > 0 || count === 0) {
+    throw new Error(`Unexpected external contract denominator: ${repositories.length} repositories, ${count} files; missing=[${missingRepositories.join(',')}], invalid=[${invalidRepositories.join(',')}]`);
   }
   return repositories;
 }
@@ -1532,7 +1538,7 @@ function buildFingerprints(topology, registryBytes, external) {
     fingerprintInputs: {
       ownerGraph,
       physicalCatalog,
-      providerRegistryFingerprintBasis: 'Exact observed bytes for the 30 external contract files listed by source-manifest.yaml; repository revisions and dirty state remain diagnostics.',
+      providerRegistryFingerprintBasis: `Exact observed bytes for the ${external.totalFiles} external contract files listed by source-manifest.yaml; repository revisions and dirty state remain diagnostics.`,
     },
   };
 }
@@ -1723,7 +1729,7 @@ export function buildMediaPdp0CurrentnessObservation({ preserveExistingObservedA
       currentness: sourceDevelopmentCurrentness,
       technicalPeerReview: sourceDevelopmentCut.technicalPeerReview,
     })) {
-      throw new Error('PDP-0 source-development successor does not bind the exact current 54/207 source cut');
+      throw new Error(`PDP-0 source-development successor does not bind the exact current ${resolved.denominator.totalCells}-cell/${Object.keys(sourceContentDigests).length}-path source cut`);
     }
     sourceDevelopmentSuccessorDisposition = {
       recordId: sourceDevelopmentCut.recordId,

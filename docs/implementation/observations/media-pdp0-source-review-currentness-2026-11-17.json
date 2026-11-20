@@ -1,0 +1,1855 @@
+{
+  "schemaVersion": "media.pdp0.source-review-currentness-observation.v1",
+  "recordId": "MEDIA-PDP0-SOURCE-REVIEW-CURRENTNESS-2026-11-17",
+  "campaign": {
+    "macroStage": "DISCOVERY",
+    "exactPhase": "PDP-0 Product Truth",
+    "selectedReviewUnit": "PD-M1 Media direct-definition source review currentness",
+    "denominator": {
+      "totalSurfaceIdentities": 56,
+      "physical": 28,
+      "compositions": 7,
+      "logicalConsumers": 21,
+      "nativeDevCompleteCells": 0,
+      "explicitNotApplicableCells": 9,
+      "archivedLogicalConsumers": 1,
+      "physicalNoImplementationAdmitted": 3,
+      "activeLogicalScopesResolved": 20,
+      "remainingPhaseLocalTaskCount": 0,
+      "inProgressCells": 46,
+      "remainingPhaseLocalSurfaceCount": 46,
+      "proposedDirectChannelSurfaceCells": 14,
+      "derivedAggregateProposalCells": 21,
+      "unknownExtensionApplicabilityCells": 0,
+      "remainingPhaseLocalTaskCountKnown": true,
+      "unknownPhaseLocalSurfaceCount": 0
+    },
+    "topologyDerivedMaterialPathCount": 350,
+    "sourceBaseline": {
+      "repository": "samujjwal/ghatana-media",
+      "repositoryHead": "06cd31cf3b07e652fe8f6f64b5d340770608e9b2",
+      "workingTree": "DIRTY_PRESERVED",
+      "phaseStatusHead": "f4706af1bdc091a13b5a8f0127f4b722fc06d5ad",
+      "sourceFingerprintSet": {
+        ".product-experience/decision-log.md": "40e4e50cb6cc8fb5d85207d9fd80fbd0ba18fd51225cac44ea24683b7bafeebe",
+        ".product-experience/source-manifest.yaml": "e82a218f28d3b2ba540394e3a5945d9d8e1bea3b47b09941e92ebeb50de8a0bc",
+        ".product-experience/surfaces/media-physical-topology.v1.json": "a1f524c498fcdbde61f48cc3b8bb589e8803a0007d7b82908d7da81ea9065c9d",
+        "docs/implementation/media-pdp-38-readiness.json": "18a07f305c1d34fd2a0e05c09aa3d7b2ff1c89c86722d527fce424cbe20a8005",
+        "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/P0-01.v4.json": "cc4f0bce3a6570d24008b621e7101ee4b1a10561e430750efd611fe2b6fc8374",
+        "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/P0-02.v4.json": "e22b8ba8940674d6c497ee4218f5f309025c9fc947575d11a75ed400d64e3d19",
+        "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/P0-03.v4.json": "cc58306b9ddb499afcc5be4fecea5c9f7e53a8ade38d3e671e8865b9bf4d3fa5",
+        "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/P0-04.v4.json": "a0b716b3a8edfd07876f903ba9f5c6a79ad0c967109f260e1b65b3083d76abb7",
+        "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/P0-05.v4.json": "87aab53bddc0cc5e27625e34624d29ff2b3a07e4a11cf8161fbf369ab5fe2435",
+        "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/P0-06.v4.json": "c346382f1ba47ef3c10a4fbea37d14970019372ad3e001d82b25d71835cddf05",
+        "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/P0-07.v4.json": "9d09635cf947404f2f400496a67f2f2be9bdf242f90772a42eeadbbbc0f81f6f",
+        "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/P0-08.v4.json": "ee4f61c19c2dd175b244b8455c4040d8c0f920d6275f09489ddbeb679c9379ba",
+        "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/peer-review-record.v1.schema.json": "e7f2a9c6addf0fb89bfb27fb0e94defd73a12e47be56bd03b5afae08b3e98e7b",
+        "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/revision-decision.v3.schema.json": "29a2f360d23f91c435f639fbc0ff2ad39a56a9923bd66b600a28aefa965f03bc",
+        "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/technical-reviewer-authority.v1.schema.json": "e639d60e490e60eaa77aa28d25265e9abd07931b143db9b8573f046bf0389c01",
+        "docs/implementation/pdp-0-phase-dev-status.json": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b",
+        "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json": "7b2c7fc2059ee9f00846b8b1a292804c33d24957837fa1a9b06d06a163202733",
+        "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "99f9e74020fb59ff5f0ff84d33dba291fe205cc943166932c04d5343f32df8d6",
+        "scripts/lib/media-pdp0-current-source-review-assembler.mjs": "615f1d16bbebf61db0907a54ed8e3c7cbcaf39f104ad87d46d0c4ee6ffc51d69",
+        "scripts/lib/media-pdp0-review-successor-plan.mjs": "7607039263549beaca2323ab043de60dcf08edf4151db66f12c3b85b00a93b33",
+        "scripts/lib/media-pdp0-source-development-current-cut.mjs": "e1a3d526e295b588fe153b482fe18088206e33c3fcb91b4ef6ce986b85ecf335",
+        "scripts/record-media-discovery-pdp0-currentness.mjs": "3cb0619218ec1a3c032a660fae4a0c778acc2b5ddded52546de20028fc6d09f9",
+        "scripts/report-media-pdp0-source-review-currentness.mjs": "c1c903a546098c0b80ed767db5a9253e8a75dc5457f88879a48f42f6b57a666b"
+      }
+    }
+  },
+  "prerequisiteState": {
+    "phaseStatus": "IN_PROGRESS",
+    "statusSourcePins": {
+      "totalRefs": 322,
+      "wholeFileRefs": 298,
+      "selectorRefs": 24,
+      "staleOrUnreadableRefCount": 0,
+      "staleOrUnreadableRefs": [],
+      "currentness": "CURRENT"
+    },
+    "surfaceMatrixPhaseSourceCurrentness": {
+      "status": "CURRENT",
+      "sourcePinCount": 322,
+      "staleSourcePinCount": 0,
+      "staleSourcePins": [],
+      "missingPhaseSourcePins": [],
+      "note": "Live byte pins are checked by file path; #fragment pins are compared with pdp0PhaseScopedSourcePins() projections."
+    },
+    "sourceAuditDispositionValidation": {
+      "status": "PASS",
+      "original": 428,
+      "focused": 73,
+      "total": 501,
+      "unresolvedPdp0": 0
+    },
+    "surfaceDenominatorValidation": {
+      "status": "PASS",
+      "stats": {
+        "physicalManifestCandidates": 28,
+        "compositions": 7,
+        "logicalConsumers": 21,
+        "registrySurfaces": 21,
+        "archivedConsumers": 1,
+        "activeLogicalConsumers": 20,
+        "activeLogicalScopesResolved": 20,
+        "applicablePhysicalPdp0": 15,
+        "notApplicableSupportPhysicalPdp0": 8,
+        "noImplementationAdmittedPhysicalPdp0": 3,
+        "denominator": 56
+      }
+    },
+    "surfaceCellCount": 56,
+    "remainingPhaseLocalDefinitionTaskCount": 0,
+    "cellsNotAtDevComplete": 46
+  },
+  "permittedWork": "Bounded PDP-0 source review/currentness observation and validator repair only; no owner acceptance, independent acceptance, phase-status promotion, closure, Build admission, Delivery, or release.",
+  "materialSemanticReview": [
+    {
+      "criterionId": "P0-01",
+      "disposition": "MATERIAL_SOURCE_DELTA_REVIEW_REQUIRED",
+      "deltas": [
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#media.recipe.specification.compile",
+          "decisionRef": ".product-experience/decision-log.md#PXD-226",
+          "meaning": "Adds a bounded, reviewable schema-migration candidate to the existing compile capability; ordinary compile and source preservation remain unchanged."
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalkExtensions",
+          "decisionRef": ".product-experience/decision-log.md#PXD-227",
+          "meaning": "Adds the exact compile quality-applicability extension; measurement and qualification remain not evaluated."
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalkExtensions",
+          "decisionRef": ".product-experience/decision-log.md#PXD-229",
+          "meaning": "Adopts the source-defined applicability row while preserving the historical 462 quality rows."
+        }
+      ]
+    },
+    {
+      "criterionId": "P0-02",
+      "disposition": "MATERIAL_SOURCE_DELTA_REVIEW_REQUIRED",
+      "deltas": [
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases",
+          "decisionRef": ".product-experience/decision-log.md#PXD-226",
+          "meaning": "Adds acceptance cases AC-15/16/17 for ordinary compile, version-bound migration candidates, and fail-closed incomplete migration inputs."
+        }
+      ]
+    },
+    {
+      "criterionId": "P0-05",
+      "disposition": "SEMANTIC_REUSE; REVIEW_BINDING_REFRESH_REQUIRED",
+      "semanticSourceComparison": "PDP-0 constitution, policy authority, actor responsibility, domain model, and the three referenced PDP-1 state/transition/authority files are semantically unchanged from the historical review baseline.",
+      "currentDecisionRef": ".product-experience/decision-log.md#PXD-208"
+    },
+    {
+      "criterionId": "P0-06",
+      "disposition": "SEMANTIC_REUSE; REVIEW_BINDING_REFRESH_REQUIRED",
+      "semanticSourceComparison": "goals-jtbd.yaml and generated/product-definition.candidate.json are semantically unchanged from the historical review baseline.",
+      "currentDecisionRef": ".product-experience/decision-log.md#PXD-196"
+    },
+    {
+      "criterionId": "P0-07",
+      "disposition": "MATERIAL_SOURCE_DELTA_REVIEW_REQUIRED",
+      "deltas": [
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability",
+          "decisionRef": ".product-experience/decision-log.md#PXD-231",
+          "meaning": "Resolves three exact AUD-SPEC-020 surface/channel pairs while preserving the 56-identity denominator."
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#media.recipe.specification.compile",
+          "decisionRef": ".product-experience/decision-log.md#PXD-226",
+          "meaning": "Adds the selected compile migration extension and retains six future-version proposals."
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases",
+          "decisionRef": ".product-experience/decision-log.md#PXD-226",
+          "meaning": "Adds AC-15/16/17 to the source-bound recipe-template requirement."
+        }
+      ],
+      "unresolvedFindingIds": [
+        "P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231"
+      ],
+      "unresolvedFindingDisposition": "The 231 feature-family case semantic-fit rows remain open in the prior criterion review; PXD-231 resolves three surface applicability cells and does not resolve those rows."
+    }
+  ],
+  "projectionOnlyChanges": [
+    {
+      "sourceRef": ".product-experience/surfaces/media-physical-topology.v1.json",
+      "decisionRef": ".product-experience/decision-log.md#PXD-230",
+      "predecessorDenominator": {
+        "physical": 26,
+        "compositions": 7,
+        "logicalConsumers": 21,
+        "total": 54
+      },
+      "currentDenominator": {
+        "physical": 28,
+        "compositions": 7,
+        "logicalConsumers": 21,
+        "total": 56
+      },
+      "disposition": "STATUS_PROJECTION_RECONCILIATION; preserve the old 54-row status as predecessor and do not infer DEV_COMPLETE."
+    }
+  ],
+  "technicalCurrentness": {
+    "schemaVersion": "media.pdp0.current-source-review-currentness-observation.v1",
+    "phaseScope": "PDP-0",
+    "currentDenominator": {
+      "totalSurfaceIdentities": 56,
+      "physical": 28,
+      "compositions": 7,
+      "logicalConsumers": 21
+    },
+    "phaseStatusPinInventory": {
+      "totalRefs": 322,
+      "wholeFileRefs": 298,
+      "selectorRefs": 24,
+      "staleOrUnreadableRefCount": 0,
+      "staleOrUnreadableRefs": [],
+      "currentness": "CURRENT"
+    },
+    "criteria": [
+      {
+        "criterionId": "P0-01",
+        "inCurrentnessReviewScope": true,
+        "readinessState": "VERIFIED_IN_CURRENT_SOURCE",
+        "directCriterionStatus": "APPROVED_DIRECT_DEFINITION_CRITERION",
+        "historicalReviewHead": "b7685542a71a62c33f3a0cf074d22de6543e7935",
+        "historicalReviewDenominator": {
+          "physicalCandidates": 26,
+          "compositionSurfacesIncludingRoot": 7,
+          "logicalConsumers": 21,
+          "registeredIdentities": 54
+        },
+        "priorDecisionRef": null,
+        "currentDecisionRef": ".product-experience/decision-log.md#PXD-225",
+        "decisionBindingCurrent": false,
+        "staleReviewSourceRefs": [
+          {
+            "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
+            "priorSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
+            "currentSha256": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
+            "priorSha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517",
+            "currentSha256": "7b2c7fc2059ee9f00846b8b1a292804c33d24957837fa1a9b06d06a163202733"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+            "priorSha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1",
+            "currentSha256": "99f9e74020fb59ff5f0ff84d33dba291fe205cc943166932c04d5343f32df8d6"
+          },
+          {
+            "sourceRef": ".product-experience/source-manifest.yaml",
+            "priorSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
+            "currentSha256": "e82a218f28d3b2ba540394e3a5945d9d8e1bea3b47b09941e92ebeb50de8a0bc"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "priorSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+            "currentSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+            "priorSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+            "currentSha256": "e4e1616a651c55f8bc060d2889e49e8e29751083fc57690edfbc3f386dbfa6b6"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+            "priorSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+            "currentSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "priorSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+          },
+          {
+            "sourceRef": "tests/pdp-truth-domain-channel-profile-applicability.test.mjs",
+            "priorSha256": "63e543ae5691c547cbb23a61fd847d6ccf5e1280e82b57c8fd435da34370cbf0",
+            "currentSha256": "3324b178a7cb8cf238bde47e47d62c8465aa997cd8b56f5a6ef7144c04e26d10"
+          },
+          {
+            "sourceRef": "tests/pdp0-current-source-reconciliation-pxd225.test.mjs",
+            "priorSha256": "3104c16b88babeabaf372d7ea305805a434cc06c634f41d0b7055abd378136de",
+            "currentSha256": "1c7a3cef6ee01b8ff646ecb2c2b16a71148fd56cd0666600e81a135d0324a10b"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/P0-01.log",
+            "priorSha256": "1ca1c568b9c7f55c68da7fd0aa6833e15867c00103020f55f12eda774287b331",
+            "currentSha256": "0f25267e1369a9e04037a354aa615e914595563c4de70d32ef7fbc93e9682363"
+          }
+        ],
+        "directReviewPinMismatches": [
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "priorSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+            "currentSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+            "priorSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+            "currentSha256": "e4e1616a651c55f8bc060d2889e49e8e29751083fc57690edfbc3f386dbfa6b6"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+            "priorSha256": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+            "currentSha256": "cf07857ae30b8b4b750a06c5af7f37680feea17f3c0034dd7194c6b9d36fb0a4"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "priorSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+            "priorSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+            "currentSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "priorSha256": "1c0daf9ee0cd600ec097baca0dded1d58d1803f6c147716a076705c37ad8cc26",
+            "currentSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+            "priorSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+            "currentSha256": "e4e1616a651c55f8bc060d2889e49e8e29751083fc57690edfbc3f386dbfa6b6"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+            "priorSha256": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+            "currentSha256": "cf07857ae30b8b4b750a06c5af7f37680feea17f3c0034dd7194c6b9d36fb0a4"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "priorSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+            "priorSha256": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
+            "currentSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34"
+          },
+          {
+            "sourceRef": "tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs",
+            "priorSha256": "5ab40402cea896177e43a5bb0a0677a7f7ffe91d3bed542d5306e5619f9cba7d",
+            "currentSha256": "87ccf0d999b0f597f779796f16a316772b24295a201f5813bea17c45e8960773"
+          }
+        ],
+        "technicalReviewCurrentness": "STALE_OR_INCOMPLETE"
+      },
+      {
+        "criterionId": "P0-02",
+        "inCurrentnessReviewScope": true,
+        "readinessState": "VERIFIED_IN_CURRENT_SOURCE",
+        "directCriterionStatus": "APPROVED_DIRECT_DEFINITION_CRITERION",
+        "historicalReviewHead": "b7685542a71a62c33f3a0cf074d22de6543e7935",
+        "historicalReviewDenominator": {
+          "physicalCandidates": 26,
+          "compositionSurfacesIncludingRoot": 7,
+          "logicalConsumers": 21,
+          "registeredIdentities": 54
+        },
+        "priorDecisionRef": null,
+        "currentDecisionRef": ".product-experience/decision-log.md#PXD-196",
+        "decisionBindingCurrent": false,
+        "staleReviewSourceRefs": [
+          {
+            "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
+            "priorSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
+            "currentSha256": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
+            "priorSha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517",
+            "currentSha256": "7b2c7fc2059ee9f00846b8b1a292804c33d24957837fa1a9b06d06a163202733"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+            "priorSha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1",
+            "currentSha256": "99f9e74020fb59ff5f0ff84d33dba291fe205cc943166932c04d5343f32df8d6"
+          },
+          {
+            "sourceRef": ".product-experience/source-manifest.yaml",
+            "priorSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
+            "currentSha256": "e82a218f28d3b2ba540394e3a5945d9d8e1bea3b47b09941e92ebeb50de8a0bc"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "priorSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+            "currentSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+            "priorSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+            "currentSha256": "e4e1616a651c55f8bc060d2889e49e8e29751083fc57690edfbc3f386dbfa6b6"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+            "priorSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+            "currentSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "priorSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/P0-02.log",
+            "priorSha256": "4fd1b0aab542b8fe542c5ff660c754c956da80a9a78282e0c617551e982e6bbb",
+            "currentSha256": "e41b9b49d2270fa2c24e73e0bb933fb3fb164bd5e46f1052f1bf81dff5e19dbe"
+          }
+        ],
+        "directReviewPinMismatches": [
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "priorSha256": "bc1d9c389afc3445015679aa9bbf63dae310b5a91b34dbf7046a8de92f52dbba",
+            "currentSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+            "priorSha256": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
+            "currentSha256": "e4e1616a651c55f8bc060d2889e49e8e29751083fc57690edfbc3f386dbfa6b6"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/profile-semantics.yaml",
+            "priorSha256": "822767f9562487f5e0d05a984fffaf4a6862f4db67d123c13b7fdc5dbe83ea9a",
+            "currentSha256": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce"
+          },
+          {
+            "sourceRef": "tests/media-operation-bounds.test.mjs",
+            "priorSha256": "3d464c78f2c8a7f92a7466835269499fb2da6e94a86dc5a4fe4211884f8d6341",
+            "currentSha256": "75b0c11a2239f819322f7f1dee8633da761dd0beb19e53d26ba8f342ae1835a8"
+          },
+          {
+            "sourceRef": "tests/pdp0-bounded-resource-admission.test.mjs",
+            "priorSha256": "9b7e26ee41a5b3c225ed2d368c3df36537703480767522852d71340cc451e644",
+            "currentSha256": "7dfe35af51229a2dd1442b8166afdb99e1940ba45f05df55931fdde5a0ab4654"
+          },
+          {
+            "sourceRef": "tests/pdp-truth-domain-channel-profile-applicability.test.mjs",
+            "priorSha256": "072f003e76288d2f3aa04c340c5d87fc9913a963130e4e32c333fdb736b73f31",
+            "currentSha256": "3324b178a7cb8cf238bde47e47d62c8465aa997cd8b56f5a6ef7144c04e26d10"
+          }
+        ],
+        "technicalReviewCurrentness": "STALE_OR_INCOMPLETE"
+      },
+      {
+        "criterionId": "P0-03",
+        "inCurrentnessReviewScope": false,
+        "readinessState": "NOT_ESTABLISHED",
+        "directCriterionStatus": "ABSENT",
+        "historicalReviewHead": "b7685542a71a62c33f3a0cf074d22de6543e7935",
+        "historicalReviewDenominator": {
+          "physicalCandidates": 26,
+          "compositionSurfacesIncludingRoot": 7,
+          "logicalConsumers": 21,
+          "registeredIdentities": 54
+        },
+        "priorDecisionRef": null,
+        "currentDecisionRef": null,
+        "decisionBindingCurrent": true,
+        "staleReviewSourceRefs": [
+          {
+            "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
+            "priorSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
+            "currentSha256": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
+            "priorSha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517",
+            "currentSha256": "7b2c7fc2059ee9f00846b8b1a292804c33d24957837fa1a9b06d06a163202733"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+            "priorSha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1",
+            "currentSha256": "99f9e74020fb59ff5f0ff84d33dba291fe205cc943166932c04d5343f32df8d6"
+          },
+          {
+            "sourceRef": ".product-experience/source-manifest.yaml",
+            "priorSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
+            "currentSha256": "e82a218f28d3b2ba540394e3a5945d9d8e1bea3b47b09941e92ebeb50de8a0bc"
+          },
+          {
+            "sourceRef": "scripts/lib/media-product-definition-residuals.mjs",
+            "priorSha256": "8683eef87a7d153b49b6f2b3c5788b00825a0eaa27870d8b267ad907716ac122",
+            "currentSha256": "bb7b6f74738a0abd061b0d336fefc6a684e849fa176585a31de62d8274c80afd"
+          },
+          {
+            "sourceRef": "tests/pdp-migration-current-source-claim-dispositions.test.mjs",
+            "priorSha256": "107cabb57c0f582b5f284e01922df7dc9e52da00bc902d1206f323576ec5d973",
+            "currentSha256": "22a0715a7d003726196e645fb1e61f784336cdf3b45adb81d0579516fd3396e2"
+          },
+          {
+            "sourceRef": "tests/pdp-migration-semantic-reconciliation.test.mjs",
+            "priorSha256": "93ddf2a0231420f8064f3cc16139e21718c1a078ea2be6b7536aef36f32eb719",
+            "currentSha256": "c13b219ab49efa7dfc7d16ebe642f1cb98475cf97bb569fe9129c3eb862e2f66"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/P0-03.log",
+            "priorSha256": "4a8b62ebbba5219cf66007c1fd838fdedc9b7ca56d9f33797ad823ce35c51b95",
+            "currentSha256": "1ca4a14703ac25765871a50e670c2c56ed1731f7ec37fa1e3d581ad159e8ba83"
+          }
+        ],
+        "directReviewPinMismatches": [],
+        "technicalReviewCurrentness": "STALE_OR_INCOMPLETE"
+      },
+      {
+        "criterionId": "P0-04",
+        "inCurrentnessReviewScope": false,
+        "readinessState": "VERIFIED_IN_CURRENT_SOURCE",
+        "directCriterionStatus": "ABSENT",
+        "historicalReviewHead": "b7685542a71a62c33f3a0cf074d22de6543e7935",
+        "historicalReviewDenominator": {
+          "physicalCandidates": 26,
+          "compositionSurfacesIncludingRoot": 7,
+          "logicalConsumers": 21,
+          "registeredIdentities": 54
+        },
+        "priorDecisionRef": null,
+        "currentDecisionRef": null,
+        "decisionBindingCurrent": true,
+        "staleReviewSourceRefs": [
+          {
+            "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
+            "priorSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
+            "currentSha256": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
+            "priorSha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517",
+            "currentSha256": "7b2c7fc2059ee9f00846b8b1a292804c33d24957837fa1a9b06d06a163202733"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json",
+            "priorSha256": "bb59ca3dbc9e84e07847f688d9c7978a4059f185cdb0b203f63d7083b0a612f1",
+            "currentSha256": "99f9e74020fb59ff5f0ff84d33dba291fe205cc943166932c04d5343f32df8d6"
+          },
+          {
+            "sourceRef": ".product-experience/source-manifest.yaml",
+            "priorSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
+            "currentSha256": "e82a218f28d3b2ba540394e3a5945d9d8e1bea3b47b09941e92ebeb50de8a0bc"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "priorSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/P0-04.log",
+            "priorSha256": "d2f3e9481f39cd52aef804f3bf6d1a443c2c82d0f11f2b8ccefb8e64e35c14f2",
+            "currentSha256": "ba50fb090c5b5b07606e626f7ec28b55d3cd4cf67e047c8b64bc82d8b70608dd"
+          }
+        ],
+        "directReviewPinMismatches": [],
+        "technicalReviewCurrentness": "STALE_OR_INCOMPLETE"
+      },
+      {
+        "criterionId": "P0-05",
+        "inCurrentnessReviewScope": true,
+        "readinessState": "VERIFIED_IN_CURRENT_SOURCE",
+        "directCriterionStatus": "APPROVED_DIRECT_DEFINITION_CRITERION",
+        "historicalReviewHead": "b7685542a71a62c33f3a0cf074d22de6543e7935",
+        "historicalReviewDenominator": {
+          "physicalCandidates": 26,
+          "compositionSurfacesIncludingRoot": 7,
+          "logicalConsumers": 21,
+          "registeredIdentities": 54
+        },
+        "priorDecisionRef": ".product-experience/decision-log.md#PXD-099",
+        "currentDecisionRef": ".product-experience/decision-log.md#PXD-208",
+        "decisionBindingCurrent": false,
+        "staleReviewSourceRefs": [
+          {
+            "sourceRef": ".product-experience/decision-log.md",
+            "priorSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2",
+            "currentSha256": "40e4e50cb6cc8fb5d85207d9fd80fbd0ba18fd51225cac44ea24683b7bafeebe"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "priorSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+            "currentSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+            "priorSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+            "currentSha256": "e4e1616a651c55f8bc060d2889e49e8e29751083fc57690edfbc3f386dbfa6b6"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "priorSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+          },
+          {
+            "sourceRef": ".product-experience/source-manifest.yaml",
+            "priorSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
+            "currentSha256": "e82a218f28d3b2ba540394e3a5945d9d8e1bea3b47b09941e92ebeb50de8a0bc"
+          },
+          {
+            "sourceRef": ".product-experience/surfaces/media-physical-topology.v1.json",
+            "priorSha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1",
+            "currentSha256": "a1f524c498fcdbde61f48cc3b8bb589e8803a0007d7b82908d7da81ea9065c9d"
+          },
+          {
+            "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+            "priorSha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
+            "currentSha256": "9019c9461d6642aea65ca93074257b8b79534ef54b290e04038515d5cdad1118"
+          },
+          {
+            "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
+            "priorSha256": "b9eb443bfbb58a8b97db19b15ca063205841969b28130745971a57eb83a6431c",
+            "currentSha256": "46ebe0cd8ca9697cd424d24b9261a3254d80e34e9860b2fc26b7d7a588907457"
+          },
+          {
+            "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
+            "priorSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
+            "currentSha256": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/P0-05.log",
+            "priorSha256": "c1c79107d3537727278232dd197480b65be31df5167b3556018b6accc2a21500",
+            "currentSha256": "a867d73e224f33e163117817373aa116efd388edc79d199d1eb0956eadbe99e9"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
+            "priorSha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517",
+            "currentSha256": "7b2c7fc2059ee9f00846b8b1a292804c33d24957837fa1a9b06d06a163202733"
+          }
+        ],
+        "directReviewPinMismatches": [
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "priorSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "priorSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+            "currentSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+          },
+          {
+            "sourceRef": "tests/media-pdp-readiness.test.mjs",
+            "priorSha256": "909d17e5bce12cd49f9ff3dba4e4968458bbeecfa45f413ae941c6d6726e18f7",
+            "currentSha256": "417862ae95ece9dcf9ef7a9e3585779c96908077282cc890d858e7cd281c4fa9"
+          },
+          {
+            "sourceRef": ".product-experience/artifact-identities.yaml",
+            "priorSha256": "2f2b0503b3ccb455e58afc21dca66469e8da2b12974ab0b68df5212113f5573e",
+            "currentSha256": "1f3ab193451562d27befa210e7b0b3741e6f91e257b25e58033d089f78b83c70"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+            "priorSha256": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+            "currentSha256": "72ddbef91f7426d704effa153fc9e9af3491ec27f3b66476a9969e4af63ebf4b"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "priorSha256": "ad3f569668f817a1536741ae105d729911c42e6fb801c01d7022ba19168b7c33",
+            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+          },
+          {
+            "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+            "priorSha256": "4c87f284517b07cd16461ecef3d79588fa2e0ac6159b2d2a776d886b48f3d226",
+            "currentSha256": "9019c9461d6642aea65ca93074257b8b79534ef54b290e04038515d5cdad1118"
+          },
+          {
+            "sourceRef": "tests/media-pdp-readiness.test.mjs",
+            "priorSha256": "cdcc7f1063aa7f051c1c7ce57ccfb7e45013fbf7956e65b7fba585f6ba867981",
+            "currentSha256": "417862ae95ece9dcf9ef7a9e3585779c96908077282cc890d858e7cd281c4fa9"
+          },
+          {
+            "sourceRef": "tests/media-pdp0-501-audit-dispositions.test.mjs",
+            "priorSha256": "ceb1564d7cba15940fe9fed04cd26ffdad257d49830b319acc71df6ed7259cf4",
+            "currentSha256": "cb21a4cdc44acb1974afc0cf23e7dba94446ae3007aae971c2e9aa23b9ef5077"
+          },
+          {
+            "sourceRef": "tests/pdp0-semantic-corrections.test.mjs",
+            "priorSha256": "fbee28f3f659c6053c1ed5c7f7b67bbec23f20ce09bb9edf7a0b5ceff26c3247",
+            "currentSha256": "d03a7d3ebc5f5fbccdc1b24634c7b114f3e8b5e6f007d5f3ed29bc627bcbd8dd"
+          },
+          {
+            "sourceRef": "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs",
+            "priorSha256": "589e33ec0ff9c4d8c89acc78863443185f00be7b7759b424d219aafff64ed5b0",
+            "currentSha256": "96171768d39fab8f62cad23de9262aea1e3eee2d63cad756591428a110344b61"
+          },
+          {
+            "sourceRef": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+            "priorSha256": "2242e495196f473098499e8f51d7ef5e8fe44582edebef6d0bb7333b4b56f931",
+            "currentSha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081"
+          },
+          {
+            "sourceRef": "tests/pdp0-phase-scoped-source-fingerprints.test.mjs",
+            "priorSha256": "cded5a4617493afa30685c6f6226893f1b1e5f42ca74acf826421230d42e00e9",
+            "currentSha256": "7fbab028cbce9619c05ba65540095dbb48840ef9fa528bc059f44f5087b9fd35"
+          },
+          {
+            "sourceRef": "tests/pdp0-generated-audio-checkpoint-rights.test.mjs",
+            "priorSha256": "931c25164964098ca084e26637b0b8ada231d57eff524a507db9d5f37ca02155",
+            "currentSha256": "a25a6953227e565c1b4b105ba150671f061230b44187785707ec3955a8db331e"
+          },
+          {
+            "sourceRef": ".product-experience/source-manifest.yaml#PDP-0-projection",
+            "priorSha256": "d20cb3e0f2a4c8dd00ffc7ae3e6db01b9f4a32448e232d4d61083b4367ef44f6",
+            "currentSha256": "d2e77f94228aba330f52f8785cde7044587cb058e2e829e03d1bca15282a076e"
+          },
+          {
+            "sourceRef": "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection",
+            "priorSha256": "7edc5775f6aeb83333cf31000587ece263e47a2ee0f8a9442c5f20e3eebff1bb",
+            "currentSha256": "213abc572b9d7f1c44a13bdd672381cab61ebc0b96bf9c9f37f92acb8ae32514"
+          }
+        ],
+        "technicalReviewCurrentness": "STALE_OR_INCOMPLETE"
+      },
+      {
+        "criterionId": "P0-06",
+        "inCurrentnessReviewScope": true,
+        "readinessState": "VERIFIED_IN_CURRENT_SOURCE",
+        "directCriterionStatus": "APPROVED_DIRECT_DEFINITION_CRITERION",
+        "historicalReviewHead": "b7685542a71a62c33f3a0cf074d22de6543e7935",
+        "historicalReviewDenominator": {
+          "physicalCandidates": 26,
+          "compositionSurfacesIncludingRoot": 7,
+          "logicalConsumers": 21,
+          "registeredIdentities": 54
+        },
+        "priorDecisionRef": ".product-experience/decision-log.md#PXD-099",
+        "currentDecisionRef": ".product-experience/decision-log.md#PXD-196",
+        "decisionBindingCurrent": false,
+        "staleReviewSourceRefs": [
+          {
+            "sourceRef": ".product-experience/decision-log.md",
+            "priorSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2",
+            "currentSha256": "40e4e50cb6cc8fb5d85207d9fd80fbd0ba18fd51225cac44ea24683b7bafeebe"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "priorSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+            "currentSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+            "priorSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+            "currentSha256": "e4e1616a651c55f8bc060d2889e49e8e29751083fc57690edfbc3f386dbfa6b6"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+            "priorSha256": "eb8751b7a8b84318a2ef37152a603d8256acf621a3265ce794757505d9fdaf3a",
+            "currentSha256": "cf07857ae30b8b4b750a06c5af7f37680feea17f3c0034dd7194c6b9d36fb0a4"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "priorSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+          },
+          {
+            "sourceRef": ".product-experience/source-manifest.yaml",
+            "priorSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
+            "currentSha256": "e82a218f28d3b2ba540394e3a5945d9d8e1bea3b47b09941e92ebeb50de8a0bc"
+          },
+          {
+            "sourceRef": ".product-experience/surfaces/media-physical-topology.v1.json",
+            "priorSha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1",
+            "currentSha256": "a1f524c498fcdbde61f48cc3b8bb589e8803a0007d7b82908d7da81ea9065c9d"
+          },
+          {
+            "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+            "priorSha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
+            "currentSha256": "9019c9461d6642aea65ca93074257b8b79534ef54b290e04038515d5cdad1118"
+          },
+          {
+            "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
+            "priorSha256": "b9eb443bfbb58a8b97db19b15ca063205841969b28130745971a57eb83a6431c",
+            "currentSha256": "46ebe0cd8ca9697cd424d24b9261a3254d80e34e9860b2fc26b7d7a588907457"
+          },
+          {
+            "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
+            "priorSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
+            "currentSha256": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/P0-06.log",
+            "priorSha256": "3fdb3114ba8900dab058ea4de7d2e5354a9f21c00d5571a7dbfc6f102faaf3aa",
+            "currentSha256": "068384826ff9b881d2d01086f28e7dd016cf958fd5e69cd391a6aa4bbc7b5bdd"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
+            "priorSha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517",
+            "currentSha256": "7b2c7fc2059ee9f00846b8b1a292804c33d24957837fa1a9b06d06a163202733"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json",
+            "priorSha256": "4efe9bd5385dd083fab802aa98f39df081cde3304db5355779b8b71720d211fd",
+            "currentSha256": "c6d9d214f46332169404e9201beff133b606c60bd4ea8e807ec6866ac46e5f11"
+          },
+          {
+            "sourceRef": "tests/pdp0-current-source-reconciliation-pxd206.test.mjs",
+            "priorSha256": "679d4ecad15eff9c506a0f18bf6d1eb2fb1b4677a920866d204cdd01b8a1bb93",
+            "currentSha256": "e74f99d7dfb8bb240c84734be3bfb73c00feb71add6da2e6a93792a668209c13"
+          },
+          {
+            "sourceRef": "tests/pdp0-quality-current-source-review-pxd225.test.mjs",
+            "priorSha256": "67a106e7685703f620cd2ff455034a3f43a664288f85b78a466c8317c94d9ae5",
+            "currentSha256": "abc424a171b56124f4af2b29156b0c7bf207d6fede36697e186944395e9a4b0c"
+          }
+        ],
+        "directReviewPinMismatches": [
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "priorSha256": "bc1d9c389afc3445015679aa9bbf63dae310b5a91b34dbf7046a8de92f52dbba",
+            "currentSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+            "priorSha256": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770",
+            "currentSha256": "cf07857ae30b8b4b750a06c5af7f37680feea17f3c0034dd7194c6b9d36fb0a4"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/p0-quality-current-source-review-current.json",
+            "priorSha256": "3018f76a21fde4599b1fa5a1565e9327522ff76d5ea2397cda878e85460aa62e",
+            "currentSha256": "a9373535178a7040425e5f40f31951f7359abfb4aa64daf37157ef539b443b3c"
+          },
+          {
+            "sourceRef": "scripts/lib/pdp0-feature-review-applicability.mjs",
+            "priorSha256": "8bc7e736424cf698bc7fac3e992f588001534a2b4d943c8786618cb6663946d0",
+            "currentSha256": "df3de67a1828ece812b3d2fdc283ccc4f4419b616b124dbde657021e66893433"
+          },
+          {
+            "sourceRef": "tests/pdp0-quality-current-source-review.test.mjs",
+            "priorSha256": "1acc500727ebc2d7a8dda91a8c75a79c70c9b634fed941346b2963b13756feef",
+            "currentSha256": "c131be4245716d97471dda9bb826e7d5e86716c3fe387968b848b608701df142"
+          },
+          {
+            "sourceRef": "tests/media-measure-applicability-crosswalk.test.mjs",
+            "priorSha256": "215479fc8472f8febbde8a7b1baab0bcde79607e2def2f812154f3122723bd38",
+            "currentSha256": "7b335bc7e9f694878f1e4829bf5e0570c6034de9cbf223f0b9510e3bc564546d"
+          },
+          {
+            "sourceRef": "tests/pdp-truth-domain-quality-applicability.test.mjs",
+            "priorSha256": "8e5fae64d5b4b4ba4ca994f5a606410bf47d9d14471216cb7620dc60af5fb46b",
+            "currentSha256": "793c6acce25cbd9d821f33d31868230b5076d8ed0f2d7ffbe5926087d071353e"
+          }
+        ],
+        "technicalReviewCurrentness": "STALE_OR_INCOMPLETE"
+      },
+      {
+        "criterionId": "P0-07",
+        "inCurrentnessReviewScope": true,
+        "readinessState": "VERIFIED_IN_CURRENT_SOURCE",
+        "directCriterionStatus": "APPROVED_DIRECT_DEFINITION_CRITERION",
+        "historicalReviewHead": "b7685542a71a62c33f3a0cf074d22de6543e7935",
+        "historicalReviewDenominator": {
+          "physicalCandidates": 26,
+          "compositionSurfacesIncludingRoot": 7,
+          "logicalConsumers": 21,
+          "registeredIdentities": 54
+        },
+        "priorDecisionRef": ".product-experience/decision-log.md#PXD-105",
+        "currentDecisionRef": ".product-experience/decision-log.md#PXD-196",
+        "decisionBindingCurrent": false,
+        "staleReviewSourceRefs": [
+          {
+            "sourceRef": ".product-experience/decision-log.md",
+            "priorSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2",
+            "currentSha256": "40e4e50cb6cc8fb5d85207d9fd80fbd0ba18fd51225cac44ea24683b7bafeebe"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+            "priorSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+            "currentSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+            "priorSha256": "7963e356453b3ecdc41ddc93fa969e51f48d8a95133daf72f6256bb8ea2773f6",
+            "currentSha256": "72ddbef91f7426d704effa153fc9e9af3491ec27f3b66476a9969e4af63ebf4b"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "priorSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+            "currentSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+            "priorSha256": "dc50362cb65b82db9a11edcf69fa596faa7189b447433c6d0988992d1363f0ad",
+            "currentSha256": "e4e1616a651c55f8bc060d2889e49e8e29751083fc57690edfbc3f386dbfa6b6"
+          },
+          {
+            "sourceRef": ".product-experience/source-manifest.yaml",
+            "priorSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
+            "currentSha256": "e82a218f28d3b2ba540394e3a5945d9d8e1bea3b47b09941e92ebeb50de8a0bc"
+          },
+          {
+            "sourceRef": ".product-experience/surfaces/media-physical-topology.v1.json",
+            "priorSha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1",
+            "currentSha256": "a1f524c498fcdbde61f48cc3b8bb589e8803a0007d7b82908d7da81ea9065c9d"
+          },
+          {
+            "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+            "priorSha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
+            "currentSha256": "9019c9461d6642aea65ca93074257b8b79534ef54b290e04038515d5cdad1118"
+          },
+          {
+            "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
+            "priorSha256": "b9eb443bfbb58a8b97db19b15ca063205841969b28130745971a57eb83a6431c",
+            "currentSha256": "46ebe0cd8ca9697cd424d24b9261a3254d80e34e9860b2fc26b7d7a588907457"
+          },
+          {
+            "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
+            "priorSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
+            "currentSha256": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/P0-07.log",
+            "priorSha256": "e235bcd5789b26c7ab103590d0e6848c6abfcb325e93b414e7b1405f6a0ef59e",
+            "currentSha256": "51fecc916c04937ab85956bba03ba672500fd36da4cec3ca7c873113afea0eff"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
+            "priorSha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517",
+            "currentSha256": "7b2c7fc2059ee9f00846b8b1a292804c33d24957837fa1a9b06d06a163202733"
+          },
+          {
+            "sourceRef": "tests/media-pdp0-surface-denominator.test.mjs",
+            "priorSha256": "9120977926864a85fefde9f272d7be1cb802ab126126d3fba99539eef0c40140",
+            "currentSha256": "73ebb1308b4976e02bb5ec8dc144c1c37208b23bb98be7ff480f0d3e3594bb41"
+          },
+          {
+            "sourceRef": "tests/pdp-truth-domain-channel-profile-applicability.test.mjs",
+            "priorSha256": "63e543ae5691c547cbb23a61fd847d6ccf5e1280e82b57c8fd435da34370cbf0",
+            "currentSha256": "3324b178a7cb8cf238bde47e47d62c8465aa997cd8b56f5a6ef7144c04e26d10"
+          },
+          {
+            "sourceRef": "tests/pdp0-campaign-extension-surface-matrix.test.mjs",
+            "priorSha256": "a5c60c21b04e7bd25f749c8ce071dab083b93cf35e4919c2ed5056a2d1bb12c7",
+            "currentSha256": "6a83a22248e7850ff1df3cfa4058fa8ff8178bc7b201d77a12562019cad580e8"
+          }
+        ],
+        "directReviewPinMismatches": [
+          {
+            "sourceRef": ".product-experience/artifact-identities.yaml",
+            "priorSha256": "2f2b0503b3ccb455e58afc21dca66469e8da2b12974ab0b68df5212113f5573e",
+            "currentSha256": "1f3ab193451562d27befa210e7b0b3741e6f91e257b25e58033d089f78b83c70"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+            "priorSha256": "b9f6a24eb1ef1e55dc64e4deacda7f713818acfdd8d11b1576747bdf723eccaa",
+            "currentSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+            "priorSha256": "80b63ab5cabe9cd2ba6679c1d7bb344f12572a88ab22d9b805182816235307ab",
+            "currentSha256": "72ddbef91f7426d704effa153fc9e9af3491ec27f3b66476a9969e4af63ebf4b"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+            "priorSha256": "bc1d9c389afc3445015679aa9bbf63dae310b5a91b34dbf7046a8de92f52dbba",
+            "currentSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+            "priorSha256": "60557c2ae73052232b5a7f8b08a521cfabcdc275c416707b47155a878c7b8cea",
+            "currentSha256": "e4e1616a651c55f8bc060d2889e49e8e29751083fc57690edfbc3f386dbfa6b6"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+            "priorSha256": "439276c05d4537d80b34c9116b5e476487944aaf40ce8c09f74c0761041fe770",
+            "currentSha256": "cf07857ae30b8b4b750a06c5af7f37680feea17f3c0034dd7194c6b9d36fb0a4"
+          },
+          {
+            "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+            "priorSha256": "ad3f569668f817a1536741ae105d729911c42e6fb801c01d7022ba19168b7c33",
+            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+          },
+          {
+            "sourceRef": ".product-experience/surfaces/media-physical-topology.v1.json",
+            "priorSha256": "b98a9c69b20aba0098e628ce54372ea7edc86c6657f3f90edbb1b76e2eee62a2",
+            "currentSha256": "a1f524c498fcdbde61f48cc3b8bb589e8803a0007d7b82908d7da81ea9065c9d"
+          },
+          {
+            "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+            "priorSha256": "4c87f284517b07cd16461ecef3d79588fa2e0ac6159b2d2a776d886b48f3d226",
+            "currentSha256": "9019c9461d6642aea65ca93074257b8b79534ef54b290e04038515d5cdad1118"
+          },
+          {
+            "sourceRef": "scripts/check-media-pdp0-surface-denominator.mjs",
+            "priorSha256": "f20d54e3d4cef27665af7fb7d31325f4669edab519e61ec5ea884a894955defc",
+            "currentSha256": "510d556add248113de7b7e05d0f60b72bc68ffcfdbae1529b03c4f94bc834ee6"
+          },
+          {
+            "sourceRef": "scripts/check-product-experience-local.mjs",
+            "priorSha256": "223bf88b3d7554b4e654ea312aaccb334d1be0dc75ce103c6d92582bc66d08be",
+            "currentSha256": "cd47dcc0585a9b4d3ac3b39b0dc87a5d6a1bc460c42729c2c8f25da451085107"
+          },
+          {
+            "sourceRef": "scripts/report-media-pdp-readiness.mjs",
+            "priorSha256": "cba499750db63162d77ca49dcadcc81c2d1a4c35802fb54428201ec1d05a34b4",
+            "currentSha256": "5e04eb5ab283ee40324bad2d035e623454eaaf2701213b294a4e39b22ea5e901"
+          },
+          {
+            "sourceRef": "tests/media-p0-07-feature-channel-review.test.mjs",
+            "priorSha256": "4d03829dee1d9db0ca38497f60ef7e70e46768ef90075d8540f08b0dc1d04ee9",
+            "currentSha256": "d24816e776b10bab7300fb3157be2e6a658be028f40c6f34f30157f8d14d4a0e"
+          },
+          {
+            "sourceRef": "tests/media-pdp-readiness.test.mjs",
+            "priorSha256": "cdcc7f1063aa7f051c1c7ce57ccfb7e45013fbf7956e65b7fba585f6ba867981",
+            "currentSha256": "417862ae95ece9dcf9ef7a9e3585779c96908077282cc890d858e7cd281c4fa9"
+          },
+          {
+            "sourceRef": "tests/media-pdp0-501-audit-dispositions.test.mjs",
+            "priorSha256": "ceb1564d7cba15940fe9fed04cd26ffdad257d49830b319acc71df6ed7259cf4",
+            "currentSha256": "cb21a4cdc44acb1974afc0cf23e7dba94446ae3007aae971c2e9aa23b9ef5077"
+          },
+          {
+            "sourceRef": "tests/media-pdp0-surface-denominator.test.mjs",
+            "priorSha256": "5d2b7da4854d7efaf1e304d92725ca5519e33a376507014a26815e0a5dce9202",
+            "currentSha256": "73ebb1308b4976e02bb5ec8dc144c1c37208b23bb98be7ff480f0d3e3594bb41"
+          },
+          {
+            "sourceRef": "tests/pdp-truth-domain-channel-profile-applicability.test.mjs",
+            "priorSha256": "072f003e76288d2f3aa04c340c5d87fc9913a963130e4e32c333fdb736b73f31",
+            "currentSha256": "3324b178a7cb8cf238bde47e47d62c8465aa997cd8b56f5a6ef7144c04e26d10"
+          },
+          {
+            "sourceRef": "tests/pdp-truth-domain.test.mjs",
+            "priorSha256": "8ef1a6d5e11dc2e10ca32c3e6813fc8671c22a6c7f7038d48300d52f8feae578",
+            "currentSha256": "d29472b12db8f7e3cfdff21f5f42fa0a3a8ec8c47f39bc2106889ff5bf605f03"
+          },
+          {
+            "sourceRef": "tests/product-experience-local.test.mjs",
+            "priorSha256": "b7aa89c69d34ad6c528c895b28b9087c45a8d28d6e15b7cbd163d6256e9ce4ee",
+            "currentSha256": "6f709a7e32337a61e0ff47cab80915b1d0ec1b21c7a8bdfabe24a266a7c7dc5c"
+          },
+          {
+            "sourceRef": "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs",
+            "priorSha256": "589e33ec0ff9c4d8c89acc78863443185f00be7b7759b424d219aafff64ed5b0",
+            "currentSha256": "96171768d39fab8f62cad23de9262aea1e3eee2d63cad756591428a110344b61"
+          },
+          {
+            "sourceRef": "scripts/lib/pdp0-phase-scoped-source-fingerprints.mjs",
+            "priorSha256": "2242e495196f473098499e8f51d7ef5e8fe44582edebef6d0bb7333b4b56f931",
+            "currentSha256": "420d54f3f5bdff2852db13855047c3d8b42ec174548521907d348d992f2c5081"
+          },
+          {
+            "sourceRef": "tests/pdp0-phase-scoped-source-fingerprints.test.mjs",
+            "priorSha256": "cded5a4617493afa30685c6f6226893f1b1e5f42ca74acf826421230d42e00e9",
+            "currentSha256": "7fbab028cbce9619c05ba65540095dbb48840ef9fa528bc059f44f5087b9fd35"
+          },
+          {
+            "sourceRef": ".product-experience/source-manifest.yaml#PDP-0-projection",
+            "priorSha256": "d20cb3e0f2a4c8dd00ffc7ae3e6db01b9f4a32448e232d4d61083b4367ef44f6",
+            "currentSha256": "d2e77f94228aba330f52f8785cde7044587cb058e2e829e03d1bca15282a076e"
+          },
+          {
+            "sourceRef": "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection",
+            "priorSha256": "7edc5775f6aeb83333cf31000587ece263e47a2ee0f8a9442c5f20e3eebff1bb",
+            "currentSha256": "213abc572b9d7f1c44a13bdd672381cab61ebc0b96bf9c9f37f92acb8ae32514"
+          }
+        ],
+        "technicalReviewCurrentness": "STALE_OR_INCOMPLETE"
+      },
+      {
+        "criterionId": "P0-08",
+        "inCurrentnessReviewScope": false,
+        "readinessState": "NOT_ESTABLISHED",
+        "directCriterionStatus": "ABSENT",
+        "historicalReviewHead": "b7685542a71a62c33f3a0cf074d22de6543e7935",
+        "historicalReviewDenominator": {
+          "physicalCandidates": 26,
+          "compositionSurfacesIncludingRoot": 7,
+          "logicalConsumers": 21,
+          "registeredIdentities": 54
+        },
+        "priorDecisionRef": null,
+        "currentDecisionRef": null,
+        "decisionBindingCurrent": true,
+        "staleReviewSourceRefs": [
+          {
+            "sourceRef": ".product-experience/decision-log.md",
+            "priorSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2",
+            "currentSha256": "40e4e50cb6cc8fb5d85207d9fd80fbd0ba18fd51225cac44ea24683b7bafeebe"
+          },
+          {
+            "sourceRef": ".product-experience/source-manifest.yaml",
+            "priorSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
+            "currentSha256": "e82a218f28d3b2ba540394e3a5945d9d8e1bea3b47b09941e92ebeb50de8a0bc"
+          },
+          {
+            "sourceRef": ".product-experience/surfaces/media-physical-topology.v1.json",
+            "priorSha256": "026b521e72500c649ed09e8358fc7013d6d27cb966b2232e3319886ab36aa9b1",
+            "currentSha256": "a1f524c498fcdbde61f48cc3b8bb589e8803a0007d7b82908d7da81ea9065c9d"
+          },
+          {
+            "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+            "priorSha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
+            "currentSha256": "9019c9461d6642aea65ca93074257b8b79534ef54b290e04038515d5cdad1118"
+          },
+          {
+            "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
+            "priorSha256": "b9eb443bfbb58a8b97db19b15ca063205841969b28130745971a57eb83a6431c",
+            "currentSha256": "46ebe0cd8ca9697cd424d24b9261a3254d80e34e9860b2fc26b7d7a588907457"
+          },
+          {
+            "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
+            "priorSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
+            "currentSha256": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/P0-08.log",
+            "priorSha256": "447d0ccd9a451c29d3a6c9ec8cd265e353ba3dc7735d10a083878e7569b02b9a",
+            "currentSha256": "7e3e4cce2488cc55151bf47693fc12928686967520f0b9cc8e1fae05a8a7c163"
+          },
+          {
+            "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
+            "priorSha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517",
+            "currentSha256": "7b2c7fc2059ee9f00846b8b1a292804c33d24957837fa1a9b06d06a163202733"
+          }
+        ],
+        "directReviewPinMismatches": [],
+        "technicalReviewCurrentness": "STALE_OR_INCOMPLETE"
+      }
+    ],
+    "currentnessStatus": "SOURCE_STATUS_CURRENT; REVIEW_INPUTS_REQUIRE_REFRESH",
+    "statusBoundary": {
+      "ownerApproval": "NOT_CLAIMED",
+      "independentAcceptance": "NOT_CLAIMED",
+      "pdp010Acceptance": "NOT_PERFORMED",
+      "phaseStatusEffect": "NONE"
+    },
+    "claimBoundary": "Read-only source pin and review-binding observation. It does not refresh or approve direct reviews and does not change PDP status, acceptance, closure, qualification, or Delivery."
+  },
+  "selectedReviewScopeStatus": "FAIL",
+  "successorWorkflow": {
+    "identityOnlyPeerClaimAccepted": false,
+    "peerReviewRecordSchemaRef": "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/peer-review-record.v1.schema.json",
+    "reviewerAuthoritySchemaRef": "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/technical-reviewer-authority.v1.schema.json",
+    "sourceOwnerDecisionRef": "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/source-owner-decision.v3.json",
+    "sourceOwnerDecisionPresent": false,
+    "peerRecordStatus": "NO_CURRENT_SOURCE_BOUND_PEER_RECORD_RECORDED",
+    "canonicalDirectReviewWrite": "NOT_PERFORMED",
+    "applyAuthorization": "NOT_PRESENT"
+  },
+  "physicalCompositeSurfaceMatrix": [
+    {
+      "surfaceId": "media.physical.adapters-agent-tools-media",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "NOT_APPLICABLE_SUPPORT",
+      "sourceCurrent": true,
+      "developmentStatus": "NOT_APPLICABLE",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "Retain the stable physical topology identity as support-only; require zero direct Media capability families, capability intents, requirements, and product intents; preserve the explicit N/A rationale and support boundary.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.adapters-data-cloud-media",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "Preserve the applicable Media-owned integration boundary and exactly the three existing requirement trace references; keep capabilityFamilyIds, capabilityIntentIds, and intentIds empty; retain all 43 modality capability meanings on their canonical modality surfaces; claim no Data Cloud capability execution or availability.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.adapters-ledger",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "NOT_APPLICABLE_SUPPORT",
+      "sourceCurrent": true,
+      "developmentStatus": "NOT_APPLICABLE",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "Explicit support-only applicability rationale resolves; no direct PDP-0 capability meaning is owned by this physical support node.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.apps-media-experience-explorer",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "NO_IMPLEMENTATION_ADMITTED",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.audio-video-observability",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.integration-tests",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "NOT_APPLICABLE_SUPPORT",
+      "sourceCurrent": true,
+      "developmentStatus": "NOT_APPLICABLE",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "Explicit support-only applicability rationale resolves; no direct PDP-0 capability meaning is owned by this physical support node.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.launcher",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.libs-audio-video-client",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.libs-audio-video-types",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.libs-audio-video-ui",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.libs-common",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "NOT_APPLICABLE_SUPPORT",
+      "sourceCurrent": true,
+      "developmentStatus": "NOT_APPLICABLE",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "Explicit support-only applicability rationale resolves; no direct PDP-0 capability meaning is owned by this physical support node.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.libs-java-common",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "NOT_APPLICABLE_SUPPORT",
+      "sourceCurrent": true,
+      "developmentStatus": "NOT_APPLICABLE",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "Explicit support-only applicability rationale resolves; no direct PDP-0 capability meaning is owned by this physical support node.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.libs-media-experience-simulation",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "NOT_APPLICABLE_SUPPORT",
+      "sourceCurrent": true,
+      "developmentStatus": "NOT_APPLICABLE",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "Explicit support-only applicability rationale resolves; no direct PDP-0 capability meaning is owned by this physical support node.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.modules-audio-streaming",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "NO_IMPLEMENTATION_ADMITTED",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-cache",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "NOT_APPLICABLE_SUPPORT",
+      "sourceCurrent": true,
+      "developmentStatus": "NOT_APPLICABLE",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "Explicit support-only applicability rationale resolves; no direct PDP-0 capability meaning is owned by this physical support node.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-messaging",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "NOT_APPLICABLE_SUPPORT",
+      "sourceCurrent": true,
+      "developmentStatus": "NOT_APPLICABLE",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "Explicit support-only applicability rationale resolves; no direct PDP-0 capability meaning is owned by this physical support node.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-persistence",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.modules-infrastructure-security",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.modules-integration-tests",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "NOT_APPLICABLE_SUPPORT",
+      "sourceCurrent": true,
+      "developmentStatus": "NOT_APPLICABLE",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "Explicit support-only applicability rationale resolves; no direct PDP-0 capability meaning is owned by this physical support node.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.modules-intelligence-multimodal-service",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.modules-speech-stt-service",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.modules-speech-tts-service",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.modules-video-streaming",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "NO_IMPLEMENTATION_ADMITTED",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.modules-vision-vision-service",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.providers-aws-postgresql",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.physical.runtime-contracts",
+      "surfaceType": "PHYSICAL",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.composition.repository-root",
+      "surfaceType": "REPOSITORY_ROOT",
+      "phase": "PDP-0",
+      "applicability": "ROOT_AUTHORITY_REFERENCE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.composition.ingestion-and-versioned-artifacts",
+      "surfaceType": "SEMANTIC_COMPOSITION",
+      "phase": "PDP-0",
+      "applicability": "DIRECT_CROSS_CHILD_MEANING",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.composition.governed-job-execution",
+      "surfaceType": "SEMANTIC_COMPOSITION",
+      "phase": "PDP-0",
+      "applicability": "DIRECT_CROSS_CHILD_MEANING",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.composition.speech-and-caption-workflows",
+      "surfaceType": "SEMANTIC_COMPOSITION",
+      "phase": "PDP-0",
+      "applicability": "DIRECT_CROSS_CHILD_MEANING",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.composition.vision-and-multimodal-analysis",
+      "surfaceType": "SEMANTIC_COMPOSITION",
+      "phase": "PDP-0",
+      "applicability": "DIRECT_CROSS_CHILD_MEANING",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.composition.creation-composition-and-delivery",
+      "surfaceType": "SEMANTIC_COMPOSITION",
+      "phase": "PDP-0",
+      "applicability": "DIRECT_CROSS_CHILD_MEANING",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.composition.client-and-machine-interfaces",
+      "surfaceType": "SEMANTIC_COMPOSITION",
+      "phase": "PDP-0",
+      "applicability": "DIRECT_CROSS_CHILD_MEANING",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.web",
+      "surfaceType": "GUI_WEB",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.embedded",
+      "surfaceType": "GUI_EMBEDDED",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.public-http",
+      "surfaceType": "PUBLIC_API",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.service-grpc",
+      "surfaceType": "SERVICE_API",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.grpc.stt",
+      "surfaceType": "SERVICE_API",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.grpc.tts",
+      "surfaceType": "SERVICE_API",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.grpc.vision",
+      "surfaceType": "SERVICE_API",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.grpc.multimodal",
+      "surfaceType": "SERVICE_API",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.sdk",
+      "surfaceType": "SDK",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.cli",
+      "surfaceType": "CLI",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.agent-tools",
+      "surfaceType": "AGENT_TOOL",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.events",
+      "surfaceType": "EVENT_STREAM",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.integrations",
+      "surfaceType": "SYSTEM_TO_SYSTEM_SERVICE",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.types-library",
+      "surfaceType": "LIBRARY",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.ui-library",
+      "surfaceType": "LIBRARY",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.explorer",
+      "surfaceType": "EXPLORER_TOOLING",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.desktop-archive",
+      "surfaceType": "OBSOLETE",
+      "phase": "PDP-0",
+      "applicability": "ARCHIVED",
+      "sourceCurrent": true,
+      "developmentStatus": "NOT_ACTIVE_ARCHIVED",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "Source registry and topology retain the explicit archived disposition; no active product definition is inferred.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.recorder-orchestrator",
+      "surfaceType": "CLI",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.capture-adapters",
+      "surfaceType": "SYSTEM_TO_SYSTEM_SERVICE",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.production-studio",
+      "surfaceType": "GUI_WEB",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    },
+    {
+      "surfaceId": "media.surface.interactive-demo-player",
+      "surfaceType": "GUI_EMBEDDED",
+      "phase": "PDP-0",
+      "applicability": "APPLICABLE_DEFINITION_SCOPE",
+      "sourceCurrent": true,
+      "developmentStatus": "IN_PROGRESS",
+      "remainingPhaseLocalTaskIds": [],
+      "blockerOwner": null,
+      "acceptanceCriterion": "All seven definition-extension cells for this surface resolve to an explicit delegated PXD-207 applicability decision or existing support/archive N/A; no applicability cell remains unknown. Independent acceptance remains separate.",
+      "nextLegalAction": "Resolve the earliest remaining PDP-0 source-current definition or validation task before advancing to PDP-1."
+    }
+  ],
+  "discoveryStatus": {
+    "mediaPdp0Unit": "INCOMPLETE",
+    "campaignDiscoveryRollup": "FAIL",
+    "buildLane": "NOT_ADMITTED; current source review inputs remain stale and Media PDP-0 status is IN_PROGRESS.",
+    "pdpClosureLane": "NOT_ENTERED",
+    "deliveryGate": "BLOCKED",
+    "nextAllowedPhase": "PDP-0 Product Truth current-source review refresh; do not advance to PDP-1 until this unit meets the source-current DEV_COMPLETE gate.",
+    "staleMaterialReviewCriteria": [
+      "P0-01",
+      "P0-02",
+      "P0-07"
+    ],
+    "reviewMetadataRefreshCriteria": [
+      "P0-05",
+      "P0-06"
+    ],
+    "otherPdp0CriterionBlockers": [
+      {
+        "criterionId": "P0-03",
+        "classification": "DEFINITION_REVIEW_NOT_ESTABLISHED",
+        "owner": "Media migration semantic owner and required independent migration reviewer",
+        "nextAction": "Continue the exact migration semantic reconciliation under PDP-0; do not mark the definition criterion complete from direct source tests."
+      },
+      {
+        "criterionId": "P0-07",
+        "classification": "MATERIAL_DEFINITION_ROWS_OPEN",
+        "owner": "Media PDP-0 Product Truth owner",
+        "nextAction": "Keep all 231 feature-specific parent-case semantic-fit rows open until the owning PDP-0 source is updated and revalidated."
+      },
+      {
+        "criterionId": "P0-08",
+        "classification": "INDEPENDENT_ACCEPTANCE_NOT_PERFORMED",
+        "owner": "Appointed independent Product Definition reviewer / acceptance owner",
+        "nextAction": "Keep P0-010 NOT_PERFORMED; do not claim acceptance, closure, Build admission, or Delivery."
+      }
+    ]
+  },
+  "authorityBoundary": {
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "pdp010Acceptance": "NOT_PERFORMED",
+    "phaseStatusEffect": "NONE",
+    "nativeClosure": "NOT_CLAIMED",
+    "releaseQualification": "NOT_PERFORMED"
+  },
+  "claimBoundary": "This is an AI technical source-currentness observation. Historical review identities and baselines are preserved as provenance; stale direct-review records are not relabeled current. It records no owner decision, independent peer approval, phase completion, closure, qualification, or release."
+}

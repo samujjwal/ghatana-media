@@ -2,6 +2,7 @@
 import React from "react";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { MediaCanonicalClient, type CanonicalProcessingJob } from "@audio-video/client/canonical-operations";
 import { JobRecoveryScreen, type CanonicalJobReadClient } from "./JobRecoveryScreen";
 import type { MediaActionPort, MediaContextPort, MediaDataPort } from "../ports";
 import { canonicalMediaActionRequest } from "../ports";
@@ -21,6 +22,28 @@ const baseProps = {
   context: { locale: "en-US" } satisfies MediaContextPort,
   job: { jobId: "job-canonical-17" },
 };
+
+function canonicalJob(overrides: Partial<CanonicalProcessingJob> = {}): CanonicalProcessingJob {
+  return {
+    jobId: "job-canonical-17",
+    requestId: "request-canonical-17",
+    tenantId: "tenant-1",
+    principalId: "principal-1",
+    artifactId: "artifact-17",
+    jobType: "TRANSCODE",
+    providerId: null,
+    status: "RUNNING",
+    createdAt: "2026-11-16T10:00:00Z",
+    startedAt: "2026-11-16T10:00:01Z",
+    completedAt: null,
+    result: {},
+    failureCode: null,
+    version: 4,
+    expectedArtifactVersion: `sha256:${"b".repeat(64)}`,
+    requestFingerprint: `sha256:${"a".repeat(64)}`,
+    ...overrides,
+  };
+}
 
 describe("JobRecoveryScreen canonical read", () => {
   it("keeps an acknowledged host action locked until the same request has fresh owner reconciliation", async () => {
@@ -57,9 +80,9 @@ describe("JobRecoveryScreen canonical read", () => {
   });
 
   it("shows loading and terminal status only after the injected canonical reader returns", async () => {
-    let resolveRead: ((value: { jobId: string; status: "COMPLETED"; version: number }) => void) | undefined;
+    let resolveRead: ((value: CanonicalProcessingJob) => void) | undefined;
     const canonicalJobReadClient: CanonicalJobReadClient = {
-      getJob: vi.fn(() => new Promise<{ jobId: string; status: "COMPLETED"; version: number }>((resolve) => { resolveRead = resolve; })),
+      getJob: vi.fn(() => new Promise<CanonicalProcessingJob>((resolve) => { resolveRead = resolve; })),
     };
     render(React.createElement(JobRecoveryScreen, { ...baseProps, canonicalJobReadClient }));
 
@@ -67,9 +90,45 @@ describe("JobRecoveryScreen canonical read", () => {
     expect(screen.getByText("Loading canonical job status…")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Refresh canonical status" }).hasAttribute("disabled")).toBe(true);
 
-    resolveRead?.({ jobId: "job-canonical-17", status: "COMPLETED", version: 8 });
+    resolveRead?.(canonicalJob({ status: "COMPLETED", completedAt: "2026-11-16T10:01:00Z", version: 8 }));
     expect(await screen.findByText("Terminal status observed: COMPLETED (version 8).")).toBeTruthy();
+    expect(screen.getByText("request-canonical-17")).toBeTruthy();
+    expect(screen.getByText("artifact-17")).toBeTruthy();
+    expect(screen.getByText(`sha256:${"b".repeat(64)}`)).toBeTruthy();
     expect(canonicalJobReadClient.getJob).toHaveBeenCalledWith("job-canonical-17", expect.any(AbortSignal));
+  });
+
+  it("uses the authenticated canonical SDK and renders a scoped OUTCOME_UNKNOWN job observation", async () => {
+    const responseJob = canonicalJob({ status: "OUTCOME_UNKNOWN", version: 9 });
+    const fetchImpl = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => new Response(JSON.stringify(responseJob), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    }));
+    const canonicalClient = new MediaCanonicalClient({
+      baseUrl: "http://127.0.0.1:8093",
+      tenantId: "tenant-1",
+      defaultHeaders: { "X-Principal-Id": "principal-1" },
+      getAccessToken: () => "local-test-bearer",
+      fetchImpl,
+    });
+
+    render(React.createElement(JobRecoveryScreen, {
+      ...baseProps,
+      canonicalJobReadClient: canonicalClient,
+    }));
+    fireEvent.click(screen.getByRole("button", { name: "Refresh canonical status" }));
+
+    expect(await screen.findByText("Canonical job reports OUTCOME_UNKNOWN. Reconcile the same job before retrying.")).toBeTruthy();
+    expect(screen.getByText("request-canonical-17")).toBeTruthy();
+    expect(screen.getByText("artifact-17")).toBeTruthy();
+    expect(screen.getByText(`sha256:${"b".repeat(64)}`)).toBeTruthy();
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    const [input, init] = fetchImpl.mock.calls[0]!;
+    expect(new URL(String(input)).pathname).toBe("/api/v1/jobs/job-canonical-17");
+    const headers = new Headers(init?.headers);
+    expect(headers.get("authorization")).toBe("Bearer local-test-bearer");
+    expect(headers.get("x-tenant-id")).toBe("tenant-1");
+    expect(headers.get("x-principal-id")).toBe("principal-1");
   });
 
   it("distinguishes denied, unknown, and server-reported unknown outcomes", async () => {
@@ -86,7 +145,7 @@ describe("JobRecoveryScreen canonical read", () => {
     expect(await screen.findByText("Canonical job status is unknown. Reconcile the same job before taking another action.")).toBeTruthy();
 
     const unknownClient: CanonicalJobReadClient = {
-      getJob: vi.fn(async () => ({ jobId: "job-canonical-17", status: "OUTCOME_UNKNOWN" as const, version: 9 })),
+      getJob: vi.fn(async () => canonicalJob({ status: "OUTCOME_UNKNOWN", version: 9 })),
     };
     rerender(React.createElement(JobRecoveryScreen, { ...baseProps, canonicalJobReadClient: unknownClient }));
     fireEvent.click(screen.getByRole("button", { name: "Refresh canonical status" }));
@@ -96,7 +155,7 @@ describe("JobRecoveryScreen canonical read", () => {
   it("recovers from a reader that throws synchronously and leaves refresh available", async () => {
     const getJob = vi.fn()
       .mockImplementationOnce(() => { throw new Error("transport setup failed"); })
-      .mockResolvedValueOnce({ jobId: "job-canonical-17", status: "RUNNING", version: 4 });
+      .mockResolvedValueOnce(canonicalJob({ status: "RUNNING", version: 4 }));
     const canonicalJobReadClient: CanonicalJobReadClient = { getJob };
     render(React.createElement(JobRecoveryScreen, { ...baseProps, canonicalJobReadClient }));
 
@@ -132,7 +191,7 @@ describe("JobRecoveryScreen canonical read", () => {
 
   it("does not retain a previous job's canonical read when the selected identity changes", async () => {
     const canonicalJobReadClient: CanonicalJobReadClient = {
-      getJob: vi.fn(async (jobId) => ({ jobId, status: "FAILED" as const, version: 3 })),
+      getJob: vi.fn(async (jobId) => canonicalJob({ jobId, status: "FAILED", version: 3 })),
     };
     const { rerender } = render(React.createElement(JobRecoveryScreen, { ...baseProps, canonicalJobReadClient }));
     fireEvent.click(screen.getByRole("button", { name: "Refresh canonical status" }));

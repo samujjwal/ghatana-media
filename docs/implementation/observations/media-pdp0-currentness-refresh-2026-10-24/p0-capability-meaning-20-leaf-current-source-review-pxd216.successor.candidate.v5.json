@@ -14,11 +14,11 @@
   "predecessorCurrentnessRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json",
   "currentSources": {
     ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
-    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "3b1326a1a07a62633a731ada9ea547f032aa765286ef47ec1e930e3e73664253",
+    ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml": "68cd7cc6a8e3b7b0667b29a9f95c563219253a67bb7fc690a2c921e3e8197a57",
     ".product-experience/pdp-0-product-truth/quality-policy.yaml": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
     ".product-experience/pdp-0-product-truth/goals-jtbd.yaml": "d2bb49247774060e2edc06b59853fe601b0b7264bcc9a9513b8d7a1a724b5513",
     ".product-experience/pdp-0-product-truth/requirements.yaml": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
-    ".product-experience/pdp-0-product-truth/applications-channels.yaml": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
+    ".product-experience/pdp-0-product-truth/applications-channels.yaml": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34",
     ".product-experience/pdp-0-product-truth/profile-semantics.yaml": "94ed009c4a4e971b04ab83ea428d6b30ea665ac695b1a06bb8cac30fa0c419ce"
   },
   "reviewedRowsSha256": "cb0709ea8e9647fdeb9cbe1c5c81edbf1a8dbe7da3b8a690df0e98053ecea02a",

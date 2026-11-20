@@ -1,0 +1,315 @@
+{
+  "schemaVersion": "media.pdp0.status-denominator-successor.v1",
+  "artifactId": "MEDIA-PDP0-STATUS-DENOMINATOR-SUCCESSOR-PXD230",
+  "successorKind": "ADDITIVE_SOURCE_DENOMINATOR_RECONCILIATION_ONLY",
+  "phase": "PDP-0",
+  "decisionRef": ".product-experience/decision-log.md#PXD-230",
+  "decisionSectionSha256": "be03b8c967bb775a403f88b11a1b8a4a11e6cc8cbc4b824a145cc497c116629a",
+  "predecessor": {
+    "statusRecordRef": "docs/implementation/verification/pdp-38/pdp-0-phase-dev-status.predecessor-pxd230-2026-11-16.json",
+    "canonicalStatusPath": "docs/implementation/pdp-0-phase-dev-status.json",
+    "statusSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
+    "sourceMainSha": "ebcbdfca77aecfd8a1d1b3b252259fe914fd0208",
+    "status": "IN_PROGRESS",
+    "reportedDenominator": {
+      "physicalManifestCandidates": 26,
+      "compositions": 7,
+      "logicalConsumers": 21,
+      "registrySurfaces": 21,
+      "archivedConsumers": 1,
+      "activeLogicalConsumers": 20,
+      "activeLogicalScopesResolved": 20,
+      "applicablePhysicalPdp0": 15,
+      "notApplicableSupportPhysicalPdp0": 8,
+      "noImplementationAdmittedPhysicalPdp0": 3,
+      "denominator": 54
+    },
+    "pinnedTopologySha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
+    "topologyAtStatusMainSha256": "134dd575c481846401c2b80be1a8663f51fa754b0bfc3939976dd3e80ceff3b8",
+    "historicalObservation": "The predecessor status reports 54 (26 physical + 7 compositions + 21 logical) while its pinned topology already contained all 56 identities (28 + 7 + 21). The 54 is a historical status projection mismatch, not a complete topology identity inventory."
+  },
+  "currentSourceFingerprints": {
+    ".product-experience/surfaces/media-physical-topology.v1.json": "a1f524c498fcdbde61f48cc3b8bb589e8803a0007d7b82908d7da81ea9065c9d",
+    ".product-experience/surface-registry.yaml": "43a0b08c58cf02e6262e30407e733d3183c7cfaa8a722d2bffebc2bf392604a8",
+    "docs/implementation/verification/pdp-38/pdp0-topology-currentness-pxd207-successor-2026-11-16.json": "9ccab26113b3439af00b619b16404252c6f06e1eeb0fe69fd91126b1bc083d8a",
+    "scripts/check-media-pdp0-surface-denominator.mjs": "510d556add248113de7b7e05d0f60b72bc68ffcfdbae1529b03c4f94bc834ee6",
+    "tests/media-pdp0-surface-denominator.test.mjs": "73ebb1308b4976e02bb5ec8dc144c1c37208b23bb98be7ff480f0d3e3594bb41",
+    ".product-experience/decision-log.md#PXD-207-section": "eedde5bd30fabed060af9a1b8b16bf55f4a5648331950daaf3ca860d99d7ec3a",
+    ".product-experience/decision-log.md#PXD-230-section": "be03b8c967bb775a403f88b11a1b8a4a11e6cc8cbc4b824a145cc497c116629a"
+  },
+  "currentDenominator": {
+    "physical": 28,
+    "compositions": 7,
+    "logical": 21,
+    "total": 56
+  },
+  "identityProjection": {
+    "count": 56,
+    "sha256": "583c91e1e160fbe469648f7cf2ab4915d12475e9ff38544ef331c4fac9181b0e",
+    "rows": [
+      {
+        "surfaceId": "media.composition.client-and-machine-interfaces",
+        "type": "COMPOSITION"
+      },
+      {
+        "surfaceId": "media.composition.creation-composition-and-delivery",
+        "type": "COMPOSITION"
+      },
+      {
+        "surfaceId": "media.composition.governed-job-execution",
+        "type": "COMPOSITION"
+      },
+      {
+        "surfaceId": "media.composition.ingestion-and-versioned-artifacts",
+        "type": "COMPOSITION"
+      },
+      {
+        "surfaceId": "media.composition.repository-root",
+        "type": "COMPOSITION"
+      },
+      {
+        "surfaceId": "media.composition.speech-and-caption-workflows",
+        "type": "COMPOSITION"
+      },
+      {
+        "surfaceId": "media.composition.vision-and-multimodal-analysis",
+        "type": "COMPOSITION"
+      },
+      {
+        "surfaceId": "media.physical.adapters-agent-tools-media",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.adapters-data-cloud-media",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.adapters-ledger",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.apps-media-experience-explorer",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.audio-video-observability",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.integration-tests",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.launcher",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.libs-audio-video-client",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.libs-audio-video-types",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.libs-audio-video-ui",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.libs-common",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.libs-java-common",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.libs-media-experience-simulation",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.modules-audio-streaming",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.modules-infrastructure-cache",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.modules-infrastructure-messaging",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.modules-infrastructure-persistence",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.modules-infrastructure-security",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.modules-integration-tests",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.modules-intelligence-ai-voice-libs-ai-voice-ui-react",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.modules-intelligence-multimodal-service",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.modules-intelligence-speech-libs-speech-audio-rust",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.modules-speech-stt-service",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.modules-speech-tts-service",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.modules-video-streaming",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.modules-vision-vision-service",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.providers-aws-postgresql",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.physical.runtime-contracts",
+        "type": "PHYSICAL"
+      },
+      {
+        "surfaceId": "media.surface.agent-tools",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.capture-adapters",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.cli",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.desktop-archive",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.embedded",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.events",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.explorer",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.grpc.multimodal",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.grpc.stt",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.grpc.tts",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.grpc.vision",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.integrations",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.interactive-demo-player",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.production-studio",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.public-http",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.recorder-orchestrator",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.sdk",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.service-grpc",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.types-library",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.ui-library",
+        "type": "LOGICAL"
+      },
+      {
+        "surfaceId": "media.surface.web",
+        "type": "LOGICAL"
+      }
+    ]
+  },
+  "identityPreservation": {
+    "predecessorIdentityCount": 56,
+    "currentIdentityCount": 56,
+    "removed": [],
+    "added": [],
+    "changedType": [],
+    "allPredecessorIdentitiesRetained": true
+  },
+  "pxd207ReviewedRows": [
+    {
+      "surfaceId": "media.physical.adapters-agent-tools-media",
+      "pdp0Disposition": "NOT_APPLICABLE_SUPPORT",
+      "capabilityFamilyIds": [],
+      "capabilityIntentIds": [],
+      "requirementIds": [],
+      "intentIds": [],
+      "phaseLocalTaskIds": []
+    },
+    {
+      "surfaceId": "media.physical.adapters-data-cloud-media",
+      "pdp0Disposition": "APPLICABLE",
+      "capabilityFamilyIds": [],
+      "capabilityIntentIds": [],
+      "requirementIds": [
+        "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+        "MEDIA-REQ-CAP-VISION",
+        "MEDIA-REQ-CAP-MULTIMODAL"
+      ],
+      "intentIds": [],
+      "requirementRefDisposition": "BOUNDARY_TRACE_ONLY_NOT_DIRECT_CAPABILITY_OWNERSHIP",
+      "phaseLocalTaskIds": []
+    }
+  ],
+  "decisionEffect": "The denominator is current at 56. Historical predecessor status remains unchanged; canonical PDP-0 phase status and generated matrix are updated only by their native writers after current verification.",
+  "phaseStatusEffect": "NONE",
+  "ownerAcceptance": "NOT_CLAIMED",
+  "independentAcceptance": "NOT_CLAIMED",
+  "nativeClosure": "NOT_CLAIMED",
+  "release": "NOT_CLAIMED"
+}

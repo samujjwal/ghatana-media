@@ -70,6 +70,33 @@ class ProjectTimelineEngineTest {
     }
 
     @Test
+    void revisionCommitReplaysExactImmutablePayloadWithoutMovingHead() {
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        ProjectTimelineEngine engine = new ProjectTimelineEngine(store);
+        Created created = engine.createProject(OWNER, "workspace-replay", "Cut", "create-revision-replay");
+        Revision timeline = engine.createTimeline(OWNER, created.project().projectId(),
+                created.initialRevision().revisionId(), "timeline-replay");
+        Revision edited = engine.edit(OWNER, created.project().projectId(), "timeline-replay",
+                timeline.revisionId(), List.of(
+                        new ProjectTimelineEngine.AddScene(new Scene("scene-replay", 0)),
+                        new ProjectTimelineEngine.AddTrack(new Track("track-replay", "scene-replay", TrackKind.VIDEO, 0)),
+                        new ProjectTimelineEngine.PutClip(clip("clip-replay", "scene-replay", "track-replay"))));
+
+        Revision replay = store.commit(OWNER, created.project().projectId(), timeline.revisionId(),
+                edited.revisionId(), edited.timelines());
+
+        assertThat(replay).isEqualTo(edited);
+        assertThat(replay.timelines().getFirst().graph().clips().getFirst().source())
+                .isEqualTo(new SourceVersion("artifact-1", "version-7"));
+        assertThat(engine.project(OWNER, created.project().projectId()).headRevisionId()).isEqualTo(edited.revisionId());
+        assertThatThrownBy(() -> store.commit(OWNER, created.project().projectId(), timeline.revisionId(),
+                edited.revisionId(), List.of()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("revision identity was replayed with a different payload");
+        assertThat(engine.project(OWNER, created.project().projectId()).headRevisionId()).isEqualTo(edited.revisionId());
+    }
+
+    @Test
     void generatedIdsMustMatchOpaqueIdentityContractBeforeStoreCreate() {
         InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
         AtomicInteger generated = new AtomicInteger();
@@ -722,6 +749,28 @@ class ProjectTimelineEngineTest {
                 .isEqualTo(initialA.semanticVersionId());
         assertThat(diff.timelineChanges().get("timeline-b").fromSemanticVersionId())
                 .isEqualTo(initialB.semanticVersionId());
+    }
+
+    @Test
+    void explicitTimelineCommandRequestIdsReplayExactReceiptAndRejectPayloadRebinding() {
+        ProjectTimelineEngine engine = engine();
+        Created created = engine.createProject(OWNER, "workspace-command-replay", "Cut", "create-command-replay");
+        String projectId = created.project().projectId();
+        Revision timeline = engine.createTimeline(OWNER, projectId, created.initialRevision().revisionId(),
+                "timeline-command", "timeline-create-request-1");
+        assertThat(engine.createTimeline(OWNER, projectId, created.initialRevision().revisionId(),
+                "timeline-command", "timeline-create-request-1")).isEqualTo(timeline);
+
+        List<ProjectTimelineEngine.Edit> edits = List.of(
+                new ProjectTimelineEngine.AddScene(new Scene("scene-command", 0)));
+        Revision edited = engine.edit(OWNER, projectId, "timeline-command", timeline.revisionId(),
+                edits, "timeline-edit-request-1");
+        assertThat(engine.edit(OWNER, projectId, "timeline-command", timeline.revisionId(),
+                edits, "timeline-edit-request-1")).isEqualTo(edited);
+        assertThatThrownBy(() -> engine.edit(OWNER, projectId, "timeline-command", timeline.revisionId(),
+                List.of(new ProjectTimelineEngine.AddScene(new Scene("different-scene", 0))), "timeline-edit-request-1"))
+                .isInstanceOf(IdempotencyConflictException.class);
+        assertThat(engine.project(OWNER, projectId).headRevisionId()).isEqualTo(edited.revisionId());
     }
 
     @Test

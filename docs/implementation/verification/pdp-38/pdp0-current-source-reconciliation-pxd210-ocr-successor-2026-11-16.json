@@ -1,0 +1,85 @@
+{
+  "schemaVersion": "media.pdp0.current-source-reconciliation-successor.v1",
+  "artifactId": "PDP0-CURRENT-SOURCE-RECONCILIATION-PXD210-OCR-SUCCESSOR-20261116",
+  "successorKind": "CURRENT_SOURCE_PIN_REFRESH_ONLY",
+  "decisionRef": ".product-experience/decision-log.md#PXD-210",
+  "scope": "Additive PDP-0 current-source successor for the two OCR ownership selectors already recorded by PXD-210. It preserves PXD-210 and the candidate's earlier source/value pins. The exact selected values are unchanged. This successor does not claim global semantic equivalence for the whole OCR source: it contains later MDI-001-bound retirement facts and an explicitly proposed, unaccepted MDI-002 packaging record.",
+  "authority": {
+    "reviewKind": "COORDINATOR_AUTHORED_CURRENT_SOURCE_RECONCILIATION",
+    "phaseScope": "PDP-0",
+    "semanticReview": "NOT_PERFORMED",
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "acceptanceEffect": "none",
+    "implementation": "NOT_CLAIMED",
+    "qualification": "NOT_CLAIMED",
+    "closure": "NOT_CLAIMED",
+    "delivery": "NOT_CLAIMED"
+  },
+  "predecessorArtifact": {
+    "artifactRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd210.json",
+    "artifactSha256": "d73e8ee85df6541d138a315c7b72b92d6b7179791028917b50a37d1360e17630"
+  },
+  "historicalSourceChain": {
+    "originalOwnerCandidateOcrSourceSha256": "3eb27caa45b582312ec80f371d5f67d94588459609195060247c6c71b0e496b0",
+    "pxd210CurrentOcrSourceSha256": "6b812753f1c9350d32f73770c7f1e3285fc5f10dfd36e4099c5300068b73d7da",
+    "currentOcrSourceSha256": "c130cd51568ac0860033e8147170859e714d64daa1b8a428b226c143ce94c681"
+  },
+  "sourceFingerprints": {
+    ".product-experience/pdp-0-product-truth/ocr-ownership.yaml": "c130cd51568ac0860033e8147170859e714d64daa1b8a428b226c143ce94c681",
+    "docs/migration/decisions/MDI-001-document-intelligence-ownership.md": "d1ce5d4658fe74c147b8d18f81b2fbbd7ab0a0ad1e753a62a1c8c21fd7d62b0b",
+    "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd210.json": "d73e8ee85df6541d138a315c7b72b92d6b7179791028917b50a37d1360e17630",
+    ".product-experience/decision-log.md#PXD-210-section": "a392dffab81f274db27fd41fb7b23f2da2ecdfd2212b2e9a9b4ffdcde5311aca"
+  },
+  "ownershipBoundary": {
+    "mediaPhysicalSurface": "media.physical.modules-vision-vision-service",
+    "meaningfulComposite": "media.composition.vision-and-multimodal-analysis",
+    "capabilityIds": [
+      "media.vision.scene-text.region.track",
+      "media.vision.scene-text.observation.create"
+    ],
+    "requirementRef": ".product-experience/pdp-0-product-truth/requirements.yaml#/requirements/@id=MEDIA-REQ-CAP-VISION-SCENE-TEXT",
+    "requirementSourcePhrase": "Consume public Document Intelligence text results only for Media-specific temporal/scene-text semantics; generic OCR/document parsing is platform-owned",
+    "ownerDecision": "MDI-001 exclusive Ghatana OCR execution authority; Media remains a consumer for media-specific scene/frame/time/region mapping semantics",
+    "scopeBoundary": "The MDI-002 packaging/location record is PROPOSED and not accepted; it is not treated as a change to the MDI-001 owner boundary or as a current source authorization."
+  },
+  "counts": {
+    "records": 2,
+    "unchangedSelectedProjections": 2,
+    "changedSelectedProjections": 0
+  },
+  "records": [
+    {
+      "recordId": "PXD210-OCR-LIVE:MPSEM-0157-C003:1",
+      "predecessorRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd210.json#/records/@recordId=PDP0-199:MPSEM-0157-C003:136",
+      "claimId": "MPSEM-0157-C003",
+      "selectorRef": ".product-experience/pdp-0-product-truth/ocr-ownership.yaml#/registrations/@id=media.ocr.provider-manifest-entry/note",
+      "predecessorRawSourceSha256": "6b812753f1c9350d32f73770c7f1e3285fc5f10dfd36e4099c5300068b73d7da",
+      "currentRawSourceSha256": "c130cd51568ac0860033e8147170859e714d64daa1b8a428b226c143ce94c681",
+      "predecessorProjectionSha256": "52ee01ce990660287ba9d5a9d21506d9380b5c1ed4d3524f8f2639da76f94f18",
+      "currentProjectionSha256": "52ee01ce990660287ba9d5a9d21506d9380b5c1ed4d3524f8f2639da76f94f18",
+      "selectorEquality": true,
+      "status": "CURRENT_SOURCE_PIN_REFRESH_ONLY",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "ownerApproval": "NOT_CLAIMED",
+      "acceptanceEffect": "none",
+      "predecessorProposalStatus": "PENDING_COORDINATOR_MATERIAL_REVIEW"
+    },
+    {
+      "recordId": "PXD210-OCR-LIVE:MPSEM-0172-C001:1",
+      "predecessorRef": "docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd210.json#/records/@recordId=PDP0-199:MPSEM-0172-C001:139",
+      "claimId": "MPSEM-0172-C001",
+      "selectorRef": ".product-experience/pdp-0-product-truth/ocr-ownership.yaml#/classifications/@id=media.ocr.semantic-capability/target",
+      "predecessorRawSourceSha256": "6b812753f1c9350d32f73770c7f1e3285fc5f10dfd36e4099c5300068b73d7da",
+      "currentRawSourceSha256": "c130cd51568ac0860033e8147170859e714d64daa1b8a428b226c143ce94c681",
+      "predecessorProjectionSha256": "049f7e28e3b6814392fe146966e6104ce2facd2a2896bd2c69391a46f5e16066",
+      "currentProjectionSha256": "049f7e28e3b6814392fe146966e6104ce2facd2a2896bd2c69391a46f5e16066",
+      "selectorEquality": true,
+      "status": "CURRENT_SOURCE_PIN_REFRESH_ONLY",
+      "semanticEquivalence": "NOT_ASSERTED",
+      "ownerApproval": "NOT_CLAIMED",
+      "acceptanceEffect": "none",
+      "predecessorProposalStatus": "PENDING_COORDINATOR_MATERIAL_REVIEW"
+    }
+  ]
+}

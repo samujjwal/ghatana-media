@@ -42,19 +42,19 @@ val focusedModules = focusedModulesProperty
     ?.toSet()
     .orEmpty()
 val focusedModuleBuilds = mapOf(
-    // Core modality modules use Shared primitives only. Tool and Kernel APIs live in
-    // optional adapter projects in FULL scope and must not leak into focused core builds.
+    // Core modality modules use Shared primitives only. The launcher selector below
+    // adds its one required Tool-backed test adapter; unrelated adapters stay FULL-only.
     "stt" to setOf("ghatana-shared"),
     "tts" to setOf("ghatana-shared"),
     "vision" to setOf("ghatana-shared"),
     "multimodal" to setOf("ghatana-shared"),
     "observability" to setOf("ghatana-shared"),
-    // The standalone launcher needs only this canonical Ghatana platform project;
-    // it does not require the broader Ghatana services source set.
-    "launcher" to setOf("ghatana-shared"),
-    // The runtime integration lane needs Shared primitives but stays outside
-    // the unrelated Ghatana services, Kernel, Tools, and Lifecycle source graphs.
-    "runtime-integration" to setOf("ghatana-shared")
+    // Launcher tests compile the agent-tools Media adapter and its canonical
+    // Tool API, so keep that exact source build in the focused launcher lane.
+    "launcher" to setOf("ghatana-shared", "ghatana-tools"),
+    // Runtime integration uses the same exact launcher adapter sources, while
+    // staying outside unrelated Ghatana services, Kernel, and Lifecycle graphs.
+    "runtime-integration" to setOf("ghatana-shared", "ghatana-tools")
 )
 val focusedModuleProjectSources = mapOf(
     "launcher" to setOf(":platform:java:launcher-support"),
@@ -115,6 +115,7 @@ val focusedModuleProjectClosure = mapOf(
         ":services:media:modules:infrastructure:persistence",
         ":services:media:modules:infrastructure:cache",
         ":services:media:modules:infrastructure:security",
+        ":services:media:adapters:agent-tools-media",
         ":services:media:libs:common",
         ":services:media:libs:java:common",
         ":platform:java:launcher-support"
@@ -135,6 +136,7 @@ val focusedModuleProjectClosure = mapOf(
         ":services:media:modules:infrastructure:persistence",
         ":services:media:modules:infrastructure:cache",
         ":services:media:modules:infrastructure:security",
+        ":services:media:adapters:agent-tools-media",
         ":services:media:libs:common",
         ":services:media:libs:java:common",
         ":platform:java:launcher-support"
@@ -155,7 +157,7 @@ if (mediaCompositeScope == "FOCUSED") {
     if (unknownFocusedModules.isNotEmpty()) {
         throw GradleException(
             "Unsupported focused Media module(s): $unknownFocusedModules; " +
-                "adapters and aggregate builds require compositeScope=FULL"
+                "other adapters and aggregate builds require compositeScope=FULL"
         )
     }
     val allFocusedCoreProjects = focusedModuleProjectClosure.values.flatten().toSet()
@@ -413,9 +415,9 @@ fileTree("libs") {
     includeProject(projectName, projectDir)
 }
 
-// Adapter projects have platform-owned source dependencies and belong to the
-// full source composite. FOCUSED intentionally omits them so core selectors
-// cannot silently resolve against a published platform artifact.
+// General adapter projects have platform-owned source dependencies and belong
+// to the full source composite. The focused launcher lane includes only the
+// agent-tools adapter needed to compile the launcher's real adapter tests.
 if (mediaCompositeScope == "FULL") {
     fileTree("adapters") {
         include("**/build.gradle.kts")
@@ -426,6 +428,10 @@ if (mediaCompositeScope == "FULL") {
         val projectName = "$productProjectPrefix:${relativePath.replace("/", ":")}"
         includeProject(projectName, projectDir)
     }
+} else if (mediaCompositeScope == "FOCUSED"
+    && ("launcher" in focusedModules || "runtime-integration" in focusedModules)) {
+    val adapterDir = File(rootDir, "adapters/agent-tools-media")
+    includeProject("$productProjectPrefix:adapters:agent-tools-media", adapterDir)
 }
 
 // Include provider implementations (for example the AWS PostgreSQL provider)
@@ -678,8 +684,9 @@ if (isStandaloneBuild && sourceCompositeEnabled && "ghatana-services" in require
     }
 }
 
-// The focused launcher lane needs only the canonical platform launcher-support
-// project. Keep it independent from the broader Ghatana services source set.
+// Focused launcher selectors include only canonical launcher support plus the
+// single Tool-backed adapter required to compile the launcher's test sources.
+// Keep them independent from the broader Ghatana services source set.
 if (isStandaloneBuild && sourceCompositeEnabled && mediaCompositeScope == "FOCUSED") {
     focusedRequiredProjectSources.forEach { projectPath ->
         val sourceDirectory = focusedSourceProjectDirectories.getValue(projectPath)

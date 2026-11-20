@@ -145,6 +145,7 @@ export interface CreateDevProjectRequest {
 export interface CreateDevTimelineRequest {
   readonly expectedHeadRevisionId: string;
   readonly timelineId: string;
+  readonly requestId: string;
 }
 
 export type DevTimelineTrackKind = "VIDEO" | "AUDIO" | "CAPTION" | "OVERLAY";
@@ -161,11 +162,13 @@ export type DevTimelineEdit =
 export interface EditDevTimelineRequest {
   readonly expectedHeadRevisionId: string;
   readonly edits: readonly DevTimelineEdit[];
+  readonly requestId: string;
 }
 
 export interface RestoreDevProjectRevisionRequest {
   readonly expectedHeadRevisionId: string;
   readonly targetRevisionId: string;
+  readonly requestId: string;
 }
 
 type JsonRecord = Record<string, unknown>;
@@ -275,7 +278,11 @@ export class MediaDevProjectTimelineClient {
     const id = validateOpaqueId(projectId, "projectId");
     validateOpaqueId(request.expectedHeadRevisionId, "expectedHeadRevisionId");
     validateOpaqueId(request.timelineId, "timelineId");
-    const value = await this.request("POST", `/dev/v1/projects/${id}/timelines`, request, signal, true);
+    validateRequestId(request.requestId);
+    if (!exactKeys(request, ["expectedHeadRevisionId", "timelineId", "requestId"])) {
+      throw new MediaDevProjectTimelineError("INVALID_REQUEST", 0, "Timeline creation request fields do not match its declared type.");
+    }
+    const value = await this.request("POST", `/dev/v1/projects/${id}/timelines`, request, signal, true, request.requestId);
     const result = record(value, "timeline creation response");
     const revision = parseRevision(result.revision);
     const matchingTimelines = revision.timelines.filter((timeline) => timeline.graph.timelineId === request.timelineId);
@@ -294,9 +301,13 @@ export class MediaDevProjectTimelineClient {
     const project = validateOpaqueId(projectId, "projectId");
     const timeline = validateOpaqueId(timelineId, "timelineId");
     validateOpaqueId(request.expectedHeadRevisionId, "expectedHeadRevisionId");
+    validateRequestId(request.requestId);
+    if (!exactKeys(request, ["expectedHeadRevisionId", "edits", "requestId"])) {
+      throw new MediaDevProjectTimelineError("INVALID_REQUEST", 0, "Timeline edit request fields do not match its declared type.");
+    }
     validateTimelineEdits(request.edits);
     const value = await this.request("POST", `/dev/v1/projects/${project}/timelines/${timeline}/edits`,
-      request, signal, true);
+      request, signal, true, request.requestId);
     const result = record(value, "timeline edit response");
     const revision = parseRevision(result.revision);
     const matchingTimelines = revision.timelines.filter((snapshot) => snapshot.graph.timelineId === timelineId);
@@ -332,11 +343,12 @@ export class MediaDevProjectTimelineClient {
     }
     validateOpaqueId(request.expectedHeadRevisionId, "expectedHeadRevisionId");
     validateOpaqueId(request.targetRevisionId, "targetRevisionId");
-    if (!exactKeys(request, ["expectedHeadRevisionId", "targetRevisionId"])) {
+    validateRequestId(request.requestId);
+    if (!exactKeys(request, ["expectedHeadRevisionId", "targetRevisionId", "requestId"])) {
       throw new MediaDevProjectTimelineError("INVALID_REQUEST", 0, "Restore request fields do not match its declared type.");
     }
     const target = await this.getRevision(projectId, request.targetRevisionId, signal);
-    const value = await this.request("POST", `/dev/v1/projects/${project}/restore`, request, signal, true);
+    const value = await this.request("POST", `/dev/v1/projects/${project}/restore`, request, signal, true, request.requestId);
     const result = record(value, "revision restore response");
     const revision = parseRevision(result.revision);
     if (result.scope !== "DEV_ONLY" || revision.projectId !== projectId
@@ -401,6 +413,7 @@ export class MediaDevProjectTimelineClient {
         throw new MediaDevProjectTimelineError(
           "OUTCOME_UNKNOWN", response.status,
           "The Media host returned an unreadable response to a mutation; read the exact project head before retrying.",
+          requestId ? { requestId } : undefined,
         );
       }
       throw invalidResponse("The Media development host returned a non-JSON response.");
@@ -421,7 +434,7 @@ export class MediaDevProjectTimelineClient {
         throw new MediaDevProjectTimelineError(
           "OUTCOME_UNKNOWN", response.status,
           "The Media host did not confirm whether the mutation committed; read the exact project head before retrying.",
-          { responseCode, ...(details ?? {}) },
+          { responseCode, ...(details ?? {}), ...(requestId ? { requestId } : {}) },
         );
       }
       const payload = record(parsed, "error response");
@@ -460,6 +473,12 @@ function validateProjectRequest(request: CreateDevProjectRequest): void {
   }
   if (typeof request.requestId !== "string" || !REQUEST_ID.test(request.requestId)) {
     throw new MediaDevProjectTimelineError("INVALID_REQUEST", 0, "Project requestId must be a 1-128 character opaque request identity.");
+  }
+}
+
+function validateRequestId(requestId: string): void {
+  if (typeof requestId !== "string" || !REQUEST_ID.test(requestId)) {
+    throw new MediaDevProjectTimelineError("INVALID_REQUEST", 0, "Timeline requestId must be a 1-128 character opaque idempotency key.");
   }
 }
 

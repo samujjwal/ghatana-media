@@ -2,6 +2,7 @@
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { MediaDevProjectTimelineError } from "@audio-video/client/dev-project-timeline";
 import type { DevProject, DevProjectRead, DevProjectRevision, DevRevisionRead, DevTimelineClip } from "@audio-video/client/dev-project-timeline";
 import { MediaProductRenderer, MEDIA_PRODUCT_RENDERER_ROUTE_DISPOSITIONS } from "./MediaProductRenderer";
 import type { DevProjectTimelineWorkspacePort } from "./DevProjectTimelineWorkspaceScreen";
@@ -68,6 +69,7 @@ const clipRemovedRevision: DevProjectRevision = {
 describe("DevProjectTimelineWorkspaceScreen", () => {
   it("creates an empty timeline, reads its exact persisted revision, then restores it as a successor revision", async () => {
     let head = initial;
+    let requestNumber = 0;
     const revisions = new Map([[initial.revisionId, initial], [timelineRevision.revisionId, timelineRevision], [restoredRevision.revisionId, restoredRevision]]);
     const current = (): DevProjectRead => ({ project: { ...project, headRevisionId: head.revisionId }, currentRevision: head, scope: "DEV_ONLY" });
     const client: DevProjectTimelineWorkspacePort = {
@@ -75,13 +77,13 @@ describe("DevProjectTimelineWorkspaceScreen", () => {
       getProject: vi.fn(async () => current()),
       getRevision: vi.fn(async (_projectId, revisionId) => ({ revision: revisions.get(revisionId)!, scope: "DEV_ONLY" as const })),
       createTimeline: vi.fn(async (_projectId, request) => {
-        expect(request).toEqual({ expectedHeadRevisionId: "revision-1", timelineId: "main-cut" });
+        expect(request).toEqual({ expectedHeadRevisionId: "revision-1", timelineId: "main-cut", requestId: "timeline-command-1" });
         head = timelineRevision;
         return { revision: timelineRevision, scope: "DEV_ONLY" } satisfies DevRevisionRead;
       }),
       editTimeline: vi.fn(async () => ({ revision: timelineRevision, scope: "DEV_ONLY" as const })),
       restoreRevision: vi.fn(async (_projectId, request) => {
-        expect(request).toEqual({ expectedHeadRevisionId: "revision-2", targetRevisionId: "revision-1" });
+        expect(request).toEqual({ expectedHeadRevisionId: "revision-2", targetRevisionId: "revision-1", requestId: "timeline-command-2" });
         head = restoredRevision;
         return { revision: restoredRevision, scope: "DEV_ONLY" } satisfies DevRevisionRead;
       }),
@@ -89,7 +91,10 @@ describe("DevProjectTimelineWorkspaceScreen", () => {
     expect(MEDIA_PRODUCT_RENDERER_ROUTE_DISPOSITIONS["dev-project-timeline"]).toEqual({
       renderer: "DEV_ONLY_DEVELOPMENT_SCREEN", productRoute: "NOT_ADMITTED",
     });
-    render(React.createElement(MediaProductRenderer, { kind: "dev-project-timeline", client, project, revision: initial }));
+    render(React.createElement(MediaProductRenderer, {
+      kind: "dev-project-timeline", client, project, revision: initial,
+      newRequestId: () => `timeline-command-${++requestNumber}`,
+    }));
 
     expect(screen.getByText("No timelines yet.")).toBeTruthy();
     expect(screen.getByText(/DEV_ONLY · NOT_ADMITTED/)).toBeTruthy();
@@ -117,15 +122,22 @@ describe("DevProjectTimelineWorkspaceScreen", () => {
   });
 
   it("locks another mutation after an unknown create until project-head reconciliation", async () => {
+    let requestNumber = 0;
     const client: DevProjectTimelineWorkspacePort = {
       getOwnedArtifact: vi.fn(async () => sourceArtifact),
       getProject: vi.fn(async () => ({ project, currentRevision: initial, scope: "DEV_ONLY" as const })),
       getRevision: vi.fn(async () => ({ revision: initial, scope: "DEV_ONLY" as const })),
-      createTimeline: vi.fn(async () => { throw new Error("response lost"); }),
+      createTimeline: vi.fn(async (_projectId, request) => {
+        expect(request.requestId).toBe("timeline-command-1");
+        throw new Error("response lost");
+      }),
       editTimeline: vi.fn(async () => ({ revision: initial, scope: "DEV_ONLY" as const })),
       restoreRevision: vi.fn(async () => ({ revision: initial, scope: "DEV_ONLY" as const })),
     };
-    render(React.createElement(MediaProductRenderer, { kind: "dev-project-timeline", client, project, revision: initial }));
+    render(React.createElement(MediaProductRenderer, {
+      kind: "dev-project-timeline", client, project, revision: initial,
+      newRequestId: () => `timeline-command-${++requestNumber}`,
+    }));
     fireEvent.change(screen.getByLabelText("Timeline ID"), { target: { value: "main-cut" } });
     fireEvent.click(screen.getByRole("button", { name: "Create timeline" }));
     expect(await screen.findByText(/OUTCOME_UNKNOWN: the owner head could not confirm timeline main-cut/)).toBeTruthy();
@@ -133,6 +145,9 @@ describe("DevProjectTimelineWorkspaceScreen", () => {
     fireEvent.click(screen.getByRole("button", { name: "Reconcile timeline outcome" }));
     expect(await screen.findByText(/A retry with this same ID is now available/)).toBeTruthy();
     expect(screen.getByRole("button", { name: "Retry after absence confirmed" }).hasAttribute("disabled")).toBe(false);
+    fireEvent.click(screen.getByRole("button", { name: "Retry after absence confirmed" }));
+    expect(await screen.findByText(/OUTCOME_UNKNOWN: retry remains unresolved/)).toBeTruthy();
+    expect(client.createTimeline).toHaveBeenCalledTimes(2);
     expect(client.getProject).toHaveBeenCalledTimes(1);
   });
 
@@ -208,6 +223,7 @@ describe("DevProjectTimelineWorkspaceScreen", () => {
   it("retries the same graph edit only after a project-head read confirms it is absent", async () => {
     let head = timelineRevision;
     let attempts = 0;
+    let requestNumber = 0;
     const client: DevProjectTimelineWorkspacePort = {
       getOwnedArtifact: vi.fn(async () => sourceArtifact),
       getProject: vi.fn(async () => ({ project: { ...project, headRevisionId: head.revisionId }, currentRevision: head, scope: "DEV_ONLY" as const })),
@@ -217,13 +233,17 @@ describe("DevProjectTimelineWorkspaceScreen", () => {
         attempts += 1;
         expect(request.expectedHeadRevisionId).toBe("revision-2");
         expect(request.edits).toEqual([{ type: "addScene", sceneId: "scene-01", order: 0 }]);
+        expect(request.requestId).toBe("timeline-command-1");
         if (attempts === 1) throw new Error("response lost");
         head = sceneRevision;
         return { revision: sceneRevision, scope: "DEV_ONLY" as const };
       }),
       restoreRevision: vi.fn(async () => ({ revision: restoredRevision, scope: "DEV_ONLY" as const })),
     };
-    render(React.createElement(MediaProductRenderer, { kind: "dev-project-timeline", client, project: { ...project, headRevisionId: "revision-2" }, revision: timelineRevision }));
+    render(React.createElement(MediaProductRenderer, {
+      kind: "dev-project-timeline", client, project: { ...project, headRevisionId: "revision-2" }, revision: timelineRevision,
+      newRequestId: () => `timeline-command-${++requestNumber}`,
+    }));
     fireEvent.change(screen.getByLabelText("New scene ID"), { target: { value: "scene-01" } });
     fireEvent.click(screen.getByRole("button", { name: "Add scene" }));
     expect(await screen.findByText(/OUTCOME_UNKNOWN: addScene may have committed/)).toBeTruthy();
@@ -236,6 +256,72 @@ describe("DevProjectTimelineWorkspaceScreen", () => {
     expect(screen.getAllByText("scene-01").length).toBeGreaterThan(0);
     expect(screen.getByLabelText("Project head revision").textContent).toBe("revision-3");
     expect(screen.getByLabelText("Displayed project revision").textContent).toBe("revision-3");
+  });
+
+  it("refreshes a typed revision conflict, shows the exact diff, and waits for a new explicit edit", async () => {
+    const conflictHead: DevProjectRevision = {
+      ...timelineRevision, revisionId: "revision-3", parentRevisionId: "revision-2", timelines: [
+        { ...timelineRevision.timelines[0]!, semanticVersionId: "timeline-version-concurrent", graph: {
+          ...timelineRevision.timelines[0]!.graph, scenes: [{ sceneId: "scene-concurrent", order: 1 }],
+        } },
+      ],
+    };
+    const committedHead: DevProjectRevision = {
+      ...conflictHead, revisionId: "revision-4", parentRevisionId: conflictHead.revisionId, timelines: [
+        { ...conflictHead.timelines[0]!, semanticVersionId: "timeline-version-after-review", graph: {
+          ...conflictHead.timelines[0]!.graph, scenes: [
+            { sceneId: "scene-concurrent", order: 1 }, { sceneId: "scene-01", order: 0 },
+          ],
+        } },
+      ],
+    };
+    let head = conflictHead;
+    let attempts = 0;
+    let requestNumber = 0;
+    const client: DevProjectTimelineWorkspacePort = {
+      getOwnedArtifact: vi.fn(async () => sourceArtifact),
+      getProject: vi.fn(async () => ({
+        project: { ...project, headRevisionId: head.revisionId }, currentRevision: head, scope: "DEV_ONLY" as const,
+      })),
+      getRevision: vi.fn(async () => ({ revision: timelineRevision, scope: "DEV_ONLY" as const })),
+      createTimeline: vi.fn(async () => ({ revision: timelineRevision, scope: "DEV_ONLY" as const })),
+      editTimeline: vi.fn(async (_projectId, _timelineId, request) => {
+        attempts += 1;
+        if (attempts === 1) {
+          expect(request.expectedHeadRevisionId).toBe(timelineRevision.revisionId);
+          expect(request.requestId).toBe("timeline-command-1");
+          throw new MediaDevProjectTimelineError("REVISION_CONFLICT", 409, "Project head changed.");
+        }
+        expect(request.expectedHeadRevisionId).toBe(conflictHead.revisionId);
+        expect(request.requestId).toBe("timeline-command-2");
+        expect(request.edits).toEqual([{ type: "addScene", sceneId: "scene-01", order: 0 }]);
+        head = committedHead;
+        return { revision: committedHead, scope: "DEV_ONLY" as const };
+      }),
+      restoreRevision: vi.fn(async () => ({ revision: restoredRevision, scope: "DEV_ONLY" as const })),
+    };
+    render(React.createElement(MediaProductRenderer, {
+      kind: "dev-project-timeline", client, project: { ...project, headRevisionId: timelineRevision.revisionId }, revision: timelineRevision,
+      newRequestId: () => `timeline-command-${++requestNumber}`,
+    }));
+    fireEvent.change(screen.getByLabelText("New scene ID"), { target: { value: "scene-01" } });
+    fireEvent.click(screen.getByRole("button", { name: "Add scene" }));
+
+    expect(await screen.findByText(/REVISION_CONFLICT: addScene was not applied/)).toBeTruthy();
+    expect(screen.getByText(/review the revision changes below before explicitly submitting a new command/)).toBeTruthy();
+    expect(screen.getByLabelText("Project head revision").textContent).toBe(conflictHead.revisionId);
+    expect(screen.getByLabelText("Displayed project revision").textContent).toBe(conflictHead.revisionId);
+    expect(screen.getAllByText("scene-concurrent").length).toBeGreaterThan(0);
+    expect(await screen.findByRole("heading", { name: "Exact revision comparison" })).toBeTruthy();
+    expect(screen.getByRole("list", { name: "Timeline graph changes" }).textContent).toContain("added scene scene-concurrent");
+    expect(client.editTimeline).toHaveBeenCalledTimes(1);
+    expect(client.getProject).toHaveBeenCalledTimes(1);
+
+    fireEvent.click(screen.getByRole("button", { name: "Add scene" }));
+    expect(await screen.findByText(/Committed and reopened addScene in revision revision-4/)).toBeTruthy();
+    expect(client.editTimeline).toHaveBeenCalledTimes(2);
+    expect(client.getProject).toHaveBeenCalledTimes(2);
+    expect(screen.getByLabelText("Project head revision").textContent).toBe(committedHead.revisionId);
   });
 
   it("does not reconcile an identical old graph as a committed restore without a successor head", async () => {
@@ -271,7 +357,10 @@ describe("DevProjectTimelineWorkspaceScreen", () => {
       editTimeline: vi.fn(async () => ({ revision: timelineRevision, scope: "DEV_ONLY" as const })),
       restoreRevision: vi.fn(async () => { head = siblingHead; throw new Error("restore response lost"); }),
     };
-    render(React.createElement(MediaProductRenderer, { kind: "dev-project-timeline", client, project: scopedProject, revision: baseHead }));
+    render(React.createElement(MediaProductRenderer, {
+      kind: "dev-project-timeline", client, project: scopedProject, revision: baseHead,
+      newRequestId: () => "restore-sibling-request-1",
+    }));
     fireEvent.change(screen.getByLabelText("Exact revision ID"), { target: { value: initial.revisionId } });
     fireEvent.click(screen.getByRole("button", { name: "Read exact revision" }));
     expect(await screen.findByText("Immutable revision readback")).toBeTruthy();
@@ -280,7 +369,11 @@ describe("DevProjectTimelineWorkspaceScreen", () => {
     fireEvent.click(screen.getByRole("button", { name: "Reconcile timeline outcome" }));
     expect(await screen.findByText("Owner head changed but the requested effect is not visible. No retry is enabled.")).toBeTruthy();
     expect(screen.queryByText(/Restore outcome reconciled/)).toBeNull();
-    expect(client.restoreRevision).toHaveBeenCalledWith(scopedProject.projectId, { expectedHeadRevisionId: baseHead.revisionId, targetRevisionId: initial.revisionId });
+    expect(client.restoreRevision).toHaveBeenCalledWith(scopedProject.projectId, {
+      expectedHeadRevisionId: baseHead.revisionId,
+      targetRevisionId: initial.revisionId,
+      requestId: "restore-sibling-request-1",
+    });
   });
 
   it("reads an exact owner artifact before putting a clip, rejects removal of its track, then removes the clip", async () => {
@@ -312,7 +405,11 @@ describe("DevProjectTimelineWorkspaceScreen", () => {
       }),
       restoreRevision: vi.fn(async () => ({ revision: restoredRevision, scope: "DEV_ONLY" as const })),
     };
-    render(React.createElement(MediaProductRenderer, { kind: "dev-project-timeline", client, project: { ...project, headRevisionId: trackedRevision.revisionId }, revision: trackedRevision }));
+    let requestNumber = 0;
+    render(React.createElement(MediaProductRenderer, {
+      kind: "dev-project-timeline", client, project: { ...project, headRevisionId: trackedRevision.revisionId }, revision: trackedRevision,
+      newRequestId: () => `timeline-command-${++requestNumber}`,
+    }));
 
     expect(screen.getByRole("button", { name: "Add or update clip reference" }).hasAttribute("disabled")).toBe(true);
     fireEvent.change(screen.getByLabelText("Source artifact ID to inspect"), { target: { value: sourceArtifact.artifactId } });
@@ -333,6 +430,7 @@ describe("DevProjectTimelineWorkspaceScreen", () => {
     expect(client.editTimeline).toHaveBeenLastCalledWith(project.projectId, "main-cut", {
       expectedHeadRevisionId: trackedRevision.revisionId,
       edits: [{ type: "putClip", clip: exactClip }],
+      requestId: "timeline-command-1",
     });
     expect(screen.getByLabelText("Project head revision").textContent).toBe(clipRevision.revisionId);
     expect(screen.getByLabelText("Displayed project revision").textContent).toBe(clipRevision.revisionId);
@@ -348,6 +446,7 @@ describe("DevProjectTimelineWorkspaceScreen", () => {
     expect(client.editTimeline).toHaveBeenLastCalledWith(project.projectId, "main-cut", {
       expectedHeadRevisionId: clipRevision.revisionId,
       edits: [{ type: "removeClip", clipId: exactClip.clipId }],
+      requestId: "timeline-command-2",
     });
     expect(screen.getByLabelText("Project head revision").textContent).toBe(clipRemovedRevision.revisionId);
     expect(screen.getByLabelText("Displayed project revision").textContent).toBe(clipRemovedRevision.revisionId);

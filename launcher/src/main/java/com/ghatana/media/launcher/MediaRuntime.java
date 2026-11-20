@@ -117,6 +117,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntimePort {
     /** A consent lookup must be current for the effect; older decisions fail closed. */
     private static final Duration MAX_CONSENT_DECISION_AGE = Duration.ofSeconds(30);
+    private static final String JOB_CANCELLATION_OPERATION = "media.operation-slice.cancel-job";
     private static final String DEV_ONLY_JOB_CANCELLATION_OPERATION = "media.operation-slice.cancel-job";
     private static final Logger log = LoggerFactory.getLogger(MediaRuntime.class);
     private static final Logger audit = LoggerFactory.getLogger("media.auditTrail");
@@ -1727,6 +1728,281 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 job, latest, MediaLifecycleProjection.JobFacts.none()));
     }
 
+    public enum JobCancellationState { CANCEL_REQUESTED, ALREADY_TERMINAL, UNKNOWN_OUTCOME }
+
+    /** Durable cancellation request observation. CANCEL_REQUESTED is not job finality. */
+    public record JobCancellationResponse(
+            String operationRef,
+            String requestId,
+            String cancellationRequestId,
+            JobCancellationState state,
+            boolean replayed,
+            Instant observedAt,
+            String jobId,
+            String currentJobState,
+            List<String> currentAttemptStates,
+            String reconcilePath,
+            boolean automaticRetryAllowed,
+            MediaJobView job) { }
+
+    public static final class JobCancellationRequestConflictException extends IllegalStateException {
+        public JobCancellationRequestConflictException() {
+            super("a different cancellation request already owns this job");
+        }
+    }
+
+    public static final class JobCancellationVersionConflictException extends IllegalStateException {
+        private final long expected;
+        private final long actual;
+
+        public JobCancellationVersionConflictException(long expected, long actual) {
+            super("Media job version changed before cancellation was reserved");
+            this.expected = expected;
+            this.actual = actual;
+        }
+
+        public long expected() { return expected; }
+        public long actual() { return actual; }
+    }
+
+    public static final class JobCancellationNotFoundException extends IllegalArgumentException {
+        public JobCancellationNotFoundException() {
+            super("Media job is not available in this tenant and principal scope");
+        }
+    }
+
+    /**
+     * Persists one request before asking a provider to stop. The job remains in its current state;
+     * only the worker/reconciler may establish terminal cancellation finality.
+     */
+    public JobCancellationResponse requestJobCancellation(
+            String tenantId, String principalId, String jobId, String requestId,
+            long expectedJobVersion, String reason) {
+        ensureOpen();
+        requirePrincipal(principalId);
+        requireCanonicalCancellationId(requestId);
+        if (expectedJobVersion < 1) throw new IllegalArgumentException("expectedJobVersion must be positive");
+        String normalizedReason = cancellationReason(reason);
+        ProcessingJob current = findOwnedJobForCancellation(tenantId, principalId, jobId);
+        String fingerprint = jobCancellationFingerprint(
+                tenantId, principalId, jobId, requestId, expectedJobVersion, normalizedReason);
+
+        Map<String, Object> prior = canonicalCancellationRequest(current.result());
+        if (prior != null && requestId.equals(prior.get("requestId"))) {
+            if (!fingerprint.equals(prior.get("requestFingerprint"))) {
+                throw new JobCancellationRequestConflictException();
+            }
+            JobCancellationState state = cancellationTerminal(current.status())
+                    ? JobCancellationState.ALREADY_TERMINAL
+                    : "UNKNOWN".equals(prior.get("providerOutcome"))
+                    || "DISPATCH_STARTED".equals(prior.get("providerOutcome"))
+                    ? JobCancellationState.UNKNOWN_OUTCOME
+                    : JobCancellationState.CANCEL_REQUESTED;
+            Instant recordedAt = parseCancellationTimestamp(prior.get("requestedAt"));
+            return cancellationResponse(current, requestId, state, true, recordedAt);
+        }
+        if (current.version() != expectedJobVersion) {
+            throw new JobCancellationVersionConflictException(expectedJobVersion, current.version());
+        }
+        if (cancellationTerminal(current.status())) {
+            return cancellationResponse(current, requestId, JobCancellationState.ALREADY_TERMINAL,
+                    false, Instant.now());
+        }
+        if (prior != null || developmentCancellation(current.result()) != null) {
+            throw new JobCancellationRequestConflictException();
+        }
+
+        boolean noDispatchProven = current.status() == JobStatus.ACCEPTED;
+        Instant requestedAt = Instant.now();
+        Map<String, Object> request = new LinkedHashMap<>();
+        request.put("operationRef", JOB_CANCELLATION_OPERATION);
+        request.put("requestId", requestId);
+        request.put("requestFingerprint", fingerprint);
+        request.put("expectedJobVersion", expectedJobVersion);
+        request.put("reason", normalizedReason);
+        request.put("state", "CANCEL_REQUESTED");
+        request.put("providerOutcome", noDispatchProven ? "NO_DISPATCH" : "DISPATCH_STARTED");
+        request.put("requestedAt", requestedAt.toString());
+        Map<String, Object> result = new LinkedHashMap<>(current.result());
+        result.put("cancellationRequest", Map.copyOf(request));
+        ProcessingJob reserved = copyJobWithResult(current, result);
+        try {
+            reserved = jobStore.update(current, reserved);
+        } catch (MediaRuntimeContracts.MediaJobStoreConflictException conflict) {
+            ProcessingJob latest = findOwnedJobForCancellation(tenantId, principalId, jobId);
+            Map<String, Object> racedRequest = canonicalCancellationRequest(latest.result());
+            if (racedRequest != null && requestId.equals(racedRequest.get("requestId"))
+                    && fingerprint.equals(racedRequest.get("requestFingerprint"))) {
+                JobCancellationState state = cancellationTerminal(latest.status())
+                        ? JobCancellationState.ALREADY_TERMINAL
+                        : "UNKNOWN".equals(racedRequest.get("providerOutcome"))
+                        || "DISPATCH_STARTED".equals(racedRequest.get("providerOutcome"))
+                        ? JobCancellationState.UNKNOWN_OUTCOME
+                        : JobCancellationState.CANCEL_REQUESTED;
+                return cancellationResponse(latest, requestId, state, true,
+                        parseCancellationTimestamp(racedRequest.get("requestedAt")));
+            }
+            if (latest.version() != expectedJobVersion) {
+                throw new JobCancellationVersionConflictException(expectedJobVersion, latest.version());
+            }
+            throw new JobCancellationRequestConflictException();
+        }
+
+        JobControl control = activeJobs.get(jobId);
+        if (noDispatchProven) {
+            if (control != null) control.cancellation().cancel();
+            publishCancellationRequested(reserved, "NO_DISPATCH");
+            return cancellationResponse(reserved, requestId, JobCancellationState.CANCEL_REQUESTED,
+                    false, requestedAt);
+        }
+
+        CancellationOutcome providerOutcome;
+        try {
+            providerOutcome = processingProviders.stream()
+                    .filter(provider -> provider.providerId().equalsIgnoreCase(current.providerId()))
+                    .findFirst()
+                    .map(provider -> provider.cancel(tenantId, principalId, requestId, jobId))
+                    .orElse(CancellationOutcome.UNSUPPORTED);
+        } catch (RuntimeException ambiguous) {
+            if (control != null) control.cancellation().cancel();
+            ProcessingJob latest = updateCancellationProviderOutcome(
+                    reserved, requestId, "UNKNOWN");
+            publishCancellationRequested(latest, "UNKNOWN");
+            return cancellationResponse(latest, requestId, JobCancellationState.UNKNOWN_OUTCOME,
+                    false, requestedAt);
+        }
+
+        if (control != null) control.cancellation().cancel();
+        ProcessingJob latest = updateCancellationProviderOutcome(
+                reserved, requestId, providerOutcome.name());
+        publishCancellationRequested(latest, providerOutcome.name());
+        return cancellationResponse(latest, requestId, JobCancellationState.CANCEL_REQUESTED,
+                false, requestedAt);
+    }
+
+    private ProcessingJob findOwnedJobForCancellation(String tenantId, String principalId, String jobId) {
+        return jobStore.find(tenantId, jobId)
+                .filter(value -> value.principalId().equals(principalId))
+                .orElseThrow(JobCancellationNotFoundException::new);
+    }
+
+    private JobCancellationResponse cancellationResponse(
+            ProcessingJob job, String requestId, JobCancellationState state,
+            boolean replayed, Instant observedAt) {
+        List<String> attemptStates = jobStore.latestAttempt(job.tenantId(), job.jobId())
+                .map(attempt -> List.of(attempt.status().name())).orElseGet(List::of);
+        return new JobCancellationResponse(JOB_CANCELLATION_OPERATION, requestId, requestId,
+                state, replayed, observedAt, job.jobId(), job.status().name(), attemptStates,
+                "/api/v1/jobs/" + job.jobId(), false, projectJobView(job));
+    }
+
+    private ProcessingJob updateCancellationProviderOutcome(
+            ProcessingJob reserved, String requestId, String providerOutcome) {
+        ProcessingJob current = jobStore.find(reserved.tenantId(), reserved.jobId()).orElse(reserved);
+        if (cancellationTerminal(current.status())) return current;
+        Map<String, Object> request = canonicalCancellationRequest(current.result());
+        if (request == null || !requestId.equals(request.get("requestId"))) return current;
+        request.put("providerOutcome", providerOutcome);
+        request.put("updatedAt", Instant.now().toString());
+        Map<String, Object> result = new LinkedHashMap<>(current.result());
+        result.put("cancellationRequest", Map.copyOf(request));
+        try {
+            return jobStore.update(current, copyJobWithResult(current, result));
+        } catch (MediaRuntimeContracts.MediaJobStoreConflictException raced) {
+            return jobStore.find(reserved.tenantId(), reserved.jobId()).orElse(current);
+        }
+    }
+
+    private void publishCancellationRequested(ProcessingJob job, String providerOutcome) {
+        String classification = artifactStore.artifact(job.tenantId(), job.artifactId())
+                .map(MediaArtifact::classification).orElse("RESTRICTED");
+        publishLifecycle("media.job.cancel_requested", job.tenantId(), job.principalId(),
+                job.requestId(), job.requestId(), "job", job.jobId(), job.version(), classification,
+                Map.of("artifactId", job.artifactId(), "jobType", job.jobType().name(),
+                        "providerId", job.providerId() == null ? "" : job.providerId(),
+                        "status", job.status().name(),
+                        "cancellationOutcome", providerOutcome));
+    }
+
+    private static ProcessingJob copyJobWithResult(ProcessingJob current, Map<String, Object> result) {
+        return new ProcessingJob(current.jobId(), current.requestId(), current.tenantId(), current.principalId(),
+                current.artifactId(), current.jobType(), current.providerId(), current.status(),
+                current.createdAt(), current.startedAt(), current.completedAt(), Map.copyOf(result),
+                current.failureCode(), current.version() + 1, current.expectedArtifactVersion(),
+                current.requestFingerprint());
+    }
+
+    private static boolean cancellationTerminal(JobStatus status) {
+        return status == JobStatus.COMPLETED || status == JobStatus.FAILED || status == JobStatus.CANCELLED;
+    }
+
+    private static ProcessingJob confirmedCancellation(ProcessingJob current, String providerOutcome) {
+        Map<String, Object> request = canonicalCancellationRequest(current.result());
+        if (request == null) throw new IllegalArgumentException("durable cancellation request is required");
+        request.put("state", "CANCELLED");
+        request.put("providerOutcome", providerOutcome);
+        request.put("finalizedAt", Instant.now().toString());
+        Map<String, Object> result = new LinkedHashMap<>(current.result());
+        result.put("cancellationRequest", Map.copyOf(request));
+        return transition(current, JobStatus.CANCELLED, result, "CANCELLED");
+    }
+
+    private static boolean hasCanonicalCancellation(ProcessingJob job) {
+        return canonicalCancellationRequest(job.result()) != null;
+    }
+
+    private static String cancellationReason(String reason) {
+        String value = reason == null || reason.isBlank() ? "USER_REQUEST" : reason;
+        if (!Set.of("USER_REQUEST", "POLICY_CHANGE", "ADMINISTRATIVE_STOP").contains(value)) {
+            throw new IllegalArgumentException("reason is outside the cancellation request enum");
+        }
+        return value;
+    }
+
+    private static void requireCanonicalCancellationId(String requestId) {
+        if (requestId == null || !requestId.matches("[A-Za-z0-9][A-Za-z0-9._~:-]{0,127}")) {
+            throw new IllegalArgumentException("requestId must be a bounded opaque cancellation identity");
+        }
+    }
+
+    private static String jobCancellationFingerprint(
+            String tenantId, String principalId, String jobId, String requestId,
+            long expectedJobVersion, String reason) {
+        try {
+            java.io.ByteArrayOutputStream bytes = new java.io.ByteArrayOutputStream();
+            java.io.DataOutputStream output = new java.io.DataOutputStream(bytes);
+            for (String value : List.of(JOB_CANCELLATION_OPERATION, tenantId, principalId,
+                    jobId, requestId, Long.toString(expectedJobVersion), reason)) {
+                byte[] encoded = value.getBytes(StandardCharsets.UTF_8);
+                output.writeInt(encoded.length);
+                output.write(encoded);
+            }
+            output.flush();
+            return java.util.HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
+                    .digest(bytes.toByteArray()));
+        } catch (java.security.NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is required by the Java runtime", impossible);
+        } catch (java.io.IOException impossible) {
+            throw new IllegalStateException("Unable to encode cancellation request identity", impossible);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> canonicalCancellationRequest(Map<String, Object> result) {
+        Object value = result.get("cancellationRequest");
+        if (!(value instanceof Map<?, ?> map)) return null;
+        Map<String, Object> copy = new LinkedHashMap<>();
+        map.forEach((key, entry) -> { if (key instanceof String text) copy.put(text, entry); });
+        return copy;
+    }
+
+    private static Instant parseCancellationTimestamp(Object value) {
+        if (value instanceof String text) {
+            try { return Instant.parse(text); } catch (RuntimeException ignored) { }
+        }
+        return Instant.now();
+    }
+
     /** @deprecated Cancellation requires the authenticated principal that owns the job. */
     @Deprecated
     public ProcessingJob cancel(String tenantId, String jobId) {
@@ -1735,24 +2011,15 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
 
     @Override
     public JobCancellation cancelJob(String tenantId, String principalId, String jobId) {
-        ensureOpen();
-        requirePrincipal(principalId);
-        if (jobStore.find(tenantId, jobId).filter(value -> value.principalId().equals(principalId)).isEmpty()) {
-            return new JobCancellation(CancelOutcome.NOT_FOUND, Optional.empty());
-        }
-        final ProcessingJob stored = cancelOwnedJob(tenantId, principalId, jobId);
-        CancelOutcome outcome = switch (stored.status()) {
-            case CANCELLED -> CancelOutcome.CANCELLED;
-            case COMPLETED, FAILED -> CancelOutcome.ALREADY_TERMINAL;
-            default -> CancelOutcome.UNKNOWN;
-        };
-        return new JobCancellation(outcome, Optional.of(stored));
+        throw new MediaCapabilityNotAdmittedException(
+                MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "RUNTIME_PORT",
+                "Media job cancellation requires a stable requestId and expected job version");
     }
 
     public ProcessingJob cancel(String tenantId, String principalId, String jobId) {
-        ensureOpen();
-        requirePrincipal(principalId);
-        return cancelOwnedJob(tenantId, principalId, jobId);
+        throw new MediaCapabilityNotAdmittedException(
+                MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED, "RUNTIME_PORT",
+                "Media job cancellation requires a stable requestId and expected job version");
     }
 
     /**
@@ -3258,14 +3525,18 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                     }
                     denial.put("capabilityReason", denied.reason().name());
                 }
-                workflowMetrics.record(MediaWorkflowMetrics.Event.DENIED);
-                terminal = transition(value, JobStatus.FAILED,
-                        denial,
-                        deadlineExpiredBeforeProvider ? "PROCESSING_DEADLINE_EXCEEDED_BEFORE_PROVIDER"
-                                : policyDenied ? "MEDIA_POLICY_DENIED"
-                                : denialCause instanceof MediaCapabilityNotAdmittedException
-                                        ? "MEDIA_CAPABILITY_NOT_ADMITTED"
-                                        : "PROCESSING_BLOCKED_BEFORE_PROVIDER");
+                if (cancellation.cancelled() && hasCanonicalCancellation(value)) {
+                    terminal = confirmedCancellation(value, "NO_EFFECT_PROVEN");
+                } else {
+                    workflowMetrics.record(MediaWorkflowMetrics.Event.DENIED);
+                    terminal = transition(value, JobStatus.FAILED,
+                            denial,
+                            deadlineExpiredBeforeProvider ? "PROCESSING_DEADLINE_EXCEEDED_BEFORE_PROVIDER"
+                                    : policyDenied ? "MEDIA_POLICY_DENIED"
+                                    : denialCause instanceof MediaCapabilityNotAdmittedException
+                                            ? "MEDIA_CAPABILITY_NOT_ADMITTED"
+                                            : "PROCESSING_BLOCKED_BEFORE_PROVIDER");
+                }
             } else if (cause != null) {
                 // The provider call was dispatched. Network errors, malformed replies and local
                 // cancellation cannot establish that the remote side had no effect.
@@ -3285,10 +3556,13 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                                         "reconciliation", "exact provider receipt unavailable"),
                                 "PROCESSING_OUTCOME_UNKNOWN");
                     } else if (dispatchAttempt != null && outcome.submission().finality() != AttemptFinality.SUCCEEDED) {
-                        terminal = transition(value, JobStatus.FAILED,
-                                Map.of("providerFinality", outcome.submission().finality().name()),
-                                outcome.submission().finality() == AttemptFinality.NO_EFFECT_PROVEN
-                                        ? "PROVIDER_NO_EFFECT_PROVEN" : "PROVIDER_FINAL_FAILURE");
+                        terminal = outcome.submission().finality() == AttemptFinality.NO_EFFECT_PROVEN
+                                && hasCanonicalCancellation(value)
+                                ? confirmedCancellation(value, "NO_EFFECT_PROVEN")
+                                : transition(value, JobStatus.FAILED,
+                                        Map.of("providerFinality", outcome.submission().finality().name()),
+                                        outcome.submission().finality() == AttemptFinality.NO_EFFECT_PROVEN
+                                                ? "PROVIDER_NO_EFFECT_PROVEN" : "PROVIDER_FINAL_FAILURE");
                     } else {
                     Map<String, Object> providerResult = dispatchAttempt == null ? outcome.result() : outcome.submission().result();
                     providerResult = registerSynthesizedAudio(request, dispatchArtifact, value, dispatchAttempt,
@@ -4055,17 +4329,23 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                         ProcessingJob readBack = jobStore.find(job.tenantId(), job.jobId()).orElse(job);
                         if (readBack.status() != JobStatus.RUNNING) continue;
                     }
-                    JobStatus recoveredStatus = job.status() == JobStatus.ACCEPTED
-                            ? JobStatus.FAILED : JobStatus.OUTCOME_UNKNOWN;
-                    ProcessingJob reconciled = transition(
-                            job, recoveredStatus,
-                            Map.of("reconciliation", job.status() == JobStatus.ACCEPTED
-                                    ? "job had no durable dispatch attempt"
-                                    : "provider outcome unknown after runtime restart",
-                                    "providerOutcome", job.status() == JobStatus.ACCEPTED
-                                    ? "NO_EFFECT_PROVEN" : "UNKNOWN"),
-                            job.status() == JobStatus.ACCEPTED
-                                    ? "RESTART_NOT_DISPATCHED" : "PROCESSING_OUTCOME_UNKNOWN");
+                    Map<String, Object> cancellationRequest = canonicalCancellationRequest(job.result());
+                    boolean cancelledBeforeDispatch = job.status() == JobStatus.ACCEPTED
+                            && cancellationRequest != null
+                            && "NO_DISPATCH".equals(cancellationRequest.get("providerOutcome"));
+                    JobStatus recoveredStatus = cancelledBeforeDispatch ? JobStatus.CANCELLED
+                            : job.status() == JobStatus.ACCEPTED ? JobStatus.FAILED : JobStatus.OUTCOME_UNKNOWN;
+                    ProcessingJob reconciled = cancelledBeforeDispatch
+                            ? confirmedCancellation(job, "NO_DISPATCH_PROVEN")
+                            : transition(
+                                    job, recoveredStatus,
+                                    Map.of("reconciliation", job.status() == JobStatus.ACCEPTED
+                                            ? "job had no durable dispatch attempt"
+                                            : "provider outcome unknown after runtime restart",
+                                            "providerOutcome", job.status() == JobStatus.ACCEPTED
+                                            ? "NO_EFFECT_PROVEN" : "UNKNOWN"),
+                                    job.status() == JobStatus.ACCEPTED
+                                            ? "RESTART_NOT_DISPATCHED" : "PROCESSING_OUTCOME_UNKNOWN");
                     jobStore.reconcileExpired(job, reconciled, lifecycleEvent(job, reconciled, "INTERNAL"));
                     if (reconciled.status() == JobStatus.OUTCOME_UNKNOWN) {
                         workflowMetrics.record(MediaWorkflowMetrics.Event.UNKNOWN);
@@ -4131,9 +4411,12 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 case NO_EFFECT_PROVEN, FAILED -> {
                     result.put("providerOutcome", observation.finality().name());
                     result.put("reconciliation", "provider proved no committed effect after restart");
-                    terminal = transition(job, JobStatus.FAILED, Map.copyOf(result),
-                            observation.finality() == AttemptFinality.NO_EFFECT_PROVEN
-                                    ? "RESTART_NO_EFFECT_PROVEN" : "PROVIDER_FINAL_FAILURE");
+                    terminal = observation.finality() == AttemptFinality.NO_EFFECT_PROVEN
+                            && hasCanonicalCancellation(job)
+                            ? confirmedCancellation(job, "NO_EFFECT_PROVEN")
+                            : transition(job, JobStatus.FAILED, Map.copyOf(result),
+                                    observation.finality() == AttemptFinality.NO_EFFECT_PROVEN
+                                            ? "RESTART_NO_EFFECT_PROVEN" : "PROVIDER_FINAL_FAILURE");
                 }
                 default -> { return false; }
             }
@@ -4783,6 +5066,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         // a concurrent completion or restart without redispatching cancellation.
         Object cancellation = current.result().get("devOnlyCancellation");
         if (cancellation != null) durableResult.putIfAbsent("devOnlyCancellation", cancellation);
+        Object canonicalCancellation = current.result().get("cancellationRequest");
+        if (canonicalCancellation != null) durableResult.putIfAbsent("cancellationRequest", canonicalCancellation);
         return new ProcessingJob(
                 current.jobId(), current.requestId(), current.tenantId(), current.principalId(), current.artifactId(),
                 current.jobType(), providerId, status, current.createdAt(), current.startedAt(),

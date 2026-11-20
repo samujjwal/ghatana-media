@@ -118,7 +118,10 @@ final class SynthesisControlPolicy {
         return value;
     }
 
-    private static Locale parseLanguageTag(String languageTag) {
+    static Locale parseLanguageTag(String languageTag) {
+        if (languageTag == null || languageTag.length() < 2 || languageTag.length() > 64) {
+            throw new IllegalArgumentException("language must be a BCP-47 tag of 2 to 64 characters");
+        }
         try {
             Locale locale = new Locale.Builder().setLanguageTag(languageTag).build();
             if (locale.getLanguage().isBlank()) {

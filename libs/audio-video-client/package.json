@@ -116,6 +116,11 @@
       "import": "./dist/dev-job-cancellation.js",
       "require": "./dist-cjs/dev-job-cancellation.js"
     },
+    "./dev-project-render": {
+      "types": "./dist/dev-project-render.d.ts",
+      "import": "./dist/dev-project-render.js",
+      "require": "./dist-cjs/dev-project-render.js"
+    },
     "./recorder-checkpoint-store": {
       "types": "./dist/recorder-checkpoint-store.d.ts",
       "import": "./dist/recorder-checkpoint-store.js",

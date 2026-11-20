@@ -320,7 +320,20 @@ class MediaLauncherArtifactIntakeRestartIT {
             HttpResponse<String> replayReadback = send(port, TENANT, token, "GET",
                     "/api/v1/artifacts/" + artifactId, "", "application/json", null);
             assertThat(replayReadback.statusCode()).as(replayReadback.body()).isEqualTo(200);
-            assertThat(JSON.readTree(replayReadback.body()).path("artifactId").asString()).isEqualTo(artifactId);
+            JsonNode restartedArtifact = JSON.readTree(replayReadback.body());
+            assertThat(restartedArtifact.path("artifactId").asString()).isEqualTo(artifactId);
+            assertThat(restartedArtifact.path("sha256").asString()).isEqualTo(expectedDigest);
+            assertThat(restartedArtifact.path("sizeBytes").asLong()).isEqualTo(completeBytes.length);
+            assertThat(restartedArtifact.path("objectReference").asString()).isEqualTo(objectReference);
+            String restartedObjectKey = URI.create(restartedArtifact.path("objectReference").asString())
+                    .getPath().substring(1);
+            try (S3Client s3 = s3()) {
+                byte[] restartedBytes = s3.getObjectAsBytes(GetObjectRequest.builder()
+                        .bucket(bucket).key(restartedObjectKey).build()).asByteArray();
+                assertThat(restartedBytes).containsExactly(completeBytes);
+                assertThat(restartedBytes).hasSize((int) restartedArtifact.path("sizeBytes").asLong());
+                assertThat(sha256(restartedBytes)).isEqualTo(restartedArtifact.path("sha256").asString());
+            }
 
             HttpResponse<String> jobReplay = send(port, TENANT, token, "GET",
                     "/api/v1/jobs/" + jobId + "?requestId=" + jobRequestId,
@@ -329,6 +342,9 @@ class MediaLauncherArtifactIntakeRestartIT {
             JsonNode recoveredJob = JSON.readTree(jobReplay.body());
             assertThat(recoveredJob.path("jobId").asString()).isEqualTo(jobId);
             assertThat(recoveredJob.path("requestId").asString()).isEqualTo(jobRequestId);
+            assertThat(recoveredJob.path("artifactId").asString()).isEqualTo(artifactId);
+            assertThat(recoveredJob.path("expectedArtifactVersion").asString())
+                    .isEqualTo("sha256:" + expectedDigest);
             assertThat(recoveredJob.path("status").asString()).isEqualTo("COMPLETED");
             assertThat(recoveredJob.path("providerId").asString()).isEqualTo("local-diagnostic");
             assertThat(recoveredJob.path("result")).isEqualTo(diagnosticOutcome.path("result"));

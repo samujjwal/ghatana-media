@@ -106,7 +106,7 @@ class MediaDevProjectTimelineRestartIT {
             HttpResponse<String> timeline = send(port, tenant, token, "POST",
                     "/dev/v1/projects/" + projectId + "/timelines",
                     JSON.writeValueAsString(Map.of("expectedHeadRevisionId", initialRevisionId,
-                            "timelineId", "timeline-main")));
+                            "timelineId", "timeline-main", "requestId", "timeline-create-" + run)));
             assertThat(timeline.statusCode()).as(timeline.body()).isEqualTo(201);
             JsonNode timelineRevision = JSON.readTree(timeline.body()).path("revision");
             String timelineRevisionId = timelineRevision.path("revisionId").asString();

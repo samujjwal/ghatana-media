@@ -15,6 +15,7 @@ const REFS = Object.freeze({
   aqRecommendation: 'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-001-154.json',
   aqCurrentReview: 'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-current-source-review-001-154.json',
   pxd216Review: 'docs/implementation/verification/pdp-38/p0-capability-meaning-20-leaf-current-source-review-pxd216.json',
+  pxd216CurrentnessV5: `${OUT}/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v5.json`,
   pxd223Currentness: 'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd223.json',
   pxd225Currentness: 'docs/implementation/verification/pdp-38/pdp0-current-source-reconciliation-pxd225.json',
   pxd225Candidate: 'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-23-r3/pdp0-current-source-reconciliation-pxd225.candidate.json',
@@ -32,10 +33,10 @@ const REFS = Object.freeze({
   r8DecisionMaterial: 'docs/implementation/observations/media-pdp0-parent-case-resolution-candidates/media-pdp0-root-selected-source-integration-r9-r08.decision-section-material.r5.candidate.v1.json',
 });
 const OUT_REFS = Object.freeze({
-  aq: `${OUT}/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v5.json`,
-  pxd216: `${OUT}/p0-capability-meaning-20-leaf-current-source-review-pxd216.successor.candidate.v5.json`,
-  ownerDecision: `${OUT}/source-owner-decision-input.candidate.v5.json`,
-  rootInput: `${OUT}/root-application-input.candidate.v5.json`,
+  aq: `${OUT}/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v6.json`,
+  pxd216: `${OUT}/p0-capability-meaning-20-leaf-current-source-review-pxd216.successor.candidate.v6.json`,
+  ownerDecision: `${OUT}/source-owner-decision-input.candidate.v6.json`,
+  rootInput: `${OUT}/root-application-input.candidate.v6.json`,
 });
 
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -81,9 +82,9 @@ function buildProof(root = ROOT) {
   const aqRecommendation = readJson(REFS.aqRecommendation, root);
   const aqPredecessor = readJson(REFS.aqCurrentReview, root);
   const pxd216 = readJson(REFS.pxd216Review, root);
+  const pxd216CurrentnessV5 = readJson(REFS.pxd216CurrentnessV5, root);
   const pxd223 = readJson(REFS.pxd223Currentness, root);
   const pxd225 = readJson(REFS.pxd225Currentness, root);
-  const pxd225Candidate = readJson(REFS.pxd225Candidate, root);
   const r8Freeze = readJson(REFS.r8Freeze, root);
   const r8RootInput = readJson(REFS.r8RootInput, root);
   const r8DecisionMaterial = readJson(REFS.r8DecisionMaterial, root);
@@ -106,7 +107,7 @@ function buildProof(root = ROOT) {
     'PXD-223 historical source commit is unavailable');
   const pxd216Base = {
     capabilities: YAML.parse(gitText(pxd216BaseCommit, REFS.capabilities, root)),
-    requirements: YAML.parse(gitText('HEAD', REFS.requirements, root)),
+    requirements: YAML.parse(gitText(pxd216BaseCommit, REFS.requirements, root)),
     leafReview: YAML.parse(gitText('HEAD', REFS.leafReview, root)),
     qualityPolicy: YAML.parse(gitText('HEAD', REFS.qualityPolicy, root)),
     goals: YAML.parse(gitText('HEAD', REFS.goals, root)),
@@ -128,7 +129,9 @@ function buildProof(root = ROOT) {
   const aqChangedIds = aqIds.filter(id => !deepEqual(capsBeforeById.get(id), capsNowById.get(id)));
   ensure(aqChangedIds.length === 0, 'AQ rows 1-154 contain semantic capability changes');
 
-  const reqBeforeById = byId(aqBase.requirements.requirements ?? []);
+  // Requirement deltas are scoped to PXD-216's actual pinned source cut, not
+  // current HEAD: HEAD may already contain the exact extension being proven.
+  const reqBeforeById = byId(pxd216Base.requirements.requirements ?? []);
   const reqNowById = byId(current.requirements.requirements ?? []);
   const changedRequirementIds = [...new Set([...reqBeforeById.keys(), ...reqNowById.keys()])]
     .filter(id => !deepEqual(reqBeforeById.get(id), reqNowById.get(id))).sort();
@@ -285,19 +288,17 @@ function buildProof(root = ROOT) {
     REFS.requirements, REFS.channels, REFS.profileSemantics,
   ].map(ref => [ref, hashFile(ref, root)]));
   const selectorNow = fingerprintPxdDecisionSection(readText(REFS.decisionLog, root), 'PXD-225').sha256;
-  ensure(selectorNow === pxd225Candidate.decisionSectionSha256,
-    'PXD-225 candidate selector does not match the live decision section');
-  ensure(pxd225Candidate.currentSource?.channelsSha256 === hashFile(REFS.channels, root),
-    'PXD-225 candidate channel pin is stale');
-  const priorPxd225 = structuredClone(pxd225);
-  const nextPxd225 = structuredClone(pxd225Candidate);
-  delete priorPxd225.decisionSectionSha256;
-  delete nextPxd225.decisionSectionSha256;
-  ensure(deepEqual(priorPxd225, nextPxd225),
-    'PXD-225 currentness successor candidate changes more than the decision-section selector');
-  ensure(pxd225Candidate.preservedSemanticReview?.currentReviewedRowsSha256 === reviewedRowsSha
-    && pxd225Candidate.preservedSemanticReview?.changedReviewedCapabilityIds?.length === 0,
-  'PXD-225 candidate does not preserve the exact PXD-216 reviewed slice');
+  ensure(selectorNow === pxd225.decisionSectionSha256,
+    'Canonical PXD-225 currentness section pin does not match the live decision section');
+  ensure(pxd225.currentSource?.channelsSha256 === hashFile(REFS.channels, root),
+    'Canonical PXD-225 currentness record does not pin live channel source');
+  ensure(pxd225.currentSource?.currentReviewedRowsSha256 === reviewedRowsSha
+    && pxd225.preservedSemanticReview?.changedReviewedCapabilityIds?.length === 0,
+  'Canonical PXD-225 currentness record does not preserve the exact PXD-216 reviewed slice');
+  const v5Selector = pxd216CurrentnessV5.pxd216Successor?.pxd225Selector;
+  ensure(v5Selector?.currentDecisionSectionSha256 === pxd225.decisionSectionSha256
+    && v5Selector?.oldDecisionSectionSha256,
+  'PXD-216 v5 selector history is incomplete or differs from current PXD-225 section');
 
   const currentPinsAfter = sourcePins(root);
   ensure(deepEqual(beforePins, currentPinsAfter), 'A material input changed while the source cut was being collected');
@@ -349,10 +350,14 @@ function buildProof(root = ROOT) {
   aqSuccessor.sourceDeltaProof = sourceDelta.aq1To154;
 
   const currentnessSuccessors = {
-    schemaVersion: 'media.pdp0.aq-pxd216-currentness-successors.candidate.v5',
-    recordId: 'MEDIA-PDP0-AQ-PXD216-CURRENTNESS-SUCCESSORS-2026-10-24-V5',
+    schemaVersion: 'media.pdp0.aq-pxd216-currentness-successors.candidate.v6',
+    recordId: 'MEDIA-PDP0-AQ-PXD216-CURRENTNESS-SUCCESSORS-2026-11-16-V6',
     candidateState: 'SOURCE_BOUND_CURRENTNESS_ONLY_CANDIDATE; OWNER_DECISION_NOT_RECORDED',
-    campaign: {phase: 'PDP-0', macroStage: 'DISCOVERY', identityDenominator: 54, phaseCells: 216, auditRows: 501, historicalOwnerRows: 462},
+    campaign: {phase: 'PDP-0', macroStage: 'DISCOVERY', identityDenominator: 56, phaseCells: 224, auditRows: 501, historicalOwnerRows: 462},
+    currentDecisionSectionPins: {
+      '.product-experience/decision-log.md#PXD-229-section': fingerprintPxdDecisionSection(readText(REFS.decisionLog, root), 'PXD-229').sha256,
+      '.product-experience/decision-log.md#PXD-230-section': fingerprintPxdDecisionSection(readText(REFS.decisionLog, root), 'PXD-230').sha256,
+    },
     stableSourceCut: {
       repositoryHead: execFileSync('git', ['rev-parse', 'HEAD'], {cwd: root, encoding: 'utf8'}).trim(),
       currentSourcePins: beforePins,
@@ -363,6 +368,7 @@ function buildProof(root = ROOT) {
       aqCurrentSourceReview: {ref: REFS.aqCurrentReview, sha256: hashFile(REFS.aqCurrentReview, root)},
       aqRecommendation: {ref: REFS.aqRecommendation, sha256: recommendationSha},
       pxd216SemanticReview: {ref: REFS.pxd216Review, sha256: hashFile(REFS.pxd216Review, root)},
+      pxd216CurrentnessV5: {ref: REFS.pxd216CurrentnessV5, sha256: hashFile(REFS.pxd216CurrentnessV5, root)},
       pxd223Currentness: {ref: REFS.pxd223Currentness, sha256: hashFile(REFS.pxd223Currentness, root)},
       pxd225Currentness: {ref: REFS.pxd225Currentness, sha256: hashFile(REFS.pxd225Currentness, root)},
     },
@@ -379,13 +385,15 @@ function buildProof(root = ROOT) {
       reviewedCapabilityIds: pxdIds,
       changedReviewedCapabilityIds: [],
       pxd225Selector: {
-        predecessorRef: REFS.pxd225Currentness,
-        predecessorSha256: hashFile(REFS.pxd225Currentness, root),
-        candidateRef: REFS.pxd225Candidate,
-        candidateSha256: hashFile(REFS.pxd225Candidate, root),
-        oldDecisionSectionSha256: pxd225.decisionSectionSha256,
+        historicalV5SuccessorRef: REFS.pxd216CurrentnessV5,
+        historicalV5SuccessorSha256: hashFile(REFS.pxd216CurrentnessV5, root),
+        currentRef: REFS.pxd225Currentness,
+        currentSha256: hashFile(REFS.pxd225Currentness, root),
+        historicalCandidateRef: REFS.pxd225Candidate,
+        historicalCandidateSha256: hashFile(REFS.pxd225Candidate, root),
+        oldDecisionSectionSha256: v5Selector.oldDecisionSectionSha256,
         currentDecisionSectionSha256: selectorNow,
-        changedFields: ['decisionSectionSha256'],
+        changedFields: v5Selector.changedFields,
       },
       semanticReviewStatus: 'PXD-216_SEMANTIC_REVIEW_PRESERVED; NO_NEW_SEMANTIC_REVIEW',
       ownerApproval: 'NOT_CLAIMED', independentAcceptance: 'NOT_CLAIMED', acceptanceEffect: 'none',
@@ -407,7 +415,7 @@ function buildProof(root = ROOT) {
   const r8DecisionMaterialRef = REFS.r8DecisionMaterial;
   const ownerDecisionInput = {
     schemaVersion: 'media.pdp0.source-owner-currentness-decision-input.v1',
-    recordId: 'MEDIA-PDP0-AQ-PXD216-SOURCE-OWNER-DECISION-INPUT-2026-10-24',
+    recordId: 'MEDIA-PDP0-AQ-PXD216-SOURCE-OWNER-DECISION-INPUT-2026-11-16-V6',
     state: 'DECISION_NOT_RECORDED; CANDIDATE_FOR_AUTHENTIC_SOURCE_OWNER',
     candidate: {ref: OUT_REFS.aq, sha256: successorsSha256},
     requiredRole: 'AUTHENTIC_MEDIA_PDP0_SOURCE_OWNER',
@@ -424,7 +432,7 @@ function buildProof(root = ROOT) {
   const ownerInputSha256 = serializedSha256(ownerDecisionInput);
   const rootApplicationInput = {
     schemaVersion: 'media.pdp0.currentness-successor-root-application-input.v1',
-    recordId: 'MEDIA-PDP0-AQ-PXD216-CURRENTNESS-ROOT-APPLICATION-INPUT-2026-10-24',
+    recordId: 'MEDIA-PDP0-AQ-PXD216-CURRENTNESS-ROOT-APPLICATION-INPUT-2026-11-16-V6',
     state: 'PREPARED_INPUT_ONLY; OWNER_AND_ROOT_DECISION_NOT_RECORDED',
     target: {ref: OUT_REFS.aq, sha256: successorsSha256},
     requiredSourceOwnerInput: {ref: OUT_REFS.ownerDecision, sha256: ownerInputSha256, state: 'DECISION_NOT_RECORDED'},

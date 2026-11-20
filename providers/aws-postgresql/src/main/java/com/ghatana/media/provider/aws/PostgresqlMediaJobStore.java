@@ -753,7 +753,10 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
             case SUCCEEDED -> terminal.status() == JobStatus.COMPLETED
                     || (terminal.status() == JobStatus.FAILED
                     && "RESULT_GOVERNANCE_FAILED".equals(terminal.failureCode()));
-            case FAILED, NO_EFFECT_PROVEN -> terminal.status() == JobStatus.FAILED;
+            case FAILED -> terminal.status() == JobStatus.FAILED;
+            case NO_EFFECT_PROVEN -> terminal.status() == JobStatus.FAILED
+                    || terminal.status() == JobStatus.CANCELLED
+                    && hasCancellationRequest(expected) && confirmedCancellation(terminal);
             case UNKNOWN -> terminal.status() == JobStatus.OUTCOME_UNKNOWN;
         };
         if (!compatible) throw new IllegalArgumentException("provider finality is incompatible with terminal job status");
@@ -1176,7 +1179,9 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
             MediaLifecycleEvent lifecycleEvent) {
         ensureOpen();
         validateUpdate(expected, failed);
-        if (failed.status() != JobStatus.FAILED || attempt == null || lifecycleEvent == null
+        boolean confirmedCancel = failed.status() == JobStatus.CANCELLED
+                && hasCancellationRequest(expected) && confirmedCancellation(failed);
+        if ((failed.status() != JobStatus.FAILED && !confirmedCancel) || attempt == null || lifecycleEvent == null
                 || !lifecycleEvent.tenantId().equals(expected.tenantId())
                 || !lifecycleEvent.aggregateId().equals(expected.jobId())
                 || lifecycleEvent.aggregateVersion() != failed.version()) {
@@ -1246,7 +1251,9 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
             throw new IllegalArgumentException("expired-job reconciliation event does not match terminal job");
         }
         boolean validRecoveryTransition = switch (expected.status()) {
-            case ACCEPTED -> terminal.status() == JobStatus.FAILED;
+            case ACCEPTED -> terminal.status() == JobStatus.FAILED
+                    || terminal.status() == JobStatus.CANCELLED
+                    && hasNoDispatchCancellationRequest(expected) && confirmedCancellation(terminal);
             case RUNNING -> terminal.status() == JobStatus.OUTCOME_UNKNOWN;
             default -> false;
         };
@@ -1331,7 +1338,7 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
         ensureOpen();
         validateUpdate(expected, terminal);
         if (expected.status() != JobStatus.RUNNING || !terminal(terminal.status())
-                || terminal.status() == JobStatus.OUTCOME_UNKNOWN || terminal.status() == JobStatus.CANCELLED
+                || terminal.status() == JobStatus.OUTCOME_UNKNOWN
                 || observation == null || attempt == null || lifecycleEvent == null
                 || !observation.query().equals(attempt.query())
                 || !lifecycleEvent.tenantId().equals(expected.tenantId())
@@ -1341,7 +1348,10 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
         }
         boolean compatible = switch (observation.finality()) {
             case SUCCEEDED -> terminal.status() == JobStatus.COMPLETED;
-            case FAILED, NO_EFFECT_PROVEN -> terminal.status() == JobStatus.FAILED;
+            case FAILED -> terminal.status() == JobStatus.FAILED;
+            case NO_EFFECT_PROVEN -> terminal.status() == JobStatus.FAILED
+                    || terminal.status() == JobStatus.CANCELLED
+                    && hasCancellationRequest(expected) && confirmedCancellation(terminal);
             case UNKNOWN -> false;
         };
         if (!compatible) throw new IllegalArgumentException("provider finality is incompatible with terminal job status");
@@ -1720,6 +1730,34 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                 || updated.version() != expected.version() + 1) {
             throw new IllegalArgumentException("Media job identity/version is invalid");
         }
+    }
+
+    private static boolean hasCancellationRequest(ProcessingJob job) {
+        Map<?, ?> request = cancellationRequest(job);
+        return request != null
+                && "media.operation-slice.cancel-job".equals(request.get("operationRef"))
+                && request.get("requestId") instanceof String requestId && !requestId.isBlank()
+                && request.get("requestFingerprint") instanceof String fingerprint
+                && fingerprint.matches("[0-9a-f]{64}");
+    }
+
+    private static boolean hasNoDispatchCancellationRequest(ProcessingJob job) {
+        Map<?, ?> request = cancellationRequest(job);
+        return job.status() == JobStatus.ACCEPTED && hasCancellationRequest(job)
+                && request != null && "CANCEL_REQUESTED".equals(request.get("state"))
+                && "NO_DISPATCH".equals(request.get("providerOutcome"));
+    }
+
+    private static boolean confirmedCancellation(ProcessingJob job) {
+        Map<?, ?> request = cancellationRequest(job);
+        return job.status() == JobStatus.CANCELLED && "CANCELLED".equals(job.failureCode())
+                && hasCancellationRequest(job) && request != null
+                && "CANCELLED".equals(request.get("state"));
+    }
+
+    private static Map<?, ?> cancellationRequest(ProcessingJob job) {
+        Object request = job.result().get("cancellationRequest");
+        return request instanceof Map<?, ?> map ? map : null;
     }
 
     /**

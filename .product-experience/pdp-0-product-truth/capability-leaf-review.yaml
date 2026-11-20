@@ -12,10 +12,16 @@ authorityBoundary:
     sections:
       - ownerCapabilityLeafAdjudication
       - ownerTrustReconstructionDispositions
-    sourceRule: Active authority resolves P0 capability intent, channel
-      applicability, typed semantic artifact meaning, and provenance only. Its
-      source references resolve to PDP-0-owned definitions; no PDP-1 operation,
-      wire schema, or domain-object identity is required for PDP-0 completion.
+      - currentVersionExtensionOwnerAndTrust
+    sourceRule: Active authority resolves the 462-row historical base plus the
+      one PXD-226-selected current-version extension for PDP-0 capability
+      intent, channel applicability, typed semantic artifact meaning, and
+      provenance. The six future-version extensions remain deferred outside
+      this active population. These source definitions do not imply quality
+      applicability for the current extension, owner acceptance, independent
+      acceptance, implementation, runtime admission, qualification, or
+      execution; no PDP-1 operation, wire schema, or domain-object identity is
+      required for PDP-0 completion.
     provenanceObservations:
       section: ownerTrustReconstructionDispositions
       recordsPath: records[].outputBranches[].outcomes[]
@@ -23,6 +29,8 @@ authorityBoundary:
         PDP-0 meaning. Missing or conflicting source identity, current
         authority, method, or evidence remains UNKNOWN; the observation does not
         imply implementation, runtime admission, qualification, or acceptance.
+      currentVersionExtensionSection: currentVersionExtensionOwnerAndTrust
+      currentVersionExtensionRecordsPath: trustReconstructionDispositions[]
     independentAcceptance: P0-010-independent-review-open
     executionAdmission: NOT_ADMITTED
     qualification: NOT_EVALUATED
@@ -149333,11 +149341,21 @@ currentVersionExtensionOwnerAndTrust:
         - normalized-semantic-graph-and-reviewable-project-plan-candidate
         - reviewable-version-bound-schema-migration-candidate-and-semantic-diff
       qualityApplicability:
-        status: UNKNOWN_PENDING_SEPARATE_SOURCE_BOUND_QUALITY_REVIEW
-        applicableQualityReviewRef: null
+        status: SOURCE_OWNER_DECIDED_DEFINITION_ONLY
+        sourceOwnerDecisionRef: .product-experience/decision-log.md#PXD-229
+        qualityPolicyRecordRef: .product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalkExtensions/records/@id=media.quality-applicability-extension.media-recipe-specification-compile.v1
+        qualityPolicyRecordProjectionSha256: 74c1ef29f767bb3b2db9028fa5d8c63be00875be3a61edeec81a0e0e2c2a9675
+        dimensions: {applicable: [QUALITY-DIM-RIGHTS-SAFETY], notApplicable: [QUALITY-DIM-STRUCTURAL-VALIDITY, QUALITY-DIM-PERCEPTUAL, QUALITY-DIM-INTENT-FIDELITY, QUALITY-DIM-DOMAIN-SCIENTIFIC, QUALITY-DIM-DELIVERY-COMPATIBILITY]}
+        metricCount: 16
+        metricDisposition: NOT_APPLICABLE
+        measurementState: NOT_EVALUATED
+        qualificationState: NOT_EVALUATED
+        acceptanceEffect: none
+        applicableQualityReviewRef: .product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalkExtensions/records/@id=media.quality-applicability-extension.media-recipe-specification-compile.v1
         historicalReviewBoundary: PXD-225 quality review covers 462 historical leaves
-          and explicitly excludes all seven extensions; no extension quality
-          disposition is inferred.
+          and explicitly excludes all seven extensions; this PXD-229 definition
+          is a separate current-version row and does not alter historical quality
+          review meaning.
       downstreamPdp1Disposition: NO_CURRENT_PDP1_OPERATION_CONTRACT; HISTORICAL_HANDOFF_REMAINS_462
   trustReconstructionDispositions:
     - id: media.capability-trust-reconstruction.media-capability-adjudication-recipe-specification-compile.v1
@@ -149404,7 +149422,7 @@ currentVersionExtensionOwnerAndTrust:
         - normalized-semantic-graph-and-reviewable-project-plan-candidate
         - reviewable-version-bound-schema-migration-candidate-and-semantic-diff
       currentPopulationDisposition: CURRENT_VERSION_EXTENSION_SEPARATE_FROM_HISTORICAL_462
-      qualityApplicability: UNKNOWN_PENDING_SEPARATE_SOURCE_BOUND_QUALITY_REVIEW
+      qualityApplicability: SOURCE_OWNER_DECIDED_DEFINITION_ONLY; PXD-229; exact row is linked by the currentVersionExtensionOwnerAndTrust qualityApplicability record.
       downstreamPdp1Disposition: NO_CURRENT_PDP1_OPERATION_CONTRACT; HISTORICAL_HANDOFF_REMAINS_462
       population:
         historicalBaseCount: 462
@@ -149414,16 +149432,23 @@ currentVersionExtensionOwnerAndTrust:
         trustRecordScope: one exact compile extension row; not part of historical trust
           population
   qualityApplicability:
-    status: UNKNOWN_PENDING_SEPARATE_SOURCE_BOUND_QUALITY_REVIEW
+    status: SOURCE_OWNER_DECIDED_DEFINITION_ONLY
     capabilityRef: media.recipe.specification.compile
+    sourceOwnerDecisionRef: .product-experience/decision-log.md#PXD-229
+    qualityPolicyRecordRef: .product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalkExtensions/records/@id=media.quality-applicability-extension.media-recipe-specification-compile.v1
+    qualityPolicyRecordProjectionSha256: 74c1ef29f767bb3b2db9028fa5d8c63be00875be3a61edeec81a0e0e2c2a9675
+    dimensionApplicability: {QUALITY-DIM-RIGHTS-SAFETY: APPLICABLE, QUALITY-DIM-STRUCTURAL-VALIDITY: NOT_APPLICABLE, QUALITY-DIM-PERCEPTUAL: NOT_APPLICABLE, QUALITY-DIM-INTENT-FIDELITY: NOT_APPLICABLE, QUALITY-DIM-DOMAIN-SCIENTIFIC: NOT_APPLICABLE, QUALITY-DIM-DELIVERY-COMPATIBILITY: NOT_APPLICABLE}
+    metricCount: 16
+    metricDisposition: NOT_APPLICABLE
+    measurementState: NOT_EVALUATED
+    qualificationState: NOT_EVALUATED
+    acceptanceEffect: none
     existingQualityReviewRef: docs/implementation/verification/pdp-38/p0-quality-current-source-review-pxd225.json
     existingQualityReviewCapabilityCount: 462
     currentExtensionIncludedInExistingQualityReview: false
     rationale: The existing quality review has 462 historical rows and expressly
-      excludes all seven extensions. No applicability or exclusion is inferred
-      for this now-current extension.
-    blocks:
-      - CURRENT_QUALITY_APPLICABILITY_AND_REVIEW_FOR_COMPILE_EXTENSION
+      excludes all seven extensions. PXD-229 separately adopts the exact
+      source-derived quality-policy row for this one current-version extension.
   downstreamPdp1:
     status: NOT_DEFINED_IN_THIS_PDP0_SOURCE_CYCLE
     historicalCapabilityOperationCount: 462

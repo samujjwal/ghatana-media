@@ -10,6 +10,9 @@ const ffmpegPath = process.env.GHATANA_MEDIA_FFMPEG ?? "/home/samujjwal/.local/b
 const ffprobePath = process.env.GHATANA_MEDIA_FFPROBE ?? "/home/samujjwal/.local/bin/ffprobe";
 const ffmpegSha256 = process.env.GHATANA_MEDIA_FFMPEG_SHA256 ?? "ebf248ee793773ec207c63aa354657ca080328b8d669ceed975590240c90ec04";
 const ffprobeSha256 = process.env.GHATANA_MEDIA_FFPROBE_SHA256 ?? "871e88ff30db7b7c99cafcb54dff64b1a14d11217366059aaa36aa8fff0c853d";
+const expectedVersion = process.env.GHATANA_MEDIA_FFMPEG_VERSION ?? "6.1.1";
+const developmentLicenseProfileRef = process.env.GHATANA_MEDIA_FFMPEG_LICENSE_PROFILE
+  ?? "local-development-fixture/gpl-ffmpeg-6.1.1";
 
 async function run(exe: string, args: string[]): Promise<void> {
   const { spawn } = await import("node:child_process");
@@ -59,14 +62,14 @@ describe("PinnedFfmpegFinalRenderMuxer", () => {
         creditRefs: [], fileName: "three-color-demo.mp4", retention: "P1D", classification: "INTERNAL",
       };
       const muxer = new PinnedFfmpegFinalRenderMuxer({
-        ffmpegPath, ffmpegSha256, ffprobePath, ffprobeSha256, expectedVersion: "6.1.1",
+        ffmpegPath, ffmpegSha256, ffprobePath, ffprobeSha256, expectedVersion,
         sourceRoot: root,
         resolver: {
           resolveSceneSource: (run) => paths.get(run.sceneId)!,
           resolveNarrationSource: () => narration,
           resolveCaptionText: () => "Synthetic 440 Hz narration cue",
         },
-        width: 160, height: 120, developmentLicenseProfileRef: "local-development-fixture/gpl-ffmpeg-6.1.1",
+        width: 160, height: 120, developmentLicenseProfileRef,
       });
       const output = await muxer.muxAndVerify(request);
       expect(output.contentType).toBe("video/mp4");
@@ -99,7 +102,7 @@ describe("PinnedFfmpegFinalRenderMuxer", () => {
         captionRefs: [], durationMillis: 1000,
       }] });
       const muxer = new PinnedFfmpegFinalRenderMuxer({ ffmpegPath, ffmpegSha256: digest("wrong"),
-        ffprobePath, ffprobeSha256, expectedVersion: "6.1.1", sourceRoot: root,
+        ffprobePath, ffprobeSha256, expectedVersion, sourceRoot: root,
         resolver: { resolveSceneSource: () => source, resolveNarrationSource: () => source,
           resolveCaptionText: () => "caption" }, developmentLicenseProfileRef: "fixture-only" });
       const request: FinalRenderRequest = { renderId: "r", plan, frameRate: { numerator: 30, denominator: 1 },
@@ -113,15 +116,15 @@ describe("PinnedFfmpegFinalRenderMuxer", () => {
       // These harmless version-reporting fixtures keep this path-boundary
       // assertion independent from whether the host has the pinned codec's
       // native shared libraries installed.
-      const ffmpegStub = "#!/bin/sh\nprintf '%s\\n' 'ffmpeg version 6.1.1'\n";
-      const ffprobeStub = "#!/bin/sh\nprintf '%s\\n' 'ffprobe version 6.1.1'\n";
+      const ffmpegStub = `#!/bin/sh\nprintf '%s\\n' 'ffmpeg version ${expectedVersion}'\n`;
+      const ffprobeStub = `#!/bin/sh\nprintf '%s\\n' 'ffprobe version ${expectedVersion}'\n`;
       const ffmpegStubPath = join(root, "ffmpeg-fixture");
       const ffprobeStubPath = join(root, "ffprobe-fixture");
       await writeFile(ffmpegStubPath, ffmpegStub, { mode: 0o700 });
       await writeFile(ffprobeStubPath, ffprobeStub, { mode: 0o700 });
       const boundedMuxer = new PinnedFfmpegFinalRenderMuxer({ ffmpegPath: ffmpegStubPath,
         ffmpegSha256: digest(ffmpegStub), ffprobePath: ffprobeStubPath,
-        ffprobeSha256: digest(ffprobeStub), expectedVersion: "6.1.1", sourceRoot: allowedRoot,
+        ffprobeSha256: digest(ffprobeStub), expectedVersion, sourceRoot: allowedRoot,
         resolver: { resolveSceneSource: () => outsideSource, resolveNarrationSource: () => outsideSource,
           resolveCaptionText: () => "caption" }, developmentLicenseProfileRef: "fixture-only" });
       await expect(boundedMuxer.muxAndVerify(request)).rejects.toThrow(/outside the configured root/u);

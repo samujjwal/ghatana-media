@@ -1,0 +1,201 @@
+{
+  "schemaVersion": "media.pdp0.p0-03-crosswalk-currentness-successor-observation.v1",
+  "recordId": "MEDIA-PDP0-P0-03-CROSSWALK-REBIND-OBSERVATION-SUCCESSOR-2026-11-16-V1",
+  "recordedAt": "2026-11-16T22:28:10Z",
+  "phase": "PDP-0",
+  "taskId": "P0-03:501-audit-disposition-crosswalk",
+  "decisionRef": ".product-experience/decision-log.md#PXD-231",
+  "predecessorObservation": {
+    "path": "docs/implementation/observations/media-pdp0-p0-03-crosswalk-reconciliation-2026-11-16.json",
+    "sha256": "sha256:10a2daf1e27632c00d1596c6723c75908d9d06511e8327017069e570dd225c62"
+  },
+  "authority": {
+    "basis": "User-delegated, exact-source PDP-0 currentness lane; deterministic candidates only.",
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "acceptanceEffect": "none",
+    "implementation": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "qualification": "NOT_EVALUATED",
+    "nativeClosure": "NOT_CLAIMED",
+    "delivery": "NOT_CLAIMED"
+  },
+  "scope": {
+    "crosswalkRows": 501,
+    "originalRows": 428,
+    "focusedRows": 73,
+    "canonicalCapabilityLeaves": 462,
+    "surfaceDenominator": 56,
+    "physical": 28,
+    "composites": 7,
+    "logicalConsumers": 21,
+    "productDenominatorsChanged": false
+  },
+  "sourceCurrentnessSuccessors": [
+    {
+      "kind": "PDP0_501_AUDIT_DISPOSITION_CROSSWALK_CURRENTNESS_CANDIDATE",
+      "producer": "scripts/prepare-media-pdp0-crosswalk-currentness-successor.mjs",
+      "output": "docs/implementation/observations/media-pdp0-crosswalk-currentness-2026-11-16-successor.candidate.v7.json",
+      "outputSha256": "sha256:9019c9461d6642aea65ca93074257b8b79534ef54b290e04038515d5cdad1118",
+      "predecessorSha256": "sha256:41b655f9914fba4c67554fab9e614be1c3e2b66d3fcd5b5b70cffda5e4feabab",
+      "validation": {
+        "status": "PASS",
+        "errors": 0,
+        "total": 501,
+        "dispositionCounts": {
+          "BOUND_EXISTING": 499,
+          "POST_PDP_IMPLEMENTATION_ONLY": 2,
+          "PDP0_MEANING_CHANGE_REQUIRED": 0,
+          "EXPLICIT_NOT_APPLICABLE": 0,
+          "BLOCKED_EXTERNAL_OWNER_DECISION": 0
+        }
+      },
+      "sourceDelta": [
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+          "previousSha256": "68cd7cc6a8e3b7b0667b29a9f95c563219253a67bb7fc690a2c921e3e8197a57",
+          "currentSha256": "e4e1616a651c55f8bc060d2889e49e8e29751083fc57690edfbc3f386dbfa6b6"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/quality-policy.yaml",
+          "previousSha256": "39d66c0dd588bf177f29f721452d657b5f76aebe4b027ac69e3541ec29dade84",
+          "currentSha256": "cf07857ae30b8b4b750a06c5af7f37680feea17f3c0034dd7194c6b9d36fb0a4"
+        },
+        {
+          "sourceRef": "tests/pdp-migration-semantic-reconciliation.test.mjs",
+          "previousSha256": "1212853677c85b0b4d47d2dd7a5eb291d3ad7633a7e80e286c986f03cbeffc53",
+          "currentSha256": "c13b219ab49efa7dfc7d16ebe642f1cb98475cf97bb569fe9129c3eb862e2f66"
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
+          "previousSha256": "bd6b71877f9a3b0c40b8f530119ef18c7102ae60ddf6e478852b3bc24d4807ea",
+          "currentSha256": "72ddbef91f7426d704effa153fc9e9af3491ec27f3b66476a9969e4af63ebf4b"
+        },
+        {
+          "sourceRef": "tests/pdp-truth-domain-migration-199-owner-candidate.test.mjs",
+          "previousSha256": "a6c764f7a3bd23eee7331ebfe4ab6355162c0c9e6764215de54ddbac4ca7e6a2",
+          "currentSha256": "96171768d39fab8f62cad23de9262aea1e3eee2d63cad756591428a110344b61"
+        },
+        {
+          "sourceRef": "scripts/check-media-pdp0-audit-aq-traceability.mjs",
+          "previousSha256": "6c190657e31fc3a346380b6829db867478996e9207133f6973c4a8290891e170",
+          "currentSha256": "466b4ca4ad0ae123e5ae7ea80afb8d733c851dc7d44a18311450b7eb45af49ef"
+        }
+      ]
+    },
+    {
+      "kind": "PDP0_AUDIT_AQ_TRACEABILITY_CURRENTNESS_CANDIDATE",
+      "producer": "scripts/prepare-media-pdp0-aq-traceability-currentness-successor.mjs",
+      "output": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-11-16/pdp0-audit-aq-traceability-v6-successor.candidate.v7.json",
+      "outputSha256": "sha256:a5e48b55c361c40a37e31fa6cf067452860ac887440ea4b3c23fa21021780ac9",
+      "predecessorSha256": "sha256:c53cdb5dd50a67a08db99c177494d71a2443e03f89a9848e50f70ae70a45aba4",
+      "validation": {
+        "status": "PASS",
+        "errors": 0,
+        "traceabilityRows": 501,
+        "canonicalCapabilityLeaves": 462,
+        "crosswalkRows": 501,
+        "boundExisting": 499,
+        "postPdpImplementationOnly": 2,
+        "changedCapabilityMappings": 154
+      },
+      "sourceDelta": [
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/capability-leaf-review.yaml",
+          "previousSha256": "68cd7cc6a8e3b7b0667b29a9f95c563219253a67bb7fc690a2c921e3e8197a57",
+          "currentSha256": "e4e1616a651c55f8bc060d2889e49e8e29751083fc57690edfbc3f386dbfa6b6"
+        },
+        {
+          "sourceRef": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v5.json",
+          "previousSha256": "bab93be098f5297094aa4e899205f7088b3b06807e956df545a4c51742fc3ffb",
+          "currentSha256": null
+        },
+        {
+          "sourceRef": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v6.json",
+          "previousSha256": null,
+          "currentSha256": "b2b8e0ba002e60e9771a27ca4d0620c732d75113a6155570467951c16c50a3d2"
+        }
+      ]
+    }
+  ],
+  "canonicalStatusValidators": {
+    "node scripts/check-media-pdp0-501-audit-dispositions.mjs": {
+      "status": "FAIL",
+      "reason": "Validates the canonical crosswalk path, not the appended v7 candidate.",
+      "findings": [
+        "stale capability-leaf-review pin",
+        "stale quality-policy pin",
+        "stale campaign-extensions pin",
+        "stale P0 migration test pins",
+        "stale traceability checker pin"
+      ],
+      "counts": {
+        "total": 501,
+        "boundExisting": 499,
+        "postPdpImplementationOnly": 2,
+        "unresolved": 0
+      }
+    },
+    "node scripts/check-media-pdp0-audit-aq-traceability.mjs": {
+      "status": "FAIL",
+      "reason": "Validates the canonical crosswalk and canonical traceability artifacts, not the appended v7 candidates.",
+      "findings": [
+        "stale capability-leaf-review pin",
+        "stale campaign-extensions pin",
+        "stale AQ review v6 pin",
+        "462 current-source mapping assertions fail against canonical predecessor",
+        "canonical crosswalk currentness fails"
+      ],
+      "counts": {
+        "totalRows": 501,
+        "rowsWithPdp0DefinitionJoin": 499,
+        "unresolvedExactJoinRows": 0,
+        "blockedRows": 0,
+        "postPdpImplementationOnlyRows": 2
+      }
+    }
+  },
+  "nativeStatusSuccessor": {
+    "availableSourceOnlyPath": false,
+    "phaseStatusWriter": "scripts/report-media-pdp-readiness.mjs",
+    "reason": "The PDP-0 writer recomputes the phase verification suite before writing status. scripts/prepare-media-pdp0-pin-successor.mjs instead builds a 188-pin proposal tied to a root-owner decision packet and is outside this exact crosswalk-only lane.",
+    "canonicalStatusWritten": false,
+    "surfaceMatrixWritten": false,
+    "phaseDevComplete": false
+  },
+  "preservedPhaseStatus": {
+    "path": "docs/implementation/pdp-0-phase-dev-status.json",
+    "sha256": "sha256:bb6f3088532a79cc54416a91004a429fb7447ab192f6f252729ffd9b7efd7f8c",
+    "status": "IN_PROGRESS",
+    "outstandingMeaningIds": [
+      "P0-03:501-audit-disposition-crosswalk"
+    ],
+    "directCriteria": {
+      "P0-03": {
+        "testStatus": "FAIL",
+        "testCount": 148,
+        "passedTestCount": 115,
+        "skippedTestCount": 30,
+        "failedTestCount": 3,
+        "outputSha256": "sha256:14fde5559a63cbec762838eeb2d2aa687fb0194f39f5b600329f75e9f6447e97"
+      },
+      "P0-08": {
+        "testStatus": "FAIL",
+        "testCount": 125,
+        "passedTestCount": 124,
+        "skippedTestCount": 0,
+        "failedTestCount": 1,
+        "outputSha256": "sha256:fd9866e1c3fc624d28a2e5b4e59ef1cf6d8fd40881e2e228e644b39d9440a114"
+      }
+    },
+    "statusProjectionUpdated": false
+  },
+  "nextAllowedAction": "Use the owning source/status workflow after the exact v7 currentness candidates are formally adopted and validated. No phase status or surface-matrix projection was rewritten; no tests, gtool, acceptance, or closure were run.",
+  "claims": {
+    "crosswalkCandidateCurrentness": "PASS",
+    "canonicalCrosswalkCurrentness": "FAIL",
+    "pdp0Aggregate": "IN_PROGRESS",
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED"
+  }
+}

@@ -242,8 +242,32 @@ public final class MediaProjectTimelineContracts {
                        String projectId, String initialRevisionId);
         Project project(Actor actor, String projectId);
         Revision revision(Actor actor, String projectId, String revisionId);
+        /**
+         * Commits one immutable successor using expected-head CAS. Repeating the same new revision identity,
+         * parent and timeline snapshots returns that exact stored revision without moving the project head;
+         * reusing the identity with different content is rejected.
+         */
         Revision commit(Actor actor, String projectId, String expectedHeadRevisionId,
                        String newRevisionId, List<TimelineSnapshot> timelines);
+
+        /** Reads an immutable request receipt before head CAS so a replay remains resolvable after later edits. */
+        default Revision replayCommand(Actor actor, String projectId, String canonicalOperationRef,
+                                       String requestId, String requestFingerprint) {
+            throw commandIdempotencyUnavailable();
+        }
+
+        /** Atomically commits one successor revision and its tenant/principal/operation/request receipt. */
+        default Revision commitCommand(Actor actor, String projectId, String expectedHeadRevisionId,
+                                       String canonicalOperationRef, String requestId, String requestFingerprint,
+                                       String newRevisionId, List<TimelineSnapshot> timelines) {
+            throw commandIdempotencyUnavailable();
+        }
+
+        private static MediaCapabilityNotAdmittedException commandIdempotencyUnavailable() {
+            return new MediaCapabilityNotAdmittedException(
+                    MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED,
+                    "PROJECT_TIMELINE_COMMAND_IDEMPOTENCY_STORE");
+        }
     }
 
     /** Host-owned live authority read. UNKNOWN or an unavailable port blocks a rights-dependent effect. */
@@ -261,7 +285,7 @@ public final class MediaProjectTimelineContracts {
     }
 
     public static class IdempotencyConflictException extends IllegalStateException {
-        public IdempotencyConflictException() { super("project creation requestId was already used with a different payload"); }
+        public IdempotencyConflictException() { super("requestId was already used for this operation with a different payload"); }
     }
 
     public static class RevisionConflictException extends IllegalStateException {
@@ -337,10 +361,29 @@ public final class MediaProjectTimelineContracts {
 
     /** Validates the J-01 owner wire-schema replay identity before any store side effect. */
     public static String requireCreateProjectRequestId(String requestId) {
+        return requireRequestId(requestId);
+    }
+
+    public static String requireRequestId(String requestId) {
         if (requestId == null || !requestId.matches("[A-Za-z0-9][A-Za-z0-9._~:-]{0,127}")) {
             throw new IllegalArgumentException("requestId must be a 1-128 character ASCII opaque key");
         }
         return requestId;
+    }
+
+    public static String requireRequestFingerprint(String requestFingerprint) {
+        if (requestFingerprint == null || !requestFingerprint.matches("[a-f0-9]{64}")) {
+            throw new IllegalArgumentException("requestFingerprint must be a lowercase SHA-256 digest");
+        }
+        return requestFingerprint;
+    }
+
+    public static String requireCanonicalOperationRef(String canonicalOperationRef) {
+        if (canonicalOperationRef == null
+                || !canonicalOperationRef.matches("media\\.operation\\.[A-Za-z0-9._:-]{1,200}")) {
+            throw new IllegalArgumentException("canonicalOperationRef must be a stable Media operation reference");
+        }
+        return canonicalOperationRef;
     }
 
     private record TrackOrder(String sceneId, int order) { }

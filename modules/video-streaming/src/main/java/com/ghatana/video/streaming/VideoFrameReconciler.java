@@ -36,6 +36,8 @@ public final class VideoFrameReconciler {
         HELD,
         /** A duplicate of an already-acked or held frame. */
         DUPLICATE,
+        /** A held sequence was replayed with different frame content. */
+        CONFLICTING_REPLAY,
         /** Held set is full — the frame cannot be accommodated within bounds. */
         OVERFLOW
     }
@@ -162,8 +164,9 @@ public final class VideoFrameReconciler {
             }
             return Disposition.DELIVERED;
         }
-        if (pending.containsKey(sequence)) {
-            return Disposition.DUPLICATE;
+        VideoStreamSession.DecodedFrame held = pending.get(sequence);
+        if (held != null) {
+            return sameFrame(held, frame) ? Disposition.DUPLICATE : Disposition.CONFLICTING_REPLAY;
         }
         if (pending.size() >= MAX_PENDING) {
             return Disposition.OVERFLOW;
@@ -174,6 +177,13 @@ public final class VideoFrameReconciler {
         pending.put(sequence, frame);
         pendingBytes += payload.length;
         return Disposition.HELD;
+    }
+
+    private static boolean sameFrame(
+            VideoStreamSession.DecodedFrame left, VideoStreamSession.DecodedFrame right) {
+        return left.keyFrame() == right.keyFrame()
+                && left.timestampMillis() == right.timestampMillis()
+                && java.util.Arrays.equals(left.payload(), right.payload());
     }
 
     /**
