@@ -701,6 +701,40 @@ describe("executeScenario", () => {
     expect(record.attempts[1]!.sourceDigest).toBeNull();
   });
 
+  it("does not mistake a post-capture callback error for a pre-dispatch denial", async () => {
+    const plan = orchestrateScenario(scenario());
+    let captureCalls = 0;
+    const record = await executeScenario(plan, { check: () => "ADMITTED" }, {
+      capture: async (request) => {
+        captureCalls += 1;
+        return {
+          ...frame,
+          sourceIdentity: request.sourceIdentity,
+          purposeRef: request.purposeRef,
+          exactRightsScope: request.exactRightsScope,
+          sourceVersionRef: request.sourceVersionRef,
+          frameClockRef: request.frameClockRef,
+        };
+      },
+    }, {
+      sceneIds: ["intro"],
+      onCaptured: async () => {
+        throw new CaptureNotAdmittedError("BROWSER", "NOT_ADMITTED");
+      },
+    });
+
+    expect(captureCalls).toBe(1);
+    expect(record.attempts).toEqual([expect.objectContaining({
+      sceneId: "intro",
+      outcome: "OUTCOME_UNKNOWN",
+      sourceDigest: null,
+      capturedBytes: 0,
+    })]);
+    expect(selectSceneCaptureWork(plan, plan, record.attempts)).toEqual({
+      recapture: ["main"], reuse: [], reconcile: ["intro"],
+    });
+  });
+
   it("two identical runs recapture nothing; changed scene alone is selected", async () => {
     const prior = orchestrateScenario(scenario());
     const first = await executeScenario(prior, { check: () => "ADMITTED" }, {

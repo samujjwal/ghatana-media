@@ -1,6 +1,6 @@
 # Document Intelligence source -> destination migration crosswalk (MDI-002, PROPOSED)
 
-**Source (read-only):** `samujjwal/ghatana` `origin/main` @ `7d81f267bc7fe1149557d827e029a0dfd09bc6ab`, path `services/document-intelligence/`.  
+**Source (read-only):** `samujjwal/ghatana` `origin/main` @ `60c803da7184b1cdbf4c886ae3fb7d4953c3d363`, path `services/document-intelligence/`.
 **Destination:** `samujjwal/ghatana-media` `services/document-intelligence/` (this repository).  
 **Machine-readable per-file digests:** `services/document-intelligence/MIGRATION-MANIFEST.json`.  
 **Active deployment writer:** Ghatana (unchanged). The Media copy is `INACTIVE_PENDING_CUTOVER`.

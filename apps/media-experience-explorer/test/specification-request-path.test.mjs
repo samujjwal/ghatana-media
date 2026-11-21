@@ -1,6 +1,24 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import config, { decodeSpecificationRequestPath } from "../vite.config.mjs";
+import config, { decodeSpecificationRequestPath, resolveServerWatchConfig, resolveWatchOptions } from "../vite.config.mjs";
+
+test("keeps native Vite watchers by default and enables bounded polling only by explicit opt-in", () => {
+  assert.equal(resolveWatchOptions({}), null);
+  assert.equal(resolveWatchOptions({ MEDIA_DEV_VITE_USE_POLLING: "0" }), null);
+  assert.deepEqual(resolveWatchOptions({ MEDIA_DEV_VITE_USE_POLLING: "1" }), {
+    usePolling: true,
+    interval: 1000,
+    binaryInterval: 1000,
+  });
+  assert.deepEqual(resolveServerWatchConfig({}), {});
+  assert.deepEqual(resolveServerWatchConfig({ MEDIA_DEV_VITE_DISABLE_WATCH: "0" }), {});
+  assert.deepEqual(resolveServerWatchConfig({ MEDIA_DEV_VITE_DISABLE_WATCH: "1" }), { watch: null });
+  assert.deepEqual(resolveServerWatchConfig({
+    MEDIA_DEV_VITE_DISABLE_WATCH: "1",
+    MEDIA_DEV_VITE_USE_POLLING: "1",
+  }), { watch: null }, "disable-watch must take precedence over polling");
+  assert.deepEqual(config.server.watch ?? null, resolveServerWatchConfig(process.env).watch ?? null);
+});
 
 function invokeSourceMiddleware(url) {
   let middleware;

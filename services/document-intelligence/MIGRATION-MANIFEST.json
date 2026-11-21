@@ -1,6 +1,6 @@
 {
  "manifestVersion": "document-intelligence.migration-manifest.v1",
- "generatedOn": "2026-11-12",
+ "generatedOn": "2026-11-19",
  "protocol": "document-intelligence.v1",
  "source": {
   "repository": "samujjwal/ghatana",
@@ -30,7 +30,7 @@
  "summary": {
   "COPIED_VERBATIM": 1477,
   "ADAPTED": 9,
-  "ADDED": 2
+  "ADDED": 5
  },
  "buildPathAdaptations": {
   "workspace": "pnpm-workspace.yaml gains \"services/document-intelligence/clients/*\" (outside this directory).",
@@ -1316,6 +1316,22 @@
    "destinationSha256": "94f573729693a2c13d9842c3f233108a6799991476e4869b7ec7d9c8cc75dc64",
    "bytes": 18964,
    "disposition": "COPIED_VERBATIM"
+  },
+  {
+   "path": "evaluation/dev-tesseract/results/dev-eval-2026-11-13.json",
+   "sourceSha256": null,
+   "destinationSha256": "ad81ba88bf35f0052186c75fab1d6b6439b23613d64f580d7aaa837aeecbe3d0",
+   "bytes": 7712,
+   "disposition": "ADDED",
+   "note": "Added in Media: unverified synthetic development-evaluation output; not qualification evidence."
+  },
+  {
+   "path": "evaluation/dev-tesseract/run_dev_eval.py",
+   "sourceSha256": null,
+   "destinationSha256": "17b6803d1c5f714927d19cacbc73f7979548e2f43ecc18f665ec08de046a3614",
+   "bytes": 5939,
+   "disposition": "ADDED",
+   "note": "Added in Media: dev-only synthetic Tesseract evaluation script."
   },
   {
    "path": "evaluation/environment.yaml",
@@ -10194,6 +10210,14 @@
    "destinationSha256": "b8d38c47b950a9e11599bfeb07097dce0f66791a9f622064b80353be587c06fd",
    "bytes": 11531,
    "disposition": "COPIED_VERBATIM"
+  },
+  {
+   "path": "tests/integration/test_tesseract_operational_drill.py",
+   "sourceSha256": null,
+   "destinationSha256": "7ca5643b0ea4991dc9c4e1addff6f79f05398e4fc2c512b58784010e3b894349",
+   "bytes": 8754,
+   "disposition": "ADDED",
+   "note": "Added in Media: dev-only Tesseract operational drill; not external qualification."
   },
   {
    "path": "tests/integration/test_tesseract_real.py",

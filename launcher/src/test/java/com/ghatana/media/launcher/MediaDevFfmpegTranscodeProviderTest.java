@@ -188,6 +188,27 @@ class MediaDevFfmpegTranscodeProviderTest {
                 MediaDevProjectRenderRuntime.FFPROBE_ENV, "/bin/true"))).isInstanceOf(IllegalArgumentException.class);
     }
 
+    @Test
+    void onlyTheExplicitDevLibraryPathIsPassedToFfmpegChildren() {
+        assertThat(MediaDevFfmpegTranscodeProvider.childProcessEnvironment(Map.of(
+                "LD_LIBRARY_PATH", "/ambient/must/not/leak",
+                "PATH", "/ambient/bin",
+                "AWS_SECRET_ACCESS_KEY", "must-not-leak"))).isEmpty();
+        assertThat(MediaDevFfmpegTranscodeProvider.childProcessEnvironment(Map.of(
+                MediaDevFfmpegTranscodeProvider.LIBRARY_PATH_ENV, "/opt/media-codecs/lib",
+                "LD_LIBRARY_PATH", "/ambient/must/not/leak",
+                "PATH", "/ambient/bin",
+                "AWS_SECRET_ACCESS_KEY", "must-not-leak")))
+                .containsOnlyKeys("LD_LIBRARY_PATH")
+                .containsEntry("LD_LIBRARY_PATH", "/opt/media-codecs/lib");
+        assertThat(MediaDevFfmpegTranscodeProvider.childProcessEnvironment(Map.of(
+                MediaDevFfmpegTranscodeProvider.LIBRARY_PATH_ENV, "  "))).isEmpty();
+        assertThatThrownBy(() -> MediaDevFfmpegTranscodeProvider.childProcessEnvironment(Map.of(
+                MediaDevFfmpegTranscodeProvider.LIBRARY_PATH_ENV, "/opt/lib\0/extra")))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining(MediaDevFfmpegTranscodeProvider.LIBRARY_PATH_ENV);
+    }
+
     private static ProcessingJobRequest transcodeRequest(Map<String, Object> parameters) {
         return new ProcessingJobRequest("request-validate", "tenant-a", "principal-a", "corr-validate", "artifact-1",
                 "sha256:" + "a".repeat(64), JobType.TRANSCODE, MediaDevFfmpegTranscodeProvider.PROVIDER_ID,

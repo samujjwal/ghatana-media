@@ -65,6 +65,31 @@ class MediaHttpDeclaredRouteParityTest {
     }
 
     @Test
+    void jobCancellationRejectsVersionAboveOpenApiSafeIntegerBeforeRuntimeLookup() throws Exception {
+        var root = Files.createTempDirectory("media-http-cancel-version-bound-");
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(new InertProvider(new AtomicInteger())),
+                List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        try {
+            String requestId = "cancel-version-bound";
+            ExchangeResult result = request(
+                    new MediaHttpHandler(runtime), "POST", "/api/v1/jobs/missing-job/cancel", true, null,
+                    "{\"requestId\":\"" + requestId + "\",\"expectedJobVersion\":9007199254740992}",
+                    Map.of("Idempotency-Key", requestId));
+
+            assertThat(result.status()).isEqualTo(400);
+            assertThat(result.body()).contains("INVALID_REQUEST").doesNotContain("JOB_NOT_FOUND", "INTERNAL_ERROR");
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void artifactReadParsesBoundedOpaqueIdentityBeforeTenantScopedLookup() throws Exception {
         var root = Files.createTempDirectory("media-http-artifact-opaque-id-");
         var runtime = new MediaRuntime(

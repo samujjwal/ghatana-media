@@ -381,7 +381,7 @@ export class OfflineTimelineDrafts {
         if (edit.idempotencyKey !== edit.payload.requestId) return { ...base, outcome: "OUTCOME_UNKNOWN" };
         try {
           const applied = await port.editTimeline(scope.projectId, edit.payload.timelineId,
-            { expectedHeadRevisionId: edit.expectedVersion, edits: edit.payload.edits });
+            { expectedHeadRevisionId: edit.expectedVersion, edits: edit.payload.edits, requestId: edit.payload.requestId });
           this.observedHead = applied.revision.revisionId;
           return { ...base, outcome: "APPLIED", receipt: applied.revision.revisionId };
         } catch (error) {

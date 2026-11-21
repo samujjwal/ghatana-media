@@ -59,6 +59,10 @@ describe("package surface", () => {
     expect(typeof devCancellation.MediaDevOnlyJobCancellationClient).toBe("function");
     const devRender = await import("@audio-video/client/dev-project-render");
     expect(typeof devRender.MediaDevOnlyProjectRenderClient).toBe("function");
+    const devCreativeOutput = await import("@audio-video/client/dev-creative-output");
+    expect(typeof devCreativeOutput.MediaDevOnlyCreativeOutputClient).toBe("function");
+    const devSimulation = await import("@audio-video/client/dev-simulation");
+    expect(typeof devSimulation.MediaDevOnlySimulationClient).toBe("function");
     // The CJS files are emitted independently and keep Node <22 consumers supported.
     const require = createRequire(resolve(packageRoot, "package.json"));
     const cjs = require("./dist-cjs/canonical-operations.js") as Record<string, unknown>;
@@ -67,6 +71,10 @@ describe("package surface", () => {
     expect(typeof devCancellationCjs.MediaDevOnlyJobCancellationClient).toBe("function");
     const devRenderCjs = require("./dist-cjs/dev-project-render.js") as Record<string, unknown>;
     expect(typeof devRenderCjs.MediaDevOnlyProjectRenderClient).toBe("function");
+    const devCreativeOutputCjs = require("./dist-cjs/dev-creative-output.js") as Record<string, unknown>;
+    expect(typeof devCreativeOutputCjs.MediaDevOnlyCreativeOutputClient).toBe("function");
+    const devSimulationCjs = require("./dist-cjs/dev-simulation.js") as Record<string, unknown>;
+    expect(typeof devSimulationCjs.MediaDevOnlySimulationClient).toBe("function");
   });
 
   it("no source file imports monorepo-private paths outside the package", () => {

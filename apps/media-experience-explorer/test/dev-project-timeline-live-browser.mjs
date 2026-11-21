@@ -70,6 +70,21 @@ function jsonFrom(locator) {
   return locator.textContent().then((value) => JSON.parse(value ?? "null"));
 }
 
+function redactBrowserToken(value) {
+  if (typeof value === "string") {
+    return value.split(token).join("[REDACTED]").split(encodeURIComponent(token)).join("[REDACTED]");
+  }
+  if (Array.isArray(value)) return value.map(redactBrowserToken);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, redactBrowserToken(entry)]));
+  }
+  return value;
+}
+
+function safeDiagnostic(value) {
+  return JSON.stringify(redactBrowserToken(value));
+}
+
 const vitePort = 4178;
 const viteEnvironment = { ...process.env, MEDIA_DEV_PROJECT_TIMELINE_PROXY_PORT: String(proxyPort) };
 delete viteEnvironment.MEDIA_DEV_PROJECT_TIMELINE_BROWSER_TOKEN;
@@ -87,14 +102,14 @@ try {
   const baseUrl = `http://127.0.0.1:${vitePort}`;
   let ready = false;
   for (let attempt = 0; attempt < 80; attempt += 1) {
-    if (viteProcess.exitCode !== null) throw new Error(`Vite exited before ready:\n${viteOutput}`);
+    if (viteProcess.exitCode !== null) throw new Error(`Vite exited before ready:\n${redactBrowserToken(viteOutput)}`);
     try {
       const response = await fetch(`${baseUrl}/dev-project-timeline.html`);
       if (response.ok) { ready = true; break; }
     } catch { /* Vite is still starting. */ }
     await delay(250);
   }
-  assert.equal(ready, true, `Vite did not serve the actual Explorer page:\n${viteOutput}`);
+  assert.equal(ready, true, `Vite did not serve the actual Explorer page:\n${redactBrowserToken(viteOutput)}`);
 
   browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
@@ -123,8 +138,16 @@ try {
   try {
     await page.getByText(expectedTenant, { exact: true }).waitFor({ timeout: 10_000 });
   } catch (error) {
-    throw new Error(`DEV_ONLY context was not rendered: status=${await page.locator("#status").textContent()}; `
-      + `responses=${JSON.stringify(apiResponses)}; requests=${JSON.stringify(apiRequests)}; cause=${error.message}`);
+    throw new Error(`DEV_ONLY context was not rendered: ${safeDiagnostic({
+      status: await page.locator("#status").textContent(),
+      pageErrors,
+      consoleErrors,
+      networkFailures,
+      responses: apiResponses,
+      requests: apiRequests,
+      viteOutput: viteOutput.slice(-8_000),
+      cause: error.message,
+    })}`);
   }
   await page.getByText(expectedPrincipal, { exact: true }).waitFor();
   assert.equal(await page.locator("#dev-token").inputValue(), "", "the page must clear the token input after connecting");
@@ -407,9 +430,9 @@ try {
     "launcher restart must preserve the exact immutable clip revision with its source SHA256 and rational strings");
   assert.ok(!apiRequests.slice(requestCountBeforeRestart).some(({ method }) => method === "POST"),
     "the post-restart read phase must not mutate");
-  assert.deepEqual(pageErrors, [], `browser page errors: ${JSON.stringify(pageErrors)}`);
-  assert.deepEqual(consoleErrors, [], `browser console errors: ${JSON.stringify(consoleErrors)}`);
-  assert.deepEqual(networkFailures, [], `browser network failures: ${JSON.stringify(networkFailures)}`);
+  assert.deepEqual(pageErrors, [], `browser page errors: ${safeDiagnostic(pageErrors)}`);
+  assert.deepEqual(consoleErrors, [], `browser console errors: ${safeDiagnostic(consoleErrors)}`);
+  assert.deepEqual(networkFailures, [], `browser network failures: ${safeDiagnostic(networkFailures)}`);
   assert.ok(apiResponses.every((entry) => entry.includes("127.0.0.1")), "all DEV_ONLY calls must stay on loopback Vite origin");
 
   process.stdout.write(`${JSON.stringify({

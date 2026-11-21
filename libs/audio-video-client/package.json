@@ -121,6 +121,16 @@
       "import": "./dist/dev-project-render.js",
       "require": "./dist-cjs/dev-project-render.js"
     },
+    "./dev-creative-output": {
+      "types": "./dist/dev-creative-output.d.ts",
+      "import": "./dist/dev-creative-output.js",
+      "require": "./dist-cjs/dev-creative-output.js"
+    },
+    "./dev-simulation": {
+      "types": "./dist/dev-simulation.d.ts",
+      "import": "./dist/dev-simulation.js",
+      "require": "./dist-cjs/dev-simulation.js"
+    },
     "./recorder-checkpoint-store": {
       "types": "./dist/recorder-checkpoint-store.d.ts",
       "import": "./dist/recorder-checkpoint-store.js",

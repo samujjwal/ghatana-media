@@ -502,8 +502,26 @@ export async function executeScenario(
   const attempts: SceneAttemptRecord[] = [];
   for (const run of selected) {
     const attemptedAt = Date.now();
+    let frame: CapturedFrame;
     try {
-      const frame = await captureWithAdmission(eligibility, adapter, run.capturePlan);
+      frame = await captureWithAdmission(eligibility, adapter, run.capturePlan);
+    } catch (error) {
+      const denied = error instanceof CaptureNotAdmittedError;
+      attempts.push({
+        sceneId: run.sceneId,
+        lineageId: run.lineageId,
+        sourceRevision: run.sourceRevision,
+        outcome: denied ? "NOT_ADMITTED" : "OUTCOME_UNKNOWN",
+        sourceDigest: null,
+        capturedBytes: 0,
+        attemptedAtEpochMillis: attemptedAt,
+      });
+      continue;
+    }
+    try {
+      // Once capture returned a frame, callback errors cannot prove that the
+      // source was never dispatched. Treat checkpoint/persistence failure as
+      // UNKNOWN so a subsequent run must reconcile instead of recapturing.
       await options.onCaptured?.(run, frame);
       attempts.push({
         sceneId: run.sceneId,
@@ -514,13 +532,12 @@ export async function executeScenario(
         capturedBytes: frame.bytes.byteLength,
         attemptedAtEpochMillis: attemptedAt,
       });
-    } catch (error) {
-      const denied = error instanceof CaptureNotAdmittedError;
+    } catch {
       attempts.push({
         sceneId: run.sceneId,
         lineageId: run.lineageId,
         sourceRevision: run.sourceRevision,
-        outcome: denied ? "NOT_ADMITTED" : "OUTCOME_UNKNOWN",
+        outcome: "OUTCOME_UNKNOWN",
         sourceDigest: null,
         capturedBytes: 0,
         attemptedAtEpochMillis: attemptedAt,

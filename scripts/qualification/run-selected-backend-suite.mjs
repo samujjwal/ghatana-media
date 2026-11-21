@@ -2,11 +2,13 @@
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync } from 'node:fs';
+import { cpus } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const GRADLE_FLAGS = ['--offline', '--no-parallel', '--max-workers=2', '--continue', '--rerun-tasks', '--console=plain'];
+const MAX_CPU_COUNT = 4;
 
 const gradle = (...tasks) => ({ command: './gradlew', args: [...GRADLE_FLAGS, ...tasks] });
 const pnpm = (...args) => ({ command: 'pnpm', args });
@@ -28,6 +30,117 @@ export const TARGETS = Object.freeze([
   { id: 'CT', commands: [gradle(':services:media:modules:integration-tests:test')] },
   { id: 'IT', commands: [gradle(':services:media:integration-tests:test')] },
 ]);
+
+function expandCpuList(value, { label, maxCpuCount = Number.MAX_SAFE_INTEGER, allowedCpuIds } = {}) {
+  if (typeof value !== 'string' || value.length === 0) {
+    throw new Error(`${label} must be a comma-separated list of CPU IDs or ascending ranges`);
+  }
+
+  const selected = new Set();
+  for (const entry of value.split(',')) {
+    const match = /^(\d+)(?:-(\d+))?$/u.exec(entry);
+    if (!match) throw new Error(`${label} has an invalid CPU ID or range: ${entry}`);
+    const first = Number(match[1]);
+    const last = Number(match[2] ?? match[1]);
+    if (!Number.isSafeInteger(first) || !Number.isSafeInteger(last) || first > last) {
+      throw new Error(`${label} has an invalid or descending CPU range: ${entry}`);
+    }
+    const count = last - first + 1;
+    if (!Number.isSafeInteger(count) || count > maxCpuCount) {
+      throw new Error(`${label} may select at most ${maxCpuCount} CPUs`);
+    }
+    for (let cpu = first; cpu <= last; cpu += 1) {
+      if (selected.has(cpu)) throw new Error(`${label} selects CPU ${cpu} more than once`);
+      if (allowedCpuIds && !allowedCpuIds.has(cpu)) {
+        throw new Error(`${label} selects CPU ${cpu}, which is outside the CPUs allowed to this process`);
+      }
+    }
+    if (selected.size + count > maxCpuCount) {
+      throw new Error(`${label} may select at most ${maxCpuCount} CPUs`);
+    }
+    for (let cpu = first; cpu <= last; cpu += 1) selected.add(cpu);
+  }
+  return selected;
+}
+
+function formatCpuSet(cpuIds) {
+  const sorted = [...cpuIds].sort((left, right) => left - right);
+  const ranges = [];
+  for (let index = 0; index < sorted.length;) {
+    const first = sorted[index];
+    let last = first;
+    while (sorted[index + 1] === last + 1) {
+      index += 1;
+      last = sorted[index];
+    }
+    ranges.push(first === last ? String(first) : `${first}-${last}`);
+    index += 1;
+  }
+  return ranges.join(',');
+}
+
+function readLinuxAllowedCpuIds() {
+  const status = readFileSync('/proc/self/status', 'utf8');
+  const allowed = status.match(/^Cpus_allowed_list:\s*([\d,-]+)$/mu)?.[1];
+  if (!allowed) throw new Error('cannot read the current Linux CPU affinity from /proc/self/status');
+  return expandCpuList(allowed, { label: 'Linux allowed CPU list' });
+}
+
+function requestedCpuSet(value) {
+  return value === undefined || value === '' ? '0-3' : value;
+}
+
+export function validateCpuSet(value = process.env.GHATANA_CPUSET, platform = process.platform) {
+  const requested = requestedCpuSet(value);
+  if (platform === 'linux') {
+    const allowedCpuIds = readLinuxAllowedCpuIds();
+    return formatCpuSet(expandCpuList(requested, {
+      label: 'GHATANA_CPUSET',
+      maxCpuCount: MAX_CPU_COUNT,
+      allowedCpuIds,
+    }));
+  }
+  const selected = expandCpuList(requested, {
+    label: 'GHATANA_CPUSET',
+    maxCpuCount: MAX_CPU_COUNT,
+    ...(platform === 'darwin' ? { allowedCpuIds: new Set(cpus().map((_, index) => index)) } : {}),
+  });
+  return formatCpuSet(selected);
+}
+
+function cpuAffinityConfiguration(value = process.env.GHATANA_CPUSET, platform = process.platform) {
+  const requested = requestedCpuSet(value);
+  if (platform === 'linux') {
+    const allowedCpuIds = readLinuxAllowedCpuIds();
+    const configuredCpuIds = expandCpuList(requested, {
+      label: 'GHATANA_CPUSET',
+      maxCpuCount: MAX_CPU_COUNT,
+      allowedCpuIds,
+    });
+    const cpuSet = formatCpuSet(configuredCpuIds);
+    const currentCpuSet = formatCpuSet(allowedCpuIds);
+    return { mode: cpuSet === currentCpuSet ? 'inherited' : 'enforced', cpuSet };
+  }
+  const cpuSet = validateCpuSet(requested, platform);
+  if (platform === 'darwin') return { mode: 'not-enforced', cpuSet };
+  throw new Error(`CPU affinity is unsupported on ${platform}; refusing to run the selected backend suite unbounded`);
+}
+
+function verifyLinuxCpuAffinity(cpuSet) {
+  const probe = "const fs=require('node:fs');const m=fs.readFileSync('/proc/self/status','utf8').match(/^Cpus_allowed_list:\\s*([\\d,-]+)$/m);process.stdout.write(m?.[1]??'')";
+  const result = spawnSync('taskset', ['--cpu-list', cpuSet, process.execPath, '-e', probe], {
+    encoding: 'utf8',
+    timeout: 5000,
+    maxBuffer: 1024 * 1024,
+  });
+  if (result.error || result.status !== 0) {
+    throw new Error(`CPU affinity preflight failed for GHATANA_CPUSET=${cpuSet}: ${result.error?.message ?? result.stderr ?? `exit ${result.status}`}`);
+  }
+  const effectiveCpuSet = result.stdout.trim();
+  if (effectiveCpuSet !== cpuSet) {
+    throw new Error(`CPU affinity preflight expected ${cpuSet}, child received ${effectiveCpuSet || 'no affinity'}`);
+  }
+}
 
 const UNAVAILABLE_PATTERNS = [
   /could not resolve .*dependencies|could not resolve all files|no cached version .*available for offline mode/i,
@@ -222,13 +335,22 @@ function countsAreConsistent(counts) {
 }
 
 export async function runSuite({ targets = TARGETS, commandRunner = defaultCommandRunner, cwd = ROOT, write = console.log } = {}) {
+  const cpuAffinity = cpuAffinityConfiguration();
+  if (cpuAffinity.mode === 'enforced') {
+    verifyLinuxCpuAffinity(cpuAffinity.cpuSet);
+    write(`CPU_AFFINITY\tENFORCED\tplatform=linux\tGHATANA_CPUSET=${cpuAffinity.cpuSet}`);
+  } else if (cpuAffinity.mode === 'inherited') {
+    write(`CPU_AFFINITY\tINHERITED_ENFORCED\tplatform=linux\tGHATANA_CPUSET=${cpuAffinity.cpuSet}`);
+  } else {
+    write(`CPU_AFFINITY\tNOT_ENFORCED\tplatform=darwin\tGHATANA_CPUSET=${cpuAffinity.cpuSet}\treason=taskset is unavailable on macOS`);
+  }
   const results = [];
   for (const target of targets) {
     const commandResults = [];
     for (const command of target.commands) {
       let result;
       try {
-        result = await commandRunner(command, { cwd, timeoutMs: 20 * 60 * 1000 });
+        result = await commandRunner(command, { cwd, timeoutMs: 20 * 60 * 1000, cpuAffinity });
       } catch (error) {
         result = { code: null, error };
       }
@@ -265,15 +387,19 @@ export async function runSuite({ targets = TARGETS, commandRunner = defaultComma
   return { results, exitCode: results.every(({ status }) => status === 'PASS') ? 0 : 1 };
 }
 
-function defaultCommandRunner({ command, args }, { cwd, timeoutMs }) {
+function defaultCommandRunner({ command, args }, { cwd, timeoutMs, cpuAffinity }) {
   const spec = { command, args };
   const before = command === './gradlew' ? reportSnapshot(gradleReportFiles(spec, cwd)) : null;
-  const result = spawnSync(command, args, {
+  const commandToRun = cpuAffinity.mode === 'enforced' ? 'taskset' : command;
+  const argsToRun = cpuAffinity.mode === 'enforced'
+    ? ['--cpu-list', cpuAffinity.cpuSet, command, ...args]
+    : args;
+  const result = spawnSync(commandToRun, argsToRun, {
     cwd,
     encoding: 'utf8',
     timeout: timeoutMs,
     maxBuffer: 32 * 1024 * 1024,
-    env: process.env,
+    env: { ...process.env, GHATANA_CPUSET: cpuAffinity.cpuSet },
   });
   return {
     code: result.status,

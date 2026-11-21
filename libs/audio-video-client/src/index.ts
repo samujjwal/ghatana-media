@@ -730,6 +730,15 @@ export const defaultConfigs: Record<ServiceType, ServiceClientConfig> = {
 
 export { canonicalMediaHttpRoutes, legacyCompatibilityRoutes, mediaHttpRouteAuthority } from './canonical-routes.js';
 
+export { MediaDevOnlyCreativeOutputClient } from './dev-creative-output.js';
+export type {
+  DevCreativeOutput, DevCreativeOutputArtifact, DevCreativeOutputKind,
+  DevCreativeOutputLineage, DevCreativeOutputSourceVersion,
+} from './dev-creative-output.js';
+
+export { MediaDevOnlySimulationClient } from './dev-simulation.js';
+export type { DevSimulation, DevSimulationArtifact, DevSimulationLineage } from './dev-simulation.js';
+
 export {
   MediaSceneTextAdmissionError, recognizeAuthorizedMediaSceneText,
 } from './authorized-scene-text.js';

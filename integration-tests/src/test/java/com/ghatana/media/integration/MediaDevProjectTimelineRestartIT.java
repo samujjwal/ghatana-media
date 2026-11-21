@@ -38,6 +38,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.FutureTask;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.ghatana.media.integration.MediaLauncherProcessFixtures.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,13 +51,52 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 class MediaDevProjectTimelineRestartIT {
     private static final ObjectMapper JSON = new ObjectMapper();
     private static final String DEV_SECRET = "media-dev-project-timeline-restart-secret";
+    private static final int MAX_CONTAINER_CPUS = 4;
+    private static final Pattern CPU_SET_ENTRY = Pattern.compile("^([0-9]+)(?:-([0-9]+))?$");
+    private static final String CONTAINER_CPU_SET = configuredContainerCpuSet();
 
     @Container
     private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
-            DockerImageName.parse("postgres:16-alpine"));
+            DockerImageName.parse("postgres:16-alpine"))
+            .withCreateContainerCmdModifier(command -> command.withCpusetCpus(CONTAINER_CPU_SET));
     @Container
     private static final LocalStackContainer LOCALSTACK = new LocalStackContainer(
-            DockerImageName.parse("localstack/localstack:3.8")).withServices(S3);
+            DockerImageName.parse("localstack/localstack:3.8")).withServices(S3)
+            .withCreateContainerCmdModifier(command -> command.withCpusetCpus(CONTAINER_CPU_SET));
+
+    private static String configuredContainerCpuSet() {
+        String configured = System.getenv("GHATANA_CPUSET");
+        return validatedContainerCpuSet(configured == null || configured.isBlank() ? "0-3" : configured.trim());
+    }
+
+    private static String validatedContainerCpuSet(String cpuSet) {
+        int selectedCpuCount = 0;
+        for (String entry : cpuSet.split(",", -1)) {
+            Matcher matcher = CPU_SET_ENTRY.matcher(entry);
+            if (!matcher.matches()) {
+                throw new IllegalArgumentException("Invalid CPU selection in GHATANA_CPUSET: " + entry);
+            }
+            long first;
+            long last;
+            try {
+                first = Long.parseLong(matcher.group(1));
+                last = matcher.group(2) == null ? first : Long.parseLong(matcher.group(2));
+            } catch (NumberFormatException invalidCpuId) {
+                throw new IllegalArgumentException("Invalid CPU selection in GHATANA_CPUSET: " + entry,
+                        invalidCpuId);
+            }
+            if (first > last) {
+                throw new IllegalArgumentException("Invalid CPU range in GHATANA_CPUSET: " + entry);
+            }
+            long rangeDifference = last - first;
+            if (rangeDifference >= MAX_CONTAINER_CPUS - selectedCpuCount) {
+                throw new IllegalArgumentException("GHATANA_CPUSET may select at most " + MAX_CONTAINER_CPUS
+                        + " CPUs for PostgreSQL and LocalStack containers");
+            }
+            selectedCpuCount += (int) (rangeDifference + 1);
+        }
+        return cpuSet;
+    }
 
     @Test
     void ownerProjectTimelineCanBeReopenedAfterLauncherRestart() throws Exception {

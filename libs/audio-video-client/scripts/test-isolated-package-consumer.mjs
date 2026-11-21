@@ -603,13 +603,13 @@ try {
   };
   const cliFetchFixture = path.join(packageRoot, 'src/__fixtures__/cli-fetch.mjs');
   const cliRequestLog = path.join(consumerRoot, 'cli-requests.jsonl');
-  const unsupportedCommandArgs = [
+  const rejectedProductionArgs = [
     ['artifact', 'upload-inspect', '--upload', 'fixture-upload'],
     ['artifact', 'upload', '--file', '/not-read-before-cli-admission', '--content-type', 'audio/wav',
       '--classification', 'INTERNAL', '--retention', 'P30D', '--idempotency-key', 'upload-request'],
     ['job', 'cancel', '--job', 'fixture-job', '--request-id', 'cancel-request'],
   ];
-  for (const commandArgs of unsupportedCommandArgs) {
+  for (const commandArgs of rejectedProductionArgs) {
     const args = [...commandArgs, '--endpoint', 'http://127.0.0.1:1',
       '--tenant', 'fixture-tenant', '--principal', 'fixture-principal'];
     for (const bearerToken of [token, '']) {
@@ -628,18 +628,21 @@ try {
       assert.equal(rejected.stdout, '', `${commandArgs.slice(0, 2).join(' ')} must not write stdout`);
       const error = JSON.parse(rejected.stderr.trim());
       assert.equal(error.code, 'INVALID_INVOCATION');
-      assert.equal(error.commandId, 'media.cli.invocation');
+      const expectedCommandId = commandArgs[0] === 'job' && commandArgs[1] === 'cancel'
+        ? 'media.cli.job.cancel'
+        : 'media.cli.invocation';
+      assert.equal(error.commandId, expectedCommandId);
       assert.match(error.message, /Usage: ghatanamedia-api artifact inspect --endpoint/u);
-      assert.doesNotMatch(error.message, /artifact upload-inspect|artifact upload --|job cancel/u);
+      assert.doesNotMatch(error.message, /artifact upload-inspect|artifact upload --/u);
       assert.equal((rejected.stdout + rejected.stderr).includes(token), false,
         `${commandArgs.slice(0, 2).join(' ')} must not expose credentials`);
     }
   }
   try {
     await access(cliRequestLog, constants.F_OK);
-    assert.fail('unsupported packed CLI commands must not dispatch fetch');
+    assert.fail('rejected production CLI invocations must not dispatch fetch');
   } catch (error) {
-    assert.equal(error.code, 'ENOENT', 'unsupported packed CLI commands must leave no fetch log');
+    assert.equal(error.code, 'ENOENT', 'rejected production CLI invocations must leave no fetch log');
   }
 
   const devInspectArgs = ['artifact', 'inspect', '--endpoint', 'http://127.0.0.1:1',

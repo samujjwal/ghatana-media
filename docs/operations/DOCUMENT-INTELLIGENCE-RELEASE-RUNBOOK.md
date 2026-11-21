@@ -61,7 +61,7 @@ The optional security-scanner provider has its own package, deployment and rollb
 ## 6. Preconditions before the Media copy may become an active writer
 
 - Architectural review has **accepted** MDI-002 (currently PROPOSED).
-- `MIGRATION-MANIFEST.json` re-verified against the then-current Ghatana DI head (any drift since commit `7d81f267bc` re-copied and re-digested, or explicitly dispositioned).
+- `MIGRATION-MANIFEST.json` re-verified against the then-current Ghatana DI head (any drift since commit `60c803da71` re-copied and re-digested, or explicitly dispositioned).
 - Immutable, signed or reproducible client packages published and installed-consumer tests passing (MED-09) - **not yet done**.
 - Model assets provisioned with verified digests; rights/consent positions unchanged and recorded by their owners.
 

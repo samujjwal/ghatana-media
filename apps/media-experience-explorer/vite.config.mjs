@@ -11,6 +11,15 @@ const devProjectTimelineProxyPort = Number(process.env.MEDIA_DEV_PROJECT_TIMELIN
 if (!Number.isInteger(devProjectTimelineProxyPort) || devProjectTimelineProxyPort < 1 || devProjectTimelineProxyPort > 65535) {
   throw new Error("MEDIA_DEV_PROJECT_TIMELINE_PROXY_PORT must be a valid TCP port.");
 }
+export function resolveWatchOptions(environment = process.env) {
+  if (environment.MEDIA_DEV_VITE_USE_POLLING !== "1") return null;
+  return { usePolling: true, interval: 1000, binaryInterval: 1000 };
+}
+export function resolveServerWatchConfig(environment = process.env) {
+  if (environment.MEDIA_DEV_VITE_DISABLE_WATCH === "1") return { watch: null };
+  const watchOptions = resolveWatchOptions(environment);
+  return watchOptions ? { watch: watchOptions } : {};
+}
 const artifactManifest = JSON.parse(readFileSync(resolve(appRoot, "specification-artifacts.json"), "utf8"));
 const specificationFiles = artifactManifest.map((artifact) => artifact.path.replace(".product-experience/", ""));
 
@@ -158,6 +167,7 @@ export default {
     port: 4178,
     strictPort: true,
     headers: { "Content-Security-Policy": contentSecurityPolicy },
+    ...resolveServerWatchConfig(),
     // Browser credentials stay same-origin; Vite forwards only this DEV_ONLY
     // lane to the loopback Media host. The Explorer never accepts a host URL.
     proxy: {

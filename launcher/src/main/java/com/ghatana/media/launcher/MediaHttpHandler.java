@@ -1325,6 +1325,9 @@ public final class MediaHttpHandler implements HttpHandler {
         } catch (ArithmeticException invalid) {
             throw new IllegalArgumentException("expectedJobVersion must be a positive 64-bit integer", invalid);
         }
+        if (expectedVersion > 9_007_199_254_740_991L) {
+            throw new IllegalArgumentException("expectedJobVersion must not exceed 9007199254740991");
+        }
         String reason = body.containsKey("reason") ? requiredString(body.get("reason"), "reason") : "USER_REQUEST";
         MediaRuntime.JobCancellationResponse response = runtime.requestJobCancellation(
                 tenantId, principalId, jobId, requestId, expectedVersion, reason);

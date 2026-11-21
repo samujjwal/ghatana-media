@@ -129,7 +129,7 @@ describe("offline timeline drafts", () => {
     expect(f.port.editTimeline).not.toHaveBeenCalled(); // review never sends
     const outcome = await drafts.replay(review);
     expect(outcome).toMatchObject({ kind: "APPLIED", revisionId: "rev-2", requestId: draft.requestId, httpStatus: 201 });
-    expect(f.calls.edit).toEqual([{ expectedHeadRevisionId: "rev-1", edits: EDITS }]);
+    expect(f.calls.edit).toEqual([{ expectedHeadRevisionId: "rev-1", edits: EDITS, requestId: draft.requestId }]);
     expect(await drafts.list()).toEqual([]);
   });
 
@@ -202,6 +202,9 @@ describe("offline timeline drafts", () => {
     const drafts = await open(idb, f.port, f.newId);
     const draft = await drafts.capture({ timelineId: "timeline-main", edits: [...EDITS], baseRevisionId: "rev-1" });
     expect(await drafts.replay(await drafts.review(draft.editId))).toMatchObject({ kind: "REFUSED", status: 403, reason: "ACCESS_DENIED", draftKept: true });
+    expect(f.port.editTimeline).toHaveBeenCalledWith("project-a", "timeline-main", {
+      expectedHeadRevisionId: "rev-1", edits: EDITS, requestId: draft.requestId,
+    });
     const kept = await drafts.list();
     expect(kept).toMatchObject([{ editId: draft.editId, requestId: draft.requestId, baseRevisionId: "rev-1", state: "PENDING" }]);
     expect(await drafts.replay(await drafts.review(draft.editId))).toMatchObject({ kind: "APPLIED" });

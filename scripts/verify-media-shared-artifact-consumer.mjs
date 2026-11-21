@@ -3,13 +3,16 @@
  * Build Media UI in a temporary consumer context against locally packed Shared
  * artifacts, then install and exercise the resulting public artifacts in a
  * second isolated consumer. This is source-snapshot consumer evidence only.
+ *
+ * `--shared-tarballs <dir>` reuses an immutable input directory containing the
+ * exact Shared dependency closure as `.tgz` files plus adjacent `.sha256` files.
  */
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { cpSync, existsSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, lstatSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
-import { join, resolve } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
@@ -17,6 +20,7 @@ const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const sharedRoot = resolve(root, "../ghatana-shared/platform/typescript");
 const mediaRoot = join(root, "libs/audio-video-ui");
 const mediaManifest = JSON.parse(readFileSync(join(mediaRoot, "package.json"), "utf8"));
+const sharedTarballsInput = parseSharedTarballsInput(process.argv.slice(2));
 const { parse: parseYaml } = createRequire(resolve(root, "../ghatana-tools/package.json"))("yaml");
 const tokenAliases = parseYaml(readFileSync(join(root, ".product-experience/pdp-2-design-interface-system/media-token-aliases.yaml"), "utf8")).aliases;
 const mediaStyleSource = readFileSync(join(root, "libs/audio-video-ui/src/styles.css"), "utf8");
@@ -28,11 +32,73 @@ const tempRoot = mkdtempSync(join(tmpdir(), "media-shared-artifact-consumer-"));
 const npm = process.platform === "win32" ? "npm.cmd" : "npm";
 const pnpm = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 
+function parseSharedTarballsInput(args) {
+  const indexes = args.flatMap((argument, index) => argument === "--shared-tarballs" ? [index] : []);
+  assert.ok(indexes.length <= 1, "--shared-tarballs may be specified only once");
+  if (indexes.length === 0) return null;
+  const value = args[indexes[0] + 1];
+  assert.ok(value && !value.startsWith("--"), "usage: verify-media-shared-artifact-consumer.mjs [--shared-tarballs <immutable-dir>]");
+  return resolve(value);
+}
+
 function run(command, args, cwd, timeout = 180_000) {
   return execFileSync(command, args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"], timeout });
 }
 function packedArchives(dir) { return readdirSync(dir).filter((name) => name.endsWith(".tgz")).map((name) => join(dir, name)); }
 function packageManifest(path) { return JSON.parse(readFileSync(join(path, "package.json"), "utf8")); }
+function verifiedPrebuiltSharedArchives(directory, expectedCount, snapshotDirectory) {
+  const absolute = resolve(directory);
+  const directoryStat = lstatSync(absolute);
+  assert.ok(directoryStat.isDirectory() && !directoryStat.isSymbolicLink(), `Shared tarball input must be a regular directory: ${absolute}`);
+  assert.equal(realpathSync(absolute), absolute, `Shared tarball input must not resolve through a symlink: ${absolute}`);
+
+  const entries = readdirSync(absolute, { withFileTypes: true });
+  for (const entry of entries) {
+    assert.ok(entry.isFile(), `Shared tarball input may contain only regular .tgz files and SHA-256 sidecars: ${entry.name}`);
+    assert.ok(entry.name.endsWith(".tgz") || entry.name.endsWith(".tgz.sha256"),
+      `Unexpected file in Shared tarball input: ${entry.name}`);
+    assert.ok(!lstatSync(join(absolute, entry.name)).isSymbolicLink(), `Shared tarball input cannot contain symlinks: ${entry.name}`);
+  }
+
+  const archiveNames = entries.map(({ name }) => name).filter((name) => name.endsWith(".tgz")).sort();
+  assert.equal(archiveNames.length, expectedCount, `Shared tarball input must contain exactly ${expectedCount} packages from Media's declared dependency closure`);
+  assert.equal(entries.length, archiveNames.length * 2, "Each Shared tarball must have exactly one adjacent .sha256 sidecar");
+
+  return archiveNames.map((name) => {
+    const archive = join(absolute, name);
+    const sidecar = `${archive}.sha256`;
+    assert.ok(existsSync(sidecar), `Shared tarball is missing its SHA-256 sidecar: ${name}`);
+    const checksum = readFileSync(sidecar, "utf8").trim();
+    const match = /^(?:sha256:)?([a-f0-9]{64})(?:\s+\*?(.+))?$/iu.exec(checksum);
+    assert.ok(match, `Shared tarball sidecar must contain a SHA-256 digest: ${name}.sha256`);
+    if (match[2]) assert.equal(match[2], name, `Shared tarball sidecar filename does not match: ${name}.sha256`);
+    const expectedDigest = match[1].toLowerCase();
+    assert.equal(digest(archive), expectedDigest, `Shared tarball SHA-256 does not match its sidecar: ${name}`);
+    const snapshot = join(snapshotDirectory, name);
+    cpSync(archive, snapshot);
+    assert.equal(digest(snapshot), expectedDigest, `Shared tarball changed while being snapshotted: ${name}`);
+    return snapshot;
+  });
+}
+function validatePrebuiltArchive(archive) {
+  const entries = run("tar", ["-tzf", archive], root).split(/\r?\n/u).filter(Boolean);
+  const verboseEntries = run("tar", ["-tvzf", archive], root).split(/\r?\n/u).filter(Boolean);
+  assert.equal(verboseEntries.length, entries.length, `Shared tarball has ambiguous member names: ${basename(archive)}`);
+  assert.ok(verboseEntries.every((entry) => /^[-d]/u.test(entry)),
+    `Shared tarball may contain only regular files and directories: ${basename(archive)}`);
+
+  const normalized = entries.map((entry) => entry.replace(/\/+$/u, ""));
+  const unique = new Set(normalized);
+  assert.equal(unique.size, normalized.length, `Shared tarball contains duplicate member paths: ${basename(archive)}`);
+  for (const entry of normalized) {
+    const segments = entry.split("/");
+    assert.ok(entry && !entry.startsWith("/") && !entry.includes("\\")
+      && segments.every((segment) => segment && segment !== "." && segment !== "..")
+      && (entry === "package" || entry.startsWith("package/")),
+    `Shared tarball contains an unsafe or unexpected member path: ${entry}`);
+  }
+  assert.ok(unique.has("package/package.json"), `Shared tarball has no package/package.json: ${basename(archive)}`);
+}
 function publicTargets(manifest) {
   return Object.values(manifest.exports ?? {}).flatMap((entry) => {
     if (typeof entry === "string") return [entry];
@@ -86,7 +152,9 @@ try {
     assert.ok(found, `Shared dependency is not present in the local package inventory: ${name}`);
     assert.equal(found.manifest.version, mediaManifest.dependencies[name] ?? found.manifest.version,
       `${name} version differs from Media's declared dependency`);
-    assert.ok(existsSync(join(found.path, "dist")), `${name} has no built dist artifact; build the Shared package before running this check`);
+    if (!sharedTarballsInput) {
+      assert.ok(existsSync(join(found.path, "dist")), `${name} has no built dist artifact; build the Shared package before running this check`);
+    }
     closure.set(name, found);
     for (const dependency of Object.keys(found.manifest.dependencies ?? {})) {
       if (dependency.startsWith("@ghatana/") && manifests.has(dependency)) pending.push(dependency);
@@ -102,9 +170,15 @@ try {
   for (const directory of [sharedPackDir, sharedExtractDir, mediaBuildDir, mediaPackageDir, join(mediaPackageDir, "src"), mediaPackDir, consumerDir])
     await import("node:fs/promises").then(({ mkdir }) => mkdir(directory, { recursive: true }));
 
-  for (const { path } of closure.values()) run(pnpm, ["pack", "--pack-destination", sharedPackDir], path);
-  const sharedArchives = packedArchives(sharedPackDir);
-  assert.equal(sharedArchives.length, closure.size, "pnpm pack must produce one archive for each Shared dependency");
+  let sharedArchives;
+  if (sharedTarballsInput) {
+    sharedArchives = verifiedPrebuiltSharedArchives(sharedTarballsInput, closure.size, sharedPackDir);
+    for (const archive of sharedArchives) validatePrebuiltArchive(archive);
+  } else {
+    for (const { path } of closure.values()) run(pnpm, ["pack", "--pack-destination", sharedPackDir], path);
+    sharedArchives = packedArchives(sharedPackDir);
+    assert.equal(sharedArchives.length, closure.size, "pnpm pack must produce one archive for each Shared dependency");
+  }
   const sharedByName = new Map();
   for (const archive of sharedArchives) {
     const unpackDir = join(sharedExtractDir, String(sharedByName.size));
@@ -221,8 +295,11 @@ try {
   const bundledRuntime = join(consumerDir, "bundle", bundledFiles[0]);
   run(process.execPath, [bundledRuntime], consumerDir);
 
-  console.log(`Media isolated public-artifact consumer passed: Media UI ${mediaManifest.version} compiled and packed; ${sharedByName.size} Shared source-snapshot artifacts at 0.1.0-SNAPSHOT installed from tarballs; consumer type and runtime entrypoints resolved. SHA-256 (raw archive, package JSON key order may vary): ${JSON.stringify(Object.fromEntries([...sharedByName].map(([name, value]) => [name, value.archiveSha256])))}. SHA-256 (canonical published files): ${JSON.stringify(Object.fromEntries([...sharedByName].map(([name, value]) => [name, value.publishedContentSha256])))}.`);
-  console.log("Scope: this proves consumption of locally packed source snapshots only; canonical file digests normalize JSON object key order and do not prove registry publication, immutable release binding, or semantic acceptance.");
+  const artifactSource = sharedTarballsInput ? "prebuilt Shared artifacts with verified SHA-256 sidecars" : "Shared source-snapshot artifacts";
+  console.log(`Media isolated public-artifact consumer passed: Media UI ${mediaManifest.version} compiled and packed; ${sharedByName.size} ${artifactSource} at 0.1.0-SNAPSHOT installed from tarballs; consumer type and runtime entrypoints resolved. SHA-256 (raw archive, package JSON key order may vary): ${JSON.stringify(Object.fromEntries([...sharedByName].map(([name, value]) => [name, value.archiveSha256])))}. SHA-256 (canonical published files): ${JSON.stringify(Object.fromEntries([...sharedByName].map(([name, value]) => [name, value.publishedContentSha256])))}.`);
+  console.log(sharedTarballsInput
+    ? "Scope: this verifies Media consumer resolution from the supplied Shared tarballs; it does not bind them to a source revision or the Kernel/Media manifests, so X01 remains incomplete."
+    : "Scope: this proves consumption of locally packed source snapshots only; canonical file digests normalize JSON object key order and do not prove registry publication, immutable release binding, or semantic acceptance.");
 } catch (error) {
   if (error?.stdout || error?.stderr) {
     process.stderr.write(String(error.stdout ?? ""));

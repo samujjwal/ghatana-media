@@ -53,7 +53,7 @@ deployed separately from Media audio/video deployments.
 - `BOUNDARY.md` — new "MDI-002 (PROPOSED)" section; earlier text is retained as the currently accepted position until MDI-002 is accepted.
 - `.product-experience/pdp-0-product-truth/ocr-ownership.yaml` — additive `packagingSupersession` block and decision `PDP0-003-D5` (state `proposed`); `PDP0-003-D4` untouched.
 - `docs/migration/document-intelligence-source-destination-crosswalk.md` — source→destination crosswalk.
-- `services/document-intelligence/MIGRATION-MANIFEST.json` — per-file source/destination SHA-256 (source `ghatana` `origin/main` commit `7d81f267bc7fe1149557d827e029a0dfd09bc6ab`).
+- `services/document-intelligence/MIGRATION-MANIFEST.json` — per-file source/destination SHA-256 (source `ghatana` `origin/main` commit `60c803da7184b1cdbf4c886ae3fb7d4953c3d363`).
 
 ## Status ledger
 

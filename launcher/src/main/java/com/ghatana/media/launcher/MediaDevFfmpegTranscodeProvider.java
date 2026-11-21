@@ -73,6 +73,8 @@ final class MediaDevFfmpegTranscodeProvider implements MediaProcessingProvider {
     static final String SPOOL_ENV = "MEDIA_DEV_FFMPEG_JOB_SPOOL";
     /** Days a terminal attempt directory is kept before pruning; positive integer, default 7. */
     static final String RETENTION_ENV = "MEDIA_DEV_FFMPEG_JOB_SPOOL_RETENTION_DAYS";
+    /** Optional explicit runtime library path for the isolated FFmpeg/ffprobe child processes. */
+    static final String LIBRARY_PATH_ENV = "MEDIA_DEV_RENDER_LD_LIBRARY_PATH";
     static final int DEFAULT_RETENTION_DAYS = 7;
     static final int MAXIMUM_RETENTION_DAYS = 3650;
     private static final Pattern ATTEMPT_DIRECTORY = Pattern.compile("[0-9a-f]{40}");
@@ -96,6 +98,7 @@ final class MediaDevFfmpegTranscodeProvider implements MediaProcessingProvider {
     private final Path spool;
     private final Path gateDir;
     private final Duration retention;
+    private final Map<String, String> childEnvironment;
     private final String owner = MediaDevRequestLedger.localOwner();
     private final ConcurrentHashMap<String, Active> active = new ConcurrentHashMap<>();
 
@@ -107,10 +110,15 @@ final class MediaDevFfmpegTranscodeProvider implements MediaProcessingProvider {
     }
 
     MediaDevFfmpegTranscodeProvider(Path ffmpeg, Path ffprobe, Path spool, Path gateDir) {
-        this(ffmpeg, ffprobe, spool, gateDir, Duration.ofDays(DEFAULT_RETENTION_DAYS));
+        this(ffmpeg, ffprobe, spool, gateDir, Duration.ofDays(DEFAULT_RETENTION_DAYS), Map.of());
     }
 
     MediaDevFfmpegTranscodeProvider(Path ffmpeg, Path ffprobe, Path spool, Path gateDir, Duration retention) {
+        this(ffmpeg, ffprobe, spool, gateDir, retention, Map.of());
+    }
+
+    private MediaDevFfmpegTranscodeProvider(Path ffmpeg, Path ffprobe, Path spool, Path gateDir, Duration retention,
+                                           Map<String, String> childEnvironment) {
         if (!ffmpeg.isAbsolute() || !ffprobe.isAbsolute() || !spool.isAbsolute()
                 || (gateDir != null && !gateDir.isAbsolute())) {
             throw new IllegalArgumentException("ffmpeg, ffprobe, spool and gate paths must be absolute");
@@ -123,6 +131,7 @@ final class MediaDevFfmpegTranscodeProvider implements MediaProcessingProvider {
         this.spool = spool;
         this.gateDir = gateDir;
         this.retention = retention;
+        this.childEnvironment = Map.copyOf(childEnvironment);
         try {
             Files.createDirectories(spool);
         } catch (IOException failure) {
@@ -138,7 +147,17 @@ final class MediaDevFfmpegTranscodeProvider implements MediaProcessingProvider {
         if (spool.isBlank() || ffmpeg.isBlank() || ffprobe.isBlank()) return Optional.empty();
         String gate = environment.getOrDefault(GATE_ENV, "");
         return Optional.of(new MediaDevFfmpegTranscodeProvider(Path.of(ffmpeg), Path.of(ffprobe), Path.of(spool),
-                gate.isBlank() ? null : Path.of(gate), retention(environment)));
+                gate.isBlank() ? null : Path.of(gate), retention(environment), childProcessEnvironment(environment)));
+    }
+
+    /** Only the explicitly configured FFmpeg library path crosses the cleared child-process environment boundary. */
+    static Map<String, String> childProcessEnvironment(Map<String, String> environment) {
+        String libraryPath = environment.getOrDefault(LIBRARY_PATH_ENV, "");
+        if (libraryPath.isBlank()) return Map.of();
+        if (libraryPath.indexOf('\0') >= 0) {
+            throw new IllegalArgumentException(LIBRARY_PATH_ENV + " must not contain a NUL character");
+        }
+        return Map.of("LD_LIBRARY_PATH", libraryPath);
     }
 
     /** Parses {@link #RETENTION_ENV}; an absent value is the default, a malformed or out-of-range value fails startup. */
@@ -267,7 +286,7 @@ final class MediaDevFfmpegTranscodeProvider implements MediaProcessingProvider {
                     "-f", params.container(), part.toString());
             long remainingMillis = Math.max(1_000L, Duration.ofNanos(
                     Math.max(0, context.monotonicDeadline().remainingNanos())).toMillis());
-            BoundedProcessRunner.Result result = BoundedProcessRunner.run(command, dir, Map.of(),
+            BoundedProcessRunner.Result result = BoundedProcessRunner.run(command, dir, childEnvironment,
                     Duration.ofMillis(remainingMillis), 1_024, 8_192, run.cancelled, part, MAX_OUTPUT_BYTES);
             if (run.cancelled.isCancelled()) {
                 discard(dir);
@@ -415,7 +434,7 @@ final class MediaDevFfmpegTranscodeProvider implements MediaProcessingProvider {
         BoundedProcessRunner.Result result = BoundedProcessRunner.run(
                 List.of(ffprobe.toString(), "-v", "error", "-select_streams", "a:0", "-show_entries",
                         "stream=codec_name,duration", "-of", "default=noprint_wrappers=1", file.toString()),
-                file.getParent(), Map.of(), Duration.ofSeconds(20), 4_096, 4_096,
+                file.getParent(), childEnvironment, Duration.ofSeconds(20), 4_096, 4_096,
                 BoundedProcessRunner.CancellationToken.NEVER, null, 0);
         String text = new String(result.stdout(), StandardCharsets.UTF_8);
         String codec = "";

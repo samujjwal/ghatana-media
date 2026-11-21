@@ -24,6 +24,9 @@ const fixture = {
   contentRequests: [],
   corruptContent: false,
   requests: [],
+  responseStatuses: [],
+  socketEvents: [],
+  clientErrors: [],
   projectRequests: [],
   timelineRequests: [],
   graphEditRequests: [],
@@ -48,6 +51,7 @@ const apiServer = createServer(async (request, response) => {
   try {
     const path = new URL(request.url ?? "/", "http://127.0.0.1").pathname;
     fixture.requests.push(`${request.method} ${path}`);
+    response.once("finish", () => fixture.responseStatuses.push({ method: request.method, path, status: response.statusCode }));
     if (request.headers.authorization !== `Bearer ${token}`) {
       return respond(response, 401, { error: { code: "TOKEN_INVALID", message: "Fixture token required." } });
     }
@@ -282,6 +286,16 @@ const apiServer = createServer(async (request, response) => {
   } catch (error) {
     if (!response.destroyed) respond(response, 500, { error: { code: "FIXTURE_ERROR", message: String(error) } });
   }
+});
+apiServer.on("connection", (socket) => {
+  const event = { remotePort: socket.remotePort, openedAt: Date.now(), closedAt: null, hadError: null, error: null };
+  fixture.socketEvents.push(event);
+  socket.once("close", (hadError) => { event.closedAt = Date.now(); event.hadError = hadError; });
+  socket.on("error", (error) => { event.error = error.code ?? error.message; });
+});
+apiServer.on("clientError", (error, socket) => {
+  fixture.clientErrors.push({ code: error.code ?? null, message: error.message });
+  socket.destroy();
 });
 
 function exportView(payload) {
@@ -892,7 +906,45 @@ try {
   await draftPanel.getByLabel("Draft review").waitFor();
   assert.equal(fixture.graphEditPostAttempts, postsBeforeOffline, "review must not send the edit");
   await keyboardActivate(page, draftPanel.getByRole("button", { name: "Confirm replay" }));
-  await draftPanel.getByText(/APPLIED \(201\)/u).first().waitFor();
+  try {
+    await draftPanel.getByText(/APPLIED \(201\)/u).first().waitFor();
+  } catch (error) {
+    const safe = (value) => String(value ?? "").replaceAll(token, "[REDACTED]");
+    const graph = fixture.revision?.timelines[0]?.graph ?? null;
+    const diagnostics = {
+      timeout: safe(error instanceof Error ? error.message : error),
+      panelStatus: safe(await draftPanel.innerText().catch(() => "<unavailable>")),
+      pageStatus: safe(await page.locator("#status").textContent().catch(() => "<unavailable>")),
+      offlineDraftStatus: safe(await draftStatus.textContent().catch(() => "<unavailable>")),
+      fixture: {
+        requestCount: fixture.requests.length,
+        graphEditRequestTail: fixture.requests.filter((request) => request.endsWith("/edits")).slice(-4),
+        graphEditStatusTail: fixture.responseStatuses.filter(({ path }) => path.endsWith("/edits")).slice(-4),
+        graphEditPayloadTail: fixture.graphEditRequests.slice(-4).map(({ timelineId, expectedHeadRevisionId, edits }) => ({
+          timelineId, expectedHeadRevisionId, edits,
+        })),
+        graphEditPostAttempts: fixture.graphEditPostAttempts,
+        graphEditRequestCount: fixture.graphEditRequests.length,
+        upstreamSockets: fixture.socketEvents.slice(-10),
+        upstreamClientErrors: fixture.clientErrors.slice(-8),
+        headRevisionId: fixture.project?.headRevisionId ?? null,
+        currentRevisionId: fixture.revision?.revisionId ?? null,
+        revisionParentId: fixture.revision?.parentRevisionId ?? null,
+        replayTimelineGraph: graph ?? null,
+        leaseState: "not modeled by this fixture",
+        context: { tenantId: context.tenantId, principalId: context.principalId, scope: context.scope },
+      },
+      browser: {
+        pageErrors: pageErrors.slice(-8).map(safe),
+        consoleErrors: consoleErrors.slice(-8).map(safe),
+        networkFailures: networkFailures.slice(-12).map(safe),
+        graphEditRequests: networkRequests.filter((url) => url.includes("/edits")).slice(-4).map(safe),
+        graphEditResponses: networkResponses.filter((entry) => entry.includes("/edits")).slice(-4).map(safe),
+      },
+      viteOutputTail: safe(viteOutput.slice(-1_500)),
+    };
+    throw new Error(`Offline replay did not report APPLIED (201): ${JSON.stringify(diagnostics)}`);
+  }
   assert.equal(fixture.graphEditPostAttempts, postsBeforeOffline + 1);
   const replayed = fixture.graphEditRequests.at(-1);
   assert.equal(replayed.expectedHeadRevisionId, baseHeadBeforeOffline, "replay is a CAS on the draft's exact base revision");

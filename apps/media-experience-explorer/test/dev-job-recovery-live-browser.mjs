@@ -182,7 +182,7 @@ function collectDisclosedJobFields(value, matches) {
 }
 function viteEnvironment(port) {
   const environment = Object.fromEntries(
-    ["PATH", "HOME", "TMPDIR", "TEMP", "TMP", "LANG", "LC_ALL", "CI"]
+    ["PATH", "HOME", "TMPDIR", "TEMP", "TMP", "LANG", "LC_ALL", "CI", "MEDIA_DEV_VITE_DISABLE_WATCH"]
       .flatMap((name) => process.env[name] === undefined ? [] : [[name, process.env[name]]]),
   );
   environment.MEDIA_DEV_PROJECT_TIMELINE_PROXY_PORT = String(port);

@@ -43,7 +43,7 @@ test('MED-04: the DI module is outside Media core build graphs (DI offline canno
 
 test('MED-02: DI module is a parity-manifested copy that is explicitly not the active deployment writer', () => {
   const manifest = JSON.parse(read('services/document-intelligence/MIGRATION-MANIFEST.json'));
-  assert.equal(manifest.source.commit, '7d81f267bc7fe1149557d827e029a0dfd09bc6ab');
+  assert.equal(manifest.source.commit, '60c803da7184b1cdbf4c886ae3fb7d4953c3d363');
   assert.equal(manifest.deploymentWriter.media, 'INACTIVE_PENDING_CUTOVER');
   assert.equal(manifest.deploymentWriter.active, 'ghatana/services/document-intelligence');
   assert.equal(manifest.protocol, 'document-intelligence.v1');

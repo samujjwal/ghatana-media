@@ -11,6 +11,8 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJobRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -28,8 +30,17 @@ import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.net.InetSocketAddress;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.security.MessageDigest;
+import java.time.Clock;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,13 +56,36 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 @Testcontainers(disabledWithoutDocker = true)
 @Tag("integration")
 class MediaDevOnlyJobCancellationRestartPostgresIT {
+    private static final String DEV_JWT_SECRET = "media-dev-cancel-restart-test-secret-32-bytes";
+    private static final String CONTAINER_CPU_SET = configuredContainerCpuSet();
+    private static final tools.jackson.databind.ObjectMapper JSON = new tools.jackson.databind.ObjectMapper();
+
     @Container
     private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
-            DockerImageName.parse("postgres:16-alpine"));
+            DockerImageName.parse("postgres:16-alpine"))
+            .withCreateContainerCmdModifier(command -> command.withCpusetCpus(CONTAINER_CPU_SET));
 
     @Container
     private static final LocalStackContainer LOCALSTACK = new LocalStackContainer(
-            DockerImageName.parse("localstack/localstack:3.8")).withServices(S3);
+            DockerImageName.parse("localstack/localstack:3.8")).withServices(S3)
+            .withCreateContainerCmdModifier(command -> command.withCpusetCpus(CONTAINER_CPU_SET));
+
+    private static String configuredContainerCpuSet() {
+        String cpuSet = System.getenv().getOrDefault("GHATANA_CPUSET", "0-3");
+        int count = 0;
+        for (String entry : cpuSet.split(",", -1)) {
+            java.util.regex.Matcher matcher = java.util.regex.Pattern.compile("^([0-9]+)(?:-([0-9]+))?$")
+                    .matcher(entry);
+            if (!matcher.matches()) throw new IllegalArgumentException("Invalid GHATANA_CPUSET entry: " + entry);
+            long first = Long.parseLong(matcher.group(1));
+            long last = matcher.group(2) == null ? first : Long.parseLong(matcher.group(2));
+            if (first > last || last - first >= 4 - count) {
+                throw new IllegalArgumentException("GHATANA_CPUSET must select at most four CPUs");
+            }
+            count += (int) (last - first + 1);
+        }
+        return cpuSet;
+    }
 
     @Test
     void unknownDispatchReplaysAfterRuntimeRestartWithoutRedispatch() throws Exception {
@@ -70,7 +104,7 @@ class MediaDevOnlyJobCancellationRestartPostgresIT {
         var root = Files.createTempDirectory("media-dev-cancel-restart-");
         try {
             assertThat(stateKeeper.ready()).isTrue();
-            MediaRuntime.DevOnlyJobCancellationResult first;
+            tools.jackson.databind.JsonNode first;
             try (PostgresqlMediaJobStore store = new PostgresqlMediaJobStore();
                  PostgresqlMediaLifecycleOutboxSource outbox = new PostgresqlMediaLifecycleOutboxSource();
                  MediaRuntime runtime = runtime(root, cancellations, store, outbox)) {
@@ -80,22 +114,30 @@ class MediaDevOnlyJobCancellationRestartPostgresIT {
                         artifact.artifactId(), JobType.TRANSCODE, "dev-cancel-restart-provider", Map.of()));
                 awaitRunning(runtime, tenant, principal, job.jobId());
                 jobId = job.jobId();
-                first = runtime.cancelLocalDevelopmentJob(tenant, principal, jobId, requestId, null);
+                HttpServer server = startDevHttpServer(runtime);
+                try {
+                    first = runInstalledCliCancel(server, tenant, principal, jobId, requestId);
+                } finally {
+                    server.stop(0);
+                }
             }
-            assertThat(first.scope()).isEqualTo("DEV_ONLY");
-            assertThat(first.outcome()).isEqualTo("OUTCOME_UNKNOWN");
-            assertThat(first.replayed()).isFalse();
+            assertCliCancellation(first, requestId, "OUTCOME_UNKNOWN", false);
             assertThat(cancellations).hasValue(1);
 
             try (PostgresqlMediaJobStore store = new PostgresqlMediaJobStore();
                  PostgresqlMediaLifecycleOutboxSource outbox = new PostgresqlMediaLifecycleOutboxSource();
                  MediaRuntime restarted = runtime(root, cancellations, store, outbox)) {
-                var replay = restarted.cancelLocalDevelopmentJob(tenant, principal, jobId, requestId, null);
-                assertThat(replay.requestId()).isEqualTo(requestId);
-                assertThat(replay.outcome()).isEqualTo("OUTCOME_UNKNOWN");
-                assertThat(replay.replayed()).isTrue();
+                HttpServer server = startDevHttpServer(restarted);
+                tools.jackson.databind.JsonNode replay;
+                try {
+                    replay = runInstalledCliCancel(server, tenant, principal, jobId, requestId);
+                } finally {
+                    server.stop(0);
+                }
+                assertCliCancellation(replay, requestId, "OUTCOME_UNKNOWN", true);
                 assertThat(cancellations).hasValue(1);
-                assertThat(replay.job().result()).containsKey("devOnlyCancellation");
+                assertThat(replay.path("cancellation").path("job").path("result").has("devOnlyCancellation"))
+                        .isTrue();
             }
         } finally {
             stateKeeper.close();
@@ -109,6 +151,260 @@ class MediaDevOnlyJobCancellationRestartPostgresIT {
                 });
             }
         }
+    }
+
+    @Test
+    void installedCliReconcilesLostSubmitAcknowledgementAfterRuntimeRestartWithoutSecondProviderEffect()
+            throws Exception {
+        String run = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-dev-submit-ack-" + run;
+        String tenant = "tenant-dev-submit-ack-" + run;
+        String principal = "principal-dev-submit-ack-" + run;
+        String requestId = "submit-lost-ack-" + run;
+        Path root = Files.createTempDirectory("media-dev-submit-ack-");
+        Path droppedAcknowledgement = Files.createTempFile("media-dev-submit-ack-", ".json");
+        Files.deleteIfExists(droppedAcknowledgement);
+        var cancellations = new AtomicInteger();
+        var providerEffects = new AtomicInteger();
+        try (S3Client s3 = s3()) {
+            s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+        }
+        var installed = TestAwsStateInstall.install(environment(bucket));
+        try (PostgresqlMediaJobStore stateKeeper = new PostgresqlMediaJobStore()) {
+            assertThat(stateKeeper.ready()).isTrue();
+            String jobId;
+            try (PostgresqlMediaJobStore store = new PostgresqlMediaJobStore();
+                 PostgresqlMediaLifecycleOutboxSource outbox = new PostgresqlMediaLifecycleOutboxSource();
+                 MediaRuntime runtime = runtime(root, cancellations, providerEffects, store, outbox)) {
+                var artifact = upload(runtime, tenant, principal, run);
+                HttpServer host = startDevHttpServer(runtime);
+                try (LostJobSubmitAckProxy proxy = new LostJobSubmitAckProxy(
+                        host.getAddress().getPort(), droppedAcknowledgement)) {
+                    CliResult first = runInstalledCli(tenant, principal,
+                            "job", "submit", "--endpoint", "http://127.0.0.1:" + proxy.port(),
+                            "--tenant", tenant, "--principal", principal,
+                            "--artifact", artifact.artifactId(), "--request-id", requestId,
+                            "--job-type", "TRANSCODE", "--provider-hint", "dev-cancel-restart-provider");
+                    assertThat(first.exitCode()).as(first.output()).isEqualTo(1);
+                    var lostAck = JSON.readTree(first.output());
+                    assertThat(lostAck.path("schemaVersion").asString()).isEqualTo("media.cli-error.v1");
+                    assertThat(lostAck.path("commandId").asString())
+                            .isEqualTo("media.cli.local-development.job.submit");
+                    assertThat(lostAck.path("code").asString()).isEqualTo("OUTCOME_UNKNOWN");
+                    assertThat(lostAck.path("requestId").asString()).isEqualTo(requestId);
+                } finally {
+                    host.stop(0);
+                }
+
+                var acknowledged = JSON.readTree(Files.readString(droppedAcknowledgement, StandardCharsets.UTF_8));
+                jobId = acknowledged.path("jobId").asString();
+                assertThat(jobId).isNotBlank();
+                assertThat(acknowledged.path("requestId").asString()).isEqualTo(requestId);
+                assertThat(acknowledged.path("artifactId").asString()).isEqualTo(artifact.artifactId());
+                assertThat(acknowledged.path("status").asString()).isIn("ACCEPTED", "RUNNING");
+                awaitRunning(runtime, tenant, principal, jobId);
+                assertThat(providerEffects).hasValue(1);
+                assertThat(stateKeeper.findByRequest(tenant, requestId).orElseThrow().jobId()).isEqualTo(jobId);
+            }
+
+            try (PostgresqlMediaJobStore store = new PostgresqlMediaJobStore();
+                 PostgresqlMediaLifecycleOutboxSource outbox = new PostgresqlMediaLifecycleOutboxSource();
+                 MediaRuntime restarted = runtime(root, cancellations, providerEffects, store, outbox)) {
+                HttpServer host = startDevHttpServer(restarted);
+                try {
+                    CliResult replay = runInstalledCli(tenant, principal,
+                            "job", "submit", "--endpoint", "http://127.0.0.1:" + host.getAddress().getPort(),
+                            "--tenant", tenant, "--principal", principal,
+                            "--artifact", stateKeeper.findByRequest(tenant, requestId).orElseThrow().artifactId(),
+                            "--request-id", requestId, "--job-type", "TRANSCODE",
+                            "--provider-hint", "dev-cancel-restart-provider");
+                    assertThat(replay.exitCode()).as(replay.output()).isZero();
+                    var result = JSON.readTree(replay.output());
+                    assertThat(result.path("schemaVersion").asString()).isEqualTo("media.cli-result.v1");
+                    assertThat(result.path("commandId").asString())
+                            .isEqualTo("media.cli.local-development.job.submit");
+                    assertThat(result.path("job").path("jobId").asString()).isEqualTo(jobId);
+                    assertThat(result.path("job").path("requestId").asString()).isEqualTo(requestId);
+                    assertThat(result.path("job").path("status").asString()).isEqualTo("RUNNING");
+                } finally {
+                    host.stop(0);
+                }
+                assertThat(providerEffects).as("same request replay must not cause a second provider effect")
+                        .hasValue(1);
+                assertThat(stateKeeper.findByRequest(tenant, requestId).orElseThrow().jobId()).isEqualTo(jobId);
+            }
+        } finally {
+            installed.close();
+            try (S3Client s3 = s3()) {
+                s3.deleteBucket(builder -> builder.bucket(bucket));
+            }
+            Files.deleteIfExists(droppedAcknowledgement);
+            try (var paths = Files.walk(root)) {
+                paths.sorted(java.util.Comparator.reverseOrder()).forEach(path -> {
+                    try { Files.deleteIfExists(path); } catch (Exception ignored) { }
+                });
+            }
+        }
+    }
+
+    private static HttpServer startDevHttpServer(MediaRuntime runtime) throws Exception {
+        HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        Map<String, String> securityEnvironment = Map.of(
+                "MEDIA_DEV_IDENTITY_ENABLED", "true",
+                "MEDIA_RUNTIME_ENVIRONMENT", "dev",
+                "MEDIA_DEV_JWT_HMAC_SECRET", DEV_JWT_SECRET);
+        server.createContext("/", new MediaSecurityFilter(
+                new MediaHttpHandler(runtime), "dev", securityEnvironment, Clock.systemUTC()));
+        server.start();
+        return server;
+    }
+
+    private record CliResult(int exitCode, String output) { }
+
+    private static CliResult runInstalledCli(
+            String tenant, String principal, String... arguments) throws Exception {
+        Path directory = Path.of(System.getProperty("user.dir")).toAbsolutePath();
+        Path cli = null;
+        for (Path candidate = directory; candidate != null; candidate = candidate.getParent()) {
+            Path candidateCli = candidate.resolve("libs/audio-video-client/dist/cli-dev.js");
+            if (Files.isRegularFile(candidateCli)) {
+                cli = candidateCli;
+                break;
+            }
+        }
+        if (cli == null) throw new IllegalStateException(
+                "Installed DEV_ONLY CLI was not found from the test working directory: " + directory);
+        ProcessBuilder builder = new ProcessBuilder();
+        builder.command().add("node");
+        builder.command().add(cli.toString());
+        builder.command().addAll(List.of(arguments));
+        builder.environment().put("GHATANA_MEDIA_BEARER_TOKEN", devToken(tenant, principal));
+        builder.redirectErrorStream(true);
+        Process cliProcess = builder.start();
+        if (!cliProcess.waitFor(30, java.util.concurrent.TimeUnit.SECONDS)) {
+            cliProcess.destroyForcibly();
+            throw new AssertionError("Installed DEV_ONLY CLI command timed out");
+        }
+        String output = new String(cliProcess.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim();
+        return new CliResult(cliProcess.exitValue(), output);
+    }
+
+    private static tools.jackson.databind.JsonNode runInstalledCliCancel(
+            HttpServer server, String tenant, String principal, String jobId, String requestId) throws Exception {
+        int port = server.getAddress().getPort();
+        String endpoint = "http://127.0.0.1:" + port;
+        CliResult result = runInstalledCli(tenant, principal,
+                "job", "cancel", "--endpoint", endpoint, "--tenant", tenant, "--principal", principal,
+                "--job", jobId, "--request-id", requestId);
+        if (result.exitCode() != 0) {
+            throw new AssertionError("Installed DEV_ONLY CLI cancel failed (exit " + result.exitCode()
+                    + "): " + result.output());
+        }
+        return JSON.readTree(result.output());
+    }
+
+    private static final class LostJobSubmitAckProxy implements AutoCloseable {
+        private final HttpServer server;
+        private final HttpClient client = HttpClient.newHttpClient();
+        private final int targetPort;
+        private final Path droppedAcknowledgement;
+        private final java.util.concurrent.atomic.AtomicBoolean dropped =
+                new java.util.concurrent.atomic.AtomicBoolean();
+
+        private LostJobSubmitAckProxy(int targetPort, Path droppedAcknowledgement) throws IOException {
+            this.targetPort = targetPort;
+            this.droppedAcknowledgement = droppedAcknowledgement;
+            server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+            server.createContext("/", this::forward);
+            server.start();
+        }
+
+        private int port() { return server.getAddress().getPort(); }
+
+        private void forward(HttpExchange exchange) throws IOException {
+            try {
+                byte[] requestBody = exchange.getRequestBody().readAllBytes();
+                HttpRequest.Builder request = HttpRequest.newBuilder(URI.create(
+                                "http://127.0.0.1:" + targetPort + exchange.getRequestURI()))
+                        .timeout(Duration.ofSeconds(20));
+                for (String header : List.of("Authorization", "X-Tenant-Id", "X-Principal-Id", "Content-Type",
+                        "Accept", "Idempotency-Key")) {
+                    List<String> values = exchange.getRequestHeaders().get(header);
+                    if (values != null) values.forEach(value -> request.header(header, value));
+                }
+                request.method(exchange.getRequestMethod(), requestBody.length == 0
+                        ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofByteArray(requestBody));
+                HttpResponse<byte[]> response = client.send(request.build(), HttpResponse.BodyHandlers.ofByteArray());
+                boolean submit = "POST".equals(exchange.getRequestMethod())
+                        && "/api/v1/jobs".equals(exchange.getRequestURI().getPath());
+                if (submit && response.statusCode() == 202 && dropped.compareAndSet(false, true)) {
+                    Files.write(droppedAcknowledgement, response.body());
+                    exchange.close();
+                    return;
+                }
+                response.headers().map().forEach((name, values) -> {
+                    if (!name.equalsIgnoreCase("connection") && !name.equalsIgnoreCase("content-length")
+                            && !name.equalsIgnoreCase("transfer-encoding")) {
+                        values.forEach(value -> exchange.getResponseHeaders().add(name, value));
+                    }
+                });
+                byte[] responseBody = response.body();
+                exchange.sendResponseHeaders(response.statusCode(), responseBody.length);
+                try (OutputStream body = exchange.getResponseBody()) { body.write(responseBody); }
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                respondFailure(exchange);
+            } catch (Exception failure) {
+                respondFailure(exchange);
+            }
+        }
+
+        private static void respondFailure(HttpExchange exchange) {
+            try {
+                byte[] body = "acknowledgement proxy failed".getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(502, body.length);
+                try (OutputStream response = exchange.getResponseBody()) { response.write(body); }
+            } catch (IOException ignored) { exchange.close(); }
+        }
+
+        @Override public void close() { server.stop(0); }
+    }
+
+    private static void assertCliCancellation(
+            tools.jackson.databind.JsonNode result, String requestId, String outcome, boolean replayed) {
+        var cancellation = result.path("cancellation");
+        assertThat(result.path("schemaVersion").asString()).isEqualTo("media.cli-result.v1");
+        assertThat(cancellation.path("scope").asString()).isEqualTo("DEV_ONLY");
+        assertThat(cancellation.path("requestId").asString()).isEqualTo(requestId);
+        assertThat(cancellation.path("outcome").asString()).isEqualTo(outcome);
+        assertThat(cancellation.path("replayed").asBoolean()).isEqualTo(replayed);
+        assertThat(cancellation.path("job").path("status").asString()).isEqualTo("RUNNING");
+    }
+
+    private static String devToken(String tenant, String principal) throws Exception {
+        long now = java.time.Instant.now().getEpochSecond();
+        String header = base64Url("{\"alg\":\"HS256\",\"typ\":\"JWT\"}");
+        String payload = base64Url("{\"sub\":\"" + tenantSafe(principal) + "\",\"tenant_id\":\""
+                + tenantSafe(tenant) + "\",\"iss\":\"urn:ghatana:media:dev-only\","
+                + "\"aud\":\"ghatana-media-dev\",\"dev_only\":true,\"iat\":" + now
+                + ",\"exp\":" + (now + 120)
+                + ",\"permissions\":[\"media:job:create\",\"media:job:read\",\"media:job:cancel\"]}");
+        String signingInput = header + "." + payload;
+        javax.crypto.Mac mac = javax.crypto.Mac.getInstance("HmacSHA256");
+        mac.init(new javax.crypto.spec.SecretKeySpec(DEV_JWT_SECRET.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+        return signingInput + "." + Base64.getUrlEncoder().withoutPadding()
+                .encodeToString(mac.doFinal(signingInput.getBytes(StandardCharsets.US_ASCII)));
+    }
+
+    private static String tenantSafe(String value) {
+        if (!value.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,127}")) {
+            throw new IllegalArgumentException("Invalid DEV_ONLY token identity");
+        }
+        return value;
+    }
+
+    private static String base64Url(String value) {
+        return Base64.getUrlEncoder().withoutPadding().encodeToString(value.getBytes(StandardCharsets.UTF_8));
     }
 
     @Test
@@ -185,6 +481,15 @@ class MediaDevOnlyJobCancellationRestartPostgresIT {
             AtomicInteger cancellations,
             PostgresqlMediaJobStore jobStore,
             PostgresqlMediaLifecycleOutboxSource outbox) {
+        return runtime(root, cancellations, new AtomicInteger(), jobStore, outbox);
+    }
+
+    private static MediaRuntime runtime(
+            java.nio.file.Path root,
+            AtomicInteger cancellations,
+            AtomicInteger providerEffects,
+            PostgresqlMediaJobStore jobStore,
+            PostgresqlMediaLifecycleOutboxSource outbox) {
         MediaRuntimeConfig config = new MediaRuntimeConfig(true, "dev", 8093, 1_024, 128, 1_024,
                 Duration.ofSeconds(5), 2, "", "", true, false, root);
         MediaProcessingProvider provider = new MediaProcessingProvider() {
@@ -195,6 +500,7 @@ class MediaDevOnlyJobCancellationRestartPostgresIT {
             @Override public int priority() { return 1; }
             @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
             @Override public CompletableFuture<Map<String, Object>> process(ProcessingContext context) {
+                providerEffects.incrementAndGet();
                 return new CompletableFuture<>();
             }
             @Override public CancellationOutcome cancel(

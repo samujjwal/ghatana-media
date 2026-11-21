@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 vi.setConfig({ testTimeout: 30_000 });
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdtemp, mkdir, readFile, rm, symlink, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, open, readFile, rm, symlink, writeFile, type FileHandle } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,23 +27,43 @@ const canonicalJob = (overrides: Record<string, unknown> = {}) => ({
   version: 2, expectedArtifactVersion: '', requestFingerprint: `sha256:${'b'.repeat(64)}`,
   ...overrides,
 });
-function invokeEntry(entry: string, args: string[], tokenValue = token, node = true, envOverrides: NodeJS.ProcessEnv = {}, preload?: string): Promise<{ status: number | null; stdout: string; stderr: string }> {
-  return new Promise((resolve, reject) => {
-    const child = spawn(node ? process.execPath : entry, node ? [...(preload ? ['--import', preload] : []), entry, ...args] : args, {
-      env: { ...process.env, ...envOverrides, GHATANA_MEDIA_BEARER_TOKEN: tokenValue },
-      stdio: ['ignore', 'pipe', 'pipe'],
+async function invokeEntry(entry: string, args: string[], tokenValue = token, node = true, envOverrides: NodeJS.ProcessEnv = {}, preload?: string): Promise<{ status: number | null; stdout: string; stderr: string }> {
+  const outputDirectory = await mkdtemp(join(tmpdir(), 'media-cli-subprocess-output-'));
+  const stdoutPath = join(outputDirectory, 'stdout');
+  const stderrPath = join(outputDirectory, 'stderr');
+  let stdoutFile: FileHandle | undefined;
+  let stderrFile: FileHandle | undefined;
+  try {
+    stdoutFile = await open(stdoutPath, 'w');
+    stderrFile = await open(stderrPath, 'w');
+    const stdoutFd = stdoutFile.fd;
+    const stderrFd = stderrFile.fd;
+    return await new Promise((resolve, reject) => {
+      let spawnError: Error | undefined;
+      const child = spawn(node ? process.execPath : entry, node ? [...(preload ? ['--import', preload] : []), entry, ...args] : args, {
+        env: { ...process.env, ...envOverrides, GHATANA_MEDIA_BEARER_TOKEN: tokenValue },
+        stdio: ['ignore', stdoutFd, stderrFd],
+      });
+      const timeout = setTimeout(() => child.kill('SIGKILL'), 10_000);
+      child.on('error', error => { spawnError = error; });
+      child.on('close', async status => {
+        clearTimeout(timeout);
+        try {
+          const [stdout, stderr] = await Promise.all([
+            readFile(stdoutPath, 'utf8'),
+            readFile(stderrPath, 'utf8'),
+          ]);
+          if (spawnError) reject(spawnError);
+          else resolve({ status, stdout, stderr });
+        } catch (error) {
+          reject(error);
+        }
+      });
     });
-    let stdout = '';
-    let stderr = '';
-    const timeout = setTimeout(() => child.kill('SIGKILL'), 10_000);
-    child.stdout.setEncoding('utf8').on('data', chunk => { stdout += chunk; });
-    child.stderr.setEncoding('utf8').on('data', chunk => { stderr += chunk; });
-    child.on('error', reject);
-    child.on('close', status => {
-      clearTimeout(timeout);
-      resolve({ status, stdout, stderr });
-    });
-  });
+  } finally {
+    await Promise.allSettled([stdoutFile?.close(), stderrFile?.close()].filter((close): close is Promise<void> => close !== undefined));
+    await rm(outputDirectory, { recursive: true, force: true });
+  }
 }
 
 const invoke = (args: string[], tokenValue = token, envOverrides: NodeJS.ProcessEnv = {}, preload?: string) => invokeEntry(bin, args, tokenValue, true, envOverrides, preload);

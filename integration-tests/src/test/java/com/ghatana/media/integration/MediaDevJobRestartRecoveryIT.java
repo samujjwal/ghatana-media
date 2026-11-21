@@ -1,5 +1,7 @@
 package com.ghatana.media.integration;
 
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -19,8 +21,11 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -30,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.sql.DriverManager;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HexFormat;
@@ -277,6 +283,82 @@ class MediaDevJobRestartRecoveryIT {
     }
 
     @Test
+    void installedCliReconcilesLostSubmitAcknowledgementAfterRestartWithoutSecondEffect() throws Exception {
+        Fixture f = fixture(true);
+        Process launcher = null;
+        Path droppedAcknowledgement = Files.createTempFile("media-cli-job-ack-", ".json");
+        Files.deleteIfExists(droppedAcknowledgement);
+        try {
+            launcher = start(f, true);
+            String owner = token(f.tenant, f.principal);
+            Source source = upload(f, owner, 8);
+            String requestId = "cli-lost-ack-" + f.run;
+            List<String> submitCommand = List.of("job", "submit", "--artifact", source.artifactId(),
+                    "--request-id", requestId, "--job-type", "TRANSCODE", "--provider-hint", PROVIDER);
+            CliResult first;
+            try (LostJobSubmitAckProxy proxy = new LostJobSubmitAckProxy(f.port, droppedAcknowledgement)) {
+                first = runDevCli(f, proxy.port(), owner, submitCommand);
+            }
+
+            assertThat(first.exitCode()).as("CLI stdout=%s stderr=%s", first.stdout(), first.stderr()).isEqualTo(1);
+            assertThat(first.stdout()).isEmpty();
+            JsonNode lostAck = JSON.readTree(first.stderr().strip());
+            assertThat(lostAck.path("schemaVersion").asString()).isEqualTo("media.cli-error.v1");
+            assertThat(lostAck.path("commandId").asString()).isEqualTo("media.cli.local-development.job.submit");
+            assertThat(lostAck.path("code").asString()).isEqualTo("OUTCOME_UNKNOWN");
+            assertThat(lostAck.path("requestId").asString()).isEqualTo(requestId);
+
+            JsonNode accepted = JSON.readTree(Files.readString(droppedAcknowledgement, StandardCharsets.UTF_8));
+            String jobId = accepted.path("jobId").asString();
+            assertThat(jobId).isNotBlank();
+            assertThat(accepted.path("status").asString()).isIn("ACCEPTED", "RUNNING", "COMPLETED");
+            JsonNode completedBeforeRestart = awaitStatus(f, owner, jobId, "COMPLETED", 120);
+            assertThat(completedBeforeRestart.path("requestId").asString()).isEqualTo(requestId);
+            assertThat(completedBeforeRestart.path("artifactId").asString()).isEqualTo(source.artifactId());
+            assertDecodedOutput(f, jobId, completedBeforeRestart, source, 16_000);
+            assertSourceArtifactReadback(f, owner, source);
+            assertThat(attemptStates(f, jobId)).containsExactly("SUCCEEDED");
+            assertThat(jobCountByRequest(f, requestId)).isEqualTo(1);
+
+            Path output = opDir(f, jobId).resolve("out.bin");
+            byte[] outputBytes = Files.readAllBytes(output);
+            long outputModifiedAt = Files.getLastModifiedTime(output).toMillis();
+            stop(launcher);
+            launcher = start(f, true);
+
+            JsonNode restartedJob = get(f, owner, jobId);
+            assertThat(restartedJob).isEqualTo(completedBeforeRestart);
+            assertSourceArtifactReadback(f, owner, source);
+
+            CliResult replay = runDevCli(f, f.port, owner, submitCommand);
+            assertThat(replay.exitCode()).as("CLI stdout=%s stderr=%s", replay.stdout(), replay.stderr()).isZero();
+            assertThat(replay.stderr()).isEmpty();
+            JsonNode replayOutput = JSON.readTree(replay.stdout().strip());
+            assertThat(replayOutput.path("schemaVersion").asString()).isEqualTo("media.cli-result.v1");
+            assertThat(replayOutput.path("commandId").asString()).isEqualTo("media.cli.local-development.job.submit");
+            assertCliJobReadback(replayOutput.path("job"), restartedJob, jobId, requestId);
+
+            CliResult status = runDevCli(f, f.port, owner,
+                    List.of("job", "get", "--job", jobId, "--request-id", requestId));
+            assertThat(status.exitCode()).as("CLI stdout=%s stderr=%s", status.stdout(), status.stderr()).isZero();
+            assertThat(status.stderr()).isEmpty();
+            JsonNode statusOutput = JSON.readTree(status.stdout().strip());
+            assertThat(statusOutput.path("commandId").asString()).isEqualTo("media.cli.local-development.job.get");
+            assertCliJobReadback(statusOutput.path("job"), restartedJob, jobId, requestId);
+
+            assertThat(get(f, owner, jobId)).isEqualTo(completedBeforeRestart);
+            assertThat(jobCountByRequest(f, requestId)).isEqualTo(1);
+            assertThat(attemptStates(f, jobId)).containsExactly("SUCCEEDED");
+            assertThat(Files.readAllBytes(output)).isEqualTo(outputBytes);
+            assertThat(Files.getLastModifiedTime(output).toMillis()).isEqualTo(outputModifiedAt);
+        } finally {
+            if (launcher != null && launcher.isAlive()) launcher.destroyForcibly();
+            cleanup(f);
+            Files.deleteIfExists(droppedAcknowledgement);
+        }
+    }
+
+    @Test
     void providerAbsentAfterRestartLeavesAnHonestUnknownAndNeverReRunsOrGuessesTheOutput() throws Exception {
         Fixture f = fixture(true);
         Process launcher = null;
@@ -379,6 +461,10 @@ class MediaDevJobRestartRecoveryIT {
             env.put("MEDIA_DEV_RENDER_FFPROBE", ffprobe);
             env.put("MEDIA_DEV_FFMPEG_JOB_SPOOL", f.spool.toString());
             env.put("MEDIA_DEV_FFMPEG_JOB_FAULT_GATE_DIR", f.gate.toString());
+            String libraryPath = System.getenv("MEDIA_DEV_RENDER_LD_LIBRARY_PATH");
+            if (libraryPath != null && !libraryPath.isBlank()) {
+                env.put("MEDIA_DEV_RENDER_LD_LIBRARY_PATH", libraryPath);
+            }
         }
         String javaBin = Path.of(System.getProperty("java.home"), "bin", "java").toString();
         ProcessBuilder builder = new ProcessBuilder(javaBin, "-cp", f.classpath, "com.ghatana.media.launcher.MediaLauncher");
@@ -439,6 +525,158 @@ class MediaDevJobRestartRecoveryIT {
             if (root == null) throw new AssertionError("Could not locate the Media repository root");
         }
         return root;
+    }
+
+    private record CliResult(int exitCode, String stdout, String stderr) { }
+
+    private static CliResult runDevCli(Fixture f, int endpointPort, String bearerToken,
+                                       List<String> commandArguments) throws Exception {
+        Path root = repoRoot();
+        Path packageJson = root.resolve("libs/audio-video-client/package.json");
+        JsonNode packageMetadata = JSON.readTree(Files.readString(packageJson));
+        String entrypoint = packageMetadata.path("bin").path("ghatanamedia-api-dev").asString();
+        assertThat(entrypoint).isEqualTo("./dist/cli-dev.js");
+        Path cli = packageJson.getParent().resolve(entrypoint).normalize();
+        assertThat(Files.isRegularFile(cli)).as("build @audio-video/client before running the DEV_ONLY integration test")
+                .isTrue();
+
+        List<String> command = new ArrayList<>(List.of("node", cli.toString()));
+        command.addAll(commandArguments);
+        command.addAll(List.of("--endpoint", "http://127.0.0.1:" + endpointPort,
+                "--tenant", f.tenant, "--principal", f.principal));
+        Path stdout = Files.createTempFile("media-job-cli-stdout-", ".capture");
+        Path stderr = Files.createTempFile("media-job-cli-stderr-", ".capture");
+        try {
+            ProcessBuilder builder = new ProcessBuilder(command);
+            builder.directory(root.toFile());
+            builder.redirectOutput(stdout.toFile());
+            builder.redirectError(stderr.toFile());
+            builder.environment().put("MEDIA_PROFILE", "dev");
+            builder.environment().put("MEDIA_RUNTIME_ENVIRONMENT", "dev");
+            builder.environment().put("GHATANA_MEDIA_REQUEST_TIMEOUT_MS", "10000");
+            builder.environment().put("GHATANA_MEDIA_BEARER_TOKEN", bearerToken);
+            Process process = builder.start();
+            if (!process.waitFor(45, TimeUnit.SECONDS)) {
+                process.destroyForcibly();
+                assertThat(process.waitFor(10, TimeUnit.SECONDS)).isTrue();
+                throw new AssertionError("Real-host DEV_ONLY job CLI exceeded 45 seconds");
+            }
+            String out = Files.readString(stdout, StandardCharsets.UTF_8);
+            String err = Files.readString(stderr, StandardCharsets.UTF_8);
+            assertThat(out + err).doesNotContain(bearerToken);
+            return new CliResult(process.exitValue(), out, err);
+        } finally {
+            Files.deleteIfExists(stdout);
+            Files.deleteIfExists(stderr);
+        }
+    }
+
+    private static int jobCountByRequest(Fixture f, String requestId) throws Exception {
+        try (var connection = DriverManager.getConnection(POSTGRES.getJdbcUrl(),
+                POSTGRES.getUsername(), POSTGRES.getPassword());
+             var statement = connection.prepareStatement(
+                     "SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=? AND request_id=?")) {
+            statement.setString(1, f.tenant);
+            statement.setString(2, requestId);
+            try (var rows = statement.executeQuery()) {
+                assertThat(rows.next()).isTrue();
+                return rows.getInt(1);
+            }
+        }
+    }
+
+    private static void assertSourceArtifactReadback(Fixture f, String bearerToken, Source source) throws Exception {
+        HttpResponse<String> response = http(f, f.tenant, bearerToken, "GET",
+                "/api/v1/artifacts/" + source.artifactId(), null);
+        assertThat(response.statusCode()).as(response.body()).isEqualTo(200);
+        JsonNode artifact = JSON.readTree(response.body());
+        assertThat(artifact.path("sha256").asString()).isEqualTo(source.sha256());
+        String reference = artifact.path("objectReference").asString();
+        String key = reference.substring(("s3://" + f.bucket + "/").length());
+        try (S3Client s3 = s3()) {
+            byte[] stored = s3.getObjectAsBytes(software.amazon.awssdk.services.s3.model.GetObjectRequest.builder()
+                    .bucket(f.bucket).key(key).build()).asByteArray();
+            assertThat(stored).isEqualTo(source.bytes());
+            assertThat(sha256(stored)).isEqualTo(source.sha256());
+        }
+    }
+
+    private static void assertCliJobReadback(JsonNode cliJob, JsonNode persistedJob, String jobId, String requestId) {
+        assertThat(cliJob.path("jobId").asString()).isEqualTo(jobId);
+        assertThat(cliJob.path("requestId").asString()).isEqualTo(requestId);
+        assertThat(cliJob.path("tenantId").asString()).isEqualTo(persistedJob.path("tenantId").asString());
+        assertThat(cliJob.path("principalId").asString()).isEqualTo(persistedJob.path("principalId").asString());
+        assertThat(cliJob.path("artifactId").asString()).isEqualTo(persistedJob.path("artifactId").asString());
+        assertThat(cliJob.path("status").asString()).isEqualTo(persistedJob.path("status").asString());
+        assertThat(cliJob.path("version")).isEqualTo(persistedJob.path("version"));
+        assertThat(cliJob.path("result")).isEqualTo(persistedJob.path("result"));
+    }
+
+    private static final class LostJobSubmitAckProxy implements AutoCloseable {
+        private final HttpServer server;
+        private final HttpClient client = HttpClient.newHttpClient();
+        private final int targetPort;
+        private final Path droppedAcknowledgement;
+        private final java.util.concurrent.atomic.AtomicBoolean dropped =
+                new java.util.concurrent.atomic.AtomicBoolean();
+
+        private LostJobSubmitAckProxy(int targetPort, Path droppedAcknowledgement) throws IOException {
+            this.targetPort = targetPort;
+            this.droppedAcknowledgement = droppedAcknowledgement;
+            server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+            server.createContext("/", this::forward);
+            server.start();
+        }
+
+        private int port() { return server.getAddress().getPort(); }
+
+        private void forward(HttpExchange exchange) throws IOException {
+            try {
+                byte[] requestBody = exchange.getRequestBody().readAllBytes();
+                HttpRequest.Builder request = HttpRequest.newBuilder(URI.create(
+                                "http://127.0.0.1:" + targetPort + exchange.getRequestURI()))
+                        .timeout(Duration.ofSeconds(20));
+                for (String header : List.of("Authorization", "X-Tenant-Id", "X-Principal-Id", "Content-Type",
+                        "Accept", "Idempotency-Key")) {
+                    List<String> values = exchange.getRequestHeaders().get(header);
+                    if (values != null) values.forEach(value -> request.header(header, value));
+                }
+                request.method(exchange.getRequestMethod(), requestBody.length == 0
+                        ? HttpRequest.BodyPublishers.noBody() : HttpRequest.BodyPublishers.ofByteArray(requestBody));
+                HttpResponse<byte[]> response = client.send(request.build(), HttpResponse.BodyHandlers.ofByteArray());
+                boolean submit = "POST".equals(exchange.getRequestMethod())
+                        && "/api/v1/jobs".equals(exchange.getRequestURI().getPath());
+                if (submit && response.statusCode() == 202 && dropped.compareAndSet(false, true)) {
+                    Files.write(droppedAcknowledgement, response.body());
+                    exchange.close();
+                    return;
+                }
+                response.headers().map().forEach((name, values) -> {
+                    if (!name.equalsIgnoreCase("connection") && !name.equalsIgnoreCase("content-length")
+                            && !name.equalsIgnoreCase("transfer-encoding")) {
+                        values.forEach(value -> exchange.getResponseHeaders().add(name, value));
+                    }
+                });
+                byte[] responseBody = response.body();
+                exchange.sendResponseHeaders(response.statusCode(), responseBody.length);
+                try (OutputStream body = exchange.getResponseBody()) { body.write(responseBody); }
+            } catch (InterruptedException interrupted) {
+                Thread.currentThread().interrupt();
+                respondFailure(exchange);
+            } catch (Exception failure) {
+                respondFailure(exchange);
+            }
+        }
+
+        private static void respondFailure(HttpExchange exchange) {
+            try {
+                byte[] body = "acknowledgement proxy failed".getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(502, body.length);
+                try (OutputStream response = exchange.getResponseBody()) { response.write(body); }
+            } catch (IOException ignored) { exchange.close(); }
+        }
+
+        @Override public void close() { server.stop(0); }
     }
 
     private static HttpResponse<String> http(Fixture f, String tenant, String token, String method, String path,
@@ -577,6 +815,11 @@ class MediaDevJobRestartRecoveryIT {
 
     /** The committed output is a real FLAC: fully decodable, with the requested rate and channels, and its digest matches. */
     private static void assertDecodedOutput(Fixture f, String jobId, JsonNode job, Source source) throws Exception {
+        assertDecodedOutput(f, jobId, job, source, 8_000);
+    }
+
+    private static void assertDecodedOutput(Fixture f, String jobId, JsonNode job, Source source,
+                                            int expectedSampleRateHz) throws Exception {
         Path out = opDir(f, jobId).resolve("out.bin");
         assertThat(out).isRegularFile();
         byte[] bytes = Files.readAllBytes(out);
@@ -594,7 +837,7 @@ class MediaDevJobRestartRecoveryIT {
         assertThat(probe.waitFor(30, TimeUnit.SECONDS)).isTrue();
         JsonNode stream = JSON.readTree(probeJson).path("streams").path(0);
         assertThat(stream.path("codec_name").asString()).isEqualTo("flac");
-        assertThat(stream.path("sample_rate").asString()).isEqualTo("8000");
+        assertThat(stream.path("sample_rate").asString()).isEqualTo(Integer.toString(expectedSampleRateHz));
         assertThat(stream.path("channels").asInt()).isEqualTo(1);
         assertThat(Double.parseDouble(stream.path("duration").asString())).isBetween(0.95, 1.05);
         Process decode = new ProcessBuilder(System.getenv("MEDIA_FFMPEG"), "-v", "error", "-i", out.toString(), "-f", "null", "-")

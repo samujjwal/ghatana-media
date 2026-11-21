@@ -299,7 +299,14 @@ try {
   await connect(readOnlyToken);
   await reviewDraft("offline-a");
   await draftItem("offline-a").getByRole("button", { name: "Confirm replay" }).click();
-  await draftItem("offline-a").getByText(/REFUSED \(403 ACCESS_DENIED\)/u).first().waitFor();
+  try {
+    await draftItem("offline-a").getByText(/REFUSED \(403 ACCESS_DENIED\)/u).first().waitFor({ timeout: 30_000 });
+  } catch (error) {
+    throw new Error(`read-only replay did not show the expected host 403; status="${await statusText()}"; `
+      + `panel="${(await drafts().innerText()).slice(0, 1500)}"; `
+      + `editRequests=${JSON.stringify(editPosts(projectId).slice(-4))}; `
+      + `apiResponses=${JSON.stringify(apiResponses.slice(-8))}; cause=${error.message}`);
+  }
   assert.equal(editPosts(projectId).length, postsBefore + 1, "the host, not the browser, refused the edit");
   assert.equal(apiResponses.filter((r) => r.status === 403 && r.method === "POST" && editPath(projectId).test(r.path)).length, 1);
   assert.equal(await draftItem("offline-a").getAttribute("data-draft-state"), "PENDING");
