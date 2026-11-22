@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "media.pdp0.status-pin-refresh-owner-decision.v1",
+  "recordId": "MEDIA-PDP0-STATUS-PIN-REFRESH-OWNER-DECISION-2026-11-21",
+  "recordKind": "DELEGATED_TECHNICAL_SOURCE_OWNER_DECISION; EXACT_PIN_REFRESH_ONLY",
+  "phase": "PDP-0",
+  "authority": {
+    "decisionActor": "Codex acting as the delegated technical product/repository owner under the user's explicit direction in this task",
+    "authorityBasis": [
+      "User direction to resolve repository/product blockers and continue",
+      "Media source-owner decision PXD-233 for the exact CLI source binding",
+      "PXD-230 current 56-identity topology denominator",
+      "config/closure/media-product-definition/owner-execution-authorization.v1.json delegated technical-owner scope"
+    ],
+    "humanSignatureOrIndependentReviewer": "NOT_CLAIMED"
+  },
+  "decision": {
+    "disposition": "APPROVED_EXACT_SOURCE_PIN_REBIND",
+    "scope": "Update only the two PDP-0 sourceShaSet values listed below to the exact current source/projection hashes. Preserve product meaning, all historical review records, denominators, phase status, mainSha, and all other status fields.",
+    "rationale": "The CLI claim is source-bound to PXD-233 and its implementation/tests; the source-manifest is regenerated from canonical inputs. The full currentness calculation reports exactly these two stale pins; the other 320 pins are current. This decision does not review or approve stale criterion review inputs.",
+    "negativeAcceptanceCriteria": [
+      "Do not change any PDP-0 meaning, applicability, denominator, history, or outstandingMeaningIds.",
+      "Do not mark PDP-0 DEV_COMPLETE or claim direct-definition review currentness, P0-010 acceptance, independent acceptance, closure, runtime admission, qualification, or Delivery.",
+      "Do not update any pin outside exactTargetChanges."
+    ]
+  },
+  "target": {
+    "ref": "docs/implementation/pdp-0-phase-dev-status.json",
+    "preimageSha256": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b",
+    "candidateSha256": "5446c46fd1289fe338b410c1df584d731ef5aeaaf9b983adf7841234962c738c",
+    "sourceShaSetPreimageSha256": "40c4a1282b54fa2693307fbd9a1299ef2c712da95e64b85af547735ef59b2310",
+    "sourceShaSetCandidateSha256": "91707032d77a85e6177602070c5452597881dcc3a91e780bb8f02487ad2a8905"
+  },
+  "preserved": {
+    "phase": "PDP-0",
+    "status": "IN_PROGRESS",
+    "mainSha": "f4706af1bdc091a13b5a8f0127f4b722fc06d5ad",
+    "sourcePinCount": 322,
+    "topology": {
+      "physical": 28,
+      "compositions": 7,
+      "logicalConsumers": 21,
+      "total": 56
+    },
+    "auditDispositionRows": 501,
+    "auditDispositionClasses": {
+      "boundExisting": 499,
+      "postPdpImplementationOnly": 2,
+      "unresolved": 0
+    },
+    "capabilityLeafOwnerHistory": 462,
+    "nonPinStatusSha256": "37aedbe50394ce215dfe0dbe6f591b6da9b273e41f6ebdaf86be52e808d5f544"
+  },
+  "exactTargetChanges": [
+    {
+      "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+      "sourceKind": "MATERIAL_FILE",
+      "previousSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34",
+      "currentSha256": "75e20a27cf6be138a99992ab2f5e8209f09eb60f69f16989b4e06b50c8c5b596",
+      "reason": "PXD-233 binds the exact existing DEV_ONLY CLI cancellation source claim; no runtime admission or product status effect."
+    },
+    {
+      "sourceRef": ".product-experience/source-manifest.yaml#PDP-0-projection",
+      "sourceKind": "PHASE_SCOPED_SELECTOR",
+      "previousSha256": "d2e77f94228aba330f52f8785cde7044587cb058e2e829e03d1bca15282a076e",
+      "currentSha256": "703d829babef4e6407a6275b3bad89cbf0ef5bd4b39c0d51d26d22c5ecb6df20",
+      "reason": "Refreshed by scripts/generate-media-product-manifest.mjs from current canonical inputs; projection-only fingerprint."
+    }
+  ],
+  "currentnessPreflight": {
+    "statusSourcePins": "320_CURRENT; 2_STALE_BEFORE_REFRESH",
+    "staleRefs": [
+      ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+      ".product-experience/source-manifest.yaml#PDP-0-projection"
+    ],
+    "calculationRef": "scripts/report-media-pdp0-source-review-currentness.mjs",
+    "generatedManifestRef": "scripts/generate-media-product-manifest.mjs"
+  },
+  "sourceBasis": [
+    {
+      "ref": ".product-experience/decision-log.md#PXD-230",
+      "role": "current 56-identity denominator decision"
+    },
+    {
+      "ref": ".product-experience/decision-log.md#PXD-233",
+      "role": "exact CLI source-owner decision"
+    },
+    {
+      "ref": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
+      "sha256": "75e20a27cf6be138a99992ab2f5e8209f09eb60f69f16989b4e06b50c8c5b596"
+    },
+    {
+      "ref": ".product-experience/source-manifest.yaml",
+      "sha256": "3fc8e5ec3afdf95bd6696fd6c9efd2e80d3934610e6457638f2b7f685fe248a6"
+    },
+    {
+      "ref": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+      "sha256": "9019c9461d6642aea65ca93074257b8b79534ef54b290e04038515d5cdad1118"
+    }
+  ],
+  "apply": {
+    "writer": "writePdp0DevStatus from scripts/report-media-pdp-readiness.mjs",
+    "status": "APPLIED_EXACT_CANDIDATE",
+    "writtenStatusSha256": "5446c46fd1289fe338b410c1df584d731ef5aeaaf9b983adf7841234962c738c",
+    "postWriteStaleSourcePinCount": 0
+  },
+  "authorityBoundary": {
+    "productMeaningDecision": "NONE",
+    "independentAcceptance": "NOT_CLAIMED",
+    "pdp010Acceptance": "NOT_PERFORMED",
+    "phaseStatusEffect": "NONE",
+    "nativeClosure": "NOT_CLAIMED",
+    "runtimeAdmission": "NOT_ADMITTED",
+    "releaseQualification": "NOT_PERFORMED",
+    "delivery": "NOT_AUTHORIZED"
+  }
+}

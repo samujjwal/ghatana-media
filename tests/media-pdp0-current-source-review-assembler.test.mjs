@@ -189,17 +189,18 @@ test('observes the live 56-surface cut and keeps stale review bindings distinct 
   });
   assert.deepEqual(observation.currentDenominator, {totalSurfaceIdentities: 56, physical: 28, compositions: 7, logicalConsumers: 21});
   assert.equal(observation.phaseStatusPinInventory.totalRefs, 322);
-  assert.equal(observation.phaseStatusPinInventory.staleOrUnreadableRefCount, 1);
-  assert.equal(observation.phaseStatusPinInventory.staleOrUnreadableRefs[0].sourceRef, '.product-experience/pdp-0-product-truth/applications-channels.yaml');
-  assert.equal(observation.phaseStatusPinInventory.currentness, 'STALE');
-  assert.equal(observation.currentnessStatus, 'SOURCE_STATUS_STALE; REVIEW_INPUTS_REQUIRE_REFRESH');
+  assert.equal(observation.phaseStatusPinInventory.staleOrUnreadableRefCount, 0);
+  assert.deepEqual(observation.phaseStatusPinInventory.staleOrUnreadableRefs, []);
+  assert.equal(observation.phaseStatusPinInventory.currentness, 'CURRENT');
+  assert.equal(observation.currentnessStatus, 'SOURCE_STATUS_CURRENT; REVIEW_INPUTS_REQUIRE_REFRESH');
   assert.deepEqual(observation.criteria.filter(row => ['P0-01', 'P0-02', 'P0-05', 'P0-06', 'P0-07'].includes(row.criterionId)).map(row => row.decisionBindingCurrent), [false, false, false, false, false]);
-  assert.equal(observation.cliAvailabilityReview.status, 'REVIEW_REQUIRED');
+  assert.equal(observation.cliAvailabilityReview.status, 'SOURCE_DECISION_BOUND');
   assert.equal(observation.cliAvailabilityReview.executionAdmission, 'NOT_ADMITTED');
-  assert.deepEqual(observation.cliAvailabilityReview.affectedCriterionIds, ['P0-01', 'P0-02', 'P0-07']);
-  assert.deepEqual(observation.cliAvailabilityReview.unaffectedCriterionIds, ['P0-05', 'P0-06']);
+  assert.equal(observation.cliAvailabilityReview.sourceDecisionRef, '.product-experience/decision-log.md#PXD-233');
+  assert.deepEqual(observation.cliAvailabilityReview.affectedCriterionIds, []);
+  assert.deepEqual(observation.cliAvailabilityReview.unaffectedCriterionIds, ['P0-01', 'P0-02', 'P0-05', 'P0-06', 'P0-07']);
   assert.deepEqual(observation.criteria.filter(row => ['P0-01', 'P0-02', 'P0-05', 'P0-06', 'P0-07'].includes(row.criterionId)).map(row => row.cliAvailabilityDeltaDisposition), [
-    'REVIEW_REQUIRED', 'REVIEW_REQUIRED', 'REUSE_PRIOR_REVIEW_FOR_THIS_DELTA', 'REUSE_PRIOR_REVIEW_FOR_THIS_DELTA', 'REVIEW_REQUIRED',
+    'NOT_AFFECTED_BY_CURRENT_CLI_AVAILABILITY_DELTA', 'NOT_AFFECTED_BY_CURRENT_CLI_AVAILABILITY_DELTA', 'NOT_AFFECTED_BY_CURRENT_CLI_AVAILABILITY_DELTA', 'NOT_AFFECTED_BY_CURRENT_CLI_AVAILABILITY_DELTA', 'NOT_AFFECTED_BY_CURRENT_CLI_AVAILABILITY_DELTA',
   ]);
 });
 

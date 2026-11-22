@@ -1355,6 +1355,7 @@ channels:
           source-bound CLI command now exists; production-host identity and
           qualification, provider-stop execution, and runtime admission remain
           NOT_ADMITTED.
+        sourceDecisionRef: .product-experience/decision-log.md#PXD-233
         executionAdmission: NOT_ADMITTED
       submissionWaitRule:
         id: media.cli.submission-wait.v1

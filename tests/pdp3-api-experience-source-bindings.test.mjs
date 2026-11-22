@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import test from "node:test";
@@ -6,11 +7,17 @@ import test from "node:test";
 const parse = createRequire(new URL("../../ghatana-tools/package.json", import.meta.url))("yaml").parse;
 const p1 = ".product-experience/pdp-1-domain-data";
 const p3 = ".product-experience/pdp-3-product-experience";
-const [mapping, actionRegistry, ownerWire, operations] = await Promise.all([
+const [mapping, actionRegistry, ownerWire, operations, p3ApiRegistry, sdkRegistry, p2Conventions, devOpenApi, routeManifest, publicOpenApi] = await Promise.all([
   readFile(`${p3}/api-experience-mapping.yaml`, "utf8").then(parse),
   readFile(`${p3}/action-registry.yaml`, "utf8").then(parse),
   readFile(`${p1}/owner-action-wire-contracts.yaml`, "utf8").then(parse),
   readFile(`${p1}/operations.yaml`, "utf8").then(parse),
+  readFile(`${p3}/api/api-registry.yaml`, "utf8").then(parse),
+  readFile(`${p3}/sdk/operation-registry.yaml`, "utf8").then(parse),
+  readFile(".product-experience/pdp-2-design-interface-system/api/conventions.yaml", "utf8").then(parse),
+  readFile("contracts/openapi/media-dev.v1.yaml", "utf8").then(parse),
+  readFile("config/route-manifest.json", "utf8").then(JSON.parse),
+  readFile("contracts/openapi/media.yaml", "utf8").then(parse),
 ]);
 
 function collectIds(value, result = new Set()) {
@@ -60,4 +67,52 @@ test("API experience mappings use exact action and operation identities and reus
       assert.equal(binding.operationBinding, "EXACT_ACTION_SOURCE_REFERENCE");
     }
   }
+});
+
+test("PXD-232 keeps seven DEV_ONLY route operations one-to-one with their canonical SDK methods", () => {
+  const api = p3ApiRegistry.developmentOnlyCatalog;
+  const sdk = sdkRegistry.developmentOnlyMethods;
+  const p2 = p2Conventions.ownerDefinedDevelopmentOnlyApiCandidate;
+  assert.equal(api.authorityDecisionRef, ".product-experience/decision-log.md#PXD-232");
+  assert.equal(sdk.authorityDecisionRef, api.authorityDecisionRef);
+  assert.equal(api.operations.length, 7);
+  assert.equal(sdk.methods.length, 7);
+  assert.equal(p2.routeSdkBindings.length, 7);
+  assert.equal(api.implementationStatus, "NOT_ASSERTED");
+  assert.equal(sdk.runtimeAdmission, "NOT_ADMITTED");
+  assert.equal(api.productionRouteManifest, "excluded");
+  assert.equal(api.productionOpenApi, "excluded");
+  assert.equal(p3ApiRegistry.operations.length, 30, "the production API inventory count remains unchanged");
+
+  const methodIdentity = (method, path) => `${method.toUpperCase()} ${path}`;
+  assert.equal(new Set(api.operations.map(({ id }) => id)).size, 7, "candidate API identities are unique");
+  assert.equal(new Set(api.operations.map(({ method, path }) => methodIdentity(method, path))).size, 7,
+    "candidate route method/path pairs are unique");
+  assert.equal(new Set(sdk.methods.map(({ apiOperationRef }) => apiOperationRef)).size, 7,
+    "each candidate route maps to one distinct SDK method");
+
+  for (const operation of api.operations) {
+    const sdkMethod = sdk.methods.find(({ apiOperationRef }) => apiOperationRef === operation.id);
+    const p2Binding = p2.routeSdkBindings.find(({ apiOperationId }) => apiOperationId === operation.id);
+    const openApiOperation = devOpenApi.paths[operation.path]?.[operation.method.toLowerCase()];
+    assert.ok(sdkMethod, `${operation.id} has exactly one SDK method`);
+    assert.ok(p2Binding, `${operation.id} has an owning PDP-2 binding`);
+    assert.equal(sdkMethod.httpMethod, operation.method);
+    assert.equal(sdkMethod.httpPath, operation.path);
+    assert.equal(p2Binding.method, operation.method);
+    assert.equal(p2Binding.path, operation.path);
+    assert.equal(openApiOperation.operationId, operation.operationId);
+    assert.equal(openApiOperation["x-media-candidate-operation-id"], operation.id);
+    assert.equal(openApiOperation["x-media-sdk-source"], `${sdkMethod.source}#${sdkMethod.declaringClass}.${sdkMethod.method}`);
+    assert.ok(Array.isArray(openApiOperation["x-media-required-permissions"]));
+    assert.ok(existsSync(sdkMethod.source), `${operation.id} SDK source exists`);
+    assert.ok(existsSync(p2Binding.handlerSource), `${operation.id} handler source exists`);
+    assert.ok(existsSync(sdkMethod.testSelector), `${operation.id} focused SDK test selector exists`);
+    assert.ok(existsSync(p2Binding.hostIntegrationSelector.split("#")[0]), `${operation.id} host test selector exists`);
+  }
+
+  assert.equal(routeManifest.routes.some(({ path }) => path.startsWith("/dev/v1/")), false,
+    "candidate development routes remain outside the production route manifest");
+  assert.equal(Object.keys(publicOpenApi.paths).some((path) => path.startsWith("/dev/v1/")), false,
+    "candidate development routes remain outside the production OpenAPI document");
 });

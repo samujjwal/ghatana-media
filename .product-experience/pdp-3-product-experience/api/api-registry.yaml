@@ -288,3 +288,76 @@ operations:
     requestSchema: none
     responseStatuses: [200, 400, 403, 404, 503]
     experienceBinding: pending-owner-review
+developmentOnlyCatalog:
+  id: media.dev.api-candidate-catalog.v1
+  authorityDecisionRef: .product-experience/decision-log.md#PXD-232
+  contractFile: ../../../contracts/openapi/media-dev.v1.yaml
+  population: exactly-seven-PXD-232-source-derived-operations
+  productionRouteManifest: excluded
+  productionOpenApi: excluded
+  implementationStatus: NOT_ASSERTED
+  runtimeAdmission: NOT_ADMITTED
+  operations:
+    - id: media.dev.http.createProjectRender
+      method: POST
+      path: /dev/v1/projects/{projectId}/renders
+      operationId: createDevProjectRender
+      requestSchema: DevProjectRenderRequest
+      responseSchema: DevProjectRenderResult
+      responseStatuses: [200, 201, 400, 401, 403, 404, 409, 422, 429, 502, 503, 504]
+      sdkMethodRef: media.sdk.dev.renderProject
+      pdp2BindingRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedDevelopmentOnlyApiCandidate/routeSdkBindings/@apiOperationId=media.dev.http.createProjectRender
+    - id: media.dev.http.getProjectRender
+      method: GET
+      path: /dev/v1/projects/{projectId}/renders/{renderId}
+      operationId: getDevProjectRender
+      requestSchema: none
+      responseSchema: DevProjectRenderResult
+      responseStatuses: [200, 401, 403, 404]
+      sdkMethodRef: media.sdk.dev.getRender
+      pdp2BindingRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedDevelopmentOnlyApiCandidate/routeSdkBindings/@apiOperationId=media.dev.http.getProjectRender
+    - id: media.dev.http.createExport
+      method: POST
+      path: /dev/v1/exports
+      operationId: createDevExport
+      requestSchema: DevExportRequest
+      responseSchema: DevExportResult
+      responseStatuses: [200, 201, 202, 400, 401, 403, 404, 409, 422, 502, 503]
+      sdkMethodRef: media.sdk.dev.createExport
+      pdp2BindingRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedDevelopmentOnlyApiCandidate/routeSdkBindings/@apiOperationId=media.dev.http.createExport
+    - id: media.dev.http.getExport
+      method: GET
+      path: /dev/v1/exports/{requestId}
+      operationId: getDevExport
+      requestSchema: none
+      responseSchema: DevExportResult
+      responseStatuses: [200, 401, 403, 404]
+      sdkMethodRef: media.sdk.dev.getExport
+      pdp2BindingRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedDevelopmentOnlyApiCandidate/routeSdkBindings/@apiOperationId=media.dev.http.getExport
+    - id: media.dev.http.cancelLocalJob
+      method: POST
+      path: /dev/v1/jobs/{jobId}/cancel
+      operationId: cancelDevLocalJob
+      requestSchema: DevJobCancellationRequest
+      responseSchema: DevJobCancellationResult
+      responseStatuses: [200, 400, 401, 403, 404, 409, 422]
+      sdkMethodRef: media.sdk.dev.cancelJob
+      pdp2BindingRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedDevelopmentOnlyApiCandidate/routeSdkBindings/@apiOperationId=media.dev.http.cancelLocalJob
+    - id: media.dev.http.getSimulation
+      method: GET
+      path: /dev/v1/simulations/{simulationId}
+      operationId: getDevSimulation
+      requestSchema: none
+      responseSchema: DevSimulationResult
+      responseStatuses: [200, 401, 403, 404]
+      sdkMethodRef: media.sdk.dev.getSimulation
+      pdp2BindingRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedDevelopmentOnlyApiCandidate/routeSdkBindings/@apiOperationId=media.dev.http.getSimulation
+    - id: media.dev.http.getCreativeOutput
+      method: GET
+      path: /dev/v1/creative-outputs/{outputId}
+      operationId: getDevCreativeOutput
+      requestSchema: none
+      responseSchema: DevCreativeOutput
+      responseStatuses: [200, 401, 403, 404]
+      sdkMethodRef: media.sdk.dev.getCreativeOutput
+      pdp2BindingRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedDevelopmentOnlyApiCandidate/routeSdkBindings/@apiOperationId=media.dev.http.getCreativeOutput

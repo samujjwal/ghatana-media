@@ -112,7 +112,8 @@ class MediaDevProductionJourneyIT {
             String projectId = created.path("project").path("projectId").asString();
             String head = created.path("initialRevision").path("revisionId").asString();
             head = post(port, tenant, token, "/dev/v1/projects/" + projectId + "/timelines", Map.of(
-                    "expectedHeadRevisionId", head, "timelineId", "timeline-main"), 201)
+                    "expectedHeadRevisionId", head, "timelineId", "timeline-main",
+                    "requestId", "journey-timeline-" + run), 201)
                     .path("revision").path("revisionId").asString();
             String editPath = "/dev/v1/projects/" + projectId + "/timelines/timeline-main/edits";
             List<Object> edits = new java.util.ArrayList<>(List.of(
@@ -138,7 +139,8 @@ class MediaDevProductionJourneyIT {
                         "storyStart", time(0, "STORY"), "storyDuration", time(48, "STORY"))));
             }
             String revisionId = post(port, tenant, token, editPath, Map.of(
-                    "expectedHeadRevisionId", head, "edits", edits), 201)
+                    "expectedHeadRevisionId", head, "edits", edits,
+                    "requestId", "journey-edit-" + run), 201)
                     .path("revision").path("revisionId").asString();
 
             // 3. Render the exact revision.
@@ -283,7 +285,8 @@ class MediaDevProductionJourneyIT {
 
             // 8. Material edit: the revision review goes STALE; the immutable render and its review stay CURRENT.
             String newHead = post(port, tenant, token, editPath, Map.of("expectedHeadRevisionId", revisionId,
-                    "edits", List.of(stillClip("clip-green", greenId, green, 48))), 201)
+                    "edits", List.of(stillClip("clip-green", greenId, green, 48)),
+                    "requestId", "journey-edit-stale-" + run), 201)
                     .path("revision").path("revisionId").asString();
             assertThat(newHead).isNotEqualTo(revisionId);
             JsonNode staleCase = get(port, tenant, token, "/dev/v1/reviews/" + revisionCase, 200);

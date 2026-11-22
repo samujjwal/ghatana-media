@@ -281,3 +281,99 @@ methods:
     targetContractSource: services/document-intelligence/contracts/protocol-v1.md
     targetClientPackageObservation: '@ghatana/document-intelligence-client@0.1.0'
     targetClientAdmission: NOT_CONSUMED; package-peer-is-@ghatana/document-extraction@0.1.0-SNAPSHOT; no-Media-public-dependency-or-owner-handoff
+developmentOnlyMethods:
+  id: media.sdk.dev-only-candidate-method-crosswalk.v1
+  authorityDecisionRef: .product-experience/decision-log.md#PXD-232
+  canonicalClientPackage: libs/audio-video-client
+  apiCatalogRef: .product-experience/pdp-3-product-experience/api/api-registry.yaml#developmentOnlyCatalog
+  count: 7
+  population: candidate-only; excluded-from-public-method-census-and-production-support
+  runtimeAdmission: NOT_ADMITTED
+  implementationStatus: NOT_ASSERTED
+  methods:
+    - id: media.sdk.dev.renderProject
+      method: renderProject
+      declaringClass: MediaDevOnlyRenderExportClient
+      source: libs/audio-video-client/src/dev-render-export.ts
+      apiOperationRef: media.dev.http.createProjectRender
+      httpMethod: POST
+      httpPath: /dev/v1/projects/{projectId}/renders
+      requestType: DevRenderRequest
+      resultType: DevRenderResult
+      testSelector: libs/audio-video-client/src/dev-project-render.test.ts
+      explorerConsumerRefs: [apps/media-experience-explorer/src/dev-project-outputs-client.ts, libs/audio-video-ui/src/screens/DevProjectOutputsPanel.tsx]
+      implementationStatus: source-observed; verification-not-claimed
+    - id: media.sdk.dev.getRender
+      method: getRender
+      declaringClass: MediaDevOnlyRenderExportClient
+      source: libs/audio-video-client/src/dev-render-export.ts
+      apiOperationRef: media.dev.http.getProjectRender
+      httpMethod: GET
+      httpPath: /dev/v1/projects/{projectId}/renders/{renderId}
+      requestType: projectId-and-renderId
+      resultType: DevRenderResult
+      testSelector: libs/audio-video-client/src/dev-project-render.test.ts
+      explorerConsumerRefs: [apps/media-experience-explorer/src/dev-project-outputs-client.ts, libs/audio-video-ui/src/screens/DevProjectOutputsPanel.tsx]
+      implementationStatus: source-observed; verification-not-claimed
+    - id: media.sdk.dev.createExport
+      method: createExport
+      declaringClass: MediaDevOnlyRenderExportClient
+      source: libs/audio-video-client/src/dev-render-export.ts
+      apiOperationRef: media.dev.http.createExport
+      httpMethod: POST
+      httpPath: /dev/v1/exports
+      requestType: DevExportRequest
+      resultType: DevExportResult
+      testSelector: libs/audio-video-client/src/dev-render-export.test.ts
+      explorerConsumerRefs: [apps/media-experience-explorer/src/dev-delivery-client.ts, libs/audio-video-ui/src/screens/DevProjectOutputsPanel.tsx]
+      implementationStatus: source-observed; verification-not-claimed
+    - id: media.sdk.dev.getExport
+      method: getExport
+      declaringClass: MediaDevOnlyRenderExportClient
+      source: libs/audio-video-client/src/dev-render-export.ts
+      apiOperationRef: media.dev.http.getExport
+      httpMethod: GET
+      httpPath: /dev/v1/exports/{requestId}
+      requestType: requestId
+      resultType: DevExportResult
+      testSelector: libs/audio-video-client/src/dev-render-export.test.ts
+      explorerConsumerRefs: [apps/media-experience-explorer/src/dev-delivery-client.ts]
+      implementationStatus: source-observed; verification-not-claimed
+    - id: media.sdk.dev.cancelJob
+      method: cancelJob
+      declaringClass: MediaDevOnlyJobCancellationClient
+      source: libs/audio-video-client/src/dev-job-cancellation.ts
+      apiOperationRef: media.dev.http.cancelLocalJob
+      httpMethod: POST
+      httpPath: /dev/v1/jobs/{jobId}/cancel
+      requestType: DevOnlyJobCancellationRequest
+      resultType: DevOnlyJobCancellationResult
+      testSelector: libs/audio-video-client/src/dev-job-cancellation.test.ts
+      explorerConsumerRefs: [.product-experience/pdp-3-product-experience/screen-contracts/job-status.yaml, apps/media-experience-explorer/test/dev-job-recovery-live-browser.mjs]
+      explorerSemantics: read-only job observation; cancellation is exposed by the local-development CLI method, not this Explorer page
+      implementationStatus: source-observed; verification-not-claimed
+    - id: media.sdk.dev.getSimulation
+      method: getSimulation
+      declaringClass: MediaDevOnlySimulationClient
+      source: libs/audio-video-client/src/dev-simulation.ts
+      apiOperationRef: media.dev.http.getSimulation
+      httpMethod: GET
+      httpPath: /dev/v1/simulations/{simulationId}
+      requestType: simulationId
+      resultType: DevSimulation
+      testSelector: libs/audio-video-client/src/dev-simulation.test.ts
+      explorerConsumerRefs: [apps/media-experience-explorer/src/dev-simulation-client.ts, apps/media-experience-explorer/test/dev-simulation-live-browser.mjs]
+      implementationStatus: source-observed; verification-not-claimed
+    - id: media.sdk.dev.getCreativeOutput
+      method: getCreativeOutput
+      declaringClass: MediaDevOnlyCreativeOutputClient
+      source: libs/audio-video-client/src/dev-creative-output.ts
+      apiOperationRef: media.dev.http.getCreativeOutput
+      httpMethod: GET
+      httpPath: /dev/v1/creative-outputs/{outputId}
+      requestType: outputId
+      resultType: DevCreativeOutput
+      testSelector: libs/audio-video-client/src/dev-creative-output.test.ts
+      explorerConsumerRefs: [apps/media-experience-explorer/src/dev-creative-outputs-client.ts, apps/media-experience-explorer/test/dev-creative-outputs-live-browser.mjs]
+      implementationStatus: source-observed; verification-not-claimed
+  relatedSdkHelpersExcludedFromSeven: [readRenderContent, readPlotContent, readContent]

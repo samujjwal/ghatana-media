@@ -47,6 +47,7 @@ describe("MediaDevOnlyProjectRenderClient", () => {
       requestId: "request-1", revisionId: "revision-7", timelineId: "timeline-main",
       width: 32, height: 24, framesPerSecond: 10, format: "gif",
     });
+    expect(render).toMatchObject({ scope: "DEV_ONLY", artifact: { artifactPath: "/api/v1/artifacts/render-1" } });
     expect(render.lineage).toMatchObject({ projectId: "project-1", revisionId: "revision-7", sourceCount: 1 });
     expect(render.lineage.sources).toEqual([{
       clipId: "clip-1", trackId: "track-1", artifactId: "source-1",
@@ -68,11 +69,15 @@ describe("MediaDevOnlyProjectRenderClient", () => {
     const client = new MediaDevOnlyProjectRenderClient(config(async () =>
       new Response(JSON.stringify(body), { status: 200, headers: { "Content-Type": "application/json" } })));
     const reopened = await client.getRender("project-1", "render-1");
+    expect(reopened.scope).toBe("DEV_ONLY");
     expect(reopened.lineage.revisionId).toBe("revision-7");
     expect(reopened.lineage.sources[0]?.artifactVersionId).toBe(`sha256:${sourceDigest}`);
 
     body = { ...renderResponse, lineage: { ...renderResponse.lineage, sources: [{ clipId: "clip-1", trackId: "track-1", artifactId: "source-1" }] } };
     await expect(client.getRender("project-1", "render-1")).rejects.toThrow(/render source artifact version/u);
+
+    body = { ...renderResponse, artifact: { ...renderResponse.artifact, artifactPath: "/api/v1/artifacts/other" } };
+    await expect(client.getRender("project-1", "render-1")).rejects.toThrow(/render artifact identity is invalid/u);
   });
 
   it("verifies content digest and stops before fetching when the registered output exceeds the read limit", async () => {

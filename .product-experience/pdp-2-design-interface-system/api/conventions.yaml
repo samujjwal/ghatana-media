@@ -116,3 +116,138 @@ normativeRuleRecords:
     ruleRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedProfileCapabilityAndProviderDiagnostics
     sourceAuthority: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#authorityAndProjection
     acceptanceEffect: none
+ownerDefinedDevelopmentOnlyApiCandidate:
+  id: media.api.dev-only-candidate-contract.v1
+  authorityDecisionRef: .product-experience/decision-log.md#PXD-232
+  contractSource: contracts/openapi/media-dev.v1.yaml
+  productExperienceCrosswalks:
+    api: .product-experience/pdp-3-product-experience/api/api-registry.yaml#developmentOnlyCatalog
+    sdk: .product-experience/pdp-3-product-experience/sdk/operation-registry.yaml#developmentOnlyMethods
+  scope: seven-source-derived-route-to-sdk-method-pairs-only
+  status: CANDIDATE_CONTRACT_SOURCE_AUTHORED; implementation, verification, runtime admission, and production support are not asserted
+  runtimeBoundary:
+    audience: local development and isolated trusted development ingress only
+    identity: tenant and principal come from the verified host identity; caller-supplied identity headers are not authority
+    sdkEndpoint: loopback-only for the seven specialized SDK clients
+    routeAdmission: explicit development profile plus route-specific permission checks
+    productionManifest: excluded from config/route-manifest.json and contracts/openapi/media.yaml
+  semantics:
+    render:
+      request: Exact project, revision, timeline, dimensions, frame rate, optional GIF/MP4 format, and stable requestId.
+      effect: Local deterministic render against the requested project revision and exact source artifact versions; a registered immutable artifact is returned only after successful render registration.
+      identityAndReplay: requestId is bound to the canonical request fingerprint; exact replay reuses the registration, changed payload conflicts.
+      finality: 201 is a first registered render and 200 is an exact replay/read; neither claims production quality or approval.
+    export:
+      request: Exact requestId, artifactId, immutable artifactVersionId, and registered destinationId.
+      authority: Revalidate DEV_ONLY delivery-export and artifact-read permissions, exact source version, tenant destination policy, and transfer authorization before effect.
+      identityAndReplay: Stable requestId and exact request fingerprint; changed artifact version or destination conflicts.
+      finality: 201/200 indicate destination-confirmed receipt for first/replayed request; 202 is pending or unconfirmed. Only ackState DELIVERED with verified receipt confirms destination effect; NOT_DELIVERED and UNKNOWN remain distinct.
+    cancellation:
+      request: Stable requestId and optional positive expectedVersion compare-and-set.
+      effect: Reserve a durable cancellation request before calling only the in-process LOCAL development provider.
+      identityAndReplay: requestId binds the cancellation fingerprint; same request replays durable readback; competing request or stale expectedVersion conflicts.
+      finality: Only outcome CONFIRMED plus CANCELLED job state confirms cancellation; REQUESTED_UNCONFIRMED, OUTCOME_UNKNOWN, UNSUPPORTED, ALREADY_TERMINAL, and TERMINAL_RACE are distinct non-confirmation outcomes.
+    simulationRead:
+      request: Owner-scoped simulationId, equal to the persisted result artifact identity.
+      result: Preserve exact result and optional plot/video immutable artifact versions and sibling lineage; output is simulation only, not measurement evidence or production eligibility.
+      finality: A 200 is an available stored simulation observation and does not establish scientific validation or measurement.
+    creativeOutputRead:
+      request: Owner-scoped outputId.
+      result: Preserve output kind, MIME type, immutable artifact version/digest, and source lineage; content is a DEV_ONLY candidate, not quality approval or production readiness.
+      finality: A 200 is an available stored output observation only.
+  routeSdkBindings:
+    - apiOperationId: media.dev.http.createProjectRender
+      method: POST
+      path: /dev/v1/projects/{projectId}/renders
+      sdkSource: libs/audio-video-client/src/dev-render-export.ts
+      sdkClass: MediaDevOnlyRenderExportClient
+      sdkMethod: renderProject
+      handlerSource: launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java
+      sdkTestSelector: libs/audio-video-client/src/dev-project-render.test.ts
+      hostIntegrationSelector: integration-tests/src/test/java/com/ghatana/media/integration/MediaDevProductionJourneyIT.java#uploadProjectRenderReviewExportSurvivesRestartAndGoesStaleAfterAnEdit
+      routePermission: [media:project:dev:write, media:artifact:read, media:artifact:create]
+      pdp1SemanticRef: media.operation.action.submit-render; DEV_ONLY local preview mapping does not claim durable production-job semantics
+      negativeCases: [missing-artifact-permission, foreign-project-scope, missing-exact-source-version, changed-requestId-payload, capacity-exhausted, timeout-or-unknown-render, invalid-format-or-dimensions]
+    - apiOperationId: media.dev.http.getProjectRender
+      method: GET
+      path: /dev/v1/projects/{projectId}/renders/{renderId}
+      sdkSource: libs/audio-video-client/src/dev-render-export.ts
+      sdkClass: MediaDevOnlyRenderExportClient
+      sdkMethod: getRender
+      handlerSource: launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java
+      sdkTestSelector: libs/audio-video-client/src/dev-project-render.test.ts
+      hostIntegrationSelector: integration-tests/src/test/java/com/ghatana/media/integration/MediaDevProductionJourneyIT.java#uploadProjectRenderReviewExportSurvivesRestartAndGoesStaleAfterAnEdit
+      routePermission: [media:project:dev:read]
+      pdp1SemanticRef: media.action.inspect-output-preview-and-version
+      negativeCases: [missing-render,foreign-project-or-owner-scope,missing-or-mismatched-artifact-version]
+    - apiOperationId: media.dev.http.createExport
+      method: POST
+      path: /dev/v1/exports
+      sdkSource: libs/audio-video-client/src/dev-render-export.ts
+      sdkClass: MediaDevOnlyRenderExportClient
+      sdkMethod: createExport
+      handlerSource: launcher/src/main/java/com/ghatana/media/launcher/MediaDevDeliveryRoutes.java
+      sdkTestSelector: libs/audio-video-client/src/dev-render-export.test.ts
+      hostIntegrationSelector: integration-tests/src/test/java/com/ghatana/media/integration/MediaDevProductionJourneyIT.java#uploadProjectRenderReviewExportSurvivesRestartAndGoesStaleAfterAnEdit
+      routePermission: [media:delivery:dev:export, media:artifact:read]
+      pdp1SemanticRef: media.operation.action.deliver-exact-version; source and destination authority are rechecked by the development host
+      negativeCases: [missing-export-permission,foreign-or-stale-artifact-version,unknown-or-disallowed-destination,changed-requestId-payload,authorization-unavailable,invalid-or-unverified-destination-receipt]
+    - apiOperationId: media.dev.http.getExport
+      method: GET
+      path: /dev/v1/exports/{requestId}
+      sdkSource: libs/audio-video-client/src/dev-render-export.ts
+      sdkClass: MediaDevOnlyRenderExportClient
+      sdkMethod: getExport
+      handlerSource: launcher/src/main/java/com/ghatana/media/launcher/MediaDevDeliveryRoutes.java
+      sdkTestSelector: libs/audio-video-client/src/dev-render-export.test.ts
+      hostIntegrationSelector: integration-tests/src/test/java/com/ghatana/media/integration/MediaDevProductionJourneyIT.java#uploadProjectRenderReviewExportSurvivesRestartAndGoesStaleAfterAnEdit
+      routePermission: [media:delivery:dev:read]
+      pdp1SemanticRef: readback-of-media.operation.action.deliver-exact-version
+      negativeCases: [missing-export,foreign-tenant-or-owner-scope,unknown-ack-remains-unknown]
+    - apiOperationId: media.dev.http.cancelLocalJob
+      method: POST
+      path: /dev/v1/jobs/{jobId}/cancel
+      sdkSource: libs/audio-video-client/src/dev-job-cancellation.ts
+      sdkClass: MediaDevOnlyJobCancellationClient
+      sdkMethod: cancelJob
+      handlerSource: launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java
+      sdkTestSelector: libs/audio-video-client/src/dev-job-cancellation.test.ts
+      hostIntegrationSelector: integration-tests/src/test/java/com/ghatana/media/integration/MediaDevJobRestartRecoveryIT.java
+      routePermission: [media:job:cancel]
+      pdp1SemanticRef: media.operation-slice.cancel-job
+      negativeCases: [wrong-job-owner-scope,missing-job,stale-expectedVersion,competing-requestId,non-local-provider,outcome-unknown,terminal-race]
+    - apiOperationId: media.dev.http.getSimulation
+      method: GET
+      path: /dev/v1/simulations/{simulationId}
+      sdkSource: libs/audio-video-client/src/dev-simulation.ts
+      sdkClass: MediaDevOnlySimulationClient
+      sdkMethod: getSimulation
+      handlerSource: launcher/src/main/java/com/ghatana/media/launcher/MediaDevSimulationRoutes.java
+      sdkTestSelector: libs/audio-video-client/src/dev-simulation.test.ts
+      hostIntegrationSelector: integration-tests/src/test/java/com/ghatana/media/integration/MediaDevSimulationIT.java#realLauncherSolvesAgainstAnalyticTruthAbstainsWhenUntrustworthyAndSurvivesTheFaultSuite
+      routePermission: [media:project:dev:read, media:artifact:read]
+      pdp1SemanticRef: media.operation.action.inspect-simulation-result
+      negativeCases: [missing-simulation,foreign-tenant-or-owner-scope,productionEligible-lineage,replay-sibling-version-mismatch]
+    - apiOperationId: media.dev.http.getCreativeOutput
+      method: GET
+      path: /dev/v1/creative-outputs/{outputId}
+      sdkSource: libs/audio-video-client/src/dev-creative-output.ts
+      sdkClass: MediaDevOnlyCreativeOutputClient
+      sdkMethod: getCreativeOutput
+      handlerSource: launcher/src/main/java/com/ghatana/media/launcher/MediaDevCreativeOutputRoutes.java
+      sdkTestSelector: libs/audio-video-client/src/dev-creative-output.test.ts
+      hostIntegrationSelector: integration-tests/src/test/java/com/ghatana/media/integration/MediaDevCreativeOutputRestartIT.java#audioRepairSimulationAndSpatialGlbRegisterDurablyAndReopenAfterRestart
+      routePermission: [media:project:dev:read, media:artifact:read]
+      pdp1SemanticRef: media.operation.action.inspect-output-preview-and-version
+      negativeCases: [missing-output,foreign-tenant-or-owner-scope,artifact-id-or-version-mismatch,unsupported-kind-or-MIME-mismatch]
+  excludedSupportingRoutes:
+    - path: /dev/v1/artifacts/{artifactId}/content
+      disposition: supporting exact-version byte-read used by content helper methods; not one of PXD-232's seven operations
+    - path: /dev/v1/simulations
+      disposition: simulation creation route; excluded from PXD-232's seven operations
+    - path: /dev/v1/creative-outputs/{audio-repairs,simulations,spatial-glb}
+      disposition: creative-output creation routes; excluded from PXD-232's seven operations
+  acceptanceEffect: none
+  productionAdmission: NOT_ADMITTED
+  implementationStatus: NOT_ASSERTED
+  independentReview: NOT_CLAIMED

@@ -2,14 +2,18 @@ package com.ghatana.media.provider.aws;
 
 import com.ghatana.media.runtime.MediaLifecycleEvent;
 import com.ghatana.media.runtime.MediaLifecycleEventPublisher;
+import com.ghatana.media.runtime.MediaLifecyclePublicationReceipt;
 import com.ghatana.media.runtime.MediaLifecycleOutboxSource;
+import com.ghatana.media.runtime.MediaLifecyclePublicationOutcomeUnknownException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.time.Duration;
 import java.time.Instant;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -82,14 +86,38 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
             Claim claim = claim(id);
             if (claim == null) continue;
             attempted++;
+            MediaLifecycleEvent event;
             try {
-                MediaLifecycleEvent event = state.mapper().readValue(claim.payload(), MediaLifecycleEvent.class);
+                event = state.mapper().readValue(claim.payload(), MediaLifecycleEvent.class);
                 validatePayloadMatchesClaim(claim, event);
-                publisher.publish(event);
-                if (acknowledge(claim)) published++;
-                else failed++;
             } catch (Exception failure) {
                 recordFailure(claim, failure);
+                failed++;
+                continue;
+            }
+            MediaLifecyclePublicationReceipt receipt;
+            try {
+                receipt = publisher.publishWithReceipt(event, claim.exactReadbackRequired());
+                if (receipt == null) {
+                    throw new MediaLifecyclePublicationOutcomeUnknownException(
+                            "Lifecycle publisher returned no append receipt");
+                }
+                validateReceiptMatchesClaim(claim, receipt);
+            } catch (MediaLifecyclePublicationOutcomeUnknownException unknown) {
+                recordUnknown(claim, unknown);
+                failed++;
+                continue;
+            } catch (Exception failure) {
+                recordFailure(claim, failure);
+                failed++;
+                continue;
+            }
+            try {
+                if (acknowledge(claim, receipt)) published++;
+                else failed++;
+            } catch (Exception acknowledgementFailure) {
+                // Leave the durable claim untouched. If this process died or the ACK update
+                // failed after append, lease recovery will retain UNKNOWN instead of POSTing again.
                 failed++;
             }
         }
@@ -141,7 +169,7 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
         }
     }
 
-    /** Claim is committed before any network I/O; claim_token fences expired owners. */
+    /** Claim is committed before I/O; any prior attempt requires exact lookup before another append. */
     private Claim claim(String eventId) {
         long now = System.currentTimeMillis();
         try (Connection connection = state.connection()) {
@@ -157,9 +185,12 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
                 long createdAt;
                 long priorToken;
                 int attempts;
+                String priorClaimOwner;
+                Long priorClaimExpiresAt;
                 try (PreparedStatement query = connection.prepareStatement(
                         "SELECT payload_json,tenant_id,aggregate_type,aggregate_id,aggregate_version,event_type,"
-                                + "classification,created_at,claim_token,attempts FROM media_processing_lifecycle_outbox "
+                                + "classification,created_at,claim_token,attempts,claim_owner,claim_expires_at "
+                                + "FROM media_processing_lifecycle_outbox "
                                 + "WHERE event_id=? AND published_at IS NULL AND dead_lettered_at IS NULL "
                                 + "AND next_attempt_at<=? AND (claim_owner IS NULL OR claim_expires_at IS NULL "
                                 + "OR claim_expires_at<=?) FOR UPDATE SKIP LOCKED")) {
@@ -181,8 +212,13 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
                         createdAt = row.getLong("created_at");
                         priorToken = row.getLong("claim_token");
                         attempts = row.getInt("attempts");
+                        priorClaimOwner = row.getString("claim_owner");
+                        long expiresAt = row.getLong("claim_expires_at");
+                        priorClaimExpiresAt = row.wasNull() ? null : expiresAt;
                     }
                 }
+                boolean exactReadbackRequired = attempts > 0 || (priorClaimOwner != null
+                        && (priorClaimExpiresAt == null || priorClaimExpiresAt <= now));
                 // The acknowledgement path increments this persisted INTEGER only after
                 // broker acceptance. Refuse to publish a row whose count cannot be
                 // advanced, otherwise the broker effect could succeed while the durable
@@ -211,7 +247,7 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
                 }
                 connection.commit();
                 return new Claim(eventId, payload, tenantId, aggregateType, aggregateId, aggregateVersion,
-                        eventType, classification, createdAt, token, attempts);
+                        eventType, classification, createdAt, token, attempts, exactReadbackRequired);
             } catch (SQLException | RuntimeException failure) {
                 rollback(connection, failure);
                 if (failure instanceof RuntimeException runtime) throw runtime;
@@ -236,22 +272,134 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
         }
     }
 
-    private boolean acknowledge(Claim claim) {
-        try (Connection connection = state.connection();
-             PreparedStatement ack = connection.prepareStatement(
-                     "UPDATE media_processing_lifecycle_outbox SET published_at=?,attempts=attempts+1,last_error=NULL,"
-                             + "claim_owner=NULL,claim_expires_at=NULL,next_attempt_at=0 "
-                             + "WHERE event_id=? AND published_at IS NULL AND claim_owner=? AND claim_token=? "
-                             + "AND claim_expires_at>?")) {
-            long now = System.currentTimeMillis();
-            ack.setLong(1, now);
-            ack.setString(2, claim.eventId());
-            ack.setString(3, claimOwner);
-            ack.setLong(4, claim.token());
-            ack.setLong(5, now);
-            return ack.executeUpdate() == 1;
+    private static void validateReceiptMatchesClaim(
+            Claim claim, MediaLifecyclePublicationReceipt receipt) {
+        if (!claim.eventId().equals(receipt.eventId())
+                || !MediaLifecyclePublicationReceipt.stableStoredEventId(claim.eventId())
+                .equals(receipt.storedEventId())) {
+            throw new MediaLifecyclePublicationOutcomeUnknownException(
+                    "Event Plane receipt identity does not match the claimed Media event");
+        }
+    }
+
+    private boolean acknowledge(Claim claim, MediaLifecyclePublicationReceipt receipt) {
+        try (Connection connection = state.connection()) {
+            connection.setAutoCommit(false);
+            try {
+                long now = System.currentTimeMillis();
+                try (PreparedStatement ack = connection.prepareStatement(
+                        "UPDATE media_processing_lifecycle_outbox SET published_at=?,event_plane_stored_event_id=?,"
+                                + "event_plane_stream_id=?,event_plane_offset=?,attempts=attempts+1,last_error=NULL,"
+                                + "claim_owner=NULL,claim_expires_at=NULL,next_attempt_at=0 "
+                                + "WHERE event_id=? AND published_at IS NULL AND claim_owner=? AND claim_token=? "
+                                + "AND claim_expires_at>?")) {
+                    ack.setLong(1, now);
+                    ack.setString(2, receipt.storedEventId());
+                    ack.setString(3, receipt.streamId());
+                    ack.setString(4, receipt.offset());
+                    ack.setString(5, claim.eventId());
+                    ack.setString(6, claimOwner);
+                    ack.setLong(7, claim.token());
+                    ack.setLong(8, now);
+                    if (ack.executeUpdate() != 1) {
+                        connection.rollback();
+                        return false;
+                    }
+                }
+                advanceTenantCursor(connection, claim.tenantId(), receipt, now);
+                connection.commit();
+                return true;
+            } catch (SQLException | RuntimeException failure) {
+                rollback(connection, failure);
+                if (failure instanceof RuntimeException runtime) throw runtime;
+                throw new IllegalStateException("Unable to acknowledge Media lifecycle event", failure);
+            }
         } catch (SQLException failure) {
             throw new IllegalStateException("Unable to acknowledge Media lifecycle event", failure);
+        }
+    }
+
+    private void advanceTenantCursor(
+            Connection connection, String tenantId, MediaLifecyclePublicationReceipt receipt, long now)
+            throws SQLException {
+        try (PreparedStatement query = connection.prepareStatement(
+                "SELECT last_offset FROM media_processing_lifecycle_event_plane_cursor "
+                        + "WHERE tenant_id=? FOR UPDATE")) {
+            query.setString(1, tenantId);
+            try (ResultSet row = query.executeQuery()) {
+                if (row.next()) {
+                    updateCursorIfAhead(connection, tenantId, receipt, now, row.getString("last_offset"));
+                    return;
+                }
+            }
+        }
+
+        Savepoint insertAttempt = connection.setSavepoint();
+        try (PreparedStatement insert = connection.prepareStatement(
+                "INSERT INTO media_processing_lifecycle_event_plane_cursor "
+                        + "(tenant_id,last_offset,last_stream_id,last_event_id,last_stored_event_id,updated_at) "
+                        + "VALUES(?,?,?,?,?,?)")) {
+            insert.setString(1, tenantId);
+            insert.setString(2, receipt.offset());
+            insert.setString(3, receipt.streamId());
+            insert.setString(4, receipt.eventId());
+            insert.setString(5, receipt.storedEventId());
+            insert.setLong(6, now);
+            insert.executeUpdate();
+        } catch (SQLException concurrentInsert) {
+            connection.rollback(insertAttempt);
+            if (!"23505".equals(concurrentInsert.getSQLState())) throw concurrentInsert;
+            try (PreparedStatement query = connection.prepareStatement(
+                    "SELECT last_offset FROM media_processing_lifecycle_event_plane_cursor "
+                            + "WHERE tenant_id=? FOR UPDATE")) {
+                query.setString(1, tenantId);
+                try (ResultSet row = query.executeQuery()) {
+                    if (!row.next()) throw concurrentInsert;
+                    updateCursorIfAhead(connection, tenantId, receipt, now, row.getString("last_offset"));
+                }
+            }
+        }
+    }
+
+    private void updateCursorIfAhead(
+            Connection connection, String tenantId, MediaLifecyclePublicationReceipt receipt,
+            long now, String lastOffset) throws SQLException {
+        if (new BigInteger(receipt.offset()).compareTo(new BigInteger(lastOffset)) <= 0) return;
+        try (PreparedStatement update = connection.prepareStatement(
+                "UPDATE media_processing_lifecycle_event_plane_cursor SET last_offset=?,last_stream_id=?,"
+                        + "last_event_id=?,last_stored_event_id=?,updated_at=? WHERE tenant_id=?")) {
+            update.setString(1, receipt.offset());
+            update.setString(2, receipt.streamId());
+            update.setString(3, receipt.eventId());
+            update.setString(4, receipt.storedEventId());
+            update.setLong(5, now);
+            update.setString(6, tenantId);
+            if (update.executeUpdate() != 1) {
+                throw new SQLException("Event Plane tenant cursor disappeared during ACK");
+            }
+        }
+    }
+
+    private void recordUnknown(Claim claim, Exception failure) {
+        long now = System.currentTimeMillis();
+        String reason = failure.getClass().getSimpleName();
+        if (reason.length() > 255) reason = reason.substring(0, 255);
+        try (Connection connection = state.connection();
+             PreparedStatement unknown = connection.prepareStatement(
+                     "UPDATE media_processing_lifecycle_outbox SET attempts=attempts+1,last_error=?,"
+                             + "dead_lettered_at=?,dead_letter_reason='OUTCOME_UNKNOWN',claim_owner=NULL,"
+                             + "claim_expires_at=NULL,next_attempt_at=0 "
+                             + "WHERE event_id=? AND published_at IS NULL AND claim_owner=? AND claim_token=? "
+                             + "AND claim_expires_at>?")) {
+            unknown.setString(1, reason);
+            unknown.setLong(2, now);
+            unknown.setString(3, claim.eventId());
+            unknown.setString(4, claimOwner);
+            unknown.setLong(5, claim.token());
+            unknown.setLong(6, now);
+            unknown.executeUpdate(); // A replaced claim's owner cannot persist its stale observation.
+        } catch (SQLException storeFailure) {
+            throw new IllegalStateException("Unable to persist unknown Media lifecycle append outcome", storeFailure);
         }
     }
 
@@ -338,7 +486,7 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
 
     private record Claim(String eventId, String payload, String tenantId, String aggregateType,
             String aggregateId, long aggregateVersion, String eventType, String classification, long createdAt,
-            long token, int attempts) { }
+            long token, int attempts, boolean exactReadbackRequired) { }
 
     @Override
     public void close() {

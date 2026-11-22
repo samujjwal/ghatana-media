@@ -27,12 +27,12 @@
     "topologyDerivedMaterialPathCount": 350,
     "sourceBaseline": {
       "repository": "samujjwal/ghatana-media",
-      "repositoryHead": "06cd31cf3b07e652fe8f6f64b5d340770608e9b2",
+      "repositoryHead": "1fac6efa7a178c28a9cb75123743fbed30042cc5",
       "workingTree": "DIRTY_PRESERVED",
       "phaseStatusHead": "f4706af1bdc091a13b5a8f0127f4b722fc06d5ad",
       "sourceFingerprintSet": {
-        ".product-experience/decision-log.md": "40e4e50cb6cc8fb5d85207d9fd80fbd0ba18fd51225cac44ea24683b7bafeebe",
-        ".product-experience/source-manifest.yaml": "e82a218f28d3b2ba540394e3a5945d9d8e1bea3b47b09941e92ebeb50de8a0bc",
+        ".product-experience/decision-log.md": "7f3fea93195c48c9be871c1905e01a322b726d3b49ea3402ab331fc8b2d8b1f1",
+        ".product-experience/source-manifest.yaml": "3fc8e5ec3afdf95bd6696fd6c9efd2e80d3934610e6457638f2b7f685fe248a6",
         ".product-experience/surfaces/media-physical-topology.v1.json": "a1f524c498fcdbde61f48cc3b8bb589e8803a0007d7b82908d7da81ea9065c9d",
         "docs/implementation/media-pdp-38-readiness.json": "18a07f305c1d34fd2a0e05c09aa3d7b2ff1c89c86722d527fce424cbe20a8005",
         "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/P0-01.v4.json": "cc4f0bce3a6570d24008b621e7101ee4b1a10561e430750efd611fe2b6fc8374",
@@ -46,14 +46,14 @@
         "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/peer-review-record.v1.schema.json": "e7f2a9c6addf0fb89bfb27fb0e94defd73a12e47be56bd03b5afae08b3e98e7b",
         "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/revision-decision.v3.schema.json": "29a2f360d23f91c435f639fbc0ff2ad39a56a9923bd66b600a28aefa965f03bc",
         "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/technical-reviewer-authority.v1.schema.json": "e639d60e490e60eaa77aa28d25265e9abd07931b143db9b8573f046bf0389c01",
-        "docs/implementation/pdp-0-phase-dev-status.json": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b",
+        "docs/implementation/pdp-0-phase-dev-status.json": "5446c46fd1289fe338b410c1df584d731ef5aeaaf9b983adf7841234962c738c",
         "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json": "7b2c7fc2059ee9f00846b8b1a292804c33d24957837fa1a9b06d06a163202733",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "99f9e74020fb59ff5f0ff84d33dba291fe205cc943166932c04d5343f32df8d6",
-        "scripts/lib/media-pdp0-current-source-review-assembler.mjs": "615f1d16bbebf61db0907a54ed8e3c7cbcaf39f104ad87d46d0c4ee6ffc51d69",
-        "scripts/lib/media-pdp0-review-successor-plan.mjs": "7607039263549beaca2323ab043de60dcf08edf4151db66f12c3b85b00a93b33",
+        "scripts/lib/media-pdp0-current-source-review-assembler.mjs": "72db269b1b86d982f368efd16be8c1b67d1c2b61ab93741edabaab8a1a10e1fc",
+        "scripts/lib/media-pdp0-review-successor-plan.mjs": "d866fcc51666f069d17fe78e496eff391c2a3909d9921e2006c7f55aaa5a58ff",
         "scripts/lib/media-pdp0-source-development-current-cut.mjs": "e1a3d526e295b588fe153b482fe18088206e33c3fcb91b4ef6ce986b85ecf335",
         "scripts/record-media-discovery-pdp0-currentness.mjs": "3cb0619218ec1a3c032a660fae4a0c778acc2b5ddded52546de20028fc6d09f9",
-        "scripts/report-media-pdp0-source-review-currentness.mjs": "c1c903a546098c0b80ed767db5a9253e8a75dc5457f88879a48f42f6b57a666b"
+        "scripts/report-media-pdp0-source-review-currentness.mjs": "7de82cde73dec3b1a47d31f76165ad593841e04706a362139d467a29a256c7ce"
       }
     }
   },
@@ -108,6 +108,11 @@
       "criterionId": "P0-01",
       "disposition": "MATERIAL_SOURCE_DELTA_REVIEW_REQUIRED",
       "deltas": [
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability",
+          "decisionRef": ".product-experience/decision-log.md#PXD-231",
+          "meaning": "Resolves exactly three AUD-SPEC-020 surface/channel applicability cells while preserving the 56-identity denominator."
+        },
         {
           "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml#media.recipe.specification.compile",
           "decisionRef": ".product-experience/decision-log.md#PXD-226",
@@ -171,7 +176,9 @@
       "unresolvedFindingIds": [
         "P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231"
       ],
-      "unresolvedFindingDisposition": "The 231 feature-family case semantic-fit rows remain open in the prior criterion review; PXD-231 resolves three surface applicability cells and does not resolve those rows."
+      "currentSourceSemanticFitRows": 230,
+      "historicalFindingId": "P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231",
+      "unresolvedFindingDisposition": "The prior criterion review retains historical aggregate ID P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231, while the current AQ traceability source counts 230 exact REVIEW_REQUIRED_PARENT_CASES_ARE_NOT_FEATURE_SPECIFIC rows. Reconcile the exact current row IDs in a source-review successor; keep all 230 open until owner disposition. PXD-231 resolves three surface applicability cells and does not resolve these semantic-fit rows."
     }
   ],
   "projectionOnlyChanges": [
@@ -226,11 +233,12 @@
         "priorDecisionRef": null,
         "currentDecisionRef": ".product-experience/decision-log.md#PXD-225",
         "decisionBindingCurrent": false,
+        "cliAvailabilityDeltaDisposition": "NOT_AFFECTED_BY_CURRENT_CLI_AVAILABILITY_DELTA",
         "staleReviewSourceRefs": [
           {
             "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
             "priorSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
-            "currentSha256": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b"
+            "currentSha256": "5446c46fd1289fe338b410c1df584d731ef5aeaaf9b983adf7841234962c738c"
           },
           {
             "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
@@ -245,7 +253,7 @@
           {
             "sourceRef": ".product-experience/source-manifest.yaml",
             "priorSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
-            "currentSha256": "e82a218f28d3b2ba540394e3a5945d9d8e1bea3b47b09941e92ebeb50de8a0bc"
+            "currentSha256": "3fc8e5ec3afdf95bd6696fd6c9efd2e80d3934610e6457638f2b7f685fe248a6"
           },
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -260,7 +268,7 @@
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
             "priorSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
-            "currentSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34"
+            "currentSha256": "75e20a27cf6be138a99992ab2f5e8209f09eb60f69f16989b4e06b50c8c5b596"
           },
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
@@ -307,7 +315,7 @@
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
             "priorSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
-            "currentSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34"
+            "currentSha256": "75e20a27cf6be138a99992ab2f5e8209f09eb60f69f16989b4e06b50c8c5b596"
           },
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -332,7 +340,7 @@
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
             "priorSha256": "d1e76dea4176012aa23ef4be097ed85881fff24102725d15171ed483ee354978",
-            "currentSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34"
+            "currentSha256": "75e20a27cf6be138a99992ab2f5e8209f09eb60f69f16989b4e06b50c8c5b596"
           },
           {
             "sourceRef": "tests/pdp0-current-capability-meaning-20-leaf-review.test.mjs",
@@ -357,11 +365,12 @@
         "priorDecisionRef": null,
         "currentDecisionRef": ".product-experience/decision-log.md#PXD-196",
         "decisionBindingCurrent": false,
+        "cliAvailabilityDeltaDisposition": "NOT_AFFECTED_BY_CURRENT_CLI_AVAILABILITY_DELTA",
         "staleReviewSourceRefs": [
           {
             "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
             "priorSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
-            "currentSha256": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b"
+            "currentSha256": "5446c46fd1289fe338b410c1df584d731ef5aeaaf9b983adf7841234962c738c"
           },
           {
             "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
@@ -376,7 +385,7 @@
           {
             "sourceRef": ".product-experience/source-manifest.yaml",
             "priorSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
-            "currentSha256": "e82a218f28d3b2ba540394e3a5945d9d8e1bea3b47b09941e92ebeb50de8a0bc"
+            "currentSha256": "3fc8e5ec3afdf95bd6696fd6c9efd2e80d3934610e6457638f2b7f685fe248a6"
           },
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -391,7 +400,7 @@
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
             "priorSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
-            "currentSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34"
+            "currentSha256": "75e20a27cf6be138a99992ab2f5e8209f09eb60f69f16989b4e06b50c8c5b596"
           },
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
@@ -453,11 +462,12 @@
         "priorDecisionRef": null,
         "currentDecisionRef": null,
         "decisionBindingCurrent": true,
+        "cliAvailabilityDeltaDisposition": "NOT_AFFECTED_BY_CURRENT_CLI_AVAILABILITY_DELTA",
         "staleReviewSourceRefs": [
           {
             "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
             "priorSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
-            "currentSha256": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b"
+            "currentSha256": "5446c46fd1289fe338b410c1df584d731ef5aeaaf9b983adf7841234962c738c"
           },
           {
             "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
@@ -472,7 +482,7 @@
           {
             "sourceRef": ".product-experience/source-manifest.yaml",
             "priorSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
-            "currentSha256": "e82a218f28d3b2ba540394e3a5945d9d8e1bea3b47b09941e92ebeb50de8a0bc"
+            "currentSha256": "3fc8e5ec3afdf95bd6696fd6c9efd2e80d3934610e6457638f2b7f685fe248a6"
           },
           {
             "sourceRef": "scripts/lib/media-product-definition-residuals.mjs",
@@ -513,11 +523,12 @@
         "priorDecisionRef": null,
         "currentDecisionRef": null,
         "decisionBindingCurrent": true,
+        "cliAvailabilityDeltaDisposition": "NOT_AFFECTED_BY_CURRENT_CLI_AVAILABILITY_DELTA",
         "staleReviewSourceRefs": [
           {
             "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
             "priorSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
-            "currentSha256": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b"
+            "currentSha256": "5446c46fd1289fe338b410c1df584d731ef5aeaaf9b983adf7841234962c738c"
           },
           {
             "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
@@ -532,7 +543,7 @@
           {
             "sourceRef": ".product-experience/source-manifest.yaml",
             "priorSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
-            "currentSha256": "e82a218f28d3b2ba540394e3a5945d9d8e1bea3b47b09941e92ebeb50de8a0bc"
+            "currentSha256": "3fc8e5ec3afdf95bd6696fd6c9efd2e80d3934610e6457638f2b7f685fe248a6"
           },
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
@@ -563,11 +574,12 @@
         "priorDecisionRef": ".product-experience/decision-log.md#PXD-099",
         "currentDecisionRef": ".product-experience/decision-log.md#PXD-208",
         "decisionBindingCurrent": false,
+        "cliAvailabilityDeltaDisposition": "NOT_AFFECTED_BY_CURRENT_CLI_AVAILABILITY_DELTA",
         "staleReviewSourceRefs": [
           {
             "sourceRef": ".product-experience/decision-log.md",
             "priorSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2",
-            "currentSha256": "40e4e50cb6cc8fb5d85207d9fd80fbd0ba18fd51225cac44ea24683b7bafeebe"
+            "currentSha256": "7f3fea93195c48c9be871c1905e01a322b726d3b49ea3402ab331fc8b2d8b1f1"
           },
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -587,7 +599,7 @@
           {
             "sourceRef": ".product-experience/source-manifest.yaml",
             "priorSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
-            "currentSha256": "e82a218f28d3b2ba540394e3a5945d9d8e1bea3b47b09941e92ebeb50de8a0bc"
+            "currentSha256": "3fc8e5ec3afdf95bd6696fd6c9efd2e80d3934610e6457638f2b7f685fe248a6"
           },
           {
             "sourceRef": ".product-experience/surfaces/media-physical-topology.v1.json",
@@ -607,7 +619,7 @@
           {
             "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
             "priorSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
-            "currentSha256": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b"
+            "currentSha256": "5446c46fd1289fe338b410c1df584d731ef5aeaaf9b983adf7841234962c738c"
           },
           {
             "sourceRef": "docs/implementation/verification/pdp-38/P0-05.log",
@@ -694,7 +706,7 @@
           {
             "sourceRef": ".product-experience/source-manifest.yaml#PDP-0-projection",
             "priorSha256": "d20cb3e0f2a4c8dd00ffc7ae3e6db01b9f4a32448e232d4d61083b4367ef44f6",
-            "currentSha256": "d2e77f94228aba330f52f8785cde7044587cb058e2e829e03d1bca15282a076e"
+            "currentSha256": "703d829babef4e6407a6275b3bad89cbf0ef5bd4b39c0d51d26d22c5ecb6df20"
           },
           {
             "sourceRef": "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection",
@@ -719,11 +731,12 @@
         "priorDecisionRef": ".product-experience/decision-log.md#PXD-099",
         "currentDecisionRef": ".product-experience/decision-log.md#PXD-196",
         "decisionBindingCurrent": false,
+        "cliAvailabilityDeltaDisposition": "NOT_AFFECTED_BY_CURRENT_CLI_AVAILABILITY_DELTA",
         "staleReviewSourceRefs": [
           {
             "sourceRef": ".product-experience/decision-log.md",
             "priorSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2",
-            "currentSha256": "40e4e50cb6cc8fb5d85207d9fd80fbd0ba18fd51225cac44ea24683b7bafeebe"
+            "currentSha256": "7f3fea93195c48c9be871c1905e01a322b726d3b49ea3402ab331fc8b2d8b1f1"
           },
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -748,7 +761,7 @@
           {
             "sourceRef": ".product-experience/source-manifest.yaml",
             "priorSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
-            "currentSha256": "e82a218f28d3b2ba540394e3a5945d9d8e1bea3b47b09941e92ebeb50de8a0bc"
+            "currentSha256": "3fc8e5ec3afdf95bd6696fd6c9efd2e80d3934610e6457638f2b7f685fe248a6"
           },
           {
             "sourceRef": ".product-experience/surfaces/media-physical-topology.v1.json",
@@ -768,7 +781,7 @@
           {
             "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
             "priorSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
-            "currentSha256": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b"
+            "currentSha256": "5446c46fd1289fe338b410c1df584d731ef5aeaaf9b983adf7841234962c738c"
           },
           {
             "sourceRef": "docs/implementation/verification/pdp-38/P0-06.log",
@@ -850,16 +863,17 @@
         "priorDecisionRef": ".product-experience/decision-log.md#PXD-105",
         "currentDecisionRef": ".product-experience/decision-log.md#PXD-196",
         "decisionBindingCurrent": false,
+        "cliAvailabilityDeltaDisposition": "NOT_AFFECTED_BY_CURRENT_CLI_AVAILABILITY_DELTA",
         "staleReviewSourceRefs": [
           {
             "sourceRef": ".product-experience/decision-log.md",
             "priorSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2",
-            "currentSha256": "40e4e50cb6cc8fb5d85207d9fd80fbd0ba18fd51225cac44ea24683b7bafeebe"
+            "currentSha256": "7f3fea93195c48c9be871c1905e01a322b726d3b49ea3402ab331fc8b2d8b1f1"
           },
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
             "priorSha256": "9d11c57c866b360d34fc428862ded142c95d22ba7dc4add7a383d8cc389dcdc5",
-            "currentSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34"
+            "currentSha256": "75e20a27cf6be138a99992ab2f5e8209f09eb60f69f16989b4e06b50c8c5b596"
           },
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
@@ -879,7 +893,7 @@
           {
             "sourceRef": ".product-experience/source-manifest.yaml",
             "priorSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
-            "currentSha256": "e82a218f28d3b2ba540394e3a5945d9d8e1bea3b47b09941e92ebeb50de8a0bc"
+            "currentSha256": "3fc8e5ec3afdf95bd6696fd6c9efd2e80d3934610e6457638f2b7f685fe248a6"
           },
           {
             "sourceRef": ".product-experience/surfaces/media-physical-topology.v1.json",
@@ -899,7 +913,7 @@
           {
             "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
             "priorSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
-            "currentSha256": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b"
+            "currentSha256": "5446c46fd1289fe338b410c1df584d731ef5aeaaf9b983adf7841234962c738c"
           },
           {
             "sourceRef": "docs/implementation/verification/pdp-38/P0-07.log",
@@ -936,7 +950,7 @@
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
             "priorSha256": "b9f6a24eb1ef1e55dc64e4deacda7f713818acfdd8d11b1576747bdf723eccaa",
-            "currentSha256": "cd3d4aa682c06c358bd11b9ac38576cb3aece73996443177bca171f0805f4f34"
+            "currentSha256": "75e20a27cf6be138a99992ab2f5e8209f09eb60f69f16989b4e06b50c8c5b596"
           },
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/campaign-extensions.yaml",
@@ -1041,7 +1055,7 @@
           {
             "sourceRef": ".product-experience/source-manifest.yaml#PDP-0-projection",
             "priorSha256": "d20cb3e0f2a4c8dd00ffc7ae3e6db01b9f4a32448e232d4d61083b4367ef44f6",
-            "currentSha256": "d2e77f94228aba330f52f8785cde7044587cb058e2e829e03d1bca15282a076e"
+            "currentSha256": "703d829babef4e6407a6275b3bad89cbf0ef5bd4b39c0d51d26d22c5ecb6df20"
           },
           {
             "sourceRef": "truth-domain-pdp0-pdp1-owner-candidate-199.json#PDP-0-projection",
@@ -1066,16 +1080,17 @@
         "priorDecisionRef": null,
         "currentDecisionRef": null,
         "decisionBindingCurrent": true,
+        "cliAvailabilityDeltaDisposition": "NOT_AFFECTED_BY_CURRENT_CLI_AVAILABILITY_DELTA",
         "staleReviewSourceRefs": [
           {
             "sourceRef": ".product-experience/decision-log.md",
             "priorSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2",
-            "currentSha256": "40e4e50cb6cc8fb5d85207d9fd80fbd0ba18fd51225cac44ea24683b7bafeebe"
+            "currentSha256": "7f3fea93195c48c9be871c1905e01a322b726d3b49ea3402ab331fc8b2d8b1f1"
           },
           {
             "sourceRef": ".product-experience/source-manifest.yaml",
             "priorSha256": "283b98cc215158301ac4546f1cc644683c8f1d830c9113e3c311ad04dcc736e4",
-            "currentSha256": "e82a218f28d3b2ba540394e3a5945d9d8e1bea3b47b09941e92ebeb50de8a0bc"
+            "currentSha256": "3fc8e5ec3afdf95bd6696fd6c9efd2e80d3934610e6457638f2b7f685fe248a6"
           },
           {
             "sourceRef": ".product-experience/surfaces/media-physical-topology.v1.json",
@@ -1095,7 +1110,7 @@
           {
             "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
             "priorSha256": "12bcfe4b180d1156b7f0a3d764e67b75ac386674ae4b78e1cdf584a1dd50fcdf",
-            "currentSha256": "b4f4b5ffc18cbff57dc268ca4b30123e34dea3d699aa39f10c97a1966abba94b"
+            "currentSha256": "5446c46fd1289fe338b410c1df584d731ef5aeaaf9b983adf7841234962c738c"
           },
           {
             "sourceRef": "docs/implementation/verification/pdp-38/P0-08.log",
@@ -1113,6 +1128,20 @@
       }
     ],
     "currentnessStatus": "SOURCE_STATUS_CURRENT; REVIEW_INPUTS_REQUIRE_REFRESH",
+    "cliAvailabilityReview": {
+      "status": "SOURCE_DECISION_BOUND",
+      "fieldRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/remoteCancellationRule/scopeStatus",
+      "sourceDecisionRef": ".product-experience/decision-log.md#PXD-233",
+      "executionAdmission": "NOT_ADMITTED",
+      "affectedCriterionIds": [],
+      "unaffectedCriterionIds": [
+        "P0-01",
+        "P0-02",
+        "P0-05",
+        "P0-06",
+        "P0-07"
+      ]
+    },
     "statusBoundary": {
       "ownerApproval": "NOT_CLAIMED",
       "independentAcceptance": "NOT_CLAIMED",
@@ -1833,7 +1862,7 @@
         "criterionId": "P0-07",
         "classification": "MATERIAL_DEFINITION_ROWS_OPEN",
         "owner": "Media PDP-0 Product Truth owner",
-        "nextAction": "Keep all 231 feature-specific parent-case semantic-fit rows open until the owning PDP-0 source is updated and revalidated."
+        "nextAction": "Reconcile the historical 231 finding suffix against the 230 current AQ traceability rows, then keep all 230 exact feature-specific parent-case semantic-fit rows open until the owning PDP-0 source is updated and revalidated."
       },
       {
         "criterionId": "P0-08",

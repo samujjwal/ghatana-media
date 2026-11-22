@@ -71,6 +71,7 @@ export function inspectPdp0CliAvailabilityReview({reviewRecords, read, decisionL
   const exactDecisionRef = remoteCancellationRule.sourceDecisionRef ?? remoteCancellationRule.ownerDecisionRef ?? null;
   if (exactDecisionBindsCliAvailability(exactDecisionRef, decisionLogText, scopeStatus)) {
     return {status: 'SOURCE_DECISION_BOUND', fieldRef: PDP0_CLI_AVAILABILITY_FIELD_REF, sourceDecisionRef: exactDecisionRef,
+      executionAdmission: remoteCancellationRule.executionAdmission ?? cli.executionAdmission ?? 'UNKNOWN',
       affectedCriterionIds: [], unaffectedCriterionIds: [...PDP0_CURRENTNESS_REVIEW_SCOPE]};
   }
   const affectedCriterionIds = PDP0_CURRENTNESS_REVIEW_SCOPE.filter(criterionId =>

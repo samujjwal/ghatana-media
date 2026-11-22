@@ -1,0 +1,472 @@
+openapi: 3.1.0
+info:
+  title: Ghatana Media Development API
+  version: 1.0.0
+  description: >-
+    Candidate-only contract for the seven PXD-232 DEV_ONLY operations. This
+    document is excluded from the production route manifest and canonical
+    public Media OpenAPI contract.
+servers:
+  - url: http://127.0.0.1:8080
+    description: Loopback development host; the specialized SDK clients reject non-loopback endpoints.
+security:
+  - bearerAuth: []
+paths:
+  /dev/v1/projects/{projectId}/renders:
+    post:
+      operationId: createDevProjectRender
+      summary: Render an exact project revision in the local development lane
+      x-media-candidate-operation-id: media.dev.http.createProjectRender
+      x-media-route-source: launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java
+      x-media-sdk-source: libs/audio-video-client/src/dev-render-export.ts#MediaDevOnlyRenderExportClient.renderProject
+      x-media-required-permissions: [media:project:dev:write, media:artifact:read, media:artifact:create]
+      x-media-authority: Host-derived tenant/principal scope; exact project/revision/timeline and source artifact versions are checked by the development runtime.
+      x-media-idempotency: Stable requestId and canonical request fingerprint; exact retry replays the registered render, changed payload returns 409.
+      x-media-finality: 201 is a newly registered render; 200 is an exact replay. Neither status is production-quality or approval evidence.
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DevProjectRenderRequest'
+      responses:
+        '201':
+          description: Render completed and its immutable artifact was registered.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DevProjectRenderResult' }
+        '200':
+          description: Exact requestId replay of the registered render.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DevProjectRenderResult' }
+        '400': { $ref: '#/components/responses/InvalidRequest' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        '429': { $ref: '#/components/responses/Capacity' }
+        '502': { $ref: '#/components/responses/ExecutionFailure' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        '504': { $ref: '#/components/responses/Timeout' }
+        default: { $ref: '#/components/responses/Error' }
+  /dev/v1/projects/{projectId}/renders/{renderId}:
+    get:
+      operationId: getDevProjectRender
+      summary: Read a project-owned development render observation
+      x-media-candidate-operation-id: media.dev.http.getProjectRender
+      x-media-route-source: launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java
+      x-media-sdk-source: libs/audio-video-client/src/dev-render-export.ts#MediaDevOnlyRenderExportClient.getRender
+      x-media-required-permissions: [media:project:dev:read]
+      x-media-authority: Host-derived tenant/principal and project ownership scope; render bytes remain an exact immutable artifact version.
+      x-media-finality: 200 reports a stored render observation only.
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+        - name: renderId
+          in: path
+          required: true
+          schema: { $ref: '#/components/schemas/OpaqueId' }
+      responses:
+        '200':
+          description: Exact owner-scoped render metadata and immutable artifact reference.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DevProjectRenderResult' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        default: { $ref: '#/components/responses/Error' }
+  /dev/v1/exports:
+    post:
+      operationId: createDevExport
+      summary: Deliver one exact artifact version to an authorized development destination
+      x-media-candidate-operation-id: media.dev.http.createExport
+      x-media-route-source: launcher/src/main/java/com/ghatana/media/launcher/MediaDevDeliveryRoutes.java
+      x-media-sdk-source: libs/audio-video-client/src/dev-render-export.ts#MediaDevOnlyRenderExportClient.createExport
+      x-media-required-permissions: [media:delivery:dev:export, media:artifact:read]
+      x-media-authority: Recheck exact artifact version, tenant destination policy, and transfer authorization before any destination effect.
+      x-media-idempotency: Stable requestId is bound to exact artifactId, artifactVersionId, and destinationId; changed binding returns 409.
+      x-media-finality: 201/200 mean first/replayed destination confirmation. 202 is pending or unconfirmed. ackState DELIVERED requires verified receipt; UNKNOWN is not confirmation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DevExportRequest'
+      responses:
+        '201':
+          description: Destination confirmed the first delivery with a verified receipt.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DevExportResult' }
+        '200':
+          description: Exact replay whose destination result is confirmed.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DevExportResult' }
+        '202':
+          description: Export is unconfirmed or its outcome remains pending/unknown.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DevExportResult' }
+        '400': { $ref: '#/components/responses/InvalidRequest' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        '502': { $ref: '#/components/responses/ExecutionFailure' }
+        '503': { $ref: '#/components/responses/Unavailable' }
+        default: { $ref: '#/components/responses/Error' }
+  /dev/v1/exports/{requestId}:
+    get:
+      operationId: getDevExport
+      summary: Read an owner-scoped development export status and acknowledgement observation
+      x-media-candidate-operation-id: media.dev.http.getExport
+      x-media-route-source: launcher/src/main/java/com/ghatana/media/launcher/MediaDevDeliveryRoutes.java
+      x-media-sdk-source: libs/audio-video-client/src/dev-render-export.ts#MediaDevOnlyRenderExportClient.getExport
+      x-media-required-permissions: [media:delivery:dev:read]
+      x-media-authority: Host-derived tenant/principal and export request ownership scope.
+      x-media-finality: 200 is an observation; only a verified receipt and ackState DELIVERED confirm delivery.
+      parameters:
+        - name: requestId
+          in: path
+          required: true
+          schema: { $ref: '#/components/schemas/RequestId' }
+      responses:
+        '200':
+          description: Current stored export and acknowledgement observation; may be nonfinal or UNKNOWN.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DevExportResult' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        default: { $ref: '#/components/responses/Error' }
+  /dev/v1/jobs/{jobId}/cancel:
+    post:
+      operationId: cancelDevLocalJob
+      summary: Request cancellation through the local development provider
+      x-media-candidate-operation-id: media.dev.http.cancelLocalJob
+      x-media-route-source: launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java
+      x-media-sdk-source: libs/audio-video-client/src/dev-job-cancellation.ts#MediaDevOnlyJobCancellationClient.cancelJob
+      x-media-required-permissions: [media:job:cancel]
+      x-media-authority: Host-derived tenant/principal and job ownership; explicit dev profile and in-process LOCAL provider are required.
+      x-media-idempotency: requestId binds the durable cancellation fingerprint; exact retry reuses the request; competing request conflicts.
+      x-media-version-binding: Optional expectedVersion is a positive optimistic compare-and-set against the current job version.
+      x-media-finality: Only outcome CONFIRMED with job.status CANCELLED confirms cancellation; all other outcomes retain their named non-confirmation semantics.
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema: { $ref: '#/components/schemas/OpaqueId' }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DevJobCancellationRequest'
+      responses:
+        '200':
+          description: Durable cancellation outcome and owner-scoped job readback; outcome can be UNKNOWN or unconfirmed.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DevJobCancellationResult' }
+        '400': { $ref: '#/components/responses/InvalidRequest' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/Unprocessable' }
+        default: { $ref: '#/components/responses/Error' }
+  /dev/v1/simulations/{simulationId}:
+    get:
+      operationId: getDevSimulation
+      summary: Read an owner-scoped development simulation result
+      x-media-candidate-operation-id: media.dev.http.getSimulation
+      x-media-route-source: launcher/src/main/java/com/ghatana/media/launcher/MediaDevSimulationRoutes.java
+      x-media-sdk-source: libs/audio-video-client/src/dev-simulation.ts#MediaDevOnlySimulationClient.getSimulation
+      x-media-required-permissions: [media:project:dev:read, media:artifact:read]
+      x-media-authority: simulationId is the persisted result artifact identity; result and media siblings retain exact version lineage.
+      x-media-finality: 200 is an available stored simulation observation, not measurement evidence or scientific validation.
+      parameters:
+        - name: simulationId
+          in: path
+          required: true
+          schema: { $ref: '#/components/schemas/OpaqueId' }
+      responses:
+        '200':
+          description: Stored simulated result and any exact-version plot/video sibling metadata.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DevSimulationResult' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        default: { $ref: '#/components/responses/Error' }
+  /dev/v1/creative-outputs/{outputId}:
+    get:
+      operationId: getDevCreativeOutput
+      summary: Read owner-scoped immutable development creative-output metadata
+      x-media-candidate-operation-id: media.dev.http.getCreativeOutput
+      x-media-route-source: launcher/src/main/java/com/ghatana/media/launcher/MediaDevCreativeOutputRoutes.java
+      x-media-sdk-source: libs/audio-video-client/src/dev-creative-output.ts#MediaDevOnlyCreativeOutputClient.getCreativeOutput
+      x-media-required-permissions: [media:project:dev:read, media:artifact:read]
+      x-media-authority: Host-derived tenant/principal and output ownership; output identity, immutable version, digest, type, and lineage are returned together.
+      x-media-finality: 200 is a stored DEV_ONLY candidate observation, not quality approval or production readiness.
+      parameters:
+        - name: outputId
+          in: path
+          required: true
+          schema: { $ref: '#/components/schemas/OpaqueId' }
+      responses:
+        '200':
+          description: Stored creative-output metadata and immutable artifact reference.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DevCreativeOutput' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        default: { $ref: '#/components/responses/Error' }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Host-verified development identity; request identity hints do not grant authority.
+  parameters:
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema: { $ref: '#/components/schemas/OpaqueId' }
+  responses:
+    InvalidRequest:
+      description: Invalid, incomplete, or exact-key-mismatched request body.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Unauthenticated:
+      description: Development identity was absent or rejected.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Forbidden:
+      description: Route permission or exact source/destination authorization was denied.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    NotFound:
+      description: Resource does not exist in the caller's tenant and owner scope, or exact source version is unavailable.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Conflict:
+      description: Request identity, job version, or resource state conflicts with current durable state.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Unprocessable:
+      description: Operation is unsupported or not admitted by the configured development profile/provider.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Capacity:
+      description: Bounded development render/export capacity is exhausted; Retry-After applies.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    ExecutionFailure:
+      description: Development execution, artifact registration, or destination evidence failed.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Unavailable:
+      description: Required development capability, destination, or durable state is unavailable; outcome may be UNKNOWN.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Timeout:
+      description: Render exceeded its time budget; the host reports that nothing was registered and requestId is retained for retry.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+    Error:
+      description: Typed Media HTTP error; see its code and details before any retry.
+      content: { application/json: { schema: { $ref: '#/components/schemas/Error' } } }
+  schemas:
+    OpaqueId:
+      type: string
+      minLength: 1
+      maxLength: 128
+      pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]*$'
+    RequestId:
+      type: string
+      minLength: 1
+      maxLength: 128
+      pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]*$'
+    Sha256:
+      type: string
+      pattern: '^[0-9a-f]{64}$'
+    ArtifactReference:
+      type: object
+      additionalProperties: false
+      required: [artifactId, artifactVersionId, contentType, sizeBytes, sha256, artifactPath]
+      properties:
+        artifactId: { $ref: '#/components/schemas/OpaqueId' }
+        artifactVersionId: { type: string, pattern: '^sha256:[0-9a-f]{64}$' }
+        contentType: { type: string }
+        sizeBytes: { type: integer, minimum: 1, maximum: 9007199254740991 }
+        sha256: { $ref: '#/components/schemas/Sha256' }
+        artifactPath: { type: string }
+    DevProjectRenderRequest:
+      type: object
+      additionalProperties: false
+      required: [requestId, revisionId, timelineId, width, height, framesPerSecond]
+      properties:
+        requestId: { $ref: '#/components/schemas/RequestId' }
+        revisionId: { $ref: '#/components/schemas/OpaqueId' }
+        timelineId: { $ref: '#/components/schemas/OpaqueId' }
+        width: { type: integer, minimum: 1, maximum: 1000000 }
+        height: { type: integer, minimum: 1, maximum: 1000000 }
+        framesPerSecond: { type: integer, minimum: 1, maximum: 1000000 }
+        format: { type: string, enum: [gif, mp4], default: gif }
+    DevRenderSourceVersion:
+      type: object
+      required: [clipId, trackId, artifactId, artifactVersionId]
+      properties:
+        clipId: { $ref: '#/components/schemas/OpaqueId' }
+        trackId: { $ref: '#/components/schemas/OpaqueId' }
+        artifactId: { $ref: '#/components/schemas/OpaqueId' }
+        artifactVersionId: { type: string, minLength: 1 }
+        trackKind: { type: string }
+        sha256: { $ref: '#/components/schemas/Sha256' }
+        normalizedFrameSha256: { $ref: '#/components/schemas/Sha256' }
+        startFrame: { type: integer, minimum: 0 }
+        endFrameExclusive: { type: integer, minimum: 0 }
+    DevProjectRenderResult:
+      type: object
+      required: [renderId, artifact, lineage, replayed, scope]
+      properties:
+        renderId: { $ref: '#/components/schemas/OpaqueId' }
+        artifact: { $ref: '#/components/schemas/ArtifactReference' }
+        lineage:
+          type: object
+          required: [scope, projectId, revisionId, timelineId, timelineSemanticVersionId, requestId, engine, format, width, height, framesPerSecond, frameCount, sources]
+          properties:
+            scope: { const: DEV_ONLY }
+            projectId: { $ref: '#/components/schemas/OpaqueId' }
+            revisionId: { $ref: '#/components/schemas/OpaqueId' }
+            timelineId: { $ref: '#/components/schemas/OpaqueId' }
+            timelineSemanticVersionId: { type: string }
+            requestId: { $ref: '#/components/schemas/RequestId' }
+            engine: { type: string }
+            format: { type: string, enum: [gif, mp4] }
+            width: { type: integer, minimum: 1 }
+            height: { type: integer, minimum: 1 }
+            framesPerSecond: { type: integer, minimum: 1 }
+            frameCount: { type: integer, minimum: 1 }
+            sourceCount: { type: integer, minimum: 1, maximum: 64 }
+            sources: { type: array, minItems: 1, maxItems: 64, items: { $ref: '#/components/schemas/DevRenderSourceVersion' } }
+        replayed: { type: boolean }
+        scope: { const: DEV_ONLY }
+    DevExportRequest:
+      type: object
+      additionalProperties: false
+      required: [requestId, artifactId, artifactVersionId, destinationId]
+      properties:
+        requestId: { $ref: '#/components/schemas/RequestId' }
+        artifactId: { $ref: '#/components/schemas/OpaqueId' }
+        artifactVersionId: { type: string, minLength: 1, maxLength: 384 }
+        destinationId: { type: string, minLength: 1, maxLength: 384 }
+    DevExportResult:
+      type: object
+      required: [requestId, artifactId, artifactVersionId, artifactDigest, destinationId, status, acknowledgedBytes, destinationConfirmed, destinationReceiptRef, replayed, scope]
+      properties:
+        requestId: { $ref: '#/components/schemas/RequestId' }
+        artifactId: { $ref: '#/components/schemas/OpaqueId' }
+        artifactVersionId: { type: string }
+        artifactDigest: { $ref: '#/components/schemas/Sha256' }
+        destinationId: { type: string }
+        status: { type: string, enum: [QUEUED, SENT, DESTINATION_CONFIRMED, OUTCOME_UNKNOWN, REVOKED, UNAVAILABLE] }
+        acknowledgedBytes: { type: integer, minimum: 0 }
+        destinationConfirmed: { type: boolean }
+        destinationReceiptRef: { type: [string, 'null'] }
+        replayed: { type: boolean }
+        ackState: { type: string, enum: [DELIVERED, NOT_DELIVERED, UNKNOWN] }
+        failure: { type: [string, 'null'] }
+        destinationReceivedBytes: { type: [integer, 'null'], minimum: 0 }
+        observedAt: { type: [string, 'null'], format: date-time }
+        scope: { const: DEV_ONLY }
+    DevJobCancellationRequest:
+      type: object
+      additionalProperties: false
+      required: [requestId]
+      properties:
+        requestId: { $ref: '#/components/schemas/RequestId' }
+        expectedVersion: { type: integer, minimum: 1, maximum: 9007199254740991 }
+    DevJobCancellationResult:
+      type: object
+      required: [schemaVersion, scope, requestId, outcome, replayed, job]
+      properties:
+        schemaVersion: { const: media.dev.job-cancellation-result.v1 }
+        scope: { const: DEV_ONLY }
+        requestId: { $ref: '#/components/schemas/RequestId' }
+        outcome: { type: string, enum: [CONFIRMED, REQUESTED_UNCONFIRMED, OUTCOME_UNKNOWN, UNSUPPORTED, ALREADY_TERMINAL, TERMINAL_RACE] }
+        replayed: { type: boolean }
+        job:
+          type: object
+          required: [jobId, requestId, tenantId, principalId, artifactId, jobType, providerId, status, createdAt, startedAt, completedAt, result, failureCode, version, expectedArtifactVersion, requestFingerprint]
+          properties:
+            jobId: { $ref: '#/components/schemas/OpaqueId' }
+            requestId: { $ref: '#/components/schemas/RequestId' }
+            tenantId: { type: string }
+            principalId: { type: string }
+            artifactId: { type: string }
+            jobType: { type: string, enum: [TRANSCODE, SPEECH_TO_TEXT, TEXT_TO_SPEECH, VISION, MULTIMODAL] }
+            providerId: { type: [string, 'null'] }
+            status: { type: string, enum: [ACCEPTED, RUNNING, COMPLETED, FAILED, CANCELLED, OUTCOME_UNKNOWN] }
+            createdAt: { type: string, format: date-time }
+            startedAt: { type: [string, 'null'], format: date-time }
+            completedAt: { type: [string, 'null'], format: date-time }
+            result: { type: object, additionalProperties: true }
+            failureCode: { type: [string, 'null'] }
+            version: { type: integer, minimum: 1 }
+            expectedArtifactVersion: { type: string }
+            requestFingerprint: { type: string }
+    DevSimulationResult:
+      type: object
+      required: [schema, scope, simulationId, outcome, result, resultArtifact, lineage, replayed, note]
+      properties:
+        schema: { const: media.dev.simulation.v1 }
+        scope: { const: DEV_ONLY }
+        simulationId: { $ref: '#/components/schemas/OpaqueId' }
+        outcome: { type: string, enum: [COMPLETED, ABSTAINED] }
+        result: { type: object, additionalProperties: true }
+        resultArtifact: { $ref: '#/components/schemas/ArtifactReference' }
+        plotArtifact: { $ref: '#/components/schemas/ArtifactReference' }
+        videoArtifact: { $ref: '#/components/schemas/ArtifactReference' }
+        lineage: { type: object, required: [simulationSchema, scope, kind, requestId, scenarioSha256, outcome, evidenceClass, productionEligible, inputs], properties: { simulationSchema: { const: media.dev.simulation.v1 }, scope: { const: DEV_ONLY }, kind: { const: SIMULATION_RESULT }, requestId: { $ref: '#/components/schemas/RequestId' }, scenarioSha256: { $ref: '#/components/schemas/Sha256' }, outcome: { type: string, enum: [COMPLETED, ABSTAINED] }, evidenceClass: { const: SIMULATED_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE }, productionEligible: { const: false }, inputs: { type: array, minItems: 1 } } }
+        replayed: { type: boolean }
+        note: { type: string }
+    DevCreativeOutput:
+      type: object
+      required: [schema, outputId, artifact, lineage, replayed, scope, note]
+      properties:
+        schema: { const: media.dev.creative-output.v1 }
+        outputId: { $ref: '#/components/schemas/OpaqueId' }
+        artifact: { $ref: '#/components/schemas/ArtifactReference' }
+        lineage: { type: object, required: [kind, engine, requestId], properties: { kind: { type: string, enum: [AUDIO_REPAIR_CANDIDATE, SIMULATED_OUTPUT_NOT_MEASUREMENT, SPATIAL_GLB_EXPORT] }, engine: { type: string }, requestId: { $ref: '#/components/schemas/RequestId' } } }
+        replayed: { type: boolean }
+        scope: { const: DEV_ONLY }
+        note: { type: string }
+    Error:
+      type: object
+      description: Standard Media HTTP error emitted by MediaHttpHandler.
+      additionalProperties: false
+      required: [error, meta]
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required: [code, message, retryable, evidenceRefs, actionRefs]
+          properties:
+            code: { type: string }
+            message: { type: string }
+            retryable: { type: boolean }
+            evidenceRefs: { type: array, items: { type: string } }
+            actionRefs: { type: array, items: { type: string } }
+            details: { type: object, additionalProperties: true }
+        meta:
+          type: object
+          additionalProperties: false
+          required: [requestId, correlationId, timestamp, apiVersion]
+          properties:
+            requestId: { $ref: '#/components/schemas/RequestId' }
+            correlationId: { $ref: '#/components/schemas/RequestId' }
+            timestamp: { type: string, format: date-time }
+            apiVersion: { const: '1.0.0' }

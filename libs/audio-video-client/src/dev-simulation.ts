@@ -40,6 +40,7 @@ export interface DevSimulation extends Readonly<Record<string, unknown>> {
   readonly result: Readonly<Record<string, unknown>>;
   readonly resultArtifact: DevSimulationArtifact;
   readonly plotArtifact?: DevSimulationArtifact;
+  readonly videoArtifact?: DevSimulationArtifact;
   readonly lineage: DevSimulationLineage;
   readonly replayed: boolean;
   readonly note: string;
@@ -104,13 +105,20 @@ function parseSimulation(input: unknown, expectedId?: string): DevSimulation {
 
   const plot = value.plotArtifact === undefined
     ? undefined : parseArtifact(value.plotArtifact, "plotArtifact", "image/png");
+  const video = value.videoArtifact === undefined
+    ? undefined : parseArtifact(value.videoArtifact, "videoArtifact", "video/mp4");
   const siblings = lineageValue.siblings === undefined ? undefined : record(lineageValue.siblings, "lineage.siblings");
   const plotRef = siblings?.plot === undefined ? undefined : record(siblings.plot, "lineage.siblings.plot");
+  const videoRef = siblings?.video === undefined ? undefined : record(siblings.video, "lineage.siblings.video");
   if ((plot === undefined && plotRef !== undefined)
     || (plot !== undefined && (outcome !== "COMPLETED" || plotRef === undefined
       || plotRef.artifactId !== plot.artifactId || plotRef.artifactVersionId !== plot.artifactVersionId
-      || plotRef.sha256 !== plot.sha256))) {
-    throw new TypeError("Canonical Media DEV_ONLY simulation plot is not bound to its exact result sibling version.");
+      || plotRef.sha256 !== plot.sha256))
+    || (video === undefined && videoRef !== undefined)
+    || (video !== undefined && (outcome !== "COMPLETED" || videoRef === undefined
+      || videoRef.artifactId !== video.artifactId || videoRef.artifactVersionId !== video.artifactVersionId
+      || videoRef.sha256 !== video.sha256))) {
+    throw new TypeError("Canonical Media DEV_ONLY simulation media outputs are not bound to their exact result sibling versions.");
   }
 
   return {
@@ -121,6 +129,7 @@ function parseSimulation(input: unknown, expectedId?: string): DevSimulation {
     result,
     resultArtifact,
     ...(plot === undefined ? {} : { plotArtifact: plot }),
+    ...(video === undefined ? {} : { videoArtifact: video }),
     lineage,
     replayed: value.replayed,
     note: text(value.note, "note", 2_000),

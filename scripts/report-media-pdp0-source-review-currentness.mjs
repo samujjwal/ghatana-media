@@ -20,6 +20,7 @@ const materialSemanticReview = [
     criterionId: 'P0-01',
     disposition: 'MATERIAL_SOURCE_DELTA_REVIEW_REQUIRED',
     deltas: [
+      {sourceRef: '.product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability', decisionRef: '.product-experience/decision-log.md#PXD-231', meaning: 'Resolves exactly three AUD-SPEC-020 surface/channel applicability cells while preserving the 56-identity denominator.'},
       {sourceRef: '.product-experience/pdp-0-product-truth/capabilities.yaml#media.recipe.specification.compile', decisionRef: '.product-experience/decision-log.md#PXD-226', meaning: 'Adds a bounded, reviewable schema-migration candidate to the existing compile capability; ordinary compile and source preservation remain unchanged.'},
       {sourceRef: '.product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalkExtensions', decisionRef: '.product-experience/decision-log.md#PXD-227', meaning: 'Adds the exact compile quality-applicability extension; measurement and qualification remain not evaluated.'},
       {sourceRef: '.product-experience/pdp-0-product-truth/quality-policy.yaml#ownerQualityApplicabilityCrosswalkExtensions', decisionRef: '.product-experience/decision-log.md#PXD-229', meaning: 'Adopts the source-defined applicability row while preserving the historical 462 quality rows.'},
@@ -53,7 +54,9 @@ const materialSemanticReview = [
       {sourceRef: '.product-experience/pdp-0-product-truth/requirements.yaml#MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases', decisionRef: '.product-experience/decision-log.md#PXD-226', meaning: 'Adds AC-15/16/17 to the source-bound recipe-template requirement.'},
     ],
     unresolvedFindingIds: ['P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231'],
-    unresolvedFindingDisposition: 'The 231 feature-family case semantic-fit rows remain open in the prior criterion review; PXD-231 resolves three surface applicability cells and does not resolve those rows.',
+    currentSourceSemanticFitRows: 230,
+    historicalFindingId: 'P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231',
+    unresolvedFindingDisposition: 'The prior criterion review retains historical aggregate ID P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231, while the current AQ traceability source counts 230 exact REVIEW_REQUIRED_PARENT_CASES_ARE_NOT_FEATURE_SPECIFIC rows. Reconcile the exact current row IDs in a source-review successor; keep all 230 open until owner disposition. PXD-231 resolves three surface applicability cells and does not resolve these semantic-fit rows.',
   },
 ];
 
@@ -161,7 +164,7 @@ export function buildMediaPdp0SourceReviewCurrentnessReport() {
       reviewMetadataRefreshCriteria: ['P0-05', 'P0-06'],
       otherPdp0CriterionBlockers: [
         {criterionId: 'P0-03', classification: 'DEFINITION_REVIEW_NOT_ESTABLISHED', owner: 'Media migration semantic owner and required independent migration reviewer', nextAction: 'Continue the exact migration semantic reconciliation under PDP-0; do not mark the definition criterion complete from direct source tests.'},
-        {criterionId: 'P0-07', classification: 'MATERIAL_DEFINITION_ROWS_OPEN', owner: 'Media PDP-0 Product Truth owner', nextAction: 'Keep all 231 feature-specific parent-case semantic-fit rows open until the owning PDP-0 source is updated and revalidated.'},
+        {criterionId: 'P0-07', classification: 'MATERIAL_DEFINITION_ROWS_OPEN', owner: 'Media PDP-0 Product Truth owner', nextAction: 'Reconcile the historical 231 finding suffix against the 230 current AQ traceability rows, then keep all 230 exact feature-specific parent-case semantic-fit rows open until the owning PDP-0 source is updated and revalidated.'},
         {criterionId: 'P0-08', classification: 'INDEPENDENT_ACCEPTANCE_NOT_PERFORMED', owner: 'Appointed independent Product Definition reviewer / acceptance owner', nextAction: 'Keep P0-010 NOT_PERFORMED; do not claim acceptance, closure, Build admission, or Delivery.'},
       ],
     },

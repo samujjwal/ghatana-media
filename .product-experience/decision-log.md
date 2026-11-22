@@ -3028,3 +3028,39 @@ source-current pins; and native PDP-0 readiness reports zero tasks before any
 **Decision:** `media.rules.manage` definition applicability is `APPLICABLE` for exactly these pairs: `media.surface.grpc.stt` via `media.channel.grpc-api`; `media.surface.integrations` via `media.channel.product-integration`; and `media.surface.recorder-orchestrator` via `media.channel.cli`. The protocol-neutral `media.channel.api` remains an umbrella inheriting the gRPC consumer reference; this decision adds no transport. PXD-188's mappings for other surfaces and channels, and its scoped exclusions, remain unchanged. No surface identity or denominator changes.
 
 This resolves definition scope only. It does not assert that a gRPC service, product integration, or CLI command is implemented, available, qualified, or admitted. PDP-1/2/3 contracts and experience remain their own downstream definitions.
+
+### PXD-232 — Select the seven source-derived DEV_ONLY API candidate operations
+
+**Authority:** Delegated technical product-owner decision for source-bounded development API definition. This decision selects the exact seven route/client pairs below for the B10 candidate contract. It is not a release authorization, production API admission, external delivery permission, implementation-completion status, lifecycle receipt, or independent review.
+
+**Source basis:** The existing route implementations are in `launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java`, `MediaDevDeliveryRoutes.java`, `MediaDevSimulationRoutes.java`, and `MediaDevCreativeOutputRoutes.java`; route permission identities are in `MediaDevOnlyRoutePermissions.java`; the exact TypeScript request/result projections are in the named `libs/audio-video-client/src/` clients. These are source-observed implementation contracts on `main`; they were not present as a seven-row canonical API/SDK crosswalk at the baseline.
+
+**Decision:** Define exactly these seven DEV_ONLY route operations and their one-to-one SDK methods:
+
+| API operation ID | HTTP method and path | SDK method |
+| --- | --- | --- |
+| `media.dev.http.createProjectRender` | `POST /dev/v1/projects/{projectId}/renders` | `MediaDevOnlyRenderExportClient.renderProject` |
+| `media.dev.http.getProjectRender` | `GET /dev/v1/projects/{projectId}/renders/{renderId}` | `MediaDevOnlyRenderExportClient.getRender` |
+| `media.dev.http.createExport` | `POST /dev/v1/exports` | `MediaDevOnlyRenderExportClient.createExport` |
+| `media.dev.http.getExport` | `GET /dev/v1/exports/{requestId}` | `MediaDevOnlyRenderExportClient.getExport` |
+| `media.dev.http.cancelLocalJob` | `POST /dev/v1/jobs/{jobId}/cancel` | `MediaDevOnlyJobCancellationClient.cancelJob` |
+| `media.dev.http.getSimulation` | `GET /dev/v1/simulations/{simulationId}` | `MediaDevOnlySimulationClient.getSimulation` |
+| `media.dev.http.getCreativeOutput` | `GET /dev/v1/creative-outputs/{outputId}` | `MediaDevOnlyCreativeOutputClient.getCreativeOutput` |
+
+The candidate API contract must preserve exact request/response DTOs, host-derived tenant/principal scope, route permissions, immutable artifact/version binding, request identity/replay rules, typed negative outcomes, and operation-specific finality as source-defined. Simulation results remain simulated output, not measurement evidence. A returned export observation is confirmed only when its validated destination receipt sets `ackState=DELIVERED`; pending or ambiguous results remain nonfinal/UNKNOWN. Local cancellation is confirmed only by `outcome=CONFIRMED` and a CANCELLED job readback.
+
+**Explicit exclusions:** This selection does not add the artifact-content helper route, other render/export/cancellation methods, simulation or creative-output POST routes, route siblings, or any other `/dev/v1` endpoint to the seven-operation count. Their existing source behavior is not promoted, aliased, or changed by this decision. The production `config/route-manifest.json` and `contracts/openapi/media.yaml` operation population and all lifecycle/phase denominators remain unchanged.
+
+**Acceptance boundary:** The exact seven-row contract and PDP-2/PDP-3 crosswalk may be authored and checked as a candidate-only source increment. All seven remain `DEV_ONLY`, loopback/development-profile scoped, and `NOT_ADMITTED` to production. No external delivery, deployment, qualification, implementation-complete status, PDP status, phase status, denominator, closure, or proof claim is authorized here.
+
+### PXD-233 — Bind the source-backed DEV_ONLY CLI cancellation claim
+
+**Authority:** Technical product-owner source decision under the user's explicit direction to own this product/repository and the existing delegated Media source-owner authority on `media.channel.cli`. This binds one current PDP-0 source claim. It is not independent acceptance, provider qualification, channel admission, or release authority.
+
+**Exact scope:** `.product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/remoteCancellationRule/scopeStatus` currently states: `OWNER_DEFINED_CLI_COMMAND_SEMANTICS; a host-configured source-bound CLI command now exists; production-host identity and qualification, provider-stop execution, and runtime admission remain NOT_ADMITTED.`
+
+**Source basis:** At `ghatana-media/main@1fac6efa7`, `libs/audio-video-client/package.json` exports `ghatanamedia-api-dev` (SHA-256 `96ea44718ad074c1a9e79d59d1cbaa53187f8a650ce2fa537e60e93ec472a754`); `src/cli-dev.ts` dispatches its entrypoint to `runLocalDevelopmentCli` (SHA-256 `35f29074f99e84b6eea4427e9addfe53ed0a29075cba7dcf64d935e3a03db06b`); and `src/cli.ts` defines the loopback-only local-development `job cancel` command and request binding (SHA-256 `34f561247ba832257793be62a9015a99657f91c28ea067e187d201fc8fe9778b`). The PDP-3 local-development command registry and source crosswalk bind that command to the DEV_ONLY cancellation route; PXD-232 separately selects the exact `POST /dev/v1/jobs/{jobId}/cancel` API candidate. `tests/media-cli-local-development-command-source.test.mjs` passed 1/1; the focused `ghatanamedia-api-dev local-development executable` tests in `libs/audio-video-client/src/cli.test.ts` passed 19 tests (63 unrelated cases deselected).
+
+**Decision:** The exact `scopeStatus` sentence above is source-accurate for the host-configured local-development CLI. Bind it to this decision using `sourceDecisionRef: .product-experience/decision-log.md#PXD-233`. The command requires a loopback endpoint and short-lived DEV_ONLY token scoped to the exact dev profile, tenant, principal, and permission; the host verifies token signature and current authority. Its explicit `job cancel` invocation uses a stable request ID and the selected version fence. Ctrl-C only interrupts local waiting; a durable cancellation-request receipt does not prove provider termination or job finality, and ambiguous results reconcile the same request identity.
+
+**Negative acceptance criteria:** This decision does not admit a user-facing/production Media CLI, production host identity, provider-stop capability, non-local endpoint, live external effect, or runtime. Keep `executionAdmission: NOT_ADMITTED`, CLI `runtimeAvailability: UNKNOWN`, and the existing non-admission/qualification states unchanged. No production or independent-owner approval is inferred from code or the focused tests.

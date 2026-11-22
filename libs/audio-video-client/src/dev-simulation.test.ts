@@ -96,6 +96,44 @@ describe("MediaDevOnlySimulationClient", () => {
     expect(headers.get("X-Principal-Id")).toBe("principal-1");
   });
 
+  it("preserves a registered MP4 sibling only when its immutable lineage matches", async () => {
+    const videoSha = "c".repeat(64);
+    const body = simulationResponse({
+      videoArtifact: {
+        artifactId: "video-1",
+        artifactVersionId: `sha256:${videoSha}`,
+        contentType: "video/mp4",
+        sizeBytes: 128,
+        sha256: videoSha,
+        artifactPath: "/api/v1/artifacts/video-1",
+      },
+      lineage: {
+        ...simulationResponse().lineage,
+        siblings: {
+          plot: { artifactId: "plot-1", artifactVersionId: `sha256:${pngSha}`, sha256: pngSha },
+          video: { artifactId: "video-1", artifactVersionId: `sha256:${videoSha}`, sha256: videoSha },
+        },
+      },
+    });
+    const client = new MediaDevOnlySimulationClient(config(async () => json(body)));
+    await expect(client.getSimulation("simulation-1")).resolves.toMatchObject({
+      videoArtifact: { artifactId: "video-1", artifactVersionId: `sha256:${videoSha}`, contentType: "video/mp4" },
+    });
+
+    const mismatched = {
+      ...body,
+      lineage: {
+        ...body.lineage as Record<string, unknown>,
+        siblings: {
+          ...(body.lineage as Record<string, unknown>).siblings as Record<string, unknown>,
+          video: { artifactId: "video-1", artifactVersionId: `sha256:${"d".repeat(64)}`, sha256: "d".repeat(64) },
+        },
+      },
+    };
+    await expect(new MediaDevOnlySimulationClient(config(async () => json(mismatched)))
+      .getSimulation("simulation-1")).rejects.toThrow(/exact result sibling versions/u);
+  });
+
   it("preserves the server's typed stale-version conflict", async () => {
     const client = new MediaDevOnlySimulationClient(config(async (input) => {
       if (String(input).endsWith("/simulations/simulation-1")) return json(simulationResponse());
@@ -121,7 +159,7 @@ describe("MediaDevOnlySimulationClient", () => {
         siblings: { plot: { artifactId: "plot-1", artifactVersionId: `sha256:${"c".repeat(64)}`, sha256: "c".repeat(64) } },
       },
     }))));
-    await expect(client.getSimulation("simulation-1")).rejects.toThrow(/exact result sibling version/u);
+    await expect(client.getSimulation("simulation-1")).rejects.toThrow(/exact result sibling versions/u);
   });
 
   it("rejects PNG bytes whose digest differs from the immutable version", async () => {

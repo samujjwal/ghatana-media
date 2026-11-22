@@ -2,6 +2,8 @@ package com.ghatana.media.provider.aws;
 
 import com.ghatana.media.runtime.MediaLifecycleEvent;
 import com.ghatana.media.runtime.MediaLifecycleEventPublisher;
+import com.ghatana.media.runtime.MediaLifecyclePublicationReceipt;
+import com.ghatana.media.runtime.MediaLifecyclePublicationOutcomeUnknownException;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +22,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.DoubleSupplier;
+import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -95,7 +98,11 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
                 verifyRowPayloadTenantMismatchFailsBeforePublish();
                 verifyRowPayloadOccurrenceMismatchFailsBeforePublish();
                 verifyConcurrentClaimFencing();
+                verifyTenantCursorNeverMovesBackward();
                 verifyExpiredClaimRecovery();
+                verifyExpiredClaimBeforePostReadsBackThenPublishes();
+                verifyPriorAttemptReadsBackBeforePublish();
+                verifyAmbiguousAppendIsNotRetried();
                 verifyExpiredOwnerCannotAcknowledgeWithoutReplacement();
                 verifyInvalidLimitRejectedBeforePublisherReadinessCheck();
                 verifyClaimTokenOverflowFailsClosed();
@@ -317,6 +324,22 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
             first.close();
             second.close();
         }
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var query = connection.prepareStatement(
+                "SELECT published_at,event_plane_stored_event_id,event_plane_stream_id,event_plane_offset "
+                        + "FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+            query.setString(1, "media:test:outbox-concurrent");
+            try (var row = query.executeQuery()) {
+                assertThat(row.next()).isTrue();
+                assertThat(row.getLong("published_at")).isPositive();
+                assertThat(row.getString("event_plane_stored_event_id")).isEqualTo(
+                        MediaLifecyclePublicationReceipt.stableStoredEventId("media:test:outbox-concurrent"));
+                assertThat(row.getString("event_plane_stream_id")).isEqualTo("media-lifecycle");
+                assertThat(row.getString("event_plane_offset")).isEqualTo("1");
+            }
+        } finally {
+            state.release();
+        }
     }
 
     private static void verifyExpiredClaimRecovery() throws Exception {
@@ -336,17 +359,215 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
                     }), 10));
             assertThat(publishing.await(5, TimeUnit.SECONDS)).isTrue();
             expireClaim("media:test:outbox-expired-claim");
-            assertThat(recoveryOwner.publishPending(publisher(event -> brokerAccepted.add(event.eventId())), 10)
-                    .published()).isEqualTo(1);
+            AtomicInteger readbacks = new AtomicInteger();
+            assertThat(recoveryOwner.publishPending(reconcilingPublisher(event -> {
+                brokerAccepted.add(event.eventId()); // Would expose an unsafe duplicate POST.
+            }, true, readbacks), 10).published()).isEqualTo(1);
             release.countDown();
             assertThat(oldBatch.get(5, TimeUnit.SECONDS).published()).isZero();
-            assertThat(brokerAccepted).containsExactly("media:test:outbox-expired-claim",
-                    "media:test:outbox-expired-claim");
+            assertThat(brokerAccepted).containsExactly("media:test:outbox-expired-claim");
+            assertThat(readbacks).hasValue(1);
         } finally {
             release.countDown();
             worker.shutdownNow();
             expiredOwner.close();
             recoveryOwner.close();
+        }
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var query = connection.prepareStatement(
+                "SELECT attempts,published_at,dead_lettered_at,dead_letter_reason,claim_owner "
+                        + "FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+            query.setString(1, "media:test:outbox-expired-claim");
+            try (var row = query.executeQuery()) {
+                assertThat(row.next()).isTrue();
+                assertThat(row.getInt("attempts")).isEqualTo(1);
+                assertThat(row.getLong("published_at")).isPositive();
+                assertThat(row.getObject("dead_lettered_at")).isNull();
+                assertThat(row.getString("dead_letter_reason")).isNull();
+                assertThat(row.getString("claim_owner")).isNull();
+            }
+        } finally {
+            state.release();
+        }
+        state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var delete = connection.prepareStatement(
+                "DELETE FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+            delete.setString(1, "media:test:outbox-expired-claim");
+            assertThat(delete.executeUpdate()).isEqualTo(1);
+        } finally {
+            state.release();
+        }
+    }
+
+    private static void verifyExpiredClaimBeforePostReadsBackThenPublishes() throws Exception {
+        String eventId = "media:test:outbox-crash-before-post";
+        insertEvent(eventId);
+        simulateExpiredClaim(eventId);
+        AtomicInteger readbacks = new AtomicInteger();
+        AtomicInteger providerEffects = new AtomicInteger();
+        var recovery = source(3, Duration.ofSeconds(2), Duration.ofMillis(50), Duration.ofMillis(200));
+        try {
+            assertThat(recovery.publishPending(reconcilingPublisher(event -> providerEffects.incrementAndGet(),
+                    false, readbacks), 1).published()).isEqualTo(1);
+        } finally {
+            recovery.close();
+        }
+        assertThat(readbacks).hasValue(1);
+        assertThat(providerEffects).hasValue(1);
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var query = connection.prepareStatement(
+                "SELECT published_at,event_plane_offset FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+            query.setString(1, eventId);
+            try (var row = query.executeQuery()) {
+                assertThat(row.next()).isTrue();
+                assertThat(row.getLong("published_at")).isPositive();
+                assertThat(row.getString("event_plane_offset")).isEqualTo("1");
+            }
+        } finally {
+            state.release();
+        }
+    }
+
+    private static void verifyPriorAttemptReadsBackBeforePublish() throws Exception {
+        String eventId = "media:test:outbox-prior-attempt";
+        insertEvent(eventId);
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var update = connection.prepareStatement(
+                "UPDATE media_processing_lifecycle_outbox SET attempts=1 WHERE event_id=?")) {
+            update.setString(1, eventId);
+            assertThat(update.executeUpdate()).isEqualTo(1);
+        } finally {
+            state.release();
+        }
+
+        AtomicInteger readbacks = new AtomicInteger();
+        AtomicInteger providerEffects = new AtomicInteger();
+        var source = source(3, Duration.ofSeconds(2), Duration.ofMillis(50), Duration.ofMillis(200));
+        try {
+            assertThat(source.publishPending(reconcilingPublisher(
+                    event -> providerEffects.incrementAndGet(), false, readbacks), 1).published()).isEqualTo(1);
+        } finally {
+            source.close();
+        }
+        assertThat(readbacks).hasValue(1);
+        assertThat(providerEffects).hasValue(1);
+        state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var delete = connection.prepareStatement(
+                "DELETE FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+            delete.setString(1, eventId);
+            assertThat(delete.executeUpdate()).isEqualTo(1);
+        } finally {
+            state.release();
+        }
+    }
+
+    private static void verifyTenantCursorNeverMovesBackward() throws Exception {
+        String firstEventId = "media:test:cursor-a";
+        String secondEventId = "media:test:cursor-b";
+        insertEvent(firstEventId);
+        insertEvent(secondEventId);
+        CountDownLatch firstPublished = new CountDownLatch(1);
+        CountDownLatch releaseFirst = new CountDownLatch(1);
+        var firstSource = source(3, Duration.ofSeconds(2), Duration.ofMillis(50), Duration.ofMillis(200));
+        var secondSource = source(3, Duration.ofSeconds(2), Duration.ofMillis(50), Duration.ofMillis(200));
+        ExecutorService worker = Executors.newSingleThreadExecutor();
+        try {
+            Future<PostgresqlMediaLifecycleOutboxSource.BatchResult> firstBatch = worker.submit(
+                    () -> firstSource.publishPending(publisherWithOffset(event -> {
+                        if (event.eventId().equals(firstEventId)) {
+                            firstPublished.countDown();
+                            if (!releaseFirst.await(5, TimeUnit.SECONDS)) {
+                                throw new IllegalStateException("publisher timed out");
+                            }
+                        }
+                    }, event -> event.eventId().equals(firstEventId) ? "6" : "9"), 1));
+            assertThat(firstPublished.await(5, TimeUnit.SECONDS)).isTrue();
+            assertThat(secondSource.publishPending(publisherWithOffset(event -> { },
+                    event -> event.eventId().equals(secondEventId) ? "8" : "7"), 10).published()).isEqualTo(1);
+            releaseFirst.countDown();
+            assertThat(firstBatch.get(5, TimeUnit.SECONDS).published()).isEqualTo(1);
+        } finally {
+            releaseFirst.countDown();
+            worker.shutdownNow();
+            firstSource.close();
+            secondSource.close();
+        }
+
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var query = connection.prepareStatement(
+                "SELECT last_offset,last_stream_id,last_event_id FROM "
+                        + "media_processing_lifecycle_event_plane_cursor WHERE tenant_id=?")) {
+            query.setString(1, "tenant-a");
+            try (var row = query.executeQuery()) {
+                assertThat(row.next()).isTrue();
+                assertThat(row.getString("last_offset")).isEqualTo("8");
+                assertThat(row.getString("last_stream_id")).isEqualTo("media-lifecycle");
+                assertThat(row.getString("last_event_id")).isEqualTo(secondEventId);
+            }
+        } finally {
+            state.release();
+        }
+
+        state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var delete = connection.prepareStatement(
+                "DELETE FROM media_processing_lifecycle_outbox WHERE event_id IN (?,?)")) {
+            delete.setString(1, firstEventId);
+            delete.setString(2, secondEventId);
+            assertThat(delete.executeUpdate()).isEqualTo(2);
+        } finally {
+            state.release();
+        }
+        state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var delete = connection.prepareStatement(
+                "DELETE FROM media_processing_lifecycle_event_plane_cursor WHERE tenant_id=?")) {
+            delete.setString(1, "tenant-a");
+            assertThat(delete.executeUpdate()).isEqualTo(1);
+        } finally {
+            state.release();
+        }
+    }
+
+    private static void verifyAmbiguousAppendIsNotRetried() throws Exception {
+        String eventId = "media:test:outbox-append-unknown";
+        insertEvent(eventId);
+        AtomicInteger publisherCalls = new AtomicInteger();
+        MediaLifecycleEventPublisher publisher = publisher(event -> {
+            publisherCalls.incrementAndGet();
+            throw new MediaLifecyclePublicationOutcomeUnknownException("response lost after append");
+        });
+        var source = source(3, Duration.ofSeconds(2), Duration.ofMillis(50), Duration.ofMillis(200));
+        try {
+            assertThat(source.publishPending(publisher, 1).failed()).isEqualTo(1);
+            assertThat(source.publishPending(publisher, 1).attempted()).isZero();
+            assertThat(publisherCalls).hasValue(1);
+        } finally {
+            source.close();
+        }
+
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var query = connection.prepareStatement(
+                "SELECT attempts,published_at,dead_lettered_at,dead_letter_reason,last_error,claim_owner "
+                        + "FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+            query.setString(1, eventId);
+            try (var row = query.executeQuery()) {
+                assertThat(row.next()).isTrue();
+                assertThat(row.getInt("attempts")).isEqualTo(1);
+                assertThat(row.getObject("published_at")).isNull();
+                assertThat(row.getLong("dead_lettered_at")).isPositive();
+                assertThat(row.getString("dead_letter_reason")).isEqualTo("OUTCOME_UNKNOWN");
+                assertThat(row.getString("last_error")).contains("MediaLifecyclePublicationOutcomeUnknownException");
+                assertThat(row.getString("claim_owner")).isNull();
+            }
+        } finally {
+            state.release();
+        }
+        state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var delete = connection.prepareStatement(
+                "DELETE FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+            delete.setString(1, eventId);
+            assertThat(delete.executeUpdate()).isEqualTo(1);
+        } finally {
+            state.release();
         }
     }
 
@@ -362,6 +583,20 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
             state.release();
         }
 
+    }
+
+    private static void simulateExpiredClaim(String eventId) throws Exception {
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var update = connection.prepareStatement(
+                "UPDATE media_processing_lifecycle_outbox SET claim_owner=?,claim_token=1,claim_expires_at=? "
+                        + "WHERE event_id=? AND published_at IS NULL")) {
+            update.setString(1, "crashed-worker");
+            update.setLong(2, System.currentTimeMillis() - 1);
+            update.setString(3, eventId);
+            assertThat(update.executeUpdate()).isEqualTo(1);
+        } finally {
+            state.release();
+        }
     }
 
     private static void verifyExpiredOwnerCannotAcknowledgeWithoutReplacement() throws Exception {
@@ -418,7 +653,9 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
         insertEvent(eventId);
         var source = source(3, Duration.ofSeconds(2), Duration.ofMillis(250), Duration.ofMillis(500),
                 () -> Math.nextDown(1.0));
-        MediaLifecycleEventPublisher poison = publisher(event -> { throw new IllegalStateException("poison"); });
+        AtomicInteger readbacks = new AtomicInteger();
+        MediaLifecycleEventPublisher poison = reconcilingPublisher(
+                event -> { throw new IllegalStateException("poison"); }, false, readbacks);
         try {
             assertThat(source.publishPending(poison, 10).failed()).isEqualTo(1);
             assertThat(source.publishPending(poison, 10).attempted()).isZero();
@@ -444,6 +681,7 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
         } finally {
             state.release();
         }
+        assertThat(readbacks).hasValue(2);
     }
 
     private static void verifyClaimTokenOverflowFailsClosed() throws Exception {
@@ -632,6 +870,11 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
     private interface PublishAction { void publish(MediaLifecycleEvent event) throws Exception; }
 
     private static MediaLifecycleEventPublisher publisher(PublishAction action) {
+        return publisherWithOffset(action, event -> "1");
+    }
+
+    private static MediaLifecycleEventPublisher publisherWithOffset(
+            PublishAction action, Function<MediaLifecycleEvent, String> offsetForEvent) {
         return new MediaLifecycleEventPublisher() {
             @Override public String publisherId() { return "test-publisher"; }
             @Override public boolean ready() { return true; }
@@ -640,6 +883,43 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
                 try { action.publish(event); }
                 catch (RuntimeException failure) { throw failure; }
                 catch (Exception failure) { throw new IllegalStateException("test publisher failed", failure); }
+            }
+            @Override public MediaLifecyclePublicationReceipt publishWithReceipt(MediaLifecycleEvent event) {
+                publish(event);
+                return new MediaLifecyclePublicationReceipt(event.eventId(),
+                        MediaLifecyclePublicationReceipt.stableStoredEventId(event.eventId()),
+                        "media-lifecycle", offsetForEvent.apply(event));
+            }
+        };
+    }
+
+    private static MediaLifecycleEventPublisher reconcilingPublisher(
+            PublishAction action, boolean priorEventFound, AtomicInteger readbacks) {
+        return new MediaLifecycleEventPublisher() {
+            @Override public String publisherId() { return "test-reconciling-publisher"; }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public void publish(MediaLifecycleEvent event) {
+                try { action.publish(event); }
+                catch (RuntimeException failure) { throw failure; }
+                catch (Exception failure) { throw new IllegalStateException("test publisher failed", failure); }
+            }
+            @Override public MediaLifecyclePublicationReceipt publishWithReceipt(MediaLifecycleEvent event) {
+                return publishWithReceipt(event, false);
+            }
+            @Override public MediaLifecyclePublicationReceipt publishWithReceipt(
+                    MediaLifecycleEvent event, boolean exactReadbackRequired) {
+                if (exactReadbackRequired) {
+                    readbacks.incrementAndGet();
+                    if (priorEventFound) return receipt(event);
+                }
+                publish(event);
+                return receipt(event);
+            }
+            private MediaLifecyclePublicationReceipt receipt(MediaLifecycleEvent event) {
+                return new MediaLifecyclePublicationReceipt(event.eventId(),
+                        MediaLifecyclePublicationReceipt.stableStoredEventId(event.eventId()),
+                        "media-lifecycle", "1");
             }
         };
     }

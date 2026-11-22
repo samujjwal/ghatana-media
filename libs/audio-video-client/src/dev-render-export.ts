@@ -33,6 +33,7 @@ export interface DevRenderRequest {
 }
 
 export interface DevRenderResult {
+  readonly scope: "DEV_ONLY";
   readonly renderId: string;
   readonly artifact: {
     readonly artifactId: string;
@@ -40,6 +41,7 @@ export interface DevRenderResult {
     readonly sha256: string;
     readonly contentType: string;
     readonly sizeBytes: number;
+    readonly artifactPath: string;
   };
   readonly replayed: boolean;
   readonly lineage: DevProjectRenderLineage;
@@ -82,6 +84,7 @@ export interface DevExportRequest {
 }
 
 export interface DevExportResult {
+  readonly scope: "DEV_ONLY";
   readonly requestId: string;
   readonly artifactId: string;
   readonly artifactVersionId: string;
@@ -169,8 +172,10 @@ function parseRender(input: unknown, projectId: string, expected: Partial<DevRen
   const sha256 = text(artifact.sha256, "render sha256", 64);
   const contentType = text(artifact.contentType, "render content type", 127);
   const artifactVersionId = text(artifact.artifactVersionId, "render artifact version", 384);
+  const artifactPath = text(artifact.artifactPath, "render artifact path", 512);
   if (renderId !== artifactId || !OPAQUE_ID.test(artifactId) || !SHA256.test(sha256)
     || artifactVersionId !== `sha256:${sha256}`
+    || artifactPath !== `/api/v1/artifacts/${artifactId}`
     || !Object.values(RENDER_CONTENT_TYPES).includes(contentType)
     || !Number.isSafeInteger(artifact.sizeBytes) || (artifact.sizeBytes as number) < 1
     || (expectedRenderId !== undefined && renderId !== expectedRenderId)) {
@@ -211,8 +216,9 @@ function parseRender(input: unknown, projectId: string, expected: Partial<DevRen
     engine,
   };
   return {
+    scope: "DEV_ONLY",
     renderId,
-    artifact: { artifactId, artifactVersionId, sha256, contentType, sizeBytes: artifact.sizeBytes as number },
+    artifact: { artifactId, artifactVersionId, sha256, contentType, sizeBytes: artifact.sizeBytes as number, artifactPath },
     replayed: value.replayed,
     lineage: summary,
   };
@@ -248,6 +254,7 @@ function parseExport(input: unknown, expected: Partial<DevExportRequest>, httpSt
     throw new TypeError("Canonical Media DEV_ONLY export confirmation contradicts its status or receipt.");
   }
   const result: DevExportResult = {
+    scope: "DEV_ONLY",
     requestId: text(value.requestId, "export request id", 128),
     artifactId: text(value.artifactId, "export artifact id"),
     artifactVersionId: text(value.artifactVersionId, "export artifact version"),

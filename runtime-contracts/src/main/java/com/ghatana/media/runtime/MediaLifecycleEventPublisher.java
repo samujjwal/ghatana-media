@@ -13,5 +13,18 @@ public interface MediaLifecycleEventPublisher extends AutoCloseable {
     boolean ready();
     boolean productionEligible();
     void publish(MediaLifecycleEvent event);
+    default MediaLifecyclePublicationReceipt publishWithReceipt(MediaLifecycleEvent event) {
+        publish(event);
+        throw new MediaLifecyclePublicationOutcomeUnknownException(
+                "Lifecycle publisher did not return an exact durable append receipt");
+    }
+    default MediaLifecyclePublicationReceipt publishWithReceipt(
+            MediaLifecycleEvent event, boolean exactReadbackRequired) {
+        if (exactReadbackRequired) {
+            throw new MediaLifecyclePublicationOutcomeUnknownException(
+                    "Lifecycle publisher cannot reconcile the prior append before replay");
+        }
+        return publishWithReceipt(event);
+    }
     @Override default void close() { }
 }
