@@ -815,6 +815,39 @@ class ProjectTimelineEngineTest {
     }
 
     @Test
+    void editRejectsUnderreportedIteratorAtBoundWithoutCommitting() {
+        AtomicInteger visited = new AtomicInteger();
+        ProjectTimelineEngine engine = engine();
+        Created created = engine.createProject(OWNER, "workspace-a", "Cut", "create-bounded-edit");
+        Revision timeline = createTimeline(engine, created, "timeline-bounded-edit");
+        List<ProjectTimelineEngine.Edit> underreported = new AbstractList<>() {
+            @Override public ProjectTimelineEngine.Edit get(int index) {
+                throw new UnsupportedOperationException("iterator is authoritative");
+            }
+
+            @Override public int size() { return 1; }
+
+            @Override public Iterator<ProjectTimelineEngine.Edit> iterator() {
+                return new Iterator<>() {
+                    @Override public boolean hasNext() { return true; }
+                    @Override public ProjectTimelineEngine.Edit next() {
+                        visited.incrementAndGet();
+                        return new ProjectTimelineEngine.AddScene(new Scene("scene-bounded", 0));
+                    }
+                };
+            }
+        };
+
+        assertThatThrownBy(() -> engine.edit(OWNER, created.project().projectId(),
+                "timeline-bounded-edit", timeline.revisionId(), underreported))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("10000 operation limit");
+        assertThat(visited).hasValue(10_000);
+        assertThat(engine.project(OWNER, created.project().projectId()).headRevisionId())
+                .isEqualTo(timeline.revisionId());
+    }
+
+    @Test
     void missingDurableAuthorityFailsClosedWithTypedNotAdmittedResult() {
         ProjectTimelineEngine engine = new ProjectTimelineEngine(new NotAdmittedProjectTimelineStore());
 

@@ -1,5 +1,6 @@
 package com.ghatana.media.launcher;
 
+import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
 import com.ghatana.media.runtime.MediaLifecycleEvent;
 import com.ghatana.media.runtime.MediaLifecycleEventPublisher;
 import tools.jackson.databind.JsonNode;
@@ -38,6 +39,58 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** @doc.type class @doc.purpose Verify active artifact, job, and stream lifecycle journeys */
 class MediaRuntimeActiveTest {
+
+    @Test
+    void localJobSubmissionDoesNotDirectlyPublishCanonicalAcceptedEvent() throws Exception {
+        var root = Files.createTempDirectory("media-runtime-local-accepted-event-");
+        byte[] content = "accepted-job".getBytes(StandardCharsets.UTF_8);
+        List<String> eventTypes = new ArrayList<>();
+        MediaLifecycleEventPublisher recorder = new MediaLifecycleEventPublisher() {
+            @Override public String publisherId() { return "test-recorder"; }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public void publish(MediaLifecycleEvent event) { eventTypes.add(event.eventType()); }
+        };
+        MediaRuntime runtime = uploadRuntime(root, recorder);
+        try {
+            var upload = runtime.beginUpload(new UploadRequest("tenant-job-event", "principal-a", "clip.bin",
+                    "application/octet-stream", content.length, sha256(content), "PUBLIC",
+                    Duration.ofMinutes(10), Map.of()), "accepted-event-upload");
+            appendChunks(runtime, "tenant-job-event", "principal-a", upload, content);
+            var artifact = runtime.completeUpload("tenant-job-event", "principal-a", upload.uploadId());
+            var job = runtime.submit(new ProcessingJobRequest("accepted-event-request", "tenant-job-event",
+                    "principal-a", "accepted-event-correlation", artifact.artifactId(), JobType.VISION,
+                    "local-diagnostic", Map.of()));
+            assertThat(job.status()).isIn(JobStatus.ACCEPTED, JobStatus.COMPLETED);
+            assertThat(eventTypes).contains("media.upload.started", "media.artifact.completed")
+                    .doesNotContain("media.job.accepted");
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void acceptedEventClassificationNeverFallsBelowInternalAndRejectsUnknownSources() {
+        assertThat(MediaRuntime.acceptedEventClassification("PUBLIC")).isEqualTo("INTERNAL");
+        assertThat(MediaRuntime.acceptedEventClassification("INTERNAL")).isEqualTo("INTERNAL");
+        assertThat(MediaRuntime.acceptedEventClassification("CONFIDENTIAL")).isEqualTo("CONFIDENTIAL");
+        assertThat(MediaRuntime.acceptedEventClassification("RESTRICTED")).isEqualTo("RESTRICTED");
+        assertThatThrownBy(() -> MediaRuntime.acceptedEventClassification("UNKNOWN"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> MediaRuntime.acceptedEventClassification(" "))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void productionRequiresAtomicAcceptedEventPersistenceWhileLocalDevelopmentMayUseLocalStore() {
+        var localStore = new LocalMediaRuntimeSupport.JobStore();
+
+        assertThatCode(() -> MediaRuntime.requireAtomicAcceptedLifecycleEventStore(localStore, false))
+                .doesNotThrowAnyException();
+        assertThatThrownBy(() -> MediaRuntime.requireAtomicAcceptedLifecycleEventStore(localStore, true))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("atomic accepted lifecycle event persistence");
+    }
 
     @Test
     void lifecycleEventsAreEmittedOnlyForAtomicUploadTransitions() throws Exception {
@@ -352,8 +405,10 @@ class MediaRuntimeActiveTest {
             assertThatThrownBy(() -> runtime.cancel("tenant-a", accepted.jobId()))
                     .isInstanceOf(SecurityException.class);
             assertThatThrownBy(() -> runtime.cancel("tenant-a", "principal-b", accepted.jobId()))
-                    .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessageContaining("not found");
+                    .isInstanceOf(MediaCapabilityNotAdmittedException.class)
+                    .hasMessageContaining("stable requestId and expected job version")
+                    .satisfies(failure -> assertThat(((MediaCapabilityNotAdmittedException) failure).reason())
+                            .isEqualTo(MediaCapabilityNotAdmittedException.Reason.NOT_ADMITTED));
             assertThat(runtime.job("tenant-a", "principal-a", accepted.jobId())).isPresent();
             long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
             var job = accepted;

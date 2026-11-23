@@ -4,6 +4,9 @@ import com.ghatana.media.runtime.MediaLifecycleEvent;
 import com.ghatana.media.runtime.MediaLifecycleEventPublisher;
 import com.ghatana.media.runtime.MediaLifecyclePublicationReceipt;
 import com.ghatana.media.runtime.MediaLifecyclePublicationOutcomeUnknownException;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
+import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Function;
 
@@ -29,6 +33,183 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** H2-only regression coverage for durable lifecycle outbox claims and retries. */
 class PostgresqlMediaLifecycleOutboxSourceTest {
+
+    @Test
+    void acceptedJobAndCanonicalOutboxCommitAtomicallyAndReplayWithoutDuplicatePublication() throws Exception {
+        HttpServer readinessEndpoint = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        readinessEndpoint.createContext("/", exchange -> {
+            exchange.getResponseHeaders().add("Content-Length", "0");
+            exchange.sendResponseHeaders(200, -1);
+            exchange.close();
+        });
+        readinessEndpoint.start();
+        Map<String, String> environment = new LinkedHashMap<>();
+        environment.put("MEDIA_RUNTIME_ENVIRONMENT", "test");
+        environment.put("MEDIA_POSTGRES_JDBC_URL", "jdbc:h2:mem:media_accepted_"
+                + UUID.randomUUID().toString().replace("-", "")
+                + ";MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1");
+        environment.put("MEDIA_POSTGRES_DRIVER", "org.h2.Driver");
+        environment.put("MEDIA_S3_BUCKET", "media-accepted-test");
+        environment.put("MEDIA_S3_ENDPOINT", "http://127.0.0.1:" + readinessEndpoint.getAddress().getPort());
+        environment.put("MEDIA_S3_REGION", "us-east-1");
+        environment.put("MEDIA_S3_PATH_STYLE", "true");
+        environment.put("MEDIA_S3_ACCESS_KEY_REFERENCE", "secret:env:ACCEPTED_TEST_ACCESS");
+        environment.put("MEDIA_S3_SECRET_KEY_REFERENCE", "secret:env:ACCEPTED_TEST_SECRET");
+        environment.put("ACCEPTED_TEST_ACCESS", "test-access");
+        environment.put("ACCEPTED_TEST_SECRET", "test-secret");
+
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment)) {
+            MediaAwsPostgresqlRuntimeState anchor = MediaAwsPostgresqlRuntimeState.acquire();
+            try {
+                ProcessingJob job = acceptedJob("tenant-accepted", "request-accepted", "job-accepted");
+                MediaLifecycleEvent event = acceptedEvent(job, "INTERNAL");
+                String digest = "a".repeat(64);
+                try (PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
+                    assertThat(store.supportsAtomicAcceptedLifecycleEvent()).isTrue();
+                    assertThatThrownBy(() -> store.create(job, digest, null, null,
+                            acceptedEvent(job, "PUBLIC")))
+                            .isInstanceOf(IllegalArgumentException.class)
+                            .hasMessageContaining("exactly match");
+                    assertThatThrownBy(() -> store.create(job, digest, null, null,
+                            new MediaLifecycleEvent(event.eventId(), event.eventType(), "tenant-other",
+                                    event.principalId(), event.correlationId(), event.causationId(),
+                                    event.aggregateType(), event.aggregateId(), event.aggregateVersion(),
+                                    event.classification(), event.occurredAt(), event.attributes())))
+                            .isInstanceOf(IllegalArgumentException.class)
+                            .hasMessageContaining("exactly match");
+                    assertThat(store.find("tenant-accepted", "job-accepted")).isEmpty();
+                    assertThat(countV011Accepted("tenant-accepted")).isZero();
+                    assertThat(countCanonicalEvents(event.eventId())).isZero();
+                    assertThat(store.create(job, digest, null, null, event)).isEqualTo(job);
+                    assertThat(store.create(job, digest, null, null, event)).isEqualTo(job);
+                    assertThat(countV011Accepted("tenant-accepted")).isEqualTo(1);
+                    assertThat(readCanonicalEvent(event.eventId())).isEqualTo(event);
+                    assertThat(countCanonicalEvents(event.eventId())).isEqualTo(1);
+                }
+
+                try (PostgresqlMediaJobStore restarted = new PostgresqlMediaJobStore()) {
+                    assertThat(restarted.find("tenant-accepted", "job-accepted")).contains(job);
+                    assertThat(readCanonicalEvent(event.eventId())).isEqualTo(event);
+                }
+                AtomicInteger publications = new AtomicInteger();
+                try (PostgresqlMediaLifecycleOutboxSource source = source(
+                        3, Duration.ofSeconds(2), Duration.ofMillis(50), Duration.ofMillis(200))) {
+                    MediaLifecycleEventPublisher publisher = publisherWithOffset(
+                            published -> {
+                                assertThat(published).isEqualTo(event);
+                                publications.incrementAndGet();
+                            }, ignored -> "7");
+                    assertThat(source.publishPending(publisher, 10).published()).isEqualTo(1);
+                    assertThat(source.publishPending(publisher, 10).attempted()).isZero();
+                }
+                assertThat(publications).hasValue(1);
+                try (var connection = anchor.connection(); var query = connection.prepareStatement(
+                        "SELECT published_at,event_plane_offset FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+                    query.setString(1, event.eventId());
+                    try (var row = query.executeQuery()) {
+                        assertThat(row.next()).isTrue();
+                        assertThat(row.getLong("published_at")).isPositive();
+                        assertThat(row.getString("event_plane_offset")).isEqualTo("7");
+                    }
+                }
+
+                ProcessingJob legacyJob = acceptedJob("tenant-legacy", "request-legacy", "job-legacy");
+                MediaLifecycleEvent legacyEvent = acceptedEvent(legacyJob, "INTERNAL");
+                try (PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
+                    assertThat(store.create(legacyJob, digest, null, null)).isEqualTo(legacyJob);
+                    assertThat(store.create(legacyJob, digest, null, null, legacyEvent)).isEqualTo(legacyJob);
+                    assertThat(countV011Accepted("tenant-legacy")).isEqualTo(1);
+                    assertThat(countCanonicalEvents(legacyEvent.eventId())).isZero();
+                }
+
+                ProcessingJob rollbackJob = acceptedJob("tenant-rollback", "request-rollback", "job-rollback");
+                MediaLifecycleEvent rollbackEvent = acceptedEvent(rollbackJob, "INTERNAL");
+                seedConflictingCanonicalEvent(rollbackEvent.eventId());
+                try (PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
+                    assertThatThrownBy(() -> store.create(rollbackJob, digest, null, null, rollbackEvent))
+                            .isInstanceOf(IllegalStateException.class);
+                    assertThat(store.find("tenant-rollback", "job-rollback")).isEmpty();
+                }
+                assertThat(countV011Accepted("tenant-rollback")).isZero();
+                assertThat(countCanonicalEvents(rollbackEvent.eventId())).isEqualTo(1);
+            } finally {
+                anchor.release();
+            }
+        } finally {
+            readinessEndpoint.stop(0);
+        }
+    }
+
+    private static ProcessingJob acceptedJob(String tenantId, String requestId, String jobId) {
+        return new ProcessingJob(jobId, requestId, tenantId, "principal-a", "artifact-a", JobType.TRANSCODE,
+                "local", JobStatus.ACCEPTED, Instant.parse("2026-11-22T12:00:00Z"), null, null,
+                Map.of(), "", 1, "sha256:" + "b".repeat(64), "c".repeat(64));
+    }
+
+    private static MediaLifecycleEvent acceptedEvent(ProcessingJob job, String classification) {
+        return new MediaLifecycleEvent("media:media.job.accepted:" + job.jobId() + ":" + job.version(),
+                "media.job.accepted", job.tenantId(), job.principalId(), "correlation-accepted", job.requestId(),
+                "processing-job", job.jobId(), job.version(), classification, job.createdAt(), Map.of(
+                        "jobId", job.jobId(), "operationRef", "media.operation-slice.submit-job",
+                        "admissionState", "ACCEPTED"));
+    }
+
+    private static MediaLifecycleEvent readCanonicalEvent(String eventId) throws Exception {
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var query = connection.prepareStatement(
+                "SELECT payload_json FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+            query.setString(1, eventId);
+            try (var row = query.executeQuery()) {
+                if (!row.next()) throw new AssertionError("canonical accepted event is missing");
+                return state.mapper().readValue(row.getString("payload_json"), MediaLifecycleEvent.class);
+            }
+        } finally {
+            state.release();
+        }
+    }
+
+    private static long countCanonicalEvents(String eventId) throws Exception {
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var query = connection.prepareStatement(
+                "SELECT COUNT(*) FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+            query.setString(1, eventId);
+            try (var row = query.executeQuery()) { row.next(); return row.getLong(1); }
+        } finally {
+            state.release();
+        }
+    }
+
+    private static long countV011Accepted(String tenantId) throws Exception {
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var query = connection.prepareStatement(
+                "SELECT COUNT(*) FROM media_lifecycle_outbox WHERE tenant_id=? AND event_type='MEDIA_JOB_ACCEPTED'")) {
+            query.setString(1, tenantId);
+            try (var row = query.executeQuery()) { row.next(); return row.getLong(1); }
+        } finally {
+            state.release();
+        }
+    }
+
+    private static void seedConflictingCanonicalEvent(String eventId) throws Exception {
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var insert = connection.prepareStatement(
+                "INSERT INTO media_processing_lifecycle_outbox(event_id,tenant_id,aggregate_type,aggregate_id,"
+                        + "aggregate_version,event_type,payload_json,classification,created_at,published_at,attempts,last_error) "
+                        + "VALUES(?,?,?,?,?,?,?,?,?,NULL,0,NULL)")) {
+            insert.setString(1, eventId);
+            insert.setString(2, "tenant-rollback");
+            insert.setString(3, "processing-job");
+            insert.setString(4, "other-job");
+            insert.setLong(5, 1L);
+            insert.setString(6, "media.test");
+            insert.setString(7, "{}");
+            insert.setString(8, "INTERNAL");
+            insert.setLong(9, Instant.parse("2026-11-22T12:00:00Z").toEpochMilli());
+            insert.executeUpdate();
+        } finally {
+            state.release();
+        }
+    }
 
     @Test
     void claimLeaseMustRemainPositiveAfterMillisecondPersistenceConversion() {
@@ -464,6 +645,8 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
     private static void verifyTenantCursorNeverMovesBackward() throws Exception {
         String firstEventId = "media:test:cursor-a";
         String secondEventId = "media:test:cursor-b";
+        String tenantBFirstEventId = "media:test:cursor-tenant-b-a";
+        String tenantBSecondEventId = "media:test:cursor-tenant-b-b";
         insertEvent(firstEventId);
         insertEvent(secondEventId);
         CountDownLatch firstPublished = new CountDownLatch(1);
@@ -508,20 +691,65 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
             state.release();
         }
 
+        insertEvent(tenantBFirstEventId, tenantBFirstEventId, "tenant-b");
+        insertEvent(tenantBSecondEventId, tenantBSecondEventId, "tenant-b");
+        var tenantBSource = source(3, Duration.ofSeconds(2), Duration.ofMillis(50), Duration.ofMillis(200));
+        AtomicReference<String> tenantBFirstPublishedId = new AtomicReference<>();
+        AtomicReference<String> tenantBSecondPublishedId = new AtomicReference<>();
+        try {
+            assertThat(tenantBSource.publishPending(publisherWithOffset(
+                    event -> tenantBFirstPublishedId.set(event.eventId()), event -> "2"), 1).published())
+                    .isEqualTo(1);
+            assertThat(tenantBSource.publishPending(publisherWithOffset(
+                    event -> tenantBSecondPublishedId.set(event.eventId()), event -> "1"), 1).published())
+                    .isEqualTo(1);
+        } finally {
+            tenantBSource.close();
+        }
+        assertThat(tenantBFirstPublishedId.get()).isIn(tenantBFirstEventId, tenantBSecondEventId);
+        assertThat(tenantBSecondPublishedId.get()).isIn(tenantBFirstEventId, tenantBSecondEventId)
+                .isNotEqualTo(tenantBFirstPublishedId.get());
+
+        state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var query = connection.prepareStatement(
+                "SELECT tenant_id,last_offset,last_stream_id,last_event_id FROM "
+                        + "media_processing_lifecycle_event_plane_cursor WHERE tenant_id IN (?,?) ORDER BY tenant_id")) {
+            query.setString(1, "tenant-a");
+            query.setString(2, "tenant-b");
+            try (var rows = query.executeQuery()) {
+                assertThat(rows.next()).isTrue();
+                assertThat(rows.getString("tenant_id")).isEqualTo("tenant-a");
+                assertThat(rows.getString("last_offset")).isEqualTo("8");
+                assertThat(rows.getString("last_stream_id")).isEqualTo("media-lifecycle");
+                assertThat(rows.getString("last_event_id")).isEqualTo(secondEventId);
+                assertThat(rows.next()).isTrue();
+                assertThat(rows.getString("tenant_id")).isEqualTo("tenant-b");
+                assertThat(rows.getString("last_offset")).isEqualTo("2");
+                assertThat(rows.getString("last_stream_id")).isEqualTo("media-lifecycle");
+                assertThat(rows.getString("last_event_id")).isEqualTo(tenantBFirstPublishedId.get());
+                assertThat(rows.next()).isFalse();
+            }
+        } finally {
+            state.release();
+        }
+
         state = MediaAwsPostgresqlRuntimeState.acquire();
         try (var connection = state.connection(); var delete = connection.prepareStatement(
-                "DELETE FROM media_processing_lifecycle_outbox WHERE event_id IN (?,?)")) {
+                "DELETE FROM media_processing_lifecycle_outbox WHERE event_id IN (?,?,?,?)")) {
             delete.setString(1, firstEventId);
             delete.setString(2, secondEventId);
-            assertThat(delete.executeUpdate()).isEqualTo(2);
+            delete.setString(3, tenantBFirstEventId);
+            delete.setString(4, tenantBSecondEventId);
+            assertThat(delete.executeUpdate()).isEqualTo(4);
         } finally {
             state.release();
         }
         state = MediaAwsPostgresqlRuntimeState.acquire();
         try (var connection = state.connection(); var delete = connection.prepareStatement(
-                "DELETE FROM media_processing_lifecycle_event_plane_cursor WHERE tenant_id=?")) {
+                "DELETE FROM media_processing_lifecycle_event_plane_cursor WHERE tenant_id IN (?,?)")) {
             delete.setString(1, "tenant-a");
-            assertThat(delete.executeUpdate()).isEqualTo(1);
+            delete.setString(2, "tenant-b");
+            assertThat(delete.executeUpdate()).isEqualTo(2);
         } finally {
             state.release();
         }
@@ -841,7 +1069,11 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
     }
 
     private static void insertEvent(String rowEventId, String payloadEventId) throws Exception {
-        MediaLifecycleEvent event = new MediaLifecycleEvent(payloadEventId, "media.test", "tenant-a",
+        insertEvent(rowEventId, payloadEventId, "tenant-a");
+    }
+
+    private static void insertEvent(String rowEventId, String payloadEventId, String tenantId) throws Exception {
+        MediaLifecycleEvent event = new MediaLifecycleEvent(payloadEventId, "media.test", tenantId,
                 "principal-a", rowEventId, "", "job", rowEventId, 1, "INTERNAL", Instant.now(), Map.of());
         MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
         try {

@@ -163,6 +163,58 @@ class MediaWorkflowMetricsTest {
         }
     }
 
+    @Test
+    void providerQualityGaugeRegistrationFailureDoesNotPublishPartialRefresh() {
+        var registry = new ProviderQualityGaugeFailureRegistry();
+        try {
+            MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "stt");
+            Instant checkedAt = Instant.parse("2026-11-09T12:00:00Z");
+            var existing = new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                    "eng", "wer", 0.2, checkedAt, "reference_only");
+            var updated = new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                    "eng", "wer", 0.8, checkedAt.plusSeconds(1), "reference_only");
+            var added = new MediaWorkflowMetrics.ProviderQualitySeriesSample(
+                    "ne-np", "wer", 0.3, checkedAt.plusSeconds(1), "reference_only");
+
+            assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                    "fixture-provider", "v1", "revision", checkedAt,
+                    java.util.List.of(existing))).isTrue();
+            registry.failLocale = "ne-np";
+
+            assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                    "fixture-provider", "v1", "revision", checkedAt.plusSeconds(1),
+                    java.util.List.of(updated, added))).isFalse();
+            assertThat(registry.get("media.provider.quality.measured_value")
+                    .tag("locale", "eng").tag("metric", "wer").gauge().value()).isEqualTo(0.2);
+            assertThat(registry.find("media.provider.quality.measured_value")
+                    .tag("locale", "ne-np").meters()).isEmpty();
+
+            registry.failLocale = null;
+            assertThat(metrics.recordProviderQualitySeries(MediaWorkflowMetrics.Modality.STT,
+                    "fixture-provider", "v1", "revision", checkedAt.plusSeconds(1),
+                    java.util.List.of(updated, added))).isTrue();
+            assertThat(registry.get("media.provider.quality.measured_value")
+                    .tag("locale", "eng").tag("metric", "wer").gauge().value()).isEqualTo(0.8);
+            assertThat(registry.get("media.provider.quality.measured_value")
+                    .tag("locale", "ne-np").tag("metric", "wer").gauge().value()).isEqualTo(0.3);
+        } finally {
+            registry.close();
+        }
+    }
+
+    private static final class ProviderQualityGaugeFailureRegistry extends SimpleMeterRegistry {
+        private String failLocale;
+
+        @Override
+        protected <T> Gauge newGauge(Meter.Id id, T obj, ToDoubleFunction<T> valueFunction) {
+            if ("media.provider.quality.measured_value".equals(id.getName())
+                    && java.util.Objects.equals(failLocale, id.getTag("locale"))) {
+                throw new IllegalStateException("fixture registry failure");
+            }
+            return super.newGauge(id, obj, valueFunction);
+        }
+    }
+
     private static final class RejectedQualitySeriesCounterFailureRegistry extends SimpleMeterRegistry {
         private boolean failRejectedCounter;
 

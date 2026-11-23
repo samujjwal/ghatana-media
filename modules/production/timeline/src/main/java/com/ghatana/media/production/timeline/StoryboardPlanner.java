@@ -14,9 +14,9 @@ import java.util.Set;
  * Builds deterministic, reviewable scene/shot plan candidates from authored input.
  *
  * <p>PDP-0 defines storyboard assembly as a local draft/candidate, not a project commit or render.
- * PDP-1 defines project-scoped ScenePlan/SceneBrief identities and immutable semantic versions,
- * but its exact graph field mapping remains unresolved. The records here are a bounded authored
- * projection; the plan authority port must be the sole append/CAS owner when persistence is used.</p>
+ * PDP-1 and PXD-235 bind each edition to one exact ProjectRevision, one ordered SceneGraph version
+ * per PlannedScene, and one Timeline snapshot contained in that revision. These records are a
+ * bounded authored projection; the plan authority port remains the sole append/CAS owner.</p>
  */
 public final class StoryboardPlanner {
     /** Matches the owner-defined save-storyboard-revision sceneRefs maximum. */

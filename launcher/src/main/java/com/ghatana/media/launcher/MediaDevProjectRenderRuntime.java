@@ -69,6 +69,14 @@ public final class MediaDevProjectRenderRuntime {
                             String idempotencyKey, byte[] bytes);
     }
 
+    /** Source-content observation seam for tests; production composition always delegates to MediaRuntime. */
+    @FunctionalInterface
+    interface SourceContentReader {
+        Optional<?> read(String tenantId, String principalId, String artifactId,
+                         com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion expectedVersion,
+                         java.io.OutputStream target, long maxBytes) throws IOException;
+    }
+
     /** Registered artifact and whether a durable completed registration already existed for this request. */
     record Registered(MediaArtifact artifact, boolean replayed) {
         Registered { Objects.requireNonNull(artifact, "artifact"); }
@@ -117,6 +125,13 @@ public final class MediaDevProjectRenderRuntime {
         }
     }
 
+    /** Source-consuming render is blocked until a real workspace-scoped rights/policy authority is bound. */
+    public static final class SourceUseAuthorityUnavailableException extends SecurityException {
+        SourceUseAuthorityUnavailableException() {
+            super("workspace-scoped source-use authority is unavailable; render remains blocked");
+        }
+    }
+
     public static final class RenderRegistrationFailedException extends IllegalStateException {
         RenderRegistrationFailedException(Throwable cause) {
             super("rendered output could not be registered as an immutable artifact", cause);
@@ -156,6 +171,7 @@ public final class MediaDevProjectRenderRuntime {
     private final MediaRuntime runtime;
     private final MediaDevProjectTimelineRuntime projects;
     private final OutputRegistrar registrar;
+    private final SourceContentReader sourceContentReader;
     private volatile MediaDevCaptionRuntime.CaptionUseGate captionUseGate;
     private final FfmpegMultitrackRenderer mp4Renderer;
 
@@ -170,9 +186,16 @@ public final class MediaDevProjectRenderRuntime {
 
     MediaDevProjectRenderRuntime(MediaRuntime runtime, MediaDevProjectTimelineRuntime projects,
                                  OutputRegistrar registrar, FfmpegMultitrackRenderer mp4Renderer) {
+        this(runtime, projects, registrar, mp4Renderer, runtime::copyArtifactContent);
+    }
+
+    MediaDevProjectRenderRuntime(MediaRuntime runtime, MediaDevProjectTimelineRuntime projects,
+                                 OutputRegistrar registrar, FfmpegMultitrackRenderer mp4Renderer,
+                                 SourceContentReader sourceContentReader) {
         this.runtime = Objects.requireNonNull(runtime, "runtime");
         this.projects = Objects.requireNonNull(projects, "projects");
         this.registrar = Objects.requireNonNull(registrar, "registrar");
+        this.sourceContentReader = Objects.requireNonNull(sourceContentReader, "sourceContentReader");
         this.mp4Renderer = mp4Renderer;
     }
 
@@ -228,6 +251,9 @@ public final class MediaDevProjectRenderRuntime {
     }
 
     private RenderResult renderAdmitted(String tenantId, String principalId, String projectId, RenderRequest request) {
+        // The persisted Media source-rights authority is not bound to workspace/project/revision/timeline scope.
+        // Fail closed before revision/source resolution, byte reads, decode, render, or output registration.
+        requireWorkspaceScopedSourceAuthority();
         // Owner-scoped exact revision read; ProjectNotFound/AccessDenied propagate unchanged.
         Revision revision = projects.revision(tenantId, principalId, projectId, request.revisionId());
         TimelineSnapshot timeline = revision.timelines().stream()
@@ -329,6 +355,11 @@ public final class MediaDevProjectRenderRuntime {
         lineage.put("format", "gif");
         return registerOutput(tenantId, principalId, projectId, revision, request, bytes, encoded.sha256(),
                 "image/gif", "gif", lineage);
+    }
+
+    private static void requireWorkspaceScopedSourceAuthority() {
+        // No real provider currently returns the complete workspace-scoped binding defined by PDP-1/PDP-2.
+        throw new SourceUseAuthorityUnavailableException();
     }
 
     private static Map<String, Object> baseLineage(String projectId, Revision revision, TimelineSnapshot timeline,
@@ -651,7 +682,7 @@ public final class MediaDevProjectRenderRuntime {
         }
         ByteArrayOutputStream staged = new ByteArrayOutputStream((int) artifact.sizeBytes());
         try {
-            runtime.copyArtifactContent(tenantId, principalId, artifact.artifactId(), artifact.version(),
+            sourceContentReader.read(tenantId, principalId, artifact.artifactId(), artifact.version(),
                     staged, maxBytes).orElseThrow(SourceVersionUnavailableException::new);
         } catch (IOException failure) {
             throw new IllegalStateException("source artifact content could not be read", failure);
@@ -697,7 +728,7 @@ public final class MediaDevProjectRenderRuntime {
         }
         ByteArrayOutputStream staged = new ByteArrayOutputStream((int) artifact.sizeBytes());
         try {
-            runtime.copyArtifactContent(tenantId, principalId, artifact.artifactId(), artifact.version(),
+            sourceContentReader.read(tenantId, principalId, artifact.artifactId(), artifact.version(),
                     staged, MAX_SOURCE_BYTES).orElseThrow(SourceVersionUnavailableException::new);
         } catch (IOException failure) {
             throw new IllegalStateException("source artifact content could not be read", failure);

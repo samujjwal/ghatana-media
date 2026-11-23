@@ -12,8 +12,8 @@
  * Versions are never changed here. Does not delete caches; --out must be empty or absent.
  */
 import { execFileSync, spawnSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
-import { homedir } from 'node:os';
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
+import { homedir, tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MANIFEST_NAME, SCHEMA, fileEntry, fingerprintOf, verifyInstallSet, sha256Hex } from './lib/media-install-set.mjs';
@@ -78,34 +78,46 @@ const scn = path.join(ROOT, 'providers/security-scanner');
 const tsc = [process.env.MEDIA_TSC, path.join(scn, 'node_modules/typescript/bin/tsc'), path.join(ROOT, 'libs/audio-video-client/node_modules/typescript/bin/tsc'),
   path.resolve(ROOT, '../../../libs/audio-video-client/node_modules/typescript/bin/tsc')].find((p) => p && existsSync(p));
 if (!tsc) throw new Error('typescript compiler not found; set MEDIA_TSC');
-rmSync(path.join(scn, 'dist'), { recursive: true, force: true });
-run(process.execPath, [tsc, '-p', 'tsconfig.build.json'], scn);
-mkdirSync(path.join(OUT, 'npm'));
-const packed = JSON.parse(execFileSync('npm', ['pack', '--json', '--pack-destination', path.join(OUT, 'npm')], { cwd: scn, encoding: 'utf8' }))[0];
-const pkgJson = JSON.parse(readFileSync(path.join(scn, 'package.json'), 'utf8'));
-const tgz = fileEntry(OUT, `npm/${packed.filename}`);
-writeFileSync(path.join(OUT, tgz.path + '.sha256'), `${tgz.sha256}  ${tgz.name}\n`);
-const npmPackages = [{ name: pkgJson.name, version: pkgJson.version, file: tgz.path, size: tgz.size, sha256: tgz.sha256, integrity: packed.integrity }];
+const scannerStageRoot = mkdtempSync(path.join(tmpdir(), 'media-security-scanner-stage-'));
+try {
+  const scannerPackageRoot = path.join(scannerStageRoot, 'package');
+  const scannerDist = path.join(scannerPackageRoot, 'dist');
+  mkdirSync(scannerDist, { recursive: true });
+  run(process.execPath, [tsc, '-p', 'tsconfig.build.json', '--outDir', scannerDist], scn);
+  copyFileSync(path.join(scn, 'package.json'), path.join(scannerPackageRoot, 'package.json'));
 
-const manifest = {
-  schemaVersion: SCHEMA,
-  mediaVersion: VERSION,
-  source: { repository: 'samujjwal/ghatana-media', commit, uncommittedChangesInPackagedPaths: dirty.length > 0 },
-  mavenArtifacts,
-  npmPackages,
-  // Packaging is not provider admission: the clients are transports/contracts only.
-  providerAdmission: {
-    'security-scanner': 'NOT_ADMITTED: live engine, signing key and corpus are external',
-    'document-intelligence': 'NOT_ADMITTED: OCR engine/model rights and corpus are external',
-    'media-stt': 'NOT_ADMITTED: English/Nepali model rights and corpus are external',
-  },
-};
-manifest.manifestFingerprint = fingerprintOf(manifest);
-writeFileSync(path.join(OUT, MANIFEST_NAME), JSON.stringify(manifest, null, 2) + '\n');
-writeFileSync(path.join(OUT, MANIFEST_NAME + '.sha256'), `${sha256Hex(readFileSync(path.join(OUT, MANIFEST_NAME)))}  ${MANIFEST_NAME}\n`);
+  mkdirSync(path.join(OUT, 'npm'));
+  const packed = JSON.parse(execFileSync('npm', ['pack', '--json', '--pack-destination', path.join(OUT, 'npm')], { cwd: scannerPackageRoot, encoding: 'utf8' }))[0];
+  const pkgJson = JSON.parse(readFileSync(path.join(scannerPackageRoot, 'package.json'), 'utf8'));
+  const tgz = fileEntry(OUT, `npm/${packed.filename}`);
+  writeFileSync(path.join(OUT, tgz.path + '.sha256'), `${tgz.sha256}  ${tgz.name}\n`);
+  const npmPackages = [{ name: pkgJson.name, version: pkgJson.version, file: tgz.path, size: tgz.size, sha256: tgz.sha256, integrity: packed.integrity }];
 
-const v = verifyInstallSet(OUT);
-if (!v.ok) { for (const e of v.errors) console.error(`REFUSED ${e}`); process.exit(1); }
-// Exercise STT profile/language binding through the built, verified artifact rather than source classes.
-run(process.execPath, [path.join(ROOT, 'scripts/optional-providers/installed-stt-profile-consumer.mjs'), OUT]);
-console.log(`PASS ${OUT}\n${manifest.manifestFingerprint}${dirty ? '\nWARNING: uncommitted changes in packaged paths' : ''}`);
+  const manifest = {
+    schemaVersion: SCHEMA,
+    mediaVersion: VERSION,
+    source: { repository: 'samujjwal/ghatana-media', commit, uncommittedChangesInPackagedPaths: dirty.length > 0 },
+    mavenArtifacts,
+    npmPackages,
+    // Packaging is not provider admission: the clients are transports/contracts only.
+    providerAdmission: {
+      'security-scanner': 'NOT_ADMITTED: live engine, signing key and corpus are external',
+      'document-intelligence': 'NOT_ADMITTED: OCR engine/model rights and corpus are external',
+      'media-stt': 'NOT_ADMITTED: English/Nepali model rights and corpus are external',
+    },
+  };
+  manifest.manifestFingerprint = fingerprintOf(manifest);
+  writeFileSync(path.join(OUT, MANIFEST_NAME), JSON.stringify(manifest, null, 2) + '\n');
+  writeFileSync(path.join(OUT, MANIFEST_NAME + '.sha256'), `${sha256Hex(readFileSync(path.join(OUT, MANIFEST_NAME)))}  ${MANIFEST_NAME}\n`);
+
+  const v = verifyInstallSet(OUT);
+  if (!v.ok) {
+    for (const e of v.errors) console.error(`REFUSED ${e}`);
+    throw new Error('Media install set verification failed');
+  }
+  // Exercise STT profile/language binding through the built, verified artifact rather than source classes.
+  run(process.execPath, [path.join(ROOT, 'scripts/optional-providers/installed-stt-profile-consumer.mjs'), OUT]);
+  console.log(`PASS ${OUT}\n${manifest.manifestFingerprint}${dirty ? '\nWARNING: uncommitted changes in packaged paths' : ''}`);
+} finally {
+  rmSync(scannerStageRoot, { recursive: true, force: true });
+}

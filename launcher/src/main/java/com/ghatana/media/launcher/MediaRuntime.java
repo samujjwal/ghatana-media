@@ -1137,18 +1137,34 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 .toList();
         String requestFingerprint = MediaJobRequestFingerprint.compute(request, providerDescriptors);
         String jobId = UUID.randomUUID().toString();
+        ProcessingJob candidate = new ProcessingJob(
+                jobId, request.requestId(), request.tenantId(), request.principalId(), request.artifactId(),
+                request.jobType(), provider.providerId(), JobStatus.ACCEPTED,
+                Instant.now().truncatedTo(java.time.temporal.ChronoUnit.MILLIS), null, null,
+                Map.of(), "", 1, artifact.version().value(), requestFingerprint);
+        String submissionDigest = MediaSubmissionDigest.compute(request, artifact.version().value(), providers);
+        var sttSnapshot = com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot.from(
+                request, sourceAuthorization);
+        var multimodalSnapshot = com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSnapshot.from(
+                request, sourceAuthorization);
         ProcessingJob accepted;
         io.micrometer.core.instrument.Timer.Sample jobSample = workflowMetrics.startTimer();
         try {
-            accepted = jobStore.create(new ProcessingJob(
-                    jobId, request.requestId(), request.tenantId(), request.principalId(), request.artifactId(),
-                    request.jobType(), provider.providerId(), JobStatus.ACCEPTED, Instant.now(), null, null,
-                    Map.of(), "", 1, artifact.version().value(), requestFingerprint),
-                    MediaSubmissionDigest.compute(request, artifact.version().value(), providers),
-                    com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot.from(
-                            request, sourceAuthorization),
-                    com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSnapshot.from(
-                            request, sourceAuthorization));
+            if (jobStore.supportsAtomicAcceptedLifecycleEvent()) {
+                MediaLifecycleEvent acceptedEvent = new MediaLifecycleEvent(
+                        "media:media.job.accepted:" + candidate.jobId() + ":" + candidate.version(),
+                        "media.job.accepted", candidate.tenantId(), candidate.principalId(),
+                        request.correlationId(), candidate.requestId(), "processing-job", candidate.jobId(),
+                        candidate.version(), acceptedEventClassification(artifact.classification()),
+                        candidate.createdAt(), Map.of(
+                                "jobId", candidate.jobId(),
+                                "operationRef", "media.operation-slice.submit-job",
+                                "admissionState", "ACCEPTED"));
+                accepted = jobStore.create(candidate, submissionDigest, sttSnapshot,
+                        multimodalSnapshot, acceptedEvent);
+            } else {
+                accepted = jobStore.create(candidate, submissionDigest, sttSnapshot, multimodalSnapshot);
+            }
         } finally {
             workflowMetrics.stopTimer(jobSample, MediaWorkflowMetrics.Stage.JOB);
         }
@@ -1169,13 +1185,6 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         audit.info("MEDIA_JOB_ACCEPTED tenantId={} requestId={} jobId={} artifactId={} type={} provider={} consentAuthority={} semanticPromotionRequested={}",
                 request.tenantId(), request.requestId(), jobId, request.artifactId(), request.jobType(),
                 provider.providerId(), "verified-at-dispatch", MediaSemanticRedactionRuntime.promotionRequested(request));
-        publishLifecycle("media.job.accepted", request.tenantId(), request.principalId(),
-                request.correlationId(), request.requestId(), "job", accepted.jobId(), accepted.version(),
-                artifact.classification(), Map.of(
-                        "artifactId", request.artifactId(),
-                        "jobType", request.jobType().name(),
-                        "providerId", provider.providerId(),
-                        "status", accepted.status().name()));
         return accepted;
     }
 
@@ -4588,6 +4597,14 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         }
     }
 
+    static String acceptedEventClassification(String sourceClassification) {
+        if (sourceClassification == null || sourceClassification.isBlank()) {
+            throw new IllegalArgumentException("Source artifact classification is required for accepted events");
+        }
+        DataClassification source = DataClassification.valueOf(sourceClassification);
+        return source.isAtLeast(DataClassification.INTERNAL) ? source.name() : DataClassification.INTERNAL.name();
+    }
+
     private static String attemptFingerprint(
             ProcessingJobRequest request, MediaArtifact artifact, MediaProcessingProvider provider) {
         MediaGovernanceContext g = request.governanceContext();
@@ -5237,7 +5254,17 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         if (productionLike && !eligible.test(selected)) {
             throw new IllegalStateException("Media " + kind + " store is not production eligible");
         }
+        if (productionLike && "job".equals(kind) && selected instanceof MediaJobStore jobStore) {
+            requireAtomicAcceptedLifecycleEventStore(jobStore, true);
+        }
         return selected;
+    }
+
+    static void requireAtomicAcceptedLifecycleEventStore(MediaJobStore jobStore, boolean productionLike) {
+        if (productionLike && !jobStore.supportsAtomicAcceptedLifecycleEvent()) {
+            throw new IllegalStateException(
+                    "Media job store does not support atomic accepted lifecycle event persistence");
+        }
     }
 
     private static String connectionToken() {

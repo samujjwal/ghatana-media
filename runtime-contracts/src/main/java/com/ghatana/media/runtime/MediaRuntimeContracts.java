@@ -2203,6 +2203,21 @@ public final class MediaRuntimeContracts {
                         "Multimodal operation snapshot persistence is not supported");
             return create(job, submissionDigest, sttSnapshot);
         }
+        /**
+         * Creates a job and its canonical accepted lifecycle event in one durable transaction.
+         * Stores without an atomic lifecycle outbox fail closed when this binding is required.
+         */
+        default ProcessingJob create(ProcessingJob job, String submissionDigest,
+                SttSubmissionSnapshot sttSnapshot, MultimodalOperationSnapshot multimodalSnapshot,
+                MediaLifecycleEvent acceptedEvent) {
+            if (acceptedEvent != null) {
+                throw new UnsupportedOperationException(
+                        "Atomic accepted lifecycle event persistence is not supported");
+            }
+            return create(job, submissionDigest, sttSnapshot, multimodalSnapshot);
+        }
+        /** Whether this store can atomically persist the accepted event with a newly-created job. */
+        default boolean supportsAtomicAcceptedLifecycleEvent() { return false; }
         /** Reads one job by its tenant-scoped idempotent request identity. */
         default Optional<ProcessingJob> findByRequest(String tenantId, String requestId) {
             return list(tenantId, 1_000).stream()

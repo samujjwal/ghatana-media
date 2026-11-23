@@ -1,5 +1,5 @@
--- Test-only store for immutable storyboard draft editions. It is deliberately
--- outside the launcher's production Flyway locations and never writes a project graph.
+-- DEV_ONLY append-only storyboard draft store. This does not mutate a project
+-- graph or establish reviewer, source-rights, renderer, or production authority.
 CREATE TABLE media_storyboard_plan_editions (
     tenant_id TEXT NOT NULL,
     project_id TEXT NOT NULL,
@@ -46,6 +46,7 @@ CREATE TABLE media_storyboard_plan_save_receipts (
     PRIMARY KEY (tenant_id, principal_id, request_id),
     FOREIGN KEY (tenant_id, project_id, scene_plan_id, semantic_version)
         REFERENCES media_storyboard_plan_editions (tenant_id, project_id, scene_plan_id, semantic_version)
+        DEFERRABLE INITIALLY DEFERRED
 );
 
 CREATE FUNCTION media_reject_storyboard_draft_immutable_change() RETURNS trigger AS $$

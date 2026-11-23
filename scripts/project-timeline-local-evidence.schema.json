@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "media.timeline-engine.local-engineering-evidence.v1",
+  "title": "Timeline local engineering provenance (not lifecycle evidence)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "authority", "scopeId", "createdAt", "sourceFingerprint", "sourceFingerprintAfter", "plan", "toolchain", "runs", "localGate", "productionAdmission", "validation"],
+  "properties": {
+    "schemaVersion": { "const": "media.timeline-engine.local-engineering-evidence.v1" },
+    "authority": { "const": "LOCAL_ENGINEERING_ONLY" },
+    "scopeId": { "const": "EG-TIMELINE-001" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "sourceFingerprint": {
+      "type": "object", "additionalProperties": false,
+      "required": ["algorithm", "digest", "files"],
+      "properties": {
+        "algorithm": { "const": "SHA-256" },
+        "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "files": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["path", "sha256"],
+            "properties": { "path": { "type": "string", "minLength": 1 }, "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } }
+          }
+        }
+      }
+    },
+    "sourceFingerprintAfter": { "$ref": "#/$defs/sourceFingerprint" },
+    "plan": {
+      "type": "object", "additionalProperties": false,
+      "required": ["requiredLanes", "selectedLanes"],
+      "properties": {
+        "requiredLanes": { "type": "array", "items": { "enum": ["timeline-unit", "isolated-store", "dev-only-http", "dev-only-restart"] } },
+        "selectedLanes": { "type": "array", "minItems": 1, "items": { "enum": ["timeline-unit", "isolated-store", "dev-only-http", "dev-only-restart"] } }
+      }
+    },
+    "toolchain": {
+      "type": "object", "additionalProperties": false,
+      "required": ["javaVersionOutput", "gradleVersionOutput", "os"],
+      "properties": { "javaVersionOutput": { "type": "string" }, "gradleVersionOutput": { "type": "string" }, "os": { "type": "string" } }
+    },
+    "runs": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["laneId", "storeMode", "command", "exitCode", "signal", "spawnError", "raw", "junit"],
+        "properties": {
+          "laneId": { "enum": ["timeline-unit", "isolated-store", "dev-only-http", "dev-only-restart"] },
+          "storeMode": { "type": "string" },
+          "command": { "type": "object", "additionalProperties": false, "required": ["executable", "args"], "properties": { "executable": { "const": "./gradlew" }, "args": { "type": "array", "items": { "type": "string" } } } },
+          "exitCode": { "type": "integer" },
+          "signal": { "type": ["string", "null"] },
+          "spawnError": {
+            "type": ["object", "null"], "additionalProperties": false,
+            "required": ["name", "message", "code", "errno", "syscall"],
+            "properties": { "name": { "type": "string" }, "message": { "type": "string" }, "code": { "type": ["string", "null"] }, "errno": { "type": ["integer", "null"] }, "syscall": { "type": ["string", "null"] } }
+          },
+          "raw": {
+            "type": "object", "additionalProperties": false,
+            "required": ["stdout", "stderr"],
+            "properties": {
+              "stdout": { "$ref": "#/$defs/rawRef" },
+              "stderr": { "$ref": "#/$defs/rawRef" }
+            }
+          },
+          "junit": {
+            "type": "object", "additionalProperties": false,
+            "required": ["status", "reports", "tests", "failures", "errors", "skipped"],
+            "properties": {
+              "status": { "enum": ["PRESENT", "MISSING"] },
+              "reports": { "type": "array", "items": { "$ref": "#/$defs/rawRef" } },
+              "tests": { "type": "integer", "minimum": 0 },
+              "failures": { "type": "integer", "minimum": 0 },
+              "errors": { "type": "integer", "minimum": 0 },
+              "skipped": { "type": "integer", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
+    "localGate": { "const": "NOT_A_CLOSURE_OR_CONVERGENCE_DECISION" },
+    "productionAdmission": { "const": "NOT_ADMITTED" },
+    "validation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["valid", "errors"],
+      "properties": { "valid": { "type": "boolean" }, "errors": { "type": "array", "items": { "type": "string" } } }
+    }
+  },
+  "$defs": {
+    "sourceFingerprint": {
+      "type": "object", "additionalProperties": false,
+      "required": ["algorithm", "digest", "files"],
+      "properties": {
+        "algorithm": { "const": "SHA-256" },
+        "digest": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+        "files": { "type": "array", "minItems": 1, "items": { "type": "object", "additionalProperties": false, "required": ["path", "sha256"], "properties": { "path": { "type": "string", "minLength": 1 }, "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } } } }
+      }
+    },
+    "rawRef": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": { "path": { "type": "string", "minLength": 1 }, "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" } }
+    }
+  }
+}

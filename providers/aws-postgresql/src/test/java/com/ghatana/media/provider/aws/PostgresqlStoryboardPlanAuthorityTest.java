@@ -147,6 +147,19 @@ class PostgresqlStoryboardPlanAuthorityTest {
                     OWNER, plan, null, "save-immutable-trigger", fixture.authority);
 
             assertThatThrownBy(() -> fixture.sqlUpdate("""
+                    INSERT INTO media_storyboard_plan_save_receipts
+                      (tenant_id,principal_id,request_id,request_fingerprint,project_id,scene_plan_id,
+                       semantic_version,owner_receipt)
+                    SELECT tenant_id,principal_id,'duplicate-owner-receipt',request_fingerprint,project_id,
+                           scene_plan_id,semantic_version,owner_receipt
+                    FROM media_storyboard_plan_save_receipts
+                    WHERE tenant_id='tenant-storyboard' AND principal_id='principal-storyboard'
+                      AND request_id='save-immutable-trigger'
+                    """))
+                    .isInstanceOf(java.sql.SQLException.class)
+                    .hasMessageContaining("duplicate key");
+
+            assertThatThrownBy(() -> fixture.sqlUpdate("""
                     UPDATE media_storyboard_plan_editions SET plan_snapshot='{}'::jsonb
                     WHERE tenant_id='tenant-storyboard' AND project_id='%s'
                       AND scene_plan_id='plan-a' AND semantic_version='v1'
@@ -272,8 +285,20 @@ class PostgresqlStoryboardPlanAuthorityTest {
         AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment(bucket, schema));
         try {
             Flyway.configure().dataSource(scopedJdbcUrl(schema), POSTGRES.getUsername(), POSTGRES.getPassword())
-                    .locations("classpath:db/media-runtime", MediaRuntimeMigrations.vendorLocation(MediaRuntimeMigrations.POSTGRESQL), "classpath:db/media-project-timeline")
-                    .outOfOrder(true).load().migrate();
+                    .schemas(schema).defaultSchema(schema).createSchemas(false)
+                    .table("media_project_timeline_test_flyway_history")
+                    .baselineOnMigrate(true).baselineVersion("29")
+                    .locations("classpath:db/media-project-timeline")
+                    .load().migrate();
+            // Runtime V033 owns shared review tables; V030 supplies only the isolated project graph fixture.
+            // Baseline the DEV timeline history at V004 so this test applies the real V005 storyboard schema
+            // without replaying the isolated review tables from V002 into the already-migrated runtime schema.
+            Flyway.configure().dataSource(scopedJdbcUrl(schema), POSTGRES.getUsername(), POSTGRES.getPassword())
+                    .schemas(schema).defaultSchema(schema).createSchemas(false)
+                    .table("media_project_timeline_dev_flyway_history")
+                    .baselineOnMigrate(true).baselineVersion("4")
+                    .locations("classpath:db/media-project-timeline-dev")
+                    .load().migrate();
             return new Fixture(installed, schema);
         } catch (RuntimeException failure) {
             installed.close();

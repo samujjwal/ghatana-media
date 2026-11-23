@@ -187,7 +187,11 @@ final class MediaLifecyclePublisher implements MediaLifecycleEventPublisher {
                         "Media lifecycle prior append remains unknown");
             }
         }
-        for (int appendAttempt = 0; appendAttempt < 2; appendAttempt++) {
+        // A prior claimed attempt makes this call's first POST the single permitted retry after
+        // the preflight complete-absence read. A fresh call may make one initial POST plus one
+        // exact-404-authorized replay. Never grant two retries in one invocation.
+        int maximumAppendAttempts = exactReadbackRequired ? 1 : 2;
+        for (int appendAttempt = 0; appendAttempt < maximumAppendAttempts; appendAttempt++) {
             boolean appendConflict = false;
             try {
                 HttpRequest.Builder request = HttpRequest.newBuilder(endpoint)
@@ -255,7 +259,8 @@ final class MediaLifecyclePublisher implements MediaLifecycleEventPublisher {
                         "Media lifecycle exact lookup could not establish the append outcome", lookupFailure);
             }
             if (lookup.receipt() != null) return lookup.receipt();
-            if (!lookup.completeAbsence() || appendConflict || appendAttempt == 1) {
+            if (!lookup.completeAbsence() || appendConflict
+                    || appendAttempt + 1 >= maximumAppendAttempts) {
                 throw new MediaLifecyclePublicationOutcomeUnknownException(
                         "Media lifecycle append remains unknown after exact lookup");
             }

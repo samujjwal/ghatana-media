@@ -47,6 +47,8 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
 
     @Override public String storeId() { return "postgresql"; }
 
+    @Override public boolean supportsAtomicAcceptedLifecycleEvent() { return true; }
+
     @Override
     public ProcessingJob create(ProcessingJob job, String submissionDigest) {
         return create(job, submissionDigest, null);
@@ -60,8 +62,16 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
     @Override
     public ProcessingJob create(ProcessingJob job, String submissionDigest,
             SttSubmissionSnapshot sttSnapshot, MultimodalOperationSnapshot mmSnapshot) {
+        return create(job, submissionDigest, sttSnapshot, mmSnapshot, null);
+    }
+
+    @Override
+    public ProcessingJob create(ProcessingJob job, String submissionDigest,
+            SttSubmissionSnapshot sttSnapshot, MultimodalOperationSnapshot mmSnapshot,
+            MediaLifecycleEvent acceptedEvent) {
         ensureOpen();
         java.util.Objects.requireNonNull(job, "job");
+        if (acceptedEvent != null) validateAcceptedEventMatchesJob(job, acceptedEvent);
         if (submissionDigest == null || !submissionDigest.isBlank()
                 && !submissionDigest.matches("[0-9a-f]{64}")) {
             throw new IllegalArgumentException("Media submission digest must be a lowercase SHA-256 value");
@@ -113,6 +123,7 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                                         "artifactId", persistable.artifactId(), "jobType", persistable.jobType().name(),
                                         "providerId", persistable.providerId(), "status", persistable.status().name()),
                                 persistable.createdAt(), persistable.requestId()), state);
+                if (acceptedEvent != null) insertOutbox(connection, acceptedEvent);
                 connection.commit();
                 return persistable;
             } catch (RuntimeException | SQLException failure) {
@@ -1448,6 +1459,30 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
             statement.setString(8, event.classification());
             statement.setLong(9, event.occurredAt().toEpochMilli());
             statement.executeUpdate();
+        }
+    }
+
+    private static void validateAcceptedEventMatchesJob(ProcessingJob job, MediaLifecycleEvent event) {
+        String expectedEventId = "media:media.job.accepted:" + job.jobId() + ":" + job.version();
+        Map<String, Object> expectedPayload = Map.of(
+                "jobId", job.jobId(),
+                "operationRef", "media.operation-slice.submit-job",
+                "admissionState", "ACCEPTED");
+        if (job.status() != JobStatus.ACCEPTED
+                || !event.eventId().equals(expectedEventId)
+                || !event.eventType().equals("media.job.accepted")
+                || !event.tenantId().equals(job.tenantId())
+                || !event.principalId().equals(job.principalId())
+                || !event.causationId().equals(job.requestId())
+                || !event.aggregateType().equals("processing-job")
+                || !event.aggregateId().equals(job.jobId())
+                || event.aggregateVersion() != job.version()
+                || !event.occurredAt().equals(job.createdAt())
+                || !java.util.Set.of("INTERNAL", "CONFIDENTIAL", "RESTRICTED")
+                        .contains(event.classification())
+                || !event.attributes().equals(expectedPayload)) {
+            throw new IllegalArgumentException(
+                    "Canonical accepted event must exactly match the committed Media job identity and payload");
         }
     }
 

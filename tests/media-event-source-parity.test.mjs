@@ -51,9 +51,9 @@ function validate({ registry, domainEvents, conventions, runtime, publisher, cli
   const expectedRuntimeCrosswalk = [
     ["media.upload.started", "MediaRuntime#beginUpload", "MediaRuntime#beginUpload", ["contentType", "expectedSizeBytes"]],
     ["media.artifact.completed", "MediaRuntime#completeUpload", "MediaRuntime#completeUpload", ["contentType", "sizeBytes", "sourceUploadId", "sha256"]],
-    ["media.job.accepted", "MediaRuntime#submitJob", "MediaRuntime#submitJob", ["artifactId", "jobType", "providerId", "status"]],
+    ["media.job.accepted", "MediaRuntime#submitJob V016 intent", "MediaRuntime#submitJob", ["jobId", "operationRef", "admissionState"]],
     ["media.job.cancelled", "MediaRuntime#cancel", "MediaRuntime#cancel", ["artifactId", "jobType", "providerId", "status", "cancellationOutcome"]],
-    ["media.job.cancel_requested", "MediaRuntime#cancel", "MediaRuntime#cancel", ["artifactId", "jobType", "providerId", "status", "cancellationOutcome"]],
+    ["media.job.cancel_requested", "MediaRuntime#publishCancellationRequested", "MediaRuntime#publishCancellationRequested", ["artifactId", "jobType", "providerId", "status", "cancellationOutcome"]],
     ["media.stream.opened", "MediaRuntime#openStream", "MediaRuntime#openStream", ["streamKind", "providerId"]],
     ["media.stream.closed", "MediaRuntime#closeStream", "MediaRuntime#closeStream", ["streamKind", "providerId", "lastSequence", "state"]],
     ["media.job.completed", "MediaRuntime#startJob terminal publication", "MediaRuntime#startJob-terminal-publication", ["artifactId", "jobType", "providerId", "status", "failureCode"]],
@@ -100,7 +100,9 @@ function validate({ registry, domainEvents, conventions, runtime, publisher, cli
         ? !excerpt.includes('"media.job." + terminal.status()')
         : !excerpt.includes(`"${type}"`));
   })) errors.push("PDP1 runtime event/publisher/payload crosswalk must match direct Runtime source call sites");
-  if (new Set(runtimeCrosswalk.map(({ publisher }) => publisher)).size !== 7) errors.push("PDP1 runtime publisher call-site identities must contain seven distinct source call sites");
+  if (new Set(runtimeCrosswalk.filter(({ eventType }) => eventType !== "media.job.accepted").map(({ publisher }) => publisher)).size !== 7) {
+    errors.push("PDP1 direct lifecycle publisher call-site identities must contain seven distinct source call sites");
+  }
 
   const observedClientEvents = [...client.matchAll(/emitEvent\('([^']+)'/gu)].map(([, name]) => name);
   const clientPopulation = section(registry, "  clientLocalTypeScriptNotifications:\n", "events:\n");
@@ -132,11 +134,11 @@ function validate({ registry, domainEvents, conventions, runtime, publisher, cli
   if (new Set(clientCrosswalk.map(({ publisher }) => publisher)).size !== 5) errors.push("PDP1 client publisher identities must contain five distinct source methods");
   if (!client.includes("listeners.forEach(callback => {") || !client.includes("try { callback(data); } catch (error)")) errors.push("client listener dispatch must retain source-observed callback isolation");
 
-  if (!runtimePopulation.includes("classification: observed server-side publisher implementation types; not an accepted canonical taxonomy")) errors.push("runtime event population must remain implementation inventory, not canonical taxonomy");
+  if (!runtimePopulation.includes("classification: source-observed server-side event identities across direct lifecycle publication and the canonical V016 accepted-event outbox; not an accepted canonical taxonomy")) errors.push("runtime event population must remain implementation inventory, not canonical taxonomy");
   if (!runtimePopulation.includes("deliveryFinalityOrderingReplayGuarantees: not-established")) errors.push("runtime delivery/finality/ordering/replay guarantees must remain not established");
   if (!registry.includes("deliveryFinalityOrderingReplayGuarantees: not-established")) errors.push("client-local delivery/finality/ordering/replay guarantees must remain not established");
   if (!registry.includes("status: implementation-observed; not-an-accepted-delivery-contract")) errors.push("runtime delivery claims must remain implementation observations");
-  for (const marker of ["readyFalse: publication-skipped", "transport: bounded-synchronous-http-post", "otherHttpStatus: publisher-throws", "runtimeFailure: logs-publication-unconfirmed-and-continues"]) {
+  for (const marker of ["readyFalse: publication-skipped", "transport: bounded-synchronous-http-post", "otherHttpStatus: ambiguous-status-exact-readback-or-definitive-rejection", "runtimeFailure: logs-publication-unconfirmed-and-continues"]) {
     if (!runtimePopulation.includes(marker)) errors.push(`runtime delivery observation missing ${marker}`);
   }
   if (![domainEvents, conventions, registry].every((source) => source.includes("acceptedHttpStatuses: [201]"))
@@ -145,13 +147,16 @@ function validate({ registry, domainEvents, conventions, runtime, publisher, cli
   }
   if (!publisher.includes("if (response.statusCode() != 201)")) errors.push("publisher must accept only Event Plane AppendEventResponse status 201");
   if (!publisher.includes("Event Plane rejected Media lifecycle event with status")) errors.push("non-201 Event Plane responses must remain publication failures");
-  if (!publisher.includes('.header("Idempotency-Key", event.eventId())')) errors.push("publisher source no longer sets Idempotency-Key from eventId");
+  if (!publisher.includes('.header("Idempotency-Key", idempotencyKey)')
+      || !publisher.includes('tenantScopedIdempotencyKey(event.tenantId(), event.eventId())')) {
+    errors.push("publisher must use the deterministic tenant-scoped event idempotency key");
+  }
   const projection = section(domainEvents, "    transportProjection:\n", "    eventVersion:");
   const expectedProjectionBindings = [
     ['X-Tenant-Id', '.header("X-Tenant-Id", event.tenantId())', 'event.tenantId()'],
     ['X-Principal-Id', '.header("X-Principal-Id", event.principalId())', 'event.principalId()'],
     ['X-Correlation-Id', '.header("X-Correlation-Id", event.correlationId())', 'event.correlationId()'],
-    ['Idempotency-Key', '.header("Idempotency-Key", event.eventId())', 'event.eventId()'],
+    ['Idempotency-Key', '.header("Idempotency-Key", idempotencyKey)', 'tenantScopedIdempotencyKey(event.tenantId(), event.eventId())'],
     ['eventId', 'body.put("eventId", event.eventId())', 'event.eventId()'],
     ['eventType', 'body.put("eventType", event.eventType())', 'event.eventType()'],
     ['eventVersion', 'body.put("eventVersion", "1.0.0")', 'literal-1.0.0'],
@@ -161,7 +166,7 @@ function validate({ registry, domainEvents, conventions, runtime, publisher, cli
     ['source', 'body.put("source", "media")', 'literal-media'],
     ['userId', 'body.put("userId", event.principalId())', 'event.principalId()'],
     ['contentType', 'body.put("contentType", "application/json")', 'literal-application/json'],
-    ['payload', 'body.put("payload", payload)', 'nested-payload-map'],
+    ['payload', 'body.put("payload", lifecyclePayload(event))', 'lifecyclePayload(event)'],
     ['aggregateType', 'payload.put("aggregateType", event.aggregateType())', 'event.aggregateType()'],
     ['aggregateId', 'payload.put("aggregateId", event.aggregateId())', 'event.aggregateId()'],
     ['aggregateVersion', 'payload.put("aggregateVersion", event.aggregateVersion())', 'event.aggregateVersion()'],
@@ -199,9 +204,10 @@ function validate({ registry, domainEvents, conventions, runtime, publisher, cli
     errors.push("Event Plane handler must preserve an explicitly supplied eventVersion string unchanged");
   }
   if (!registry.includes("durableDeduplication: unverified")) errors.push("Idempotency-Key must not imply durable deduplication");
-  for (const marker of ["durable-outbox", "retry-policy", "replay", "retention", "ordering", "delivery-cardinality", "consumer-acknowledgement", "recovery"]) {
+  for (const marker of ["consumer-replay-retention", "downstream-ordering", "delivery-cardinality", "consumer-acknowledgement", "consumer-effect-finality", "production-admission"]) {
     if (!runtimePopulation.includes(marker)) errors.push(`unproven delivery guarantee ${marker} must remain explicitly not established`);
   }
+  if (runtimePopulation.includes("durable-outbox")) errors.push("the accepted-event V016 durable outbox must remain distinguished from end-to-end delivery guarantees");
   if (!registry.includes("status: two-observed-source-populations; event-taxonomy-and-domain-lifecycle-coverage-pending-owner-review")) errors.push("taxonomy and domain lifecycle coverage must remain pending owner review");
   if (!registry.includes("semanticCrosswalk: not-established")) errors.push("cross-population semantic crosswalk must remain unresolved");
   return errors;
@@ -264,10 +270,10 @@ test("source crosswalk rejects missing, stale, or duplicate event and publisher 
 
   const stalePublisher = base.domainEvents.replace("identity: MediaRuntime#submitJob", "identity: MediaRuntime#stalePublisher");
   assert.match(validate({ ...base, domainEvents: stalePublisher }).join("\n"), /runtime event\/publisher\/payload crosswalk must match direct Runtime source/u);
-  const missingPublisher = base.domainEvents.replace("publisherCallSite: {identity: MediaRuntime#submitJob, sourcePath:", "publisherCallSite: {sourcePath:");
-  assert.match(validate({ ...base, domainEvents: missingPublisher }).join("\n"), /runtime publisher call-site identities must contain seven distinct source call sites/u);
-  const duplicatePublisher = base.domainEvents.replace("identity: MediaRuntime#submitJob", "identity: MediaRuntime#beginUpload");
-  assert.match(validate({ ...base, domainEvents: duplicatePublisher }).join("\n"), /runtime publisher call-site identities must contain seven distinct source call sites/u);
+  const missingPublisher = base.domainEvents.replace("publisherCallSite: {identity: MediaRuntime#beginUpload, sourcePath:", "publisherCallSite: {sourcePath:");
+  assert.match(validate({ ...base, domainEvents: missingPublisher }).join("\n"), /direct lifecycle publisher call-site identities must contain seven distinct source call sites/u);
+  const duplicatePublisher = base.domainEvents.replace("identity: MediaRuntime#cancel, sourcePath:", "identity: MediaRuntime#beginUpload, sourcePath:");
+  assert.match(validate({ ...base, domainEvents: duplicatePublisher }).join("\n"), /direct lifecycle publisher call-site identities must contain seven distinct source call sites/u);
 
   const noClientEvent = base.domainEvents.replace(/      - \{eventName: "vision:process:error"[^\n]+\n/u, "");
   assert.match(validate({ ...base, domainEvents: noClientEvent }).join("\n"), /PDP1 client source crosswalk must contain the exact 15 notification identities once/u);

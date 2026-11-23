@@ -1113,6 +1113,10 @@ public final class MediaHttpHandler implements HttpHandler {
             error(exchange, 429, MediaDevRenderAdmission.CAPACITY_CODE,
                     "DEV_ONLY render capacity is exhausted; retry the same requestId after the Retry-After delay",
                     true, Map.of("scope", failure.scope()));
+        } catch (MediaDevProjectRenderRuntime.SourceUseAuthorityUnavailableException failure) {
+            error(exchange, 503, "SOURCE_USE_AUTHORITY_UNAVAILABLE",
+                    "Project render is blocked because current workspace-scoped source rights and policy are unavailable",
+                    true, Map.of("scope", "DEV_ONLY", "outcome", "UNAVAILABLE"));
         } catch (MediaDevProjectRenderRuntime.SourceVersionUnavailableException failure) {
             runtime.recordDeniedRequest();
             error(exchange, 404, "SOURCE_VERSION_NOT_FOUND",

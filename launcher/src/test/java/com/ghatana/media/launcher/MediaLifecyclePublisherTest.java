@@ -388,6 +388,36 @@ class MediaLifecyclePublisherTest {
     }
 
     @Test
+    void priorAttemptGetsAtMostOnePostAfterPreflightAbsence() throws Exception {
+        AtomicInteger postCalls = new AtomicInteger();
+        AtomicInteger lookupCalls = new AtomicInteger();
+        HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/api/v1/streams/media-lifecycle/events", exchange -> {
+            try (exchange) {
+                if ("GET".equals(exchange.getRequestMethod())) {
+                    lookupCalls.incrementAndGet();
+                    exchange.sendResponseHeaders(404, -1);
+                } else {
+                    postCalls.incrementAndGet();
+                    exchange.getRequestBody().readAllBytes();
+                    exchange.close(); // Ambiguous append response after authoritative absence.
+                }
+            }
+        });
+        server.start();
+        try (MediaLifecyclePublisher publisher = MediaLifecyclePublisher.compose(devRelayEnvironment(Map.of(
+                "MEDIA_EVENT_PLANE_URL", "http://127.0.0.1:" + server.getAddress().getPort())), false)) {
+            assertThatThrownBy(() -> publisher.publishWithReceipt(event(), true))
+                    .isInstanceOf(MediaLifecyclePublicationOutcomeUnknownException.class)
+                    .hasMessageContaining("append remains unknown");
+        } finally {
+            server.stop(0);
+        }
+        assertThat(lookupCalls).hasValue(2);
+        assertThat(postCalls).hasValue(1);
+    }
+
+    @Test
     void incompleteLookupNeverRepostsAmbiguousAppend() throws Exception {
         for (int lookupStatus : new int[] {422, 503}) {
             AtomicInteger postCalls = new AtomicInteger();

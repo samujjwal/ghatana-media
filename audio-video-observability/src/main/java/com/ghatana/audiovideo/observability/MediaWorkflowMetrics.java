@@ -616,7 +616,8 @@ public final class MediaWorkflowMetrics {
      * restricted to the fixed locale/metric/scope vocabulary.
      *
      * @return false when the refresh is stale, exceeds bounded capacity, or the
-     *         sample rows are ambiguous for one series
+     *         sample rows are ambiguous for one series, or the metrics registry
+     *         cannot register the complete series set
      */
     public boolean recordProviderQualitySeries(
             Modality modality, String providerId, String providerVersion,
@@ -702,6 +703,22 @@ public final class MediaWorkflowMetrics {
                 recordRejectedQualitySeries();
                 return false;
             }
+            java.util.Map<ProviderQualityKey, AtomicReference<Double>> targets = new java.util.HashMap<>();
+            try {
+                // Register every required gauge before publishing any values. A registry
+                // failure partway through must not expose a mixed refresh; newly registered
+                // gauges remain NaN until the complete set is available.
+                for (ProviderQualitySeriesSample sample : rows) {
+                    ProviderQualityKey key = new ProviderQualityKey(modality, providerId,
+                            providerVersion, modelRevision, sample.locale(), sample.metric(),
+                            sample.scope());
+                    targets.put(key, providerQualitySeries.computeIfAbsent(key,
+                            this::registerQualityGauge));
+                }
+            } catch (RuntimeException registryFailure) {
+                recordRejectedQualitySeries();
+                return false;
+            }
             for (java.util.Map.Entry<ProviderQualityKey, AtomicReference<Double>> entry
                     : providerQualitySeries.entrySet()) {
                 ProviderQualityKey key = entry.getKey();
@@ -711,13 +728,9 @@ public final class MediaWorkflowMetrics {
                     entry.getValue().set(Double.NaN);
                 }
             }
-            for (ProviderQualitySeriesSample sample : rows) {
-                ProviderQualityKey key = new ProviderQualityKey(modality, providerId,
-                        providerVersion, modelRevision, sample.locale(), sample.metric(),
-                        sample.scope());
-                AtomicReference<Double> value = providerQualitySeries.computeIfAbsent(key,
-                        this::registerQualityGauge);
-                value.set(sample.value());
+            for (java.util.Map.Entry<ProviderQualityKey, ProviderQualitySeriesSample> entry
+                    : desired.entrySet()) {
+                targets.get(entry.getKey()).set(entry.getValue().value());
             }
             providerQualityRefreshes.put(group, new ProviderQualityRefresh(checkedAt, Map.copyOf(desired), false));
             return true;

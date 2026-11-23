@@ -115,10 +115,7 @@ public final class ProjectTimelineEngine {
         requireExpectedHead(expectedHeadRevisionId);
         requiredOpaqueId(timelineId, "timelineId");
         requireRequestId(requestId);
-        List<Edit> commandEdits = List.copyOf(Objects.requireNonNull(edits, "edits"));
-        if (commandEdits.size() > MAX_EDIT_OPERATIONS) {
-            throw new IllegalArgumentException("timeline edit exceeds the 10000 operation limit");
-        }
+        List<Edit> commandEdits = copyBoundedEdits(Objects.requireNonNull(edits, "edits"));
         String fingerprint = editFingerprint(projectId, timelineId, expectedHeadRevisionId, commandEdits);
         Revision replay = store.replayCommand(actor, projectId, PROJECT_UPDATE_OPERATION, requestId, fingerprint);
         if (replay != null) return requireSuccessor(actor, projectId, expectedHeadRevisionId, replay.revisionId(), replay);
