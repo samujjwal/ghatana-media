@@ -6,9 +6,9 @@ authority: .product-experience/pdp-0-product-truth/domain-model.yaml
 scopeStatus: coordinator-reviewed-logical-relationship-definitions; storage-and-runtime-parity-not-admitted
 relationshipPopulationAdjudication:
   coordinatorDecisionRef: .product-experience/decision-log.md#PXD-140
-  observedRelationshipCount: 14
-  status: current-14-record-source-population-reviewed; user-directed-project-timeline-snapshot-binding-added; definition-only; runtime-and-storage-parity-not-admitted
-  rationale: The frozen PDP-0 handoff count of 11 is stale relative to the current source. Preserve all 13 existing unique relationships, including the four PXD-119 owner-defined logical bindings, and add the explicit ProjectRevision-to-TimelineSnapshot containment selected under user direction. This is a product mapping definition only; it does not claim storage, wire, or runtime parity.
+  observedRelationshipCount: 17
+  status: current-17-record-source-population-reviewed; user-directed-project-timeline-snapshot-binding-and-delegated-storyboard-reference-bindings-added; definition-only; runtime-and-storage-parity-not-admitted
+  rationale: The frozen PDP-0 handoff count of 11 is stale relative to the current source. Preserve all 14 existing unique relationships, including the four PXD-119 owner-defined logical bindings and the ProjectRevision-to-TimelineSnapshot containment, and add the exact ScenePlan-to-ProjectRevision, ScenePlan-to-SceneGraph, and ScenePlan-to-Timeline bindings selected under PXD-235. These are product mapping definitions only; they do not claim storage, wire, or runtime parity.
   pendingOwnerDecisions:
     - id: relationship-storage-constraints
       question: Which exact relationship cardinalities and lineage constraints are enforced by persistence, and what evidence establishes that enforcement?
@@ -90,7 +90,7 @@ relationships:
             - tenantId
             - projectId
             - timelineId
-            - semanticVersion
+            - semanticVersionId
       sameTenantRequired: true
       sameProjectRequired: true
       cardinalityRule: A project revision contains zero or more timeline snapshots; the initial committed revision contains zero; each member binds one exact timeline semantic version.
@@ -574,6 +574,106 @@ relationships:
       deletionRule: Assessment records follow subject retention/erasure and legal-hold rules; assessment presence does not make a subject available or authorized.
       lineageRule: No lineage edge is implied by this relationship unless explicitly stated in its exact version rule.
       runtimeParity: NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence
+  - id: media.rel.scene-plan-project-revision
+    from: media.domain.scene-plan
+    to: media.domain.project-revision
+    meaning: storyboard-plan-edition-is-bound-to-one-exact-project-revision-precondition
+    cardinality: many-plan-editions-to-one-exact-project-revision-per-edition
+    cardinalityBasis: delegated technical product-owner logical mapping under PXD-235; not a persistence constraint
+    sourceRefs:
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.scene-plan/storyboardRevisionBinding
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-plan
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.project-revision
+      - .product-experience/decision-log.md#PXD-235
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; independent-PDP1-review-open; runtime-NOT_ADMITTED
+    ownerDefinition:
+      id: media.relationship-owner.scene-plan-project-revision.v1
+      ownerDecisionId: PXD-235
+      disposition: DELEGATED_TECHNICAL_PRODUCT_OWNER_LOGICAL_MAPPING
+      path: ScenePlan → ProjectRevision
+      fieldBinding: ScenePlan.projectRevisionRef
+      parentIdentityContracts:
+        - objectRef: media.domain.scene-plan
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-plan
+          identityTuple: [tenantId, projectId, scenePlanId, semanticVersion]
+      childIdentityContracts:
+        - objectRef: media.domain.project-revision
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.project-revision
+          identityTuple: [tenantId, projectId, revisionId]
+      sameTenantRequired: true
+      sameProjectRequired: true
+      cardinalityRule: Each plan edition is anchored to exactly one immutable project revision; multiple plan editions may share that exact revision.
+      exactVersionRule: Bind the exact revisionId captured during plan preparation; a changed project head causes conflict or UNKNOWN and never substitutes a newer revision.
+      lifecycleRule: A plan edition remains bound to its captured revision; rebasing creates a new plan edition and does not rewrite prior editions.
+      deletionRule: Project archival does not rewrite plan lineage; retention and erasure follow their separate authority.
+      lineageRule: The reference is a project-head precondition and does not imply project mutation.
+      runtimeParity: NOT_ADMITTED; this logical mapping does not assert persistence or transport equivalence
+  - id: media.rel.scene-plan-scene-graph
+    from: media.domain.scene-plan
+    to: media.domain.scene-graph
+    meaning: storyboard-edition-binds-one-exact-visual-scene-graph-per-planned-scene
+    cardinality: one-plan-edition-to-one-through-256-ordered-scene-graph-versions
+    cardinalityBasis: delegated technical product-owner logical mapping under PXD-235; not a persistence constraint
+    sourceRefs:
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.scene-plan/storyboardRevisionBinding
+      - .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#media_action_save-storyboard-revision
+      - .product-experience/decision-log.md#PXD-235
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; independent-PDP1-review-open; runtime-NOT_ADMITTED
+    ownerDefinition:
+      id: media.relationship-owner.scene-plan-scene-graph.v1
+      ownerDecisionId: PXD-235
+      disposition: DELEGATED_TECHNICAL_PRODUCT_OWNER_LOGICAL_MAPPING
+      path: ScenePlan → SceneGraph
+      fieldBinding: save-storyboard-revision.payload.sceneRefs[]
+      parentIdentityContracts:
+        - objectRef: media.domain.scene-plan
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-plan
+          identityTuple: [tenantId, projectId, scenePlanId, semanticVersion]
+      childIdentityContracts:
+        - objectRef: media.domain.scene-graph
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-graph
+          identityTuple: [tenantId, projectId, sceneGraphId, semanticVersion]
+      sameTenantRequired: true
+      sameProjectRequired: true
+      cardinalityRule: The reference array length equals the plan scene count (1–256); every planned scene has exactly one reference and no extra scene reference exists.
+      exactVersionRule: Array position i binds the exact SceneGraph version for planned scene i in canonical authored order; every identity and semantic version is explicit and unique.
+      lifecycleRule: Editing plan order or a referenced graph creates a new plan edition; existing plan editions and graphs remain immutable.
+      deletionRule: Missing or erased graph versions make dependent plan use unavailable; no latest-version substitution is allowed.
+      lineageRule: The relation identifies visual representation only; it does not equate SceneGraph entities to Timeline scene or clip nodes.
+      runtimeParity: NOT_ADMITTED; this logical mapping does not assert persistence or transport equivalence
+  - id: media.rel.scene-plan-timeline-snapshot
+    from: media.domain.scene-plan
+    to: media.domain.timeline
+    meaning: storyboard-edition-selects-an-exact-timeline-snapshot-in-its-project-revision
+    cardinality: many-plan-editions-to-one-exact-timeline-snapshot-per-edition
+    cardinalityBasis: delegated technical product-owner logical mapping under PXD-235; not a persistence constraint
+    sourceRefs:
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.scene-plan/storyboardRevisionBinding
+      - .product-experience/pdp-1-domain-data/relationships.yaml#media.rel.project-revision-timeline-snapshot
+      - .product-experience/decision-log.md#PXD-235
+    scopeStatus: OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; independent-PDP1-review-open; runtime-NOT_ADMITTED
+    ownerDefinition:
+      id: media.relationship-owner.scene-plan-timeline-snapshot.v1
+      ownerDecisionId: PXD-235
+      disposition: DELEGATED_TECHNICAL_PRODUCT_OWNER_LOGICAL_MAPPING
+      path: ScenePlan → ProjectRevision → TimelineSnapshot
+      fieldBinding: ScenePlan.timelineRef
+      parentIdentityContracts:
+        - objectRef: media.domain.scene-plan
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-plan
+          identityTuple: [tenantId, projectId, scenePlanId, semanticVersion]
+      childIdentityContracts:
+        - objectRef: media.domain.timeline
+          selector: .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.timeline
+          identityTuple: [tenantId, projectId, timelineId, semanticVersionId]
+      sameTenantRequired: true
+      sameProjectRequired: true
+      cardinalityRule: Each plan edition names exactly one timeline snapshot, and the exact timeline identity/version must occur in the exact ProjectRevision bound through media.rel.scene-plan-project-revision.
+      exactVersionRule: The wire reference's semanticVersion maps exactly to canonical semanticVersionId; project, timeline, version, and bound revision are all exact.
+      lifecycleRule: Changing the selected timeline snapshot creates a new plan edition; it does not advance the project head or mutate a timeline.
+      deletionRule: Missing or erased timeline snapshots make dependent plan use unavailable; no latest-version substitution is allowed.
+      lineageRule: This is a contextual association only; it does not create Timeline scene/clip membership or assert renderability.
+      runtimeParity: NOT_ADMITTED; this logical mapping does not assert persistence or transport equivalence
 ownerNormativeRuleRecords:
   - id: media.relationship-owner.project-revision.v1
     ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.project-revision/ownerDefinition
@@ -581,6 +681,15 @@ ownerNormativeRuleRecords:
   - id: media.relationship-owner.project-revision-timeline-snapshot.v1
     ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.project-revision-timeline-snapshot/ownerDefinition
     sourceRole: user-directed-semantic-mapping-definition; acceptance-effect-none
+  - id: media.relationship-owner.scene-plan-project-revision.v1
+    ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.scene-plan-project-revision/ownerDefinition
+    sourceRole: delegated-technical-product-owner-semantic-mapping; acceptance-effect-none
+  - id: media.relationship-owner.scene-plan-scene-graph.v1
+    ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.scene-plan-scene-graph/ownerDefinition
+    sourceRole: delegated-technical-product-owner-semantic-mapping; acceptance-effect-none
+  - id: media.relationship-owner.scene-plan-timeline-snapshot.v1
+    ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.scene-plan-timeline-snapshot/ownerDefinition
+    sourceRole: delegated-technical-product-owner-semantic-mapping; acceptance-effect-none
   - id: media.relationship-owner.project-asset.v1
     ruleRef: .product-experience/pdp-1-domain-data/relationships.yaml#relationships/@id=media.rel.project-asset/ownerDefinition
     sourceRole: flat-index-to-the-exact-nested-owner-definition

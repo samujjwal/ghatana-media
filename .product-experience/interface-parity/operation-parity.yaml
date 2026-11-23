@@ -19665,7 +19665,7 @@ typedRuntimeLifecycleEventDispositions:
       eventVersion: 1.0.0
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records/0
       producerIdentity: MediaRuntime#beginUpload
-      producerSourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L275-L280
+      producerSourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L510-L515
       aggregateType: upload
       delivery: at-least-once; consumer must deduplicate
       ordering: strictly-increasing aggregateVersion; consumers reject stale or
@@ -19686,7 +19686,7 @@ typedRuntimeLifecycleEventDispositions:
       eventVersion: 1.0.0
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records/1
       producerIdentity: MediaRuntime#completeUpload
-      producerSourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L321-L328
+      producerSourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L575-L582
       aggregateType: artifact
       delivery: at-least-once; consumer must deduplicate
       ordering: strictly-increasing aggregateVersion; consumers reject stale or
@@ -19707,7 +19707,7 @@ typedRuntimeLifecycleEventDispositions:
       eventVersion: 1.0.0
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records/2
       producerIdentity: MediaRuntime#submitJob
-      producerSourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L404-L410
+      producerSourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1153-L1164
       aggregateType: processing-job
       delivery: at-least-once; consumer must deduplicate
       ordering: strictly-increasing aggregateVersion; consumers reject stale or
@@ -19728,7 +19728,7 @@ typedRuntimeLifecycleEventDispositions:
       eventVersion: 1.0.0
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records/3
       producerIdentity: MediaRuntime#cancel
-      producerSourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L472-L506
+      producerSourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L2281-L2317
       aggregateType: processing-job
       delivery: at-least-once; consumer must deduplicate
       ordering: strictly-increasing aggregateVersion; consumers reject stale or
@@ -19749,7 +19749,7 @@ typedRuntimeLifecycleEventDispositions:
       eventVersion: 1.0.0
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records/4
       producerIdentity: MediaRuntime#cancel
-      producerSourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L472-L506
+      producerSourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1919-L1927
       aggregateType: processing-job
       delivery: at-least-once; consumer must deduplicate
       ordering: strictly-increasing aggregateVersion; consumers reject stale or
@@ -19770,7 +19770,7 @@ typedRuntimeLifecycleEventDispositions:
       eventVersion: 1.0.0
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records/5
       producerIdentity: MediaRuntime#openStream
-      producerSourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L532-L536
+      producerSourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L2366-L2370
       aggregateType: stream-session
       delivery: at-least-once; consumer must deduplicate
       ordering: strictly-increasing aggregateVersion; consumers reject stale or
@@ -19791,7 +19791,7 @@ typedRuntimeLifecycleEventDispositions:
       eventVersion: 1.0.0
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records/6
       producerIdentity: MediaRuntime#closeStream
-      producerSourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L672-L678
+      producerSourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L2626-L2632
       aggregateType: stream-session
       delivery: at-least-once; consumer must deduplicate
       ordering: strictly-increasing aggregateVersion; consumers reject stale or
@@ -19812,7 +19812,7 @@ typedRuntimeLifecycleEventDispositions:
       eventVersion: 1.0.0
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records/7
       producerIdentity: MediaRuntime#startJob terminal publication
-      producerSourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1211-L1218
+      producerSourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3704-L3711
       aggregateType: processing-job
       delivery: at-least-once; consumer must deduplicate
       ordering: strictly-increasing aggregateVersion; consumers reject stale or
@@ -19833,7 +19833,7 @@ typedRuntimeLifecycleEventDispositions:
       eventVersion: 1.0.0
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/records/8
       producerIdentity: MediaRuntime#startJob terminal publication
-      producerSourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1211-L1218
+      producerSourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3704-L3711
       aggregateType: processing-job
       delivery: at-least-once; consumer must deduplicate
       ordering: strictly-increasing aggregateVersion; consumers reject stale or
@@ -19864,7 +19864,7 @@ typedClientNotificationDispositions:
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords/0
       registrySourceRef: .product-experience/pdp-3-product-experience/events/event-registry.yaml#events[media.event.stt:transcription:start]
       producerIdentity: AudioVideoClient#transcribe
-      producerSourceRef: libs/audio-video-client/src/index.ts#L177
+      producerSourceRef: libs/audio-video-client/src/index.ts#L317
       delivery: best-effort-process-local
       ordering: start precedes exactly one terminal complete-or-error notification in
         normal completion; independent invocations may interleave
@@ -19889,7 +19889,7 @@ typedClientNotificationDispositions:
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords/1
       registrySourceRef: .product-experience/pdp-3-product-experience/events/event-registry.yaml#events[media.event.stt:transcription:complete]
       producerIdentity: AudioVideoClient#transcribe
-      producerSourceRef: libs/audio-video-client/src/index.ts#L187
+      producerSourceRef: libs/audio-video-client/src/index.ts#L328
       delivery: best-effort-process-local
       ordering: start precedes exactly one terminal complete-or-error notification in
         normal completion; independent invocations may interleave
@@ -19914,7 +19914,7 @@ typedClientNotificationDispositions:
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords/2
       registrySourceRef: .product-experience/pdp-3-product-experience/events/event-registry.yaml#events[media.event.stt:transcription:error]
       producerIdentity: AudioVideoClient#transcribe
-      producerSourceRef: libs/audio-video-client/src/index.ts#L191
+      producerSourceRef: libs/audio-video-client/src/index.ts#L332
       delivery: best-effort-process-local
       ordering: start precedes exactly one terminal complete-or-error notification in
         normal completion; independent invocations may interleave
@@ -19939,7 +19939,7 @@ typedClientNotificationDispositions:
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords/3
       registrySourceRef: .product-experience/pdp-3-product-experience/events/event-registry.yaml#events[media.event.tts:synthesis:start]
       producerIdentity: AudioVideoClient#synthesize
-      producerSourceRef: libs/audio-video-client/src/index.ts#L205
+      producerSourceRef: libs/audio-video-client/src/index.ts#L346
       delivery: best-effort-process-local
       ordering: start precedes exactly one terminal complete-or-error notification in
         normal completion; independent invocations may interleave
@@ -19964,7 +19964,7 @@ typedClientNotificationDispositions:
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords/4
       registrySourceRef: .product-experience/pdp-3-product-experience/events/event-registry.yaml#events[media.event.tts:synthesis:complete]
       producerIdentity: AudioVideoClient#synthesize
-      producerSourceRef: libs/audio-video-client/src/index.ts#L214
+      producerSourceRef: libs/audio-video-client/src/index.ts#L356
       delivery: best-effort-process-local
       ordering: start precedes exactly one terminal complete-or-error notification in
         normal completion; independent invocations may interleave
@@ -19989,7 +19989,7 @@ typedClientNotificationDispositions:
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords/5
       registrySourceRef: .product-experience/pdp-3-product-experience/events/event-registry.yaml#events[media.event.tts:synthesis:error]
       producerIdentity: AudioVideoClient#synthesize
-      producerSourceRef: libs/audio-video-client/src/index.ts#L218
+      producerSourceRef: libs/audio-video-client/src/index.ts#L360
       delivery: best-effort-process-local
       ordering: start precedes exactly one terminal complete-or-error notification in
         normal completion; independent invocations may interleave
@@ -20014,7 +20014,7 @@ typedClientNotificationDispositions:
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords/6
       registrySourceRef: .product-experience/pdp-3-product-experience/events/event-registry.yaml#events[media.event.ai-voice:process:start]
       producerIdentity: AudioVideoClient#processAIVoice
-      producerSourceRef: libs/audio-video-client/src/index.ts#L232
+      producerSourceRef: libs/audio-video-client/src/index.ts#L374
       delivery: best-effort-process-local
       ordering: start precedes exactly one terminal complete-or-error notification in
         normal completion; independent invocations may interleave
@@ -20039,7 +20039,7 @@ typedClientNotificationDispositions:
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords/7
       registrySourceRef: .product-experience/pdp-3-product-experience/events/event-registry.yaml#events[media.event.ai-voice:process:complete]
       producerIdentity: AudioVideoClient#processAIVoice
-      producerSourceRef: libs/audio-video-client/src/index.ts#L241
+      producerSourceRef: libs/audio-video-client/src/index.ts#L384
       delivery: best-effort-process-local
       ordering: start precedes exactly one terminal complete-or-error notification in
         normal completion; independent invocations may interleave
@@ -20064,7 +20064,7 @@ typedClientNotificationDispositions:
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords/8
       registrySourceRef: .product-experience/pdp-3-product-experience/events/event-registry.yaml#events[media.event.ai-voice:process:error]
       producerIdentity: AudioVideoClient#processAIVoice
-      producerSourceRef: libs/audio-video-client/src/index.ts#L245
+      producerSourceRef: libs/audio-video-client/src/index.ts#L388
       delivery: best-effort-process-local
       ordering: start precedes exactly one terminal complete-or-error notification in
         normal completion; independent invocations may interleave
@@ -20089,7 +20089,7 @@ typedClientNotificationDispositions:
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords/9
       registrySourceRef: .product-experience/pdp-3-product-experience/events/event-registry.yaml#events[media.event.vision:process:start]
       producerIdentity: AudioVideoClient#processVision
-      producerSourceRef: libs/audio-video-client/src/index.ts#L259
+      producerSourceRef: libs/audio-video-client/src/index.ts#L402
       delivery: best-effort-process-local
       ordering: start precedes exactly one terminal complete-or-error notification in
         normal completion; independent invocations may interleave
@@ -20114,7 +20114,7 @@ typedClientNotificationDispositions:
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords/10
       registrySourceRef: .product-experience/pdp-3-product-experience/events/event-registry.yaml#events[media.event.vision:process:complete]
       producerIdentity: AudioVideoClient#processVision
-      producerSourceRef: libs/audio-video-client/src/index.ts#L269
+      producerSourceRef: libs/audio-video-client/src/index.ts#L413
       delivery: best-effort-process-local
       ordering: start precedes exactly one terminal complete-or-error notification in
         normal completion; independent invocations may interleave
@@ -20139,7 +20139,7 @@ typedClientNotificationDispositions:
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords/11
       registrySourceRef: .product-experience/pdp-3-product-experience/events/event-registry.yaml#events[media.event.vision:process:error]
       producerIdentity: AudioVideoClient#processVision
-      producerSourceRef: libs/audio-video-client/src/index.ts#L273
+      producerSourceRef: libs/audio-video-client/src/index.ts#L417
       delivery: best-effort-process-local
       ordering: start precedes exactly one terminal complete-or-error notification in
         normal completion; independent invocations may interleave
@@ -20164,7 +20164,7 @@ typedClientNotificationDispositions:
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords/12
       registrySourceRef: .product-experience/pdp-3-product-experience/events/event-registry.yaml#events[media.event.multimodal:process:start]
       producerIdentity: AudioVideoClient#processMultimodal
-      producerSourceRef: libs/audio-video-client/src/index.ts#L287
+      producerSourceRef: libs/audio-video-client/src/index.ts#L431
       delivery: best-effort-process-local
       ordering: start precedes exactly one terminal complete-or-error notification in
         normal completion; independent invocations may interleave
@@ -20189,7 +20189,7 @@ typedClientNotificationDispositions:
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords/13
       registrySourceRef: .product-experience/pdp-3-product-experience/events/event-registry.yaml#events[media.event.multimodal:process:complete]
       producerIdentity: AudioVideoClient#processMultimodal
-      producerSourceRef: libs/audio-video-client/src/index.ts#L297
+      producerSourceRef: libs/audio-video-client/src/index.ts#L442
       delivery: best-effort-process-local
       ordering: start precedes exactly one terminal complete-or-error notification in
         normal completion; independent invocations may interleave
@@ -20214,7 +20214,7 @@ typedClientNotificationDispositions:
       sourceRef: .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/notificationRecords/14
       registrySourceRef: .product-experience/pdp-3-product-experience/events/event-registry.yaml#events[media.event.multimodal:process:error]
       producerIdentity: AudioVideoClient#processMultimodal
-      producerSourceRef: libs/audio-video-client/src/index.ts#L301
+      producerSourceRef: libs/audio-video-client/src/index.ts#L446
       delivery: best-effort-process-local
       ordering: start precedes exactly one terminal complete-or-error notification in
         normal completion; independent invocations may interleave

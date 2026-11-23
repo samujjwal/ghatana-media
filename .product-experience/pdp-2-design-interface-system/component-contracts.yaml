@@ -4138,6 +4138,7 @@ components:
   - media.action.reorder-storyboard-scenes
   - media.action.associate-authorized-reference
   - media.action.review-scene-timing-and-transitions
+  - media.action.save-storyboard-revision
   states:
   - no-scenes
   - editing
@@ -4151,11 +4152,12 @@ components:
   - media.generate.video.keyframe.start
   - media.generate.video.keyframe.end
   - media.generate.video.keyframe.intermediate
-  actionBindingState: proposed-component-intent-action-refs; P2-contract-semantics-authority-and-owner-review-pending
+  actionBindingState: source-defined-edit-and-save-action-refs; capability-mapping-and-independent-review-pending; runtime-NOT_ADMITTED
   actionIntents:
   - add or reorder a scene
   - associate a reference asset
   - review scene timing and transitions
+  - save a storyboard revision
   keyboard: Support add, remove, reorder, and select by keyboard with explicit move controls; maintain focus on
     the moved scene.
   narrowLayout: Render scenes as an ordered card list; expose time, reference, and status before optional notes.
@@ -4181,6 +4183,10 @@ components:
     actionRefs:
     - media.action.review-scene-timing-and-transitions
     bindingState: proposed-reference; action-capability-interaction-state-and-owner-review-pending
+  - intent: save a storyboard revision
+    actionRefs:
+    - media.action.save-storyboard-revision
+    bindingState: owner-defined DEV_ONLY candidate action; explicit confirmation and exact receipt required; capability-mapping-and-independent-review-pending; runtime-NOT_ADMITTED
   interactionBindingState: component-event-focus-state-and-accessibility-bindings-pending
   typedDefinition:
     id: "media.component.storyboard.typed-definition.v1"
@@ -4190,23 +4196,40 @@ components:
     sourceRefs:
       - ".product-experience/pdp-2-design-interface-system/component-contracts.yaml#components/@id=media.component.storyboard"
       - ".product-experience/pdp-2-design-interface-system/component-value-types.yaml#/$defs"
+      - ".product-experience/decision-log.md#PXD-235"
+      - ".product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.scene-plan/storyboardRevisionBinding"
+      - ".product-experience/pdp-1-domain-data/relationships.yaml#media.rel.scene-plan-scene-graph"
+      - ".product-experience/pdp-1-domain-data/relationships.yaml#media.rel.scene-plan-timeline-snapshot"
       - ".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.add-storyboard-scene"
       - ".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.reorder-storyboard-scenes"
       - ".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.associate-authorized-reference"
       - ".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.review-scene-timing-and-transitions"
+      - ".product-experience/pdp-3-product-experience/action-registry.yaml#actions/@id=media.action.save-storyboard-revision"
     props:
       - name: "compositionVersionRef"
         type: "ExactCompositionVersionRef"
         required: true
-        meaning: "Exact immutable storyboard/composition revision."
+        meaning: "Exact immutable CompositionConfig version; it is distinct from the ScenePlan edition."
+      - name: "scenePlanRef"
+        type: "ExactScenePlanVersionRef"
+        required: false
+        meaning: "Exact immutable ScenePlan edition when the storyboard has at least one scene; empty local state has no persisted plan edition."
+      - name: "projectRevisionRef"
+        type: "ImmutableProjectRevisionRef"
+        required: true
+        meaning: "Exact project revision captured by the plan; a changed head is a conflict and is never silently substituted."
+      - name: "timelineRef"
+        type: "ExactTimelineVersionRef"
+        required: true
+        meaning: "Exact timeline snapshot contained in projectRevisionRef; the association does not mutate its graph."
       - name: "scenes"
         type: "Array<OrderedScene>"
         required: true
-        meaning: "Each scene has stable sceneRef, order, exact source version refs, half-open rational interval, and continuity disposition."
+        meaning: "Each ordered plan scene binds one exact SceneGraph version by array position; order is editorial and independent from its exact half-open STORY interval. Gaps and overlaps are preserved without implied fill, transition, composition, or render ordering."
       - name: "timebaseRef"
         type: "CompositionTimebaseRef"
         required: true
-        meaning: "Exact clock for scene boundaries and transitions."
+        meaning: "One exact STORY clock for all scene and shot intervals and transition durations in this plan; source, simulation, and wall clocks are not converted implicitly."
       - name: "transitionSpecs"
         type: "Array<VersionedTransitionSpec>"
         required: true
@@ -4243,6 +4266,12 @@ components:
       properties:
         compositionVersionRef:
           $ref: media.component-value-types.v1#/$defs/ExactCompositionVersionRef
+        scenePlanRef:
+          $ref: media.component-value-types.v1#/$defs/ExactScenePlanVersionRef
+        projectRevisionRef:
+          $ref: media.component-value-types.v1#/$defs/ImmutableProjectRevisionRef
+        timelineRef:
+          $ref: media.component-value-types.v1#/$defs/ExactTimelineVersionRef
         scenes:
           type: array
           items:
@@ -4298,12 +4327,15 @@ components:
               - media.action.reorder-storyboard-scenes
               - media.action.associate-authorized-reference
               - media.action.review-scene-timing-and-transitions
+              - media.action.save-storyboard-revision
           uniqueItems: true
         keyboardBehavior:
           const: Support add, remove, reorder, and select by keyboard with explicit move controls; maintain focus on the
             moved scene.
       required:
         - compositionVersionRef
+        - projectRevisionRef
+        - timelineRef
         - scenes
         - timebaseRef
         - transitionSpecs
@@ -4320,6 +4352,10 @@ components:
                   const: no-scenes
                 variant:
                   const: empty
+                scenes:
+                  maxItems: 0
+              not:
+                required: [scenePlanRef]
               required:
                 - state
                 - variant
@@ -4328,17 +4364,23 @@ components:
                   const: editing
                 variant:
                   const: draft
+                scenes:
+                  minItems: 1
               required:
                 - state
                 - variant
+                - scenePlanRef
             - properties:
                 state:
                   const: review-required
                 variant:
                   const: ready-for-review
+                scenes:
+                  minItems: 1
               required:
                 - state
                 - variant
+                - scenePlanRef
             - properties:
                 state:
                   const: conflict
@@ -4352,9 +4394,12 @@ components:
                   const: saved
                 variant:
                   const: ready-for-review
+                scenes:
+                  minItems: 1
               required:
                 - state
                 - variant
+                - scenePlanRef
             - properties:
                 state:
                   const: read-only
@@ -4366,6 +4411,9 @@ components:
     schemaDialect: JSON_SCHEMA_2020_12_WITH_MEDIA_COMPONENT_VALUE_TYPES_V1
     requiredDataProps:
       - "compositionVersionRef"
+      - "scenePlanRef"
+      - "projectRevisionRef"
+      - "timelineRef"
       - "scenes"
       - "timebaseRef"
       - "transitionSpecs"
@@ -4378,7 +4426,7 @@ components:
       - {state: "conflict", variant: "conflict"}
       - {state: "saved", variant: "ready-for-review"}
       - {state: "read-only", variant: "read-only"}
-    positiveFixture: {"compositionVersionRef":{"tenantId":"tenant-a","compositionId":"composition-a","versionId":"version-8"},"scenes":[],"timebaseRef":{"clockKind":"media","clockId":"clock-composition-1","streamId":"stream-a","originRef":"origin-composition-1","secondsPerTick":{"numerator":"1001","denominator":"24000"},"originTicks":"0","unit":"frame"},"transitionSpecs":[],"validationDisposition":"valid","storyboardActionIntents":[],"state":"no-scenes","variant":"empty","actionIntents":["media.action.add-storyboard-scene"],"keyboardBehavior":"Support add, remove, reorder, and select by keyboard with explicit move controls; maintain focus on the moved scene."}
+    positiveFixture: {"compositionVersionRef":{"tenantId":"tenant-a","compositionId":"composition-a","versionId":"version-8"},"projectRevisionRef":{"tenantId":"tenant-a","projectId":"project-a","revisionId":"revision-a"},"timelineRef":{"tenantId":"tenant-a","projectId":"project-a","timelineId":"timeline-a","semanticVersionId":"timeline-version-a"},"scenes":[],"timebaseRef":{"clockKind":"story","clockId":"story-clock-1","streamId":"storyboard-a","originRef":"story-origin-1","secondsPerTick":{"numerator":"1001","denominator":"24000"},"originTicks":"0","unit":"frame"},"transitionSpecs":[],"validationDisposition":"valid","storyboardActionIntents":[],"state":"no-scenes","variant":"empty","actionIntents":["media.action.add-storyboard-scene"],"keyboardBehavior":"Support add, remove, reorder, and select by keyboard with explicit move controls; maintain focus on the moved scene."}
     states:
       - "no-scenes"
       - "editing"
@@ -4399,6 +4447,7 @@ components:
       - "media.action.reorder-storyboard-scenes"
       - "media.action.associate-authorized-reference"
       - "media.action.review-scene-timing-and-transitions"
+      - "media.action.save-storyboard-revision"
     errors:
       - {code: "CONFLICT", state: "conflict", meaning: "The exact conflict state is visible with a textual reason; only explicitly allowed recovery intents remain available."}
       - {code: UNRECOGNIZED_STATE, condition: input is not an exact member of states, meaning: reject the state and expose no consequential action.}
@@ -4407,6 +4456,8 @@ components:
       status: Media-owned behavior definition only; keyboard and assistive-technology verification remains pending.
     invariants:
       - "Scene order and time intervals are versioned; missing references or unknown validation cannot be treated as continuity success."
+      - "A non-empty storyboard binds an exact ScenePlan, one exact SceneGraph version per plan position, and a Timeline snapshot contained in the captured ProjectRevision; the empty local state has no ScenePlan edition."
+      - "Editorial order is independent from STORY intervals; gaps and overlaps carry no implicit output or transition behavior."
     nonClaims: [Shared export, package consumption, implementation, runtime behavior, rendered conformance, independent acceptance]
 
 - id: media.component.timeline-keyframe-editor

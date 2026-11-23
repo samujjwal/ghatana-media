@@ -112,6 +112,8 @@ test('PDP-0 joins, family scope, implementation handoffs, and A–Q recommendati
   assert.ok(artifact.capabilityMappings.every(item => item.parentRequirementSourceRef === `.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=${item.parentRequirementId}`));
   assert.ok(artifact.capabilityMappings.every(item => item.ownerAcceptance === 'NOT_CLAIMED'
     && item.capabilityMeaningOwnerApproval === 'NOT_CLAIMED'));
+  assert.equal(artifact.denominators.rowsWithPdp0CaseFitDecision, 230);
+  assert.equal(artifact.denominators.rowsRequiringFamilyCaseSemanticFitReview, 0);
   assert.ok(artifact.capabilityMappings.filter(item => item.sourceOrder1Based <= 58 || item.sourceOrder1Based >= 65)
     .every(item => item.classificationDisposition.startsWith('ACCEPTED_') && item.classificationDecisionRef));
   assert.deepEqual(artifact.capabilityMappings.filter(item => item.classificationDisposition === 'DEFERRED_TO_LATER_GOVERNED_PDP0_CYCLE')
@@ -130,7 +132,7 @@ test('PDP-0 joins, family scope, implementation handoffs, and A–Q recommendati
   assert.deepEqual(safeArea.sourceRecommendedRelatedClusters, ['P']);
   assert.deepEqual(safeArea.removedRelatedClusterIds, ['P']);
   assert.equal(safeArea.classificationDecisionRef, '.product-experience/decision-log.md#PXD-221');
-  for (const decisionId of ['PXD-219', 'PXD-220', 'PXD-221']) {
+  for (const decisionId of ['PXD-219', 'PXD-220', 'PXD-221', 'PXD-234']) {
     assert.ok(artifact.sourceBaseline.decisionSections[`.product-experience/decision-log.md#${decisionId}-section`]);
   }
   assert.ok(artifact.capabilityMappings.filter(item => !item.auditIds.length).every(item => item.auditTraceStatus === 'NO_EXACT_AUDIT_CAPABILITY_REFERENCE'));
@@ -191,6 +193,32 @@ test('PDP-0 joins, family scope, implementation handoffs, and A–Q recommendati
   assert.ok(captionImportExport.acceptanceCaseRefs.includes('.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=MEDIA-REQ-CAP-DELIVER/acceptanceCases/@id=MEDIA-REQ-CAP-DELIVER-AC-04'));
   assert.equal(captionImportExport.sourceAcceptanceText, 'Assets reopen by immutable version and hash; thumbnails and searchable indexes are derived under purpose/tenant controls, not duplicate sources.');
   assert.equal(captionImportExport.ownerApproval, 'NOT_CLAIMED');
+});
+
+test('PXD-234 records exact case-fit decisions for the 230-row predecessor set', () => {
+  const artifact = JSON.parse(fs.readFileSync(path.join(root, PDP0_AUDIT_AQ_TRACEABILITY_PATH), 'utf8'));
+  const crosswalk = JSON.parse(fs.readFileSync(path.join(root, 'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json'), 'utf8'));
+  const decided = artifact.rows.filter(row => row.pdp0CaseFitDecision);
+  assert.equal(decided.length, 230);
+  assert.ok(decided.every(row => row.traceabilityStatus === 'SOURCE_BOUND_PDP0_CASE_FIT_DECISION_RECORDED'
+    && row.pdp0CaseFitDecision.decisionRef === '.product-experience/decision-log.md#PXD-234'
+    && row.pdp0CaseFitDecision.ownerApproval === 'NOT_CLAIMED'
+    && row.pdp0CaseFitDecision.independentAcceptance === 'NOT_CLAIMED'));
+  assert.deepEqual(artifact.blockerSummary.familyCaseSemanticFitReviewRows, []);
+  assert.deepEqual(artifact.blockerSummary.predecessorFamilyCaseSemanticFitReview.affectedAuditIds, crosswalk.pdp0CaseFitDecisionAudit.affectedAuditIds);
+  assert.deepEqual(artifact.pdp0CaseFitDecisionAudit.categoryCounts, {
+    NARROW_TO_CURRENT_P0_RESULT: 53,
+    P0_BASE_RESULT_WITH_RESIDUAL_HANDOFF: 12,
+    EXACT_P0_CASE_FIT_CONFIRMED: 2,
+    P0_FEATURE_CASE_ADDITION_NOT_REQUIRED: 139,
+    EXACT_P0_CASES_ADDED: 16,
+    CURRENT_VERSION_SCOPE_DEFERRED: 2,
+    EXTERNAL_INPUT_REMAINS_UNKNOWN: 6,
+  });
+  assert.equal(Object.values(artifact.pdp0CaseFitDecisionAudit.exactCaseAdditions).flat().length, 17);
+  assert.equal(artifact.pdp0CaseFitDecisionAudit.ownerApproval, 'NOT_CLAIMED');
+  assert.equal(artifact.pdp0CaseFitDecisionAudit.independentAcceptance, 'NOT_CLAIMED');
+  assert.equal(artifact.pdp0CaseFitDecisionAudit.phaseStatusEffect, 'NONE');
 });
 
 test('context refs and canonical profile capabilityLeafId edges are retained with explicit relation classes', () => {

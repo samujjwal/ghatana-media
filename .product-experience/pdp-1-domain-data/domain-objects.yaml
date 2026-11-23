@@ -111,7 +111,7 @@ canonicalIdentityAdjudication:
       identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.simulation-world
     - objectId: media.domain.timeline
       disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
-      ownerSelectedIdentity: tenantId + projectId + stable timelineId + semanticVersion.
+      ownerSelectedIdentity: tenantId + projectId + stable timelineId + semanticVersionId.
       identitySource: .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.timeline
     - objectId: media.domain.composition-config
       disposition: MEDIA_PRODUCT_IDENTITY_DEFINED
@@ -216,6 +216,7 @@ objects:
       authority: Project.headRevisionId-is-the-only-writable-head; every-timeline-create-edit-restore-uses-project-head-CAS
       restore: restore-creates-one-successor-ProjectRevision-containing-the-selected-historical-project-content; changed-timeline-content-gets-a-new-semanticVersionId
       noIndependentTimelineHead: true
+      graphBinding: TimelineSnapshot.graph-is-an-immutable-Graph(timelineId, scenes[], tracks[], clips[]); exact fields and structural negatives are owner-defined in PROJECT-TIMELINE-MAPPING-DISPOSITION-2026-11-09.md#addendum-exact-timeline-graph-field-mapping-2026-11-22
       runtimeStatus: local-engine-and-signed-DEV_ONLY-launcher-project-timeline-routes; isolated-PostgreSQL-development-schema; production-admission-NOT_ADMITTED
     scopeStatus: bounded-J01-owner-definition-under-PXD-054; independent-PDP1-review-open; runtime-NOT_ADMITTED
     sourceRefs:
@@ -223,6 +224,7 @@ objects:
       - .product-experience/pdp-0-product-truth/state-models.yaml#media-project-version
       - docs/migration/expert-reviewed-master-plan.md#6-2-core-and-existing-capabilities
       - docs/development/PROJECT-TIMELINE-MAPPING-DISPOSITION-2026-11-09.md
+      - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaProjectTimelineContracts.java
   - id: media.domain.artifact
     name: MediaArtifact
     kind: entity
@@ -352,9 +354,27 @@ objects:
     kind: immutable-authored-intent
     identity: stable-id-and-version
     lifecycle: semantic-edits-create-new-version
-    scopeStatus: proposed; pending-owner-review
+    storyboardRevisionBinding:
+      disposition: ACCEPTED_DELEGATED_TECHNICAL_OWNER_DECISION
+      scenePlanRef: exact-tenant-project-scenePlanId-semanticVersion-edition
+      projectRevisionRef: exact-tenant-project-revisionId-bound-as-the-plan's-project-head-precondition
+      sceneRefs: exactly-one-unique-exact-SceneGraph-version-per-ordered-PlannedScene; same-tenant-and-project; array-position-is-the-mapping
+      timelineRef: exact-Timeline-snapshot-contained-in-the-bound-ProjectRevision; wire-semanticVersion-maps-to-canonical-semanticVersionId
+      ordering: explicit-authored-order-is-editorial-order-and-is-independent-of-story-time
+      timeSemantics: scene-and-shot-intervals-are-half-open-positive-rational-STORY-intervals-in-one-timebase; shot-is-contained-by-parent-scene
+      gapAndOverlap: preserve-authored-intervals; gap-does-not-fill-output; overlap-does-not-imply-transition-compositing-priority-or-render-order
+      transition: explicit-versioned-transition-binds-exact-adjacent-SceneGraph-versions-and-one-rational-timebase
+      projectEffect: save-appends-exact-ScenePlan-edition-and-references; does-not-mutate-project-head-or-timeline-graph
+      excludedSemantics: [source-to-story-conversion, implicit-scene-to-timeline-node-mapping, source-rights, continuity-proof, renderability, runtime-admission]
+      negativeAcceptanceCases: [missing-extra-duplicate-detached-or-reordered-scene-ref, cross-tenant-or-project-reference, wrong-scene-graph-version, timeline-not-contained-in-bound-project-revision, stale-head-substitution, order-inferred-from-time, mixed-story-timebase, invalid-interval, shot-outside-parent-scene, implicit-gap-fill, implicit-overlap-transition-or-compositing, source-consumption-without-current-rights]
+      decisionRef: .product-experience/decision-log.md#PXD-235
+    scopeStatus: OWNER_DEFINED_LOGICAL_STORYBOARD_BINDING; independent-PDP1-review-open; runtime-NOT_ADMITTED
     sourceRefs:
       - .product-experience/pdp-0-product-truth/domain-model.yaml#ScenePlan-and-SceneBrief
+      - .product-experience/pdp-1-domain-data/operations.yaml#media.operation.action.save-storyboard-revision
+      - .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#media_action_save-storyboard-revision
+      - .product-experience/decision-log.md#PXD-235
+      - modules/production/timeline/src/main/java/com/ghatana/media/production/timeline/StoryboardPlanner.java
   - id: media.domain.scene-brief
     name: SceneBrief
     kind: authored-narrative-and-visual-intent
@@ -393,11 +413,29 @@ objects:
     identity: tenantId-plus-projectId-plus-stable-opaque-timelineId-plus-opaque-semanticVersionId
     lifecycle: immutable-snapshot-contained-in-a-ProjectRevision; semantic-edits-create-a-new-version-while-retaining-timelineId; project-head-CAS-is-the-only-authoritative-write-head
     initialState: absent-from-the-empty-initial-ProjectRevision-until-explicitly-created; explicit-creation-adds-an-empty-versioned-timeline-to-a-successor-ProjectRevision
-    timeSemantics: rational-time-distinct-from-simulation-and-wall-clock
-    scopeStatus: proposed; pending-owner-review
+    timeSemantics: rational-time-distinct-from-simulation-and-wall-clock; source times use SOURCE_PRESENTATION and story times use STORY; no conversion or rate mapping is defined
+    graphSchema:
+      disposition: ACCEPTED_DELEGATED_TECHNICAL_OWNER_DECISION
+      rationale: Bind the existing empty-project/explicit-timeline revision choice to the concrete immutable graph fields already implemented, while retaining distinct project and timeline version identities and avoiding unowned timing or editing policy.
+      shape: Graph(timelineId, scenes[], tracks[], clips[])
+      sceneFields: [sceneId, order]
+      trackFields: [trackId, sceneId, kind, order]
+      trackKinds: [VIDEO, AUDIO, CAPTION, OVERLAY]
+      clipFields: [clipId, sceneId, trackId, source(artifactId, artifactVersionId), sourceIn, sourceOut, storyStart, storyDuration]
+      rationalTimeFields: [ticks, rateNumerator, rateDenominator, clock]
+      ordering: scenes-by-order-then-sceneId; tracks-by-scene-order-then-track-order-then-trackId; clips-by-scene-order-then-track-order-then-storyStart-then-clipId
+      invariants: [nonnegative-ticks-and-positive-rates, sourceIn-before-sourceOut-in-SOURCE_PRESENTATION, positive-storyDuration-in-STORY, representable-story-end, unique-node-ids-and-orders, tracks-reference-existing-scenes, clips-reference-existing-track-and-same-scene]
+      emptyTimeline: explicit-creation-produces-zero-scenes-tracks-and-clips; distinct-from-project-revision-with-zero-timelines
+      excludedSemantics: [source-to-story-clock-conversion, overlap-policy, transition-policy, playback-rate-mapping, renderability, rights-clearance]
+      negativeAcceptanceCases: [implicit-timeline-on-project-create, snapshot-version-equals-project-revision-id, duplicate-node-id-or-order, detached-track-or-clip, cross-scene-clip-track-reference, source-times-in-STORY-clock, story-times-in-SOURCE_PRESENTATION-clock, nonpositive-source-interval, zero-story-duration, unrepresentable-story-end, implied-overlap-or-transition-policy]
+      sourceRef: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaProjectTimelineContracts.java
+      decisionRef: docs/development/PROJECT-TIMELINE-MAPPING-DISPOSITION-2026-11-09.md#addendum-exact-timeline-graph-field-mapping-2026-11-22
+    scopeStatus: OWNER_DEFINED_LOGICAL_GRAPH_MAPPING; independent-PDP1-review-open; runtime-NOT_ADMITTED
     sourceRefs:
       - .product-experience/pdp-0-product-truth/domain-model.yaml#Timeline-and-CompositionConfig
       - .product-experience/pdp-0-product-truth/time-units-fidelity.yaml
+      - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaProjectTimelineContracts.java
+      - docs/development/PROJECT-TIMELINE-MAPPING-DISPOSITION-2026-11-09.md
   - id: media.domain.composition-config
     name: CompositionConfig
     kind: versioned-editorial-specification
@@ -2695,14 +2733,14 @@ ownerTypedIdentityContracts:
     - field: timelineId
       scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/opaque-id
       origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
-    - field: semanticVersion
+    - field: semanticVersionId
       scalarTypeRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/scalarTypes/semantic-version-or-owner-version-id
       origin: OWNER_ISSUED_OR_CANONICALLY_REFERENCED
     canonicalIdentityTuple:
     - tenantId
     - projectId
     - timelineId
-    - semanticVersion
+    - semanticVersionId
     tenantIsolationRuleRef: media.identity-rule.trusted-tenant-scope
     collisionRuleRef: media.identity-rule.same-tenant-duplicate-conflict
     sourceObservationFields: []

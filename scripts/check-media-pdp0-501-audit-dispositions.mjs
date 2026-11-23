@@ -200,6 +200,95 @@ export function validatePdp0AuditDispositions({repositoryRoot = root, crosswalk 
     for (const id of idSet) if (!sourceRows.has(id)) addError(errors, `invented or unexpected audit ID ${id}`);
     if (ids.length !== 501 || idSet.size !== 501) addError(errors, `crosswalk must contain exactly 501 unique IDs, found ${idSet.size}`);
   }
+  const caseFitAudit = ledger.pdp0CaseFitDecisionAudit;
+  const caseFitCategories = {
+    NARROW_TO_CURRENT_P0_RESULT: 53,
+    P0_BASE_RESULT_WITH_RESIDUAL_HANDOFF: 12,
+    EXACT_P0_CASE_FIT_CONFIRMED: 2,
+    P0_FEATURE_CASE_ADDITION_NOT_REQUIRED: 139,
+    EXACT_P0_CASES_ADDED: 16,
+    CURRENT_VERSION_SCOPE_DEFERRED: 2,
+    EXTERNAL_INPUT_REMAINS_UNKNOWN: 6,
+  };
+  const affectedCaseFitIds = Array.isArray(caseFitAudit?.affectedAuditIds) ? caseFitAudit.affectedAuditIds : [];
+  const affectedCaseFitSet = new Set(affectedCaseFitIds);
+  if (caseFitAudit?.decisionRef !== '.product-experience/decision-log.md#PXD-234'
+      || caseFitAudit?.predecessorTraceabilityRef !== 'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json'
+      || caseFitAudit?.predecessorTraceabilitySha256 !== '46ebe0cd8ca9697cd424d24b9261a3254d80e34e9860b2fc26b7d7a588907457'
+      || caseFitAudit?.affectedRows !== 230 || affectedCaseFitSet.size !== 230
+      || affectedCaseFitIds.length !== 230 || caseFitAudit?.ownerApproval !== 'NOT_CLAIMED'
+      || caseFitAudit?.independentAcceptance !== 'NOT_CLAIMED' || caseFitAudit?.phaseStatusEffect !== 'NONE') {
+    addError(errors, 'PXD-234 must bind the exact 230-row predecessor set and preserve non-acceptance/non-status boundaries');
+  }
+  const canonicalObjectJson = value => JSON.stringify(Object.fromEntries(Object.entries(value ?? {}).sort(([a], [b]) => a.localeCompare(b))));
+  if (canonicalObjectJson(caseFitAudit?.categoryCounts) !== canonicalObjectJson(caseFitCategories)) {
+    addError(errors, 'PXD-234 case-fit category counts must remain 53/12/2/139/16/2/6');
+  }
+  const caseFitRows = (Array.isArray(rows) ? rows : []).filter(row => row?.pdp0CaseFitDecision);
+  if (caseFitRows.length !== 230
+      || affectedCaseFitIds.some(id => !sourceRows.has(id))
+      || caseFitRows.some(row => !affectedCaseFitSet.has(row.auditId))) {
+    addError(errors, 'exactly the 230 PXD-234 source IDs must carry a case-fit decision');
+  }
+  const derivedCaseFitCounts = Object.fromEntries(Object.keys(caseFitCategories).map(category => [
+    category, caseFitRows.filter(row => row.pdp0CaseFitDecision.category === category).length,
+  ]));
+  if (JSON.stringify(derivedCaseFitCounts) !== JSON.stringify(caseFitCategories)) {
+    addError(errors, 'per-row PXD-234 categories must match the exact declared category denominator');
+  }
+  const newCaseDecisionIds = Object.keys(caseFitAudit?.exactCaseAdditions ?? {}).sort();
+  const categoryNewCaseIds = caseFitRows.filter(row => row.pdp0CaseFitDecision.category === 'EXACT_P0_CASES_ADDED')
+    .map(row => row.auditId).sort();
+  const newCaseRefCount = Object.values(caseFitAudit?.exactCaseAdditions ?? {}).flat().length;
+  if (JSON.stringify(newCaseDecisionIds) !== JSON.stringify(categoryNewCaseIds)
+      || newCaseDecisionIds.length !== 16 || newCaseRefCount !== 17) {
+    addError(errors, 'PXD-234 must bind 17 exact current acceptance cases across 16 source rows');
+  }
+  for (const row of caseFitRows) {
+    const decision = row.pdp0CaseFitDecision;
+    const exactEvidenceCases = (row.pdp0EvidenceRefs ?? []).filter(ref => /(?:\/acceptanceCases\/@id=|\/acceptanceClauses\/@id=|#acceptanceCases\/@id=)/.test(ref)).sort();
+    if (decision.decisionRef !== '.product-experience/decision-log.md#PXD-234'
+        || decision.status !== 'SOURCE_DECISION_RECORDED; OWNER_ACCEPTANCE_NOT_CLAIMED'
+        || decision.ownerApproval !== 'NOT_CLAIMED'
+        || decision.independentAcceptance !== 'NOT_CLAIMED'
+        || decision.implementation !== 'NOT_ASSERTED'
+        || decision.runtimeAvailability !== 'UNKNOWN'
+        || decision.executionAdmission !== 'NOT_ADMITTED'
+        || JSON.stringify(decision.exactAcceptanceCaseRefs ?? []) !== JSON.stringify(exactEvidenceCases)
+        || !decision.rationale?.trim() || !decision.currentScopeDecision?.trim()
+        || JSON.stringify(decision.preservedDownstreamHandoff ?? null) !== JSON.stringify(row.laterPhaseHandoffs ?? null)) {
+      addError(errors, `${row.auditId}: PXD-234 row decision must bind exact evidence/handoff and preserve non-acceptance boundaries`);
+    }
+    if (!['NARROW_TO_CURRENT_P0_RESULT', 'P0_BASE_RESULT_WITH_RESIDUAL_HANDOFF', 'EXACT_P0_CASE_FIT_CONFIRMED',
+      'P0_FEATURE_CASE_ADDITION_NOT_REQUIRED', 'EXACT_P0_CASES_ADDED', 'CURRENT_VERSION_SCOPE_DEFERRED',
+      'EXTERNAL_INPUT_REMAINS_UNKNOWN'].includes(decision.category)) {
+      addError(errors, `${row.auditId}: unsupported PXD-234 case-fit category ${String(decision.category)}`);
+    }
+    if (['P0_BASE_RESULT_WITH_RESIDUAL_HANDOFF', 'EXACT_P0_CASE_FIT_CONFIRMED', 'EXACT_P0_CASES_ADDED'].includes(decision.category)
+        && !(decision.exactAcceptanceCaseRefs ?? []).length) {
+      addError(errors, `${row.auditId}: case-fit category requires exact acceptance-case evidence`);
+    }
+    if (decision.category === 'EXTERNAL_INPUT_REMAINS_UNKNOWN'
+        && (!decision.externalInput?.authorityNeeded || !decision.externalInput?.reason || !decision.externalInput?.untilEvidence)) {
+      addError(errors, `${row.auditId}: external-input row must preserve the exact authority and unavailable/UNKNOWN boundary`);
+    }
+    for (const ref of decision.exactAcceptanceCaseRefs ?? []) {
+      if (!exactEvidenceCases.includes(ref)) addError(errors, `${row.auditId}: PXD-234 case ref is not direct source evidence: ${ref}`);
+      const resolvedCase = resolveRef(ref);
+      if (!resolvedCase.ok || typeof resolvedCase.value?.id !== 'string') addError(errors, `${row.auditId}: PXD-234 acceptance case does not resolve: ${ref}`);
+    }
+  }
+  for (const [auditId, caseIds] of Object.entries(caseFitAudit?.exactCaseAdditions ?? {})) {
+    const row = caseFitRows.find(item => item.auditId === auditId);
+    const expectedRefs = caseIds.map(caseId => {
+      const requirementId = caseId.split('-AC-')[0];
+      return `.product-experience/pdp-0-product-truth/requirements.yaml#requirements/@id=${requirementId}/acceptanceCases/@id=${caseId}`;
+    }).sort();
+    if (!row || row.pdp0CaseFitDecision.category !== 'EXACT_P0_CASES_ADDED'
+        || expectedRefs.some(ref => !(row.pdp0EvidenceRefs ?? []).includes(ref))) {
+      addError(errors, `${auditId}: exact PXD-234 case additions must be direct current PDP-0 evidence`);
+    }
+  }
   if (stopAfterFirstError && errors.length) return {errors, stats:null};
   const seen = new Set();
   for (const row of Array.isArray(rows) ? rows : []) {
@@ -639,6 +728,37 @@ export function validatePdp0AuditDispositions({repositoryRoot = root, crosswalk 
         || !(row.laterPhaseHandoffs ?? []).some(handoff => /BUILD/.test(handoff.phase ?? ''))) {
       addError(errors, `${id} is implementation/reproducibility work and must not be represented as a PDP-0 semantic match`);
     }
+  }
+
+  const pxd234Row = id => rows?.find(row => row.auditId === id);
+  const editLayout = pxd234Row('AUD-EDIT-012');
+  const projectSettingsCapabilityRef = exactCapabilityRef('media.project.settings.update');
+  if (!editLayout || editLayout.pdp0CapabilityScopeDisposition !== 'PRESENTATION_ONLY; PROJECT_SETTINGS_REFERENCE_CONTEXT_ONLY'
+      || hasEvidence(editLayout, projectSettingsCapabilityRef)
+      || !editLayout.pdp0ContextRefs?.includes(projectSettingsCapabilityRef)
+      || !/does not claim project-state mutation or a project revision/i.test(editLayout.phaseLocalRationale ?? '')
+      || !/per-user presentation-only preferences/i.test(editLayout.laterPhaseHandoffs?.gap ?? '')) {
+    addError(errors, 'AUD-EDIT-012 must retain project settings only as context and bind workspace layout to non-mutating presentation preference semantics');
+  }
+  const matte = pxd234Row('AUD-EDIT-016');
+  if (!matte || !/matte representation only/i.test(matte.laterPhaseHandoffs?.gap ?? '')
+      || !/matte generation alone is not compositing/i.test(matte.laterPhaseHandoffs?.gap ?? '')) {
+    addError(errors, 'AUD-EDIT-016 must scope PDP-0 to matte representation and preserve compositing as a separate operation contract');
+  }
+  const exposure = pxd234Row('AUD-COLOR-001');
+  if (!exposure || !/scope is exposure only/i.test(exposure.laterPhaseHandoffs?.gap ?? '')
+      || !/saturation/i.test(exposure.laterPhaseHandoffs?.gap ?? '')) {
+    addError(errors, 'AUD-COLOR-001 must scope the current leaf to exposure and explicitly retain saturation as future scope');
+  }
+  const temporalDenoise = pxd234Row('AUD-COLOR-014');
+  if (!temporalDenoise || !hasEvidence(temporalDenoise, exactCapabilityRef('media.enhance.video.temporal-denoise'))) {
+    addError(errors, 'AUD-COLOR-014 must bind both deflicker and the existing temporal-denoise capability');
+  }
+  const externalPlugin = pxd234Row('AUD-DSP-020');
+  if (!externalPlugin || externalPlugin.pdp0CaseFitDecision?.category !== 'EXTERNAL_INPUT_REMAINS_UNKNOWN'
+      || !/not admitted/i.test(externalPlugin.laterPhaseHandoffs?.gap ?? '')
+      || !/only to operations that actually send data externally/i.test(externalPlugin.laterPhaseHandoffs?.gap ?? '')) {
+    addError(errors, 'AUD-DSP-020 must preserve plugin execution as not admitted and condition egress-specific obligations on actual data egress');
   }
 
   const derivedHandoffCounts = {};

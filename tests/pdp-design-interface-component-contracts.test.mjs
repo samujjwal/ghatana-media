@@ -254,12 +254,27 @@ test("rational clock values and half-open intervals enforce exact bounded semant
   const storyboard = components.find((record) => record.id === "media.component.storyboard");
   const orderedScenes = structuredClone(storyboard.typedDefinition.positiveFixture);
   orderedScenes.scenes = [structuredClone(valueTypes.$defs.OrderedScene.examples[0])];
+  orderedScenes.scenePlanRef = { tenantId: "tenant-a", projectId: "project-a", scenePlanId: "plan-a", semanticVersion: "version-1" };
+  orderedScenes.state = "editing";
+  orderedScenes.variant = "draft";
   assert.equal(validateTypedComponentInstance(storyboard.id, orderedScenes, root).valid, true);
   orderedScenes.scenes[0].sourceVersionRefs[0].tenantId = "tenant-b";
   assert.equal(validateTypedComponentInstance(storyboard.id, orderedScenes, root).valid, false, "scene source versions must share the exact scene tenant scope");
 
   const transitionSpecs = structuredClone(storyboard.typedDefinition.positiveFixture);
   transitionSpecs.transitionSpecs = [structuredClone(valueTypes.$defs.VersionedTransitionSpec.examples[0])];
+  transitionSpecs.scenePlanRef = { tenantId: "tenant-a", projectId: "project-a", scenePlanId: "plan-a", semanticVersion: "version-1" };
+  transitionSpecs.scenes = [
+    structuredClone(valueTypes.$defs.OrderedScene.examples[0]),
+    structuredClone(valueTypes.$defs.OrderedScene.examples[0]),
+  ];
+  transitionSpecs.scenes[1].sceneRef.sceneGraphId = "scene-graph-b";
+  transitionSpecs.scenes[1].sceneRef.semanticVersion = "version-2";
+  transitionSpecs.scenes[1].order = 1;
+  transitionSpecs.scenes[1].interval.start.ticks = "1";
+  transitionSpecs.scenes[1].interval.end.ticks = "2";
+  transitionSpecs.state = "editing";
+  transitionSpecs.variant = "draft";
   assert.equal(validateTypedComponentInstance(storyboard.id, transitionSpecs, root).valid, true);
   transitionSpecs.transitionSpecs[0].toSceneRef.tenantId = "tenant-b";
   assert.equal(validateTypedComponentInstance(storyboard.id, transitionSpecs, root).valid, false, "transition endpoints cannot cross tenant-scoped scene identities");

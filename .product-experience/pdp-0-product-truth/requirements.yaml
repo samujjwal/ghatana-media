@@ -199,6 +199,31 @@ requirements:
         when: The product prepares its backup manifest and restore proposal.
         then: Identify the exact project revision, included immutable asset versions, external references, and omitted, unavailable, or rights-restricted content; call the backup complete only when every required item and integrity check is accounted for, and restore as a new revision that preserves the originals.
         rejection: Reject implying completeness when inclusion or integrity is unknown, silently replacing an external reference, or restoring over the source revision.
+      - id: MEDIA-REQ-CAP-PROJECT-AC-09
+        given: An authorized collaborator submits an action with an exact project revision, declared actor role, scope, and request identity.
+        when: The product evaluates the collaboration request.
+        then: Bind the outcome to that actor, role, scope, request, and exact revision; stale or unknown authority remains blocked or UNKNOWN.
+        rejection: Reject inferring authority from project membership alone, silently widening scope, or using the request to authorize unrelated rights or publication effects.
+      - id: MEDIA-REQ-CAP-PROJECT-AC-10
+        given: An authorized editor requests a lock for one exact project revision and track or scene, with a named owner and finite expiry.
+        when: The product evaluates the collaboration lock.
+        then: Return a lock receipt bound to the exact revision, track or scene, owner, expiry, and release state; stale, conflicting, or unknown ownership remains blocked or UNKNOWN.
+        rejection: Reject treating an expired or conflicting lock as active, widening a lock to another revision, or granting edit or publication authority through the lock.
+      - id: MEDIA-REQ-CAP-PROJECT-AC-11
+        given: A project owner organizes a project-scoped team library containing exact immutable asset versions and declares the purpose of each asset.
+        when: The product records or returns library membership.
+        then: Preserve each exact version and its purpose and rights-evidence references; keep membership separate from rights clearance and cross-project sharing.
+        rejection: Reject inferring reuse permission from team membership, substituting an asset version, or treating a project-scoped library as a public or cross-project grant.
+      - id: MEDIA-REQ-CAP-PROJECT-AC-12
+        given: An authorized reviewer comments on one exact project revision, frame region, and source time reference.
+        when: The product records or rebases the review thread after a project revision changes.
+        then: Keep the thread bound to its original revision and anchors until an authorized reviewer explicitly rebases or resolves it; report the new anchors and revision when rebased.
+        rejection: Reject silently retargeting a comment, implying a resolved thread after a revision change, or treating a comment or approval as authority for unrelated rights or publication effects.
+      - id: MEDIA-REQ-CAP-PROJECT-AC-13
+        given: An authorized reviewer requests comparison of two exact source versions and declared frame or time anchors.
+        when: The product prepares the comparison observation.
+        then: Return a comparison bound to both source versions and anchors, disclose missing or uncertain alignment, and preserve both sources unchanged.
+        rejection: Reject inferring source equivalence, silently aligning different versions, or treating comparison or markup as project mutation, rights clearance, or publication authority.
     relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do not invent a new external endpoint or duplicate owner schema.
     downstreamMappings:
       journeys: pending-P0-009
@@ -394,6 +419,16 @@ requirements:
         when: The product interprets or converts that timecode.
         then: Preserve the original label and mode and return an exact source-time mapping only when the declared rate, mode, and mapping are valid.
         rejection: Reject ambiguous or invalid labels, mismatched rates, unknown mappings, silent drop-frame/non-drop-frame reinterpretation, or rounding across frame boundaries.
+      - id: MEDIA-REQ-CAP-ARTIFACT-AC-12
+        given: An authorized caller supplies one external artifact reference with its expected immutable version and content hash.
+        when: The product checks the exact referenced content for relinking and integrity.
+        then: Return an integrity observation bound to that reference, version, and hash; a match resolves only the reference.
+        rejection: Reject relinking to a different version after mismatch, unavailable bytes, or unknown version or hash, and do not imply import, registration, or source-derived lineage.
+      - id: MEDIA-REQ-CAP-ARTIFACT-AC-13
+        given: An authorized owner shares one exact immutable artifact version with a named recipient for a declared purpose and scope.
+        when: The product records the share grant.
+        then: Return a grant receipt bound to the exact version, recipient, purpose, and scope, separately from evidence that the recipient accessed or downloaded it.
+        rejection: Reject wildcard or unknown recipients, implying that a share grant proves access, editing, rights clearance, or publication authority.
     relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do not invent a new external endpoint or duplicate owner schema.
     downstreamMappings:
       journeys: pending-P0-009
@@ -781,6 +816,11 @@ requirements:
         when: Media observes an action acknowledgment and evaluates the effect readback.
         then: Report acknowledgment separately from authoritative readback, binding readback to its exact source, version, observation time, and state; absent, conflicting, stale, or unknown readback remains UNKNOWN or UNAVAILABLE.
         rejection: Reject reporting the product effect as successful from a click, command, local acknowledgment, or Media execution record alone.
+      - id: MEDIA-REQ-CAP-STREAM-AC-08
+        given: An authorized actor requests reconnection of one exact prior stream session under its current session and capability authority.
+        when: The product reconciles the reconnect request with the observed session state.
+        then: Return the owner-observed reconnect state for that exact session; stale or missing session, authority, or observation remains UNKNOWN or UNAVAILABLE.
+        rejection: Reject implying capture replay, safe scene resume, scene-ownership transfer, a product-effect receipt, or artifact/project mutation from reconnection alone.
     relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do not invent a new external endpoint or duplicate owner schema.
     downstreamMappings:
       journeys: pending-P0-009
@@ -1255,6 +1295,16 @@ requirements:
         when: The product collects or discloses viewer analytics.
         then: Collect only consented, purpose-bounded fields, redact identity or secrets under the declared policy, and preserve consent and purpose provenance.
         rejection: Reject collection or disclosure when consent is absent, revoked, unknown, or out of scope; viewing or interaction alone is not consent, and no retention duration is inferred.
+      - id: MEDIA-REQ-CAP-RIGHTS-AC-14
+        given: A caller submits a user-declared speaker reference and separate rights and consent evidence references for a requested voice use.
+        when: The product resolves the supplied evidence in the declared authority context.
+        then: Preserve the speaker reference and each evidence reference as separate inputs and return only the source-declared decision or observation; unresolved evidence remains UNKNOWN or blocked.
+        rejection: Reject inferring speaker identity, consent, or legal eligibility from audio similarity, source possession, detection, or public availability.
+      - id: MEDIA-REQ-CAP-RIGHTS-AC-15
+        given: A caller supplies a rights or consent evidence reference while requesting a talking-avatar persona or likeness enrollment.
+        when: The product resolves the supplied evidence reference.
+        then: Return only the source-declared rights decision or observation; the reference resolver does not enroll or verify a persona, visual likeness, or identity.
+        rejection: Reject treating evidence-reference resolution, voice similarity, or a synthetic placeholder as identity or likeness enrollment, license, or authorization to generate.
     relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do not invent a new external endpoint or duplicate owner schema.
     downstreamMappings:
       journeys: pending-P0-009
@@ -1604,6 +1654,11 @@ requirements:
         given: The requested language, format, right, profile, license, capability, or qualification is absent or unknown.
         when: Admission is evaluated.
         then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported as available.
+      - id: MEDIA-REQ-CAP-VISION-SCENE-TEXT-AC-03
+        given: An authorized caller requests text, logo, or protected-region observation from an exact source frame and declared region.
+        when: The product returns the scene-text observation.
+        then: Bind observed text or logo candidates to the exact frame, region, and source provenance and label uncertain observations for review.
+        rejection: Reject treating OCR or logo observation as trademark clearance, legal advice, rights determination, or permission to use the observed content.
     relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do not invent a new external endpoint or duplicate owner schema.
     downstreamMappings:
       journeys: pending-P0-009
@@ -1790,6 +1845,16 @@ requirements:
         when: The product prepares a transcript draft or paired archive candidate.
         then: Link the transcript to the source version, capture session, and timebase while retaining the recording as an independently identifiable immutable artifact.
         rejection: Reject implying archive registration, changing either artifact without separate authorization, or claiming a resolved pair when source identity or alignment is unknown.
+      - id: MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-08
+        given: An authorized caller requests streaming transcription for one exact source session and timebase.
+        when: The product emits partial and final transcript updates.
+        then: Bind each update to the same session and source timebase, distinguish provisional text from finalized segments, and preserve stable segment identity or an explicit correction relation.
+        rejection: Reject presenting partial text as final, silently changing finalized content without a correction relation, or substituting a synthetic transcript for source-derived recognition.
+      - id: MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-09
+        given: An authorized caller requests speaker diarization for one exact audio source version.
+        when: The product returns speaker turns or segments.
+        then: Bind opaque within-recording speaker labels and turn intervals to the exact source version and timebase, and report uncertainty or unavailable evidence explicitly.
+        rejection: Reject inferring a real-world identity, matching a voice to a person, or asserting a diarization guarantee from a label or similarity score.
     relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do not invent a new external endpoint or duplicate owner schema.
     downstreamMappings:
       journeys: pending-P0-009
@@ -2615,6 +2680,11 @@ requirements:
         when: Media prepares the speech/video generation candidate.
         then: Bind the candidate speech/audio identity to the declared visual or lip-motion observation and timebase; preserve whether alignment was applied, estimated, unsupported, or UNKNOWN with method provenance, without claiming a universal lip-sync guarantee.
         rejection: Reject fabricating a lip-motion observation, silently substituting speech or source versions, or claiming alignment absent source-bound evidence.
+      - id: MEDIA-REQ-CAP-GENERATE-VIDEO-AC-10
+        given: An authorized creator requests a portrait-to-speaking-video candidate and declares the source versions, timebase, and any required synchronization profile.
+        when: The product prepares the candidate and evaluates decoded audio/video timing.
+        then: Bind the decoded timing observation and any measured synchronization result to the exact output versions and selected profile; if the profile, decode, or timing evidence is unavailable or outside its declared bounds, preserve UNKNOWN or unavailable and make no synchronized-output claim.
+        rejection: Reject claiming synchronization from generation intent, visual similarity, or unverified timestamps, and do not imply a universal lip-sync guarantee.
     relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do not invent a new external endpoint or duplicate owner schema.
     downstreamMappings:
       journeys: pending-P0-009
@@ -3608,6 +3678,11 @@ requirements:
         when: The product prepares an interactive, frame, composited-video, or exchange output candidate.
         then: Bind the candidate to its declared adapter and scene revision and expose adapter support and qualification as separate states.
         rejection: Reject inferring adapter support from browser, device, package, or visual preview; an absent, unknown, unsupported, or unqualified adapter remains unavailable without silently substituting another renderer.
+      - id: MEDIA-REQ-CAP-ANIMATION-OUTPUT-AC-04
+        given: An authorized editor requests export of one exact project revision and its declared dependencies using a named interchange profile.
+        when: The product prepares an export candidate.
+        then: Identify the requested profile, exact source revision and dependencies, and each known unsupported or omitted field; preserve UNKNOWN when field preservation is not established.
+        rejection: Reject silent data loss, implying import or semantic round-trip support, or claiming decoded or delivered completion from candidate creation alone.
     relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do not invent a new external endpoint or duplicate owner schema.
     downstreamMappings:
       journeys: pending-P0-009
@@ -4353,6 +4428,11 @@ requirements:
         given: The requested language, format, right, profile, license, capability, or qualification is absent or unknown.
         when: Admission is evaluated.
         then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported as available.
+      - id: MEDIA-REQ-CAP-ENHANCE-IMAGE-AC-03
+        given: An authorized user requests lens-distortion or vignette correction for an exact image version under an admitted profile.
+        when: The product prepares the derived-image candidate.
+        then: Bind the candidate to the consumed source version and identify the effective transform, profile, and relevant color tags; disclose estimated or reconstructed detail.
+        rejection: Reject unsupported or unknown profiles, silent tag reinterpretation, or claims that the corrected candidate recovers original scene truth or establishes universal SDR/HDR support.
     relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do not invent a new external endpoint or duplicate owner schema.
     downstreamMappings:
       journeys: pending-P0-009
@@ -4517,6 +4597,11 @@ requirements:
         given: The requested language, format, right, profile, license, capability, or qualification is absent or unknown.
         when: Admission is evaluated.
         then: The operation is blocked or returns an explicit qualified fallback only when policy permits; unknown is never reported as available.
+      - id: MEDIA-REQ-CAP-ENHANCE-VIDEO-AC-03
+        given: An authorized user requests rolling-shutter correction for an exact video version with known readout and source-timebase inputs.
+        when: The product prepares the local derived-video candidate.
+        then: Bind the candidate to the consumed source version and identify the effective transform, readout assumptions, relevant color tags, and any estimated or reconstructed detail.
+        rejection: Reject unknown readout or profile conditions, silently substituting an image lens model, or claiming recovered source truth or universal correction quality.
     relatedExternalContract: Record the owning public contract in dependency-contracts.yaml when P0-007 maps this family; do not invent a new external endpoint or duplicate owner schema.
     downstreamMappings:
       journeys: pending-P0-009

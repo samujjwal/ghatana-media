@@ -14,6 +14,7 @@ const reconciliation = parse(readFileSync(`${base}canonical-reconciliation.yaml`
 const versioning = parse(readFileSync(`${base}versioning.yaml`, "utf8"));
 const expectedRelationships = [
   ["media.rel.project-revision", "media.domain.project", "media.domain.project-revision"],
+  ["media.rel.project-revision-timeline-snapshot", "media.domain.project-revision", "media.domain.timeline"],
   ["media.rel.project-asset", "media.domain.project", "media.domain.media-asset"],
   ["media.rel.asset-artifact-version", "media.domain.media-asset", "media.domain.artifact-version"],
   ["media.rel.job-plan", "media.domain.processing-job", "media.domain.resolved-plan"],
@@ -26,6 +27,9 @@ const expectedRelationships = [
   ["media.rel.animation-property-owner", "media.domain.animation-graph", "media.domain.scene-graph"],
   ["media.rel.derived-artifact", "media.domain.artifact-version", "media.domain.artifact-version"],
   ["media.rel.assessment-subject", "media.domain.quality-assessment", ["media.domain.artifact-version", "media.domain.processing-job", "media.domain.media-run"]],
+  ["media.rel.scene-plan-project-revision", "media.domain.scene-plan", "media.domain.project-revision"],
+  ["media.rel.scene-plan-scene-graph", "media.domain.scene-plan", "media.domain.scene-graph"],
+  ["media.rel.scene-plan-timeline-snapshot", "media.domain.scene-plan", "media.domain.timeline"],
 ];
 
 function assertRelationshipReferencesValid(rows, identityContracts) {
@@ -60,15 +64,15 @@ function assertRelationshipReferencesValid(rows, identityContracts) {
 test("PDP-1 identity catalog keeps the canonical population distinct from historical observations", () => {
   assert.equal(objects.objects.length, 39);
   assert.equal(values.values.length, 13);
-  assert.equal(relationships.relationships.length, 13);
-  assert.equal(relationships.relationshipPopulationAdjudication.observedRelationshipCount, 13);
+  assert.equal(relationships.relationships.length, 17);
+  assert.equal(relationships.relationshipPopulationAdjudication.observedRelationshipCount, 17);
   assert.equal(relationships.relationshipPopulationAdjudication.coordinatorDecisionRef,
     ".product-experience/decision-log.md#PXD-140");
   assert.equal(relationships.relationshipPopulationAdjudication.acceptanceEffect, "none");
   assert.equal(relationships.scopeStatus,
     "coordinator-reviewed-logical-relationship-definitions; storage-and-runtime-parity-not-admitted");
   assert.deepEqual(relationships.relationships.map(({ id }) => id), expectedRelationships.map(([id]) => id),
-    "current source inventory intentionally preserves all 13 unique relationship records");
+    "current source inventory preserves prior relationships and adds the exact storyboard bindings");
   assert.equal(objects.canonicalIdentityAdjudication.registeredObjectIdentityCount, 38);
   assert.equal(objects.canonicalIdentityAdjudication.canonicalProductObjectCount, 37);
 
@@ -102,6 +106,53 @@ test("PDP-1 identity catalog keeps the canonical population distinct from histor
   assert.equal(byId.get("media.domain.transcript-version").canonicalIdentityTuple.join("+"), "tenantId+transcriptVersionId");
 });
 
+test("timeline snapshots distinguish empty projects from explicit empty timelines and pin exact graph identity", () => {
+  const timeline = objects.objects.find((row) => row.id === "media.domain.timeline");
+  const projectRevision = objects.objects.find((row) => row.id === "media.domain.project-revision");
+  const identity = objects.ownerTypedIdentityContracts.records.find((row) => row.id === "media.identity-contract.timeline");
+  const relation = relationships.relationships.find((row) => row.id === "media.rel.project-revision-timeline-snapshot");
+  assert.match(projectRevision.initialRevision, /empty.*timelines/u);
+  assert.match(projectRevision.timelineSnapshotBinding.creation, /explicit.*empty.*successor/u);
+  assert.equal(timeline.graphSchema.shape, "Graph(timelineId, scenes[], tracks[], clips[])");
+  assert.deepEqual(identity.canonicalIdentityTuple, ["tenantId", "projectId", "timelineId", "semanticVersionId"]);
+  assert.deepEqual(relation.ownerDefinition.childIdentityContracts[0].identityTuple, identity.canonicalIdentityTuple);
+  assert.equal(timeline.graphSchema.disposition, "ACCEPTED_DELEGATED_TECHNICAL_OWNER_DECISION");
+  assert.ok(timeline.graphSchema.negativeAcceptanceCases.includes("implicit-timeline-on-project-create"));
+  assert.ok(timeline.graphSchema.negativeAcceptanceCases.includes("snapshot-version-equals-project-revision-id"));
+  assert.ok(timeline.graphSchema.negativeAcceptanceCases.includes("cross-scene-clip-track-reference"));
+  assert.ok(timeline.graphSchema.negativeAcceptanceCases.includes("implied-overlap-or-transition-policy"));
+  assert.ok(timeline.graphSchema.excludedSemantics.includes("overlap-policy"));
+  assert.match(relation.scopeStatus, /independent-PDP1-review-open; runtime-NOT_ADMITTED/u);
+});
+
+test("storyboard editions bind exact ordered SceneGraphs and a Timeline snapshot in the captured project revision", () => {
+  const plan = objects.objects.find((row) => row.id === "media.domain.scene-plan");
+  const relations = new Map(relationships.relationships.map((row) => [row.id, row]));
+  const planRevision = relations.get("media.rel.scene-plan-project-revision");
+  const planScenes = relations.get("media.rel.scene-plan-scene-graph");
+  const planTimeline = relations.get("media.rel.scene-plan-timeline-snapshot");
+  const identityById = new Map(objects.ownerTypedIdentityContracts.records.map((row) => [row.id, row]));
+
+  assert.equal(plan.storyboardRevisionBinding.disposition, "ACCEPTED_DELEGATED_TECHNICAL_OWNER_DECISION");
+  assert.match(plan.storyboardRevisionBinding.sceneRefs, /exactly-one.*per-ordered-PlannedScene.*array-position-is-the-mapping/u);
+  assert.match(plan.storyboardRevisionBinding.timelineRef, /contained-in-the-bound-ProjectRevision/u);
+  assert.match(plan.storyboardRevisionBinding.ordering, /independent-of-story-time/u);
+  assert.match(plan.storyboardRevisionBinding.gapAndOverlap, /overlap-does-not-imply-transition/u);
+  assert.deepEqual(planRevision.ownerDefinition.parentIdentityContracts[0].identityTuple,
+    identityById.get("media.identity-contract.scene-plan").canonicalIdentityTuple);
+  assert.deepEqual(planRevision.ownerDefinition.childIdentityContracts[0].identityTuple,
+    identityById.get("media.identity-contract.project-revision").canonicalIdentityTuple);
+  assert.deepEqual(planScenes.ownerDefinition.childIdentityContracts[0].identityTuple,
+    identityById.get("media.identity-contract.scene-graph").canonicalIdentityTuple);
+  assert.deepEqual(planTimeline.ownerDefinition.childIdentityContracts[0].identityTuple,
+    identityById.get("media.identity-contract.timeline").canonicalIdentityTuple);
+  assert.match(planTimeline.ownerDefinition.cardinalityRule, /exact ProjectRevision bound through media\.rel\.scene-plan-project-revision/u);
+  for (const relation of [planRevision, planScenes, planTimeline]) {
+    assert.equal(relation.ownerDefinition.ownerDecisionId, "PXD-235");
+    assert.match(relation.ownerDefinition.runtimeParity, /NOT_ADMITTED/u);
+  }
+});
+
 test("version and lineage references use typed immutable identities, never digests or legacy IDs", () => {
   const artifactVersion = objects.ownerTypedIdentityContracts.records.find((row) => row.objectRef === "media.domain.artifact-version");
   const transcriptVersion = objects.ownerTypedIdentityContracts.records.find((row) => row.objectRef === "media.domain.transcript-version");
@@ -133,7 +184,13 @@ test("relationship owner contracts pin exact typed endpoints, tenant, cardinalit
     assert.ok(row.sourceRefs.length > 0, `${row.id} retains source references`);
     const owner = row.ownerDefinition;
     assert.ok(owner, `${row.id} has an owner semantic definition`);
-    assert.equal(owner.disposition, "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY");
+    assert.ok([
+      "USER_AUTHORIZED_COORDINATOR_SEMANTIC_CHOICE",
+      "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY",
+      "DELEGATED_TECHNICAL_PRODUCT_OWNER_LOGICAL_MAPPING",
+    ].includes(owner.disposition), `${row.id} uses an explicit source-owned mapping disposition`);
+    if (row.id.startsWith("media.rel.scene-plan-")) assert.equal(owner.disposition,
+      "DELEGATED_TECHNICAL_PRODUCT_OWNER_LOGICAL_MAPPING");
     assert.equal(owner.sameTenantRequired, true, `${row.id} cannot cross tenant scope`);
     assert.ok(owner.cardinalityRule && owner.exactVersionRule && owner.lifecycleRule && owner.deletionRule,
       `${row.id} defines cardinality, exact version, lifecycle, and deletion semantics`);
@@ -150,7 +207,7 @@ test("relationship owner contracts pin exact typed endpoints, tenant, cardinalit
     .includes("makes dependent simulation UNKNOWN"));
 });
 
-test("all 13 relationships resolve to their exact endpoint identities and reject dangling, cross-tenant, or wrong-version refs", () => {
+test("all 17 relationships resolve to their exact endpoint identities and reject dangling, cross-tenant, or wrong-version refs", () => {
   const identityContracts = objects.ownerTypedIdentityContracts.records;
   const actual = relationships.relationships;
   assertRelationshipReferencesValid(actual, identityContracts);

@@ -46,7 +46,7 @@ test("Lane A populations remain distinct and current relationship endpoints reso
   assert.equal(objects.objects.length, 39);
   assert.equal(objects.ownerTypedIdentityContracts.records.length, 38);
   assert.equal(values.values.length, 13);
-  assert.equal(relations.relationships.length, 13);
+  assert.equal(relations.relationships.length, 17);
   assert.equal(review.population.historicalRelationshipCount, 11);
   assert.deepEqual(review.objectReview.map(({ objectId }) => objectId), objects.objects.map(({ id }) => id));
   assert.equal(review.objectReview.length, 39, "every catalog object has an explicit identity and remaining-scope disposition");
@@ -56,7 +56,8 @@ test("Lane A populations remain distinct and current relationship endpoints reso
   assert.deepEqual(review.relationshipReview.map(({ relationshipId }) => relationshipId), relations.relationships.map(({ id }) => id));
   assert.deepEqual(review.valueReview.map(({ valueId }) => valueId), values.values.map(({ id }) => id));
   assert.equal(review.valueReview.length, 13);
-  assert.equal(relations.relationshipPopulationAdjudication.observedRelationshipCount, 13);
+  assert.equal(relations.relationshipPopulationAdjudication.observedRelationshipCount, 17);
+  assert.equal(review.population.currentRelationshipRecords, 17);
   assert.equal(relations.relationshipPopulationAdjudication.acceptanceEffect, "none");
 
   const objectIds = new Set(objects.objects.map(({ id }) => id));

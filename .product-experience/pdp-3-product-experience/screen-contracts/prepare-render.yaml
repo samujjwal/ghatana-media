@@ -69,6 +69,15 @@ entry:
     .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
     id=media.action.submit-render/actionDefinitionSemantics/typedDefinition;
     runtime NOT_ADMITTED."
+  - "For media.action.submit-render, before reading or decoding any source bytes,
+    require current effect-specific source-rights and policy evidence bound to the
+    exact tenant, workspace, authenticated principal, project, project revision,
+    timeline, semantic version, render target, and each artifact ID, immutable
+    version, and SHA-256. A source reference or DEV_ONLY artifact permission is
+    not authority. Missing, unavailable, unknown, revoked, stale, expired,
+    conflicting, or mismatched evidence blocks before source read; runtime
+    NOT_ADMITTED. Source:
+    .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml#revisionProjectionRule/renderSourceUseRule."
 exit:
   - "media.action.validate-exact-snapshot: Read or navigate using the exact
     selected context; do not mutate a source object or infer permission from its
@@ -108,6 +117,12 @@ exit:
     .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
     id=media.action.submit-render/actionDefinitionSemantics/typedDefinition;
     runtime NOT_ADMITTED."
+  - "Before registering any rendered output, revalidate the same exact source-use
+    binding and current authority used before source read. A failed, unknown, or
+    scope-mismatched revalidation registers no output; source-use authorization
+    does not authorize the separate output-registration effect. Keep the outcome
+    blocked/unknown and preserve the exact target. Source:
+    .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml#revisionProjectionRule/renderSourceUseRule; runtime NOT_ADMITTED."
 actionConsequences:
   - actionId: media.action.validate-exact-snapshot
     capabilityRefs: []
@@ -370,6 +385,9 @@ localization:
 sourceRefs:
   - master-plan:section-20.2
   - .product-experience/pdp-0-product-truth
+  - .product-experience/pdp-1-domain-data/decisions.yaml#decisions/@id=media.pdp1.decision.project-render-source-use
+  - .product-experience/pdp-2-design-interface-system/media-editing-grammar.yaml#revisionProjectionRule/renderSourceUseRule
+  - docs/development/PROJECT-TIMELINE-MAPPING-DISPOSITION-2026-11-09.md#addendum-source-use-for-dev_only-project-rendering-2026-11-22
 journeyRefs:
   - J-09
   - J-13

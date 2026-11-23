@@ -247,15 +247,15 @@ test('AUD-ASSET-012 binds exact caption import observation and separate subtitle
 
 });
 
-test('current PXD-225 crosswalk source pins preserve PXD-216 semantics and PXD-223 reconciliation', () => {
+test('current PXD-234 crosswalk source pins preserve PXD-225 and prior semantic history', () => {
   const result = validatePdp0AuditDispositions();
   assert.deepEqual(result.errors, []);
   assert.equal(result.stats.total, 501);
   assert.equal(result.stats.dispositionCounts.BLOCKED_EXTERNAL_OWNER_DECISION, 0);
   const ledger = JSON.parse(fs.readFileSync(path.join(root, crosswalkPath), 'utf8'));
   const decisionLog = '.product-experience/decision-log.md';
-  assert.equal(ledger.coordinatorReview.decisionRef, 'PXD-225');
-  assert.equal(ledger.coordinatorReview.priorDecisionRef, 'PXD-223');
+  assert.equal(ledger.coordinatorReview.decisionRef, 'PXD-234');
+  assert.equal(ledger.coordinatorReview.priorDecisionRef, 'PXD-225');
   const historicalPxd216 = ledger.coordinatorReview.reviewHistory.find(review => review.decisionRef === 'PXD-216');
   assert.ok(historicalPxd216, 'PXD-216 remains immutable semantic and review history');
   const historicalPxd223 = ledger.coordinatorReview.reviewHistory.find(review => review.decisionRef === 'PXD-223');
@@ -271,7 +271,13 @@ test('current PXD-225 crosswalk source pins preserve PXD-216 semantics and PXD-2
   const historicalPxd213 = ledger.coordinatorReview.reviewHistory.find(review => review.decisionRef === 'PXD-213');
   assert.ok(historicalPxd213, 'PXD-213 remains in review history');
   assert.equal(historicalPxd213.priorDecisionRef, 'PXD-212');
-  const expectedPhasePins = currentPdp0PhaseScopedSourceFingerprints('PXD-225');
+  const historicalPxd225 = ledger.coordinatorReview.reviewHistory.find(review => review.decisionRef === 'PXD-225');
+  assert.ok(historicalPxd225, 'PXD-225 remains immutable source-review history');
+  assert.equal(historicalPxd225.priorDecisionRef, 'PXD-223');
+  assert.equal(historicalPxd225.ownerApproval, 'NOT_CLAIMED');
+  assert.equal(historicalPxd225.acceptanceEffect, 'none');
+  assert.match(historicalPxd225.note, /497 canonical definition joins, 2 separately labeled coordinator-authored proposal joins/u);
+  const expectedPhasePins = currentPdp0PhaseScopedSourceFingerprints('PXD-234');
   assert.deepEqual(ledger.sourceBaseline.phaseScopedSourceFingerprintsSha256, expectedPhasePins);
   assert.deepEqual(ledger.coordinatorReview.sourceFingerprints, expectedPhasePins);
   for (const broadFilePin of [decisionLog, '.product-experience/source-manifest.yaml', 'docs/implementation/verification/pdp-38/truth-domain-pdp0-pdp1-owner-candidate-199.json']) {
@@ -298,8 +304,8 @@ test('current PXD-225 crosswalk source pins preserve PXD-216 semantics and PXD-2
   assert.equal(historicalPxd207.priorDecisionRef, 'PXD-206');
   assert.match(historicalPxd207.note, /PXD-207 records exact owner-decided channel\/surface applicability for seven definition extensions/u);
   assert.match(historicalPxd207.note, /PXD-207 adopts the current PDP-0 meanings for the five PXD-206 leaf type differences/u);
-  assert.match(ledger.coordinatorReview.note, /497 canonical definition joins, 2 separately labeled coordinator-authored proposal joins, 2 POST_PDP_IMPLEMENTATION_ONLY handoffs, and zero missing PDP-0 joins/u);
-  assert.match(ledger.coordinatorReview.note, /No runtime, implementation, qualification, closure, or Delivery readiness is claimed/u);
+  assert.match(ledger.coordinatorReview.note, /PXD-234 records exact technical source decisions for all 230 rows/u);
+  assert.match(ledger.coordinatorReview.note, /No implementation, qualification, external admission, closure, Delivery, or release readiness is claimed/u);
   assert.match(ledger.coordinatorReview.note, /imported voice-cloning acceptance mismatch remains provenance-only under PXD-172/u);
   assert.doesNotMatch(ledger.coordinatorReview.note, /measures and qualification remain NOT_EVALUATED/u);
   assert.match(ledger.coordinatorReview.note, /imported voice-cloning acceptance mismatch remains provenance-only under PXD-172/u);

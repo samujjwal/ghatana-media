@@ -3,13 +3,14 @@ productId: media
 status: two-observed-source-populations; event-taxonomy-and-domain-lifecycle-coverage-pending-owner-review
 sources:
   - .product-experience/pdp-2-design-interface-system/events/conventions.yaml
+  - .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/deliveryProtocol/eventPlaneDependency
   - libs/audio-video-client/src/index.ts
   - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java
 populations:
   runtimeLifecyclePublisherTypes:
     count: 9
     sourceInventory: .product-experience/pdp-1-domain-data/events.yaml#/observedEnvelope/lifecyclePublisherInventory
-    classification: observed server-side publisher implementation types; not an accepted canonical taxonomy
+    classification: source-observed server-side event identities across direct lifecycle publication and the canonical V016 accepted-event outbox; not an accepted canonical taxonomy
     observedTypes:
       - media.upload.started
       - media.artifact.completed
@@ -24,15 +25,23 @@ populations:
     deliveryObservations:
       status: implementation-observed; not-an-accepted-delivery-contract
       sourceRefs:
-        - launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#publish
+        - launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#publishWithReceipt
+        - launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#lookup
+        - .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/deliveryProtocol/eventPlaneDependency
         - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#publishLifecycle
+        - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java#create
+        - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaLifecycleOutboxSource.java#publishPending
       readyFalse: publication-skipped
       transport: bounded-synchronous-http-post
       acceptedHttpStatuses: [201]
-      otherHttpStatus: publisher-throws
+      otherHttpStatus: ambiguous-status-exact-readback-or-definitive-rejection
+      idempotencyKeyHeader: {name: Idempotency-Key, value: deterministic-tenant-scoped-key-from-trusted-tenant-and-eventId}
+      ambiguousAppend: separate-authenticated-exact-lookup; accept-complete-match-only; exact-same-request-replay-at-most-once-after-authoritative-complete-404
+      durableReceiptAndCursor: local-outbox-receipt-and-tenant-cursor-checkpoint-before-cursor-advancement
+      unknownOutcome: retain-unknown-unless-complete-exact-match-or-complete-authoritative-404; no-second-retry-in-one-invocation
       runtimeFailure: logs-publication-unconfirmed-and-continues
-      idempotencyKeyHeader: {name: Idempotency-Key, value: eventId, durableDeduplication: unverified}
-      notEstablished: [durable-outbox, retry-policy, replay, retention, ordering, delivery-cardinality, consumer-acknowledgement, recovery]
+      durableDeduplication: unverified
+      notEstablished: [consumer-replay-retention, downstream-ordering, delivery-cardinality, consumer-acknowledgement, consumer-effect-finality, production-admission]
   clientLocalTypeScriptNotifications:
     count: 15
     source: libs/audio-video-client/src/index.ts#AudioVideoClient
@@ -44,6 +53,24 @@ populations:
       notEstablished: [durable-delivery, retry, replay, consumer-acknowledgement, cross-process-ordering]
     deliveryFinalityOrderingReplayGuarantees: not-established
   semanticCrosswalk: not-established
+sourceDefinedRuntimeBindings:
+  - eventContractRef: .product-experience/pdp-1-domain-data/events.yaml#id=media.event-contract.media-job-accepted
+    operationRef: media.operation-slice.submit-job
+    runtimeProducer: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#submitJob
+    durableWriter: providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java#create
+    relaySource: providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaLifecycleOutboxSource.java#publishPending
+    trigger: newly-committed-ACCEPTED-processing-job-revision
+    eventType: media.job.accepted
+    eventVersion: "1.0.0"
+    aggregateType: processing-job
+    identity: "media:media.job.accepted:{jobId}:{aggregateVersion}"
+    payloadFields: [jobId, operationRef, admissionState]
+    commitTime: committed-job-createdAt
+    classification: max(INTERNAL, source-artifact-classification); PUBLIC-maps-to-INTERNAL
+    replay: same-request-replay-does-not-create-a-second-canonical-outbox-row
+    legacyV011: existing-append-and-Shared-publication-ownership-continue-as-separate-compatibility-channel; no-cutover-or-equivalence-authorized
+    scope: source-binding-only; relay-remains-DEV_ONLY-and-disabled-by-default; production-NOT_ADMITTED
+    negativeCases: [direct-parallel-publication, terminal-or-cancel-event-mapping, V011-forward-or-delete, backfill-legacy-job-without-V016-intent, unrecognized-classification, pre-commit-publication]
 events:
   - id: media.event.ai-voice:process:complete
     eventName: "ai-voice:process:complete"

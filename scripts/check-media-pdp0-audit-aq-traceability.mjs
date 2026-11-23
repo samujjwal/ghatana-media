@@ -22,10 +22,12 @@ export const CAPABILITY_REVIEW_PATHS = [
   'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-155-308.json',
   'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-309-462.json',
 ];
+const AQ_001_154_CURRENTNESS_V7_PATH = 'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v7.json';
+const AQ_001_154_CURRENTNESS_V8_PATH = 'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v8.json';
 export const CAPABILITY_CURRENT_SOURCE_REVIEW_PATHS = [
-  'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-001-154.successor.candidate.v6.json',
-  'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-155-308.successor.candidate.v1.json',
-  'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-309-462.successor.candidate.v1.json',
+  AQ_001_154_CURRENTNESS_V8_PATH,
+  'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-155-308.successor.candidate.v2.json',
+  'docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-309-462.successor.candidate.v2.json',
 ];
 const PXD226_PRIOR_FAMILY_CASE_FIT_HISTORY = {
   auditId: 'AUD-SPEC-002',
@@ -43,6 +45,7 @@ const PXD226_PRIOR_FAMILY_CASE_FIT_HISTORY = {
   historyNote: 'Preserved from the predecessor projection. The live PXD-226 source join now binds the recipe compiler and its requirement cases; this prior fit finding is retained as history and no new feature semantic-fit, owner, or independent acceptance is claimed.',
 };
 const PDP0_DECISION_LOG_PATH = '.product-experience/decision-log.md';
+const PDP0_CASE_FIT_DECISION_REF = `${PDP0_DECISION_LOG_PATH}#PXD-234`;
 const INPUTS = [PDP0_AUDIT_SOURCE_PATH, PDP0_AUDIT_DISPOSITION_CROSSWALK_PATH, BLUEPRINT_PATH, REQUIREMENTS_PATH, CAPABILITIES_PATH, CAPABILITY_LEAF_REVIEW_PATH, CAMPAIGN_EXTENSIONS_PATH, ...AQ_REVIEW_PATHS, ...CAPABILITY_REVIEW_PATHS, ...CAPABILITY_CURRENT_SOURCE_REVIEW_PATHS];
 const parseYaml = createRequire(path.resolve(root, '../ghatana-tools/package.json'))('yaml').parse;
 const CLUSTER_IDS = 'ABCDEFGHIJKLMNOPQ'.split('');
@@ -78,6 +81,7 @@ const requirementId = ref => ref.match(/#requirements\/@id=([^/]+)/)?.[1] ?? nul
 
 function normalizeRow(row, requirementDocument, campaignExtensions) {
   const postPdpImplementationOnly = row.disposition === 'POST_PDP_IMPLEMENTATION_ONLY';
+  const caseFitDecision = row.pdp0CaseFitDecision ?? null;
   const familyScopeOnly = row.pdp0CapabilityScopeDisposition === 'PARENT_REQUIREMENT_FAMILY_SCOPE_ONLY';
   const refs = row.pdp0EvidenceRefs ?? [];
   const contextRefs = row.pdp0ContextRefs ?? [];
@@ -203,6 +207,15 @@ function normalizeRow(row, requirementDocument, campaignExtensions) {
   else if (proposalHasExactJoin) status = 'SOURCE_BOUND_COORDINATOR_PDP0_PROPOSAL_PENDING_OWNER_REVIEW';
   else if (familyScopeOnly) status = 'SOURCE_BOUND_FAMILY_SCOPE_ONLY_EXACT_CASE';
   else if (!evidenceAcceptanceCaseRefs.length && !capabilityScopedAcceptanceRefs.length) status = 'SOURCE_BOUND_FAMILY_CASE_JOIN_SEMANTIC_FIT_REVIEW_REQUIRED';
+  const caseFitApplicability = {
+    NARROW_TO_CURRENT_P0_RESULT: 'OWNER_DECIDED_CURRENT_P0_RESULT_ONLY; DOWNSTREAM_DETAIL_REMAINS_OPEN',
+    P0_BASE_RESULT_WITH_RESIDUAL_HANDOFF: 'OWNER_DECIDED_BASE_P0_RESULT; EXACT_RESIDUAL_HANDOFF_REMAINS_OPEN',
+    EXACT_P0_CASE_FIT_CONFIRMED: 'OWNER_DECIDED_EXACT_CURRENT_CASE_FIT; ACCEPTANCE_NOT_CLAIMED',
+    P0_FEATURE_CASE_ADDITION_NOT_REQUIRED: 'OWNER_DECIDED_NO_ADDITIONAL_FEATURE_CASE_REQUIRED; FEATURE_SCOPE_UNCHANGED',
+    EXACT_P0_CASES_ADDED: 'OWNER_DECIDED_EXACT_CASES_ADDED_TO_CURRENT_P0_SOURCE; ACCEPTANCE_NOT_CLAIMED',
+    CURRENT_VERSION_SCOPE_DEFERRED: 'OWNER_DECIDED_FEATURE_DETAIL_DEFERRED_FROM_CURRENT_VERSION',
+    EXTERNAL_INPUT_REMAINS_UNKNOWN: 'P0_CASE_FIT_DECIDED; EXTERNAL_INPUT_AND_ADMISSION_REMAIN_UNKNOWN',
+  }[caseFitDecision?.category];
   return {
     auditId: row.auditId,
     sourcePartition: row.sourcePartition,
@@ -245,11 +258,13 @@ function normalizeRow(row, requirementDocument, campaignExtensions) {
       ? 'CAPABILITY_LEAF_ID_ON_CANONICAL_CASE'
       : requirementScopedAcceptanceRefs.length ? 'PARENT_REQUIREMENT_SCOPE_ONLY' : null,
     requirementScopedAcceptanceCaseRefs: requirementScopedAcceptanceRefs,
-    featureSpecificCaseApplicability: proposalHasExactJoin ? 'SOURCE_BOUND_PROPOSAL_CASES; CANONICAL_OWNER_ACCEPTANCE_NOT_CLAIMED'
+    featureSpecificCaseApplicability: caseFitDecision ? caseFitApplicability
+      : proposalHasExactJoin ? 'SOURCE_BOUND_PROPOSAL_CASES; CANONICAL_OWNER_ACCEPTANCE_NOT_CLAIMED'
       : evidenceAcceptanceCaseRefs.length || capabilityScopedAcceptanceRefs.length
       ? 'SOURCE_BOUND_CASE_LINK_EXISTS_BUT_FEATURE_SEMANTIC_FIT_IS_NOT_CLAIMED'
       : requirementScopedAcceptanceRefs.length ? 'REVIEW_REQUIRED_PARENT_CASES_ARE_NOT_FEATURE_SPECIFIC' : 'NO_CASE_REFERENCE',
-    traceabilityStatus: status,
+    traceabilityStatus: caseFitDecision ? 'SOURCE_BOUND_PDP0_CASE_FIT_DECISION_RECORDED' : status,
+    pdp0CaseFitDecision: caseFitDecision,
     missingExactJoins: missingJoins,
     explicitNotApplicableRef: row.disposition === 'EXPLICIT_NOT_APPLICABLE' ? row.externalOwnerDecision : null,
   };
@@ -283,20 +298,62 @@ function currentSourceReviewSummary(document) {
 function validateCurrentSourceReview(repositoryRoot, file, expected, recommendationFile) {
   const envelope = JSON.parse(fs.readFileSync(path.join(repositoryRoot, file), 'utf8'));
   const document = envelope.aqSuccessor ?? envelope;
+  const dispositionCrosswalk = JSON.parse(fs.readFileSync(path.join(repositoryRoot, PDP0_AUDIT_DISPOSITION_CROSSWALK_PATH), 'utf8'));
+  const exactCaseAdditions = Object.fromEntries(Object.entries(dispositionCrosswalk.pdp0CaseFitDecisionAudit?.exactCaseAdditions ?? {}).sort(([left], [right]) => left.localeCompare(right)));
+  const exactAcceptanceCaseIds = [...new Set(Object.values(exactCaseAdditions).flat())].sort();
+  const changedRequirementIds = [...new Set(exactAcceptanceCaseIds.map(id => id.slice(0, id.lastIndexOf('-AC-'))))].sort();
+  const recommendation = JSON.parse(fs.readFileSync(path.join(repositoryRoot, recommendationFile), 'utf8'));
+  const recommendationRows = recommendation.rows ?? recommendation.mappings;
+  const changedRequirementIdsUsedBySlice = [...new Set((recommendationRows ?? [])
+    .map(row => row.parentRequirementId)
+    .filter(id => changedRequirementIds.includes(id)))].sort();
+  const caseFitCurrentness = envelope.pdp0CaseFitCurrentness;
+  if (!Array.isArray(recommendationRows)
+      || JSON.stringify(caseFitCurrentness?.exactCaseAdditions) !== JSON.stringify(exactCaseAdditions)
+      || JSON.stringify(caseFitCurrentness?.exactAcceptanceCaseIds) !== JSON.stringify(exactAcceptanceCaseIds)
+      || JSON.stringify(caseFitCurrentness?.changedRequirementIds) !== JSON.stringify(changedRequirementIds)
+      || JSON.stringify(caseFitCurrentness?.changedRequirementIdsUsedBySlice) !== JSON.stringify(changedRequirementIdsUsedBySlice)
+      || JSON.stringify(caseFitCurrentness?.changedRequirementFields) !== JSON.stringify(['acceptanceCases'])
+      || JSON.stringify(caseFitCurrentness?.changedRequirementFieldsConsumedByTaxonomyMapping) !== JSON.stringify([])
+      || caseFitCurrentness?.currentRequirementsSourceSha256 !== sha256(REQUIREMENTS_PATH, repositoryRoot)
+      || JSON.stringify(caseFitCurrentness?.taxonomyRecommendationRowsChanged) !== JSON.stringify([])
+      || caseFitCurrentness?.decisionRef !== PDP0_CASE_FIT_DECISION_REF
+      || caseFitCurrentness?.ownerApproval !== 'NOT_CLAIMED'
+      || caseFitCurrentness?.independentAcceptance !== 'NOT_CLAIMED'
+      || caseFitCurrentness?.phaseStatusEffect !== 'NONE') {
+    throw new Error(`${file} must bind the exact PXD-234 case delta and current requirements source without changing AQ taxonomy recommendations`);
+  }
   if (envelope.aqSuccessor) {
     const proof = document.sourceDeltaProof;
+    const expectedRecordId = 'MEDIA-PDP0-AQ-PXD216-CURRENTNESS-SUCCESSORS-2026-11-22-V8';
+    const expectedSchemaVersion = 'media.pdp0.aq-pxd216-currentness-successors.candidate.v8';
+    const expectedDecisionSections = ['PXD-229', 'PXD-230', 'PXD-234'];
+    const predecessor = envelope.predecessorCurrentnessCandidate;
+    const decisionPinsCurrent = expectedDecisionSections.every(decisionId => {
+      const ref = `${PDP0_DECISION_LOG_PATH}#${decisionId}-section`;
+      return envelope.currentDecisionSectionPins?.[ref] === decisionSectionSha256(decisionId, repositoryRoot);
+    });
     if (document.successorState !== 'APPEND_ONLY_CURRENT_SOURCE_SUCCESSOR; OWNER_ACCEPTANCE_NOT_CLAIMED'
+        || envelope.schemaVersion !== expectedSchemaVersion
+        || envelope.recordId !== expectedRecordId
+        || predecessor?.ref !== AQ_001_154_CURRENTNESS_V7_PATH
+        || predecessor?.sha256 !== sha256(AQ_001_154_CURRENTNESS_V7_PATH, repositoryRoot)
+        || !decisionPinsCurrent
         || document.predecessorRef !== 'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-current-source-review-001-154.json'
         || !/^[0-9a-f]{64}$/u.test(document.predecessorSha256 ?? '')
-        || proof?.classification !== 'NO_MEANING_CHANGE_IN_AQ_ROWS_1_TO_154'
+        || proof?.classification !== 'NO_MEANING_CHANGE_IN_AQ_CAPABILITY_TAXONOMY_ROWS_1_TO_154'
         || proof?.capabilityIdsAndOrderMatch !== true
         || proof?.historicalRows1To462Unchanged !== true
         || proof?.capabilityRowsChanged?.length !== 0
-        || proof?.changedRequirementIdsUsedBySlice?.length !== 0
-        || proof?.requirementSourceChangedIds?.length !== 1
+        || JSON.stringify(proof?.changedRequirementIdsUsedBySlice) !== JSON.stringify(changedRequirementIdsUsedBySlice)
+        || proof?.changedRequirementFieldsUsedBySlice?.length !== 0
+        || JSON.stringify(document.review?.currentnessRefresh?.sliceEvidence?.changedParentRequirementIdsWithinSlice) !== JSON.stringify(changedRequirementIdsUsedBySlice)
+        || JSON.stringify(proof?.requirementSourceChangedIds) !== JSON.stringify([...new Set(['MEDIA-REQ-CAP-RECIPE-TEMPLATE', ...changedRequirementIds])].sort())
+        || JSON.stringify(proof?.appendedPdp0CaseFitAcceptanceCaseIds) !== JSON.stringify(exactAcceptanceCaseIds)
+        || proof?.pdp0CaseFitDecisionRef !== PDP0_CASE_FIT_DECISION_REF
         || document.review?.ownerAcceptance !== 'NOT_CLAIMED'
         || document.review?.independentReview !== 'NOT_CLAIMED') {
-      throw new Error(`${file} does not carry a valid append-only AQ 1-154 no-meaning-change proof`);
+      throw new Error(`${file} does not carry a valid AQ 1-154 taxonomy proof with the exact PXD-234 source delta`);
     }
   }
   const scope = currentSourceReviewScope(document);
@@ -327,6 +384,15 @@ function validateCurrentSourceReview(repositoryRoot, file, expected, recommendat
       && structural.parentRequirementLinksMismatched === 0);
   if (!structuralPass) throw new Error(`${file} does not prove exact recommendation order, capability identity, and parent-requirement joins`);
   return document;
+}
+
+export function validatePdp0Aq001To154CurrentnessCandidate(repositoryRoot = root) {
+  return validateCurrentSourceReview(
+    repositoryRoot,
+    AQ_001_154_CURRENTNESS_V8_PATH,
+    {start: 1, end: 154, supported: 148, ambiguous: 6, corrected: 0},
+    CAPABILITY_REVIEW_PATHS[0],
+  );
 }
 
 function normalizeCapabilityReviewRows(repositoryRoot, capabilityDocument, requirementDocument, leafReviewDocument) {
@@ -639,7 +705,7 @@ export function buildPdp0AuditAqTraceability(repositoryRoot = root) {
     sourceBaseline: {
       fingerprintAlgorithm: 'SHA-256 of exact file bytes',
       inputs: Object.fromEntries(INPUTS.map(file => [file, sha256(file, repositoryRoot)])),
-      decisionSections: Object.fromEntries(['PXD-219', 'PXD-220', 'PXD-221'].map(decisionId => [
+      decisionSections: Object.fromEntries(['PXD-219', 'PXD-220', 'PXD-221', 'PXD-234'].map(decisionId => [
         `${PDP0_DECISION_LOG_PATH}#${decisionId}-section`, decisionSectionSha256(decisionId, repositoryRoot),
       ])),
     },
@@ -668,12 +734,27 @@ export function buildPdp0AuditAqTraceability(repositoryRoot = root) {
       rowsWithStructuralCapabilityRequirementCaseJoin: rows.filter(row => row.traceabilityStatus !== 'POST_PDP_IMPLEMENTATION_ONLY_OUTSIDE_PDP0_SEMANTIC_JOIN' && row.missingExactJoins.length === 0).length,
       rowsWithCanonicalCapabilityRequirementCaseJoin: rows.filter(row => row.canonicalCapabilityRefs.length > 0 && row.canonicalRequirementRefs.length > 0 && row.acceptanceCaseRefs.length > 0).length,
       rowsWithCoordinatorProposalDefinitionJoin: rows.filter(row => row.proposalDefinition !== null).length,
+      rowsWithPdp0CaseFitDecision: rows.filter(row => row.pdp0CaseFitDecision !== null).length,
       rowsRequiringFamilyCaseSemanticFitReview: rows.filter(row => row.traceabilityStatus === 'SOURCE_BOUND_FAMILY_CASE_JOIN_SEMANTIC_FIT_REVIEW_REQUIRED').length,
+      pdp0CaseFitDecisionCategoryCounts: crosswalk.pdp0CaseFitDecisionAudit?.categoryCounts ?? {},
       rowsOutsidePdp0DefinitionJoinAsImplementationOnly: postPdpImplementationRows.length,
       rowsWithExplicitFamilyScopeOnlyCapability: familyScopeRows.length,
       rowsBlockedMissingExactJoin: missing.length,
     },
     joinPolicy: 'Audit-row capability refs are projected only from exact PDP-0 evidence/context references or exact capabilityLeafId relations on named canonical profile clauses. A separately labeled parent-requirement family-scope link does not claim feature-specific capability semantics. Parent requirements require exact capabilityIds membership; acceptance cases retain their relation class: direct audit-row evidence; canonical Recorder/declarative clause with exact capabilityLeafId and matching parent requirement; or cases listed under the capability parent requirement. The latter proves only family scope, not feature-specific case applicability. Rows explicitly classified POST_PDP_IMPLEMENTATION_ONLY have no required PDP-0 capability/requirement/case join and remain visible with exact downstream handoffs. PXD-219 accepts the original 428-row A–Q assignments as indexing classifications only. PXD-220 accepts 456 of 462 capability classifications for indexing only and defers six ambiguous rows; PXD-221 removes unsupported related cluster P from row 371 while retaining primary D. These decisions change no capability meaning, requirement, or independent acceptance state. The 73 third-pass rows remain outside the original A–Q taxonomy. Other missing audit-row capability/requirement/case joins stay blocked; no product inapplicability is inferred.',
+    pdp0CaseFitDecisionPolicy: 'PXD-234 resolves the exact 230-row predecessor family-case semantic-fit review by source-bound technical-owner decision. Each row retains its source wording and original disposition; case additions are exact current requirement anchors; narrowed scope, downstream residuals, deferrals, and external UNKNOWN boundaries remain distinct. This resolves only the case-fit review and does not assert owner acceptance, independent acceptance, PDP-0 DEV_COMPLETE, implementation, qualification, runtime admission, closure, or Delivery.',
+    pdp0CaseFitDecisionAudit: {
+      sourceRef: `${PDP0_AUDIT_DISPOSITION_CROSSWALK_PATH}#pdp0CaseFitDecisionAudit`,
+      decisionRef: crosswalk.pdp0CaseFitDecisionAudit?.decisionRef ?? null,
+      predecessorTraceabilityRef: crosswalk.pdp0CaseFitDecisionAudit?.predecessorTraceabilityRef ?? null,
+      predecessorTraceabilitySha256: crosswalk.pdp0CaseFitDecisionAudit?.predecessorTraceabilitySha256 ?? null,
+      affectedRows: crosswalk.pdp0CaseFitDecisionAudit?.affectedRows ?? 0,
+      categoryCounts: crosswalk.pdp0CaseFitDecisionAudit?.categoryCounts ?? {},
+      exactCaseAdditions: crosswalk.pdp0CaseFitDecisionAudit?.exactCaseAdditions ?? {},
+      ownerApproval: crosswalk.pdp0CaseFitDecisionAudit?.ownerApproval ?? 'NOT_CLAIMED',
+      independentAcceptance: crosswalk.pdp0CaseFitDecisionAudit?.independentAcceptance ?? 'NOT_CLAIMED',
+      phaseStatusEffect: crosswalk.pdp0CaseFitDecisionAudit?.phaseStatusEffect ?? 'NONE',
+    },
     clusters: clusterRows(blueprint, rows, capabilityMappings),
     capabilityMappings,
     definitionExtensions,
@@ -682,6 +763,12 @@ export function buildPdp0AuditAqTraceability(repositoryRoot = root) {
       clusterMembership: 'All 428 original audit rows are accepted as indexing classifications under PXD-219. Of 462 capability taxonomy rows, 456 classifications are accepted as indexing-only, six ambiguous rows are deferred under PXD-220, and row 371 drops unsupported related cluster P under PXD-221. The 73 third-pass rows remain outside the original A–Q inventory taxonomy. Capability-meaning owner approval and independent acceptance are not claimed.',
       auditCaseJoins: missing.map(row => ({auditId: row.auditId, missingExactJoins: row.missingExactJoins})),
       familyCaseSemanticFitReviewRows: rows.filter(row => row.traceabilityStatus === 'SOURCE_BOUND_FAMILY_CASE_JOIN_SEMANTIC_FIT_REVIEW_REQUIRED').map(row => ({auditId: row.auditId, capabilityRefs: row.canonicalCapabilityRefs, acceptanceCaseRefs: row.acceptanceCaseRefs, candidateCaseRefs: row.acceptanceCaseCandidateRefs, featureSpecificCaseApplicability: row.featureSpecificCaseApplicability})),
+      predecessorFamilyCaseSemanticFitReview: {
+        predecessorRef: `${PDP0_AUDIT_AQ_TRACEABILITY_PATH} at SHA-256 ${crosswalk.pdp0CaseFitDecisionAudit?.predecessorTraceabilitySha256 ?? 'UNKNOWN'}`,
+        resolutionRef: crosswalk.pdp0CaseFitDecisionAudit?.decisionRef ?? null,
+        affectedAuditIds: crosswalk.pdp0CaseFitDecisionAudit?.affectedAuditIds ?? [],
+        categoryCounts: crosswalk.pdp0CaseFitDecisionAudit?.categoryCounts ?? {},
+      },
       priorFamilyCaseSemanticFitReviewRows: rows.filter(row => row.priorFamilyCaseSemanticFitFinding).map(row => row.priorFamilyCaseSemanticFitFinding),
       postPdpImplementationOnlyRows: postPdpImplementationRows.map(row => ({auditId: row.auditId, exactBuildAndLaterPhaseHandoffs: row.laterPhaseHandoffs})),
       familyScopeOnlyRows: familyScopeRows.map(row => ({auditId: row.auditId, capabilityRefs: row.canonicalCapabilityRefs, acceptanceCaseRefs: row.acceptanceCaseRefs, capabilityScopeDisposition: row.capabilityScopeDisposition})),
@@ -718,6 +805,8 @@ export function validatePdp0AuditAqTraceability({repositoryRoot = root, artifact
       || actual.denominators?.capabilityLeavesAcceptedAsIndexClassification !== 456
       || actual.denominators?.capabilityLeavesDeferredFromIndexClassification !== 6
       || actual.denominators?.rowsWithStructuralCapabilityRequirementCaseJoin !== 499
+      || actual.denominators?.rowsWithPdp0CaseFitDecision !== 230
+      || actual.denominators?.rowsRequiringFamilyCaseSemanticFitReview !== 0
       || actual.denominators?.rowsOutsidePdp0DefinitionJoinAsImplementationOnly !== 2
       || actual.denominators?.rowsWithExplicitFamilyScopeOnlyCapability !== 1
       || actual.denominators?.rowsBlockedMissingExactJoin !== 0) {
@@ -729,6 +818,8 @@ export function validatePdp0AuditAqTraceability({repositoryRoot = root, artifact
   const stats = {
     totalRows: expected.rows.length,
     rowsWithPdp0DefinitionJoin: expected.denominators.rowsWithStructuralCapabilityRequirementCaseJoin,
+    rowsWithPdp0CaseFitDecision: expected.denominators.rowsWithPdp0CaseFitDecision,
+    rowsRequiringFamilyCaseSemanticFitReview: expected.denominators.rowsRequiringFamilyCaseSemanticFitReview,
     unresolvedExactJoinRows: expected.denominators.rowsBlockedMissingExactJoin,
     blockedRows: blockedRows.length,
     postPdpImplementationOnlyRows: expected.denominators.rowsOutsidePdp0DefinitionJoinAsImplementationOnly,

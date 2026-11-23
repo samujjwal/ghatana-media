@@ -12,6 +12,8 @@ import {resolveMediaPdp0Cells} from './media-discovery-currentness.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const outputPath = 'docs/implementation/observations/media-pdp0-source-review-currentness-2026-11-17.json';
+const PDP0_AUDIT_TRACEABILITY_REF = 'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json';
+const PDP0_DISPOSITION_CROSSWALK_REF = 'docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json';
 const digest = value => crypto.createHash('sha256').update(value).digest('hex');
 const read = ref => fs.readFileSync(path.resolve(root, ref), 'utf8');
 
@@ -31,6 +33,7 @@ const materialSemanticReview = [
     disposition: 'MATERIAL_SOURCE_DELTA_REVIEW_REQUIRED',
     deltas: [
       {sourceRef: '.product-experience/pdp-0-product-truth/requirements.yaml#MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases', decisionRef: '.product-experience/decision-log.md#PXD-226', meaning: 'Adds acceptance cases AC-15/16/17 for ordinary compile, version-bound migration candidates, and fail-closed incomplete migration inputs.'},
+      {sourceRef: '.product-experience/pdp-0-product-truth/requirements.yaml#requirements/acceptanceCases', decisionRef: '.product-experience/decision-log.md#PXD-234', meaning: 'Adds 17 narrowly scoped P0 acceptance cases across 10 existing requirements to resolve exact row-level case-fit gaps; no new capability identity or external qualification is asserted.'},
     ],
   },
   {
@@ -47,16 +50,19 @@ const materialSemanticReview = [
   },
   {
     criterionId: 'P0-07',
-    disposition: 'MATERIAL_SOURCE_DELTA_REVIEW_REQUIRED',
+    disposition: 'MATERIAL_SOURCE_DELTA_REVIEWED; REVIEW_BINDING_REFRESH_REQUIRED',
     deltas: [
       {sourceRef: '.product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability', decisionRef: '.product-experience/decision-log.md#PXD-231', meaning: 'Resolves three exact AUD-SPEC-020 surface/channel pairs while preserving the 56-identity denominator.'},
       {sourceRef: '.product-experience/pdp-0-product-truth/capabilities.yaml#media.recipe.specification.compile', decisionRef: '.product-experience/decision-log.md#PXD-226', meaning: 'Adds the selected compile migration extension and retains six future-version proposals.'},
       {sourceRef: '.product-experience/pdp-0-product-truth/requirements.yaml#MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases', decisionRef: '.product-experience/decision-log.md#PXD-226', meaning: 'Adds AC-15/16/17 to the source-bound recipe-template requirement.'},
+      {sourceRef: `${PDP0_DISPOSITION_CROSSWALK_REF}#pdp0CaseFitDecisionAudit`, decisionRef: '.product-experience/decision-log.md#PXD-234', meaning: 'Records source-bound decisions for the exact 230 predecessor rows with unchanged source wording, identities, and dispositions.'},
     ],
-    unresolvedFindingIds: ['P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231'],
-    currentSourceSemanticFitRows: 230,
+    unresolvedFindingIds: [],
+    historicalFindingIds: ['P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231'],
+    currentSourceSemanticFitRows: 0,
+    currentOwnerDecisionRows: 230,
     historicalFindingId: 'P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231',
-    unresolvedFindingDisposition: 'The prior criterion review retains historical aggregate ID P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231, while the current AQ traceability source counts 230 exact REVIEW_REQUIRED_PARENT_CASES_ARE_NOT_FEATURE_SPECIFIC rows. Reconcile the exact current row IDs in a source-review successor; keep all 230 open until owner disposition. PXD-231 resolves three surface applicability cells and does not resolve these semantic-fit rows.',
+    unresolvedFindingDisposition: 'Historical aggregate ID P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231 is preserved as predecessor history. PXD-234 records source-bound decisions for the exact 230 predecessor audit rows; the current trace must show zero unresolved family-case semantic-fit rows. This does not claim owner acceptance, independent acceptance, PDP-0 DEV_COMPLETE, or external operation admission.',
   },
 ];
 
@@ -65,6 +71,9 @@ export function buildMediaPdp0SourceReviewCurrentnessReport() {
   const readiness = JSON.parse(read(PDP0_READINESS_REF));
   const directReview = JSON.parse(read(PDP0_DIRECT_REVIEW_REF));
   const matrix = JSON.parse(read(PDP0_MATRIX_REF));
+  const auditTraceability = JSON.parse(read(PDP0_AUDIT_TRACEABILITY_REF));
+  const dispositionCrosswalk = JSON.parse(read(PDP0_DISPOSITION_CROSSWALK_REF));
+  const caseFitAudit = dispositionCrosswalk.pdp0CaseFitDecisionAudit;
   const reviewRecords = resolveReviewRecordFiles({read});
   const currentness = inspectPdp0CurrentSourceReviewCurrentness({status, readiness, directReview, matrix, reviewRecords, read});
   const topology = resolveMediaPdp0Cells(root);
@@ -92,14 +101,22 @@ export function buildMediaPdp0SourceReviewCurrentnessReport() {
     'scripts/lib/media-pdp0-source-development-current-cut.mjs',
     'scripts/record-media-discovery-pdp0-currentness.mjs',
     'scripts/report-media-pdp0-source-review-currentness.mjs',
+    PDP0_AUDIT_TRACEABILITY_REF,
+    PDP0_DISPOSITION_CROSSWALK_REF,
+    'scripts/check-media-pdp0-audit-aq-traceability.mjs',
+    'scripts/check-media-pdp0-501-audit-dispositions.mjs',
+    '.product-experience/pdp-0-product-truth/requirements.yaml',
     `${PDP0_REVIEW_INPUT_DIRECTORY}/revision-decision.v3.schema.json`,
     `${PDP0_REVIEW_INPUT_DIRECTORY}/peer-review-record.v1.schema.json`,
     `${PDP0_REVIEW_INPUT_DIRECTORY}/technical-reviewer-authority.v1.schema.json`,
   ];
   const sourceFingerprintSet = Object.fromEntries([...new Set(sourceRefs)].sort().map(ref => [ref, digest(read(ref))]));
+  const repositoryHead = process.env.MEDIA_PDP0_CURRENTNESS_GIT_HEAD
+    ?? execFileSync('git', ['rev-parse', 'HEAD'], {cwd: root, encoding: 'utf8'}).trim();
+  if (!/^[a-f0-9]{40}$/u.test(repositoryHead)) throw new Error('MEDIA_PDP0_CURRENTNESS_GIT_HEAD must be a full 40-character Git commit when supplied');
   const sourceBaseline = {
     repository: 'samujjwal/ghatana-media',
-    repositoryHead: execFileSync('git', ['rev-parse', 'HEAD'], {cwd: root, encoding: 'utf8'}).trim(),
+    repositoryHead,
     workingTree: 'DIRTY_PRESERVED',
     phaseStatusHead: status.mainSha,
     sourceFingerprintSet,
@@ -129,6 +146,18 @@ export function buildMediaPdp0SourceReviewCurrentnessReport() {
     },
     permittedWork: 'Bounded PDP-0 source review/currentness observation and validator repair only; no owner acceptance, independent acceptance, phase-status promotion, closure, Build admission, Delivery, or release.',
     materialSemanticReview,
+    pdp0CaseFitDecisionCurrentness: {
+      decisionRef: caseFitAudit?.decisionRef ?? null,
+      predecessorTraceabilityRef: caseFitAudit?.predecessorTraceabilityRef ?? null,
+      predecessorTraceabilitySha256: caseFitAudit?.predecessorTraceabilitySha256 ?? null,
+      affectedAuditRows: caseFitAudit?.affectedRows ?? 0,
+      currentRowsWithDecision: auditTraceability.denominators?.rowsWithPdp0CaseFitDecision ?? 0,
+      currentRowsRequiringSemanticFitReview: auditTraceability.denominators?.rowsRequiringFamilyCaseSemanticFitReview ?? null,
+      categoryCounts: caseFitAudit?.categoryCounts ?? {},
+      ownerApproval: caseFitAudit?.ownerApproval ?? 'NOT_CLAIMED',
+      independentAcceptance: caseFitAudit?.independentAcceptance ?? 'NOT_CLAIMED',
+      phaseStatusEffect: caseFitAudit?.phaseStatusEffect ?? 'NONE',
+    },
     projectionOnlyChanges: [{
       sourceRef: '.product-experience/surfaces/media-physical-topology.v1.json',
       decisionRef: '.product-experience/decision-log.md#PXD-230',
@@ -164,7 +193,9 @@ export function buildMediaPdp0SourceReviewCurrentnessReport() {
       reviewMetadataRefreshCriteria: ['P0-05', 'P0-06'],
       otherPdp0CriterionBlockers: [
         {criterionId: 'P0-03', classification: 'DEFINITION_REVIEW_NOT_ESTABLISHED', owner: 'Media migration semantic owner and required independent migration reviewer', nextAction: 'Continue the exact migration semantic reconciliation under PDP-0; do not mark the definition criterion complete from direct source tests.'},
-        {criterionId: 'P0-07', classification: 'MATERIAL_DEFINITION_ROWS_OPEN', owner: 'Media PDP-0 Product Truth owner', nextAction: 'Reconcile the historical 231 finding suffix against the 230 current AQ traceability rows, then keep all 230 exact feature-specific parent-case semantic-fit rows open until the owning PDP-0 source is updated and revalidated.'},
+        ...(auditTraceability.denominators?.rowsRequiringFamilyCaseSemanticFitReview === 0 && caseFitAudit?.affectedRows === 230
+          ? []
+          : [{criterionId: 'P0-07', classification: 'PXD234_CASE_FIT_DECISION_CURRENTNESS_NOT_VALIDATED', owner: 'Media PDP-0 Product Truth source owner', nextAction: 'Validate the exact PXD-234 230-row case-fit decision and refresh only its current source bindings; do not advance PDP status from this projection.'}]),
         {criterionId: 'P0-08', classification: 'INDEPENDENT_ACCEPTANCE_NOT_PERFORMED', owner: 'Appointed independent Product Definition reviewer / acceptance owner', nextAction: 'Keep P0-010 NOT_PERFORMED; do not claim acceptance, closure, Build admission, or Delivery.'},
       ],
     },

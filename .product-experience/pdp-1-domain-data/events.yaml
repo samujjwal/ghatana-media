@@ -25,10 +25,10 @@ observedEnvelope:
     transportProjection:
       status: publisher-source-mapping-observed; transport-contract-and-consumer-interpretation-unresolved
       headers:
-      - { name: X-Tenant-Id, value: event.tenantId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L112 }
-      - { name: X-Principal-Id, value: event.principalId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L113 }
-      - { name: X-Correlation-Id, value: event.correlationId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L114 }
-      - { name: Idempotency-Key, value: event.eventId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L115 }
+      - { name: X-Tenant-Id, value: event.tenantId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L201 }
+      - { name: X-Principal-Id, value: event.principalId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L202 }
+      - { name: X-Correlation-Id, value: event.correlationId(), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L203 }
+      - { name: Idempotency-Key, value: tenantScopedIdempotencyKey(event.tenantId(), event.eventId()), sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L204 }
       body:
       - { name: eventId, value: event.eventId() }
       - { name: eventType, value: event.eventType() }
@@ -39,7 +39,7 @@ observedEnvelope:
       - { name: source, value: literal-media }
       - { name: userId, value: event.principalId() }
       - { name: contentType, value: literal-application/json }
-      - { name: payload, value: nested-payload-map }
+      - { name: payload, value: lifecyclePayload(event) }
       nestedPayload:
       - { name: aggregateType, value: event.aggregateType() }
       - { name: aggregateId, value: event.aggregateId() }
@@ -61,7 +61,7 @@ observedEnvelope:
         - launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#L100
         - ../ghatana/services/event-plane/launcher/src/main/java/com/ghatana/event/plane/launcher/EventPlaneHttpHandler.java#L451-L479
       scope: version-value-alignment-only; does-not-establish-append-acceptance-or-consumer-delivery
-    idempotencyHeader: { name: Idempotency-Key, value: eventId, status: "request-header-observed; durable-deduplication-guarantee: unresolved" }
+    idempotencyHeader: { name: Idempotency-Key, value: tenantScopedIdempotencyKey(trustedTenant, eventId), status: "request-header-observed; durable-deduplication-guarantee: unverified" }
     acceptedHttpStatuses: [201]
     platformContractCrosswalk:
       status: source-observed-operation-match; Media event semantics and lifecycle ownership remain unapproved
@@ -95,21 +95,21 @@ observedEnvelope:
     publisherCallSites: 7
     concreteEventTypes: 9
     classification: source-observed-implementation-inventory; not-canonical-taxonomy
-    publisherIdentity: MediaRuntime#publishLifecycle -> MediaLifecycleEventPublisher#publish; concrete publisherId is runtime-selected (disabled or event-plane-http)
+    publisherIdentity: MediaRuntime#publishLifecycle -> MediaLifecycleEventPublisher#publish for direct lifecycle events; media.job.accepted is atomically persisted through MediaRuntime#submitJob -> MediaJobStore#create -> V016
     observedEnvelopePayloadFields: [ eventId, eventType, tenantId, principalId, correlationId, causationId, aggregateType, aggregateId, aggregateVersion, classification, occurredAt, attributes ]
     observedWireBodyFields: [ eventId, eventType, eventVersion, timestamp, correlationId, causationId-when-nonblank, source, userId, contentType, payload ]
     observedWirePayloadFields: [ aggregateType, aggregateId, aggregateVersion, classification, attributes ]
-    publisherSourcePaths: [ launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java, launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java ]
+    publisherSourcePaths: [ launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java, runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaLifecycleEvent.java, launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java, providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java, providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaLifecycleOutboxSource.java ]
     records:
-      - {eventType: media.upload.started, callSite: "MediaRuntime#beginUpload", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L444-L448", publisherCallSite: {identity: MediaRuntime#beginUpload, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [contentType, expectedSizeBytes], trigger: atomic-store-disposition-reports-new-upload-session-created, aggregateType: upload, aggregateId: session.uploadId, aggregateVersion: 1}
-      - {eventType: media.artifact.completed, callSite: "MediaRuntime#completeUpload", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L509-L515", publisherCallSite: {identity: MediaRuntime#completeUpload, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [contentType, sizeBytes, sourceUploadId, sha256], trigger: atomic-store-disposition-reports-first-completion-transition, aggregateType: artifact, aggregateId: artifact.artifactId, aggregateVersion: 1}
-      - {eventType: media.job.accepted, callSite: "MediaRuntime#submitJob", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1036-L1042", publisherCallSite: {identity: MediaRuntime#submitJob, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status], trigger: job-persisted-as-accepted, aggregateType: job, aggregateId: accepted.jobId, aggregateVersion: accepted.version}
-      - {eventType: media.job.cancelled, callSite: "MediaRuntime#cancel", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1845-L1886", publisherCallSite: {identity: MediaRuntime#cancel, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, cancellationOutcome], trigger: provider-confirms-cancellation-and-cancelled-job-is-stored, aggregateType: job, aggregateId: current.jobId, aggregateVersion: stored.version}
-      - {eventType: media.job.cancel_requested, callSite: "MediaRuntime#cancel", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1845-L1886", publisherCallSite: {identity: MediaRuntime#cancel, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, cancellationOutcome], trigger: cancellation-remains-unconfirmed-and-requested-state-is-stored, aggregateType: job, aggregateId: current.jobId, aggregateVersion: stored.version}
-      - {eventType: media.stream.opened, callSite: "MediaRuntime#openStream", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1935-L1939", publisherCallSite: {identity: MediaRuntime#openStream, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [streamKind, providerId], trigger: stream-session-created, aggregateType: stream, aggregateId: sessionId, aggregateVersion: session.version}
-      - {eventType: media.stream.closed, callSite: "MediaRuntime#closeStream", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L2195-L2201", publisherCallSite: {identity: MediaRuntime#closeStream, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [streamKind, providerId, lastSequence, state], trigger: stream-transitions-to-closed, aggregateType: stream, aggregateId: sessionId, aggregateVersion: closed.version}
-      - {eventType: media.job.completed, callSite: "MediaRuntime#startJob terminal publication", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3247-L3254", publisherCallSite: {identity: MediaRuntime#startJob-terminal-publication, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, failureCode], trigger: terminal-job-record-persisted-and-current-status-is-COMPLETED, aggregateType: job, aggregateId: value.jobId, aggregateVersion: terminal.version}
-      - {eventType: media.job.failed, callSite: "MediaRuntime#startJob terminal publication", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3247-L3254", publisherCallSite: {identity: MediaRuntime#startJob-terminal-publication, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, failureCode], trigger: terminal-job-record-persisted-and-current-status-is-FAILED, aggregateType: job, aggregateId: value.jobId, aggregateVersion: terminal.version}
+      - {eventType: media.upload.started, callSite: "MediaRuntime#beginUpload", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L510-L515", publisherCallSite: {identity: MediaRuntime#beginUpload, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [contentType, expectedSizeBytes], trigger: atomic-store-disposition-reports-new-upload-session-created, aggregateType: upload, aggregateId: session.uploadId, aggregateVersion: 1}
+      - {eventType: media.artifact.completed, callSite: "MediaRuntime#completeUpload", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L575-L582", publisherCallSite: {identity: MediaRuntime#completeUpload, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [contentType, sizeBytes, sourceUploadId, sha256], trigger: atomic-store-disposition-reports-first-completion-transition, aggregateType: artifact, aggregateId: artifact.artifactId, aggregateVersion: 1}
+      - {eventType: media.job.accepted, callSite: "MediaRuntime#submitJob V016 intent", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1153-L1164", publisherCallSite: {identity: MediaRuntime#submitJob, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [jobId, operationRef, admissionState], trigger: new-accepted-job-and-canonical-V016-intent-commit-together, aggregateType: processing-job, aggregateId: candidate.jobId, aggregateVersion: candidate.version}
+      - {eventType: media.job.cancelled, callSite: "MediaRuntime#cancel", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L2281-L2317", publisherCallSite: {identity: MediaRuntime#cancel, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, cancellationOutcome], trigger: provider-confirms-cancellation-and-cancelled-job-is-stored, aggregateType: job, aggregateId: current.jobId, aggregateVersion: stored.version}
+      - {eventType: media.job.cancel_requested, callSite: "MediaRuntime#publishCancellationRequested", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1919-L1927", publisherCallSite: {identity: MediaRuntime#publishCancellationRequested, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, cancellationOutcome], trigger: cancellation-remains-unconfirmed-and-requested-state-is-stored, aggregateType: job, aggregateId: job.jobId, aggregateVersion: job.version}
+      - {eventType: media.stream.opened, callSite: "MediaRuntime#openStream", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L2366-L2370", publisherCallSite: {identity: MediaRuntime#openStream, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [streamKind, providerId], trigger: stream-session-created, aggregateType: stream, aggregateId: sessionId, aggregateVersion: session.version}
+      - {eventType: media.stream.closed, callSite: "MediaRuntime#closeStream", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L2626-L2632", publisherCallSite: {identity: MediaRuntime#closeStream, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [streamKind, providerId, lastSequence, state], trigger: stream-transitions-to-closed, aggregateType: stream, aggregateId: sessionId, aggregateVersion: closed.version}
+      - {eventType: media.job.completed, callSite: "MediaRuntime#startJob terminal publication", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3704-L3711", publisherCallSite: {identity: MediaRuntime#startJob-terminal-publication, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, failureCode], trigger: terminal-job-record-persisted-and-current-status-is-COMPLETED, aggregateType: job, aggregateId: value.jobId, aggregateVersion: terminal.version}
+      - {eventType: media.job.failed, callSite: "MediaRuntime#startJob terminal publication", sourceRef: "launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3704-L3711", publisherCallSite: {identity: MediaRuntime#startJob-terminal-publication, sourcePath: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java}, observedPayloadFields: [artifactId, jobType, providerId, status, failureCode], trigger: terminal-job-record-persisted-and-current-status-is-FAILED, aggregateType: job, aggregateId: value.jobId, aggregateVersion: terminal.version}
     sharedPublisher: "MediaRuntime#publishLifecycle constructs dynamic media.job.<status>; current startJob assignments establish only completed and failed concrete outcomes in this inventory"
     perEventProducerAuthority: unresolved
     canonicalTaxonomy: unresolved
@@ -120,63 +120,63 @@ observedEnvelope:
       records:
       - eventType: media.upload.started
         callSite: MediaRuntime#beginUpload
-        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L444-L448, candidate: upload-session-returned-with-atomic-new-session-disposition}
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L510-L515, candidate: upload-session-returned-with-atomic-new-session-disposition}
         aggregateProposal: { type: upload, identity: session.uploadId, version: literal-1; no-upload-version-record-observed}
         provenanceCandidates: [ tenantId, principalId, classification, contentType, expectedSizeBytes ]
         evidenceStatus: source-observation-candidate-only; committed-or-delivery-evidence-unavailable
         policySemantics: pending-owner-review
       - eventType: media.artifact.completed
         callSite: MediaRuntime#completeUpload
-        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L509-L515, candidate: artifact-returned-with-atomic-first-completion-disposition}
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L575-L582, candidate: artifact-returned-with-atomic-first-completion-disposition}
         aggregateProposal: { type: artifact, identity: artifact.artifactId, version: literal-1; no-artifact-version-record-observed}
         provenanceCandidates: [ tenantId, principalId, classification, contentType, sizeBytes, sourceUploadId, sha256 ]
         evidenceStatus: source-observation-candidate-only; completion-is-not-independent-verification-or-committed-event-evidence
         policySemantics: pending-owner-review
       - eventType: media.job.accepted
         callSite: MediaRuntime#submitJob
-        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1036-L1042, candidate: accepted-ProcessingJob-after-jobStore.create}
-        aggregateProposal: { type: job, identity: accepted.jobId, version: accepted.version}
-        provenanceCandidates: [ tenantId, principalId, request.correlationId, request.requestId, request.artifactId, accepted.jobType, accepted.providerId, accepted.status, artifact.classification ]
-        evidenceStatus: source-observation-candidate-only; accepted-record-does-not-prove-processing-finality
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1153-L1164, candidate: newly-committed-accepted-job-and-atomic-V016-intent}
+        aggregateProposal: { type: processing-job, identity: candidate.jobId, version: candidate.version}
+        provenanceCandidates: [ tenantId, candidate.principalId, candidate.requestId, candidate.jobId, operationRef, admissionState, artifact.classification ]
+        evidenceStatus: committed-local-V016-intent-is-source-bound; Event-Plane-acceptance-and-processing-finality-not-established
         policySemantics: pending-owner-review
       - eventType: media.job.cancelled
         callSite: MediaRuntime#cancel
-        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1845-L1886, candidate: provider-confirmed-cancellation-and-stored-job}
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L2281-L2317, candidate: provider-confirmed-cancellation-and-stored-job}
         aggregateProposal: { type: job, identity: current.jobId, version: stored.version}
         provenanceCandidates: [ tenantId, principalId, current.requestId, current.artifactId, current.jobType, current.providerId, stored.status, providerOutcome ]
         evidenceStatus: source-observation-candidate-only; provider-confirmation-is-not-an-independent-delivery-receipt
         policySemantics: pending-owner-review
       - eventType: media.job.cancel_requested
         callSite: MediaRuntime#cancel
-        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1845-L1886, candidate: unconfirmed-provider-outcome-and-stored-requested-state}
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1919-L1927, candidate: unconfirmed-provider-outcome-and-stored-requested-state}
         aggregateProposal: { type: job, identity: current.jobId, version: stored.version}
         provenanceCandidates: [ tenantId, principalId, current.requestId, current.artifactId, current.jobType, current.providerId, stored.status, providerOutcome ]
         evidenceStatus: source-observation-candidate-only; explicitly-not-cancellation-finality
         policySemantics: pending-owner-review
       - eventType: media.stream.opened
         callSite: MediaRuntime#openStream
-        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1935-L1939, candidate: created-StreamSession}
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L2366-L2370, candidate: created-StreamSession}
         aggregateProposal: { type: stream, identity: sessionId, version: session.version}
         provenanceCandidates: [ tenantId, principalId, request.correlationId, session.streamKind, session.providerId, session.version, governanceContext.classification ]
         evidenceStatus: source-observation-candidate-only; session-creation-is-not-provider-delivery-or-stream-success-evidence
         policySemantics: pending-owner-review
       - eventType: media.stream.closed
         callSite: MediaRuntime#closeStream
-        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L2195-L2201, candidate: transitioned-StreamSession}
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L2626-L2632, candidate: transitioned-StreamSession}
         aggregateProposal: { type: stream, identity: sessionId, version: closed.version}
         provenanceCandidates: [ tenantId, principalId, sessionId, closed.streamKind, closed.providerId, closed.lastSequence, closed.state, closed.version ]
         evidenceStatus: source-observation-candidate-only; closed-state-observation-is-not-independent-consumer-or-delivery-acknowledgement
         policySemantics: pending-owner-review
       - eventType: media.job.completed
         callSite: MediaRuntime#startJob-terminal-publication
-        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3247-L3254, candidate: terminal-ProcessingJob-persisted-with-COMPLETED-status}
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3704-L3711, candidate: terminal-ProcessingJob-persisted-with-COMPLETED-status}
         aggregateProposal: { type: job, identity: value.jobId, version: terminal.version}
         provenanceCandidates: [ tenantId, principalId, request.correlationId, request.requestId, value.artifactId, value.jobType, terminal.providerId, terminal.status, terminal.failureCode, artifact.classification ]
         evidenceStatus: source-observation-candidate-only; terminal-record-is-not-independent-quality-or-delivery-evidence
         policySemantics: pending-owner-review
       - eventType: media.job.failed
         callSite: MediaRuntime#startJob-terminal-publication
-        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3247-L3254, candidate: terminal-ProcessingJob-persisted-with-FAILED-status}
+        sourceObservation: { sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3704-L3711, candidate: terminal-ProcessingJob-persisted-with-FAILED-status}
         aggregateProposal: { type: job, identity: value.jobId, version: terminal.version}
         provenanceCandidates: [ tenantId, principalId, request.correlationId, request.requestId, value.artifactId, value.jobType, terminal.providerId, terminal.status, terminal.failureCode, artifact.classification ]
         evidenceStatus: source-observation-candidate-only; failure-record-is-not-independent-delivery-or-recovery-evidence
@@ -191,7 +191,7 @@ observedEnvelope:
     sourcePath: libs/audio-video-client/src/index.ts
     sourceRefreshObservation:
       previousFileSha256: 8ff2f4ff91cf67093ffe63e8110ccfd3d777f0b6f4d8dcf05444b71d90c629c0
-      currentFileSha256: d1c2aafa522e0ddf34d4d15ac681429e9534ecc7f0172c4e2557c90ee0b8b2b6
+      currentFileSha256: 320bfe1e786055d2cdbf389107ab3381486b425f587a14ea164988c6e1928503
       changeScope: current full-file digest and source line references were refreshed; notification-method digest differs from the retained historical digest
       clientNotificationMethodsSha256: a420440951be5ee4e913ab4ba7e5e8119a3dd5e3adf2b5745f2357e3c16773e3
       previousClientNotificationMethodsSha256: 03e560e21fa2f7aeb0e255337862987ad9337357240c8e07420d32bf45cfebf6
@@ -199,21 +199,21 @@ observedEnvelope:
       lifecycleProofRouteImpact: none; no candidate route is derived from these client-local notification methods
       ownerReview: pending
     records:
-      - {eventName: "stt:transcription:start", publisherCallSite: AudioVideoClient#transcribe, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L310"}
-      - {eventName: "stt:transcription:complete", publisherCallSite: AudioVideoClient#transcribe, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L321"}
-      - {eventName: "stt:transcription:error", publisherCallSite: AudioVideoClient#transcribe, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L325"}
-      - {eventName: "tts:synthesis:start", publisherCallSite: AudioVideoClient#synthesize, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L339"}
-      - {eventName: "tts:synthesis:complete", publisherCallSite: AudioVideoClient#synthesize, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L349"}
-      - {eventName: "tts:synthesis:error", publisherCallSite: AudioVideoClient#synthesize, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L353"}
-      - {eventName: "ai-voice:process:start", publisherCallSite: AudioVideoClient#processAIVoice, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L367"}
-      - {eventName: "ai-voice:process:complete", publisherCallSite: AudioVideoClient#processAIVoice, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L377"}
-      - {eventName: "ai-voice:process:error", publisherCallSite: AudioVideoClient#processAIVoice, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L381"}
-      - {eventName: "vision:process:start", publisherCallSite: AudioVideoClient#processVision, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L395"}
-      - {eventName: "vision:process:complete", publisherCallSite: AudioVideoClient#processVision, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L406"}
-      - {eventName: "vision:process:error", publisherCallSite: AudioVideoClient#processVision, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L410"}
-      - {eventName: "multimodal:process:start", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L424"}
-      - {eventName: "multimodal:process:complete", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L435"}
-      - {eventName: "multimodal:process:error", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L439"}
+      - {eventName: "stt:transcription:start", publisherCallSite: AudioVideoClient#transcribe, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L317"}
+      - {eventName: "stt:transcription:complete", publisherCallSite: AudioVideoClient#transcribe, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L328"}
+      - {eventName: "stt:transcription:error", publisherCallSite: AudioVideoClient#transcribe, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L332"}
+      - {eventName: "tts:synthesis:start", publisherCallSite: AudioVideoClient#synthesize, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L346"}
+      - {eventName: "tts:synthesis:complete", publisherCallSite: AudioVideoClient#synthesize, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L356"}
+      - {eventName: "tts:synthesis:error", publisherCallSite: AudioVideoClient#synthesize, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L360"}
+      - {eventName: "ai-voice:process:start", publisherCallSite: AudioVideoClient#processAIVoice, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L374"}
+      - {eventName: "ai-voice:process:complete", publisherCallSite: AudioVideoClient#processAIVoice, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L384"}
+      - {eventName: "ai-voice:process:error", publisherCallSite: AudioVideoClient#processAIVoice, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L388"}
+      - {eventName: "vision:process:start", publisherCallSite: AudioVideoClient#processVision, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L402"}
+      - {eventName: "vision:process:complete", publisherCallSite: AudioVideoClient#processVision, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L413"}
+      - {eventName: "vision:process:error", publisherCallSite: AudioVideoClient#processVision, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L417"}
+      - {eventName: "multimodal:process:start", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request], sourceRef: "libs/audio-video-client/src/index.ts#L431"}
+      - {eventName: "multimodal:process:complete", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request, result], sourceRef: "libs/audio-video-client/src/index.ts#L442"}
+      - {eventName: "multimodal:process:error", publisherCallSite: AudioVideoClient#processMultimodal, observedPayloadFields: [request, error], sourceRef: "libs/audio-video-client/src/index.ts#L446"}
     families:
     - { family: stt:transcription, eventNames: [ "stt:transcription:start", "stt:transcription:complete", "stt:transcription:error" ]}
     - { family: tts:synthesis, eventNames: [ "tts:synthesis:start", "tts:synthesis:complete", "tts:synthesis:error" ]}
@@ -273,10 +273,15 @@ ownerEventContracts:
       - ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/components/schemas/EventRecord
       ownerServiceRequirementRef: ../ghatana/services/event-plane/service-contract.yaml#/requirements/@id=EVT-EXACT-LOOKUP-001
       sourceFingerprints:
-        openApiSha256: b95a1c0b5bd09de4f8103293f108ecf1bf24d0f62fbd20f4f36620e5e963c272
-        serviceContractSha256: 26f286bb837783f2fbb3c423bab622e0e8783eb6db3e6083bbe7f30ee8558c45
-        ownerRepositoryHead: b1c892a9fc6a5e11fff82adc4bf3fcf190ba76e4
-        latestRelevantContractChange: d7b2b27b050723585267ce48a2e5f63838cb6381
+        openApiSha256: 4e9bc7ca4b886e825a748078748c46ecd70b91a9185aaf285145050398ee1568
+        serviceContractSha256: be368967ce4b7c43bddc35a1202f269cb62822429e3b66d0afe921d67eab13da
+        latestRelevantContractChange: ab48b24c8dc46ec4f1cf878fb60fa51bd34d6ea5
+        historicalSourceBaseline:
+          openApiSha256: b95a1c0b5bd09de4f8103293f108ecf1bf24d0f62fbd20f4f36620e5e963c272
+          serviceContractSha256: 26f286bb837783f2fbb3c423bab622e0e8783eb6db3e6083bbe7f30ee8558c45
+          ownerRepositoryHead: b1c892a9fc6a5e11fff82adc4bf3fcf190ba76e4
+          latestRelevantContractChange: d7b2b27b050723585267ce48a2e5f63838cb6381
+        currentnessBasis: exact-current-public-file-sha256; upstream-head-not-asserted
       eventVersionProjection:
         status: OWNER_DEFINED_EXACT_IDENTITY_PROJECTION
         ownerSchemaField: per-event-schema.eventVersion
@@ -284,13 +289,13 @@ ownerEventContracts:
         eventPlaneField: AppendEventRequest.eventVersion
         wireValue: "1.0.0"
         mapping: identity
-        admissionEffect: none; whole Event Plane dependency remains NOT_ADMITTED pending retry and lookup contract reconciliation
+        admissionEffect: none; definition currentness only; whole Event Plane dependency remains NOT_ADMITTED pending local verification and applicable delivery admission
       requiredAppendReceipt:
         status: 201
-        fields: [eventId, storedEventId, streamId, offset]
+        fields: [eventId, storedEventId, idempotencyKey, streamId, offset]
         acceptanceRule: >-
           `eventId` is the submitted caller event ID; `storedEventId` must equal the Event Plane's stable UUID mapping of that caller ID;
-          `streamId` must equal the expected tenant-scoped stream; `offset` must be a nonnegative stream position. A 201 or a matching caller eventId by itself is not sufficient evidence of an exact append.
+          `idempotencyKey` must equal the exact tenant-scoped key on the immutable request; `streamId` must equal the expected logical stream and `offset` must be a nonnegative tenant-wide append order, not a stream-local sequence. Exact same tenant, caller event ID, idempotency key, and complete request material return the original receipt; changed material conflicts. A 201 or matching caller eventId by itself is not sufficient evidence of an exact append.
         identityMapping:
           sourceRef: ../ghatana/services/event-plane/launcher/src/main/java/com/ghatana/event/plane/launcher/EventPlaneHttpHandler.java#stableUuid
           rule: UUID caller IDs are preserved; other caller IDs map to UUID.nameUUIDFromBytes(UTF-8 callerEventId)
@@ -303,33 +308,55 @@ ownerEventContracts:
         scope: [trustedTenant, streamId, eventId]
         requiredAuthority: Authenticated Shared Event Plane reader with `event-plane:event:read`, bound to the exact trusted tenant; lookup authority is distinct from the Media publisher authority.
         authorityRef: ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/paths/~1api~1v1~1streams~1{streamId}~1events~1{eventId}/get/x-ghatana-security
-        matchingRecordRule: returned EventRecord.callerEventId equals the submitted caller event ID and EventRecord.eventId equals its stable UUID mapping; returned stream, tenant, eventType, eventVersion, aggregate tuple, and canonical payload fingerprint must also match the immutable outbox entry
-        notFoundRule: NOT_FOUND is not proof that an uncertain append did not commit unless the Event Plane contract supplies a current, complete lookup receipt for the exact tenant/stream/event identity
+        matchingRecordRule: >-
+          The exact EventRecord must match trusted tenant, requested logical stream, caller event ID, stable stored UUID,
+          idempotency key, event type/version, timestamp, content type, headers, source/user/correlation/causation fields,
+          tenant-wide offset, and the complete canonical payload against the immutable outbox request. Missing fields,
+          stale or partial evidence, mismatches, 422, or 503 remain UNKNOWN.
+        notFoundRule: >-
+          HTTP 404 is complete absence only under the current published Event Plane contract's authoritative complete
+          lookup rule: bounded scan proves absence from the initial retained cursor or a proven caller-ID mismatch.
+          A host may retry the exact immutable request with the exact same tenant-scoped idempotency key at most once
+          after this exact authenticated GET returns that complete 404; every other absence/unknown result remains UNKNOWN.
         requiredHostVerifiedReadReceipt:
-          definitionStatus: MEDIA_CONSUMER_REQUIREMENT_ONLY; current Shared response contract does not yet establish these fields or semantics
-          fields: [tenantId, streamId, eventId, queryId, requestFingerprint, readAuthorityRef, readVersion, observedAt, observedAtCurrentness]
-          eventIdMeaning: callerEventId supplied in the exact lookup path; host also verifies returned EventRecord.callerEventId equals it and EventRecord.eventId equals its stable UUID mapping
-          requestFingerprint: Host-computed SHA-256 of the exact trusted tenant, stream, event ID, query ID, and read authority tuple; caller-supplied digests are rejected.
-          currentness: Must be explicitly established by an authoritative complete read at the same trusted read authority and current read version; an untrusted boolean or status label is insufficient.
-          freshness: observedAt must be a valid UTC instant, not future-dated, and within the Media-selected maximum observation age; otherwise lookup remains UNKNOWN.
-          admission: NOT_ADMITTED until Shared publishes a response contract and owner approval for this receipt.
+          definitionStatus: MEDIA_HOST_GENERATED_LOCAL_READ_OBSERVATION; not a Shared response field or receipt
+          fields: [trustedTenantId, logicalStreamId, callerEventId, queryId, requestFingerprint, readAuthorityRef, pinnedApiSha256, httpStatus, returnedOffsetWhenPresent, observedAt, currentnessDisposition]
+          eventIdMeaning: Exact GET path uses callerEventId; host verifies returned EventRecord.callerEventId and its deterministic stored UUID mapping.
+          requestFingerprint: Host-computed digest over trusted tenant, stream, caller event ID, query ID and immutable outbox material; never caller-supplied.
+          currentness: One authenticated exact GET response is interpreted under the pinned current public contract; 404 is absence only under its complete-lookup semantics. 422/503, incomplete, stale, or unavailable results are UNKNOWN.
+          freshness: observedAt is host-recorded UTC observation time for the exact GET; it does not assert a Shared read version or replace provider-authoritative result semantics.
+          admission: Supports only bounded local reconciliation semantics; whole Event Plane execution remains NOT_ADMITTED.
       contractMismatch:
-        openApiRule: x-ghatana-idempotency.required=false and clients must not automatically retry the append mutation
-        ownerServiceRule: EVT-EXACT-LOOKUP-001 describes stable caller-ID reconciliation across retries
-        disposition: Until the published API contract and owner service requirement are reconciled by the Shared Event Plane owner, Media MUST NOT automatically repeat an append after timeout or ambiguous response. Exact lookup may reconcile a verified match; absent, unavailable, partial, stale, or mismatched lookup remains UNKNOWN.
+        status: RESOLVED_BY_CURRENT_PUBLISHED_CONTRACT; no-human-Shared-review-claim
+        priorOpenApiAndServiceMismatch: Historical pinned OpenAPI no-retry declaration conflicted with EVT-EXACT-LOOKUP-001; the current versioned public OpenAPI and service contract now agree on exact same-key/same-material replay and tenant-wide offset semantics.
+        currentDisposition: After an ambiguous append, perform the separate authenticated exact GET. Accept only a complete EventRecord exact match. Retry the exact same request and key no more than once, and only after authoritative complete 404. 422/503, partial/stale/mismatched results remain UNKNOWN.
+        sourceRefs:
+          - ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/paths/~1api~1v1~1streams~1{streamId}~1events/post
+          - ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/paths/~1api~1v1~1streams~1{streamId}~1events~1{eventId}/get
+          - ../ghatana/services/event-plane/service-contract.yaml#/requirements/@id=EVT-EXACT-LOOKUP-001
+      delegatedTechnicalOwnerDecision:
+        id: media.event-dependency.event-plane-exact-reconciliation-owner-decision.v1
+        authority: accepted-delegated-Media-technical-owner-decision; not-independent-review-or-Shared-owner-signature
+        rationale: The current versioned public OpenAPI and EVT-EXACT-LOOKUP-001 jointly define tenant-wide append offsets, exact same-material replay, complete-absence 404 semantics, and indeterminate partial/unavailable outcomes. Media may reconcile only with a separate authenticated exact read and a byte/material-complete comparison to immutable outbox intent.
+        negativeAcceptanceCases: [missing-EventRecord-field, partial-or-stale-read, mismatched-payload-or-header, cross-tenant-or-stream-result, 422, 503, unauthenticated-read, incomplete-404, second-retry-in-one-invocation]
+        sourceRefs:
+          - ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/paths/~1api~1v1~1streams~1{streamId}~1events/post
+          - ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/paths/~1api~1v1~1streams~1{streamId}~1events~1{eventId}/get
+          - ../ghatana/services/event-plane/service-contract.yaml#/requirements/@id=EVT-EXACT-LOOKUP-001
+        disposition: exact-current-source-reconciliation-only; external-human-review-not-asserted
       executionAdmission: NOT_ADMITTED
       qualificationState: NOT_EVALUATED
     externalOwnerReviewRequest:
       id: media.event-dependency-review.event-plane-retry-reconciliation.v1
       owner: Shared Event Plane
-      status: PENDING_SHARED_CONTRACT_RECONCILIATION
+      status: RESOLVED_BY_CURRENT_PUBLISHED_CONTRACT; no-human-review-claim
       exactQuestion: Reconcile the public append operation's explicit no-automatic-retry declaration with EVT-EXACT-LOOKUP-001's same-caller-ID-across-retries requirement.
-      requiredContractEvidence:
-      - Versioned public append contract states whether same tenant, stream, eventId, and canonical payload may be retried after timeout without duplicating the event.
-      - Exact lookup contract states whether 200 and 404 are current/complete for this tuple, exposes enough typed fields to compare the full event intent, and specifies stale, partial, and unavailable outcomes.
-      - Contract test demonstrates crash-after-append-before-receipt, same-ID/same-payload retry or exact lookup reconciliation, same-ID/different-payload conflict, cross-tenant isolation, and incomplete lookup behavior.
-      - Published schema version and owner approval identify the required caller and response fields; no private runtime/bootstrap route substitutes for the public contract.
-      MediaDispositionUntilClosed: Keep ambiguous append UNKNOWN, retain outbox intent, and do not automatically repeat POST. Do not claim delivery, replay safety, or at-least-once delivery as established runtime behavior.
+      resolution: Current published POST and GET clauses plus EVT-EXACT-LOOKUP-001 define safe same-material retry after authoritative complete absence; source hashes are current in sourceFingerprints. This source reconciliation does not assert that a human Shared review occurred.
+      resolutionRefs:
+        - ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/paths/~1api~1v1~1streams~1{streamId}~1events/post
+        - ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/paths/~1api~1v1~1streams~1{streamId}~1events~1{eventId}/get
+        - ../ghatana/services/event-plane/service-contract.yaml#/requirements/@id=EVT-EXACT-LOOKUP-001
+      historicalQuestionPreserved: true
     mediaOutbox:
       requiredPattern: Media state transition and immutable minimized event intent commit atomically in the same Media-owned persistence transaction.
       eventIdentity: One stable eventId and canonical payload fingerprint per committed transition; retries preserve both exactly; same eventId with different fingerprint is EVENT_ID_CONFLICT.
@@ -337,12 +364,13 @@ ownerEventContracts:
       privacy: Store and transmit only each exact event schema's allowed fields; never place raw media, prompts, transcripts, credentials, biometric templates, or rights-document contents in the outbox or event payload.
       dispatch: Dispatch only after the aggregate commit and matching outbox intent are durable. A crash before commit emits nothing; a crash after commit leaves a recoverable intent; an ambiguous external append is not discarded or replayed blindly.
       replay: At-least-once delivery is a target only after the dependency contract permits safe reconciliation. Duplicate same-ID/same-fingerprint observations are idempotent; same-ID/different-fingerprint, cross-tenant scope, stale aggregate version, and unknown event versions fail closed.
+      appendRetry: Only the same immutable request and tenant-scoped idempotency key may be re-appended, at most once, after the exact authenticated lookup establishes complete absence; uncertain outcomes remain UNKNOWN.
       partialFailureOutcomes:
       - { condition: aggregate-transaction-aborts, disposition: NO_EVENT_AND_NO_OUTBOX_INTENT }
       - { condition: aggregate-and-outbox-commit-succeeds-before-dispatch, disposition: OUTBOX_PENDING }
       - { condition: append-returns-exact-current-receipt, disposition: EVENT_PLANE_ACCEPTED }
-      - { condition: append-timeout-or-ambiguous-response, disposition: UNKNOWN_RECONCILE_EXACT_LOOKUP, automaticAppendRetry: FORBIDDEN }
-      - { condition: lookup-is-stale-incomplete-unavailable-or-not-found-without-authoritative-currentness, disposition: UNKNOWN_RETAIN_OUTBOX_INTENT }
+      - { condition: append-timeout-or-ambiguous-response, disposition: UNKNOWN_RECONCILE_EXACT_LOOKUP, automaticAppendRetry: ONLY_AFTER_AUTHORITATIVE_COMPLETE_404_AND_AT_MOST_ONCE }
+      - { condition: lookup-is-stale-incomplete-unavailable-422-503-or-not-found-without-authoritative-completeness, disposition: UNKNOWN_RETAIN_OUTBOX_INTENT }
       - { condition: lookup-exactly-matches-tenant-stream-event-and-payload-fingerprint, disposition: RECONCILED_ACCEPTED }
       - { condition: lookup-or-receipt-crosses-tenant-or-conflicts-with-event-intent, disposition: UNKNOWN_QUARANTINE_AND_ESCALATE }
     negativeCases:
@@ -361,7 +389,7 @@ ownerEventContracts:
     eventVersion: 1.0.0
     producer:
       identity: MediaRuntime#beginUpload
-      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L444-L448
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L510-L515
       ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
     aggregate:
       aggregateType: upload
@@ -486,7 +514,7 @@ ownerEventContracts:
     eventVersion: 1.0.0
     producer:
       identity: MediaRuntime#completeUpload
-      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L509-L515
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L575-L582
       ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
     aggregate:
       aggregateType: artifact
@@ -617,8 +645,67 @@ ownerEventContracts:
     eventVersion: 1.0.0
     producer:
       identity: MediaRuntime#submitJob
-      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1036-L1042
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1153-L1164
       ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
+    delegatedTechnicalOwnerDecision:
+      id: media.event-contract.media-job-accepted.atomic-outbox-owner-decision.v1
+      authority: accepted-delegated-Media-technical-owner-decision; not-independent-review-or-Shared-owner-signature
+      decision: >-
+        Emit exactly one canonical media.job.accepted v1.0.0 outbox intent when the submit-job operation commits a new
+        ACCEPTED processing-job revision. Bind eventId to `media:media.job.accepted:{jobId}:{aggregateVersion}`, take
+        occurredAt from that committed job record's createdAt, and use the exact payload {jobId, operationRef:
+        media.operation-slice.submit-job, admissionState: ACCEPTED}. Persist the canonical V016 intent in the same
+        transaction as the job row. Continue the existing V011 append and its Shared publication ownership as a
+        distinct legacy compatibility channel. V016 alone carries this canonical Event Plane event; this decision
+        authorizes no V011 cutover, equivalence, forwarding, deletion, replay, or quarantine. A matching idempotent submit replay returns the
+        committed job and does not create another outbox row; a pre-existing accepted job without a V016 intent is not
+        backfilled by replay and remains noncanonical. The event classification is max(INTERNAL, source artifact
+        classification) under PUBLIC < INTERNAL < CONFIDENTIAL < RESTRICTED; PUBLIC therefore maps to INTERNAL, higher
+        classifications are preserved, and missing/unrecognized values fail closed before commit.
+        The Shared relay is fact transport authorized as its own host workload; it does not act as the submitting
+        user. Shared `subjectId` is an opaque transport partition key only and never authenticates or authorizes a
+        consumer/user effect. An actor-scoped or delegated consumer effect requires a separately host-resolved
+        Kernel `principalRef` bound to the trusted tenant and authenticated principal. Missing, untrusted, or
+        tenant-mismatched `principalRef` leaves that consumer effect UNKNOWN with no effect; it does not block or
+        imply authorization for canonical fact transport.
+      rationale: The accepted-job contract is a minimal statement of committed admission, while the source artifact classification remains a lower bound for disclosure. V016 is the current relay source; V011 is retained historical data and has a different payload identity.
+      negativeAcceptanceCases:
+        - direct-parallel-media-job-accepted-publication
+        - forward-or-delete-legacy-V011-row
+        - publish-terminal-or-cancellation-event-under-this-decision
+        - infer-operationRef-from-jobType-or-provider
+        - include-artifactId-providerId-jobType-or-unlisted-payload-field
+        - eventId-not-bound-to-committed-jobId-and-version
+        - occurredAt-not-equal-to-committed-job-createdAt
+        - event-classification-PUBLIC-or-unknown-or-missing
+        - source-classification-unrecognized-or-missing
+        - infer-principalRef-or-actor-authority-from-Shared-subjectId
+        - accept-same-subjectId-across-different-issuers-as-same-principal
+        - apply-actor-scoped-effect-with-missing-or-untrusted-principalRef
+        - apply-actor-scoped-effect-with-tenant-mismatched-principalRef
+        - apply-actor-scoped-effect-with-principalRef-mismatched-to-host-context
+        - confuse-user-principal-with-relay-workload-principal
+        - accept-caller-supplied-principalRef-as-host-resolved-identity
+        - accepted-job-commits-without-canonical-outbox-row-on-transactional-store
+        - second-canonical-outbox-row-on-matching-request-replay
+        - backfill-legacy-accepted-job-without-committed-canonical-intent
+        - external-publication-before-durable-commit
+      sourceRefs:
+        - .product-experience/pdp-1-domain-data/events.yaml#id=media.event-contract.media-job-accepted
+        - .product-experience/pdp-1-domain-data/operations.yaml#operationId=media.operation-slice.submit-job
+        - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#MediaJobStore
+        - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java#create
+        - providers/aws-postgresql/src/main/resources/db/media-runtime/V016__media_attempt_finality_and_lifecycle_outbox.sql
+        - providers/aws-postgresql/src/main/resources/db/media-runtime/V011__media_job_attempts_and_outbox.sql
+        - providers/aws-postgresql/README.md#requirements-and-contracts
+        - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaOutboxPublicationSource.java
+        - ghatana-shared/platform/java/messaging/src/main/java/com/ghatana/messaging/outbox/OutboxPublicationSource.java#OutboundEvent.subjectId
+        - ghatana-shared/platform/java/messaging/src/main/java/com/ghatana/messaging/outbox/ClaimedOutboxPublisher.java#envelope
+        - ghatana-shared/platform/java/messaging/docs/OUTBOX_PUBLICATION.md#Envelope-mapping
+        - ghatana-kernel/platform-kernel/kernel-product-api/src/main/java/com/ghatana/kernel/product/api/ProductPrincipal.java
+        - ghatana-kernel/docs/product-definition/complete-product-experience/cross-surface-journeys.yaml#principalContinuity
+        - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#submitJob
+      disposition: accepted-source-definition-only; no-independent-review-or-production-admission
     aggregate:
       aggregateType: processing-job
       aggregateId: exact opaque identity from the committed aggregate
@@ -649,7 +736,9 @@ ownerEventContracts:
         tenantId:
           type: trusted-tenant-identity
         principalRef:
-          type: optional-pseudonymous-principal-reference
+          type: optional-host-resolved-kernel-principal-reference
+          use: actor-scoped-consumer-effects-only; never-derived-from-Shared-subjectId
+          absentOrUntrusted: consumer-effect-UNKNOWN-and-no-effect
         correlationId:
           type: optional-opaque-correlation-id
         causationId:
@@ -743,7 +832,7 @@ ownerEventContracts:
     eventVersion: 1.0.0
     producer:
       identity: MediaRuntime#cancel
-      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1845-L1886
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L2281-L2317
       ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
     aggregate:
       aggregateType: processing-job
@@ -870,7 +959,7 @@ ownerEventContracts:
     eventVersion: 1.0.0
     producer:
       identity: MediaRuntime#cancel
-      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1845-L1886
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1919-L1927
       ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
     aggregate:
       aggregateType: processing-job
@@ -997,7 +1086,7 @@ ownerEventContracts:
     eventVersion: 1.0.0
     producer:
       identity: MediaRuntime#openStream
-      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L1935-L1939
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L2366-L2370
       ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
     aggregate:
       aggregateType: stream-session
@@ -1121,7 +1210,7 @@ ownerEventContracts:
     eventVersion: 1.0.0
     producer:
       identity: MediaRuntime#closeStream
-      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L2195-L2201
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L2626-L2632
       ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
     aggregate:
       aggregateType: stream-session
@@ -1248,7 +1337,7 @@ ownerEventContracts:
     eventVersion: 1.0.0
     producer:
       identity: MediaRuntime#startJob terminal publication
-      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3247-L3254
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3704-L3711
       ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
     aggregate:
       aggregateType: processing-job
@@ -1381,7 +1470,7 @@ ownerEventContracts:
     eventVersion: 1.0.0
     producer:
       identity: MediaRuntime#startJob terminal publication
-      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3247-L3254
+      sourceRef: launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#L3704-L3711
       ownerRule: Only the exact persisted state transition listed by this contract may publish; transaction receipt/outbox append precedes dispatch.
     aggregate:
       aggregateType: processing-job
@@ -1513,7 +1602,7 @@ ownerEventContracts:
     phase: START
     producer:
       identity: AudioVideoClient#transcribe
-      sourceRef: libs/audio-video-client/src/index.ts#L310
+      sourceRef: libs/audio-video-client/src/index.ts#L317
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -1585,7 +1674,7 @@ ownerEventContracts:
     phase: COMPLETE
     producer:
       identity: AudioVideoClient#transcribe
-      sourceRef: libs/audio-video-client/src/index.ts#L321
+      sourceRef: libs/audio-video-client/src/index.ts#L328
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -1659,7 +1748,7 @@ ownerEventContracts:
     phase: ERROR
     producer:
       identity: AudioVideoClient#transcribe
-      sourceRef: libs/audio-video-client/src/index.ts#L325
+      sourceRef: libs/audio-video-client/src/index.ts#L332
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -1735,7 +1824,7 @@ ownerEventContracts:
     phase: START
     producer:
       identity: AudioVideoClient#synthesize
-      sourceRef: libs/audio-video-client/src/index.ts#L339
+      sourceRef: libs/audio-video-client/src/index.ts#L346
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -1807,7 +1896,7 @@ ownerEventContracts:
     phase: COMPLETE
     producer:
       identity: AudioVideoClient#synthesize
-      sourceRef: libs/audio-video-client/src/index.ts#L349
+      sourceRef: libs/audio-video-client/src/index.ts#L356
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -1881,7 +1970,7 @@ ownerEventContracts:
     phase: ERROR
     producer:
       identity: AudioVideoClient#synthesize
-      sourceRef: libs/audio-video-client/src/index.ts#L353
+      sourceRef: libs/audio-video-client/src/index.ts#L360
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -1957,7 +2046,7 @@ ownerEventContracts:
     phase: START
     producer:
       identity: AudioVideoClient#processAIVoice
-      sourceRef: libs/audio-video-client/src/index.ts#L367
+      sourceRef: libs/audio-video-client/src/index.ts#L374
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -2029,7 +2118,7 @@ ownerEventContracts:
     phase: COMPLETE
     producer:
       identity: AudioVideoClient#processAIVoice
-      sourceRef: libs/audio-video-client/src/index.ts#L377
+      sourceRef: libs/audio-video-client/src/index.ts#L384
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -2103,7 +2192,7 @@ ownerEventContracts:
     phase: ERROR
     producer:
       identity: AudioVideoClient#processAIVoice
-      sourceRef: libs/audio-video-client/src/index.ts#L381
+      sourceRef: libs/audio-video-client/src/index.ts#L388
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -2179,7 +2268,7 @@ ownerEventContracts:
     phase: START
     producer:
       identity: AudioVideoClient#processVision
-      sourceRef: libs/audio-video-client/src/index.ts#L395
+      sourceRef: libs/audio-video-client/src/index.ts#L402
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -2251,7 +2340,7 @@ ownerEventContracts:
     phase: COMPLETE
     producer:
       identity: AudioVideoClient#processVision
-      sourceRef: libs/audio-video-client/src/index.ts#L406
+      sourceRef: libs/audio-video-client/src/index.ts#L413
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -2325,7 +2414,7 @@ ownerEventContracts:
     phase: ERROR
     producer:
       identity: AudioVideoClient#processVision
-      sourceRef: libs/audio-video-client/src/index.ts#L410
+      sourceRef: libs/audio-video-client/src/index.ts#L417
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -2401,7 +2490,7 @@ ownerEventContracts:
     phase: START
     producer:
       identity: AudioVideoClient#processMultimodal
-      sourceRef: libs/audio-video-client/src/index.ts#L424
+      sourceRef: libs/audio-video-client/src/index.ts#L431
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -2473,7 +2562,7 @@ ownerEventContracts:
     phase: COMPLETE
     producer:
       identity: AudioVideoClient#processMultimodal
-      sourceRef: libs/audio-video-client/src/index.ts#L435
+      sourceRef: libs/audio-video-client/src/index.ts#L442
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request
@@ -2547,7 +2636,7 @@ ownerEventContracts:
     phase: ERROR
     producer:
       identity: AudioVideoClient#processMultimodal
-      sourceRef: libs/audio-video-client/src/index.ts#L439
+      sourceRef: libs/audio-video-client/src/index.ts#L446
       delivery: in-process-listener-bus-only
     sourceObservedPayloadFields:
     - request

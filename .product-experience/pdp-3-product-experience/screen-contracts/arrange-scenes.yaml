@@ -135,14 +135,17 @@ exit:
     ypedDefinition; runtime NOT_ADMITTED."
   - "media.action.save-storyboard-revision: Append a new version or review
     record to the exact identified target; preserve prior versions and require
-    an authoritative receipt.; finality=append-only-record;
+    an authoritative receipt. Bind the exact ScenePlan edition to one ordered
+    SceneGraph version per planned scene and one exact Timeline snapshot in the
+    plan's bound ProjectRevision. The binding does not mutate the project or
+    timeline graph.; finality=append-only-record;
     exact-owner-receipt-required;
     recovery=preserve-the-exact-target-and-current-draft;
     explain-denial-or-incomplete-evidence; never-claim-success-from-local-state.
     Source:
     .product-experience/pdp-3-product-experience/action-registry.yaml#actions/@\
     id=media.action.save-storyboard-revision/actionDefinitionSemantics/typedDef\
-    inition; runtime NOT_ADMITTED."
+    inition; .product-experience/decision-log.md#PXD-235; runtime NOT_ADMITTED."
 actionConsequences:
   - actionId: media.action.add-storyboard-scene
     capabilityRefs: []
@@ -155,6 +158,16 @@ actionConsequences:
       source and versioned objects unchanged until a separately specified
       commit.
     bindingStatus: source-definition-exact; screen-admission-pending; runtime-NOT_ADMITTED
+    visibility: DEV_ONLY project workspace only; unavailable unless the explicit
+      project-timeline development host is enabled and current host identity,
+      capability, exact references, and source rights are verified.
+    transportBinding:
+      method: POST
+      path: /dev/v1/projects/{projectId}/storyboard-plans
+      operationRef: media.operation.action.save-storyboard-revision
+      requestRef: .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@actionRef=media.action.save-storyboard-revision
+      decisionRef: .product-experience/decision-log.md#PXD-236
+      runtimeAdmission: NOT_ADMITTED
     operationRefs: []
     finality: local-draft-only; not-a-committed-result
     reversibilityDisposition: REVERSIBLE
@@ -413,7 +426,9 @@ channelDispositions:
   - channelRef: media.channel.cli
     disposition: command-counterpart-not-bound
   - channelRef: media.channel.api
-    disposition: logical-operation-and-wire-contract-not-bound
+    disposition: PXD-236 binds the existing PDP-1 wire contract to the DEV_ONLY
+      candidate POST /dev/v1/projects/{projectId}/storyboard-plans route; this is
+      not a production route or runtime admission.
   - channelRef: media.channel.embedded
     disposition: host-rendering-and-focus-contract-not-bound
 surfaceContract:

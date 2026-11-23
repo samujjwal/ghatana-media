@@ -66,6 +66,27 @@ normativeTypeRecords:
     schemaRef: media.component-value-types.v1#/$defs/ExactSceneVersionRef
     description: Tenant-scoped exact immutable scene version tuple.
     sourceAuthority: Media
+  - id: media.component-value-type.ExactScenePlanVersionRef
+    schemaRef: media.component-value-types.v1#/$defs/ExactScenePlanVersionRef
+    description: Exact tenant/project-scoped immutable ScenePlan edition identity.
+    sourceAuthority: Media
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-plan
+      - .product-experience/decision-log.md#PXD-235
+  - id: media.component-value-type.ExactSceneGraphVersionRef
+    schemaRef: media.component-value-types.v1#/$defs/ExactSceneGraphVersionRef
+    description: Exact tenant/project-scoped immutable SceneGraph version identity.
+    sourceAuthority: Media
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-graph
+      - .product-experience/decision-log.md#PXD-235
+  - id: media.component-value-type.ExactTimelineVersionRef
+    schemaRef: media.component-value-types.v1#/$defs/ExactTimelineVersionRef
+    description: Exact tenant/project-scoped immutable timeline snapshot identity, distinct from its project revision.
+    sourceAuthority: Media
+    authorityRefs:
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.timeline
+      - .product-experience/decision-log.md#PXD-235
   - id: media.component-value-type.ExactSubjectVersionRef
     schemaRef: media.component-value-types.v1#/$defs/ExactSubjectVersionRef
     description: Tenant-scoped versioned subject identity for the rights or retention decision.
@@ -1064,6 +1085,84 @@ $defs:
       - tenantId: tenant-a
         sceneId: scene-a
         versionId: version-1
+  ExactScenePlanVersionRef:
+    type: object
+    additionalProperties: false
+    properties:
+      tenantId:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+      projectId:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+      scenePlanId:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+      semanticVersion:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: ^[A-Za-z0-9][A-Za-z0-9.+:-]*$
+    required: [tenantId, projectId, scenePlanId, semanticVersion]
+    description: Exact immutable ScenePlan edition identity.
+  ExactSceneGraphVersionRef:
+    type: object
+    additionalProperties: false
+    properties:
+      tenantId:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+      projectId:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+      sceneGraphId:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+      semanticVersion:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: ^[A-Za-z0-9][A-Za-z0-9.+:-]*$
+    required: [tenantId, projectId, sceneGraphId, semanticVersion]
+    description: Exact immutable SceneGraph version identity; it is not a Timeline scene or clip identity.
+  ExactTimelineVersionRef:
+    type: object
+    additionalProperties: false
+    properties:
+      tenantId:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+      projectId:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+      timelineId:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+      semanticVersionId:
+        type: string
+        minLength: 1
+        maxLength: 128
+        pattern: ^[A-Za-z0-9][A-Za-z0-9.+:-]*$
+    required: [tenantId, projectId, timelineId, semanticVersionId]
+    description: Exact immutable Timeline snapshot identity, distinct from its containing ProjectRevision.
   ExactSubjectVersionRef:
     type: object
     additionalProperties: false
@@ -3774,10 +3873,11 @@ $defs:
     additionalProperties: false
     properties:
       sceneRef:
-        $ref: media.component-value-types.v1#/$defs/ExactSceneVersionRef
+        $ref: media.component-value-types.v1#/$defs/ExactSceneGraphVersionRef
       order:
         type: integer
         minimum: 0
+        description: Explicit editorial order matching the exact position of this scene in the referenced ScenePlan; it is independent of interval start time.
       sourceVersionRefs:
         type: array
         minItems: 1
@@ -3786,6 +3886,7 @@ $defs:
         uniqueItems: true
       interval:
         $ref: media.component-value-types.v1#/$defs/HalfOpenRationalInterval
+        description: Exact half-open interval in the plan's one STORY timebase; gaps and overlaps are preserved and have no inferred output or transition semantics.
       continuity:
         type: string
         enum:
@@ -3801,12 +3902,13 @@ $defs:
       - sourceVersionRefs
       - interval
       - continuity
-    description: Scene order and interval are bound to exact scene/source versions and continuity status.
+    description: The exact SceneGraph, editorial position, source versions, STORY interval, and continuity disposition for one ordered ScenePlan scene.
     examples:
       - sceneRef:
           tenantId: tenant-a
-          sceneId: scene-a
-          versionId: version-1
+          projectId: project-a
+          sceneGraphId: scene-graph-a
+          semanticVersion: version-1
         order: 0
         sourceVersionRefs:
           - tenantId: tenant-a
@@ -3814,19 +3916,19 @@ $defs:
             versionId: version-1
         interval:
           start:
-            clockKind: media
-            clockId: clock-source-1
-            streamId: stream-a
-            originRef: origin-source-1
+            clockKind: story
+            clockId: story-clock-1
+            streamId: storyboard-a
+            originRef: story-origin-1
             ticks: "0"
             secondsPerTick:
               numerator: "1"
               denominator: "1"
           end:
-            clockKind: media
-            clockId: clock-source-1
-            streamId: stream-a
-            originRef: origin-source-1
+            clockKind: story
+            clockId: story-clock-1
+            streamId: storyboard-a
+            originRef: story-origin-1
             ticks: "1"
             secondsPerTick:
               numerator: "1"
@@ -3853,11 +3955,13 @@ $defs:
         examples:
           - version-1
       fromSceneRef:
-        $ref: media.component-value-types.v1#/$defs/ExactSceneVersionRef
+        $ref: media.component-value-types.v1#/$defs/ExactSceneGraphVersionRef
       toSceneRef:
-        $ref: media.component-value-types.v1#/$defs/ExactSceneVersionRef
+        $ref: media.component-value-types.v1#/$defs/ExactSceneGraphVersionRef
+        description: Exact next SceneGraph version in the ScenePlan's editorial order; transitions cannot be inferred from temporal overlap.
       duration:
         $ref: media.component-value-types.v1#/$defs/RationalSourceTime
+        description: Exact positive transition duration in the same STORY timebase as both adjacent scene intervals.
       kind:
         type: string
         enum:
@@ -3875,23 +3979,25 @@ $defs:
       - toSceneRef
       - duration
       - kind
-    description: Transition binds exact adjacent scenes, version, explicit kind, and rational duration.
+    description: Explicit immutable transition between adjacent exact SceneGraph versions in one STORY timebase; no transition is inferred from overlap.
     examples:
       - transitionId: transition-a
         versionId: version-1
         fromSceneRef:
           tenantId: tenant-a
-          sceneId: scene-a
-          versionId: version-1
+          projectId: project-a
+          sceneGraphId: scene-graph-a
+          semanticVersion: version-1
         toSceneRef:
           tenantId: tenant-a
-          sceneId: scene-b
-          versionId: version-2
+          projectId: project-a
+          sceneGraphId: scene-graph-b
+          semanticVersion: version-2
         duration:
-          clockKind: media
-          clockId: clock-composition-1
-          streamId: stream-a
-          originRef: origin-composition-1
+          clockKind: story
+          clockId: story-clock-1
+          streamId: storyboard-a
+          originRef: story-origin-1
           ticks: "1"
           secondsPerTick:
             numerator: "1"

@@ -20,7 +20,7 @@ observedPopulations:
   runtimeLifecyclePublishers:
     count: 9
     sourceInventory: .product-experience/pdp-1-domain-data/events.yaml#/observedEnvelope/lifecyclePublisherInventory
-    scope: server-side MediaLifecycleEvent publication call sites and their observed concrete event-type strings
+    scope: eight direct lifecycle event identities plus the canonical media.job.accepted V016 outbox event identity
     classification: implementation inventory; not canonical taxonomy or complete domain lifecycle coverage
     observedTypes:
       - media.upload.started
@@ -96,17 +96,41 @@ orderingDuplicatesAndConsumers:
     - make consumer effects idempotent or guarded by consumer-owned durable processing state before retrying side effects
     - keep request idempotency identity, event identity, aggregate identity, and delivery receipt identity distinct
     - handle unknown or conflicting outcomes by querying an authoritative source or surfacing unresolved state; never blind-resubmit a non-idempotent effect
-  observedLimits: [Idempotency-Key-header-equals-eventId, durable-deduplication-unverified, replay-retention-ordering-unresolved, no-consumer-acknowledgement-contract-established]
+  observedLimits: [consumer-replay-retention-unverified, downstream-ordering-unestablished, no-consumer-acknowledgement-contract-established]
 deliveryAndFailure:
   observedBehavior:
     publisherReadyFalse: MediaRuntime skips publication
     acceptedHttpStatuses: [201]
-    otherStatus: publisher-throws
-    failurePath: MediaRuntime logs publication as unconfirmed and continues
-    source: launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java
+    idempotencyKey: tenant-scoped deterministic key derived from trusted tenant and stable eventId
+    ambiguousAppend: separate authenticated exact GET; accept only complete exact EventRecord match to immutable outbox intent
+    completeAbsence: at most one exact same-request/key replay per invocation; incomplete or unknown lookup retains UNKNOWN
+    sourceRefs:
+      - launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#publishWithReceipt
+      - launcher/src/main/java/com/ghatana/media/launcher/MediaLifecyclePublisher.java#lookup
+      - .product-experience/pdp-1-domain-data/events.yaml#ownerEventContracts/deliveryProtocol/eventPlaneDependency
+    limitation: Media-side append receipt and reconciliation do not establish consumer processing or product-effect finality
   convention: distinguish attempted, transport-accepted, consumer-processed, and product-effect-final states; report only the state supported by evidence
-  notEstablished: [durable-outbox, retry-policy, replay, retention, ordering, exactly-once-or-at-least-once-delivery, consumer-acknowledgement, durable-delivery-receipt, recovery-and-reconciliation-contract]
+  notEstablished: [consumer-replay-retention, downstream-ordering, exactly-once-or-at-least-once-delivery, consumer-acknowledgement, consumer-effect-finality]
   prohibition: HTTP acceptance or local publication return is not proof of consumer processing, committed evidence, or product acceptance
+sourceDefinedEventBindings:
+  - eventContractRef: .product-experience/pdp-1-domain-data/events.yaml#id=media.event-contract.media-job-accepted
+    operationRef: media.operation-slice.submit-job
+    trigger: newly-committed-ACCEPTED-processing-job-revision
+    canonicalEvent: {eventType: media.job.accepted, eventVersion: "1.0.0", aggregateType: processing-job}
+    identity: "media:media.job.accepted:{jobId}:{aggregateVersion}"
+    payloadFields: [jobId, operationRef, admissionState]
+    commitTime: committed-job-createdAt
+    transaction: job-row-and-V016-canonical-outbox-intent-commit-together
+    legacyV011: existing-append-and-Shared-publication-ownership-continue-as-separate-compatibility-channel; no-cutover-or-equivalence-authorized; never-forward-to-V016-or-discard-pending-rows
+    directPublication: removed-for-this-event-only
+    classification: max(INTERNAL, source-artifact-classification); PUBLIC-maps-to-INTERNAL; unknown-fails-closed
+    scope: source-defined-contract-and-local-implementation; execution-admission-remains-NOT_ADMITTED
+    negativeCases: [duplicate-event-on-request-replay, backfill-legacy-job-without-V016-intent, direct-parallel-publication, V011-forward-or-delete, terminal-or-cancel-event-mapping, extra-payload-fields, pre-commit-publication]
+    sourceRefs:
+      - .product-experience/pdp-1-domain-data/events.yaml#id=media.event-contract.media-job-accepted
+      - launcher/src/main/java/com/ghatana/media/launcher/MediaRuntime.java#submitJob
+      - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java#create
+      - providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlMediaJobStore.java#insertOutbox
 producerAndOwnerAuthority:
   wireSourceObserved: media
   eventSpecificProducerAuthority: unresolved
@@ -138,7 +162,7 @@ mediaOwnerDefinitionDecision:
   status: MEDIA_OWNER_DEFINED_DEFINITION_ONLY
   authority: User-delegated Media product-semantic owner under the PDP-0–PDP-3 mandate
   scope: The additive event meaning boundaries below; no taxonomy, platform, wire compatibility, owner acceptance, or delivery guarantee is established.
-  excluded: [canonical-event-taxonomy, external-event-owner-acceptance, durable-publication, replay-or-retention-guarantee, consumer-acknowledgement, runtime-admission]
+  excluded: [canonical-event-taxonomy, external-event-owner-acceptance, end-to-end-durable-Event-Plane-delivery, replay-or-retention-guarantee, consumer-acknowledgement, runtime-admission]
 ownerDefinedEventRules:
   - id: media.events.request-fact-finality-boundary.v1
     sourceRefs: [.product-experience/pdp-2-design-interface-system/events/conventions.yaml#committedFactsAndRequests/proposalRules, .product-experience/pdp-2-design-interface-system/events/conventions.yaml#deliveryAndFailure, .product-experience/pdp-1-domain-data/transitions.yaml#ownerDefinedTransitionRecords]
@@ -154,12 +178,12 @@ ownerDefinedEventRules:
     negativeCases: [sanitized-attributes-still-contain-prohibited-personal-data,missing-provider-presented-as-observed,transcript-bytes-added-to-event-without-purpose]
   - id: media.events.runtime-and-client-notification-separation.v1
     sourceRefs: [.product-experience/pdp-2-design-interface-system/events/conventions.yaml#observedPopulations/runtimeLifecyclePublishers, .product-experience/pdp-2-design-interface-system/events/conventions.yaml#observedPopulations/clientLocalNotifications, .product-experience/pdp-3-product-experience/events/event-registry.yaml#events]
-    rule: The nine observed server-side lifecycle publisher types and fifteen in-process client-local notification types are separate observed populations. Client callback names do not establish canonical event identity, event-plane publication, durable delivery, or operation effect; preserve the current observed counts as source-census facts only.
+    rule: The nine observed server-side lifecycle event identities and fifteen in-process client-local notification types are separate observed populations. Client callback names do not establish canonical event identity, event-plane publication, durable delivery, or operation effect; preserve the current observed counts as source-census facts only.
     negativeCases: [client-listener-start-promoted-to-durable-event,client-error-name-matched-to-runtime-failure-event,source-count-treated-as-complete-domain-taxonomy]
   - id: media.events.external-delivery-guarantees-unestablished.v1
     sourceRefs: [.product-experience/pdp-2-design-interface-system/events/conventions.yaml#deliveryAndFailure, .product-experience/pdp-2-design-interface-system/events/conventions.yaml#producerAndOwnerAuthority, .product-experience/pdp-2-design-interface-system/events/conventions.yaml#verification]
-    rule: No durable outbox, retry, replay, retention, ordering, exactly-once/at-least-once, consumer acknowledgement, durable receipt, or recovery guarantee is established by these observations. Keep each as an explicit dependency on an exact accepted platform and event-owner contract; never derive a guarantee from HTTP acceptance, local return, or a registry entry.
-    negativeCases: [http-201-promoted-to-durable-delivery,local-publisher-return-promoted-to-consumer-processing,registry-entry-promoted-to-replay-retention]
+    rule: A transactional V016 outbox is source-bound for the canonical media.job.accepted event only. It does not establish end-to-end durable Event Plane delivery, consumer replay, retention, downstream ordering, delivery cardinality, consumer acknowledgement, or consumer-effect finality. Keep those guarantees dependent on exact accepted platform and event-owner contracts; never derive them from HTTP acceptance, local return, or a registry entry.
+    negativeCases: [http-201-promoted-to-durable-delivery,V016-local-outbox-promoted-to-consumer-acknowledgement,local-publisher-return-promoted-to-consumer-processing,registry-entry-promoted-to-replay-retention]
 normativeRuleRecords:
   - {id: media.p2.rule.event-request-fact-finality-boundary.v1, ruleRef: .product-experience/pdp-2-design-interface-system/events/conventions.yaml#/ownerDefinedEventRules/@id=media.events.request-fact-finality-boundary.v1, sourceAuthority: .product-experience/pdp-2-design-interface-system/events/conventions.yaml#mediaOwnerDefinitionDecision, acceptanceEffect: none}
   - {id: media.p2.rule.event-identity-ordering-limits.v1, ruleRef: .product-experience/pdp-2-design-interface-system/events/conventions.yaml#/ownerDefinedEventRules/@id=media.events.identity-and-ordering-limits.v1, sourceAuthority: .product-experience/pdp-2-design-interface-system/events/conventions.yaml#mediaOwnerDefinitionDecision, acceptanceEffect: none}

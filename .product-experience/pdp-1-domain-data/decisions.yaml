@@ -40,6 +40,55 @@ decisions:
     sourceRefs: [.product-experience/pdp-1-domain-data/canonical-reconciliation.yaml#currentDefinitionAdjudication/records/@id=canonical-artifact-version-and-lineage, .product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.artifact-version, .product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics/artifactVersion]
     pending: Durable-byte-immutability-version-persistence-deduplication-retention-and-erasure-completeness-cycle-enforcement-cross-product-consumer-compatibility-and-independent-P0-010/PDP-1-acceptance
     scopeStatus: owner-defined-logical-meaning; storage-retention-enforcement-consumer-binding-and-independent-acceptance-deferred; no-runtime-admission
+  - id: media.pdp1.decision.project-render-source-use
+    state: OWNER_DEFINED_LOGICAL_MEANING; independent-acceptance-pending
+    decision: >-
+      An immutable project-graph source reference identifies the exact intended
+      artifact/version but grants no rights or permission to consume bytes.
+      Before any source read/decode/render, resolve and authorize one exact
+      binding for tenant, workspace, authenticated principal, project, exact
+      project revision, timeline and semantic version, render target/effect,
+      and each artifact ID, immutable version, and SHA-256; the version and
+      digest must identify the same bytes. Require current effect-specific
+      source rights and policy, and revalidate that same binding immediately
+      before output registration. Missing, unavailable, unknown, revoked,
+      stale, expired, conflicting, or cross-scope authority blocks with zero
+      source reads when detected pre-consumption and zero rendered/output
+      artifacts; it remains UNKNOWN or blocked. DEV_ONLY source-consuming
+      render remains NOT_ADMITTED pending a real workspace-bound authority;
+      production remains NOT_ADMITTED. Output registration is a separate
+      effect and is not authorized by source-use evidence.
+    sourceRefs:
+      - docs/development/PROJECT-TIMELINE-MAPPING-DISPOSITION-2026-11-09.md#addendum-source-use-for-dev_only-project-rendering-2026-11-22
+      - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaSourceAuthorizationContracts.java
+      - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaSourceRightsAdministration.java
+      - launcher/src/main/java/com/ghatana/media/launcher/MediaDevProjectRenderRuntime.java
+      - launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java
+    pending: real-workspace-project-revision-timeline-scoped-source-rights-and-policy-provider; exact-scope-runtime-binding; independent-PDP-1-acceptance
+    scopeStatus: delegated-owner-definition-recorded; Shared-membership-and-source-authority-not-admitted; DEV_ONLY-render-blocked; production-NOT_ADMITTED
+  - id: media.pdp1.decision.storyboard-reference-and-time-binding
+    state: OWNER_DEFINED_LOGICAL_MEANING; independent-acceptance-pending
+    decision: >-
+      A ScenePlan edition binds one exact ProjectRevision, exactly one ordered
+      unique SceneGraph version per ordered PlannedScene, and one exact Timeline
+      snapshot contained in that ProjectRevision. Scene order is editorial and
+      independent of rational STORY intervals. Gaps and overlaps are preserved
+      authored facts; neither implies output fill, transition, compositing, or
+      render order. Transitions are explicit and bind exact adjacent scene
+      versions in one STORY timebase. The plan association does not mutate the
+      project head or timeline graph and does not establish source rights,
+      continuity, or renderability.
+    sourceRefs:
+      - .product-experience/decision-log.md#PXD-235
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.scene-plan/storyboardRevisionBinding
+      - .product-experience/pdp-1-domain-data/relationships.yaml#media.rel.scene-plan-project-revision
+      - .product-experience/pdp-1-domain-data/relationships.yaml#media.rel.scene-plan-scene-graph
+      - .product-experience/pdp-1-domain-data/relationships.yaml#media.rel.scene-plan-timeline-snapshot
+      - .product-experience/pdp-1-domain-data/operations.yaml#media.operation.action.save-storyboard-revision
+      - .product-experience/pdp-2-design-interface-system/component-contracts.yaml#components/@id=media.component.storyboard
+      - .product-experience/pdp-3-product-experience/screen-contracts/arrange-scenes.yaml
+    pending: focused-source-validation; independent-PDP1-and-PDP3-review; durable-plan-receipt; source-rights-authority; qualified-renderer
+    scopeStatus: delegated-owner-definition-recorded; logical-binding-only; runtime-NOT_ADMITTED
   - id: media.pdp1.decision.attempt-history-and-finality
     state: unresolved
     decision: job-version-and-lease-fencing-are-observed; durable-attempt-history-append-only-finality-and-reconciliation-are-not-established

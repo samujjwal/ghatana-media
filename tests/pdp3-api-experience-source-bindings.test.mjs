@@ -101,6 +101,11 @@ test("PXD-232 keeps seven DEV_ONLY route operations one-to-one with their canoni
     assert.equal(sdkMethod.httpPath, operation.path);
     assert.equal(p2Binding.method, operation.method);
     assert.equal(p2Binding.path, operation.path);
+    assert.deepEqual(
+      openApiOperation["x-media-required-permissions"],
+      p2Binding.routePermission,
+      `${operation.id} OpenAPI permissions match the owner-defined PDP-2 route binding`,
+    );
     assert.equal(openApiOperation.operationId, operation.operationId);
     assert.equal(openApiOperation["x-media-candidate-operation-id"], operation.id);
     assert.equal(openApiOperation["x-media-sdk-source"], `${sdkMethod.source}#${sdkMethod.declaringClass}.${sdkMethod.method}`);

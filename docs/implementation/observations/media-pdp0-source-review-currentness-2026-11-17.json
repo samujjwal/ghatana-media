@@ -27,11 +27,12 @@
     "topologyDerivedMaterialPathCount": 350,
     "sourceBaseline": {
       "repository": "samujjwal/ghatana-media",
-      "repositoryHead": "1fac6efa7a178c28a9cb75123743fbed30042cc5",
+      "repositoryHead": "409f0e9e7e4675146837a548a880c0b723b25279",
       "workingTree": "DIRTY_PRESERVED",
       "phaseStatusHead": "f4706af1bdc091a13b5a8f0127f4b722fc06d5ad",
       "sourceFingerprintSet": {
-        ".product-experience/decision-log.md": "7f3fea93195c48c9be871c1905e01a322b726d3b49ea3402ab331fc8b2d8b1f1",
+        ".product-experience/decision-log.md": "43c464e0fc6db59363b68b6b112644dd921e6273cf088351f635b5d72444f5a0",
+        ".product-experience/pdp-0-product-truth/requirements.yaml": "a9d3750f01cad8a4a7aed8c246503d742cdada4aadc4fa49ef6be79b2bbee581",
         ".product-experience/source-manifest.yaml": "3fc8e5ec3afdf95bd6696fd6c9efd2e80d3934610e6457638f2b7f685fe248a6",
         ".product-experience/surfaces/media-physical-topology.v1.json": "a1f524c498fcdbde61f48cc3b8bb589e8803a0007d7b82908d7da81ea9065c9d",
         "docs/implementation/media-pdp-38-readiness.json": "18a07f305c1d34fd2a0e05c09aa3d7b2ff1c89c86722d527fce424cbe20a8005",
@@ -46,14 +47,18 @@
         "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/peer-review-record.v1.schema.json": "e7f2a9c6addf0fb89bfb27fb0e94defd73a12e47be56bd03b5afae08b3e98e7b",
         "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/revision-decision.v3.schema.json": "29a2f360d23f91c435f639fbc0ff2ad39a56a9923bd66b600a28aefa965f03bc",
         "docs/implementation/observations/media-pdp0-current-source-reviews-2026-10-23/technical-reviewer-authority.v1.schema.json": "e639d60e490e60eaa77aa28d25265e9abd07931b143db9b8573f046bf0389c01",
+        "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json": "102f523c320debd8ef5840c33d646eb107738451fd1a0f53ad0911565fee6d6e",
+        "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json": "ce8eecfa0b6619aa83535cffa86aabab58cffc5c77a5ebd473fe7d78152edab8",
         "docs/implementation/pdp-0-phase-dev-status.json": "5446c46fd1289fe338b410c1df584d731ef5aeaaf9b983adf7841234962c738c",
         "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json": "7b2c7fc2059ee9f00846b8b1a292804c33d24957837fa1a9b06d06a163202733",
         "docs/implementation/verification/pdp-38/pdp0-surface-phase-status-matrix.json": "99f9e74020fb59ff5f0ff84d33dba291fe205cc943166932c04d5343f32df8d6",
+        "scripts/check-media-pdp0-501-audit-dispositions.mjs": "c7de09404647ce2f8b7da71eec7071ab360de5c1837087cf22ff4f21a992f7a8",
+        "scripts/check-media-pdp0-audit-aq-traceability.mjs": "86f3c70250abfedd575ee7cddfd2760438a231d84ce78dbee6a4417d3617ace0",
         "scripts/lib/media-pdp0-current-source-review-assembler.mjs": "72db269b1b86d982f368efd16be8c1b67d1c2b61ab93741edabaab8a1a10e1fc",
         "scripts/lib/media-pdp0-review-successor-plan.mjs": "d866fcc51666f069d17fe78e496eff391c2a3909d9921e2006c7f55aaa5a58ff",
         "scripts/lib/media-pdp0-source-development-current-cut.mjs": "e1a3d526e295b588fe153b482fe18088206e33c3fcb91b4ef6ce986b85ecf335",
         "scripts/record-media-discovery-pdp0-currentness.mjs": "3cb0619218ec1a3c032a660fae4a0c778acc2b5ddded52546de20028fc6d09f9",
-        "scripts/report-media-pdp0-source-review-currentness.mjs": "7de82cde73dec3b1a47d31f76165ad593841e04706a362139d467a29a256c7ce"
+        "scripts/report-media-pdp0-source-review-currentness.mjs": "0ab8ffed33fd1046a3f6d649f734a2571103b437df60b0b9aa27bc6350011c7c"
       }
     }
   },
@@ -63,9 +68,45 @@
       "totalRefs": 322,
       "wholeFileRefs": 298,
       "selectorRefs": 24,
-      "staleOrUnreadableRefCount": 0,
-      "staleOrUnreadableRefs": [],
-      "currentness": "CURRENT"
+      "staleOrUnreadableRefCount": 7,
+      "staleOrUnreadableRefs": [
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+          "expectedSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+          "error": "current PDP-0 phase source pin is stale for .product-experience/pdp-0-product-truth/requirements.yaml"
+        },
+        {
+          "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+          "expectedSha256": "9019c9461d6642aea65ca93074257b8b79534ef54b290e04038515d5cdad1118",
+          "error": "current PDP-0 phase source pin is stale for docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"
+        },
+        {
+          "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
+          "expectedSha256": "46ebe0cd8ca9697cd424d24b9261a3254d80e34e9860b2fc26b7d7a588907457",
+          "error": "current PDP-0 phase source pin is stale for docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json"
+        },
+        {
+          "sourceRef": "scripts/check-media-pdp0-501-audit-dispositions.mjs",
+          "expectedSha256": "d50b96220bf32117d2d211ff159fac65893ab246b0ce086318cf2de72d6250c5",
+          "error": "current PDP-0 phase source pin is stale for scripts/check-media-pdp0-501-audit-dispositions.mjs"
+        },
+        {
+          "sourceRef": "scripts/check-media-pdp0-audit-aq-traceability.mjs",
+          "expectedSha256": "466b4ca4ad0ae123e5ae7ea80afb8d733c851dc7d44a18311450b7eb45af49ef",
+          "error": "current PDP-0 phase source pin is stale for scripts/check-media-pdp0-audit-aq-traceability.mjs"
+        },
+        {
+          "sourceRef": "tests/media-pdp0-501-audit-dispositions.test.mjs",
+          "expectedSha256": "cb21a4cdc44acb1974afc0cf23e7dba94446ae3007aae971c2e9aa23b9ef5077",
+          "error": "current PDP-0 phase source pin is stale for tests/media-pdp0-501-audit-dispositions.test.mjs"
+        },
+        {
+          "sourceRef": "tests/media-pdp0-audit-aq-traceability.test.mjs",
+          "expectedSha256": "5cac3d655991473cb3eb5f12df03fcfdf6b7e13e44540095581cca129a529b9f",
+          "error": "current PDP-0 phase source pin is stale for tests/media-pdp0-audit-aq-traceability.test.mjs"
+        }
+      ],
+      "currentness": "STALE"
     },
     "surfaceMatrixPhaseSourceCurrentness": {
       "status": "CURRENT",
@@ -138,6 +179,11 @@
           "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases",
           "decisionRef": ".product-experience/decision-log.md#PXD-226",
           "meaning": "Adds acceptance cases AC-15/16/17 for ordinary compile, version-bound migration candidates, and fail-closed incomplete migration inputs."
+        },
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#requirements/acceptanceCases",
+          "decisionRef": ".product-experience/decision-log.md#PXD-234",
+          "meaning": "Adds 17 narrowly scoped P0 acceptance cases across 10 existing requirements to resolve exact row-level case-fit gaps; no new capability identity or external qualification is asserted."
         }
       ]
     },
@@ -155,7 +201,7 @@
     },
     {
       "criterionId": "P0-07",
-      "disposition": "MATERIAL_SOURCE_DELTA_REVIEW_REQUIRED",
+      "disposition": "MATERIAL_SOURCE_DELTA_REVIEWED; REVIEW_BINDING_REFRESH_REQUIRED",
       "deltas": [
         {
           "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#coordinatorDefinitionExtensionApplicability",
@@ -171,16 +217,43 @@
           "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml#MEDIA-REQ-CAP-RECIPE-TEMPLATE/acceptanceCases",
           "decisionRef": ".product-experience/decision-log.md#PXD-226",
           "meaning": "Adds AC-15/16/17 to the source-bound recipe-template requirement."
+        },
+        {
+          "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json#pdp0CaseFitDecisionAudit",
+          "decisionRef": ".product-experience/decision-log.md#PXD-234",
+          "meaning": "Records source-bound decisions for the exact 230 predecessor rows with unchanged source wording, identities, and dispositions."
         }
       ],
-      "unresolvedFindingIds": [
+      "unresolvedFindingIds": [],
+      "historicalFindingIds": [
         "P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231"
       ],
-      "currentSourceSemanticFitRows": 230,
+      "currentSourceSemanticFitRows": 0,
+      "currentOwnerDecisionRows": 230,
       "historicalFindingId": "P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231",
-      "unresolvedFindingDisposition": "The prior criterion review retains historical aggregate ID P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231, while the current AQ traceability source counts 230 exact REVIEW_REQUIRED_PARENT_CASES_ARE_NOT_FEATURE_SPECIFIC rows. Reconcile the exact current row IDs in a source-review successor; keep all 230 open until owner disposition. PXD-231 resolves three surface applicability cells and does not resolve these semantic-fit rows."
+      "unresolvedFindingDisposition": "Historical aggregate ID P0-07-FAMILY-CASE-SEMANTIC-FIT-UNKNOWN-231 is preserved as predecessor history. PXD-234 records source-bound decisions for the exact 230 predecessor audit rows; the current trace must show zero unresolved family-case semantic-fit rows. This does not claim owner acceptance, independent acceptance, PDP-0 DEV_COMPLETE, or external operation admission."
     }
   ],
+  "pdp0CaseFitDecisionCurrentness": {
+    "decisionRef": ".product-experience/decision-log.md#PXD-234",
+    "predecessorTraceabilityRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
+    "predecessorTraceabilitySha256": "46ebe0cd8ca9697cd424d24b9261a3254d80e34e9860b2fc26b7d7a588907457",
+    "affectedAuditRows": 230,
+    "currentRowsWithDecision": 230,
+    "currentRowsRequiringSemanticFitReview": 0,
+    "categoryCounts": {
+      "P0_FEATURE_CASE_ADDITION_NOT_REQUIRED": 139,
+      "P0_BASE_RESULT_WITH_RESIDUAL_HANDOFF": 12,
+      "EXACT_P0_CASE_FIT_CONFIRMED": 2,
+      "EXACT_P0_CASES_ADDED": 16,
+      "NARROW_TO_CURRENT_P0_RESULT": 53,
+      "EXTERNAL_INPUT_REMAINS_UNKNOWN": 6,
+      "CURRENT_VERSION_SCOPE_DEFERRED": 2
+    },
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "phaseStatusEffect": "NONE"
+  },
   "projectionOnlyChanges": [
     {
       "sourceRef": ".product-experience/surfaces/media-physical-topology.v1.json",
@@ -213,9 +286,45 @@
       "totalRefs": 322,
       "wholeFileRefs": 298,
       "selectorRefs": 24,
-      "staleOrUnreadableRefCount": 0,
-      "staleOrUnreadableRefs": [],
-      "currentness": "CURRENT"
+      "staleOrUnreadableRefCount": 7,
+      "staleOrUnreadableRefs": [
+        {
+          "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
+          "expectedSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7",
+          "error": "current PDP-0 phase source pin is stale for .product-experience/pdp-0-product-truth/requirements.yaml"
+        },
+        {
+          "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
+          "expectedSha256": "9019c9461d6642aea65ca93074257b8b79534ef54b290e04038515d5cdad1118",
+          "error": "current PDP-0 phase source pin is stale for docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"
+        },
+        {
+          "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
+          "expectedSha256": "46ebe0cd8ca9697cd424d24b9261a3254d80e34e9860b2fc26b7d7a588907457",
+          "error": "current PDP-0 phase source pin is stale for docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json"
+        },
+        {
+          "sourceRef": "scripts/check-media-pdp0-501-audit-dispositions.mjs",
+          "expectedSha256": "d50b96220bf32117d2d211ff159fac65893ab246b0ce086318cf2de72d6250c5",
+          "error": "current PDP-0 phase source pin is stale for scripts/check-media-pdp0-501-audit-dispositions.mjs"
+        },
+        {
+          "sourceRef": "scripts/check-media-pdp0-audit-aq-traceability.mjs",
+          "expectedSha256": "466b4ca4ad0ae123e5ae7ea80afb8d733c851dc7d44a18311450b7eb45af49ef",
+          "error": "current PDP-0 phase source pin is stale for scripts/check-media-pdp0-audit-aq-traceability.mjs"
+        },
+        {
+          "sourceRef": "tests/media-pdp0-501-audit-dispositions.test.mjs",
+          "expectedSha256": "cb21a4cdc44acb1974afc0cf23e7dba94446ae3007aae971c2e9aa23b9ef5077",
+          "error": "current PDP-0 phase source pin is stale for tests/media-pdp0-501-audit-dispositions.test.mjs"
+        },
+        {
+          "sourceRef": "tests/media-pdp0-audit-aq-traceability.test.mjs",
+          "expectedSha256": "5cac3d655991473cb3eb5f12df03fcfdf6b7e13e44540095581cca129a529b9f",
+          "error": "current PDP-0 phase source pin is stale for tests/media-pdp0-audit-aq-traceability.test.mjs"
+        }
+      ],
+      "currentness": "STALE"
     },
     "criteria": [
       {
@@ -273,7 +382,7 @@
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
             "priorSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
-            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+            "error": "current PDP-0 phase source pin is stale for .product-experience/pdp-0-product-truth/requirements.yaml"
           },
           {
             "sourceRef": "tests/pdp-truth-domain-channel-profile-applicability.test.mjs",
@@ -310,7 +419,7 @@
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
             "priorSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
-            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+            "error": "current PDP-0 phase source pin is stale for .product-experience/pdp-0-product-truth/requirements.yaml"
           },
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
@@ -335,7 +444,7 @@
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
             "priorSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
-            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+            "error": "current PDP-0 phase source pin is stale for .product-experience/pdp-0-product-truth/requirements.yaml"
           },
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
@@ -405,7 +514,7 @@
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
             "priorSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
-            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+            "error": "current PDP-0 phase source pin is stale for .product-experience/pdp-0-product-truth/requirements.yaml"
           },
           {
             "sourceRef": "docs/implementation/verification/pdp-38/P0-02.log",
@@ -548,7 +657,7 @@
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
             "priorSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
-            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+            "error": "current PDP-0 phase source pin is stale for .product-experience/pdp-0-product-truth/requirements.yaml"
           },
           {
             "sourceRef": "docs/implementation/verification/pdp-38/P0-04.log",
@@ -579,7 +688,7 @@
           {
             "sourceRef": ".product-experience/decision-log.md",
             "priorSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2",
-            "currentSha256": "7f3fea93195c48c9be871c1905e01a322b726d3b49ea3402ab331fc8b2d8b1f1"
+            "currentSha256": "43c464e0fc6db59363b68b6b112644dd921e6273cf088351f635b5d72444f5a0"
           },
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -594,7 +703,7 @@
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
             "priorSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
-            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+            "error": "current PDP-0 phase source pin is stale for .product-experience/pdp-0-product-truth/requirements.yaml"
           },
           {
             "sourceRef": ".product-experience/source-manifest.yaml",
@@ -609,12 +718,12 @@
           {
             "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
             "priorSha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
-            "currentSha256": "9019c9461d6642aea65ca93074257b8b79534ef54b290e04038515d5cdad1118"
+            "error": "current PDP-0 phase source pin is stale for docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"
           },
           {
             "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
             "priorSha256": "b9eb443bfbb58a8b97db19b15ca063205841969b28130745971a57eb83a6431c",
-            "currentSha256": "46ebe0cd8ca9697cd424d24b9261a3254d80e34e9860b2fc26b7d7a588907457"
+            "error": "current PDP-0 phase source pin is stale for docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json"
           },
           {
             "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
@@ -636,7 +745,7 @@
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
             "priorSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
-            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+            "error": "current PDP-0 phase source pin is stale for .product-experience/pdp-0-product-truth/requirements.yaml"
           },
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -661,12 +770,12 @@
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
             "priorSha256": "ad3f569668f817a1536741ae105d729911c42e6fb801c01d7022ba19168b7c33",
-            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+            "error": "current PDP-0 phase source pin is stale for .product-experience/pdp-0-product-truth/requirements.yaml"
           },
           {
             "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
             "priorSha256": "4c87f284517b07cd16461ecef3d79588fa2e0ac6159b2d2a776d886b48f3d226",
-            "currentSha256": "9019c9461d6642aea65ca93074257b8b79534ef54b290e04038515d5cdad1118"
+            "error": "current PDP-0 phase source pin is stale for docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"
           },
           {
             "sourceRef": "tests/media-pdp-readiness.test.mjs",
@@ -676,7 +785,7 @@
           {
             "sourceRef": "tests/media-pdp0-501-audit-dispositions.test.mjs",
             "priorSha256": "ceb1564d7cba15940fe9fed04cd26ffdad257d49830b319acc71df6ed7259cf4",
-            "currentSha256": "cb21a4cdc44acb1974afc0cf23e7dba94446ae3007aae971c2e9aa23b9ef5077"
+            "error": "current PDP-0 phase source pin is stale for tests/media-pdp0-501-audit-dispositions.test.mjs"
           },
           {
             "sourceRef": "tests/pdp0-semantic-corrections.test.mjs",
@@ -736,7 +845,7 @@
           {
             "sourceRef": ".product-experience/decision-log.md",
             "priorSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2",
-            "currentSha256": "7f3fea93195c48c9be871c1905e01a322b726d3b49ea3402ab331fc8b2d8b1f1"
+            "currentSha256": "43c464e0fc6db59363b68b6b112644dd921e6273cf088351f635b5d72444f5a0"
           },
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/capabilities.yaml",
@@ -756,7 +865,7 @@
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
             "priorSha256": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
-            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+            "error": "current PDP-0 phase source pin is stale for .product-experience/pdp-0-product-truth/requirements.yaml"
           },
           {
             "sourceRef": ".product-experience/source-manifest.yaml",
@@ -771,12 +880,12 @@
           {
             "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
             "priorSha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
-            "currentSha256": "9019c9461d6642aea65ca93074257b8b79534ef54b290e04038515d5cdad1118"
+            "error": "current PDP-0 phase source pin is stale for docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"
           },
           {
             "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
             "priorSha256": "b9eb443bfbb58a8b97db19b15ca063205841969b28130745971a57eb83a6431c",
-            "currentSha256": "46ebe0cd8ca9697cd424d24b9261a3254d80e34e9860b2fc26b7d7a588907457"
+            "error": "current PDP-0 phase source pin is stale for docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json"
           },
           {
             "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
@@ -868,7 +977,7 @@
           {
             "sourceRef": ".product-experience/decision-log.md",
             "priorSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2",
-            "currentSha256": "7f3fea93195c48c9be871c1905e01a322b726d3b49ea3402ab331fc8b2d8b1f1"
+            "currentSha256": "43c464e0fc6db59363b68b6b112644dd921e6273cf088351f635b5d72444f5a0"
           },
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml",
@@ -903,12 +1012,12 @@
           {
             "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
             "priorSha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
-            "currentSha256": "9019c9461d6642aea65ca93074257b8b79534ef54b290e04038515d5cdad1118"
+            "error": "current PDP-0 phase source pin is stale for docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"
           },
           {
             "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
             "priorSha256": "b9eb443bfbb58a8b97db19b15ca063205841969b28130745971a57eb83a6431c",
-            "currentSha256": "46ebe0cd8ca9697cd424d24b9261a3254d80e34e9860b2fc26b7d7a588907457"
+            "error": "current PDP-0 phase source pin is stale for docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json"
           },
           {
             "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
@@ -924,6 +1033,11 @@
             "sourceRef": "docs/implementation/verification/pdp-38/direct-definition-criteria-review.json",
             "priorSha256": "e94e1ac81ef5b642cd6fad45897b02a9074a526bf28af5ae5a03d1c7aff03517",
             "currentSha256": "7b2c7fc2059ee9f00846b8b1a292804c33d24957837fa1a9b06d06a163202733"
+          },
+          {
+            "sourceRef": "tests/media-pdp0-501-audit-dispositions.test.mjs",
+            "priorSha256": "cb21a4cdc44acb1974afc0cf23e7dba94446ae3007aae971c2e9aa23b9ef5077",
+            "error": "current PDP-0 phase source pin is stale for tests/media-pdp0-501-audit-dispositions.test.mjs"
           },
           {
             "sourceRef": "tests/media-pdp0-surface-denominator.test.mjs",
@@ -975,7 +1089,7 @@
           {
             "sourceRef": ".product-experience/pdp-0-product-truth/requirements.yaml",
             "priorSha256": "ad3f569668f817a1536741ae105d729911c42e6fb801c01d7022ba19168b7c33",
-            "currentSha256": "672ccce00c5ee762cbcd716d68dd474acad023199d87c9f99b6b528234912cb7"
+            "error": "current PDP-0 phase source pin is stale for .product-experience/pdp-0-product-truth/requirements.yaml"
           },
           {
             "sourceRef": ".product-experience/surfaces/media-physical-topology.v1.json",
@@ -985,7 +1099,7 @@
           {
             "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
             "priorSha256": "4c87f284517b07cd16461ecef3d79588fa2e0ac6159b2d2a776d886b48f3d226",
-            "currentSha256": "9019c9461d6642aea65ca93074257b8b79534ef54b290e04038515d5cdad1118"
+            "error": "current PDP-0 phase source pin is stale for docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"
           },
           {
             "sourceRef": "scripts/check-media-pdp0-surface-denominator.mjs",
@@ -1015,7 +1129,7 @@
           {
             "sourceRef": "tests/media-pdp0-501-audit-dispositions.test.mjs",
             "priorSha256": "ceb1564d7cba15940fe9fed04cd26ffdad257d49830b319acc71df6ed7259cf4",
-            "currentSha256": "cb21a4cdc44acb1974afc0cf23e7dba94446ae3007aae971c2e9aa23b9ef5077"
+            "error": "current PDP-0 phase source pin is stale for tests/media-pdp0-501-audit-dispositions.test.mjs"
           },
           {
             "sourceRef": "tests/media-pdp0-surface-denominator.test.mjs",
@@ -1085,7 +1199,7 @@
           {
             "sourceRef": ".product-experience/decision-log.md",
             "priorSha256": "42876764d478b5a50a96f015f07069660b567cfba777f578167216d7c54f93e2",
-            "currentSha256": "7f3fea93195c48c9be871c1905e01a322b726d3b49ea3402ab331fc8b2d8b1f1"
+            "currentSha256": "43c464e0fc6db59363b68b6b112644dd921e6273cf088351f635b5d72444f5a0"
           },
           {
             "sourceRef": ".product-experience/source-manifest.yaml",
@@ -1100,12 +1214,12 @@
           {
             "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json",
             "priorSha256": "02c61f7b0193ccd1900ffcae84f7a4c95fb00e800d9d86a9ce1ea65cae79b5b4",
-            "currentSha256": "9019c9461d6642aea65ca93074257b8b79534ef54b290e04038515d5cdad1118"
+            "error": "current PDP-0 phase source pin is stale for docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json"
           },
           {
             "sourceRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json",
             "priorSha256": "b9eb443bfbb58a8b97db19b15ca063205841969b28130745971a57eb83a6431c",
-            "currentSha256": "46ebe0cd8ca9697cd424d24b9261a3254d80e34e9860b2fc26b7d7a588907457"
+            "error": "current PDP-0 phase source pin is stale for docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-audit-aq-traceability.json"
           },
           {
             "sourceRef": "docs/implementation/pdp-0-phase-dev-status.json",
@@ -1127,7 +1241,7 @@
         "technicalReviewCurrentness": "STALE_OR_INCOMPLETE"
       }
     ],
-    "currentnessStatus": "SOURCE_STATUS_CURRENT; REVIEW_INPUTS_REQUIRE_REFRESH",
+    "currentnessStatus": "SOURCE_STATUS_STALE; REVIEW_INPUTS_REQUIRE_REFRESH",
     "cliAvailabilityReview": {
       "status": "SOURCE_DECISION_BOUND",
       "fieldRef": ".product-experience/pdp-0-product-truth/applications-channels.yaml#/channels/@id=media.channel.cli/ownerCliDefinitionContract/remoteCancellationRule/scopeStatus",
@@ -1857,12 +1971,6 @@
         "classification": "DEFINITION_REVIEW_NOT_ESTABLISHED",
         "owner": "Media migration semantic owner and required independent migration reviewer",
         "nextAction": "Continue the exact migration semantic reconciliation under PDP-0; do not mark the definition criterion complete from direct source tests."
-      },
-      {
-        "criterionId": "P0-07",
-        "classification": "MATERIAL_DEFINITION_ROWS_OPEN",
-        "owner": "Media PDP-0 Product Truth owner",
-        "nextAction": "Reconcile the historical 231 finding suffix against the 230 current AQ traceability rows, then keep all 230 exact feature-specific parent-case semantic-fit rows open until the owning PDP-0 source is updated and revalidated."
       },
       {
         "criterionId": "P0-08",

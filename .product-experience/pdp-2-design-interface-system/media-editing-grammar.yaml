@@ -56,19 +56,91 @@ revisionProjectionRule:
   authority: Media owns the canonical editable revision and its exact versioned projection bindings.
   rule: >-
     The visual timeline, graph, and textual/accessible editor are projections of one exact canonical revision, not separate
-    competing drafts. Every displayed selection and edit is bound to the same project identity, expected revision identity,
-    and current observed revision. A mutation uses the exact expected revision and owner-defined compare-and-swap contract;
-    a stale or changed revision is shown as a conflict and cannot silently submit a render or overwrite another projection.
-    Saving through any projection creates the same kind of successor revision with a single canonical owner; a projection
-    refresh cannot create an independent semantic revision or merge same-field edits without the declared conflict rule.
-  requiredBindings: [canonical-project-identity, exact-expected-revision-identity, current-observed-revision, shared-selection-identity, owner-cas-mutation-contract, stale-revision-conflict-display]
+    competing drafts. A project revision projects its immutable timelines[] snapshots; each snapshot binds stable timelineId,
+    opaque semanticVersionId, and Graph(timelineId, scenes[], tracks[], clips[]) as defined by the PDP-1 owner decision.
+    Project creation shows zero timelines. Explicit timeline creation produces a distinct empty graph with zero scenes, tracks,
+    and clips in a successor project revision. Every displayed selection and edit is bound to the same project identity,
+    exact expected revision, snapshot timelineId and semanticVersionId, and current observed revision. A mutation uses the
+    exact expected revision and owner-defined compare-and-swap contract; stale state is a conflict and cannot silently submit
+    a render or overwrite another projection. Saving through any projection creates one successor revision; refresh cannot
+    create an independent semantic revision or merge same-field edits without the declared conflict rule. Scene, track,
+    clip, source artifact-version, and rational-time fields follow the PDP-1 graph mapping; source-presentation and story clocks
+    remain distinct, with no implicit conversion, overlap, or transition semantics. Session-local Undo and Redo select only
+    immutable revisions observed from the server in this workspace session, re-read and validate the exact target identity
+    and scope, restore the selected snapshot as a new project-head CAS successor, and verify the exact committed head by
+    readback. A new committed edit clears Redo; historical revisions remain immutable. Stale-head conflicts clear the local
+    history and require review. Unknown outcomes lock further edits until exact reconciliation; a retry is enabled only after
+    the original head confirms absence, revalidates the target, and reuses the same request ID. Undo and Redo apply only to
+    project snapshot content and never reverse render, export, review, rights, or other external effects.
+  undoRedoRule:
+    disposition: ACCEPTED_DELEGATED_TECHNICAL_OWNER_DECISION
+    decisionRef: docs/development/PROJECT-TIMELINE-MAPPING-DISPOSITION-2026-11-09.md#addendum-exact-timeline-graph-field-mapping-2026-11-22
+    rationale: Provide a bounded user-facing way to restore a previously observed immutable project snapshot through the existing canonical revision CAS, without creating a client-owned graph history or implying reversal of external effects.
+    historyScope: current-workspace-session-and-only-server-observed-revisions
+    targetSelection: last-local-committed-snapshot-for-undo; most-recent-undone-snapshot-for-redo
+    targetVerification: reread-exact-revisionId-and-verify-DEV_ONLY-scope-tenantId-projectId-before-restore
+    restore: existing-ProjectRevision-restore-operation-with-exact-current-head-CAS-and-new-successor-revision
+    successVerification: reread-current-project-and-confirm-exact-successor-revision-and-snapshot
+    redoInvalidation: every-new-committed-project-edit-clears-redo-targets
+    staleBehavior: changed-owner-head-clears-session-history; no-automatic-restore-or-retry
+    unknownBehavior: lock-mutations-until-reconciliation; report-success-only-for-an-exact-verified-successor
+    retryBehavior: allow-only-after-original-head-confirms-absence; reverify-target-scope-and-identity; reuse-same-requestId
+    externalEffectBoundary: undo-and-redo-do-not-reverse-render-export-review-rights-or-other-external-effects
+    historicalRevisionBehavior: immutable-and-retained
+    acceptanceEffect: none
+  requiredBindings: [canonical-project-identity, exact-expected-revision-identity, current-observed-revision, shared-selection-identity, exact-timelineId-and-semanticVersionId, graph-node-and-source-version-identities, rational-time-clock-domain, owner-cas-mutation-contract, stale-revision-conflict-display, session-local-server-observed-history-target, exact-target-scope-and-identity-revalidation, restore-as-new-successor-revision, exact-successor-head-readback, redo-cleared-by-new-edit, external-effect-boundary]
   negativeCases:
     - visual-timeline-and-text-editor-point-to-different-revision-ids
     - stale-selection-renders-against-a-newer-unnoticed-revision
     - same-field-edit-merged-without-declared-conflict-policy
     - projection-refresh-creates-a-second-canonical-revision
     - read-only-graph-view-authorizes-a-hidden-mutation
+    - project-create-silently-inserts-an-empty-timeline-snapshot
+    - timeline-selection-omits-or-mismatches-semanticVersionId
+    - graph-contains-duplicate-or-detached-scene-track-clip-nodes
+    - clip-track-and-clip-scene-belong-to-different-scenes
+    - source-and-story-time-use-the-wrong-clock-domain-or-are-implicitly-converted
+    - source-interval-or-story-duration-is-nonpositive-or-story-end-is-unrepresentable
+    - overlap-or-transition-behavior-is-implied-without-an-owner-policy
+    - undo-or-redo-selects-an-unobserved-or-client-authored-graph-snapshot
+    - undo-or-redo-restores-a-target-with-mismatched-tenant-project-or-revision-identity
+    - undo-or-redo-replays-against-a-changed-head-or-retries-before-absence-is-confirmed
+    - retry-changes-requestId-or-skips-exact-target-revalidation
+    - redo-remains-available-after-a-newer-committed-edit
+    - restored-project-snapshot-is-claimed-to-reverse-render-export-review-rights-or-other-external-effects
+    - prior-project-revision-is-mutated-or-deleted-by-undo-or-redo
+  renderSourceUseRule:
+    id: media.design.project-render-source-use.v1
+    authority: The exact immutable graph source ref identifies bytes; it does not grant authority to read, render, or register output.
+    rule: >-
+      Before source bytes are read or decoded, resolve one trusted exact binding for tenant, workspace, authenticated
+      principal, project, project revision, timeline and semantic version, render target/effect, and every referenced
+      artifact ID, immutable version, and SHA-256. Require current effect-specific rights and policy for source use.
+      Revalidate the same binding and current authority immediately before output registration. Unknown or failed
+      revalidation blocks registration. Keep source-use and output-registration effects distinct.
+    authorityBinding: docs/development/PROJECT-TIMELINE-MAPPING-DISPOSITION-2026-11-09.md#addendum-source-use-for-dev_only-project-rendering-2026-11-22
+    decisionRef: .product-experience/pdp-1-domain-data/decisions.yaml#decisions/@id=media.pdp1.decision.project-render-source-use
+    unavailableBehavior: Missing, unavailable, revoked, stale, expired, conflicting, or cross-scope evidence blocks before source read; no local-owner or artifact-reference inference.
+    negativeCases:
+      - render-source-authority-has-no-exact-workspace-and-target-binding
+      - source-reference-is-treated-as-rights-or-policy-allow
+      - source-version-and-sha256-do-not-identify-the-same-bytes
+      - authority-binding-does-not-match-tenant-principal-project-revision-timeline-or-target
+      - source-rights-or-policy-is-missing-unknown-stale-revoked-or-unavailable
+      - source-authority-is-revoked-or-changed-before-output-registration
+      - output-is-registered-after-failed-or-unknown-pre-registration-revalidation
+    requiredBindings: [tenant, workspace, authenticated-principal, project, exact-project-revision, timelineId, semanticVersionId, render-target, artifactId, immutableArtifactVersion, artifactSha256, current-effect-specific-source-rights, current-policy, exact-binding-revalidation-before-output-registration]
+    sourceRefs:
+      - .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.timeline/graphSchema
+      - .product-experience/pdp-1-domain-data/decisions.yaml#decisions/@id=media.pdp1.decision.project-render-source-use
+      - docs/development/PROJECT-TIMELINE-MAPPING-DISPOSITION-2026-11-09.md#addendum-source-use-for-dev_only-project-rendering-2026-11-22
+    status: OWNER_DEFINED_DESIGN_RULE; source-authority-provider-and-runtime-binding-remain-unavailable; no-acceptance-effect
+    acceptanceEffect: none
   sourceRefs:
+    - .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.project-revision/timelineSnapshotBinding
+    - .product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.timeline/graphSchema
+    - docs/development/PROJECT-TIMELINE-MAPPING-DISPOSITION-2026-11-09.md#addendum-exact-timeline-graph-field-mapping-2026-11-22
+    - docs/development/PROJECT-TIMELINE-MAPPING-DISPOSITION-2026-11-09.md#addendum-source-use-for-dev_only-project-rendering-2026-11-22
     - .product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics/projectRevision
     - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records
   status: OWNER_DEFINED_EDITOR_REVISION_RULE; UI implementation and multi-client consistency remain unverified.

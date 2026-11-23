@@ -4,11 +4,11 @@
   "reviewAuthority": "user-delegated Media domain definition; not an approval, independent review, runtime admission, or phase status",
   "historicalPins": {
     "identity": ".product-experience/decision-log.md#PXD-093 remains the preserved historical identity/source review cut; this artifact is a new current-source review and does not rewrite that pin",
-    "relationships": ".product-experience/decision-log.md#PXD-140 reconciles the 13-record current relationship population and has acceptanceEffect:none"
+    "relationships": ".product-experience/decision-log.md#PXD-140 preserves the historical 14-record relationship review with acceptanceEffect:none; PXD-235 adds three bounded storyboard bindings and does not rewrite that decision."
   },
   "sourceFingerprints": {
-    ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
-    ".product-experience/pdp-1-domain-data/relationships.yaml": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
+    ".product-experience/pdp-1-domain-data/domain-objects.yaml": "95dd51d72b77bb63c684b0ab468279b4b50983ae4e21712bc446c927a6f89b2f",
+    ".product-experience/pdp-1-domain-data/relationships.yaml": "dbbcd3114f42ff8a63a8afcb79c6fe63d4b0b462c1068d6a3d27329a31ec1791",
     ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "5915fff2d3eaa74a65aafd5f58edd15fc5faef42ca7195e6f96b6d75f013e746",
     ".product-experience/pdp-1-domain-data/value-objects.yaml": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
     ".product-experience/pdp-1-domain-data/versioning.yaml": "5e7d02212416fc112d4ae17194a87bcdc42ca892b6a84104d63e04da5d93592b",
@@ -33,7 +33,7 @@
     "sourceObservationWithoutCanonicalIdentity": 1,
     "excludedLegacyTranscriptionIdentity": 1,
     "valueRecords": 13,
-    "currentRelationshipRecords": 13,
+    "currentRelationshipRecords": 17,
     "historicalRelationshipCount": 11
   },
   "reviewFindings": [
@@ -60,7 +60,7 @@
         ".product-experience/pdp-1-domain-data/relationships.yaml#relationships",
         ".product-experience/pdp-1-domain-data/relationships.yaml#relationshipPopulationAdjudication"
       ],
-      "meaning": "All 13 current relationship records resolve to catalogued endpoints and typed identity contracts. Preserve the historical 11-record snapshot; current count 13 is source reconciled under PXD-140. No storage or runtime parity is claimed."
+      "meaning": "All 17 current relationship records resolve to catalogued endpoints and typed identity contracts. Preserve the historical 11-record baseline and PXD-140 review; the three PXD-235 storyboard bindings are a current delegated source definition only. No storage or runtime parity is claimed."
     },
     {
       "id": "temporal-spatial-precision-and-loss",
@@ -109,6 +109,17 @@
         ".product-experience/pdp-1-domain-data/versioning.yaml#ownerDefinedRevisionSemantics"
       ],
       "meaning": "Current Media logical identity is tenantId plus stable opaque projectId for Project, and tenantId plus projectId plus stable opaque revisionId for ProjectRevision; workspace is an authorization scope and a content digest is not revision identity. Committed revisions are immutable by definition. Runtime records, durable snapshots/history, atomic create/commit, CAS enforcement, and authenticated tenant/principal binding remain unverified or external-owner work."
+    },
+    {
+      "id": "storyboard-plan-reference-binding",
+      "refs": [
+        ".product-experience/decision-log.md#PXD-235",
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.scene-plan/storyboardRevisionBinding",
+        ".product-experience/pdp-1-domain-data/relationships.yaml#media.rel.scene-plan-project-revision",
+        ".product-experience/pdp-1-domain-data/relationships.yaml#media.rel.scene-plan-scene-graph",
+        ".product-experience/pdp-1-domain-data/relationships.yaml#media.rel.scene-plan-timeline-snapshot"
+      ],
+      "meaning": "A plan edition binds one exact project revision, one exact ordered SceneGraph version per planned scene, and one exact Timeline snapshot contained by that revision. Editorial order is independent from exact STORY intervals; gaps and overlaps carry no implicit output or transition behavior. These logical definitions do not establish persistence, source rights, reviewer authority, or renderability."
     }
   ],
   "acceptanceEffect": "none",
@@ -283,8 +294,8 @@
         "scenePlanId",
         "semanticVersion"
       ],
-      "currentScopeStatus": "proposed; pending-owner-review",
-      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_STORYBOARD_BINDING; independent-PDP1-review-open; runtime-NOT_ADMITTED",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OWNER_DEFINED_LOGICAL_STORYBOARD_BINDING; independent-review/runtime-admission-open"
     },
     {
       "objectId": "media.domain.scene-brief",
@@ -342,8 +353,8 @@
         "timelineId",
         "semanticVersion"
       ],
-      "currentScopeStatus": "proposed; pending-owner-review",
-      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OTHER_OBJECT_MEANING_RETAINS_EXPLICIT_SCOPE_STATUS"
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_GRAPH_MAPPING; independent-PDP1-review-open; runtime-NOT_ADMITTED",
+      "classification": "MEDIA_LOGICAL_IDENTITY_DEFINED; OWNER_DEFINED_LOGICAL_GRAPH_MAPPING; independent-review/runtime-admission-open"
     },
     {
       "objectId": "media.domain.composition-config",
@@ -548,6 +559,14 @@
       "runtimeParity": "NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence"
     },
     {
+      "relationshipId": "media.rel.project-revision-timeline-snapshot",
+      "from": "media.domain.project-revision",
+      "to": "media.domain.timeline",
+      "definitionDisposition": "USER_AUTHORIZED_COORDINATOR_SEMANTIC_CHOICE",
+      "currentScopeStatus": "USER_DIRECTED_LOGICAL_MAPPING_DEFINITION_ONLY; independent-PDP1-review-open; runtime-NOT_ADMITTED",
+      "runtimeParity": "NOT_ADMITTED; this logical mapping does not assert persistence or transport equivalence"
+    },
+    {
       "relationshipId": "media.rel.project-asset",
       "from": "media.domain.project",
       "to": "media.domain.media-asset",
@@ -646,6 +665,30 @@
       "definitionDisposition": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY",
       "currentScopeStatus": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; runtime-NOT_ADMITTED",
       "runtimeParity": "NOT_ADMITTED; this logical identity relationship does not assert persistence or transport equivalence"
+    },
+    {
+      "relationshipId": "media.rel.scene-plan-project-revision",
+      "from": "media.domain.scene-plan",
+      "to": "media.domain.project-revision",
+      "definitionDisposition": "DELEGATED_TECHNICAL_PRODUCT_OWNER_LOGICAL_MAPPING",
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; independent-PDP1-review-open; runtime-NOT_ADMITTED",
+      "runtimeParity": "NOT_ADMITTED; this logical mapping does not assert persistence or transport equivalence"
+    },
+    {
+      "relationshipId": "media.rel.scene-plan-scene-graph",
+      "from": "media.domain.scene-plan",
+      "to": "media.domain.scene-graph",
+      "definitionDisposition": "DELEGATED_TECHNICAL_PRODUCT_OWNER_LOGICAL_MAPPING",
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; independent-PDP1-review-open; runtime-NOT_ADMITTED",
+      "runtimeParity": "NOT_ADMITTED; this logical mapping does not assert persistence or transport equivalence"
+    },
+    {
+      "relationshipId": "media.rel.scene-plan-timeline-snapshot",
+      "from": "media.domain.scene-plan",
+      "to": "media.domain.timeline",
+      "definitionDisposition": "DELEGATED_TECHNICAL_PRODUCT_OWNER_LOGICAL_MAPPING",
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_RELATIONSHIP_DEFINITION_ONLY; independent-PDP1-review-open; runtime-NOT_ADMITTED",
+      "runtimeParity": "NOT_ADMITTED; this logical mapping does not assert persistence or transport equivalence"
     }
   ],
   "valueReview": [
@@ -781,7 +824,7 @@
       "objectRef": "media.domain.scene-plan",
       "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.scene-plan",
       "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.scene-plan",
-      "currentScopeStatus": "proposed; pending-owner-review",
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_STORYBOARD_BINDING; independent-PDP1-review-open; runtime-NOT_ADMITTED",
       "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
       "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
     },
@@ -821,7 +864,7 @@
       "objectRef": "media.domain.timeline",
       "selector": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerDefinedLogicalSemantics/records/@objectRef=media.domain.timeline",
       "identityContractRef": ".product-experience/pdp-1-domain-data/domain-objects.yaml#ownerTypedIdentityContracts/records/@id=media.identity-contract.timeline",
-      "currentScopeStatus": "proposed; pending-owner-review",
+      "currentScopeStatus": "OWNER_DEFINED_LOGICAL_GRAPH_MAPPING; independent-PDP1-review-open; runtime-NOT_ADMITTED",
       "definitionStatus": "OWNER_DEFINED_LOGICAL_DEFINITION_ONLY; runtime-storage-wire-and-independent-review-not-claimed",
       "runtimeStorageAndWireAdmission": "NOT_ADMITTED"
     },
@@ -899,25 +942,13 @@
     }
   ],
   "sourceCutRefresh": {
-    "id": "PDP1-LANE-A-CURRENT-SOURCE-REFRESH-2026-10-23-R2",
-    "reviewedOn": "2026-10-23",
+    "id": "PDP1-LANE-A-CURRENT-SOURCE-REFRESH-2026-11-22-R3",
+    "reviewedOn": "2026-11-22",
     "phase": "PDP-1",
     "status": "INTERNAL_CURRENT_SOURCE_REINSPECTION; FULL_LANE_A_POPULATIONS_RETAINED; PHASE_ACCEPTANCE_NOT_CLAIMED",
     "authority": "Internal PDP-1 source-definition review under user-delegated Media definition authority; no owner receipt, independent certification, runtime admission, or phase closure is claimed.",
-    "method": "Re-read all 39 domain objects, 38 typed identity contracts, 13 relationships, 13 values, the current project/revision reconciliation, revision semantics, and the PDP-0 product clock source. Reconcile exact current PDP-1 definition bytes and active summary labels while retaining external identity, runtime, persistence, storage, consumer, independent-review, and acceptance boundaries.",
+    "method": "Re-read the 39 domain objects, 38 typed identity contracts, 17 current relationships, and 13 values. Reconciled only the exact ScenePlan/SceneGraph/ProjectRevision/Timeline mapping under PXD-235 and the affected owner scope statuses. Preserved the historical PXD-140 relationship decision, unrelated review findings, and all storage, runtime, rights, independent-review, and acceptance boundaries.",
     "previousSourceFingerprints": {
-      ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
-      ".product-experience/pdp-1-domain-data/relationships.yaml": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
-      ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
-      ".product-experience/pdp-1-domain-data/value-objects.yaml": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
-      ".product-experience/pdp-1-domain-data/versioning.yaml": "f2bb21787e984b997b7fe08800bf9eda5340e8121c8a9c0d9202c66ee0e6c1a3",
-      ".product-experience/pdp-1-domain-data/interoperability.yaml": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
-      ".product-experience/pdp-0-product-truth/domain-model.yaml": "18ddbf9b87f8c36a8903e11dfbf0da04e269c0a53ebb5d42439c3eae74631c2d",
-      ".product-experience/pdp-0-product-truth/state-models.yaml": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
-      ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "8a50f8ed3a28e032d0bd0ef150fc50b2c4560f898f67add60d9fd4cb4d8fda96",
-      ".product-experience/pdp-0-product-truth/schema-bindings.yaml": "32da5a7166a15d48a4653f4a0d49fbbc8d41c6ee2c27d72b0fabd8b53184564e"
-    },
-    "sourceFingerprints": {
       ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
       ".product-experience/pdp-1-domain-data/relationships.yaml": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
       ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "5915fff2d3eaa74a65aafd5f58edd15fc5faef42ca7195e6f96b6d75f013e746",
@@ -929,24 +960,35 @@
       ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "8a50f8ed3a28e032d0bd0ef150fc50b2c4560f898f67add60d9fd4cb4d8fda96",
       ".product-experience/pdp-0-product-truth/schema-bindings.yaml": "32da5a7166a15d48a4653f4a0d49fbbc8d41c6ee2c27d72b0fabd8b53184564e"
     },
+    "sourceFingerprints": {
+      ".product-experience/pdp-1-domain-data/domain-objects.yaml": "95dd51d72b77bb63c684b0ab468279b4b50983ae4e21712bc446c927a6f89b2f",
+      ".product-experience/pdp-1-domain-data/relationships.yaml": "dbbcd3114f42ff8a63a8afcb79c6fe63d4b0b462c1068d6a3d27329a31ec1791",
+      ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "5915fff2d3eaa74a65aafd5f58edd15fc5faef42ca7195e6f96b6d75f013e746",
+      ".product-experience/pdp-1-domain-data/value-objects.yaml": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
+      ".product-experience/pdp-1-domain-data/versioning.yaml": "5e7d02212416fc112d4ae17194a87bcdc42ca892b6a84104d63e04da5d93592b",
+      ".product-experience/pdp-1-domain-data/interoperability.yaml": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
+      ".product-experience/pdp-0-product-truth/domain-model.yaml": "18ddbf9b87f8c36a8903e11dfbf0da04e269c0a53ebb5d42439c3eae74631c2d",
+      ".product-experience/pdp-0-product-truth/state-models.yaml": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+      ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "8a50f8ed3a28e032d0bd0ef150fc50b2c4560f898f67add60d9fd4cb4d8fda96",
+      ".product-experience/pdp-0-product-truth/schema-bindings.yaml": "32da5a7166a15d48a4653f4a0d49fbbc8d41c6ee2c27d72b0fabd8b53184564e"
+    },
     "changedSourcePins": {
       ".product-experience/pdp-1-domain-data/domain-objects.yaml": {
-        "prior": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
-        "current": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0"
+        "prior": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
+        "current": "95dd51d72b77bb63c684b0ab468279b4b50983ae4e21712bc446c927a6f89b2f"
       },
-      ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": {
-        "prior": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
-        "current": "5915fff2d3eaa74a65aafd5f58edd15fc5faef42ca7195e6f96b6d75f013e746"
-      },
-      ".product-experience/pdp-1-domain-data/versioning.yaml": {
-        "prior": "f2bb21787e984b997b7fe08800bf9eda5340e8121c8a9c0d9202c66ee0e6c1a3",
-        "current": "5e7d02212416fc112d4ae17194a87bcdc42ca892b6a84104d63e04da5d93592b"
+      ".product-experience/pdp-1-domain-data/relationships.yaml": {
+        "prior": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
+        "current": "dbbcd3114f42ff8a63a8afcb79c6fe63d4b0b462c1068d6a3d27329a31ec1791"
       }
     },
     "currentDefinitionReconciliationIds": [
       "PDP1-PROJECT-REVISION-IDENTITY-CURRENT-SOURCE-RECONCILIATION-2026-10-23"
     ],
     "outstandingMeaningIds": [],
+    "decisionRefs": [
+      ".product-experience/decision-log.md#PXD-235"
+    ],
     "ownerApproval": "NOT_CLAIMED",
     "independentAcceptance": "NOT_CLAIMED",
     "runtimeAdmission": "NOT_ADMITTED"
@@ -1056,7 +1098,60 @@
       "ownerApproval": "NOT_CLAIMED",
       "independentAcceptance": "NOT_CLAIMED",
       "runtimeAdmission": "NOT_ADMITTED"
+    },
+    {
+      "id": "PDP1-LANE-A-CURRENT-SOURCE-REFRESH-2026-10-23-R2",
+      "reviewedOn": "2026-10-23",
+      "phase": "PDP-1",
+      "status": "INTERNAL_CURRENT_SOURCE_REINSPECTION; FULL_LANE_A_POPULATIONS_RETAINED; PHASE_ACCEPTANCE_NOT_CLAIMED",
+      "authority": "Internal PDP-1 source-definition review under user-delegated Media definition authority; no owner receipt, independent certification, runtime admission, or phase closure is claimed.",
+      "method": "Re-read all 39 domain objects, 38 typed identity contracts, 13 relationships, 13 values, the current project/revision reconciliation, revision semantics, and the PDP-0 product clock source. Reconcile exact current PDP-1 definition bytes and active summary labels while retaining external identity, runtime, persistence, storage, consumer, independent-review, and acceptance boundaries.",
+      "previousSourceFingerprints": {
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+        ".product-experience/pdp-1-domain-data/relationships.yaml": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
+        ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
+        ".product-experience/pdp-1-domain-data/value-objects.yaml": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
+        ".product-experience/pdp-1-domain-data/versioning.yaml": "f2bb21787e984b997b7fe08800bf9eda5340e8121c8a9c0d9202c66ee0e6c1a3",
+        ".product-experience/pdp-1-domain-data/interoperability.yaml": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
+        ".product-experience/pdp-0-product-truth/domain-model.yaml": "18ddbf9b87f8c36a8903e11dfbf0da04e269c0a53ebb5d42439c3eae74631c2d",
+        ".product-experience/pdp-0-product-truth/state-models.yaml": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+        ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "8a50f8ed3a28e032d0bd0ef150fc50b2c4560f898f67add60d9fd4cb4d8fda96",
+        ".product-experience/pdp-0-product-truth/schema-bindings.yaml": "32da5a7166a15d48a4653f4a0d49fbbc8d41c6ee2c27d72b0fabd8b53184564e"
+      },
+      "sourceFingerprints": {
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0",
+        ".product-experience/pdp-1-domain-data/relationships.yaml": "359cf7bc9555c4513f7eda5a22373dec0e590f78f8749385915ff24d886030d2",
+        ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": "5915fff2d3eaa74a65aafd5f58edd15fc5faef42ca7195e6f96b6d75f013e746",
+        ".product-experience/pdp-1-domain-data/value-objects.yaml": "d8c9ac7c376961705cb1abc3571f5027319411d9aefb6cbc9b01caebc43e6916",
+        ".product-experience/pdp-1-domain-data/versioning.yaml": "5e7d02212416fc112d4ae17194a87bcdc42ca892b6a84104d63e04da5d93592b",
+        ".product-experience/pdp-1-domain-data/interoperability.yaml": "41d0938f9088112682c76886c0884ff058dd84e9dca920112c98f1227085f319",
+        ".product-experience/pdp-0-product-truth/domain-model.yaml": "18ddbf9b87f8c36a8903e11dfbf0da04e269c0a53ebb5d42439c3eae74631c2d",
+        ".product-experience/pdp-0-product-truth/state-models.yaml": "2622b7ce1f7007cb167816cd13403c30ae90049e3b407e0a40c88cb3e4e92fda",
+        ".product-experience/pdp-0-product-truth/time-units-fidelity.yaml": "8a50f8ed3a28e032d0bd0ef150fc50b2c4560f898f67add60d9fd4cb4d8fda96",
+        ".product-experience/pdp-0-product-truth/schema-bindings.yaml": "32da5a7166a15d48a4653f4a0d49fbbc8d41c6ee2c27d72b0fabd8b53184564e"
+      },
+      "changedSourcePins": {
+        ".product-experience/pdp-1-domain-data/domain-objects.yaml": {
+          "prior": "edf3c723630bcb8642257e211f2f2348e88ab0da820bf0d2fc666465b64cd629",
+          "current": "f964f0b49cf125152faf26b0b28da63c7c8d96ad6a4ee71f4243e1b7f11de2d0"
+        },
+        ".product-experience/pdp-1-domain-data/canonical-reconciliation.yaml": {
+          "prior": "502a747464bffc49fcf7cd300ce01c8fcbb570255345bc9ccf45bd0c376522e9",
+          "current": "5915fff2d3eaa74a65aafd5f58edd15fc5faef42ca7195e6f96b6d75f013e746"
+        },
+        ".product-experience/pdp-1-domain-data/versioning.yaml": {
+          "prior": "f2bb21787e984b997b7fe08800bf9eda5340e8121c8a9c0d9202c66ee0e6c1a3",
+          "current": "5e7d02212416fc112d4ae17194a87bcdc42ca892b6a84104d63e04da5d93592b"
+        }
+      },
+      "currentDefinitionReconciliationIds": [
+        "PDP1-PROJECT-REVISION-IDENTITY-CURRENT-SOURCE-RECONCILIATION-2026-10-23"
+      ],
+      "outstandingMeaningIds": [],
+      "ownerApproval": "NOT_CLAIMED",
+      "independentAcceptance": "NOT_CLAIMED",
+      "runtimeAdmission": "NOT_ADMITTED"
     }
   ],
-  "sourceCutRefreshSuccessor": "PDP1-LANE-A-CURRENT-SOURCE-REFRESH-2026-10-23-R2"
+  "sourceCutRefreshSuccessor": "PDP1-LANE-A-CURRENT-SOURCE-REFRESH-2026-11-22-R3"
 }

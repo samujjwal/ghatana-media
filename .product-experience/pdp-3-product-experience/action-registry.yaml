@@ -11508,18 +11508,37 @@ actions:
   provenance: record-actor-workspace-target-version-operation-capability-decision-and-owner-acknowledgment-when-available
   nextSafeAction: inspect-the-exact-target-or-follow-an-owner-approved-reconciliation-instruction
   confirmation: Show the exact target, scope, and effect before recording; final confirmation and
-    required fields need owner review.
-  contractState: proposal-derived-from-authored-view-intent; semantic-and-owner-review-pending
+    required fields are the exact PDP-1 storyboard wire request fields and PXD-235 references.
+  contractState: delegated-technical-owner-DEV_ONLY-transport-defined; independent-review-and-capability-admission-pending
+  visibility:
+    disposition: DEV_ONLY_PRIVATE_PROJECT_WORKSPACE
+    enablement: MEDIA_PROJECT_TIMELINE_DEV_ENABLED=true
+    availability: Require current host-derived tenant/principal/workspace, exact references, source rights,
+      and capability decision; absent, stale, revoked, or unknown evidence leaves action unavailable.
+    productionOpenApi: excluded
+    productionRouteManifest: excluded
+    runtimeAdmission: NOT_ADMITTED
+  transportBinding:
+    decisionRef: .product-experience/decision-log.md#PXD-236
+    method: POST
+    path: /dev/v1/projects/{projectId}/storyboard-plans
+    operationRef: media.operation.action.save-storyboard-revision
+    requestRef: .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@actionRef=media.action.save-storyboard-revision
+    exactResult: Exact persisted ScenePlan edition, bound references, durable DEV_ONLY store receipt, and observedAt
+    implementationStatus: NOT_ASSERTED
+    runtimeAdmission: NOT_ADMITTED
   actionDefinitionSemantics:
     actionRef: media.action.save-storyboard-revision
     typedDefinition:
       ownerDefinitionDecisionRef: .product-experience/decision-log.md#PXD-075
+      transportDefinitionDecisionRef: .product-experience/decision-log.md#PXD-236
       semanticRole: DOMAIN_OPERATION
       effectKind: consequential-operation-unbound
       reversibilityDisposition: NOT_REVERSIBLE
       confirmationDisposition: REQUIRED
-      confirmationRequirement: Show the exact target, scope, and effect before recording; final
-        confirmation and required fields need owner review.
+      confirmationRequirement: Before dispatch, show and explicitly confirm the exact host-derived
+        tenant/workspace/project, ScenePlan edition, ordered SceneGraph versions, Timeline snapshot,
+        expected project revision and parent version, append-only effect, and request identity.
       actorRefs:
         - media.creator
         - media.editor
@@ -11537,8 +11556,29 @@ actions:
       exactOperationRefs:
         - media.operation.action.save-storyboard-revision
       runtimeAdmission: NOT_ADMITTED
-      acceptanceLimit: Identity/effect classification is source definition only; unresolved binding or
-        external contract remains explicit.
+      acceptanceLimit: PXD-236 defines only the DEV_ONLY route and visibility; independent review,
+        capability admission, source-rights authority, runtime implementation, and production admission remain open.
+      devOnlyTransportBinding:
+        method: POST
+        path: /dev/v1/projects/{projectId}/storyboard-plans
+        ownerWireContractRef: .product-experience/pdp-1-domain-data/owner-action-wire-contracts.yaml#records/@actionRef=media.action.save-storyboard-revision
+        identitySource: authenticated-host-only
+        projectPathMustMatchExactTarget: true
+        exactRefs: [scenePlanRef, orderedSceneRefs, timelineRef, boundProjectRevisionRef]
+        minimumSceneRefs: 1
+        maximumSceneRefs: 256
+        currentRightsRequiredBeforeSourceReadWriteOrRender: true
+        explicitConfirmationRequired: true
+        projectHeadAndPlanParentCasRequired: true
+        appendOnlyImmutableReceiptRequired: true
+        sameRequestSamePayload: replay-original-receipt
+        sameRequestDifferentPayload: IDEMPOTENCY_CONFLICT
+        unknownOutcome: reconcile-exact-request-before-retry
+        visibility: DEV_ONLY; MEDIA_PROJECT_TIMELINE_DEV_ENABLED=true; host-derived scope and all current authorities required
+        productionOpenApi: excluded
+        productionRouteManifest: excluded
+        implementationStatus: NOT_ASSERTED
+        runtimeAdmission: NOT_ADMITTED
       canonicalOperationBindings:
         sourceRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts.records/media.operation.action.save-storyboard-revision
         operationRef: media.operation.action.save-storyboard-revision
@@ -11556,8 +11596,8 @@ actions:
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.identityAuthenticationAndDelegation
           - .product-experience/pdp-1-domain-data/authority.yaml#ownership.privilegedEffects
         profileRef: media.operation-profile.immutable-append.v1
-        scopeStatus: Media-owner-defined exact logical operation; independent PDP1/PDP3 review open;
-          transport/runtime NOT_ADMITTED
+        scopeStatus: PXD-236 binds a DEV_ONLY candidate transport; independent PDP1/PDP3 review,
+          capability/source-rights authorities, and runtime remain NOT_ADMITTED
         runtimeAdmission: NOT_ADMITTED
       operationRef: media.operation.action.save-storyboard-revision
       orderedOperationRefs: []
