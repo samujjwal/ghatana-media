@@ -280,6 +280,7 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
                 verifyRowPayloadOccurrenceMismatchFailsBeforePublish();
                 verifyConcurrentClaimFencing();
                 verifyTenantCursorNeverMovesBackward();
+                verifyCursorUpdateFailureLeavesAckPendingAndRecoversByReadback();
                 verifyExpiredClaimRecovery();
                 verifyExpiredClaimBeforePostReadsBackThenPublishes();
                 verifyPriorAttemptReadsBackBeforePublish();
@@ -752,6 +753,137 @@ class PostgresqlMediaLifecycleOutboxSourceTest {
             assertThat(delete.executeUpdate()).isEqualTo(2);
         } finally {
             state.release();
+        }
+    }
+
+    private static void verifyCursorUpdateFailureLeavesAckPendingAndRecoversByReadback() throws Exception {
+        String eventId = "media:test:cursor-ack-rollback";
+        insertEvent(eventId);
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (var connection = state.connection(); var insert = connection.prepareStatement(
+                "INSERT INTO media_processing_lifecycle_event_plane_cursor "
+                        + "(tenant_id,last_offset,last_stream_id,last_event_id,last_stored_event_id,updated_at) "
+                        + "VALUES(?,?,?,?,?,?)")) {
+            insert.setString(1, "tenant-a");
+            insert.setString(2, "1");
+            insert.setString(3, "media-lifecycle");
+            insert.setString(4, "media:test:prior-cursor-event");
+            insert.setString(5, "media:test:prior-stored-event");
+            insert.setLong(6, System.currentTimeMillis());
+            insert.executeUpdate();
+        } finally {
+            state.release();
+        }
+
+        AtomicInteger appendEffects = new AtomicInteger();
+        AtomicInteger exactReadbacks = new AtomicInteger();
+        MediaLifecycleEventPublisher publisher = new MediaLifecycleEventPublisher() {
+            @Override public String publisherId() { return "test-reconciling-publisher"; }
+            @Override public boolean ready() { return true; }
+            @Override public boolean productionEligible() { return false; }
+            @Override public void publish(MediaLifecycleEvent event) { appendEffects.incrementAndGet(); }
+            @Override public MediaLifecyclePublicationReceipt publishWithReceipt(
+                    MediaLifecycleEvent event, boolean exactReadbackRequired) {
+                if (exactReadbackRequired) exactReadbacks.incrementAndGet();
+                else appendEffects.incrementAndGet();
+                return new MediaLifecyclePublicationReceipt(event.eventId(),
+                        MediaLifecyclePublicationReceipt.stableStoredEventId(event.eventId()),
+                        "media-lifecycle", "7");
+            }
+        };
+        var source = source(3, Duration.ofSeconds(2), Duration.ofMillis(50), Duration.ofMillis(200));
+        try {
+            state = MediaAwsPostgresqlRuntimeState.acquire();
+            try (var connection = state.connection(); var statement = connection.createStatement()) {
+                statement.execute("ALTER TABLE media_processing_lifecycle_event_plane_cursor "
+                        + "ADD CONSTRAINT media_test_reject_cursor_7 CHECK (last_offset <> '7')");
+            } finally {
+                state.release();
+            }
+
+            assertThat(source.publishPending(publisher, 1).failed()).isEqualTo(1);
+            state = MediaAwsPostgresqlRuntimeState.acquire();
+            try (var connection = state.connection(); var query = connection.prepareStatement(
+                    "SELECT attempts,published_at,event_plane_offset,claim_owner "
+                            + "FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+                query.setString(1, eventId);
+                try (var row = query.executeQuery()) {
+                    assertThat(row.next()).isTrue();
+                    assertThat(row.getInt("attempts")).isZero();
+                    assertThat(row.getObject("published_at")).isNull();
+                    assertThat(row.getString("event_plane_offset")).isNull();
+                    assertThat(row.getString("claim_owner")).isNotNull();
+                }
+            } finally {
+                state.release();
+            }
+            state = MediaAwsPostgresqlRuntimeState.acquire();
+            try (var connection = state.connection(); var query = connection.prepareStatement(
+                    "SELECT last_offset FROM media_processing_lifecycle_event_plane_cursor WHERE tenant_id=?")) {
+                query.setString(1, "tenant-a");
+                try (var row = query.executeQuery()) {
+                    assertThat(row.next()).isTrue();
+                    assertThat(row.getString("last_offset")).isEqualTo("1");
+                }
+            } finally {
+                state.release();
+            }
+            assertThat(appendEffects).hasValue(1);
+
+            state = MediaAwsPostgresqlRuntimeState.acquire();
+            try (var connection = state.connection(); var statement = connection.createStatement()) {
+                statement.execute("ALTER TABLE media_processing_lifecycle_event_plane_cursor "
+                        + "DROP CONSTRAINT media_test_reject_cursor_7");
+            } finally {
+                state.release();
+            }
+            expireClaim(eventId);
+            assertThat(source.publishPending(publisher, 1).published()).isEqualTo(1);
+            assertThat(appendEffects).hasValue(1);
+            assertThat(exactReadbacks).hasValue(1);
+
+            state = MediaAwsPostgresqlRuntimeState.acquire();
+            try (var connection = state.connection();
+                 var outbox = connection.prepareStatement(
+                         "SELECT attempts,published_at,event_plane_offset FROM "
+                                 + "media_processing_lifecycle_outbox WHERE event_id=?");
+                 var cursor = connection.prepareStatement(
+                         "SELECT last_offset,last_event_id FROM "
+                                 + "media_processing_lifecycle_event_plane_cursor WHERE tenant_id=?")) {
+                outbox.setString(1, eventId);
+                try (var row = outbox.executeQuery()) {
+                    assertThat(row.next()).isTrue();
+                    assertThat(row.getInt("attempts")).isEqualTo(1);
+                    assertThat(row.getLong("published_at")).isPositive();
+                    assertThat(row.getString("event_plane_offset")).isEqualTo("7");
+                }
+                cursor.setString(1, "tenant-a");
+                try (var row = cursor.executeQuery()) {
+                    assertThat(row.next()).isTrue();
+                    assertThat(row.getString("last_offset")).isEqualTo("7");
+                    assertThat(row.getString("last_event_id")).isEqualTo(eventId);
+                }
+            } finally {
+                state.release();
+            }
+        } finally {
+            source.close();
+            state = MediaAwsPostgresqlRuntimeState.acquire();
+            try (var connection = state.connection(); var statement = connection.createStatement()) {
+                statement.execute("ALTER TABLE media_processing_lifecycle_event_plane_cursor "
+                        + "DROP CONSTRAINT IF EXISTS media_test_reject_cursor_7");
+                try (var deleteCursor = connection.prepareStatement(
+                        "DELETE FROM media_processing_lifecycle_event_plane_cursor WHERE tenant_id=?");
+                     var deleteOutbox = connection.prepareStatement(
+                             "DELETE FROM media_processing_lifecycle_outbox WHERE event_id=?")) {
+                    deleteCursor.setString(1, "tenant-a");
+                    deleteCursor.executeUpdate();
+                    deleteOutbox.setString(1, eventId);
+                    deleteOutbox.executeUpdate();
+                }
+            } finally {
+                state.release();
+            }
         }
     }
 
