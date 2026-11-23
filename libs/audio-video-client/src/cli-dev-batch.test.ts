@@ -36,15 +36,17 @@ beforeAll(async () => {
   preload = join(directory, 'fetch.mjs');
   // requestId prefixes steer the fake host: `bad-*` -> typed 404, `lost-*` -> 502 (outcome unknown), otherwise success.
   await writeFile(preload, `
-import { appendFileSync } from 'node:fs';
+import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 const sha = ${JSON.stringify(sha)};
 const err = (status, code) => json({ error: { code, message: 'host message', retryable: status >= 500 }, meta: { correlationId: 'corr-1' } }, status);
-const render = (b, replayed) => ({ renderId: 'render-1', artifact: { artifactId: 'render-1', artifactVersionId: 'sha256:' + sha,
+const render = (b = {}, replayed = false) => ({ renderId: 'render-1', artifact: { artifactId: 'render-1', artifactVersionId: 'sha256:' + sha,
   contentType: 'image/gif', sizeBytes: 900, sha256: sha, artifactPath: '/api/v1/artifacts/render-1' },
-  lineage: { scope: 'DEV_ONLY', renderSchema: 'media.dev.render.v1', engine: 'fixture-engine', projectId: 'project-a', revisionId: b.revisionId,
-    timelineId: b.timelineId, requestId: b.requestId, width: b.width, height: b.height, framesPerSecond: b.framesPerSecond, frameCount: 20,
-    format: 'gif', sources: [{ clipId: 'c1' }] }, replayed, scope: 'DEV_ONLY' });
+  lineage: { scope: 'DEV_ONLY', renderSchema: 'media.dev.render.v1', engine: 'fixture-engine', projectId: 'project-a',
+    revisionId: b.revisionId ?? 'rev-1', timelineId: b.timelineId ?? 'timeline-main', timelineSemanticVersionId: 'sem-1',
+    requestId: b.requestId ?? 'req-1', width: b.width ?? 32, height: b.height ?? 24,
+    framesPerSecond: b.framesPerSecond ?? 10, frameCount: 20, format: 'gif',
+    sources: [{ clipId: 'c1', trackId: 'track-c1', artifactId: 'source-c1', artifactVersionId: 'sha256:' + sha }] }, replayed, scope: 'DEV_ONLY' });
 const exp = (id, replayed, b) => ({ requestId: id, artifactId: b?.artifactId ?? 'artifact-a', artifactVersionId: b?.artifactVersionId ?? 'sha256:' + sha, artifactDigest: sha,
   destinationId: 'dev-local-directory', status: 'DESTINATION_CONFIRMED', acknowledgedBytes: 900, destinationConfirmed: true,
   destinationReceiptRef: 'receipt-1', replayed, scope: 'DEV_ONLY',
@@ -55,6 +57,13 @@ const job = (id, requestId, status) => ({ jobId: id, requestId, tenantId: 'tenan
   completedAt: ['COMPLETED', 'FAILED', 'CANCELLED'].includes(status) ? '2026-01-01T00:00:01Z' : null, result: {}, failureCode: status === 'FAILED' ? 'PROVIDER_FAILED' : null,
   version: 1, expectedArtifactVersion: '', requestFingerprint: '' });
 const seen = new Set();
+const readReplayState = () => {
+  try { return JSON.parse(readFileSync(process.env.FIXTURE_REPLAY_STATE, 'utf8')); }
+  catch { return {}; }
+};
+const writeReplayState = state => {
+  if (process.env.FIXTURE_REPLAY_STATE) writeFileSync(process.env.FIXTURE_REPLAY_STATE, JSON.stringify(state));
+};
 globalThis.fetch = async (input, init = {}) => {
   const url = new URL(String(input));
   const body = init.body ? JSON.parse(String(init.body)) : undefined;
@@ -72,10 +81,21 @@ globalThis.fetch = async (input, init = {}) => {
       : reads >= 3 ? 'COMPLETED' : 'RUNNING';
     return json(job(jobId, rid, status));
   }
+  if (url.pathname === '/dev/v1/exports' && init.method === 'POST' && process.env.FIXTURE_REPLAY_STATE) {
+    const replayState = readReplayState();
+    const prior = replayState[body.requestId];
+    if (prior) return json({ ...prior.response, replayed: true }, 200);
+    const response = exp(body.requestId, false, body);
+    replayState[body.requestId] = { response, effectCount: 1 };
+    writeReplayState(replayState);
+    if (body.requestId.startsWith('lost-after-effect-')) return json({ nope: true }, 502);
+    return json(response, 201);
+  }
   const id = body?.requestId ?? url.pathname.split('/').at(-1);
   if (id?.startsWith('lost-')) return json({ nope: true }, 502);
   if (id?.startsWith('bad-')) return err(404, 'PROJECT_NOT_FOUND');
   if (url.pathname.endsWith('/renders') && init.method === 'POST') { const r = seen.has(id); seen.add(id); return json(render(body, r), r ? 200 : 201); }
+  if (url.pathname.includes('/renders/')) return json(render(undefined, true), 200);
   if (url.pathname === '/dev/v1/exports' && init.method === 'POST') return json(exp(id, false, body), 201);
   if (url.pathname.startsWith('/dev/v1/exports/')) return json(exp(id, true), 200);
   return err(404, 'NOT_FOUND');
@@ -158,6 +178,37 @@ describe('ghatanamedia-api-dev batch run', () => {
     const out = JSON.parse(result.stdout);
     expect(out.items[0].error.requestId).toBe('lost-1');
     expect(out.summary).toMatchObject({ success: false, outcomeUnknown: 1, notRun: 1 });
+  });
+
+  it('resumes a lost batch item after the CLI process restarts using the same request identity', async () => {
+    const statePath = join(directory, 'export-replay-state.json');
+    const file = join(directory, 'batch-after-lost-ack.json');
+    const requestId = 'lost-after-effect-cli-restart';
+    await rm(logPath, { force: true });
+    await rm(statePath, { force: true });
+    await writeFile(file, JSON.stringify({ schemaVersion: 'media.dev.batch.v1', items: [exportItem('e1', requestId)] }));
+
+    const firstProcess = await invoke(devBin, ['batch', 'run', ...base, '--file', file], {
+      FIXTURE_REPLAY_STATE: statePath,
+    });
+    expect(firstProcess.status).toBe(1);
+    expect(statuses(firstProcess.stdout)).toEqual(['OUTCOME_UNKNOWN']);
+    expect(JSON.parse(firstProcess.stdout).items[0].error.requestId).toBe(requestId);
+
+    const restartedProcess = await invoke(devBin, ['batch', 'run', ...base, '--file', file], {
+      FIXTURE_REPLAY_STATE: statePath,
+    });
+    expect(restartedProcess.status).toBe(0);
+    expect(statuses(restartedProcess.stdout)).toEqual(['SUCCESS']);
+    expect(JSON.parse(restartedProcess.stdout).items[0].result.export)
+      .toMatchObject({ requestId, destinationConfirmed: true, replayed: true });
+
+    const persisted = JSON.parse(await readFile(statePath, 'utf8'));
+    expect(persisted[requestId].effectCount).toBe(1);
+    const requests = (await readFile(logPath, 'utf8')).split('\n').filter(Boolean)
+      .map(line => JSON.parse(line) as Record<string, unknown>);
+    expect(requests.filter(request => request.method === 'POST' && request.path === '/dev/v1/exports'))
+      .toHaveLength(2);
   });
 
   it('exits with the worst item exit code', async () => {
