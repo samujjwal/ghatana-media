@@ -63,6 +63,16 @@ class MediaProjectTimelineContractsTest {
     }
 
     @Test
+    void rationalTimesRejectNegativeTicksAndNonPositiveRates() {
+        assertThatThrownBy(() -> new RationalTime(-1, 24, 1, Clock.STORY))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new RationalTime(0, 0, 1, Clock.STORY))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new RationalTime(0, 24, 0, Clock.STORY))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void rationalTimeValueEqualityIgnoresEquivalentTickRateRepresentations() {
         RationalTime halfSecondAtTwoTicksPerSecond = new RationalTime(1, 2, 1, Clock.STORY);
         RationalTime halfSecondAtFourTicksPerSecond = new RationalTime(2, 4, 1, Clock.STORY);
@@ -90,6 +100,69 @@ class MediaProjectTimelineContractsTest {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("clock domains");
     }
+
+    @Test
+    void graphEnforcesUniqueNodeIdsAndDeclaredOrderScopes() {
+        Scene first = new Scene("scene-1", 0);
+        Scene second = new Scene("scene-2", 1);
+        Track firstTrack = new Track("track-1", first.sceneId(), TrackKind.VIDEO, 0);
+        Track secondTrack = new Track("track-2", second.sceneId(), TrackKind.AUDIO, 0);
+        Clip firstClip = clip("clip-1", first.sceneId(), firstTrack.trackId());
+
+        assertThatThrownBy(() -> new Graph("timeline", List.of(first, new Scene("scene-1", 1)), List.of(), List.of()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("duplicate sceneId");
+        assertThatThrownBy(() -> new Graph("timeline", List.of(first, new Scene("scene-2", 0)), List.of(), List.of()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("duplicate scene order");
+        assertThatThrownBy(() -> new Graph("timeline", List.of(first, second),
+                List.of(firstTrack, new Track("track-1", second.sceneId(), TrackKind.AUDIO, 0)), List.of()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("duplicate trackId");
+        assertThatThrownBy(() -> new Graph("timeline", List.of(first),
+                List.of(firstTrack, new Track("track-2", first.sceneId(), TrackKind.AUDIO, 0)), List.of()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("duplicate track order within scene");
+        assertThatThrownBy(() -> new Graph("timeline", List.of(first), List.of(firstTrack),
+                List.of(firstClip, clip("clip-1", first.sceneId(), firstTrack.trackId()))))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("duplicate clipId");
+
+        Graph graph = new Graph("timeline", List.of(first, second), List.of(firstTrack, secondTrack), List.of());
+        assertThat(graph.tracks()).containsExactly(firstTrack, secondTrack);
+    }
+
+    @Test
+    void graphRejectsDetachedTracksAndClips() {
+        Scene scene = new Scene("scene-1", 0);
+        Track track = new Track("track-1", scene.sceneId(), TrackKind.VIDEO, 0);
+        Clip clip = clip("clip-1", scene.sceneId(), track.trackId());
+
+        assertThatThrownBy(() -> new Graph("timeline", List.of(scene),
+                List.of(new Track("detached-track", "missing-scene", TrackKind.VIDEO, 0)), List.of()))
+                .isInstanceOf(IllegalArgumentException.class).hasMessage("track references a missing scene");
+        assertThatThrownBy(() -> new Graph("timeline", List.of(scene), List.of(), List.of(clip)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("clip scene and track must belong to the same graph scene");
+    }
+
+    @Test
+    void clipSourceIntervalAndStoryDurationMustBePositive() {
+        SourceVersion source = new SourceVersion("artifact", "version");
+        RationalTime sourceStart = new RationalTime(0, 24, 1, Clock.SOURCE_PRESENTATION);
+        RationalTime sourceEnd = new RationalTime(24, 24, 1, Clock.SOURCE_PRESENTATION);
+        RationalTime storyStart = new RationalTime(0, 24, 1, Clock.STORY);
+        RationalTime storyDuration = new RationalTime(24, 24, 1, Clock.STORY);
+
+        assertThatThrownBy(() -> new Clip("equal-source", "scene", "track", source,
+                sourceStart, sourceStart, storyStart, storyDuration))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("clip source interval and story duration must be positive");
+        assertThatThrownBy(() -> new Clip("reversed-source", "scene", "track", source,
+                sourceEnd, sourceStart, storyStart, storyDuration))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("clip source interval and story duration must be positive");
+        assertThatThrownBy(() -> new Clip("zero-story", "scene", "track", source,
+                sourceStart, sourceEnd, storyStart, new RationalTime(0, 24, 1, Clock.STORY)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("clip source interval and story duration must be positive");
+    }
+
 
     @Test
     void clipStoryEndUsesExactRationalAdditionAndRejectsUnrepresentableOverflow() {
