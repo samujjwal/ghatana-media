@@ -146,9 +146,10 @@ class StoryboardPlannerTest {
     void reviewIsASeparateImmutableReceiptForTheExactSavedEditionAndRechecksRights() {
         CountingRights rights = new CountingRights();
         StoryboardPlanner planner = new StoryboardPlanner(rights);
-        StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project-1", "head-6", "plan-review", "v1",
+        StoryboardPlanner.ScenePlan unboundPlan = planner.prepare(OWNER, "project-1", "head-6", "plan-review", "v1",
                 brief(List.of(SOURCE_B)), List.of(scene("scene", 0, 0,
                         List.of(shot("shot", 0, 0, List.of(SOURCE_A))))));
+        StoryboardPlanner.ScenePlan plan = bound(unboundPlan);
         StoryboardPlanner.SavedPlan saved = planner.save(OWNER, plan, null, "save-review", new MutableAuthority("head-6"));
         AtomicInteger reviewCalls = new AtomicInteger();
         StoryboardPlanner.ScenePlanReviewAuthority reviewAuthority = (reviewer, exact, revision, request) -> {
@@ -202,8 +203,9 @@ class StoryboardPlannerTest {
     void freshRightsAreRecheckedAtAppendAndMissingStaleRevokedOrUnknownSourcesFailClosed() {
         CountingRights rights = new CountingRights();
         StoryboardPlanner planner = new StoryboardPlanner(rights);
-        StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project-1", "head-1", "plan-2", "v1",
+        StoryboardPlanner.ScenePlan unboundPlan = planner.prepare(OWNER, "project-1", "head-1", "plan-2", "v1",
                 brief(List.of()), List.of(scene("scene", 0, 0, List.of(shot("shot", 0, 0, List.of(SOURCE_A))))));
+        StoryboardPlanner.ScenePlan plan = bound(unboundPlan);
         MutableAuthority authority = new MutableAuthority("head-1");
         planner.save(OWNER, plan, null, "save-1", authority);
         assertThat(rights.calls()).isEqualTo(2); // once for candidate preparation and once immediately before append
@@ -230,9 +232,10 @@ class StoryboardPlannerTest {
     void revokedOrUnknownSourceBetweenPreparationAndSaveBlocksAppend() {
         CountingRights rights = new CountingRights();
         StoryboardPlanner planner = new StoryboardPlanner(rights);
-        StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project-1", "head-revoke", "plan-revoke", "v1",
+        StoryboardPlanner.ScenePlan unboundPlan = planner.prepare(OWNER, "project-1", "head-revoke", "plan-revoke", "v1",
                 brief(List.of()), List.of(scene("scene", 0, 0,
                         List.of(shot("shot", 0, 0, List.of(SOURCE_A))))));
+        StoryboardPlanner.ScenePlan plan = bound(unboundPlan);
         MutableAuthority authority = new MutableAuthority("head-revoke");
 
         rights.decision(SOURCE_A, StoryboardPlanner.SourceDecision.REVOKED);
@@ -249,12 +252,14 @@ class StoryboardPlannerTest {
     @Test
     void forgedAppendReceiptForAnotherEditionIsRejected() {
         StoryboardPlanner planner = new StoryboardPlanner(new CountingRights());
-        StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project-1", "head-receipt", "plan-receipt", "v1",
+        StoryboardPlanner.ScenePlan unboundPlan = planner.prepare(OWNER, "project-1", "head-receipt", "plan-receipt", "v1",
                 brief(List.of()), List.of(scene("scene", 0, 0,
                         List.of(shot("shot", 0, 0, List.of())))));
-        StoryboardPlanner.ScenePlan other = planner.prepare(OWNER, "project-1", "head-receipt", "plan-other", "v1",
+        StoryboardPlanner.ScenePlan otherUnbound = planner.prepare(OWNER, "project-1", "head-receipt", "plan-other", "v1",
                 brief(List.of()), List.of(scene("other-scene", 0, 0,
                         List.of(shot("other-shot", 0, 0, List.of())))));
+        StoryboardPlanner.ScenePlan plan = bound(unboundPlan);
+        StoryboardPlanner.ScenePlan other = bound(otherUnbound);
         StoryboardPlanner.ScenePlanAuthority forged = (actor, requested, head, parent, requestId) ->
                 new StoryboardPlanner.SavedPlan(other, "controlled-test-receipt");
 
@@ -266,9 +271,10 @@ class StoryboardPlannerTest {
     @Test
     void missingDurablePlanAndReviewAuthoritiesFailClosed() {
         StoryboardPlanner planner = new StoryboardPlanner(new CountingRights());
-        StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project-1", "head-unavailable", "plan-unavailable", "v1",
+        StoryboardPlanner.ScenePlan unboundPlan = planner.prepare(OWNER, "project-1", "head-unavailable", "plan-unavailable", "v1",
                 brief(List.of()), List.of(scene("scene", 0, 0,
                         List.of(shot("shot", 0, 0, List.of())))));
+        StoryboardPlanner.ScenePlan plan = bound(unboundPlan);
         NotAdmittedStoryboardAuthority unavailable = new NotAdmittedStoryboardAuthority();
 
         assertThatThrownBy(() -> planner.save(OWNER, plan, null, "save-unavailable", unavailable))
@@ -291,15 +297,17 @@ class StoryboardPlannerTest {
     void staleProjectHeadPlanParentAndDuplicateVersionAreConflictsWithoutReplacingPriorEdition() {
         StoryboardPlanner planner = new StoryboardPlanner(new CountingRights());
         MutableAuthority authority = new MutableAuthority("head-3");
-        StoryboardPlanner.ScenePlan first = planner.prepare(OWNER, "project-1", "head-3", "plan-3", "v1",
+        StoryboardPlanner.ScenePlan firstUnbound = planner.prepare(OWNER, "project-1", "head-3", "plan-3", "v1",
                 brief(List.of()), List.of(scene("scene-1", 0, 0, List.of(shot("shot-1", 0, 0, List.of())))));
+        StoryboardPlanner.ScenePlan first = bound(firstUnbound);
         StoryboardPlanner.SavedPlan saved = planner.save(OWNER, first, null, "save-2", authority);
         assertThat(saved.plan().semanticVersion()).isEqualTo("v1");
         assertThatThrownBy(() -> planner.save(OWNER, first, null, "save-3", authority))
                 .isInstanceOf(StoryboardPlanner.DuplicateScenePlanVersionException.class);
 
-        StoryboardPlanner.ScenePlan successor = planner.prepare(OWNER, "project-1", "head-3", "plan-3", "v2",
+        StoryboardPlanner.ScenePlan successorUnbound = planner.prepare(OWNER, "project-1", "head-3", "plan-3", "v2",
                 brief(List.of()), List.of(scene("scene-2", 0, 1, List.of(shot("shot-2", 0, 1, List.of())))));
+        StoryboardPlanner.ScenePlan successor = bound(successorUnbound);
         assertThatThrownBy(() -> planner.save(OWNER, successor, "wrong-parent", "save-4", authority))
                 .isInstanceOf(StoryboardPlanner.ScenePlanConflictException.class)
                 .hasMessageContaining("plan parent");
@@ -316,9 +324,10 @@ class StoryboardPlannerTest {
     void blankParentSemanticVersionCannotBeSilentlyReinterpretedAsNoParent() {
         CountingRights rights = new CountingRights();
         StoryboardPlanner planner = new StoryboardPlanner(rights);
-        StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project-1", "head-parent", "plan-parent", "v1",
+        StoryboardPlanner.ScenePlan unboundPlan = planner.prepare(OWNER, "project-1", "head-parent", "plan-parent", "v1",
                 brief(List.of(SOURCE_A)), List.of(scene("scene-parent", 0, 0,
                         List.of(shot("shot-parent", 0, 0, List.of())))));
+        StoryboardPlanner.ScenePlan plan = bound(unboundPlan);
         MutableAuthority authority = new MutableAuthority("head-parent");
         int rightsReadsBeforeSave = rights.calls();
 
@@ -569,11 +578,173 @@ class StoryboardPlannerTest {
     }
 
     @Test
+    void bindingPreservesPositionOrderAndRequiresExactPlanSceneAndRevisionTimelineReferences() {
+        StoryboardPlanner planner = new StoryboardPlanner(new CountingRights(), timelineEngine(OWNER,
+                "project-binding", "revision-binding", List.of(
+                new TimelineSnapshot("timeline-semantic-v7", Graph.empty("timeline-main")),
+                new TimelineSnapshot("timeline-semantic-v8", Graph.empty("timeline-alt")))));
+        StoryboardPlanner.ScenePlan draft = planner.prepare(OWNER, "project-binding", "revision-binding",
+                "plan-binding", "v3", brief(List.of()), List.of(
+                        scene("scene-later-order", 1, 0, List.of(shot("shot-b", 0, 0, List.of()))),
+                        scene("scene-first-order", 0, 30, List.of(shot("shot-a", 0, 30, List.of())))));
+        StoryboardPlanner.ScenePlanRef planRef = new StoryboardPlanner.ScenePlanRef(
+                "tenant-a", "project-binding", "plan-binding", "v3");
+        StoryboardPlanner.SceneGraphRef firstRef = new StoryboardPlanner.SceneGraphRef(
+                "tenant-a", "project-binding", "graph-authored-first", "graph-v5");
+        StoryboardPlanner.SceneGraphRef secondRef = new StoryboardPlanner.SceneGraphRef(
+                "tenant-a", "project-binding", "graph-authored-second", "graph-v2");
+        List<StoryboardPlanner.SceneGraphRef> orderedRefs = List.of(firstRef, secondRef);
+        StoryboardPlanner.TimelineRef timelineRef = new StoryboardPlanner.TimelineRef(
+                "tenant-a", "project-binding", "timeline-main", "timeline-semantic-v7");
+
+        StoryboardPlanner.ScenePlan bound = planner.bind(OWNER, draft, "revision-binding", planRef, orderedRefs, timelineRef);
+
+        assertThat(bound.binding().scenePlanRef()).isEqualTo(planRef);
+        assertThat(bound.scenes()).extracting(StoryboardPlanner.PlannedScene::sceneId)
+                .containsExactly("scene-first-order", "scene-later-order");
+        assertThat(bound.binding().sceneRefs()).containsExactly(firstRef, secondRef);
+        assertThat(bound.binding().expectedProjectRevisionId()).isEqualTo("revision-binding");
+        assertThat(bound.binding().timelineRef()).isEqualTo(timelineRef);
+        assertThat(bound.binding().timelineSnapshotSemanticVersionId()).isEqualTo("timeline-semantic-v7");
+        assertThat(bound.binding().sceneRefs().getFirst().sceneGraphId()).isNotEqualTo(bound.scenes().getFirst().sceneId());
+
+        assertThatThrownBy(() -> planner.bind(OWNER, draft, "revision-binding", planRef, List.of(firstRef), timelineRef))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exactly one reference per ordered planned scene");
+        assertThatThrownBy(() -> planner.bind(OWNER, draft, "revision-binding", planRef,
+                List.of(firstRef, secondRef, new StoryboardPlanner.SceneGraphRef(
+                        "tenant-a", "project-binding", "graph-extra", "graph-v1")), timelineRef))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exactly one reference per ordered planned scene");
+        assertThatThrownBy(() -> planner.bind(OWNER, draft, "revision-binding", planRef,
+                List.of(firstRef, firstRef), timelineRef))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("unique");
+        assertThatThrownBy(() -> planner.bind(OWNER, draft, "revision-binding", planRef,
+                List.of(firstRef, new StoryboardPlanner.SceneGraphRef(
+                        "tenant-b", "project-binding", "graph-foreign-tenant", "graph-v1")), timelineRef))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("plan tenant and project");
+        assertThatThrownBy(() -> planner.bind(OWNER, draft, "revision-binding",
+                new StoryboardPlanner.ScenePlanRef("tenant-a", "project-binding", "other-plan", "v3"),
+                orderedRefs, timelineRef))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exact prepared plan edition");
+        assertThatThrownBy(() -> planner.bind(OWNER, draft, "revision-newer", planRef, orderedRefs, timelineRef))
+                .isInstanceOf(StoryboardPlanner.ScenePlanConflictException.class)
+                .hasMessageContaining("expected ProjectRevision");
+        assertThatThrownBy(() -> planner.bind(OWNER, draft, "revision-binding", planRef, orderedRefs,
+                new StoryboardPlanner.TimelineRef("tenant-a", "project-binding", "timeline-absent", "timeline-semantic-v7")))
+                .isInstanceOf(StoryboardPlanner.ScenePlanConflictException.class)
+                .hasMessageContaining("not contained in the expected ProjectRevision");
+        assertThatThrownBy(() -> planner.bind(OWNER, draft, "revision-binding", planRef, orderedRefs,
+                new StoryboardPlanner.TimelineRef("tenant-a", "project-binding", "timeline-main", "timeline-semantic-v8")))
+                .isInstanceOf(StoryboardPlanner.ScenePlanConflictException.class)
+                .hasMessageContaining("does not match the snapshot");
+        assertThatThrownBy(() -> planner.bind(OWNER, bound, "revision-binding", planRef, orderedRefs, timelineRef))
+                .isInstanceOf(StoryboardPlanner.ScenePlanAuthorityProtocolException.class)
+                .hasMessageContaining("cannot be rebound");
+
+        assertThatThrownBy(() -> new StoryboardPlanner.ScenePlan(bound.tenantId(), bound.ownerPrincipalId(),
+                bound.projectId(), bound.scenePlanId(), bound.semanticVersion(), bound.expectedProjectRevisionId(),
+                new StoryboardPlanner.AuthoredBrief("brief-1", "b1", "personal-project", "changed brief", List.of()),
+                bound.scenes(), bound.exactSources(), bound.disposition(), bound.binding()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exact prepared storyboard payload");
+        StoryboardPlanner.PlannedScene originalScene = bound.scenes().getFirst();
+        StoryboardPlanner.PlannedScene changedScene = new StoryboardPlanner.PlannedScene(originalScene.sceneId(),
+                originalScene.authoredOrder(), "changed scene intent", originalScene.storyStart(),
+                originalScene.storyDuration(), originalScene.shots());
+        assertThatThrownBy(() -> new StoryboardPlanner.ScenePlan(bound.tenantId(), bound.ownerPrincipalId(),
+                bound.projectId(), bound.scenePlanId(), bound.semanticVersion(), bound.expectedProjectRevisionId(),
+                bound.brief(), List.of(changedScene, bound.scenes().get(1)), bound.exactSources(),
+                bound.disposition(), bound.binding()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("exact prepared storyboard payload");
+    }
+
+    @Test
+    void unboundLocalDraftCannotBeAppendedOrReviewed() {
+        StoryboardPlanner planner = new StoryboardPlanner(new CountingRights());
+        StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project-unbound", "revision-unbound",
+                "plan-unbound", "v1", brief(List.of()), List.of(scene("scene", 0, 0,
+                        List.of(shot("shot", 0, 0, List.of())))));
+        StoryboardPlanner.ScenePlanRef planRef = new StoryboardPlanner.ScenePlanRef(
+                "tenant-a", "project-unbound", "plan-unbound", "v1");
+        StoryboardPlanner.SceneGraphRef sceneRef = new StoryboardPlanner.SceneGraphRef(
+                "tenant-a", "project-unbound", "graph-unbound", "v1");
+        StoryboardPlanner.TimelineRef timelineRef = new StoryboardPlanner.TimelineRef(
+                "tenant-a", "project-unbound", "timeline-unbound", "v1");
+        assertThatThrownBy(() -> planner.bind(OWNER, plan, "revision-unbound", planRef,
+                List.of(sceneRef), timelineRef))
+                .isInstanceOf(StoryboardPlanner.ScenePlanAuthorityProtocolException.class)
+                .hasMessageContaining("ProjectTimelineEngine is required");
+        AtomicInteger appendCalls = new AtomicInteger();
+        StoryboardPlanner.ScenePlanAuthority authority = (actor, requested, revision, parent, requestId) -> {
+            appendCalls.incrementAndGet();
+            return new StoryboardPlanner.SavedPlan(requested, "receipt");
+        };
+
+        assertThatThrownBy(() -> planner.save(OWNER, plan, null, "save-unbound", authority))
+                .isInstanceOf(StoryboardPlanner.ScenePlanAuthorityProtocolException.class)
+                .hasMessageContaining("must be bound");
+        assertThat(appendCalls).hasValue(0);
+        StoryboardPlanner.SavedPlan fabricatedSaved = new StoryboardPlanner.SavedPlan(plan, "receipt");
+        assertThatThrownBy(() -> planner.review(OWNER, fabricatedSaved, "revision-unbound", "review-unbound",
+                (reviewer, saved, revision, requestId) -> {
+                    throw new AssertionError("unbound draft must not reach review authority");
+                }))
+                .isInstanceOf(StoryboardPlanner.ScenePlanAuthorityProtocolException.class)
+                .hasMessageContaining("must be bound");
+    }
+
+    @Test
+    void changedOrderedSceneRefsUnderSameRequestIdentityAreAReplayConflict() {
+        StoryboardPlanner planner = new StoryboardPlanner(new CountingRights());
+        StoryboardPlanner.ScenePlan draft = planner.prepare(OWNER, "project-replay", "revision-replay",
+                "plan-replay", "v1", brief(List.of()), List.of(
+                        scene("scene-a", 0, 0, List.of(shot("shot-a", 0, 0, List.of()))),
+                        scene("scene-b", 1, 10, List.of(shot("shot-b", 0, 10, List.of())))));
+        StoryboardPlanner.ScenePlanRef planRef = new StoryboardPlanner.ScenePlanRef(
+                "tenant-a", "project-replay", "plan-replay", "v1");
+        StoryboardPlanner.SceneGraphRef graphA = new StoryboardPlanner.SceneGraphRef(
+                "tenant-a", "project-replay", "graph-a", "graph-v1");
+        StoryboardPlanner.SceneGraphRef graphB = new StoryboardPlanner.SceneGraphRef(
+                "tenant-a", "project-replay", "graph-b", "graph-v1");
+        TimelineSnapshot snapshot = new TimelineSnapshot("timeline-v1", Graph.empty("timeline-replay"));
+        StoryboardPlanner bindingPlanner = new StoryboardPlanner(new CountingRights(),
+                timelineEngine(OWNER, "project-replay", "revision-replay", List.of(snapshot)));
+        StoryboardPlanner.TimelineRef timelineRef = new StoryboardPlanner.TimelineRef(
+                "tenant-a", "project-replay", "timeline-replay", "timeline-v1");
+        StoryboardPlanner.ScenePlan firstOrder = bindingPlanner.bind(OWNER, draft, "revision-replay", planRef,
+                List.of(graphA, graphB), timelineRef);
+        StoryboardPlanner.ScenePlan changedOrder = bindingPlanner.bind(OWNER, draft, "revision-replay", planRef,
+                List.of(graphB, graphA), timelineRef);
+        Map<String, StoryboardPlanner.ScenePlan> receipts = new HashMap<>();
+        StoryboardPlanner.ScenePlanAuthority authority = (actor, requested, head, parent, requestId) -> {
+            StoryboardPlanner.ScenePlan prior = receipts.putIfAbsent(requestId, requested);
+            if (prior != null && !prior.equals(requested)) {
+                throw new StoryboardPlanner.ScenePlanConflictException(
+                        "storyboard save requestId was already used with a different ordered payload");
+            }
+            if (prior != null) return new StoryboardPlanner.SavedPlan(prior, "original-receipt");
+            return new StoryboardPlanner.SavedPlan(requested, "original-receipt");
+        };
+
+        StoryboardPlanner.SavedPlan first = planner.save(OWNER, firstOrder, null, "same-request", authority);
+        assertThat(first.plan().binding().sceneRefs()).containsExactly(graphA, graphB);
+        assertThatThrownBy(() -> planner.save(OWNER, changedOrder, null, "same-request", authority))
+                .isInstanceOf(StoryboardPlanner.ScenePlanConflictException.class)
+                .hasMessageContaining("different ordered payload");
+    }
+
+    @Test
     void storyboardSaveRequestIdsFollowOwnerActionWireShapeAndReviewRequiresAnIdentity() {
         StoryboardPlanner planner = new StoryboardPlanner(new CountingRights());
-        StoryboardPlanner.ScenePlan plan = planner.prepare(OWNER, "project-1", "head-request", "plan-request", "v1",
+        StoryboardPlanner.ScenePlan unboundPlan = planner.prepare(OWNER, "project-1", "head-request", "plan-request", "v1",
                 brief(List.of()), List.of(scene("scene", 0, 0,
                         List.of(shot("shot", 0, 0, List.of())))));
+        StoryboardPlanner.ScenePlan plan = bound(unboundPlan);
         AtomicInteger saveCalls = new AtomicInteger();
         StoryboardPlanner.ScenePlanAuthority saveAuthority = (actor, requested, head, parent, requestId) -> {
             saveCalls.incrementAndGet();
@@ -777,6 +948,32 @@ class StoryboardPlannerTest {
     private static StoryboardPlanner.ScenePlan directPlan(List<StoryboardPlanner.PlannedScene> scenes) {
         return new StoryboardPlanner.ScenePlan("tenant-a", "principal-a", "project-1", "plan-1", "v1",
                 "head-1", brief(List.of()), scenes, List.of(), StoryboardPlanner.DraftDisposition.LOCAL_DRAFT_CANDIDATE);
+    }
+
+    private static StoryboardPlanner.ScenePlan bound(StoryboardPlanner.ScenePlan draft) {
+        Actor actor = new Actor(draft.tenantId(), draft.ownerPrincipalId());
+        TimelineSnapshot timeline = new TimelineSnapshot("timeline-test-v1", Graph.empty("timeline-test"));
+        StoryboardPlanner planner = new StoryboardPlanner(new CountingRights(), timelineEngine(actor,
+                draft.projectId(), draft.expectedProjectRevisionId(), List.of(timeline)));
+        StoryboardPlanner.ScenePlanRef planRef = new StoryboardPlanner.ScenePlanRef(draft.tenantId(),
+                draft.projectId(), draft.scenePlanId(), draft.semanticVersion());
+        List<StoryboardPlanner.SceneGraphRef> sceneRefs = java.util.stream.IntStream.range(0, draft.scenes().size())
+                .mapToObj(index -> new StoryboardPlanner.SceneGraphRef(draft.tenantId(), draft.projectId(),
+                        "graph-test-" + index, "graph-test-v1"))
+                .toList();
+        StoryboardPlanner.TimelineRef timelineRef = new StoryboardPlanner.TimelineRef(draft.tenantId(),
+                draft.projectId(), timeline.timelineId(), timeline.semanticVersionId());
+        return planner.bind(actor, draft, draft.expectedProjectRevisionId(), planRef, sceneRefs, timelineRef);
+    }
+
+    private static ProjectTimelineEngine timelineEngine(Actor actor, String projectId, String revisionId,
+                                                         List<TimelineSnapshot> timelines) {
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        String parentRevisionId = "parent-" + revisionId;
+        store.create(actor, "workspace-test", "Storyboard test", "create-" + revisionId,
+                projectId, parentRevisionId);
+        store.commit(actor, projectId, parentRevisionId, revisionId, timelines);
+        return new ProjectTimelineEngine(store);
     }
 
     private static StoryboardPlanner.PlannedScene plannedScene(int index) {

@@ -120,7 +120,8 @@ class VideoRestorationSyntheticIntegrationTest {
         DecodedFrameSequence referenceSequence = new DecodedFrameSequence(reference.artifactId(), reference.versionId(),
                 reference.sha256(), timeBase, referenceFrames);
 
-        Result result = TemporalVideoRestoration.restore(new RestorationRequest("synthetic-restoration", source),
+        Result result = TemporalVideoRestoration.restore(new RestorationRequest("synthetic-restoration", source,
+                        FilterParameters.temporalMedian()),
                 (binding, operation) -> new AuthorityDecision(AuthorityStatus.ALLOWED, "SYNTHETIC_TEST_ONLY"),
                 PngFrameCodec.asTrustedDecodedFrameSource(requested -> {
                     assertThat(requested).isEqualTo(source);

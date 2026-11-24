@@ -166,7 +166,9 @@ final class MediaDelegatedPlans {
         for (Object type : types) {
             switch ((String) type) {
                 case "OBJECT_DETECTION" -> tasks.add("detect");
-                case "OCR" -> tasks.add("ocr");
+                // MDI-001 makes Document Intelligence the only OCR executor/gateway.
+                // Keep the agent tool fail-closed until it delegates through the DI public client.
+                case "OCR" -> throw new NotAdmittedException("VISION_ANALYSIS_TYPE_NOT_ADMITTED");
                 case "SCENE_CLASSIFICATION", "LABEL_DETECTION" -> tasks.add("caption");
                 default -> throw new NotAdmittedException("VISION_ANALYSIS_TYPE_NOT_ADMITTED");
             }

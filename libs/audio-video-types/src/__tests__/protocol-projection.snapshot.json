@@ -1215,8 +1215,18 @@
         "path": "/api/v1/jobs/{jobId}/cancel",
         "routeId": "POST /api/v1/jobs/{jobId}/cancel"
       },
-      "requestFields": [],
+      "requestFields": [
+        "expectedJobVersion",
+        "reason",
+        "requestId"
+      ],
       "parameters": [
+        {
+          "name": "Idempotency-Key",
+          "in": "header",
+          "required": true,
+          "type": "string"
+        },
         {
           "name": "X-Principal-Id",
           "in": "header",
@@ -1238,28 +1248,50 @@
       ],
       "responseFieldsByStatus": {
         "200": [
-          "artifactId",
-          "completedAt",
-          "createdAt",
-          "expectedArtifactVersion",
-          "failureCode",
+          "automaticRetryAllowed",
+          "cancellationRequestId",
+          "currentAttemptStates",
+          "currentJobState",
+          "job",
           "jobId",
-          "jobType",
-          "principalId",
-          "providerId",
-          "requestFingerprint",
+          "observedAt",
+          "operationRef",
+          "reconcilePath",
+          "replayed",
           "requestId",
-          "result",
-          "startedAt",
-          "status",
-          "tenantId",
-          "version"
+          "state"
+        ],
+        "202": [
+          "automaticRetryAllowed",
+          "cancellationRequestId",
+          "currentAttemptStates",
+          "currentJobState",
+          "job",
+          "jobId",
+          "observedAt",
+          "operationRef",
+          "reconcilePath",
+          "replayed",
+          "requestId",
+          "state"
+        ],
+        "400": [
+          "error",
+          "meta"
         ],
         "401": [
           "error",
           "meta"
         ],
+        "403": [
+          "error",
+          "meta"
+        ],
         "404": [
+          "error",
+          "meta"
+        ],
+        "409": [
           "error",
           "meta"
         ],

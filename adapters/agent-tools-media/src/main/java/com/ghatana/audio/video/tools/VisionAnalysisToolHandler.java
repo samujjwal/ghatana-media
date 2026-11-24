@@ -106,6 +106,12 @@ public final class VisionAnalysisToolHandler implements ToolHandler {
                     || types.stream().anyMatch(type -> !(type instanceof String s) || !Set.of("OBJECT_DETECTION", "SCENE_CLASSIFICATION", "OCR", "FACE_DETECTION", "LABEL_DETECTION", "CUSTOM_MODEL").contains(s)))
                 throw new IllegalArgumentException("INVALID_ANALYSIS_TYPES");
             @SuppressWarnings("unchecked") List<String> analysisTypes = (List<String>) types;
+            // MDI-001 assigns OCR execution to Document Intelligence. This tool has no DI client binding,
+            // so do not route OCR through the Media VISION job provider path.
+            if (analysisTypes.contains("OCR")) {
+                return Promise.of(MediaLauncherDelegate.notAdmitted(
+                        envelope, "VISION_ANALYSIS_TYPE_NOT_ADMITTED", start));
+            }
             int maxResults = AgentToolInput.boundedInt(input.getOrDefault("maxResults", 10));
             Object confidence = input.getOrDefault("confidenceThreshold", 0.5);
             if (!(confidence instanceof Number n) || !Double.isFinite(n.doubleValue()) || n.doubleValue() < 0 || n.doubleValue() > 1)

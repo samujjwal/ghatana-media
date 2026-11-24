@@ -96,10 +96,15 @@ review. Source-reference collections snapshot actual iterator traversal under a 
 ceiling; PDP-1 defines no per-list maximum, so this is an implementation resource bound rather than a
 product limit. No persistent storyboard adapter, reviewer authority, or renderer is currently admitted.
 The source-free example derives exact exclusive scene/shot endpoints for author inspection; it does not
-infer chronological scene order, continuity, or overlap policy. Before persistence, owner input must
-define whether authored order and story-time chronology are related and whether intervals may overlap
-or leave gaps, plus canonical `scenePlanRef`/`sceneRefs`/`timelineRef` mapping and one authority that
-atomically checks both project-head and parent semantic-version expectations.
+infer chronological scene order, continuity, or overlap policy. PXD-235 now defines that each immutable
+plan edition binds exactly one unique same-tenant/project SceneGraph version to each ordered planned
+scene by list position, plus one exact Timeline snapshot contained in the bound ProjectRevision. Editorial
+order is independent of STORY time; authored gaps and overlaps remain unchanged timing facts. The binding
+does not mutate the timeline graph or establish source rights or renderability. PXD-236 binds the candidate
+DEV_ONLY save route, but canonical reference-provider availability, current source-rights authority, trusted
+host capability/context, durable project-head and plan-parent CAS/readback, and genuine reviewer authority
+remain unimplemented. Until those authorities are supplied, the plan remains a local draft candidate and
+the save path must remain NOT_ADMITTED.
 
 ## Local conditioned-scene and tracked-region candidates
 

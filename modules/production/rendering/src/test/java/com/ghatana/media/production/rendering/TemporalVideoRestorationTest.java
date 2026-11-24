@@ -21,6 +21,12 @@ class TemporalVideoRestorationTest {
     private static final TimeBase TIME_BASE = new TimeBase(1, 30);
 
     @Test
+    void restorationRequestRequiresAnExplicitFilterSelection() {
+        assertThatThrownBy(() -> new RestorationRequest("request-1", sourceBinding(), null))
+                .isInstanceOf(NullPointerException.class).hasMessageContaining("filter");
+    }
+
+    @Test
     void authorityDecisionIdentityRejectsWhitespaceInsteadOfNormalizingRightsEvidence() {
         assertThatThrownBy(() -> new AuthorityDecision(AuthorityStatus.ALLOWED, " decision-v1 "))
                 .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("exact");
@@ -77,7 +83,8 @@ class TemporalVideoRestorationTest {
         assertThatThrownBy(() -> {
             var duplicate = new ArtifactBinding("tenant-a", "principal-a", "source", "v3", SOURCE_SHA,
                     "purpose:preserve-video", List.of("rights:video", "rights:video"), "policy:source:v3");
-            TemporalVideoRestoration.restore(new RestorationRequest("request-duplicate-rights", duplicate),
+            TemporalVideoRestoration.restore(new RestorationRequest("request-duplicate-rights", duplicate,
+                            FilterParameters.temporalMedian()),
                     (binding, operation) -> {
                         authorityCalls.incrementAndGet();
                         return allowed("source-decision-v3");
@@ -925,7 +932,7 @@ class TemporalVideoRestorationTest {
     }
 
     private static RestorationRequest request() {
-        return new RestorationRequest("request-1", sourceBinding());
+        return new RestorationRequest("request-1", sourceBinding(), FilterParameters.temporalMedian());
     }
 
     private static RestorationRequest request(FilterParameters parameters) {

@@ -33,9 +33,16 @@ public final class StoryboardPlanner {
             .thenComparing(SourceVersion::artifactVersionId);
 
     private final CurrentSourceRights rights;
+    private final ProjectTimelineEngine projectTimelineEngine;
 
     public StoryboardPlanner(CurrentSourceRights rights) {
+        this(rights, null);
+    }
+
+    /** Creates a planner whose binding reads immutable revisions through the owner-scoped store. */
+    public StoryboardPlanner(CurrentSourceRights rights, ProjectTimelineEngine projectTimelineEngine) {
         this.rights = Objects.requireNonNull(rights, "rights");
+        this.projectTimelineEngine = projectTimelineEngine;
     }
 
     /** Pure deterministic candidate preparation. No model, renderer, project write, or source-byte read occurs. */
@@ -71,6 +78,67 @@ public final class StoryboardPlanner {
     }
 
     /**
+     * Bind an authored local draft to exact owner-defined plan, scene-graph, and timeline references.
+     * The revision is loaded through the injected owner-scoped timeline engine: the selected timeline
+     * must be one of its immutable snapshots, and its semantic version must match the wire reference.
+     */
+    public ScenePlan bind(Actor actor, ScenePlan plan, String expectedProjectRevisionId,
+                          ScenePlanRef scenePlanRef, List<SceneGraphRef> sceneRefs, TimelineRef timelineRef) {
+        Objects.requireNonNull(actor, "actor");
+        Objects.requireNonNull(plan, "plan");
+        String revisionId = ownerOpaqueId(expectedProjectRevisionId, "expectedProjectRevisionId");
+        Objects.requireNonNull(scenePlanRef, "scenePlanRef");
+        Objects.requireNonNull(timelineRef, "timelineRef");
+        if (plan.binding() != null) {
+            throw new ScenePlanAuthorityProtocolException("an immutable storyboard edition cannot be rebound");
+        }
+        if (!plan.tenantId().equals(actor.tenantId())) throw new ProjectNotFoundException();
+        if (!plan.ownerPrincipalId().equals(actor.principalId())) throw new ProjectAccessDeniedException();
+        if (!revisionId.equals(plan.expectedProjectRevisionId())) {
+            throw new ScenePlanConflictException("expected ProjectRevision does not match the prepared plan scope");
+        }
+        ScenePlanRef expectedPlanRef = new ScenePlanRef(plan.tenantId(), plan.projectId(), plan.scenePlanId(),
+                plan.semanticVersion());
+        if (!expectedPlanRef.equals(scenePlanRef)) {
+            throw new IllegalArgumentException("scenePlanRef must identify the exact prepared plan edition");
+        }
+        List<SceneGraphRef> exactSceneRefs = copyBoundedSceneRefs(sceneRefs);
+        if (exactSceneRefs.size() != plan.scenes().size()) {
+            throw new IllegalArgumentException("sceneRefs must contain exactly one reference per ordered planned scene");
+        }
+        if (exactSceneRefs.stream().distinct().count() != exactSceneRefs.size()) {
+            throw new IllegalArgumentException("sceneRefs must be unique");
+        }
+        for (SceneGraphRef sceneRef : exactSceneRefs) {
+            if (!sceneRef.tenantId().equals(plan.tenantId()) || !sceneRef.projectId().equals(plan.projectId())) {
+                throw new IllegalArgumentException("sceneRefs must belong to the plan tenant and project");
+            }
+        }
+        if (!timelineRef.tenantId().equals(plan.tenantId()) || !timelineRef.projectId().equals(plan.projectId())) {
+            throw new IllegalArgumentException("timelineRef must belong to the plan tenant and project");
+        }
+        if (projectTimelineEngine == null) {
+            throw new ScenePlanAuthorityProtocolException(
+                    "owner ProjectTimelineEngine is required to bind a storyboard revision");
+        }
+        Revision expectedRevision = projectTimelineEngine.revision(actor, plan.projectId(), revisionId);
+        TimelineSnapshot member = expectedRevision.timelines().stream()
+                .filter(snapshot -> snapshot.timelineId().equals(timelineRef.timelineId()))
+                .findFirst()
+                .orElseThrow(() -> new ScenePlanConflictException(
+                        "timelineRef is not contained in the expected ProjectRevision"));
+        if (!member.semanticVersionId().equals(timelineRef.semanticVersion())) {
+            throw new ScenePlanConflictException(
+                    "timelineRef semanticVersion does not match the snapshot in the expected ProjectRevision");
+        }
+        StoryboardBinding binding = new StoryboardBinding(scenePlanRef, exactSceneRefs, timelineRef,
+                expectedRevision.revisionId(), member.semanticVersionId(), plan);
+        return new ScenePlan(plan.tenantId(), plan.ownerPrincipalId(), plan.projectId(), plan.scenePlanId(),
+                plan.semanticVersion(), plan.expectedProjectRevisionId(), plan.brief(), plan.scenes(),
+                plan.exactSources(), plan.disposition(), binding);
+    }
+
+    /**
      * Appends an immutable plan edition through the canonical owner port. The port must atomically
      * compare the current project head and plan parent version before making the append durable.
      * Rights are rechecked immediately before the append attempt.
@@ -82,6 +150,10 @@ public final class StoryboardPlanner {
         Objects.requireNonNull(authority, "authority");
         if (!plan.tenantId().equals(actor.tenantId())) throw new ProjectNotFoundException();
         if (!plan.ownerPrincipalId().equals(actor.principalId())) throw new ProjectAccessDeniedException();
+        if (plan.binding() == null) {
+            throw new ScenePlanAuthorityProtocolException(
+                    "storyboard draft must be bound to exact scene and timeline references before append");
+        }
         String request = ownerActionRequestId(requestId);
         String parentVersion = optionalVersion(expectedParentSemanticVersion);
         verifyCurrent(actor, plan.brief().purpose(), plan.exactSources());
@@ -108,6 +180,10 @@ public final class StoryboardPlanner {
         if (!plan.expectedProjectRevisionId().equals(ownerOpaqueId(expectedProjectRevisionId,
                 "expectedProjectRevisionId"))) {
             throw new ScenePlanConflictException("project revision does not match the saved draft");
+        }
+        if (plan.binding() == null) {
+            throw new ScenePlanAuthorityProtocolException(
+                    "storyboard draft must be bound to exact scene and timeline references before review");
         }
         // Reviews are append records under the same owner-defined save-storyboard-revision
         // action, so they must preserve its request identity shape as well.
@@ -238,9 +314,101 @@ public final class StoryboardPlanner {
         }
     }
 
+    /** Canonical PDP-1 reference identities used by save-storyboard-revision. */
+    public record ScenePlanRef(String tenantId, String projectId, String scenePlanId, String semanticVersion) {
+        public ScenePlanRef {
+            tenantId = required(tenantId, "scenePlanRef.tenantId");
+            projectId = ownerOpaqueId(projectId, "scenePlanRef.projectId");
+            scenePlanId = ownerOpaqueId(scenePlanId, "scenePlanRef.scenePlanId");
+            semanticVersion = ownerSemanticVersion(semanticVersion, "scenePlanRef.semanticVersion");
+        }
+    }
+
+    public record SceneGraphRef(String tenantId, String projectId, String sceneGraphId, String semanticVersion) {
+        public SceneGraphRef {
+            tenantId = required(tenantId, "sceneRef.tenantId");
+            projectId = ownerOpaqueId(projectId, "sceneRef.projectId");
+            sceneGraphId = ownerOpaqueId(sceneGraphId, "sceneRef.sceneGraphId");
+            semanticVersion = ownerSemanticVersion(semanticVersion, "sceneRef.semanticVersion");
+        }
+    }
+
+    public record TimelineRef(String tenantId, String projectId, String timelineId, String semanticVersion) {
+        public TimelineRef {
+            tenantId = required(tenantId, "timelineRef.tenantId");
+            projectId = ownerOpaqueId(projectId, "timelineRef.projectId");
+            timelineId = ownerOpaqueId(timelineId, "timelineRef.timelineId");
+            semanticVersion = ownerSemanticVersion(semanticVersion, "timelineRef.semanticVersion");
+        }
+    }
+
+    /** Immutable binding provenance captured from one expected project-revision snapshot. */
+    public static final class StoryboardBinding {
+        private final ScenePlanRef scenePlanRef;
+        private final List<SceneGraphRef> sceneRefs;
+        private final TimelineRef timelineRef;
+        private final String expectedProjectRevisionId;
+        private final String timelineSnapshotSemanticVersionId;
+        private final ScenePlan planSnapshot;
+
+        private StoryboardBinding(ScenePlanRef scenePlanRef, List<SceneGraphRef> sceneRefs,
+                                  TimelineRef timelineRef, String expectedProjectRevisionId,
+                                  String timelineSnapshotSemanticVersionId, ScenePlan plan) {
+            this.scenePlanRef = Objects.requireNonNull(scenePlanRef, "scenePlanRef");
+            this.sceneRefs = copyBoundedSceneRefs(sceneRefs);
+            if (this.sceneRefs.isEmpty()) throw new IllegalArgumentException("sceneRefs must not be empty");
+            if (this.sceneRefs.stream().distinct().count() != this.sceneRefs.size()) {
+                throw new IllegalArgumentException("sceneRefs must be unique");
+            }
+            this.timelineRef = Objects.requireNonNull(timelineRef, "timelineRef");
+            this.expectedProjectRevisionId = ownerOpaqueId(expectedProjectRevisionId, "expectedProjectRevisionId");
+            this.timelineSnapshotSemanticVersionId = ownerSemanticVersion(timelineSnapshotSemanticVersionId,
+                    "timelineSnapshotSemanticVersionId");
+            if (!this.timelineRef.semanticVersion().equals(this.timelineSnapshotSemanticVersionId)) {
+                throw new IllegalArgumentException("timelineRef must identify the exact timeline snapshot version");
+            }
+            this.planSnapshot = unboundSnapshot(Objects.requireNonNull(plan, "plan"));
+        }
+
+        public ScenePlanRef scenePlanRef() { return scenePlanRef; }
+        public List<SceneGraphRef> sceneRefs() { return sceneRefs; }
+        public TimelineRef timelineRef() { return timelineRef; }
+        public String expectedProjectRevisionId() { return expectedProjectRevisionId; }
+        public String timelineSnapshotSemanticVersionId() { return timelineSnapshotSemanticVersionId; }
+
+        private boolean matches(String tenantId, String ownerPrincipalId, String projectId, String scenePlanId,
+                                String semanticVersion, String expectedProjectRevisionId, AuthoredBrief brief,
+                                List<PlannedScene> scenes, List<SourceVersion> exactSources,
+                                DraftDisposition disposition) {
+            return planSnapshot.equals(new ScenePlan(tenantId, ownerPrincipalId, projectId, scenePlanId,
+                    semanticVersion, expectedProjectRevisionId, brief, scenes, exactSources, disposition, null));
+        }
+
+        @Override public boolean equals(Object other) {
+            if (this == other) return true;
+            if (!(other instanceof StoryboardBinding that)) return false;
+            return scenePlanRef.equals(that.scenePlanRef) && sceneRefs.equals(that.sceneRefs)
+                    && timelineRef.equals(that.timelineRef)
+                    && expectedProjectRevisionId.equals(that.expectedProjectRevisionId)
+                    && timelineSnapshotSemanticVersionId.equals(that.timelineSnapshotSemanticVersionId)
+                    && planSnapshot.equals(that.planSnapshot);
+        }
+
+        @Override public int hashCode() {
+            return Objects.hash(scenePlanRef, sceneRefs, timelineRef, expectedProjectRevisionId,
+                    timelineSnapshotSemanticVersionId, planSnapshot);
+        }
+
+        private static ScenePlan unboundSnapshot(ScenePlan plan) {
+            return new ScenePlan(plan.tenantId(), plan.ownerPrincipalId(), plan.projectId(), plan.scenePlanId(),
+                    plan.semanticVersion(), plan.expectedProjectRevisionId(), plan.brief(), plan.scenes(),
+                    plan.exactSources(), plan.disposition(), null);
+        }
+    }
+
     public record ScenePlan(String tenantId, String ownerPrincipalId, String projectId, String scenePlanId, String semanticVersion,
                             String expectedProjectRevisionId, AuthoredBrief brief, List<PlannedScene> scenes,
-                            List<SourceVersion> exactSources, DraftDisposition disposition) {
+                            List<SourceVersion> exactSources, DraftDisposition disposition, StoryboardBinding binding) {
         public ScenePlan {
             tenantId = required(tenantId, "tenantId");
             ownerPrincipalId = required(ownerPrincipalId, "ownerPrincipalId");
@@ -276,6 +444,39 @@ public final class StoryboardPlanner {
             if (disposition != DraftDisposition.LOCAL_DRAFT_CANDIDATE) {
                 throw new IllegalArgumentException("storyboard planner only emits local draft candidates");
             }
+            if (binding != null) {
+                if (!binding.matches(tenantId, ownerPrincipalId, projectId, scenePlanId, semanticVersion,
+                        expectedProjectRevisionId, brief, scenes, exactSources, disposition)) {
+                    throw new IllegalArgumentException("binding must preserve the exact prepared storyboard payload");
+                }
+                ScenePlanRef expectedRef = new ScenePlanRef(tenantId, projectId, scenePlanId, semanticVersion);
+                if (!binding.scenePlanRef().equals(expectedRef)) {
+                    throw new IllegalArgumentException("binding scenePlanRef must identify this exact plan edition");
+                }
+                if (!binding.expectedProjectRevisionId().equals(expectedProjectRevisionId)) {
+                    throw new IllegalArgumentException("binding must use the plan's expected ProjectRevision");
+                }
+                if (binding.sceneRefs().size() != scenes.size()) {
+                    throw new IllegalArgumentException("sceneRefs must contain exactly one reference per ordered planned scene");
+                }
+                if (!binding.timelineRef().tenantId().equals(tenantId)
+                        || !binding.timelineRef().projectId().equals(projectId)) {
+                    throw new IllegalArgumentException("timelineRef must belong to the plan tenant and project");
+                }
+                for (SceneGraphRef sceneRef : binding.sceneRefs()) {
+                    if (!sceneRef.tenantId().equals(tenantId) || !sceneRef.projectId().equals(projectId)) {
+                        throw new IllegalArgumentException("sceneRefs must belong to the plan tenant and project");
+                    }
+                }
+            }
+        }
+
+        /** Compatibility constructor for a local candidate that has not yet been bound for append. */
+        public ScenePlan(String tenantId, String ownerPrincipalId, String projectId, String scenePlanId,
+                         String semanticVersion, String expectedProjectRevisionId, AuthoredBrief brief,
+                         List<PlannedScene> scenes, List<SourceVersion> exactSources, DraftDisposition disposition) {
+            this(tenantId, ownerPrincipalId, projectId, scenePlanId, semanticVersion, expectedProjectRevisionId,
+                    brief, scenes, exactSources, disposition, null);
         }
 
         public EditionState state() { return EditionState.LOCAL_DRAFT; }
@@ -457,6 +658,19 @@ public final class StoryboardPlanner {
                 throw new IllegalArgumentException("storyboard exceeds the 256 scene-reference limit");
             }
             snapshot.add(Objects.requireNonNull(iterator.next(), "scene"));
+        }
+        return List.copyOf(snapshot);
+    }
+
+    private static List<SceneGraphRef> copyBoundedSceneRefs(List<SceneGraphRef> sceneRefs) {
+        if (sceneRefs == null) throw new NullPointerException("sceneRefs");
+        Iterator<SceneGraphRef> iterator = sceneRefs.iterator();
+        List<SceneGraphRef> snapshot = new ArrayList<>(MAX_SCENES);
+        while (iterator.hasNext()) {
+            if (snapshot.size() == MAX_SCENES) {
+                throw new IllegalArgumentException("sceneRefs exceeds the 256 reference limit");
+            }
+            snapshot.add(Objects.requireNonNull(iterator.next(), "sceneRef"));
         }
         return List.copyOf(snapshot);
     }

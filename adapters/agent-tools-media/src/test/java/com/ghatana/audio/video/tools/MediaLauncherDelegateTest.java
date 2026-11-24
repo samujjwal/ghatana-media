@@ -338,6 +338,9 @@ class MediaLauncherDelegateTest extends EventloopTestBase {
         assertThat(run(binder(new InMemory()), envelope("av.vision-analysis", "n-5", Map.of("mediaSource",
                 Map.of("mediaArtifactId", "a1"), "analysisTypes", List.of("FACE_DETECTION"),
                 "sourceArtifactVersion", VERSION))).failure().code()).isEqualTo("VISION_ANALYSIS_TYPE_NOT_ADMITTED");
+        assertThat(run(binder(new InMemory()), envelope("av.vision-analysis", "n-6", Map.of("mediaSource",
+                Map.of("mediaArtifactId", "a1"), "analysisTypes", List.of("OCR"),
+                "sourceArtifactVersion", VERSION))).failure().code()).isEqualTo("VISION_ANALYSIS_TYPE_NOT_ADMITTED");
         assertThat(seen).isEmpty();
     }
 }

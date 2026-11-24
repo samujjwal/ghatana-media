@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.integration;
 
+import com.ghatana.audio.video.common.security.AudioVideoMethodRbacRegistry;
 import com.ghatana.audio.video.multimodal.grpc.proto.MultimodalServiceGrpc;
 import com.ghatana.audio.video.multimodal.grpc.proto.MultimodalServiceProto;
 import com.ghatana.audio.video.multimodal.grpc.MultimodalGrpcService;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -83,6 +85,19 @@ class MediaGrpcOperationParityTest {
                         ? surface.asyncStub().getMethod(javaMethodName, StreamObserver.class)
                         : surface.asyncStub().getMethod(javaMethodName, requestType, StreamObserver.class);
                 assertThat(clientCall).as("generated async client call for %s", protoMethod.getName()).isNotNull();
+            }
+        }
+    }
+
+    @Test
+    void unboundRoleIsDeniedForEveryGovernedRpcDescriptor() {
+        Set<String> unboundRole = Set.of("av:unbound-test-role");
+        for (Surface surface : SURFACES) {
+            for (Descriptors.MethodDescriptor protoMethod : surface.proto().getMethods()) {
+                String fullMethod = protoMethod.getService().getFullName() + "/" + protoMethod.getName();
+                assertThat(AudioVideoMethodRbacRegistry.isAllowedAny(fullMethod, unboundRole))
+                        .as("unbound roles remain denied for %s", fullMethod)
+                        .isFalse();
             }
         }
     }

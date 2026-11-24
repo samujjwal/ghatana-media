@@ -177,7 +177,7 @@ class PngFrameCodecTest {
         });
 
         Result result = TemporalVideoRestoration.restore(
-                new RestorationRequest("png-restore", binding),
+                new RestorationRequest("png-restore", binding, FilterParameters.temporalMedian()),
                 (requested, operation) -> new AuthorityDecision(AuthorityStatus.ALLOWED, "rights-v4"),
                 source,
                 Optional.empty(), null, null);
@@ -212,7 +212,7 @@ class PngFrameCodecTest {
         });
 
         Result result = TemporalVideoRestoration.restore(
-                new RestorationRequest("png-denied", sourceBinding()),
+                new RestorationRequest("png-denied", sourceBinding(), FilterParameters.temporalMedian()),
                 (binding, operation) -> new AuthorityDecision(AuthorityStatus.DENIED, ""),
                 source,
                 Optional.empty(), null, null);

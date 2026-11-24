@@ -47,24 +47,26 @@ public final class GrpcApiConsumerSmoke {
     private GrpcApiConsumerSmoke() {}
 
     public static void main(String[] args) throws Exception {
-        assertService(STTServiceGrpc.getServiceDescriptor(), "com.ghatana.audio.video.stt.grpc.STTService",
+        int rpcCount = 0;
+        rpcCount += assertService(STTServiceGrpc.getServiceDescriptor(), "com.ghatana.audio.video.stt.grpc.STTService",
                 Set.of("Transcribe", "StreamTranscribe", "LoadModel", "UnloadModel", "ListModels", "AdaptModel",
                         "GetStatus", "HealthCheck", "CreateProfile", "GetProfile", "UpdateProfile",
                         "SubmitCorrection"),
                 Map.of("StreamTranscribe", MethodDescriptor.MethodType.BIDI_STREAMING));
-        assertService(TTSServiceGrpc.getServiceDescriptor(), "com.ghatana.audio.video.tts.grpc.TTSService",
+        rpcCount += assertService(TTSServiceGrpc.getServiceDescriptor(), "com.ghatana.audio.video.tts.grpc.TTSService",
                 Set.of("Synthesize", "StreamSynthesize", "GetStatus", "GetMetrics", "GetVoices", "LoadVoice",
                         "CreateProfile", "GetProfile", "UpdateProfile", "CloneVoice", "SubmitFeedback"),
                 Map.of("StreamSynthesize", MethodDescriptor.MethodType.SERVER_STREAMING));
-        assertService(VisionServiceGrpc.getServiceDescriptor(), "com.ghatana.audio.video.vision.grpc.VisionService",
-                Set.of("DetectObjects", "AnalyzeImage", "ClassifyImage", "RecognizeSceneText", "AnalyzeVideoFile",
+        rpcCount += assertService(VisionServiceGrpc.getServiceDescriptor(), "com.ghatana.audio.video.vision.grpc.VisionService",
+                Set.of("DetectObjects", "AnalyzeImage", "ClassifyImage", "RecognizeSceneText", "ResolveSourceFrame", "AnalyzeVideoFile",
                         "ProcessVideo", "LoadModel", "UnloadModel", "ListModels", "GetStatus", "HealthCheck"),
                 Map.of("ProcessVideo", MethodDescriptor.MethodType.BIDI_STREAMING));
-        assertService(MultimodalServiceGrpc.getServiceDescriptor(),
+        rpcCount += assertService(MultimodalServiceGrpc.getServiceDescriptor(),
                 "com.ghatana.audio.video.multimodal.grpc.MultimodalService",
                 Set.of("ProcessMultimodal", "AnalyzeVideoWithAudio", "GenerateDescription", "AnalyzeCrossModal",
                         "GetInsights", "LoadModel", "UnloadModel", "ListModels", "GetStatus", "HealthCheck"),
                 Map.of());
+        require(rpcCount == 45, "Expected the current source/API denominator of 45 RPCs but found " + rpcCount);
 
         // Touch the canonical file descriptors too, proving message descriptors are present.
         require(SttServiceProto.getDescriptor().getServices().size() == 1, "STT proto descriptor missing");
@@ -488,7 +490,7 @@ public final class GrpcApiConsumerSmoke {
         Object invoke();
     }
 
-    private static void assertService(ServiceDescriptor descriptor, String fullName, Set<String> expectedMethods,
+    private static int assertService(ServiceDescriptor descriptor, String fullName, Set<String> expectedMethods,
             Map<String, MethodDescriptor.MethodType> expectedStreamingMethods) {
         require(fullName.equals(descriptor.getName()), "Unexpected service descriptor: " + descriptor.getName());
         Map<String, MethodDescriptor.MethodType> methods = descriptor.getMethods().stream()
@@ -502,6 +504,7 @@ public final class GrpcApiConsumerSmoke {
         require(actualStreamingMethods.equals(expectedStreamingMethods),
                 "Streaming shape drift in " + fullName + ": expected " + expectedStreamingMethods + " but got "
                         + actualStreamingMethods);
+        return methods.size();
     }
 
     private static void require(boolean condition, String message) {

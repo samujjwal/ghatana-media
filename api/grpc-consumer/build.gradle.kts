@@ -2,14 +2,15 @@ plugins {
     application
 }
 
-val grpcApiVersion = providers.gradleProperty("grpcApiVersion").orElse("0.1.0-SNAPSHOT")
+val grpcApiVersion = providers.gradleProperty("grpcApiVersion").orNull
+    ?: error("Pass -PgrpcApiVersion=<staged Media gRPC API version>")
 
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(27))
 }
 
 dependencies {
-    implementation("com.ghatana.audio-video:grpc-api:${grpcApiVersion.get()}")
+    implementation("com.ghatana.audio-video:grpc-api:$grpcApiVersion")
     // Local transport used only by this isolated consumer smoke check. The Media
     // source projects and generated sources are deliberately absent from this build.
     implementation("io.grpc:grpc-inprocess:1.83.1")

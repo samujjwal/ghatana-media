@@ -15,6 +15,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSnapshot;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingAttempt;
+import com.ghatana.media.runtime.MediaRuntimeContracts.DataClassification;
 import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptStart;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptObservation;
 import com.ghatana.media.runtime.MediaRuntimeContracts.AttemptFinality;
@@ -92,6 +93,9 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
         try (Connection connection = state.connection()) {
             connection.setAutoCommit(false);
             try {
+                if (acceptedEvent != null) {
+                    validateAcceptedEventClassification(connection, persistable, acceptedEvent);
+                }
                 ProcessingJob existing = byRequest(connection, persistable.tenantId(), persistable.requestId(), true);
                 if (existing != null) {
                     verifyRequestIdentity(existing, persistable,
@@ -1483,6 +1487,39 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
                 || !event.attributes().equals(expectedPayload)) {
             throw new IllegalArgumentException(
                     "Canonical accepted event must exactly match the committed Media job identity and payload");
+        }
+    }
+
+    private static void validateAcceptedEventClassification(
+            Connection connection, ProcessingJob job, MediaLifecycleEvent event) throws SQLException {
+        String sourceClassification;
+        try (PreparedStatement statement = connection.prepareStatement(
+                "SELECT classification FROM media_artifacts WHERE tenant_id=? AND artifact_id=? FOR UPDATE")) {
+            statement.setString(1, job.tenantId());
+            statement.setString(2, job.artifactId());
+            try (ResultSet result = statement.executeQuery()) {
+                if (!result.next()) {
+                    throw new IllegalStateException(
+                            "Canonical accepted event requires its retained source artifact classification");
+                }
+                sourceClassification = result.getString("classification");
+            }
+        }
+        if (sourceClassification == null || sourceClassification.isBlank()) {
+            throw new IllegalStateException("Source artifact classification is missing for accepted event");
+        }
+        DataClassification source;
+        try {
+            source = DataClassification.valueOf(sourceClassification);
+        } catch (IllegalArgumentException invalidClassification) {
+            throw new IllegalStateException(
+                    "Source artifact classification is unrecognized for accepted event", invalidClassification);
+        }
+        String requiredClassification = source.isAtLeast(DataClassification.INTERNAL)
+                ? source.name() : DataClassification.INTERNAL.name();
+        if (!requiredClassification.equals(event.classification())) {
+            throw new IllegalArgumentException(
+                    "Canonical accepted event classification must match the source artifact classification floor");
         }
     }
 

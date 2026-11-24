@@ -5,6 +5,7 @@ import com.ghatana.media.runtime.MediaLifecycleEventPublisher;
 import com.ghatana.media.runtime.MediaLifecyclePublicationReceipt;
 import com.ghatana.media.runtime.MediaLifecycleOutboxSource;
 import com.ghatana.media.runtime.MediaLifecyclePublicationOutcomeUnknownException;
+import com.ghatana.media.runtime.MediaRuntimeContracts.DataClassification;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,6 +17,7 @@ import java.time.Instant;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -23,6 +25,7 @@ import java.util.function.DoubleSupplier;
 
 /** Publishes outbox events using fenced claims, bounded backoff, and terminal dead-lettering. */
 public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycleOutboxSource {
+    private static final String CANONICAL_JOB_ACCEPTED_EVENT_TYPE = "media.job.accepted";
     private static final Duration DEFAULT_CLAIM_LEASE = Duration.ofMinutes(2);
     private static final Duration DEFAULT_RETRY_BASE = Duration.ofSeconds(5);
     private static final Duration DEFAULT_RETRY_MAX = Duration.ofMinutes(15);
@@ -35,6 +38,7 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
     private final Duration retryBase;
     private final Duration retryMax;
     private final DoubleSupplier jitterSample;
+    private final List<String> publishableEventTypes;
     private final AtomicBoolean closed = new AtomicBoolean();
 
     public record BatchResult(int attempted, int published, int failed) { }
@@ -42,20 +46,28 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
     public PostgresqlMediaLifecycleOutboxSource() {
         this(integerProperty("media.lifecycle.outbox.maxAttempts", DEFAULT_MAX_ATTEMPTS),
                 DEFAULT_CLAIM_LEASE, DEFAULT_RETRY_BASE, DEFAULT_RETRY_MAX,
-                () -> ThreadLocalRandom.current().nextDouble());
+                () -> ThreadLocalRandom.current().nextDouble(), List.of(CANONICAL_JOB_ACCEPTED_EVENT_TYPE));
     }
 
     /** Package-private timing seam for deterministic H2 reliability tests. */
     PostgresqlMediaLifecycleOutboxSource(
             int maxAttempts, Duration claimLease, Duration retryBase, Duration retryMax) {
         this(maxAttempts, claimLease, retryBase, retryMax,
-                () -> ThreadLocalRandom.current().nextDouble());
+                () -> ThreadLocalRandom.current().nextDouble(), List.of(CANONICAL_JOB_ACCEPTED_EVENT_TYPE));
     }
 
     /** Package-private jitter seam for deterministic retry-policy tests. */
     PostgresqlMediaLifecycleOutboxSource(
             int maxAttempts, Duration claimLease, Duration retryBase, Duration retryMax,
             DoubleSupplier jitterSample) {
+        this(maxAttempts, claimLease, retryBase, retryMax, jitterSample,
+                List.of(CANONICAL_JOB_ACCEPTED_EVENT_TYPE));
+    }
+
+    /** Test-only event-type seam for isolated claim/retry fixtures; production uses the no-arg canonical allowlist. */
+    PostgresqlMediaLifecycleOutboxSource(
+            int maxAttempts, Duration claimLease, Duration retryBase, Duration retryMax,
+            DoubleSupplier jitterSample, List<String> publishableEventTypes) {
         if (maxAttempts < 1 || maxAttempts > 100) throw new IllegalArgumentException("maxAttempts must be 1..100");
         this.maxAttempts = maxAttempts;
         this.claimLease = positive(claimLease, "claimLease");
@@ -69,6 +81,18 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
             throw new IllegalArgumentException("retry bounds must be at least one millisecond");
         }
         this.jitterSample = java.util.Objects.requireNonNull(jitterSample, "jitterSample");
+        this.publishableEventTypes = List.copyOf(java.util.Objects.requireNonNull(
+                publishableEventTypes, "publishableEventTypes").stream()
+                .map(type -> {
+                    if (type == null || type.isBlank() || type.length() > 255
+                            || type.chars().anyMatch(Character::isISOControl)) {
+                        throw new IllegalArgumentException("publishable event types must be bounded and nonblank");
+                    }
+                    return type;
+                }).distinct().sorted().toList());
+        if (this.publishableEventTypes.isEmpty()) {
+            throw new IllegalArgumentException("at least one publishable event type is required");
+        }
         // Do not acquire the shared provider lifecycle until construction is known to
         // succeed. Invalid configuration must not leak a reference to the singleton.
         this.state = MediaAwsPostgresqlRuntimeState.acquire();
@@ -153,12 +177,15 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
         try (Connection connection = state.connection();
              PreparedStatement query = connection.prepareStatement(
                      "SELECT event_id FROM media_processing_lifecycle_outbox WHERE published_at IS NULL "
-                             + "AND dead_lettered_at IS NULL AND next_attempt_at<=? "
+                             + "AND dead_lettered_at IS NULL AND event_type IN (" + eventTypePlaceholders() + ") "
+                             + "AND next_attempt_at<=? "
                              + "AND (claim_owner IS NULL OR claim_expires_at IS NULL OR claim_expires_at<=?) "
                              + "ORDER BY created_at,event_id LIMIT ?")) {
-            query.setLong(1, now);
-            query.setLong(2, now);
-            query.setInt(3, limit);
+            int parameter = 1;
+            for (String eventType : publishableEventTypes) query.setString(parameter++, eventType);
+            query.setLong(parameter++, now);
+            query.setLong(parameter++, now);
+            query.setInt(parameter, limit);
             List<String> ids = new ArrayList<>();
             try (ResultSet rows = query.executeQuery()) {
                 while (rows.next()) ids.add(rows.getString(1));
@@ -191,12 +218,17 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
                         "SELECT payload_json,tenant_id,aggregate_type,aggregate_id,aggregate_version,event_type,"
                                 + "classification,created_at,claim_token,attempts,claim_owner,claim_expires_at "
                                 + "FROM media_processing_lifecycle_outbox "
-                                + "WHERE event_id=? AND published_at IS NULL AND dead_lettered_at IS NULL "
+                                + "WHERE event_id=? AND event_type IN (" + eventTypePlaceholders() + ") "
+                                + "AND published_at IS NULL AND dead_lettered_at IS NULL "
                                 + "AND next_attempt_at<=? AND (claim_owner IS NULL OR claim_expires_at IS NULL "
                                 + "OR claim_expires_at<=?) FOR UPDATE SKIP LOCKED")) {
-                    query.setString(1, eventId);
-                    query.setLong(2, now);
-                    query.setLong(3, now);
+                    int parameter = 1;
+                    query.setString(parameter++, eventId);
+                    for (String publishableEventType : publishableEventTypes) {
+                        query.setString(parameter++, publishableEventType);
+                    }
+                    query.setLong(parameter++, now);
+                    query.setLong(parameter, now);
                     try (ResultSet row = query.executeQuery()) {
                         if (!row.next()) {
                             connection.commit();
@@ -259,7 +291,7 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
     }
 
     /** The payload is authoritative for publication; denormalized row fields must agree before dispatch. */
-    private static void validatePayloadMatchesClaim(Claim claim, MediaLifecycleEvent event) {
+    private void validatePayloadMatchesClaim(Claim claim, MediaLifecycleEvent event) {
         if (!claim.eventId().equals(event.eventId())
                 || !claim.tenantId().equals(event.tenantId())
                 || !claim.aggregateType().equals(event.aggregateType())
@@ -270,6 +302,64 @@ public final class PostgresqlMediaLifecycleOutboxSource implements MediaLifecycl
                 || claim.createdAt() != event.occurredAt().toEpochMilli()) {
             throw new IllegalStateException("Media lifecycle outbox payload identity does not match its row");
         }
+        if (CANONICAL_JOB_ACCEPTED_EVENT_TYPE.equals(event.eventType())) {
+            String expectedEventId = "media:media.job.accepted:" + event.aggregateId() + ":" + event.aggregateVersion();
+            Map<String, Object> expectedAttributes = Map.of(
+                    "jobId", event.aggregateId(),
+                    "operationRef", "media.operation-slice.submit-job",
+                    "admissionState", "ACCEPTED");
+            if (!event.eventId().equals(expectedEventId)
+                    || !event.aggregateType().equals("processing-job")
+                    || !event.attributes().equals(expectedAttributes)
+                    || !java.util.Set.of("INTERNAL", "CONFIDENTIAL", "RESTRICTED")
+                            .contains(event.classification())) {
+                throw new IllegalStateException("Canonical accepted event does not match its owner-defined payload");
+            }
+            String requiredClassification = requiredAcceptedEventClassification(event);
+            if (!requiredClassification.equals(event.classification())) {
+                throw new IllegalStateException(
+                        "Canonical accepted event classification is weaker than its source artifact classification");
+            }
+        }
+    }
+
+    private String requiredAcceptedEventClassification(MediaLifecycleEvent event) {
+        String sourceClassification;
+        try (Connection connection = state.connection();
+             PreparedStatement query = connection.prepareStatement(
+                     "SELECT artifact.classification FROM media_processing_jobs job "
+                             + "JOIN media_artifacts artifact ON artifact.tenant_id=job.tenant_id "
+                             + "AND artifact.artifact_id=job.artifact_id "
+                             + "WHERE job.tenant_id=? AND job.job_id=?")) {
+            query.setString(1, event.tenantId());
+            query.setString(2, event.aggregateId());
+            try (ResultSet row = query.executeQuery()) {
+                if (!row.next()) {
+                    throw new IllegalStateException(
+                            "Canonical accepted event has no retained source artifact classification");
+                }
+                sourceClassification = row.getString("classification");
+            }
+        } catch (SQLException failure) {
+            throw new IllegalStateException(
+                    "Unable to read source artifact classification for canonical accepted event", failure);
+        }
+        if (sourceClassification == null || sourceClassification.isBlank()) {
+            throw new IllegalStateException("Source artifact classification is missing for accepted event");
+        }
+        DataClassification source;
+        try {
+            source = DataClassification.valueOf(sourceClassification);
+        } catch (IllegalArgumentException invalidClassification) {
+            throw new IllegalStateException(
+                    "Source artifact classification is unrecognized for accepted event", invalidClassification);
+        }
+        return source.isAtLeast(DataClassification.INTERNAL)
+                ? source.name() : DataClassification.INTERNAL.name();
+    }
+
+    private String eventTypePlaceholders() {
+        return String.join(",", java.util.Collections.nCopies(publishableEventTypes.size(), "?"));
     }
 
     private static void validateReceiptMatchesClaim(

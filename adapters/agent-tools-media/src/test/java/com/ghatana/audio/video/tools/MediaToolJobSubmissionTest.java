@@ -93,8 +93,9 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
                                 "audioEncoding", "MP3", "storeAsArtifact", false), "art-tts"),
                 new Case("av.vision-analysis", JobType.VISION,
                         Map.of("mediaSource", Map.of("mediaArtifactId", "art-vis"),
-                                "analysisTypes", List.of("OCR"), "sourceArtifactVersion", VERSION),
-                        Map.of("analysisTypes", List.of("OCR"), "maxResults", 10, "confidenceThreshold", 0.5), "art-vis"),
+                                "analysisTypes", List.of("OBJECT_DETECTION"), "sourceArtifactVersion", VERSION),
+                        Map.of("analysisTypes", List.of("OBJECT_DETECTION"), "maxResults", 10,
+                                "confidenceThreshold", 0.5), "art-vis"),
                 new Case("av.multimodal-inference", JobType.MULTIMODAL,
                         Map.of("mediaArtifactId", "art-mm", "sourceArtifactVersion", VERSION),
                         Map.of("inferenceMode", "SUMMARY", "samplingRateMs", 1000, "language", "en-US",
@@ -183,6 +184,25 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
                     .containsEntry("sourceArtifactVersion", VERSION);
             assertThat(out.get("result")).isEqualTo(Map.of("audioArtifactRef", "urn:out", "text", "t"));
         }
+    }
+
+    @Test
+    void visionOcrRemainsNotAdmittedWithoutCallingTheMediaVisionProvider() {
+        TestOnlyPort port = new TestOnlyPort();
+        port.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("text", "must-not-run"), "");
+        MediaToolJobBridge bridge = new MediaToolJobBridge(port, "dev");
+        var factory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), bridge), bridge);
+        Case vision = cases().get(2);
+        Map<String, Object> input = Map.of("mediaSource", Map.of("mediaArtifactId", "art-vis"),
+                "analysisTypes", List.of("OCR"), "sourceArtifactVersion", VERSION);
+
+        ToolExecutionResult result = run(factory, vision, envelope(vision, input), principal());
+
+        assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
+        assertThat(result.failure().kind()).isEqualTo(ToolExecutionFailure.Kind.UNAVAILABLE);
+        assertThat(result.failure().stage()).isEqualTo(ToolExecutionFailure.Stage.ADMISSION);
+        assertThat(result.failure().code()).isEqualTo("VISION_ANALYSIS_TYPE_NOT_ADMITTED");
+        assertThat(port.submitted).isEmpty();
     }
 
     @Test

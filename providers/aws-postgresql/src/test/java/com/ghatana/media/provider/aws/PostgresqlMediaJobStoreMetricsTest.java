@@ -2,14 +2,20 @@ package com.ghatana.media.provider.aws;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.ghatana.media.runtime.MediaLifecycleEvent;
+import com.ghatana.media.runtime.MediaLifecycleEventPublisher;
+import com.ghatana.media.runtime.MediaLifecyclePublicationReceipt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.containers.localstack.LocalStackContainer;
@@ -84,6 +90,66 @@ class PostgresqlMediaJobStoreMetricsTest {
         }
     }
 
+    @Test
+    void postgresRelayAcknowledgesCanonicalAcceptedIntentAndReplaysWithoutRepublish() throws Exception {
+        String runId = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-outbox-ack-" + runId;
+        try (S3Client client = s3Client()) {
+            client.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+        }
+        Map<String, String> environment = integrationEnvironment(bucket);
+        ProcessingJob accepted = job("job-outbox-ack-" + runId, JobStatus.ACCEPTED, 1);
+        MediaLifecycleEvent acceptedEvent = new MediaLifecycleEvent(
+                "media:media.job.accepted:" + accepted.jobId() + ":" + accepted.version(),
+                "media.job.accepted", accepted.tenantId(), accepted.principalId(), accepted.requestId(),
+                accepted.requestId(), "processing-job", accepted.jobId(), accepted.version(), "INTERNAL",
+                accepted.createdAt(), Map.of(
+                        "jobId", accepted.jobId(),
+                        "operationRef", "media.operation-slice.submit-job",
+                        "admissionState", "ACCEPTED"));
+        String unsupportedEventId = "media:media.job.attempt.dispatch_intended:" + runId;
+
+        try (AutoCloseable ignored = MediaAwsPostgresqlRuntimeState.installForTesting(environment);
+             PostgresqlMediaJobStore store = new PostgresqlMediaJobStore();
+             PostgresqlMediaLifecycleOutboxSource outbox = new PostgresqlMediaLifecycleOutboxSource()) {
+            seedArtifact(accepted.tenantId(), accepted.artifactId(), "INTERNAL");
+            store.create(accepted, REQUEST_FINGERPRINT, null, null, acceptedEvent);
+            seedUnsupportedLifecycleEvent(unsupportedEventId, runId);
+
+            AtomicInteger publishCalls = new AtomicInteger();
+            AtomicReference<MediaLifecycleEvent> publishedEvent = new AtomicReference<>();
+            MediaLifecycleEventPublisher localReceiptFixture = new MediaLifecycleEventPublisher() {
+                @Override public String publisherId() { return "test-local-receipt-fixture"; }
+                @Override public boolean ready() { return true; }
+                @Override public boolean productionEligible() { return false; }
+                @Override public void publish(MediaLifecycleEvent event) {
+                    publishCalls.incrementAndGet();
+                    publishedEvent.set(event);
+                }
+                @Override public MediaLifecyclePublicationReceipt publishWithReceipt(MediaLifecycleEvent event) {
+                    publish(event);
+                    return new MediaLifecyclePublicationReceipt(event.eventId(),
+                            MediaLifecyclePublicationReceipt.stableStoredEventId(event.eventId()),
+                            "media-lifecycle", "19");
+                }
+            };
+
+            assertThat(outbox.publishPending(localReceiptFixture, 10))
+                    .isEqualTo(new PostgresqlMediaLifecycleOutboxSource.BatchResult(1, 1, 0));
+            assertThat(publishCalls).hasValue(1);
+            assertThat(publishedEvent.get()).isEqualTo(acceptedEvent);
+            assertAcknowledgedOutboxEvent(acceptedEvent);
+            assertUnclaimedUnsupportedEvent(unsupportedEventId);
+
+            try (PostgresqlMediaLifecycleOutboxSource restartedOutbox =
+                         new PostgresqlMediaLifecycleOutboxSource()) {
+                assertThat(restartedOutbox.publishPending(localReceiptFixture, 10))
+                        .isEqualTo(new PostgresqlMediaLifecycleOutboxSource.BatchResult(0, 0, 0));
+            }
+            assertThat(publishCalls).hasValue(1);
+        }
+    }
+
     private static S3Client s3Client() {
         return S3Client.builder()
                 .endpointOverride(LOCALSTACK.getEndpointOverride(S3))
@@ -113,6 +179,24 @@ class PostgresqlMediaJobStoreMetricsTest {
         environment.put("MEDIA_METRICS_ACCESS", LOCALSTACK.getAccessKey());
         environment.put("MEDIA_METRICS_SECRET", LOCALSTACK.getSecretKey());
         return environment;
+    }
+
+    private static void seedArtifact(String tenantId, String artifactId, String classification) throws Exception {
+        MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+        try (Connection connection = state.connection(); var insert = connection.prepareStatement(
+                "INSERT INTO media_artifacts (tenant_id,artifact_id,principal_id,file_name,content_type,size_bytes,"
+                        + "sha256,object_reference,classification,created_at,expires_at,metadata_json) "
+                        + "VALUES (?,?,?,'source.bin','application/octet-stream',1,?,?,?,1,2,'{}')")) {
+            insert.setString(1, tenantId);
+            insert.setString(2, artifactId);
+            insert.setString(3, "principal-a");
+            insert.setString(4, "b".repeat(64));
+            insert.setString(5, "object:" + artifactId);
+            insert.setString(6, classification);
+            insert.executeUpdate();
+        } finally {
+            state.release();
+        }
     }
 
     private static void expireLease(ProcessingJob job) throws Exception {
@@ -155,6 +239,81 @@ class PostgresqlMediaJobStoreMetricsTest {
             update.setLong(2, Instant.now().minusSeconds(5).toEpochMilli());
             update.setString(3, eventId);
             assertThat(update.executeUpdate()).isEqualTo(1);
+        }
+    }
+
+    private static void seedUnsupportedLifecycleEvent(String eventId, String runId) throws Exception {
+        try (var connection = DriverManager.getConnection(
+                     POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var insert = connection.prepareStatement(
+                     "INSERT INTO media_processing_lifecycle_outbox "
+                             + "(event_id,tenant_id,aggregate_type,aggregate_id,aggregate_version,event_type,"
+                             + "payload_json,classification,created_at,published_at,attempts,last_error) "
+                             + "VALUES (?,?,?,?,?,?,?,?,?,NULL,0,NULL)")) {
+            insert.setString(1, eventId);
+            insert.setString(2, "tenant-unsupported-" + runId);
+            insert.setString(3, "processing-job");
+            insert.setString(4, "job-unsupported-" + runId);
+            insert.setLong(5, 1L);
+            insert.setString(6, "media.job.attempt.dispatch_intended");
+            insert.setString(7, "{}");
+            insert.setString(8, "INTERNAL");
+            insert.setLong(9, Instant.now().toEpochMilli());
+            assertThat(insert.executeUpdate()).isEqualTo(1);
+        }
+    }
+
+    private static void assertAcknowledgedOutboxEvent(MediaLifecycleEvent event) throws Exception {
+        try (Connection connection = DriverManager.getConnection(
+                     POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var query = connection.prepareStatement(
+                     "SELECT published_at,event_plane_stored_event_id,event_plane_stream_id,event_plane_offset,"
+                             + "attempts,claim_owner,claim_expires_at FROM media_processing_lifecycle_outbox "
+                             + "WHERE event_id=?")) {
+            query.setString(1, event.eventId());
+            try (var row = query.executeQuery()) {
+                assertThat(row.next()).isTrue();
+                assertThat(row.getObject("published_at")).isNotNull();
+                assertThat(row.getString("event_plane_stored_event_id"))
+                        .isEqualTo(MediaLifecyclePublicationReceipt.stableStoredEventId(event.eventId()));
+                assertThat(row.getString("event_plane_stream_id")).isEqualTo("media-lifecycle");
+                assertThat(row.getString("event_plane_offset")).isEqualTo("19");
+                assertThat(row.getInt("attempts")).isEqualTo(1);
+                assertThat(row.getString("claim_owner")).isNull();
+                assertThat(row.getObject("claim_expires_at")).isNull();
+            }
+        }
+        try (Connection connection = DriverManager.getConnection(
+                     POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var query = connection.prepareStatement(
+                     "SELECT last_offset,last_stream_id,last_event_id,last_stored_event_id "
+                             + "FROM media_processing_lifecycle_event_plane_cursor WHERE tenant_id=?")) {
+            query.setString(1, event.tenantId());
+            try (var row = query.executeQuery()) {
+                assertThat(row.next()).isTrue();
+                assertThat(row.getString("last_offset")).isEqualTo("19");
+                assertThat(row.getString("last_stream_id")).isEqualTo("media-lifecycle");
+                assertThat(row.getString("last_event_id")).isEqualTo(event.eventId());
+                assertThat(row.getString("last_stored_event_id"))
+                        .isEqualTo(MediaLifecyclePublicationReceipt.stableStoredEventId(event.eventId()));
+            }
+        }
+    }
+
+    private static void assertUnclaimedUnsupportedEvent(String eventId) throws Exception {
+        try (Connection connection = DriverManager.getConnection(
+                     POSTGRES.getJdbcUrl(), POSTGRES.getUsername(), POSTGRES.getPassword());
+             var query = connection.prepareStatement(
+                     "SELECT published_at,attempts,claim_owner,claim_token FROM media_processing_lifecycle_outbox "
+                             + "WHERE event_id=?")) {
+            query.setString(1, eventId);
+            try (var row = query.executeQuery()) {
+                assertThat(row.next()).isTrue();
+                assertThat(row.getObject("published_at")).isNull();
+                assertThat(row.getInt("attempts")).isZero();
+                assertThat(row.getString("claim_owner")).isNull();
+                assertThat(row.getLong("claim_token")).isZero();
+            }
         }
     }
 

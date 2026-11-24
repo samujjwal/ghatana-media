@@ -25,7 +25,8 @@ class VideoEnhancementAdmissionIntegrationTest {
     void missingDecoderAndUnavailableOrDeniedRightsNeverProduceCandidateOrChangeSourceBinding() {
         ArtifactBinding originalBinding = SOURCE;
         AtomicInteger decoderCalls = new AtomicInteger();
-        RestorationRequest request = new RestorationRequest("request-j08-missing-decoder", SOURCE);
+        RestorationRequest request = new RestorationRequest("request-j08-missing-decoder", SOURCE,
+                FilterParameters.temporalMedian());
 
         Result noDecoder = TemporalVideoRestoration.restore(
                 request,
@@ -44,7 +45,7 @@ class VideoEnhancementAdmissionIntegrationTest {
 
         AtomicInteger sourceReads = new AtomicInteger();
         Result unknownAuthority = TemporalVideoRestoration.restore(
-                new RestorationRequest("request-j08-unknown-source-rights", SOURCE),
+                new RestorationRequest("request-j08-unknown-source-rights", SOURCE, FilterParameters.temporalMedian()),
                 (binding, operation) -> new AuthorityDecision(AuthorityStatus.UNAVAILABLE, ""),
                 binding -> {
                     sourceReads.incrementAndGet();
@@ -63,7 +64,7 @@ class VideoEnhancementAdmissionIntegrationTest {
         assertThat(SOURCE).isEqualTo(originalBinding);
 
         Result denied = TemporalVideoRestoration.restore(
-                new RestorationRequest("request-j08-denied", SOURCE),
+                new RestorationRequest("request-j08-denied", SOURCE, FilterParameters.temporalMedian()),
                 (binding, operation) -> new AuthorityDecision(AuthorityStatus.DENIED, ""),
                 binding -> {
                     decoderCalls.incrementAndGet();
@@ -86,7 +87,7 @@ class VideoEnhancementAdmissionIntegrationTest {
         ArtifactBinding originalBinding = SOURCE;
         AtomicInteger decoderCalls = new AtomicInteger();
         Result failedRead = TemporalVideoRestoration.restore(
-                new RestorationRequest("request-j08-decoder-read-failure", SOURCE),
+                new RestorationRequest("request-j08-decoder-read-failure", SOURCE, FilterParameters.temporalMedian()),
                 (binding, operation) -> new AuthorityDecision(AuthorityStatus.ALLOWED, "source-allow-j08"),
                 binding -> {
                     decoderCalls.incrementAndGet();
@@ -109,7 +110,7 @@ class VideoEnhancementAdmissionIntegrationTest {
         ArtifactBinding originalBinding = SOURCE;
         AtomicInteger decoderCalls = new AtomicInteger();
         Result missingSequence = TemporalVideoRestoration.restore(
-                new RestorationRequest("request-j08-decoder-empty-result", SOURCE),
+                new RestorationRequest("request-j08-decoder-empty-result", SOURCE, FilterParameters.temporalMedian()),
                 (binding, operation) -> new AuthorityDecision(AuthorityStatus.ALLOWED, "source-allow-j08"),
                 binding -> {
                     decoderCalls.incrementAndGet();
@@ -132,7 +133,8 @@ class VideoEnhancementAdmissionIntegrationTest {
         ArtifactBinding originalBinding = SOURCE;
         AtomicInteger decoderCalls = new AtomicInteger();
         Result malformedSequence = TemporalVideoRestoration.restore(
-                new RestorationRequest("request-j08-malformed-temporal-sequence", SOURCE),
+                new RestorationRequest("request-j08-malformed-temporal-sequence", SOURCE,
+                        FilterParameters.temporalMedian()),
                 (binding, operation) -> new AuthorityDecision(AuthorityStatus.ALLOWED, "source-allow-j08"),
                 binding -> {
                     decoderCalls.incrementAndGet();
@@ -162,7 +164,7 @@ class VideoEnhancementAdmissionIntegrationTest {
         AtomicReference<String> authorizedOperation = new AtomicReference<>();
         AtomicReference<ArtifactBinding> decoderBinding = new AtomicReference<>();
         Result failedRead = TemporalVideoRestoration.restore(
-                new RestorationRequest("request-j08-exact-source-owner", SOURCE),
+                new RestorationRequest("request-j08-exact-source-owner", SOURCE, FilterParameters.temporalMedian()),
                 (binding, operation) -> {
                     authorityBinding.set(binding);
                     authorizedOperation.set(operation);
@@ -200,7 +202,8 @@ class VideoEnhancementAdmissionIntegrationTest {
                         new Frame(2, 2, 1, 1, new Roi(0, 0, 1, 1), new byte[] {7, 8, 9})));
 
         assertThatThrownBy(() -> TemporalVideoRestoration.restore(
-                new RestorationRequest("request-j08-source-digest-mismatch", SOURCE),
+                new RestorationRequest("request-j08-source-digest-mismatch", SOURCE,
+                        FilterParameters.temporalMedian()),
                 (binding, operation) -> new AuthorityDecision(AuthorityStatus.ALLOWED, "source-allow-j08"),
                 binding -> {
                     decoderCalls.incrementAndGet();
@@ -229,7 +232,8 @@ class VideoEnhancementAdmissionIntegrationTest {
                         new Frame(2, 2, 1, 1, new Roi(0, 0, 1, 1), new byte[] {7, 8, 9})));
 
         Result held = TemporalVideoRestoration.restore(
-                new RestorationRequest("request-j08-authority-unknown-before-handoff", SOURCE),
+                new RestorationRequest("request-j08-authority-unknown-before-handoff", SOURCE,
+                        FilterParameters.temporalMedian()),
                 (binding, operation) -> authorityChecks.incrementAndGet() == 1
                         ? new AuthorityDecision(AuthorityStatus.ALLOWED, "source-allow-j08")
                         : new AuthorityDecision(AuthorityStatus.UNAVAILABLE, ""),

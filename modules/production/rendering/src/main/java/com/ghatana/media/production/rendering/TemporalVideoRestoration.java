@@ -172,10 +172,8 @@ public final class TemporalVideoRestoration {
         }
     }
 
+    /** The caller must choose a local filter explicitly; this product leaf defines no method default. */
     public record RestorationRequest(String requestId, ArtifactBinding source, FilterParameters filter) {
-        public RestorationRequest(String requestId, ArtifactBinding source) {
-            this(requestId, source, FilterParameters.temporalMedian());
-        }
         public RestorationRequest {
             requestId = opaqueId(requestId, "requestId", 128);
             Objects.requireNonNull(source, "source");

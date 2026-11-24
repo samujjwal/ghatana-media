@@ -36,10 +36,6 @@ const LOCAL_DEVELOPMENT_COMMAND_IDS: Readonly<Record<string, string>> = {
   'job get': 'media.cli.local-development.job.get',
   'job submit': 'media.cli.local-development.job.submit',
   'job cancel': 'media.cli.local-development.job.cancel',
-  'project render': 'media.cli.local-development.project.render',
-  'project render-get': 'media.cli.local-development.project.render-get',
-  'export create': 'media.cli.local-development.export.create',
-  'export get': 'media.cli.local-development.export.get',
 };
 const BATCH_COMMAND_ID = 'media.cli.local-development.batch.run';
 const DEV_RENDER_EXPORT_COMMANDS: ReadonlySet<string> = new Set(['project render', 'project render-get', 'export create', 'export get']);
@@ -57,7 +53,7 @@ const DEV_TYPED_ERROR_CODES: Readonly<Record<number, ReadonlySet<string>>> = {
 };
 const DEV_TYPED_422_PATTERN = /^(?:RENDER|EXPORT|TIMELINE|TRACK|SOURCE)_[A-Z0-9_]{1,56}$/u;
 const PRODUCTION_USAGE = 'Usage: ghatanamedia-api artifact inspect --endpoint URL --tenant ID --principal ID --artifact ID | job get --endpoint URL --tenant ID --principal ID --job ID [--request-id ID] | job submit --endpoint URL --tenant ID --principal ID --artifact ID --request-id ID [--job-type TYPE] [--provider-hint ID] | job cancel --endpoint URL --tenant ID --principal ID --job ID --request-id ID --expected-version N [--reason USER_REQUEST|POLICY_CHANGE|ADMINISTRATIVE_STOP] | job list --endpoint URL --tenant ID --principal ID [--limit N]';
-const LOCAL_DEVELOPMENT_USAGE = 'Usage: ghatanamedia-api-dev artifact upload --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH --content-type TYPE --classification CLASS --retention PERIOD --idempotency-key KEY | artifact inspect --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID | job get --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID [--request-id ID] [--await-finality-ms N] | job submit --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID --request-id ID [--job-type TYPE] [--provider-hint ID] [--await-finality-ms N] | job cancel --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID --request-id ID [--expected-version N] | project render --endpoint LOOPBACK_URL --tenant ID --principal ID --project-id ID --revision-id ID --timeline-id ID --request-id ID --width N --height N --fps N [--format gif|mp4] | project render-get --endpoint LOOPBACK_URL --tenant ID --principal ID --project-id ID --render-id ID | export create --endpoint LOOPBACK_URL --tenant ID --principal ID --request-id ID --artifact-id ID --artifact-version-id ID --destination-id ID | export get --endpoint LOOPBACK_URL --tenant ID --principal ID --request-id ID | batch run --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH [--continue-on-error]';
+const LOCAL_DEVELOPMENT_USAGE = 'Usage: ghatanamedia-api-dev artifact upload --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH --content-type TYPE --classification CLASS --retention PERIOD --idempotency-key KEY | artifact inspect --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID | job get --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID [--request-id ID] [--await-finality-ms N] | job submit --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID --request-id ID [--job-type TYPE] [--provider-hint ID] [--await-finality-ms N] | job cancel --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID --request-id ID [--expected-version N]';
 const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
 const MAX_REQUEST_TIMEOUT_MS = 300_000;
 const MAX_ENDPOINT_URL_CHARS = 8_192;
@@ -764,12 +760,19 @@ async function runBatchCommand(argv: readonly string[], token: string | undefine
 }
 
 async function run(argv: readonly string[], token: string | undefined, channel: CliChannel): Promise<void> {
+  const commandIds = channel === 'production' ? PRODUCTION_COMMAND_IDS : LOCAL_DEVELOPMENT_COMMAND_IDS;
+  const usage = channel === 'production' ? PRODUCTION_USAGE : LOCAL_DEVELOPMENT_USAGE;
+  const command = `${argv[0] ?? ''} ${argv[1] ?? ''}`;
+  // The finite command-ID map is the admission boundary for every dispatch path,
+  // including local-development fast paths such as `batch run`.
+  if (!Object.hasOwn(commandIds, command)) {
+    writeError('INVALID_INVOCATION', `Unknown command. ${usage}`, {}, 2, command, commandIds);
+    return;
+  }
   if (channel === 'local-development' && argv[0] === 'batch' && argv[1] === 'run') {
     await runBatchCommand(argv, token);
     return;
   }
-  const commandIds = channel === 'production' ? PRODUCTION_COMMAND_IDS : LOCAL_DEVELOPMENT_COMMAND_IDS;
-  const usage = channel === 'production' ? PRODUCTION_USAGE : LOCAL_DEVELOPMENT_USAGE;
   // Parse and reject unsupported command identities before reading credentials
   // or constructing an authenticated transport.
   let args: Arguments;

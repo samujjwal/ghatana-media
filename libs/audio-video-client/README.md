@@ -76,15 +76,25 @@ type, classification, and metadata against the session. The legacy
 bind the returned artifact to an expected upload payload because the wire
 artifact contains no source upload ID.
 
-## Host-configured production CLI
+## Host-configured CLI inventory
 
-The package exposes `ghatanamedia-api` as an authenticated consumer of the
-canonical SDK. The current production command registry admits exactly one
-command:
+The installed `ghatanamedia-api` executable currently has five host-configured
+consumer identities recorded in
+`.product-experience/pdp-3-product-experience/cli/production-command-registry.yaml`:
 
-| CLI operation | SDK operation | Result boundary |
-| --- | --- | --- |
-| `artifact inspect` | `MediaOperationClient.getArtifact()` | Scoped artifact observation |
+| CLI operation | SDK operation | Source disposition | Runtime boundary |
+| --- | --- | --- | --- |
+| `artifact inspect` | `MediaOperationClient.getArtifact()` | Source-bound scoped read | Host identity and production qualification remain open |
+| `job get` | `MediaCanonicalClient.getJob()` | Source-bound scoped read | Host identity and production qualification remain open |
+| `job submit` | `MediaCanonicalClient.submitJob()` | A 202 response is only a submission receipt | Runtime/provider execution is not admitted |
+| `job list` | `MediaCanonicalClient.listJobs()` | PDP-1 scoped query is defined; transport mapping is not admitted | Runtime and production host remain unqualified |
+| `job cancel` | `MediaCanonicalClient.cancelJob()` | Durable cancellation request, not proof of stop | Runtime/provider stop is not admitted |
+
+This is an implementation/source observation, not admission of a user-facing
+product CLI or a qualified production host. The source manifest marks the
+registry `OBSERVATION_ONLY_SOURCE`, `RUNTIME_NOT_ADMITTED`, and
+`INDEPENDENT_ACCEPTANCE_PENDING`; the physical CLI surface remains
+`PROPOSED`/`LOCAL_ONLY`. No production host is qualified.
 
 The endpoint and tenant/principal scope are explicit. The bearer token is read
 only from `GHATANA_MEDIA_BEARER_TOKEN` and is never accepted in command
@@ -100,15 +110,15 @@ absolute HTTPS URLs are required except for `localhost`, `127.0.0.1`, and
 literal or percent-encoded dot segments are rejected before a credential is
 attached.
 
-The SDK's artifact upload and job methods remain available to programmatic
-consumers; their availability does not admit corresponding CLI commands. Upload
-and upload-session inspection, job submit/get/cancel, batch, capture, recorder,
-and stream commands are not in the production command registry and fail as
-`INVALID_INVOCATION` before credential or transport dispatch. Add a CLI command
-only after its exact source operation, request/result schema, authority, and
-finality are bound and admitted. The 11 Explorer fixture commands remain a
-separate synthetic population. Local client tests do not qualify a production
-host or release.
+The installed executable has no artifact upload or upload-session commands,
+and no batch, capture, recorder, or stream command. Although the installed
+binary contains the observed job command identities above, those identities do
+not establish product admission. In particular, `job submit` and `job cancel`
+remain `NOT_ADMITTED`. PDP-1 defines a scoped `job list` query, but its current
+HTTP projection does not provide the required `readVersion` and `observedAt`,
+so transport mapping and runtime remain `NOT_ADMITTED`. The 11 Explorer fixture
+commands remain a separate synthetic population. Local client tests do not
+qualify a production host or release.
 
 ```sh
 GHATANA_MEDIA_BEARER_TOKEN="$MEDIA_TOKEN" ghatanamedia-api artifact inspect \

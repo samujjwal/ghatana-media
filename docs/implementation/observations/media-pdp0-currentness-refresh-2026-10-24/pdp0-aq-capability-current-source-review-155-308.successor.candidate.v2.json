@@ -1,0 +1,239 @@
+{
+  "schemaVersion": "1.0.0",
+  "recordKind": "PDP0_AQ_CAPABILITY_CURRENT_SOURCE_REVIEW_SUCCESSOR",
+  "status": "CURRENTNESS_ONLY_REFRESH",
+  "reviewMethod": "Read-only exact parsed-row comparison against the historical capability source cut. Existing taxonomy findings are reused unchanged; no new semantic review or owner/independent acceptance is claimed.",
+  "predecessorRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-current-source-review-155-308.json",
+  "predecessorSha256": "6a2ca0a86a4d69a99fc2664c9a69837f5a755fe4fb2c2be76abc97c4deda64f9",
+  "semanticReviewRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-current-source-review-155-308.json",
+  "reviewScope": {
+    "sourceOrderFirst1Based": 155,
+    "sourceOrderLast1Based": 308,
+    "expectedRowCount": 154,
+    "recommendationFile": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-155-308.json",
+    "capabilitySource": ".product-experience/pdp-0-product-truth/capabilities.yaml",
+    "requirementSource": ".product-experience/pdp-0-product-truth/requirements.yaml",
+    "taxonomySource": "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md#section-2"
+  },
+  "sourceFingerprints": {
+    "algorithm": "SHA-256 of exact file bytes; semantic row slice is SHA-256 of JSON.stringify(parsed capability records 155-308)",
+    "historicalSourceFingerprints": {
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "5fcb6076223e75c4aa2680265f003713b1a9a9392411864cbdc09812e542a765",
+      "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md": "055d797770cbd4c0c9ec2c20ef10b5e437831f8309b6e813fef234ad9827c947"
+    },
+    "currentSources": {
+      ".product-experience/pdp-0-product-truth/capabilities.yaml": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+      ".product-experience/pdp-0-product-truth/requirements.yaml": "a9d3750f01cad8a4a7aed8c246503d742cdada4aadc4fa49ef6be79b2bbee581",
+      "docs/implementation/references/MEDIA-UNIFIED-DATA-DRIVEN-PRODUCTION-BLUEPRINT-V3-2026-10-17.md": "055d797770cbd4c0c9ec2c20ef10b5e437831f8309b6e813fef234ad9827c947"
+    },
+    "recommendationFile": {
+      "path": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-aq-capability-review-155-308.json",
+      "sha256": "078e306341dc7ec44c41514bc9fb2550cf06ee16668e7fe5eda07ca14db4c723"
+    }
+  },
+  "sourceSliceComparison": {
+    "historicalSourceCommit": "c8d8e52d6323151125fd3c2d147246f9b57e6049^",
+    "historicalCapabilitiesSha256": "b688138bbdb6687a6f72b8faebbcd3fd24b4b0fcaef45131be431ab09ea3eeac",
+    "currentCapabilitiesSha256": "fb5fa356c007dfe3617f0d8505247439dcfdea27d28016797ec927099fbc74d2",
+    "firstOrder1Based": 155,
+    "lastOrder1Based": 308,
+    "rowCount": 154,
+    "historicalSemanticRowsSha256": "c2991b20a901a8a10253ab5c98b6ee11a0cc3070083889f276b9d3ca8aec6018",
+    "currentSemanticRowsSha256": "c2991b20a901a8a10253ab5c98b6ee11a0cc3070083889f276b9d3ca8aec6018",
+    "semanticRowsIdentical": true,
+    "changedCapabilityIds": []
+  },
+  "requirementSourceDelta": {
+    "scope": "Referenced requirement fields outside the taxonomy/index assessment basis; recorded to explain the refreshed whole-file source pin.",
+    "changedRequirementIds": [
+      "MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+      "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "MEDIA-REQ-CAP-RECIPE-TEMPLATE"
+    ],
+    "changedFields": [
+      "acceptanceCases"
+    ],
+    "addedAcceptanceCaseIds": [
+      "MEDIA-REQ-CAP-ANIMATION-OUTPUT-AC-04",
+      "MEDIA-REQ-CAP-ENHANCE-IMAGE-AC-03",
+      "MEDIA-REQ-CAP-ENHANCE-VIDEO-AC-03",
+      "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-13",
+      "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-14",
+      "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-15",
+      "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-16",
+      "MEDIA-REQ-CAP-RECIPE-TEMPLATE-AC-17"
+    ],
+    "removedAcceptanceCaseIds": [],
+    "modifiedAcceptanceCaseIds": [],
+    "taxonomyAssessmentImpact": "The exact new PXD-234 case semantics are resolved separately. Capability IDs, slice order, parent edges, and AQ recommendations are unchanged; acceptanceCases are outside the taxonomy assignment fields. No owner acceptance or closure is claimed."
+  },
+  "semanticAssessment": {
+    "assessmentBasis": "Compared each current capability ID and declared meaning with its recommended primary/related A-Q cluster and rationale against Blueprint v3 section 2 cluster descriptions. Assessment is limited to taxonomy/index fit.",
+    "supported": 154,
+    "ambiguous": 0,
+    "mismatched": 0,
+    "notableSecondaryFitsReviewed": [
+      "Voice conditioning, authorized cloning, and conversion: G with F related.",
+      "Speech localization and dubbing: H with F related.",
+      "Spatial audio generation: I with M related.",
+      "Animation editing: M with D related.",
+      "Recipe templates: J with M related.",
+      "Face restoration: K with O related.",
+      "Temporal video enhancement: K with L related."
+    ],
+    "limitation": "Semantic fit does not adopt new product requirements, establish owner acceptance, prove implementation, or supply obligation-to-surface, case, proof-producer, observer, oracle, or closure bindings."
+  },
+  "identityAndLinkResults": {
+    "recommendationRows": 154,
+    "sourceOrderRangeMatches": true,
+    "allRecommendationOrdersMatchCurrentCapabilitySlice": true,
+    "recommendationCapabilityIdsUnique": true,
+    "recommendationCapabilityIdsMatchCurrentSourceOrder": 154,
+    "recommendationCapabilityIdsMismatched": 0,
+    "currentCapabilityPopulation": 469,
+    "currentCapabilityIdsUnique": true,
+    "currentRequirementPopulation": 38,
+    "currentRequirementIdsUnique": true,
+    "allParentRequirementIdsExist": true,
+    "parentRequirementLinksMatchingCurrentCapabilityRequirementIds": 154,
+    "parentRequirementLinksMismatched": 0,
+    "allRowsRemainTargetInScopeDraft": true
+  },
+  "authority": {
+    "ownerAcceptance": "NOT_CLAIMED",
+    "independentReview": "NOT_CLAIMED",
+    "implementationProof": "NOT_CLAIMED",
+    "lifecycleAdmissionOrClosure": "NOT_CLAIMED",
+    "semanticChange": "NOT_CLAIMED"
+  },
+  "currentnessRefresh": {
+    "kind": "APPEND_ONLY_CURRENTNESS_SUCCESSOR",
+    "note": "The reviewed 155-308 capability records and AQ recommendation slice remain unchanged. Three referenced parent requirements add exact PXD-234 acceptance cases; those case semantics are source-bound separately, while taxonomy assignments remain unchanged.",
+    "refreshDate": "2026-11-22",
+    "predecessorCurrentnessCandidateSha256": "9d506d9253b033bbe47a40fe9e79f45b58b91019c6604a1a5dc20f4ebef4540c",
+    "currentRequirementsSourceSha256": "a9d3750f01cad8a4a7aed8c246503d742cdada4aadc4fa49ef6be79b2bbee581",
+    "pdp0CaseFitDecisionRef": ".product-experience/decision-log.md#PXD-234",
+    "exactPdp0CaseFitAcceptanceCaseIds": [
+      "MEDIA-REQ-CAP-ANIMATION-OUTPUT-AC-04",
+      "MEDIA-REQ-CAP-ENHANCE-IMAGE-AC-03",
+      "MEDIA-REQ-CAP-ENHANCE-VIDEO-AC-03"
+    ]
+  },
+  "predecessorCurrentnessCandidate": {
+    "ref": "docs/implementation/observations/media-pdp0-currentness-refresh-2026-10-24/pdp0-aq-capability-current-source-review-155-308.successor.candidate.v1.json",
+    "sha256": "9d506d9253b033bbe47a40fe9e79f45b58b91019c6604a1a5dc20f4ebef4540c"
+  },
+  "currentnessSuccessor": {
+    "decisionRef": ".product-experience/decision-log.md#PXD-234",
+    "refreshDate": "2026-11-22",
+    "kind": "APPEND_ONLY_CURRENTNESS_SUCCESSOR; OWNER_ACCEPTANCE_NOT_CLAIMED"
+  },
+  "pdp0CaseFitCurrentness": {
+    "decisionRef": ".product-experience/decision-log.md#PXD-234",
+    "auditRef": "docs/implementation/observations/pdp0-semantic-audit-slices/pdp0-501-disposition-crosswalk.json#pdp0CaseFitDecisionAudit",
+    "exactCaseAdditions": {
+      "AUD-ASR-002": [
+        "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-08"
+      ],
+      "AUD-ASR-007": [
+        "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-09"
+      ],
+      "AUD-ASSET-014": [
+        "MEDIA-REQ-CAP-ARTIFACT-AC-12"
+      ],
+      "AUD-CAP-028": [
+        "MEDIA-REQ-CAP-STREAM-AC-08"
+      ],
+      "AUD-CLONE-017": [
+        "MEDIA-REQ-CAP-RIGHTS-AC-15"
+      ],
+      "AUD-COLLAB-001": [
+        "MEDIA-REQ-CAP-PROJECT-AC-12"
+      ],
+      "AUD-COLLAB-003": [
+        "MEDIA-REQ-CAP-PROJECT-AC-13"
+      ],
+      "AUD-COLLAB-005": [
+        "MEDIA-REQ-CAP-PROJECT-AC-09"
+      ],
+      "AUD-COLLAB-006": [
+        "MEDIA-REQ-CAP-ARTIFACT-AC-13"
+      ],
+      "AUD-COLLAB-010": [
+        "MEDIA-REQ-CAP-PROJECT-AC-10"
+      ],
+      "AUD-COLLAB-011": [
+        "MEDIA-REQ-CAP-PROJECT-AC-11"
+      ],
+      "AUD-COLOR-013": [
+        "MEDIA-REQ-CAP-ENHANCE-IMAGE-AC-03",
+        "MEDIA-REQ-CAP-ENHANCE-VIDEO-AC-03"
+      ],
+      "AUD-DELIV-016": [
+        "MEDIA-REQ-CAP-ANIMATION-OUTPUT-AC-04"
+      ],
+      "AUD-DUB-009": [
+        "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-10"
+      ],
+      "AUD-QA-008": [
+        "MEDIA-REQ-CAP-RIGHTS-AC-14"
+      ],
+      "AUD-QA-012": [
+        "MEDIA-REQ-CAP-VISION-SCENE-TEXT-AC-03"
+      ]
+    },
+    "exactAcceptanceCaseIds": [
+      "MEDIA-REQ-CAP-ANIMATION-OUTPUT-AC-04",
+      "MEDIA-REQ-CAP-ARTIFACT-AC-12",
+      "MEDIA-REQ-CAP-ARTIFACT-AC-13",
+      "MEDIA-REQ-CAP-ENHANCE-IMAGE-AC-03",
+      "MEDIA-REQ-CAP-ENHANCE-VIDEO-AC-03",
+      "MEDIA-REQ-CAP-GENERATE-VIDEO-AC-10",
+      "MEDIA-REQ-CAP-PROJECT-AC-09",
+      "MEDIA-REQ-CAP-PROJECT-AC-10",
+      "MEDIA-REQ-CAP-PROJECT-AC-11",
+      "MEDIA-REQ-CAP-PROJECT-AC-12",
+      "MEDIA-REQ-CAP-PROJECT-AC-13",
+      "MEDIA-REQ-CAP-RIGHTS-AC-14",
+      "MEDIA-REQ-CAP-RIGHTS-AC-15",
+      "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-08",
+      "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION-AC-09",
+      "MEDIA-REQ-CAP-STREAM-AC-08",
+      "MEDIA-REQ-CAP-VISION-SCENE-TEXT-AC-03"
+    ],
+    "changedRequirementIds": [
+      "MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+      "MEDIA-REQ-CAP-ARTIFACT",
+      "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "MEDIA-REQ-CAP-ENHANCE-VIDEO",
+      "MEDIA-REQ-CAP-GENERATE-VIDEO",
+      "MEDIA-REQ-CAP-PROJECT",
+      "MEDIA-REQ-CAP-RIGHTS",
+      "MEDIA-REQ-CAP-SPEECH-TRANSCRIPTION",
+      "MEDIA-REQ-CAP-STREAM",
+      "MEDIA-REQ-CAP-VISION-SCENE-TEXT"
+    ],
+    "changedRequirementIdsUsedBySlice": [
+      "MEDIA-REQ-CAP-ANIMATION-OUTPUT",
+      "MEDIA-REQ-CAP-ENHANCE-IMAGE",
+      "MEDIA-REQ-CAP-ENHANCE-VIDEO"
+    ],
+    "exactAcceptanceCaseIdsUsedBySlice": [
+      "MEDIA-REQ-CAP-ANIMATION-OUTPUT-AC-04",
+      "MEDIA-REQ-CAP-ENHANCE-IMAGE-AC-03",
+      "MEDIA-REQ-CAP-ENHANCE-VIDEO-AC-03"
+    ],
+    "changedRequirementFields": [
+      "acceptanceCases"
+    ],
+    "changedRequirementFieldsConsumedByTaxonomyMapping": [],
+    "currentRequirementsSourceSha256": "a9d3750f01cad8a4a7aed8c246503d742cdada4aadc4fa49ef6be79b2bbee581",
+    "taxonomyRecommendationRowsChanged": [],
+    "mappingReviewBasis": "A-Q taxonomy mappings consume capability identity/order, parent-requirement edges, and recommendation assignments; new acceptance-case semantics are bound separately by PXD-234.",
+    "ownerApproval": "NOT_CLAIMED",
+    "independentAcceptance": "NOT_CLAIMED",
+    "phaseStatusEffect": "NONE"
+  }
+}
