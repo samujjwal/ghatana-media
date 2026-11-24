@@ -311,10 +311,11 @@ signature-verified JWT claims. Caller-supplied `x-roles` metadata is ignored.
 The auth-gateway validation response currently carries identity and tenant but
 no roles, so requests accepted only through that fallback have no RBAC grants
 and protected RPCs fail closed. The registry has explicit role entries for
-16 of the 44 RPCs declared by the STT, TTS, Vision, and Multimodal service
-descriptors. The remaining 28 are denied until their exact service/method role
-policy is mapped; this is partial source-backed coverage, not full 44-RPC RBAC
-coverage. Only standard gRPC Health `Check` and `Watch` are exempt from
+16 of the 45 RPCs declared by the STT, TTS, Vision, and Multimodal service
+descriptors. The remaining 29 are denied until their exact service/method role
+policy is mapped, including Vision `ResolveSourceFrame`; handler and generated
+client parity do not establish authorization. This is partial source-backed
+coverage, not full 45-RPC RBAC coverage. Only standard gRPC Health `Check` and `Watch` are exempt from
 application RBAC.
 
 The public gRPC Health `Check` and `Watch` responses contain only the coarse
