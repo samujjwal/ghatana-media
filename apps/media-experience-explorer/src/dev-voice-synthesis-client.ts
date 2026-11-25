@@ -11,9 +11,23 @@ export const VOICE_SCENE_ID = "scene-voice";
 export const VOICE_TRACK_ID = "audio-voice";
 /** Audio clips are placed on a 24 fps story clock; ticks are floored so a clip never exceeds its source. */
 const FRAME_RATE = 24;
+const TIMELINE_CLIP_ID = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/u;
 
 const time = (ticks: number, clock: DevRationalTime["clock"]): DevRationalTime =>
   ({ ticks: String(ticks), rateNumerator: String(FRAME_RATE), rateDenominator: "1", clock });
+
+/** A clip identity scopes one deterministic idempotency key per timeline edit. */
+async function timelineEditRequestId(clipId: string): Promise<string> {
+  if (!TIMELINE_CLIP_ID.test(clipId)) {
+    throw new DevVoiceHostError("INVALID_REQUEST", 0, "The synthesized clip identity is invalid or exceeds 128 characters.");
+  }
+  const digest = await globalThis.crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(`media.dev.voice.timeline:edit:${clipId}`),
+  );
+  const hex = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+  return `voice-timeline-edit:${hex}`;
+}
 
 /**
  * Loopback fetch adapter for the DEV_ONLY speech routes plus the project timeline that "Add to timeline" writes.
@@ -31,6 +45,11 @@ export function createDevVoiceSynthesisClient(options: {
     baseUrl: options.origin, bearerToken: options.bearerToken, fetch: fetcher as typeof fetch,
   });
   let projectId: string | null = null;
+  const randomId = (): string => (globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`);
+  // One project and timeline belong to this client instance. Keep these keys
+  // in the closure so an ambiguous response retries the same mutation identity.
+  const projectCreateRequestId = `voice-project-${randomId()}`;
+  const timelineCreateRequestId = `voice-timeline-${randomId()}`;
 
   async function call(method: "GET" | "POST", path: string, body: unknown, mutating: boolean): Promise<DevVoiceHostResponse> {
     const token = options.bearerToken();
@@ -57,10 +76,9 @@ export function createDevVoiceSynthesisClient(options: {
     throw new DevVoiceHostError(code, response.status, message, details);
   }
 
-  const randomId = (): string => (globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`);
-
   async function addToTimeline(request: DevVoiceTimelineRequest): Promise<DevVoiceTimelinePlacement> {
     try {
+      const timelineEditId = await timelineEditRequestId(request.clipId);
       const ticks = Math.max(1, Math.floor((request.durationMillis * FRAME_RATE) / 1000));
       const clipFor = (start: number): DevTimelineClip => ({
         clipId: request.clipId, sceneId: VOICE_SCENE_ID, trackId: VOICE_TRACK_ID,
@@ -72,13 +90,15 @@ export function createDevVoiceSynthesisClient(options: {
         const context = await timeline.getContext();
         const created = await timeline.createProject({
           selectedAuthorizedWorkspaceId: context.selectedAuthorizedWorkspaceId,
-          title: "Voice synthesis", requestId: `voice-project-${randomId()}`,
+          title: "Voice synthesis", requestId: projectCreateRequestId,
         });
         const withTimeline = await timeline.createTimeline(created.project.projectId, {
           expectedHeadRevisionId: created.initialRevision.revisionId, timelineId: VOICE_TIMELINE_ID,
+          requestId: timelineCreateRequestId,
         });
         const edited = await timeline.editTimeline(created.project.projectId, VOICE_TIMELINE_ID, {
           expectedHeadRevisionId: withTimeline.revision.revisionId,
+          requestId: timelineEditId,
           edits: [
             { type: "addScene", sceneId: VOICE_SCENE_ID, order: 0 },
             { type: "addTrack", trackId: VOICE_TRACK_ID, sceneId: VOICE_SCENE_ID, trackKind: "AUDIO", order: 0 },
@@ -101,7 +121,8 @@ export function createDevVoiceSynthesisClient(options: {
         if (clip.trackId === VOICE_TRACK_ID) end = Math.max(end, Number(clip.storyStart.ticks) + Number(clip.storyDuration.ticks));
       }
       const edited = await timeline.editTimeline(projectId, VOICE_TIMELINE_ID, {
-        expectedHeadRevisionId: head, edits: [{ type: "putClip", clip: clipFor(end) }],
+        expectedHeadRevisionId: head, requestId: timelineEditId,
+        edits: [{ type: "putClip", clip: clipFor(end) }],
       });
       return { projectId, timelineId: VOICE_TIMELINE_ID, revisionId: edited.revision.revisionId, clipId: request.clipId, trackId: VOICE_TRACK_ID };
     } catch (error) {

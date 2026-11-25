@@ -205,11 +205,18 @@
         "modules/production/timeline",
         "modules/production/review",
         "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlProjectTimelineStore.java",
+        "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlDevProjectTimelineStoreFactory.java",
+        "providers/aws-postgresql/src/main/java/com/ghatana/media/provider/aws/PostgresqlDevProjectTimelinePersistenceState.java",
+        "providers/aws-postgresql/src/main/resources/db/media-project-timeline-dev",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaDevProjectTimelineRuntime.java",
+        "launcher/src/main/java/com/ghatana/media/launcher/MediaHttpHandler.java",
+        "libs/audio-video-client/src/dev-project-timeline.ts",
+        "apps/media-experience-explorer/src/dev-project-timeline.ts",
         "libs/audio-video-ui/src/screens",
         "libs/audio-video-client/src/offline-reconnect.ts",
         "runtime-contracts"
       ],
-      "existing": "ProjectTimelineEngine, project-scoped in-memory/test stores, V030 PostgreSQL development adapter, StoryboardPlanner, VersionedReviewEngine and UI screens exist. V030 is NOT launcher-wired; reviewer statement is NOT human approval.",
+      "existing": "ProjectTimelineEngine, project-scoped in-memory/test stores, test-resource-only V030 PostgreSQL adapter, isolated V001-V005 DEV_ONLY PostgreSQL store/schema, StoryboardPlanner, VersionedReviewEngine and UI screens exist. The isolated DEV_ONLY lane is launcher-wired behind signed local identity, the dev profile, an explicit feature flag and loopback PostgreSQL; V030 remains test-only. A reviewer statement is NOT human approval.",
       "steps": [
         [
           "Select canonical project graph semantics",
@@ -217,9 +224,9 @@
           "Bind project ID, immutable revision/head, scene/track/clip and source-version/PTS; define overlap/undo/redo meaning and one CAS writer. Only semantics backed by owner PDP become public; no arbitrary graph-to-PDP equivalence."
         ],
         [
-          "Harden and wire a local durable project lane",
+          "Reuse and extend the existing local durable project lane",
           "providers/aws-postgresql; launcher",
-          "Exercise V030 migration in isolated development schema, atomic head+revision, CAS conflicts, restart and tenant ACL. Wire only to DEV_ONLY host after correct mapping, not automatic production migration/cutover."
+          "Reuse the isolated media-project-timeline-dev V001-V005 migrations and the existing DEV_ONLY launcher wiring; add only remaining source-defined project operations with atomic state, CAS, restart and owner-scope checks. Keep V030 test-resource-only and do not change canonical production migration/cutover."
         ],
         [
           "Make browser actions real one by one",
@@ -646,7 +653,7 @@
         "docs/README.md",
         "AGENTS.md"
       ],
-      "existing": "1,375 tracked historic files were classified; 42 candidates totaling 428,652,561 bytes remain preserved on main, no verified external immutable archive exists.",
+      "existing": "Current inventory: 1,447 tracked historic files (1,020,073,187 bytes), 1,405 KEEP, 42 EXTERNAL_ARCHIVE candidates (all 42 pinned / 428,652,561 bytes), zero unclassified. No verified external immutable archive exists; no artifacts were deleted.",
       "steps": [
         [
           "Keep cleanup off feature critical path",
@@ -669,6 +676,11 @@
           "label": "docs",
           "command": "pnpm check:surface-docs",
           "scope": "Run only on source/README changes; reclassification only when historical inputs change"
+      },
+      {
+        "label": "inventory",
+        "command": "pnpm test:historical-inventory",
+        "scope": "Run when the inventory generator or reference-counting behavior changes"
         }
       ],
       "ownerDecisions": [

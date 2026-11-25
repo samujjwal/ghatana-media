@@ -18,7 +18,10 @@ Media business RPC, provider, job store or generic telemetry engine.
   canonical launcher stream-frame path records `media.capture.frames` only
   after exact provider acknowledgement and canonical-store readback; ambiguous
   frame finality is counted as `outcome="unknown"`. Labels are limited to the
-  fixed `kind`, `outcome`, `service`, and contract version values.
+  fixed `kind`, `outcome`, `service`, and contract version values. The DEV_ONLY
+  project-render runtime also records `stage="render"` attempt duration
+  through admission and the source-authority boundary; this measures request
+  handling, not successful rendering or artifact publication.
 - Each gRPC service supplies its process-local Prometheus registry to the
   shared `HealthMetricsServer`; that sidecar combines those instruments with
   the bounded gRPC/readiness exposition. The standalone launcher keeps its

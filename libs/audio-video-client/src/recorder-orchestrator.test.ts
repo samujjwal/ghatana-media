@@ -867,6 +867,30 @@ describe("publishFinalRender", () => {
   const admitted = { admit: async () => ({ status: "ADMITTED" as const, decisionRefs: ["rights-decision/demo"] }) };
   const muxer = { muxAndVerify: async () => verifiedContainer() };
 
+  it("forwards mux cancellation and does not create an artifact upload", async () => {
+    const controller = new AbortController();
+    const client = fakeClient();
+    let forwardedSignal: AbortSignal | undefined;
+    const cancellableMuxer = {
+      muxAndVerify: vi.fn(async (_request: ReturnType<typeof request>, signal?: AbortSignal) => {
+        forwardedSignal = signal;
+        controller.abort();
+        throw new Error("local codec stopped");
+      }),
+    };
+
+    await expect(publishFinalRender(request(), admitted, cancellableMuxer, client, controller.signal))
+      .resolves.toMatchObject({
+        outcome: "NOT_ADMITTED",
+        reason: expect.stringContaining("cancelled during codec work"),
+      });
+
+    expect(forwardedSignal).toBe(controller.signal);
+    expect((client as unknown as { createUploadSession: ReturnType<typeof vi.fn> }).createUploadSession)
+      .not.toHaveBeenCalled();
+    expect((client as unknown as { uploadPart: ReturnType<typeof vi.fn> }).uploadPart).not.toHaveBeenCalled();
+  });
+
   it("accepts adjacent out-of-order caption cues without reordering the caller snapshot", async () => {
     const base = scenario();
     const plan = orchestrateScenario({

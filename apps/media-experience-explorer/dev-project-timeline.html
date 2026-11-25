@@ -46,6 +46,22 @@
         <dl id="context-fields" class="context-grid" hidden></dl>
       </section>
 
+      <section class="panel" aria-labelledby="find-projects-heading">
+        <div class="section-heading"><div><p class="step">02 · Browse</p><h2 id="find-projects-heading">Find projects</h2></div></div>
+        <p class="help">The host returns metadata from a point-in-time snapshot in your selected DEV_ONLY owner workspace. Search filters only project rows already observed in this snapshot; load more pages to extend what has been observed.</p>
+        <div class="form-grid">
+          <label for="project-search">Search projects</label>
+          <input id="project-search" type="search" autocomplete="off" disabled aria-describedby="project-search-help" placeholder="Filter observed titles or IDs" />
+          <p id="project-search-help" class="help">This filter stays in this page and is never sent as a server query.</p>
+          <div class="button-row">
+            <button id="refresh-project-list" class="button secondary" type="button" disabled>Refresh project list</button>
+            <button id="load-more-projects" class="button secondary" type="button" disabled hidden>Load next page</button>
+          </div>
+        </div>
+        <p id="project-list-status" class="status" role="status" aria-live="polite">Connect to the local host to observe projects.</p>
+        <ul id="project-list" class="project-list" aria-label="Observed projects"></ul>
+      </section>
+
       <section class="panel" aria-labelledby="project-heading">
         <div class="section-heading"><div><p class="step">02 · Create and replay</p><h2 id="project-heading">New project</h2></div></div>
         <p class="help">Creation uses the workspace returned by the host context. Replay reuses the same request identity and payload; after an unknown outcome, read the project before trying a different request.</p>

@@ -228,6 +228,7 @@ class MediaDevGroundedAnswerTest {
             assertThat(created.statusCode()).as(new String(created.body())).isEqualTo(201);
             Map<String, Object> view = map(created);
             assertThat(view).containsEntry("scope", "DEV_ONLY").containsEntry("replayed", false);
+            assertStagedSourceWasRemoved(f);
             Map<String, Object> document = castMap(view.get("document"));
             assertThat(castMap(document.get("answer"))).containsEntry("status", "GROUNDED");
             List<Map<String, Object>> claims = castList(castMap(document.get("answer")).get("claims"));
@@ -264,6 +265,20 @@ class MediaDevGroundedAnswerTest {
             // A foreign principal cannot use the source at all.
             assertThat(f.askAs(OTHER, "req-foreign", false).statusCode()).isEqualTo(404);
             assertThat(f.children.speechCalls.get()).isGreaterThanOrEqualTo(1);
+        } finally {
+            f.close();
+        }
+    }
+
+    @Test
+    void stagedSourceIsDeletedWhenClockProbeFails() throws Exception {
+        Fixture f = new Fixture(Verdict.ADMITTED);
+        try {
+            f.probeFailure = new IllegalStateException("fixture probe failure");
+            HttpResponse<byte[]> failed = f.ask("probe-failure", false);
+            assertThat(failed.statusCode()).isEqualTo(422);
+            assertThat(new String(failed.body(), StandardCharsets.UTF_8)).contains("SOURCE_CLOCK_UNDETERMINED");
+            assertStagedSourceWasRemoved(f);
         } finally {
             f.close();
         }
@@ -630,6 +645,8 @@ class MediaDevGroundedAnswerTest {
         final AtomicInteger registrations = new AtomicInteger();
         final java.util.concurrent.atomic.AtomicBoolean failRegistration = new java.util.concurrent.atomic.AtomicBoolean();
         final AtomicReference<String> question = new AtomicReference<>("What does the speaker say and what is on screen?");
+        final AtomicReference<Path> stagedSourceFile = new AtomicReference<>();
+        final AtomicReference<byte[]> observedSourceBytes = new AtomicReference<>();
         volatile RuntimeException probeFailure;
         final MediaArtifact source;
 
@@ -649,6 +666,8 @@ class MediaDevGroundedAnswerTest {
                 return canonical.register(tenant, principal, upload, key, bytes);
             };
             MediaDevGroundedAnswerRuntime.Probe probe = s -> {
+                stagedSourceFile.set(s.file());
+                observedSourceBytes.set(Files.readAllBytes(s.file()));
                 if (probeFailure != null) throw probeFailure;
                 return fixtureClock();
             };
@@ -722,6 +741,15 @@ class MediaDevGroundedAnswerTest {
 
     private static Map<String, Object> map(HttpResponse<byte[]> response) throws Exception {
         return JSON.readValue(response.body(), new TypeReference<>() { });
+    }
+
+    private static void assertStagedSourceWasRemoved(Fixture fixture) {
+        Path stagedFile = fixture.stagedSourceFile.get();
+        assertThat(stagedFile).isNotNull();
+        assertThat(fixture.observedSourceBytes.get())
+                .containsExactly("fixture mp4 bytes".getBytes(StandardCharsets.UTF_8));
+        assertThat(Files.exists(stagedFile)).isFalse();
+        assertThat(Files.exists(stagedFile.getParent())).isFalse();
     }
 
     @SuppressWarnings("unchecked")

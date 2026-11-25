@@ -33,6 +33,7 @@ import os
 import sys
 import threading
 import time
+import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 MAX_BODY_BYTES = 40 * 1024 * 1024
@@ -49,6 +50,7 @@ MANIFEST_NAME = "ghatana-model-manifest.json"
 MAX_TRANSLATE_CHARS = 1500
 # Text-only machine translation by the already-admitted Qwen2.5-VL-7B-Instruct (owner decision 2026-11-15): en <-> es.
 TRANSLATION_LANGUAGES = {"en": "English", "es": "Spanish"}
+OPERATION_ID_HEADER = "X-Ghatana-Operation-Id"
 
 
 # Optional digest cache (opt-in): the file named by MEDIA_LOCAL_MODEL_DIGEST_CACHE gets a sibling "<name>.sidecar.json".
@@ -141,6 +143,68 @@ def verify_manifest(model_dir, expected_model_id, expected_spdx):
     return manifest
 
 
+class OperationCancelled(Exception):
+    """One local inference was cooperatively cancelled; its partial result is never returned."""
+
+
+class DuplicateOperation(Exception):
+    """An operation ID is already active and cannot be reused concurrently."""
+
+
+def canonical_operation_id(value):
+    if not isinstance(value, str):
+        return False
+    try:
+        return str(uuid.UUID(value)) == value
+    except (ValueError, AttributeError):
+        return False
+
+
+class ActiveOperations:
+    """Ephemeral registry for authenticated cancellation of in-flight local inference only."""
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._events = {}
+
+    def begin(self, operation_id):
+        if operation_id is None:
+            return None
+        if not canonical_operation_id(operation_id):
+            raise ValueError("operation ID must be a canonical UUID")
+        with self._lock:
+            if operation_id in self._events:
+                raise DuplicateOperation()
+            event = threading.Event()
+            self._events[operation_id] = event
+            return event
+
+    def cancel(self, operation_id):
+        with self._lock:
+            event = self._events.get(operation_id)
+            if event is None:
+                return False
+            event.set()
+            return True
+
+    def finish(self, operation_id, event):
+        """Atomically close the cancellation window and return whether cancellation won the race."""
+        if operation_id is None:
+            return False
+        with self._lock:
+            current = self._events.get(operation_id)
+            if current is not event:
+                return event.is_set()
+            self._events.pop(operation_id, None)
+            return event.is_set()
+
+    def release(self, operation_id, event):
+        if operation_id is None:
+            return
+        with self._lock:
+            if self._events.get(operation_id) is event:
+                self._events.pop(operation_id, None)
+
+
 class Engines:
     def __init__(self, florence_dir, qwen_dir, device, qwen_max_pixels):
         self.florence_dir = florence_dir
@@ -204,44 +268,80 @@ class Engines:
         self._qwen = (model, processor)
         return self._qwen
 
-    # ---- inference ----
-    def analyze(self, image, tasks, max_new_tokens):
+    @staticmethod
+    def _stopping_criteria(cancel_event):
+        if cancel_event is None:
+            return None
         import torch
+        from transformers import StoppingCriteria, StoppingCriteriaList
+
+        class CancelOnEvent(StoppingCriteria):
+            def __call__(self, input_ids, scores, **kwargs):
+                return torch.full((input_ids.shape[0],), cancel_event.is_set(), dtype=torch.bool,
+                                  device=input_ids.device)
+
+        return StoppingCriteriaList([CancelOnEvent()])
+
+    @staticmethod
+    def _check_cancelled(cancel_event):
+        if cancel_event is not None and cancel_event.is_set():
+            raise OperationCancelled()
+
+    # ---- inference ----
+    def analyze(self, image, tasks, max_new_tokens, cancel_event=None):
+        self._check_cancelled(cancel_event)
+        import torch
+        self._check_cancelled(cancel_event)
         model, processor, dtype = self.load_florence()
+        self._check_cancelled(cancel_event)
         results = {}
         for task in tasks:
+            self._check_cancelled(cancel_event)
             prompt = FLORENCE_TASKS[task]
             inputs = processor(text=prompt, images=image, return_tensors="pt")
             inputs = {k: (v.to(self.device, dtype) if v.is_floating_point() else v.to(self.device))
                       for k, v in inputs.items()}
+            self._check_cancelled(cancel_event)
             with torch.inference_mode():
-                ids = model.generate(**inputs, max_new_tokens=max_new_tokens, num_beams=3, do_sample=False)
+                ids = model.generate(**inputs, max_new_tokens=max_new_tokens, num_beams=3, do_sample=False,
+                                     stopping_criteria=self._stopping_criteria(cancel_event))
+            self._check_cancelled(cancel_event)
             text = processor.batch_decode(ids, skip_special_tokens=False)[0]
             parsed = processor.post_process_generation(text, task=prompt, image_size=image.size)[prompt]
             results[task] = parsed
         return results
 
-    def ask(self, image, question, max_new_tokens):
+    def ask(self, image, question, max_new_tokens, cancel_event=None):
         import torch
+        self._check_cancelled(cancel_event)
         model, processor = self.load_qwen()
+        self._check_cancelled(cancel_event)
         messages = [{"role": "user", "content": [
             {"type": "image"}, {"type": "text", "text": question}]}]
         text = processor.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
         inputs = processor(text=[text], images=[image], padding=True, return_tensors="pt").to(self.device)
+        self._check_cancelled(cancel_event)
         with torch.inference_mode():
-            ids = model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False)
+            ids = model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False,
+                                 stopping_criteria=self._stopping_criteria(cancel_event))
+        self._check_cancelled(cancel_event)
         trimmed = ids[:, inputs["input_ids"].shape[1]:]
         return processor.batch_decode(trimmed, skip_special_tokens=True)[0].strip()
 
-    def translate(self, text, source, target, max_new_tokens):
+    def translate(self, text, source, target, max_new_tokens, cancel_event=None):
         """Greedy text-only translation (deterministic); the vision tower is not used."""
         import torch
+        self._check_cancelled(cancel_event)
         model, processor = self.load_qwen()
+        self._check_cancelled(cancel_event)
         prompt = processor.apply_chat_template(translation_messages(text, source, target), tokenize=False,
                                                add_generation_prompt=True)
         inputs = processor(text=[prompt], padding=True, return_tensors="pt").to(self.device)
+        self._check_cancelled(cancel_event)
         with torch.inference_mode():
-            ids = model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False)
+            ids = model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False,
+                                 stopping_criteria=self._stopping_criteria(cancel_event))
+        self._check_cancelled(cancel_event)
         trimmed = ids[:, inputs["input_ids"].shape[1]:]
         return processor.batch_decode(trimmed, skip_special_tokens=True)[0].strip()
 
@@ -258,7 +358,7 @@ def translation_messages(text, source, target):
 
 
 def decode_image(b64):
-    from PIL import Image
+    from PIL import Image, ImageOps
     try:
         raw = base64.b64decode(b64, validate=True)
     except (binascii.Error, ValueError):
@@ -273,6 +373,10 @@ def decode_image(b64):
         if image.width * image.height > MAX_PIXELS:
             raise ValueError("image has too many pixels")
         image.load()
+        orientation = image.getexif().get(274, 1)
+        if type(orientation) is not int or not 1 <= orientation <= 8:
+            raise ValueError("image has invalid EXIF orientation")
+        image = ImageOps.exif_transpose(image)
     except ValueError:
         raise
     except Exception:
@@ -281,6 +385,8 @@ def decode_image(b64):
 
 
 def make_handler(engines, token):
+    operations = ActiveOperations()
+
     class Handler(BaseHTTPRequestHandler):
         server_version = "ghatana-vision-sidecar/1"
         timeout = 30
@@ -290,30 +396,37 @@ def make_handler(engines, token):
 
         def _send(self, status, body):
             data = json.dumps(body, separators=(",", ":")).encode("utf-8")
-            self.send_response(status)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Content-Length", str(len(data)))
-            self.send_header("Cache-Control", "no-store")
-            self.end_headers()
-            self.wfile.write(data)
+            try:
+                self.send_response(status)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(data)))
+                self.send_header("Cache-Control", "no-store")
+                self.end_headers()
+                self.wfile.write(data)
+            except (BrokenPipeError, ConnectionResetError, TimeoutError):
+                # A timed-out caller may close its socket while the local model cooperatively stops.
+                return
+
+        def _terminal_response(self, operation_id, cancel_event, status, body):
+            if operations.finish(operation_id, cancel_event):
+                return self._send(409, {"error": "OPERATION_CANCELLED"})
+            return self._send(status, body)
+
+        def _acquire_engine(self, cancel_event):
+            if cancel_event is None:
+                engines.lock.acquire()
+                return
+            while not engines.lock.acquire(timeout=0.05):
+                engines._check_cancelled(cancel_event)
+            try:
+                engines._check_cancelled(cancel_event)
+            except OperationCancelled:
+                engines.lock.release()
+                raise
 
         def _authorized(self):
             supplied = self.headers.get("Authorization", "")
             return hmac.compare_digest(supplied, "Bearer " + token)
-
-        def _translate(self, request, max_new):
-            text = request.get("text", "")
-            source, target = request.get("sourceLanguage", ""), request.get("targetLanguage", "")
-            if not isinstance(text, str) or not text.strip() or len(text) > MAX_TRANSLATE_CHARS \
-                    or any(ord(c) < 0x20 and c not in "\n\t" for c in text):
-                raise ValueError("text is outside the allowed range")
-            if source not in TRANSLATION_LANGUAGES or target not in TRANSLATION_LANGUAGES or source == target:
-                raise ValueError("language pair is not admitted")
-            started = time.monotonic()
-            with engines.lock:
-                translation = engines.translate(text.strip(), source, target, max_new)
-            self._send(200, {"translation": translation, "sourceLanguage": source, "targetLanguage": target,
-                             "elapsedMillis": int((time.monotonic() - started) * 1000)})
 
         def do_GET(self):
             if not self._authorized():
@@ -327,47 +440,95 @@ def make_handler(engines, token):
                     "deviceInfo": engines.device_info()})
             return self._send(404, {"error": "NOT_FOUND"})
 
+        def do_DELETE(self):
+            if not self._authorized():
+                return self._send(401, {"error": "UNAUTHORIZED"})
+            prefix = "/v1/operations/"
+            operation_id = self.path[len(prefix):] if self.path.startswith(prefix) else None
+            if not canonical_operation_id(operation_id):
+                return self._send(400, {"error": "INVALID_OPERATION_ID"})
+            if not operations.cancel(operation_id):
+                return self._send(404, {"error": "OPERATION_NOT_FOUND"})
+            return self._send(202, {"state": "CANCEL_REQUESTED"})
+
         def do_POST(self):
             if not self._authorized():
                 return self._send(401, {"error": "UNAUTHORIZED"})
             if self.path not in ("/v1/analyze", "/v1/ask", "/v1/translate"):
                 return self._send(404, {"error": "NOT_FOUND"})
+            operation_id = self.headers.get(OPERATION_ID_HEADER)
+            try:
+                cancel_event = operations.begin(operation_id)
+            except DuplicateOperation:
+                return self._send(409, {"error": "OPERATION_ALREADY_ACTIVE"})
+            except ValueError:
+                return self._send(400, {"error": "INVALID_OPERATION_ID"})
             try:
                 length = int(self.headers.get("Content-Length", "-1"))
             except ValueError:
                 length = -1
-            if length <= 0 or length > MAX_BODY_BYTES:
-                return self._send(413, {"error": "BODY_SIZE_INVALID"})
             try:
+                if length <= 0 or length > MAX_BODY_BYTES:
+                    return self._terminal_response(operation_id, cancel_event, 413,
+                                                   {"error": "BODY_SIZE_INVALID"})
                 request = json.loads(self.rfile.read(length))
                 max_new = int(request.get("maxNewTokens", 256))
                 if not 1 <= max_new <= MAX_NEW_TOKENS:
                     raise ValueError("maxNewTokens is outside the allowed range")
+                engines._check_cancelled(cancel_event)
                 if self.path == "/v1/translate":
-                    return self._translate(request, max_new)
+                    text = request.get("text", "")
+                    source, target = request.get("sourceLanguage", ""), request.get("targetLanguage", "")
+                    if not isinstance(text, str) or not text.strip() or len(text) > MAX_TRANSLATE_CHARS \
+                            or any(ord(c) < 0x20 and c not in "\n\t" for c in text):
+                        raise ValueError("text is outside the allowed range")
+                    if source not in TRANSLATION_LANGUAGES or target not in TRANSLATION_LANGUAGES or source == target:
+                        raise ValueError("language pair is not admitted")
+                    started = time.monotonic()
+                    self._acquire_engine(cancel_event)
+                    try:
+                        translation = engines.translate(text.strip(), source, target, max_new, cancel_event)
+                    finally:
+                        engines.lock.release()
+                    output = {"translation": translation, "sourceLanguage": source, "targetLanguage": target,
+                              "elapsedMillis": int((time.monotonic() - started) * 1000)}
+                    return self._terminal_response(operation_id, cancel_event, 200, output)
                 image = decode_image(request.get("imageBase64", ""))
+                engines._check_cancelled(cancel_event)
                 started = time.monotonic()
-                with engines.lock:
+                if self.path == "/v1/analyze":
+                    tasks = request.get("tasks", [])
+                    if not tasks or any(t not in FLORENCE_TASKS for t in tasks):
+                        raise ValueError("tasks must be a non-empty subset of caption, detect, ocr")
+                else:
+                    question = request.get("question", "")
+                    if not isinstance(question, str) or not question.strip() \
+                            or len(question) > MAX_QUESTION_CHARS:
+                        raise ValueError("question is outside the allowed range")
+                self._acquire_engine(cancel_event)
+                try:
                     if self.path == "/v1/analyze":
-                        tasks = request.get("tasks", [])
-                        if not tasks or any(t not in FLORENCE_TASKS for t in tasks):
-                            raise ValueError("tasks must be a non-empty subset of caption, detect, ocr")
-                        output = {"results": engines.analyze(image, list(dict.fromkeys(tasks)), max_new),
+                        output = {"results": engines.analyze(image, list(dict.fromkeys(tasks)), max_new, cancel_event),
                                   "imageSize": {"width": image.width, "height": image.height}}
                     else:
-                        question = request.get("question", "")
-                        if not isinstance(question, str) or not question.strip() \
-                                or len(question) > MAX_QUESTION_CHARS:
-                            raise ValueError("question is outside the allowed range")
-                        output = {"answer": engines.ask(image, question, max_new),
+                        output = {"answer": engines.ask(image, question, max_new, cancel_event),
                                   "imageSize": {"width": image.width, "height": image.height}}
+                finally:
+                    engines.lock.release()
                 output["elapsedMillis"] = int((time.monotonic() - started) * 1000)
-                self._send(200, output)
+                return self._terminal_response(operation_id, cancel_event, 200, output)
+            except OperationCancelled:
+                return self._terminal_response(operation_id, cancel_event, 409,
+                                               {"error": "OPERATION_CANCELLED"})
             except ValueError as invalid:
-                self._send(400, {"error": "INVALID_REQUEST", "message": str(invalid)[:200]})
+                return self._terminal_response(operation_id, cancel_event, 400,
+                                               {"error": "INVALID_REQUEST", "message": str(invalid)[:200]})
             except Exception as failure:  # model/runtime failure: typed, no content echoed
                 sys.stderr.write("inference failure: %s\n" % type(failure).__name__)
-                self._send(500, {"error": "INFERENCE_FAILED", "type": type(failure).__name__})
+                return self._terminal_response(operation_id, cancel_event, 500,
+                                               {"error": "INFERENCE_FAILED", "type": type(failure).__name__})
+            finally:
+                operations.release(operation_id, cancel_event)
     return Handler
 
 

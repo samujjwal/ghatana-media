@@ -17,6 +17,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Client for the loopback-only local vision sidecar ({@code tools/model-runtimes/vision/vision_sidecar.py}).
@@ -39,9 +40,10 @@ public final class LocalVisionSidecarClient {
     public static final class SidecarUnavailableException extends RuntimeException {
         /**
          * How far the call got. {@code NOT_REACHED}: the connection was refused or never established, so nothing ran.
-         * {@code TIMED_OUT}: the request was sent and no answer arrived within the deadline (the call is abandoned and
-         * its late result is never used). {@code CONNECTION_LOST}: the request may have been processed (the process
-         * died or reset the connection mid-call), so the outcome is unknown.
+         * {@code TIMED_OUT}: the request was sent and no answer arrived within the deadline. The client asks the
+         * sidecar to cancel that operation, but cancellation is cooperative and the late result is never used.
+         * {@code CONNECTION_LOST}: the request may have been processed (the process died or reset the connection
+         * mid-call), so the outcome is unknown; the client also makes a best-effort cancellation request.
          */
         public enum Reach { NOT_REACHED, TIMED_OUT, CONNECTION_LOST }
 
@@ -203,11 +205,13 @@ public final class LocalVisionSidecarClient {
     }
 
     private JsonNode post(String path, Map<String, Object> body) {
+        String operationId = UUID.randomUUID().toString();
         final byte[] payload = JSON.writeValueAsBytes(body);
         final HttpResponse<byte[]> response;
         try {
             response = http.send(HttpRequest.newBuilder(base.resolve(path)).timeout(timeout)
                             .header("Authorization", "Bearer " + token)
+                            .header("X-Ghatana-Operation-Id", operationId)
                             .header("Content-Type", "application/json")
                             .POST(HttpRequest.BodyPublishers.ofByteArray(payload)).build(),
                     HttpResponse.BodyHandlers.ofByteArray());
@@ -215,12 +219,15 @@ public final class LocalVisionSidecarClient {
             throw new SidecarUnavailableException("local vision sidecar could not be reached", e,
                     SidecarUnavailableException.Reach.NOT_REACHED);
         } catch (java.net.http.HttpTimeoutException e) {
+            requestCancellation(operationId);
             throw new SidecarUnavailableException("local vision sidecar timed out", e,
                     SidecarUnavailableException.Reach.TIMED_OUT);
         } catch (IOException e) {
+            requestCancellation(operationId);
             throw new SidecarUnavailableException("local vision sidecar connection was lost", e,
                     SidecarUnavailableException.Reach.CONNECTION_LOST);
         } catch (InterruptedException e) {
+            requestCancellation(operationId);
             Thread.currentThread().interrupt();
             throw new SidecarUnavailableException("local vision sidecar call interrupted", e,
                     SidecarUnavailableException.Reach.CONNECTION_LOST);
@@ -238,5 +245,23 @@ public final class LocalVisionSidecarClient {
             throw new SidecarRejectedException(response.statusCode(), code.replaceAll("[^A-Z0-9_]", "_"));
         }
         return json;
+    }
+
+    /**
+     * Best-effort cancellation for an inference whose reply could not be observed. The sidecar may still be inside a
+     * native/model step; it treats this as a cooperative stop request, not proof that the computation has ended.
+     * Sending asynchronously keeps timeout and interrupted-call handling bounded and does not expose request content.
+     */
+    private void requestCancellation(String operationId) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder(base.resolve("/v1/operations/" + operationId))
+                    .timeout(Duration.ofSeconds(2))
+                    .header("Authorization", "Bearer " + token)
+                    .DELETE()
+                    .build();
+            http.sendAsync(request, HttpResponse.BodyHandlers.discarding());
+        } catch (RuntimeException ignored) {
+            // The original provider outcome remains UNKNOWN; cancellation is only a resource-release request.
+        }
     }
 }

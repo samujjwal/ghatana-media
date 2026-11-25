@@ -671,7 +671,7 @@ export interface RenderedContainer {
  * SDK intentionally ships no codec implementation, so absence is NOT_ADMITTED.
  */
 export interface FinalRenderMuxAndProbePort {
-  muxAndVerify(request: FinalRenderRequest): Promise<RenderedContainer>;
+  muxAndVerify(request: FinalRenderRequest, signal?: AbortSignal): Promise<RenderedContainer>;
 }
 
 /** Number of frames implied by an exact CFR duration and rational clocks. */
@@ -1116,9 +1116,11 @@ export async function publishFinalRender(
 
   let rendered: RenderedContainer;
   try {
-    rendered = await muxer.muxAndVerify(safeRequest);
+    rendered = await muxer.muxAndVerify(safeRequest, signal);
   } catch {
-    return { outcome: "NOT_ADMITTED", reason: "qualified mux/decoder verification is unavailable or failed" };
+    return { outcome: "NOT_ADMITTED", reason: signal?.aborted
+      ? "render publication was cancelled during codec work"
+      : "qualified mux/decoder verification is unavailable or failed" };
   }
   if (signal?.aborted) {
     return { outcome: "NOT_ADMITTED", reason: "render publication was cancelled before artifact upload began" };

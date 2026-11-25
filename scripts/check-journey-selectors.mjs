@@ -82,7 +82,9 @@ export function validateManifest(manifest, { remaining, repoRoot = REPO_ROOT }) 
     }
     if (task && j.taskState !== task.state) err(`${id}: taskState ${j.taskState} does not match source ${task.state}`);
 
-    const evidence = task?.verificationEvidence ?? '';
+    const evidence = [task?.verificationEvidence, task?.progress]
+      .filter((value) => typeof value === 'string' && value.trim().length > 0)
+      .join('\n');
     const list = Array.isArray(j.classes) ? j.classes : [];
     if (new Set(list).size !== list.length) err(`${id}: duplicate class entries`);
 
@@ -125,7 +127,7 @@ export function validateManifest(manifest, { remaining, repoRoot = REPO_ROOT }) 
     }
     if (j.runnable !== list.length > 0) err(`${id}: runnable must be ${list.length > 0}`);
     if (j.selectorCount !== list.length) err(`${id}: selectorCount ${j.selectorCount} != ${list.length}`);
-    if (list.length === 0 && j.evidenceEmpty !== true && !(task?.verificationEvidence ?? '').trim()) {
+    if (list.length === 0 && j.evidenceEmpty !== true && !evidence.trim()) {
       err(`${id}: empty classes but evidenceEmpty is not true`);
     }
     for (const n of j.evidenceNamesNotInIntegrationTree ?? []) {
@@ -167,6 +169,32 @@ export function gradleCommand(fqcns) {
   ].join(' ');
 }
 
+/** Formats a validated selector choice without starting a child process. */
+export function formatSelection(selectors, selection, { command = false } = {}) {
+  const key = selection.toUpperCase() === 'CPU-ONLY' ? 'cpu-only'
+    : selection.toUpperCase() === 'ALL' ? 'all' : selection.toUpperCase();
+  if (!selectors.has(key)) {
+    return {
+      exitCode: 2,
+      stdout: '',
+      stderr: `unknown selection ${selection}; use J-01..J-30, cpu-only or all`,
+    };
+  }
+  const list = selectors.get(key);
+  if (list.length === 0) {
+    return {
+      exitCode: 3,
+      stdout: '',
+      stderr: `${key} has no integration classes named in its evidence; nothing to run`,
+    };
+  }
+  return {
+    exitCode: 0,
+    stdout: command ? gradleCommand(list) : testArgs(list).join(' '),
+    stderr: '',
+  };
+}
+
 function main(argv) {
   const printIdx = argv.indexOf('--print');
   const print = printIdx >= 0 ? argv[printIdx + 1] : undefined;
@@ -183,18 +211,12 @@ function main(argv) {
   }
 
   if (print) {
-    const key = print.toUpperCase() === 'CPU-ONLY' ? 'cpu-only' : print.toUpperCase() === 'ALL' ? 'all' : print.toUpperCase();
-    if (!selectors.has(key)) {
-      console.error(`unknown selection ${print}; use J-01..J-30, cpu-only or all`);
-      process.exit(2);
+    const result = formatSelection(selectors, print, { command });
+    if (result.exitCode !== 0) {
+      console.error(result.stderr);
+      process.exit(result.exitCode);
     }
-    const list = selectors.get(key);
-    if (list.length === 0) {
-      console.error(`${key} has no integration classes named in its evidence; nothing to run`);
-      process.exit(3);
-    }
-    if (command) console.log(gradleCommand(list));
-    else console.log(testArgs(list).join(' '));
+    console.log(result.stdout);
     return;
   }
 

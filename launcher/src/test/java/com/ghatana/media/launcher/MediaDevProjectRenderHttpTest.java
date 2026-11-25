@@ -102,6 +102,12 @@ class MediaDevProjectRenderHttpTest {
             assertThat(response.body()).contains("SOURCE_USE_AUTHORITY_UNAVAILABLE", "UNAVAILABLE", "DEV_ONLY");
             assertThat(sourceReads).as("authority must be checked before source bytes are read").hasValue(0);
             assertThat(registrations).hasValue(0);
+            String scrape = runtime.prometheusMetrics();
+            assertThat(scrape).contains(
+                    "media_workflow_stage_duration_seconds_count{contract_version=\"v1\",service=\"launcher\",stage=\"render\"} 1");
+            assertThat(scrape).doesNotContain(TENANT, PRINCIPAL, fixture.projectId(), "rights-blocked-render",
+                    fixture.redArtifact().artifactId(), fixture.redArtifact().version().value(),
+                    fixture.blueArtifact().artifactId(), fixture.blueArtifact().version().value());
         } finally {
             server.stop(0);
             runtime.close();

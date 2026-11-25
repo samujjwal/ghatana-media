@@ -16,6 +16,54 @@ class ProjectTimelineEngineTest {
     private static final Actor OWNER = new Actor("tenant-a", "principal-a");
 
     @Test
+    void projectListBindsOpaqueCursorToOwnerWorkspaceAndStableSnapshot() {
+        InMemoryProjectTimelineStore store = new InMemoryProjectTimelineStore();
+        ProjectTimelineEngine engine = new ProjectTimelineEngine(store);
+        for (int index = 0; index < 51; index++) {
+            engine.createProject(OWNER, "workspace-list", "Project " + index, "list-create-" + index);
+        }
+
+        ProjectListObserved first = (ProjectListObserved) engine.listProjects(OWNER, "workspace-list", null);
+        assertThat(first.operationRef()).isEqualTo("media.operation-slice.list-projects");
+        assertThat(first.outcome()).isEqualTo("OBSERVED");
+        assertThat(first.tenantId()).isEqualTo(OWNER.tenantId());
+        assertThat(first.principalId()).isEqualTo(OWNER.principalId());
+        assertThat(first.queryFingerprint()).matches("sha256:[a-f0-9]{64}");
+        assertThat(first.records()).hasSize(50);
+        assertThat(first.nextPageToken()).isNotNull();
+
+        engine.createProject(OWNER, "workspace-list", "Created after snapshot", "list-create-late");
+        ProjectListObserved second = (ProjectListObserved) engine.listProjects(OWNER, "workspace-list", first.nextPageToken());
+        ProjectListObserved replay = (ProjectListObserved) engine.listProjects(OWNER, "workspace-list", first.nextPageToken());
+        assertThat(second.snapshotRef()).isEqualTo(first.snapshotRef());
+        assertThat(second.queryFingerprint()).isNotEqualTo(first.queryFingerprint());
+        assertThat(second.records()).hasSize(1);
+        assertThat(second.records()).noneMatch(record -> record.title().equals("Created after snapshot"));
+        assertThat(second.nextPageToken()).isNull();
+        assertThat(replay.records()).isEqualTo(second.records());
+        assertThat(replay.snapshotRef()).isEqualTo(second.snapshotRef());
+
+        assertThat(engine.listProjects(new Actor("tenant-b", "principal-a"), "workspace-list", first.nextPageToken()))
+                .isEqualTo(new ProjectListUnknown("media.operation-slice.list-projects", "UNKNOWN_OBSERVATION",
+                        "PAGE_TOKEN_INVALID"));
+        assertThat(engine.listProjects(OWNER, "workspace-list", "tampered-token"))
+                .isEqualTo(new ProjectListUnknown("media.operation-slice.list-projects", "UNKNOWN_OBSERVATION",
+                        "PAGE_TOKEN_INVALID"));
+    }
+
+    @Test
+    void emptyProjectListDescribesOnlyAnObservedSnapshot() {
+        ProjectListResult result = engine().listProjects(OWNER, "workspace-empty", null);
+
+        assertThat(result).isInstanceOf(ProjectListObserved.class);
+        ProjectListObserved observed = (ProjectListObserved) result;
+        assertThat(observed.records()).isEmpty();
+        assertThat(observed.nextPageToken()).isNull();
+        assertThat(observed.snapshotRef()).isNotBlank();
+        assertThat(observed.observedAt()).isNotBlank();
+    }
+
+    @Test
     void creationReplayIsIdempotentAndPayloadRebindingConflicts() {
         ProjectTimelineEngine engine = engine();
         Created first = engine.createProject(OWNER, "workspace-a", "Cut", "create-1");

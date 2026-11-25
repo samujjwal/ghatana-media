@@ -61,3 +61,19 @@ test("the voice synthesis page is DEV_ONLY, memory-token only and same-origin", 
   assert.match(adapter, /OUTCOME_UNKNOWN/u);
   assert.ok(!/https?:\/\//u.test(adapter), "the adapter never names another origin");
 });
+
+test("voice timeline mutations preserve bounded request identities across retries", async () => {
+  const adapter = await read("src/dev-voice-synthesis-client.ts");
+  const addToTimeline = adapter.slice(adapter.indexOf("async function addToTimeline"), adapter.indexOf("\n  return {"));
+  assert.match(adapter, /const TIMELINE_CLIP_ID = \/\^\[A-Za-z0-9\]\[A-Za-z0-9\._:-\]\{0,127\}\$\/u/u);
+  assert.match(adapter, /const projectCreateRequestId = `voice-project-\$\{randomId\(\)\}`;/u);
+  assert.match(adapter, /const timelineCreateRequestId = `voice-timeline-\$\{randomId\(\)\}`;/u);
+  assert.match(adapter, /async function timelineEditRequestId\(clipId: string\)/u);
+  assert.match(adapter, /crypto\.subtle\.digest\(\s*"SHA-256"/u);
+  assert.match(adapter, /media\.dev\.voice\.timeline:edit:\$\{clipId\}/u);
+  assert.match(adapter, /return `voice-timeline-edit:\$\{hex\}`;/u);
+  assert.match(addToTimeline, /requestId: projectCreateRequestId/u);
+  assert.match(addToTimeline, /requestId: timelineCreateRequestId/u);
+  assert.equal((addToTimeline.match(/requestId: timelineEditId/gu) ?? []).length, 2);
+  assert.doesNotMatch(addToTimeline, /randomId\(/u, "a retry must not mint a fresh project/timeline ID");
+});

@@ -2,6 +2,8 @@ package com.ghatana.media.production.rendering;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static com.ghatana.media.production.rendering.QualityComparisonAndOptimization.optimize;
+import static com.ghatana.media.production.rendering.QualityComparisonAndOptimization.undo;
 
 import com.ghatana.media.production.rendering.BoundedProcessRunner.CancellationSource;
 import com.ghatana.media.production.rendering.FfmpegMultitrackRenderer.ClipSource;
@@ -12,12 +14,28 @@ import com.ghatana.media.production.rendering.FfmpegMultitrackRenderer.SourcePro
 import com.ghatana.media.production.rendering.MultitrackRenderPlanner.Caption;
 import com.ghatana.media.production.rendering.MultitrackRenderPlanner.Clip;
 import com.ghatana.media.production.rendering.MultitrackRenderPlanner.Graph;
+import com.ghatana.media.production.rendering.MultitrackRenderPlanner.MappedFrame;
 import com.ghatana.media.production.rendering.MultitrackRenderPlanner.Modality;
 import com.ghatana.media.production.rendering.MultitrackRenderPlanner.Plan;
 import com.ghatana.media.production.rendering.MultitrackRenderPlanner.Time;
 import com.ghatana.media.production.rendering.MultitrackRenderPlanner.Transition;
 import com.ghatana.media.production.rendering.MultitrackRenderPlanner.TransitionKind;
+import com.ghatana.media.production.rendering.QualityComparisonAndOptimization.AuthorityDecision;
+import com.ghatana.media.production.rendering.QualityComparisonAndOptimization.AuthorityStatus;
+import com.ghatana.media.production.rendering.QualityComparisonAndOptimization.Budget;
+import com.ghatana.media.production.rendering.QualityComparisonAndOptimization.CandidatePort;
+import com.ghatana.media.production.rendering.QualityComparisonAndOptimization.OptimizationAttempt;
+import com.ghatana.media.production.rendering.QualityComparisonAndOptimization.QualityDisposition;
+import com.ghatana.media.production.rendering.QualityComparisonAndOptimization.ReferenceRequest;
+import com.ghatana.media.production.rendering.QualityComparisonAndOptimization.Revision;
+import com.ghatana.media.production.rendering.QualityComparisonAndOptimization.RevisionId;
+import com.ghatana.media.production.rendering.QualityComparisonAndOptimization.RightsAuthority;
+import com.ghatana.media.production.rendering.QualityComparisonAndOptimization.RgbFrame;
+import com.ghatana.media.production.rendering.QualityComparisonAndOptimization.Run;
+import com.ghatana.media.production.rendering.QualityComparisonAndOptimization.TimeBase;
+
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -31,10 +49,13 @@ import java.nio.file.attribute.PosixFilePermissions;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.FutureTask;
 import javax.imageio.ImageIO;
@@ -216,6 +237,74 @@ class FfmpegMultitrackRendererTest {
         return new double[] {Math.sqrt(sum / Math.max(1, z - a)), pcm.length / 2.0 / 48000};
     }
 
+    private static long qualityTicks(Time timelinePts) {
+        long tenths = Math.multiplyExact(timelinePts.numerator(), 10);
+        if (tenths % timelinePts.denominator() != 0) throw new IllegalArgumentException("fixture PTS is not exact at 10 Hz");
+        return tenths / timelinePts.denominator();
+    }
+
+    private static byte[] rgb(BufferedImage image) {
+        byte[] pixels = new byte[image.getWidth() * image.getHeight() * 3];
+        int offset = 0;
+        for (int y = 0; y < image.getHeight(); y++) for (int x = 0; x < image.getWidth(); x++) {
+            int value = image.getRGB(x, y);
+            pixels[offset++] = (byte) (value >> 16);
+            pixels[offset++] = (byte) (value >> 8);
+            pixels[offset++] = (byte) value;
+        }
+        return pixels;
+    }
+
+    private static byte[] solidRgb(int width, int height, int[] colour) {
+        byte[] pixels = new byte[width * height * 3];
+        for (int i = 0; i < width * height; i++) {
+            pixels[i * 3] = (byte) colour[0];
+            pixels[i * 3 + 1] = (byte) colour[1];
+            pixels[i * 3 + 2] = (byte) colour[2];
+        }
+        return pixels;
+    }
+
+    private static List<RgbFrame> qualityFrames(List<byte[]> pixels, List<MappedFrame> mappedFrames,
+            int width, int height) {
+        if (pixels.size() != mappedFrames.size()) throw new IllegalArgumentException("pixel/PTS count mismatch");
+        List<RgbFrame> frames = new ArrayList<>();
+        for (int i = 0; i < pixels.size(); i++) {
+            frames.add(new RgbFrame(i, width, height, qualityTicks(mappedFrames.get(i).timelinePts()), pixels.get(i)));
+        }
+        return List.copyOf(frames);
+    }
+
+    private static List<RgbFrame> sourceQualityFrames(Fixture fixture, List<MappedFrame> mappedFrames) throws IOException {
+        List<byte[]> pixels = new ArrayList<>();
+        for (MappedFrame mapped : mappedFrames) {
+            byte[] encoded = fixture.video.get(mapped.clipId()).get(mapped.frameIndex());
+            BufferedImage image = ImageIO.read(new ByteArrayInputStream(encoded));
+            pixels.add(rgb(image));
+        }
+        return qualityFrames(pixels, mappedFrames, 64, 48);
+    }
+
+    private List<RgbFrame> decodeQualityFrames(Path mp4, List<MappedFrame> mappedFrames) throws Exception {
+        Path stderr = tmp.resolve("quality-decode.stderr");
+        Process process = new ProcessBuilder(ffmpeg.toString(), "-v", "error", "-i", mp4.toString(),
+                "-map", "0:v:0", "-fps_mode", "passthrough", "-pix_fmt", "rgb24", "-f", "rawvideo", "pipe:1")
+                .redirectError(stderr.toFile()).start();
+        byte[] decoded = process.getInputStream().readAllBytes();
+        if (!process.waitFor(30, TimeUnit.SECONDS)) {
+            process.destroyForcibly();
+            throw new AssertionError("FFmpeg RGB decode exceeded 30 seconds");
+        }
+        assertThat(process.exitValue()).as(Files.readString(stderr)).isZero();
+        int frameBytes = 64 * 48 * 3;
+        assertThat(decoded.length).isEqualTo(mappedFrames.size() * frameBytes);
+        List<byte[]> pixels = new ArrayList<>();
+        for (int offset = 0; offset < decoded.length; offset += frameBytes) {
+            pixels.add(Arrays.copyOfRange(decoded, offset, offset + frameBytes));
+        }
+        return qualityFrames(pixels, mappedFrames, 64, 48);
+    }
+
     private String ffprobeText(Path mp4, String entries) throws Exception {
         Process p = new ProcessBuilder(ffprobe.toString(), "-v", "error", "-of", "compact", "-show_entries", entries, mp4.toString()).start();
         String s = new String(p.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
@@ -279,6 +368,73 @@ class FfmpegMultitrackRendererTest {
         assertThat(r.verification().streamCount()).isEqualTo(1);
         assertThat(r.captionsSidecarPath()).isNull();
         assertTempEmpty();
+    }
+
+    @Test
+    void realRenderedMp4CanBeMeasuredAndUndoneWithoutClaimingImprovement() throws Exception {
+        requireTools();
+        Fixture fixture = standard(false, false);
+        Plan plan = fixture.plan();
+        var rendered = renderer().render(plan, fixture, out(), null);
+
+        assertThat(rendered.outcome()).as(rendered.toString()).isEqualTo(Outcome.COMPLETED);
+        assertThat(rendered.verification().videoFrameCount()).isEqualTo(4);
+        assertThat(rendered.verification().videoPtsExact()).isTrue();
+        List<MappedFrame> mappedFrames = plan.frameMap().stream()
+                .sorted(Comparator.comparing(MappedFrame::timelinePts)).toList();
+        assertThat(mappedFrames.stream().map(frame -> qualityTicks(frame.timelinePts())).toList())
+                .containsExactly(0L, 2L, 3L, 4L);
+
+        List<RgbFrame> sourceFrames = sourceQualityFrames(fixture, mappedFrames);
+        List<RgbFrame> candidateFrames = decodeQualityFrames(rendered.outputPath(), mappedFrames);
+        List<byte[]> goldenPixels = List.of(solidRgb(64, 48, RED), solidRgb(64, 48, GREEN),
+                solidRgb(64, 48, BLUE), solidRgb(64, 48, WHITE));
+        List<RgbFrame> referenceFrames = qualityFrames(goldenPixels, mappedFrames, 64, 48);
+
+        List<byte[]> encodedSourceFrames = mappedFrames.stream()
+                .map(frame -> fixture.video.get(frame.clipId()).get(frame.frameIndex())).toList();
+        String qualityOperation = "media.operation.capability.media-quality-bounded-optimize";
+        RevisionId sourceId = new RevisionId("fixture-tenant", "fixture-owner", "source-graph", "v1",
+                sha(encodedSourceFrames.toArray(new byte[0][])));
+        Revision source = new Revision(sourceId, new TimeBase(1, 10), sourceFrames);
+        RevisionId candidateId = new RevisionId("fixture-tenant", "fixture-owner", "rendered-mp4", "v1",
+                rendered.outputSha256());
+        Revision candidate = new Revision(candidateId, new TimeBase(1, 10), candidateFrames);
+        RevisionId referenceId = new RevisionId("fixture-tenant", "fixture-owner", "hard-coded-golden", "v1",
+                sha(goldenPixels.toArray(new byte[0][])));
+        Revision reference = new Revision(referenceId, new TimeBase(1, 10), referenceFrames);
+        CandidatePort outputObservation = new CandidatePort() {
+            @Override public boolean supports(String operationId) { return qualityOperation.equals(operationId); }
+            @Override public OptimizationAttempt optimize(String operationId, Revision input, int attempt, Budget bounds) {
+                return OptimizationAttempt.available(candidate);
+            }
+        };
+        Budget bounds = new Budget(100_000, 1_000_000, 1);
+        RightsAuthority sourceRights = (id, purpose) -> sourceId.equals(id) && qualityOperation.equals(purpose)
+                ? new AuthorityDecision(AuthorityStatus.ALLOWED, "source-rights-v1")
+                : new AuthorityDecision(AuthorityStatus.DENIED, "");
+        RightsAuthority referenceRights = (id, purpose) -> referenceId.equals(id) && "fixture-golden-reference".equals(purpose)
+                ? new AuthorityDecision(AuthorityStatus.ALLOWED, "fixture-reference-rights-v1")
+                : new AuthorityDecision(AuthorityStatus.DENIED, "");
+        Optional<ReferenceRequest> referenceRequest = Optional.of(new ReferenceRequest(referenceId, "fixture-golden-reference"));
+
+        Run run = optimize(qualityOperation, source, sourceRights, outputObservation, 1, bounds,
+                referenceRequest, referenceRights, id -> reference);
+        Run replay = optimize(qualityOperation, source, sourceRights, outputObservation, 1, bounds,
+                referenceRequest, referenceRights, id -> reference);
+
+        assertThat(run.status()).isEqualTo(QualityComparisonAndOptimization.RunStatus.COMPLETED);
+        var report = run.report().orElseThrow();
+        assertThat(report.reference()).contains(referenceId);
+        assertThat(report.budget()).isEqualTo(bounds);
+        assertThat(report.reportSha256()).isEqualTo(replay.report().orElseThrow().reportSha256());
+        var comparison = report.comparisons().getFirst();
+        assertThat(comparison.sourcePsnr().status()).isEqualTo(QualityComparisonAndOptimization.MetricStatus.EXACT_MATCH);
+        assertThat(comparison.sourceSsim().value()).hasValue(1.0);
+        assertThat(comparison.psnr().status()).isNotEqualTo(QualityComparisonAndOptimization.MetricStatus.UNAVAILABLE);
+        assertThat(comparison.ssim().status()).isNotEqualTo(QualityComparisonAndOptimization.MetricStatus.UNAVAILABLE);
+        assertThat(comparison.disposition()).isEqualTo(QualityDisposition.NOT_IMPROVED);
+        assertThat(undo(run, sourceId)).isSameAs(source);
     }
 
     @Test

@@ -9,6 +9,22 @@ import org.junit.jupiter.api.Test;
 
 class MediaProjectTimelineContractsTest {
     @Test
+    void projectListRecordsRequireCurrentPdpProjectStateIds() {
+        for (String state : List.of("ACTIVE", "ARCHIVED")) {
+            assertThat(new ProjectListRecord("project-1", "workspace-1", "Project", state, "revision-1")
+                    .projectState()).isEqualTo(state);
+        }
+
+        for (String invalid : List.of("active", " ARCHIVED", "ARCHIVED ", "PAUSED")) {
+            assertThatThrownBy(() -> new ProjectListRecord("project-1", "workspace-1", "Project", invalid,
+                    "revision-1"))
+                    .as("project state %s", invalid)
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("projectState");
+        }
+    }
+
+    @Test
     void exactTimelineIdentitiesRejectSurroundingWhitespace() {
         assertThatThrownBy(() -> new SourceVersion(" artifact", "version"))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("artifactId");

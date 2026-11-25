@@ -1,9 +1,12 @@
 package com.ghatana.media.provider.aws;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ghatana.media.production.timeline.StoryboardPlanner;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Actor;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectAccessDeniedException;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectNotFoundException;
+import tools.jackson.databind.ObjectMapper;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -15,6 +18,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -28,6 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 final class PostgresqlStoryboardPlanAuthority implements StoryboardPlanner.ScenePlanAuthority, AutoCloseable {
     private final MediaAwsPostgresqlRuntimeState state = MediaAwsPostgresqlRuntimeState.acquire();
+    private final ObjectMapper mapper = storyboardMapper(state.mapper());
     private final AtomicBoolean closed = new AtomicBoolean();
 
     @Override
@@ -281,7 +286,7 @@ final class PostgresqlStoryboardPlanAuthority implements StoryboardPlanner.Scene
 
     private String serialize(StoryboardPlanner.ScenePlan plan) {
         try {
-            return state.mapper().writeValueAsString(plan);
+            return mapper.writeValueAsString(plan);
         } catch (Exception failure) {
             throw new IllegalArgumentException("storyboard plan cannot be serialized", failure);
         }
@@ -289,10 +294,35 @@ final class PostgresqlStoryboardPlanAuthority implements StoryboardPlanner.Scene
 
     private StoryboardPlanner.ScenePlan deserialize(String json) {
         try {
-            return state.mapper().readValue(json, StoryboardPlanner.ScenePlan.class);
+            return mapper.readValue(json, StoryboardPlanner.ScenePlan.class);
         } catch (Exception failure) {
             throw new IllegalStateException("persisted storyboard plan cannot be read", failure);
         }
+    }
+
+    private static ObjectMapper storyboardMapper(ObjectMapper source) {
+        return source.rebuild()
+                .addMixIn(StoryboardPlanner.StoryboardBinding.class, StoryboardBindingMixin.class)
+                .build();
+    }
+
+    /** Storage-specific Jackson mapping keeps serialization details out of the timeline contract. */
+    private abstract static class StoryboardBindingMixin {
+        @JsonCreator
+        StoryboardBindingMixin(
+                @JsonProperty("scenePlanRef") StoryboardPlanner.ScenePlanRef scenePlanRef,
+                @JsonProperty("sceneRefs") List<StoryboardPlanner.SceneGraphRef> sceneRefs,
+                @JsonProperty("timelineRef") StoryboardPlanner.TimelineRef timelineRef,
+                @JsonProperty("expectedProjectRevisionId") String expectedProjectRevisionId,
+                @JsonProperty("timelineSnapshotSemanticVersionId") String timelineSnapshotSemanticVersionId,
+                @JsonProperty("planSnapshot") StoryboardPlanner.ScenePlan planSnapshot) {}
+
+        @JsonProperty("scenePlanRef") private StoryboardPlanner.ScenePlanRef scenePlanRef;
+        @JsonProperty("sceneRefs") private List<StoryboardPlanner.SceneGraphRef> sceneRefs;
+        @JsonProperty("timelineRef") private StoryboardPlanner.TimelineRef timelineRef;
+        @JsonProperty("expectedProjectRevisionId") private String expectedProjectRevisionId;
+        @JsonProperty("timelineSnapshotSemanticVersionId") private String timelineSnapshotSemanticVersionId;
+        @JsonProperty("planSnapshot") private StoryboardPlanner.ScenePlan planSnapshot;
     }
 
     private String fingerprint(Actor actor, StoryboardPlanner.ScenePlan plan, String expectedHead,

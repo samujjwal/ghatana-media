@@ -1,14 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { validateManifest, testArgs, JOURNEY_IDS, REPO_ROOT } from '../scripts/check-journey-selectors.mjs';
+import { join } from 'node:path';
+import { validateManifest, formatSelection, testArgs, JOURNEY_IDS, REPO_ROOT } from '../scripts/check-journey-selectors.mjs';
 
-const here = dirname(fileURLToPath(import.meta.url));
-const script = resolve(here, '../scripts/check-journey-selectors.mjs');
 const manifest = JSON.parse(readFileSync(join(REPO_ROOT, 'integration-tests/journey-selectors.v1.json'), 'utf8'));
 const remaining = JSON.parse(readFileSync(join(REPO_ROOT, 'docs/development/remaining-work.json'), 'utf8'));
 
@@ -47,6 +43,43 @@ test('a class listed for a journey whose evidence does not mention it is rejecte
   j.needsFfmpeg = true;
   const { errors } = check(m);
   assert.ok(errors.some((e) => e.startsWith('J-03: MediaDevSimulationIT is listed but')), errors.join('\n'));
+});
+
+test('J-06 selector evidence may come from progress, but removing it from both fields is rejected', () => {
+  const m = clone(manifest);
+  const source = clone(remaining);
+  const j = m.journeys.find((x) => x.id === 'J-06');
+  const task = source.tasks.find((x) => x.id === j.taskId);
+  const simple = j.classes[0].slice(j.classes[0].lastIndexOf('.') + 1);
+
+  assert.ok(task.progress.includes(simple));
+  task.verificationEvidence = '';
+  let { errors } = validateManifest(m, { remaining: source, repoRoot: REPO_ROOT });
+  assert.deepEqual(errors.filter((error) => error.startsWith('J-06:')), []);
+
+  task.progress = task.progress.replaceAll(simple, '');
+  task.verificationEvidence = task.verificationEvidence.replaceAll(simple, '');
+  ({ errors } = validateManifest(m, { remaining: source, repoRoot: REPO_ROOT }));
+  assert.ok(errors.some((error) => error.startsWith(`J-06: ${simple} is listed but`)), errors.join('\n'));
+});
+
+test('empty selector validation accepts progress evidence and rejects it when absent', () => {
+  const m = clone(manifest);
+  const source = clone(remaining);
+  const j = m.journeys.find((x) => x.id === 'J-06');
+  const task = source.tasks.find((x) => x.id === j.taskId);
+  j.classes = [];
+  j.runnable = false;
+  j.selectorCount = 0;
+  j.evidenceEmpty = false;
+  task.verificationEvidence = '';
+
+  let { errors } = validateManifest(m, { remaining: source, repoRoot: REPO_ROOT });
+  assert.ok(!errors.includes('J-06: empty classes but evidenceEmpty is not true'), errors.join('\n'));
+
+  task.progress = '';
+  ({ errors } = validateManifest(m, { remaining: source, repoRoot: REPO_ROOT }));
+  assert.ok(errors.includes('J-06: empty classes but evidenceEmpty is not true'), errors.join('\n'));
 });
 
 test('a class whose file does not exist is rejected', () => {
@@ -97,14 +130,20 @@ test('cpu-only selection contains no class that needs a local model', () => {
   for (const j of journeys.values()) if (j.cpuOnly) assert.equal(j.needsLocalModel, false, j.id);
 });
 
-test('cli prints Gradle --tests arguments for J-24', () => {
-  const out = execFileSync(process.execPath, [script, '--print', 'J-24'], { encoding: 'utf8' }).trim();
-  assert.equal(out, '--tests com.ghatana.media.integration.MediaDevStructuredCliBatchIT');
+test('selection formatter prints Gradle --tests arguments for J-24', () => {
+  const { selectors } = check(manifest);
+  const result = formatSelection(selectors, 'J-24');
+  assert.equal(result.exitCode, 0);
+  assert.equal(result.stdout, '--tests com.ghatana.media.integration.MediaDevStructuredCliBatchIT');
+  assert.equal(result.stderr, '');
   assert.deepEqual(testArgs(['a.B', 'c.D']), ['--tests', 'a.B', '--tests', 'c.D']);
 });
 
-test('cli prints the full Gradle command with the required -P flags', () => {
-  const out = execFileSync(process.execPath, [script, '--print', 'J-24', '--command'], { encoding: 'utf8' }).trim();
+test('selection formatter prints the full Gradle command with the required -P flags', () => {
+  const { selectors } = check(manifest);
+  const result = formatSelection(selectors, 'J-24', { command: true });
+  assert.equal(result.exitCode, 0);
+  const out = result.stdout;
   for (const flag of [
     '-Pghatana.media.dependencyProfile=DEV_SOURCE_COMPOSITE',
     '-Pghatana.media.compositeScope=FULL',
@@ -115,8 +154,29 @@ test('cli prints the full Gradle command with the required -P flags', () => {
   assert.ok(out.includes(':services:media:integration-tests:test --tests com.ghatana.media.integration.MediaDevStructuredCliBatchIT'));
 });
 
-test('cli prints the selectors for a journey whose evidence names its integration classes', () => {
-  const out = execFileSync(process.execPath, [script, '--print', 'J-03'], { encoding: 'utf8', stdio: 'pipe' });
-  assert.ok(out.includes('--tests com.ghatana.media.integration.MediaDevCaptionJourneyIT'), out);
-  assert.ok(out.includes('--tests com.ghatana.media.integration.MediaDevExplorerCaptionCorrectionLiveIT'), out);
+test('selection formatter prints every selector for a journey', () => {
+  const { selectors } = check(manifest);
+  const result = formatSelection(selectors, 'J-03');
+  assert.equal(result.exitCode, 0);
+  assert.equal(result.stdout,
+    '--tests com.ghatana.media.integration.MediaDevCaptionJourneyIT '
+      + '--tests com.ghatana.media.integration.MediaDevExplorerCaptionCorrectionLiveIT');
+});
+
+test('selection formatter supports all and cpu-only aliases case-insensitively', () => {
+  const { selectors } = check(manifest);
+  for (const [selection, key] of [['all', 'all'], ['CPU-ONLY', 'cpu-only']]) {
+    const result = formatSelection(selectors, selection);
+    assert.equal(result.exitCode, 0);
+    assert.equal(result.stdout, testArgs(selectors.get(key)).join(' '));
+  }
+});
+
+test('selection formatter reports unknown and empty selections without starting a child process', () => {
+  const unknown = formatSelection(new Map(), 'J-31');
+  assert.equal(unknown.exitCode, 2);
+  assert.equal(unknown.stderr, 'unknown selection J-31; use J-01..J-30, cpu-only or all');
+  const empty = formatSelection(new Map([['J-18', []]]), 'J-18');
+  assert.equal(empty.exitCode, 3);
+  assert.equal(empty.stderr, 'J-18 has no integration classes named in its evidence; nothing to run');
 });

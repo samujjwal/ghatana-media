@@ -18,8 +18,6 @@ import { MediaDevProjectTimelineClient } from './dev-project-timeline.js';
 import { MediaDevOnlyJobCancellationClient } from './dev-job-cancellation.js';
 import { MediaDevOnlyRenderExportClient } from './dev-render-export.js';
 import type { DevExportResult, DevRenderFormat } from './dev-render-export.js';
-import { BatchValidationError, JOB_NOT_FINAL_EXIT_CODE, parseBatch, readBatchFile, runBatch } from './dev-batch.js';
-import type { BatchItem, BatchItemOutcome } from './dev-batch.js';
 import { sameMediaRetention } from './retention-duration.js';
 import { isCanonicalMediaContentType } from './upload-validation.js';
 
@@ -37,11 +35,11 @@ const LOCAL_DEVELOPMENT_COMMAND_IDS: Readonly<Record<string, string>> = {
   'job submit': 'media.cli.local-development.job.submit',
   'job cancel': 'media.cli.local-development.job.cancel',
 };
-const BATCH_COMMAND_ID = 'media.cli.local-development.batch.run';
 const DEV_RENDER_EXPORT_COMMANDS: ReadonlySet<string> = new Set(['project render', 'project render-get', 'export create', 'export get']);
 const DEV_MUTATING_COMMANDS: ReadonlySet<string> = new Set(['project render', 'export create', 'job submit']);
 const EXPORT_NOT_CONFIRMED_EXIT_CODE = 4;
 const MAX_AWAIT_FINALITY_MS = 300_000;
+const JOB_NOT_FINAL_EXIT_CODE = 6;
 const FINALITY_POLL_MS = 250;
 const JOB_TYPES_FOR_SUBMIT: ReadonlySet<string> = new Set(['TRANSCODE', 'SPEECH_TO_TEXT', 'TEXT_TO_SPEECH', 'VISION', 'MULTIMODAL']);
 const TERMINAL_JOB_STATES: ReadonlySet<string> = new Set(['COMPLETED', 'FAILED', 'CANCELLED']);
@@ -597,9 +595,9 @@ async function uploadArtifact(
     assertSafeUploadSessionIdentity(session, token);
     onUploadId(session.uploadId);
 
-    // Re-running a batch replays the same idempotency key. A session this key already completed (or was
-    // finalizing when a prior process or host died) is reconciled by the host's idempotent completion and
-    // the exact content digest: no byte is re-sent and no second artifact can exist.
+    // Retrying this upload with the same idempotency key reconciles its existing session. If the session
+    // already completed or was finalizing when a prior process or host died, the host's idempotent
+    // completion and exact content digest ensure no byte is re-sent and no second artifact can exist.
     if ((session.status === 'COMPLETED' || session.status === 'FINALIZING')
       && session.expectedSha256 === expectedSha256 && session.expectedSizeBytes === initialStat.size
       && session.bytesReceived === initialStat.size) {
@@ -680,97 +678,13 @@ async function uploadArtifact(
   }
 }
 
-/** Runs one existing single-command implementation in-process, capturing its structured output. */
-async function dispatchBatchItem(item: BatchItem, common: readonly string[], token: string): Promise<BatchItemOutcome> {
-  const realOut = process.stdout.write;
-  const realErr = process.stderr.write;
-  const priorExit = process.exitCode;
-  let stdout = '';
-  let stderr = '';
-  process.exitCode = undefined;
-  process.stdout.write = ((chunk: unknown) => { stdout += String(chunk); return true; }) as typeof process.stdout.write;
-  process.stderr.write = ((chunk: unknown) => { stderr += String(chunk); return true; }) as typeof process.stderr.write;
-  try {
-    await run([...item.command.split(' '), ...common, ...item.flags], token, 'local-development');
-    return { exitCode: Number(process.exitCode ?? 0), stdout, stderr };
-  } finally {
-    process.stdout.write = realOut;
-    process.stderr.write = realErr;
-    process.exitCode = priorExit;
-  }
-}
-
-/** DEV_ONLY `batch run --file PATH [--continue-on-error]`; see dev-batch.ts for the recorded design decision. */
-async function runBatchCommand(argv: readonly string[], token: string | undefined): Promise<void> {
-  const command = 'batch run';
-  const fail = (code: string, message: string, exitCode: number) =>
-    writeError(code, message, {}, exitCode, command, { 'batch run': BATCH_COMMAND_ID });
-  const values = new Map<string, string>();
-  let continueOnError = false;
-  try {
-    for (let index = 2; index < argv.length;) {
-      const option = argv[index]!;
-      if (option === '--continue-on-error' && !continueOnError) { continueOnError = true; index += 1; continue; }
-      const value = argv[index + 1];
-      if (!['--endpoint', '--tenant', '--principal', '--file'].includes(option) || value === undefined
-        || value.startsWith('--') || values.has(option)) throw new Error('Invalid or unknown command option.');
-      values.set(option, value);
-      index += 2;
-    }
-    for (const required of ['--endpoint', '--tenant', '--principal', '--file']) {
-      if (!values.has(required)) throw new Error(`Missing required option ${required}.`);
-    }
-    for (const name of ['--tenant', '--principal']) {
-      if (!OPAQUE_ID_PATTERN.test(values.get(name)!)) throw new Error(`${name.slice(2)} must be a PDP-1 opaque ID of 1 to 128 characters.`);
-    }
-  } catch (error) {
-    fail('INVALID_INVOCATION', `${error instanceof Error ? error.message : 'Invalid invocation'} ${LOCAL_DEVELOPMENT_USAGE}`, 2);
-    return;
-  }
-  const bearerToken = token?.trim();
-  if (!bearerToken) { fail('MISSING_AUTH_TOKEN', 'Set GHATANA_MEDIA_BEARER_TOKEN in the environment; credentials are never accepted as command arguments.', 2); return; }
-  let endpoint: string;
-  try { endpoint = validateLocalDevelopmentEndpoint(values.get('--endpoint')!); }
-  catch { fail('LOCAL_DEV_ENDPOINT_REQUIRED', 'The local-development CLI only accepts a valid loopback Media endpoint.', 3); return; }
-  const common = ['--endpoint', endpoint, '--tenant', values.get('--tenant')!, '--principal', values.get('--principal')!];
-  let items: readonly BatchItem[];
-  try {
-    items = parseBatch(await readBatchFile(values.get('--file')!));
-    // Every item is fully validated by the single-command parser before any item is dispatched.
-    for (const [index, item] of items.entries()) {
-      try { parseArguments([...item.command.split(' '), ...common, ...item.flags], 'local-development'); }
-      catch (error) {
-        throw new BatchValidationError('BATCH_SCHEMA_INVALID',
-          `items[${index}].options failed single-command validation: ${error instanceof Error ? error.message : 'invalid item'}`);
-      }
-    }
-  } catch (error) {
-    if (error instanceof BatchValidationError) {
-      writeError(error.code, error.message, { jsonPath: error.path }, 2, command, { 'batch run': BATCH_COMMAND_ID });
-    } else fail('BATCH_SCHEMA_INVALID', 'The batch file could not be validated.', 2);
-    return;
-  }
-  const report = await runBatch(items, { continueOnError, dispatch: (item) => dispatchBatchItem(item, common, bearerToken) });
-  if (containsCredential(report.document, bearerToken)) {
-    fail('INVALID_MEDIA_RESPONSE', 'Batch output contained credential material and was withheld.', 1);
-    return;
-  }
-  process.stdout.write(`${JSON.stringify(report.document)}\n`);
-  process.exitCode = report.exitCode;
-}
-
 async function run(argv: readonly string[], token: string | undefined, channel: CliChannel): Promise<void> {
   const commandIds = channel === 'production' ? PRODUCTION_COMMAND_IDS : LOCAL_DEVELOPMENT_COMMAND_IDS;
   const usage = channel === 'production' ? PRODUCTION_USAGE : LOCAL_DEVELOPMENT_USAGE;
   const command = `${argv[0] ?? ''} ${argv[1] ?? ''}`;
-  // The finite command-ID map is the admission boundary for every dispatch path,
-  // including local-development fast paths such as `batch run`.
+  // The finite command-ID map is the admission boundary for every dispatch path.
   if (!Object.hasOwn(commandIds, command)) {
     writeError('INVALID_INVOCATION', `Unknown command. ${usage}`, {}, 2, command, commandIds);
-    return;
-  }
-  if (channel === 'local-development' && argv[0] === 'batch' && argv[1] === 'run') {
-    await runBatchCommand(argv, token);
     return;
   }
   // Parse and reject unsupported command identities before reading credentials
@@ -784,6 +698,17 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
       {},
       2,
       `${argv[0] ?? ''} ${argv[1] ?? ''}`,
+      commandIds,
+    );
+    return;
+  }
+  if (channel === 'production' && (args.command === 'job submit' || args.command === 'job cancel')) {
+    writeError(
+      'NOT_ADMITTED',
+      'This production CLI operation is not admitted for the current runtime.',
+      {},
+      3,
+      args.command,
       commandIds,
     );
     return;
@@ -1016,7 +941,7 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
         writeError('INVALID_MEDIA_RESPONSE', 'Media returned a job response containing credential material.', {}, 1, args.command, commandIds);
         return;
       }
-      writeError('JOB_NOT_FINAL', 'The job did not reach COMPLETED, FAILED or CANCELLED within the bound; finality is UNKNOWN. Re-read the same job (or re-run the same batch with the same request identity) to resume; do not submit a new request.',
+      writeError('JOB_NOT_FINAL', 'The job did not reach COMPLETED, FAILED or CANCELLED within the bound; finality is UNKNOWN. Re-read the same job to resume; do not submit a new request.',
         { jobId: job.jobId, requestId: job.requestId, observedStatus: job.status, finality: 'UNKNOWN' },
         JOB_NOT_FINAL_EXIT_CODE, args.command, commandIds);
       return;

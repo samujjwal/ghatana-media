@@ -6,6 +6,8 @@ import com.ghatana.media.runtime.MediaProjectTimelineContracts.Actor;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Created;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Project;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectTimelineStore;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectListQuery;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectListResult;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Revision;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.TimelineSnapshot;
 import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
@@ -56,6 +58,83 @@ class MediaDevProjectTimelineHttpTest {
     private static final Set<String> JOB_CANCEL_PERMISSION = Set.of("media:job:cancel");
     private static final ObjectMapper JSON = JsonMapper.builder()
             .addModules(tools.jackson.databind.cfg.MapperBuilder.findModules()).build();
+
+    @Test
+    void projectListIsExactOwnerScopedPassiveMetadataAndRejectsMalformedOrForeignScope() throws Exception {
+        Path root = Files.createTempDirectory("media-dev-project-list-http-");
+        MediaRuntime mediaRuntime = runtime(root);
+        MediaDevProjectTimelineRuntime projectRuntime = new MediaDevProjectTimelineRuntime(new InMemoryManagedStore());
+        HttpServer server = server(mediaRuntime, projectRuntime);
+        try {
+            String base = base(server);
+            Map<String, Object> context = read(send(base, "GET", "/dev/v1/context", null,
+                    PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true).body());
+            String workspaceId = (String) context.get("selectedAuthorizedWorkspaceId");
+            for (int index = 0; index < 2; index++) {
+                HttpResponse<String> created = send(base, "POST", "/dev/v1/projects", JSON.writeValueAsString(Map.of(
+                        "selectedAuthorizedWorkspaceId", workspaceId,
+                        "title", "List project " + index,
+                        "requestId", "list-project-create-" + index)), PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
+                assertThat(created.statusCode()).as(created.body()).isEqualTo(201);
+            }
+
+            HttpResponse<String> observed = send(base, "GET", "/dev/v1/projects?workspaceId=" + workspaceId,
+                    null, PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
+            assertThat(observed.statusCode()).as(observed.body()).isEqualTo(200);
+            Map<String, Object> page = read(observed.body());
+            assertThat(page.keySet()).containsExactlyInAnyOrder("operationRef", "outcome", "tenantId", "principalId",
+                    "workspaceId", "queryFingerprint", "snapshotRef", "observedAt", "records", "nextPageToken");
+            assertThat(page).containsEntry("operationRef", "media.operation-slice.list-projects")
+                    .containsEntry("outcome", "OBSERVED").containsEntry("tenantId", TENANT)
+                    .containsEntry("principalId", PRINCIPAL).containsEntry("workspaceId", workspaceId);
+            List<?> rows = (List<?>) page.get("records");
+            assertThat(rows).hasSize(2);
+            for (Object row : rows) {
+                assertThat(object(row).keySet()).containsExactlyInAnyOrder(
+                        "projectId", "workspaceId", "title", "projectState", "headRevisionId");
+            }
+            assertThat(observed.body()).doesNotContain("timelines", "content", "artifactBytes");
+
+            HttpResponse<String> duplicate = send(base, "GET", "/dev/v1/projects?workspaceId=" + workspaceId
+                    + "&workspaceId=" + workspaceId, null, PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
+            assertThat(duplicate.statusCode()).isEqualTo(400);
+            assertThat(duplicate.body()).contains("INVALID_REQUEST").doesNotContain(workspaceId);
+            HttpResponse<String> trustedOverride = send(base, "GET", "/dev/v1/projects?workspaceId=" + workspaceId
+                    + "&tenantId=tenant-other", null, PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
+            assertThat(trustedOverride.statusCode()).isEqualTo(400);
+            assertThat(trustedOverride.body()).contains("INVALID_REQUEST").doesNotContain("tenant-other");
+
+            HttpResponse<String> invalidCursor = send(base, "GET", "/dev/v1/projects?workspaceId=" + workspaceId
+                    + "&pageToken=tampered-token", null, PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
+            assertThat(invalidCursor.statusCode()).isEqualTo(200);
+            assertThat(read(invalidCursor.body())).containsExactlyInAnyOrderEntriesOf(Map.of(
+                    "operationRef", "media.operation-slice.list-projects",
+                    "outcome", "UNKNOWN_OBSERVATION", "reason", "PAGE_TOKEN_INVALID"));
+
+            HttpResponse<String> unauthorizedWorkspace = send(base, "GET",
+                    "/dev/v1/projects?workspaceId=workspace-other", null, PRINCIPAL, TENANT, PROJECT_PERMISSIONS, true);
+            assertThat(read(unauthorizedWorkspace.body())).containsExactlyInAnyOrderEntriesOf(Map.of(
+                    "operationRef", "media.operation-slice.list-projects",
+                    "outcome", "UNKNOWN_OBSERVATION", "reason", "AUTHORITY_UNAVAILABLE"));
+            HttpResponse<String> foreignOwner = send(base, "GET", "/dev/v1/projects?workspaceId=" + workspaceId,
+                    null, "principal-other", TENANT, PROJECT_PERMISSIONS, true);
+            assertThat(read(foreignOwner.body())).containsExactlyInAnyOrderEntriesOf(Map.of(
+                    "operationRef", "media.operation-slice.list-projects",
+                    "outcome", "UNKNOWN_OBSERVATION", "reason", "AUTHORITY_UNAVAILABLE"));
+            HttpResponse<String> foreignTenant = send(base, "GET", "/dev/v1/projects?workspaceId=" + workspaceId,
+                    null, PRINCIPAL, "tenant-other", PROJECT_PERMISSIONS, true);
+            assertThat(read(foreignTenant.body())).containsExactlyInAnyOrderEntriesOf(Map.of(
+                    "operationRef", "media.operation-slice.list-projects",
+                    "outcome", "UNKNOWN_OBSERVATION", "reason", "AUTHORITY_UNAVAILABLE"));
+        } finally {
+            server.stop(0);
+            projectRuntime.close();
+            mediaRuntime.close();
+            try (var paths = Files.walk(root)) {
+                for (Path path : paths.sorted(java.util.Comparator.reverseOrder()).toList()) Files.deleteIfExists(path);
+            }
+        }
+    }
 
     @Test
     void localJobCancellationIsSignedScopedReplaySafeAndSeparateFromCanonicalRoutes() throws Exception {
@@ -767,6 +846,7 @@ class MediaDevProjectTimelineHttpTest {
                                          String newRevisionId, List<TimelineSnapshot> timelines) {
             return delegate.commit(actor, projectId, expectedHeadRevisionId, newRevisionId, timelines);
         }
+        @Override public ProjectListResult listProjects(ProjectListQuery query) { return delegate.listProjects(query); }
         @Override public Revision replayCommand(Actor actor, String projectId, String operationRef,
                                                  String requestId, String fingerprint) {
             return delegate.replayCommand(actor, projectId, operationRef, requestId, fingerprint);

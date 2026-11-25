@@ -739,6 +739,19 @@ describe("CameraCaptureAdapter", () => {
     expect(sourceReorderedTrack.stopCalls).toBe(1);
   });
 
+  it("rejects a malformed supplied source PTS even when source clock metadata is unknown", async () => {
+    const track = frameTrack([{ bytes: new Uint8Array([5]), presentationTicks: "not-a-tick" }]);
+    const h = harness({ tracks: [track],
+      metadata: (candidate) => sourceMetadataFor(candidate, {
+        sourceClockRef: null,
+        sourceTimeBase: null,
+      }) });
+    const session = await h.adapter.openSession(request);
+
+    await expectCode(session.nextFrame(), "PTS_INVALID");
+    expect(track.stopCalls).toBe(1);
+  });
+
   it("bounds host capture PTS to signed int64 and closes the device on invalid clock output", async () => {
     const maximum = (1n << 63n) - 1n;
     const boundary = harness({ pts: () => maximum });

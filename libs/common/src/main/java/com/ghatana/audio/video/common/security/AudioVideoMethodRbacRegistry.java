@@ -1,5 +1,6 @@
 package com.ghatana.audio.video.common.security;
 
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -24,6 +25,18 @@ import java.util.Set;
  * @doc.pattern Configuration
  */
 public final class AudioVideoMethodRbacRegistry {
+
+    /** A method's disposition in the application-role registry, before domain checks. */
+    enum MethodDisposition {
+        /** An exact role grant exists; verified identity and domain authorization are still required. */
+        ROLE_GRANT,
+        /** The method is known but remains denied while method-specific owner policy is unresolved. */
+        EXPLICIT_DENY,
+        /** No source method disposition exists; callers must fail closed. */
+        UNMAPPED,
+        /** Exact standard gRPC health methods are outside application method RBAC. */
+        STANDARD_HEALTH_EXEMPT
+    }
 
     /**
      * Default RBAC policy for audio-video gRPC methods.
@@ -60,6 +73,55 @@ public final class AudioVideoMethodRbacRegistry {
                 Set.of("av:user", "av:admin"))
     );
 
+    /**
+     * Current application RPCs with no approved application-role grant. These remain denied
+     * until their exact method policy is source-bound; listing them does not authorize access.
+     */
+    private static final Set<String> EXPLICIT_DENIED_METHODS = Set.of(
+        "com.ghatana.audio.video.stt.grpc.STTService/GetStatus",
+        "com.ghatana.audio.video.stt.grpc.STTService/HealthCheck",
+        "com.ghatana.audio.video.tts.grpc.TTSService/GetStatus",
+        "com.ghatana.audio.video.tts.grpc.TTSService/GetMetrics",
+        "com.ghatana.audio.video.tts.grpc.TTSService/GetVoices",
+        "com.ghatana.audio.video.tts.grpc.TTSService/LoadVoice",
+        "com.ghatana.audio.video.tts.grpc.TTSService/CreateProfile",
+        "com.ghatana.audio.video.tts.grpc.TTSService/GetProfile",
+        "com.ghatana.audio.video.tts.grpc.TTSService/UpdateProfile",
+        "com.ghatana.audio.video.tts.grpc.TTSService/CloneVoice",
+        "com.ghatana.audio.video.tts.grpc.TTSService/SubmitFeedback",
+        "com.ghatana.audio.video.vision.grpc.VisionService/ClassifyImage",
+        "com.ghatana.audio.video.vision.grpc.VisionService/RecognizeSceneText",
+        "com.ghatana.audio.video.vision.grpc.VisionService/ResolveSourceFrame",
+        "com.ghatana.audio.video.vision.grpc.VisionService/ProcessVideo",
+        "com.ghatana.audio.video.vision.grpc.VisionService/LoadModel",
+        "com.ghatana.audio.video.vision.grpc.VisionService/UnloadModel",
+        "com.ghatana.audio.video.vision.grpc.VisionService/ListModels",
+        "com.ghatana.audio.video.vision.grpc.VisionService/GetStatus",
+        "com.ghatana.audio.video.vision.grpc.VisionService/HealthCheck",
+        "com.ghatana.audio.video.multimodal.grpc.MultimodalService/AnalyzeVideoWithAudio",
+        "com.ghatana.audio.video.multimodal.grpc.MultimodalService/GenerateDescription",
+        "com.ghatana.audio.video.multimodal.grpc.MultimodalService/AnalyzeCrossModal",
+        "com.ghatana.audio.video.multimodal.grpc.MultimodalService/GetInsights",
+        "com.ghatana.audio.video.multimodal.grpc.MultimodalService/LoadModel",
+        "com.ghatana.audio.video.multimodal.grpc.MultimodalService/UnloadModel",
+        "com.ghatana.audio.video.multimodal.grpc.MultimodalService/ListModels",
+        "com.ghatana.audio.video.multimodal.grpc.MultimodalService/GetStatus",
+        "com.ghatana.audio.video.multimodal.grpc.MultimodalService/HealthCheck"
+    );
+
+    private static final Set<String> EXPLICITLY_DISPOSITIONED_METHODS;
+
+    static {
+        Set<String> overlap = new HashSet<>(METHOD_ROLES.keySet());
+        overlap.retainAll(EXPLICIT_DENIED_METHODS);
+        if (!overlap.isEmpty()) {
+            throw new ExceptionInInitializerError("gRPC methods have both grant and deny dispositions");
+        }
+        Set<String> methods = new HashSet<>(METHOD_ROLES.keySet());
+        methods.addAll(EXPLICIT_DENIED_METHODS);
+        EXPLICITLY_DISPOSITIONED_METHODS = Set.copyOf(methods);
+    }
+
     /** Fully qualified standard gRPC health methods exempt from application RBAC. */
     private static final Set<String> EXEMPT_METHODS = Set.of(
         "/grpc.health.v1.Health/Check",
@@ -76,11 +138,12 @@ public final class AudioVideoMethodRbacRegistry {
      * @return {@code true} if the role grants access
      */
     public static boolean isAllowed(String fullMethodName, String role) {
-        if (isExempt(fullMethodName)) {
+        MethodDisposition disposition = methodDisposition(fullMethodName);
+        if (disposition == MethodDisposition.STANDARD_HEALTH_EXEMPT) {
             return true;
         }
+        if (disposition != MethodDisposition.ROLE_GRANT) return false;
         Set<String> required = METHOD_ROLES.get(normalizeFullMethod(fullMethodName));
-        if (required == null) return false;
         if (role == null || role.isBlank()) {
             return false;
         }
@@ -95,17 +158,38 @@ public final class AudioVideoMethodRbacRegistry {
      * @return {@code true} if at least one role grants access
      */
     public static boolean isAllowedAny(String fullMethodName, Set<String> roles) {
-        if (isExempt(fullMethodName)) {
+        MethodDisposition disposition = methodDisposition(fullMethodName);
+        if (disposition == MethodDisposition.STANDARD_HEALTH_EXEMPT) {
             return true;
         }
+        if (disposition != MethodDisposition.ROLE_GRANT) return false;
         Set<String> required = METHOD_ROLES.get(normalizeFullMethod(fullMethodName));
-        if (required == null) return false;
         if (roles == null || roles.isEmpty()) {
             return false;
         }
         return roles.stream()
                 .filter(Objects::nonNull)
                 .anyMatch(role -> required.contains(role) || required.contains(role.toLowerCase(Locale.ROOT)));
+    }
+
+    /**
+     * Returns the exact registry disposition without granting access. A configured role grant
+     * still requires verified transport identity and the service's domain-specific checks.
+     */
+    static MethodDisposition methodDisposition(String fullMethodName) {
+        if (isExempt(fullMethodName)) return MethodDisposition.STANDARD_HEALTH_EXEMPT;
+        String method = normalizeFullMethod(fullMethodName);
+        if (METHOD_ROLES.containsKey(method)) return MethodDisposition.ROLE_GRANT;
+        if (EXPLICIT_DENIED_METHODS.contains(method)) return MethodDisposition.EXPLICIT_DENY;
+        return MethodDisposition.UNMAPPED;
+    }
+
+    /**
+     * Returns the immutable exact application RPC identities with an explicit role grant or
+     * deny disposition. Standard gRPC health exemptions and future unmapped methods are excluded.
+     */
+    static Set<String> explicitlyDispositionedMethods() {
+        return EXPLICITLY_DISPOSITIONED_METHODS;
     }
 
     /**

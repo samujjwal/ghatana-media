@@ -392,6 +392,8 @@ class MediaWorkflowMetricsTest {
         metrics.recordRequest();
         var sample = metrics.startTimer();
         metrics.stopTimer(sample, MediaWorkflowMetrics.Stage.PROVIDER);
+        var renderSample = metrics.startTimer();
+        metrics.stopTimer(renderSample, MediaWorkflowMetrics.Stage.RENDER);
         metrics.setQueueDepth(7);
         metrics.setUnknownBacklog(2);
         metrics.setOverdueLeases(1);
@@ -400,6 +402,8 @@ class MediaWorkflowMetricsTest {
         assertThat(registry.get("media.workflow.events").tag("event", "unknown").counter().count())
                 .isEqualTo(1);
         assertThat(registry.get("media.workflow.stage.duration").tag("stage", "provider").timer().count())
+                .isEqualTo(1);
+        assertThat(registry.get("media.workflow.stage.duration").tag("stage", "render").timer().count())
                 .isEqualTo(1);
         assertThat(registry.get("media.workflow.queue.depth").gauge().value()).isEqualTo(7);
         assertThat(registry.get("media.workflow.unknown.backlog").gauge().value()).isEqualTo(2);

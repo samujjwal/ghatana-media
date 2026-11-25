@@ -125,6 +125,8 @@ export function MediaTaskFlow({
   primaryAction, secondaryActions = [], operation, children, className,
   density = "standard", colorScheme,
 }: MediaTaskFlowProps): React.ReactElement {
+  const idPrefix = React.useId();
+  const scopedId = (id: string): string => `${idPrefix}-${id}`;
   const projection = currentProjection ?? {
     title: title ?? "Media task",
     description: description ?? "",
@@ -156,9 +158,9 @@ export function MediaTaskFlow({
 
   return (
     <main className={`media-task-flow ${className ?? ""}`} data-density={density}
-      data-color-scheme={colorScheme} aria-labelledby="media-task-flow-title">
+      data-color-scheme={colorScheme} aria-labelledby={scopedId("media-task-flow-title")}>
       <header >
-        <h1 id="media-task-flow-title" >{projection.title}</h1>
+        <h1 id={scopedId("media-task-flow-title")} >{projection.title}</h1>
         <p >{projection.description}</p>
       </header>
 
@@ -167,11 +169,11 @@ export function MediaTaskFlow({
           {projection.steps.map((step, index) => {
             const selected = step.id === projection.currentStepId;
             const interactive = Boolean(onStepSelect) && step.selectable !== false;
-            const stepNumberId = `media-step-${step.id}-number`;
-            const stepStateId = `media-step-${step.id}-state`;
-            const stepTitleId = `media-step-${step.id}-title`;
-            const stepDescriptionId = `media-step-${step.id}-description`;
-            const stepReasonId = step.blockedReason ? `media-step-${step.id}-reason` : undefined;
+            const stepNumberId = scopedId(`media-step-${index}-number`);
+            const stepStateId = scopedId(`media-step-${index}-state`);
+            const stepTitleId = scopedId(`media-step-${index}-title`);
+            const stepDescriptionId = scopedId(`media-step-${index}-description`);
+            const stepReasonId = step.blockedReason ? scopedId(`media-step-${index}-reason`) : undefined;
             return <li key={step.id}>
               <button type="button" onClick={() => interactive && onStepSelect?.(step.id)} disabled={!interactive}
                 aria-current={selected ? "step" : undefined}
@@ -191,10 +193,10 @@ export function MediaTaskFlow({
         </ol>
       </nav>
 
-      {observation && <section aria-labelledby="media-operation-title" >
+      {observation && <section aria-labelledby={scopedId("media-operation-title")} >
         <div role="status" aria-live="polite" aria-atomic="true">
           <div>
-            <h2 id="media-operation-title" >{observation.state.replaceAll("_", " ").toLowerCase()}</h2>
+            <h2 id={scopedId("media-operation-title")} >{observation.state.replaceAll("_", " ").toLowerCase()}</h2>
             <p >{observation.message ?? "Operation status was observed."}</p>
             {observation.finality && <p >{observation.finality}</p>}
             {observation.correlationId && <p >Correlation: {observation.correlationId}</p>}
@@ -213,10 +215,10 @@ export function MediaTaskFlow({
       </section>}
 
       <div >
-        <section aria-labelledby="media-current-task-title" >
+        <section aria-labelledby={scopedId("media-current-task-title")} >
           <header >
             <p >Current task</p>
-            <h2 id="media-current-task-title" >{currentStep?.title ?? "Media task"}</h2>
+            <h2 id={scopedId("media-current-task-title")} >{currentStep?.title ?? "Media task"}</h2>
             <p >{currentStep?.description}</p>
           </header>
           {children}
@@ -226,12 +228,12 @@ export function MediaTaskFlow({
           {(primary || actions.length > 0) && <section >
             <h2 >Next action</h2>
             <div >
-              {primary && <button type="button" className="media-action-button media-action-button--primary" onClick={primary.onAction} disabled={primary.disabled} aria-describedby={primary.disabledReason ? "media-primary-action-reason" : undefined}>{primary.label}</button>}
-              {primary?.disabledReason && <p id="media-primary-action-reason" >{primary.disabledReason}</p>}
-              {actions.map((action) => <React.Fragment key={action.id}>
+              {primary && <button type="button" className="media-action-button media-action-button--primary" onClick={primary.onAction} disabled={primary.disabled} aria-describedby={primary.disabledReason ? scopedId("media-primary-action-reason") : undefined}>{primary.label}</button>}
+              {primary?.disabledReason && <p id={scopedId("media-primary-action-reason")} >{primary.disabledReason}</p>}
+              {actions.map((action, index) => <React.Fragment key={action.id}>
                 <button type="button" className={`media-action-button media-action-button--${action.destructive ? "destructive" : "secondary"}`} onClick={action.onAction} disabled={action.disabled}
-                  aria-describedby={action.disabledReason ? `media-action-${action.id}-reason` : undefined}>{action.label}</button>
-                {action.disabledReason && <p id={`media-action-${action.id}-reason`} >{action.disabledReason}</p>}
+                  aria-describedby={action.disabledReason ? scopedId(`media-action-${index}-reason`) : undefined}>{action.label}</button>
+                {action.disabledReason && <p id={scopedId(`media-action-${index}-reason`)} >{action.disabledReason}</p>}
               </React.Fragment>)}
             </div>
           </section>}

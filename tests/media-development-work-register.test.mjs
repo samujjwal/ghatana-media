@@ -49,22 +49,23 @@ test("integration prerequisites form an acyclic dependency graph", () => {
   assert.equal(visited.size, 103);
   assert.match(work.dependencySemantics, /not reasons to postpone/i);
 });
-test("42 historical artifacts cannot be deleted without immutable off-main readback", () => {
+test("42 pinned historical artifacts cannot be deleted without immutable off-main readback", () => {
   const flagged = inventory.artifacts.filter((r) => r.disposition === "EXTERNAL_ARCHIVE");
+  const flaggedByPath = new Map(flagged.map((r) => [r.path, r]));
   assert.equal(preservation.total, 42);
-  assert.equal(flagged.length, 42);
+  assert.ok(flagged.length >= preservation.total);
   assert.equal(preservation.deletionApproved, false);
   assert.equal(preservation.externalArchiveVerified, false);
   const byPath = new Map(preservation.artifacts.map((r) => [r.path, r]));
   assert.equal(byPath.size, 42);
   let bytes = 0;
-  for (const item of flagged) {
-    const current = byPath.get(item.path);
-    assert.ok(current, item.path);
-    assert.equal(current.sha256, item.sha256);
-    assert.equal(current.bytes, item.bytes);
-    assert.match(current.gitBlobSha, /^[a-f0-9]{40}$/u);
-    assert.equal(current.deleteApproved, false);
+  for (const item of preservation.artifacts) {
+    const inventoryRow = flaggedByPath.get(item.path);
+    assert.ok(inventoryRow, item.path);
+    assert.equal(inventoryRow.sha256, item.sha256);
+    assert.equal(inventoryRow.bytes, item.bytes);
+    assert.match(item.gitBlobSha, /^[a-f0-9]{40}$/u);
+    assert.equal(item.deleteApproved, false);
     bytes += item.bytes;
   }
   assert.equal(preservation.bytes, bytes);

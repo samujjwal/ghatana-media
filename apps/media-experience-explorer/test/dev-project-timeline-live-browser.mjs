@@ -176,6 +176,26 @@ try {
   assert.equal(replayed.project.projectId, projectId);
   assert.equal(replayed.initialRevision.revisionId, initialRevisionId);
 
+  const observedRow = page.locator("#project-list button").filter({ hasText: projectId });
+  await observedRow.waitFor({ timeout: 10_000 });
+  await observedRow.click();
+  await page.getByText(new RegExp(`Opened existing DEV_ONLY project ${projectId}; current head revision ${initialRevisionId} matches the observed snapshot version\\.`)).waitFor();
+  const selectedProjectReadback = await jsonFrom(page.locator("#project-json"));
+  assert.equal(selectedProjectReadback.project.projectId, projectId,
+    "selecting an observed project row must perform the exact owner-scoped inspect read before opening");
+  assert.ok(apiRequests.some(({ method, url }) => method === "GET"
+    && new URL(url).pathname === `/dev/v1/projects/${projectId}`),
+  "row selection must read back the exact project id before opening the workspace");
+  const listRequests = apiRequests.filter(({ method, url }) => method === "GET"
+    && new URL(url).pathname === "/dev/v1/projects");
+  assert.ok(listRequests.length >= 1, "the Explorer must passively query the project-list route");
+  for (const { url } of listRequests) {
+    const query = new URL(url).searchParams;
+    assert.ok(query.has("workspaceId"), "project listing must send the selected workspace");
+    assert.ok([...query.keys()].every((key) => key === "workspaceId" || key === "pageToken"),
+      "project listing must not send a server-side search term or trusted identity override");
+  }
+
   const timelineId = `browser-${crypto.randomUUID()}`;
   await page.getByLabel("Timeline ID").fill(timelineId);
   await page.getByRole("button", { name: "Create timeline", exact: true }).click();
@@ -189,6 +209,12 @@ try {
   assert.deepEqual(timelineResult.revision.timelines[0].graph.scenes, []);
   assert.deepEqual(timelineResult.revision.timelines[0].graph.tracks, []);
   assert.deepEqual(timelineResult.revision.timelines[0].graph.clips, []);
+
+  await observedRow.click();
+  await page.getByText(new RegExp(`Opened existing DEV_ONLY project ${projectId}; current head revision ${timelineRevisionId} read from the host\\. The observed snapshot version ${initialRevisionId} is no longer current\\.`)).waitFor();
+  const changedHeadReadback = await jsonFrom(page.locator("#project-json"));
+  assert.equal(changedHeadReadback.currentRevision.revisionId, timelineRevisionId,
+    "a row selection must display the latest exact head and visibly distinguish it from the older snapshot version");
 
   await page.getByRole("button", { name: "Create timeline", exact: true }).click();
   await page.getByText(new RegExp(`Timeline ${timelineId} is already present in the current owner head .*; no mutation was sent\\.`)).waitFor();

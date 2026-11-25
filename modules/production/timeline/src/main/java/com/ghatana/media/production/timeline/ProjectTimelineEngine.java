@@ -21,6 +21,7 @@ public final class ProjectTimelineEngine {
     private static final int MAX_EDIT_OPERATIONS = 10_000;
     private static final String PROJECT_UPDATE_OPERATION = "media.operation.capability.media-project-update";
     private static final String PROJECT_RESTORE_OPERATION = "media.operation.capability.media-project-restore";
+    private static final String PROJECT_LIST_OPERATION = "media.operation-slice.list-projects";
     private static final String REVISION_SCOPE_MISMATCH =
             "project timeline store returned a revision outside the requested identity scope";
     private static final String PROJECT_SCOPE_MISMATCH =
@@ -55,6 +56,66 @@ public final class ProjectTimelineEngine {
             throw new IllegalStateException(PROJECT_SCOPE_MISMATCH);
         }
         return project;
+    }
+
+    /**
+     * Observes one bounded metadata-only project page. The store owns snapshot/cursor durability; this layer
+     * computes the request binding and verifies that returned rows remain inside the trusted tuple.
+     */
+    public ProjectListResult listProjects(Actor actor, String workspaceId, String pageToken) {
+        Objects.requireNonNull(actor, "actor");
+        String selectedWorkspaceId = requireSelectedWorkspaceId(workspaceId);
+        if (pageToken != null) {
+            if (!pageToken.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,2047}")) {
+                throw new IllegalArgumentException("pageToken must be a bounded opaque identifier");
+            }
+        }
+        String fingerprint = projectListFingerprint(actor, selectedWorkspaceId, pageToken);
+        String nextTokenCandidate = nextId();
+        ProjectListQuery query = new ProjectListQuery(actor, selectedWorkspaceId, pageToken, fingerprint,
+                nextTokenCandidate, projectListFingerprint(actor, selectedWorkspaceId, nextTokenCandidate));
+        ProjectListResult result;
+        try {
+            result = store.listProjects(query);
+        } catch (RuntimeException unavailable) {
+            return new ProjectListUnknown(PROJECT_LIST_OPERATION, "UNKNOWN_OBSERVATION", "QUERY_UNAVAILABLE");
+        }
+        if (result instanceof ProjectListUnknown unknown) {
+            if (!PROJECT_LIST_OPERATION.equals(unknown.operationRef())
+                    || !"UNKNOWN_OBSERVATION".equals(unknown.outcome())) {
+                return new ProjectListUnknown(PROJECT_LIST_OPERATION, "UNKNOWN_OBSERVATION", "QUERY_UNAVAILABLE");
+            }
+            return unknown;
+        }
+        if (!(result instanceof ProjectListObserved observed)
+                || !PROJECT_LIST_OPERATION.equals(observed.operationRef())
+                || !"OBSERVED".equals(observed.outcome())
+                || !actor.tenantId().equals(observed.tenantId())
+                || !actor.principalId().equals(observed.principalId())
+                || !selectedWorkspaceId.equals(observed.workspaceId())
+                || !fingerprint.equals(observed.queryFingerprint())
+                || observed.records().stream().anyMatch(record -> !selectedWorkspaceId.equals(record.workspaceId()))) {
+            return new ProjectListUnknown(PROJECT_LIST_OPERATION, "UNKNOWN_OBSERVATION", "QUERY_UNAVAILABLE");
+        }
+        return observed;
+    }
+
+    /** SHA-256 over the exact request tuple in a length-delimited canonical order. */
+    public static String projectListFingerprint(Actor actor, String workspaceId, String pageToken) {
+        Objects.requireNonNull(actor, "actor");
+        workspaceId = requireSelectedWorkspaceId(workspaceId);
+        StringBuilder canonical = new StringBuilder();
+        appendField(canonical, Integer.toString(pageToken == null ? 3 : 4));
+        appendField(canonical, workspaceId);
+        if (pageToken != null) {
+            if (!pageToken.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,2047}")) {
+                throw new IllegalArgumentException("pageToken must be a bounded opaque identifier");
+            }
+            appendField(canonical, pageToken);
+        }
+        appendField(canonical, actor.tenantId());
+        appendField(canonical, actor.principalId());
+        return "sha256:" + digest(canonical);
     }
 
     /** Reads one immutable revision through the store's tenant/project and actor-authorization boundary. */

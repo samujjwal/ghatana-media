@@ -13,20 +13,19 @@ import tools.jackson.databind.json.JsonMapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 /**
  * DEV_ONLY grounded cross-modal answer lane. For one exact video source version it (1) requires current PROCESSING
@@ -58,8 +57,8 @@ public final class MediaDevGroundedAnswerRuntime {
 
     // ---- seams ----
 
-    /** Staged source: the artifact record, its exact bytes and a private file holding them (removed afterwards). */
-    record Source(MediaArtifact artifact, byte[] bytes, Path file) { }
+    /** Staged source: the artifact record and a private file holding its exact bytes (removed afterwards). */
+    record Source(MediaArtifact artifact, Path file) { }
 
     /** Derives the source clock of the staged file; a failure is a typed refusal, never a defaulted clock. */
     interface Probe {
@@ -255,29 +254,54 @@ public final class MediaDevGroundedAnswerRuntime {
 
     private GroundedResult produceAnswer(String tenantId, String principalId, AskRequest request,
                                          MediaArtifact artifact, Resolution admission) {
-        ByteArrayOutputStream staged = new ByteArrayOutputStream((int) Math.min(artifact.sizeBytes(), 1 << 26));
-        try {
-            runtime.copyArtifactContent(tenantId, principalId, artifact.artifactId(), artifact.version(), staged,
-                    MAX_SOURCE_BYTES).orElseThrow(MediaDevProjectRenderRuntime.SourceVersionUnavailableException::new);
-        } catch (IOException failure) {
-            throw new IllegalStateException("source artifact content could not be read", failure);
-        }
         Path dir = null;
+        Path file = null;
+        Throwable primaryFailure = null;
         try {
             dir = Files.createTempDirectory("media-dev-grounded-",
                     PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
-            Path file = dir.resolve("source.bin");
-            Files.write(file, staged.toByteArray());
-            return run(tenantId, principalId, request, admission,
-                    new Source(artifact, staged.toByteArray(), file));
-        } catch (IOException failure) {
-            throw new IllegalStateException("source staging failed", failure);
-        } finally {
-            if (dir != null) {
-                try (Stream<Path> walk = Files.walk(dir)) {
-                    walk.sorted(Comparator.reverseOrder()).forEach(path -> path.toFile().delete());
-                } catch (IOException ignored) { /* best effort; the directory is private and empty of secrets */ }
+            file = dir.resolve("source.bin");
+            Files.createFile(file, PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------")));
+            try (OutputStream staged = Files.newOutputStream(file)) {
+                try {
+                    runtime.copyArtifactContent(tenantId, principalId, artifact.artifactId(), artifact.version(),
+                            staged, MAX_SOURCE_BYTES)
+                            .orElseThrow(MediaDevProjectRenderRuntime.SourceVersionUnavailableException::new);
+                } catch (IOException failure) {
+                    throw new IllegalStateException("source artifact content could not be read", failure);
+                }
             }
+            return run(tenantId, principalId, request, admission, new Source(artifact, file));
+        } catch (IOException failure) {
+            IllegalStateException wrapped = new IllegalStateException("source staging failed", failure);
+            primaryFailure = wrapped;
+            throw wrapped;
+        } catch (RuntimeException | Error failure) {
+            primaryFailure = failure;
+            throw failure;
+        } finally {
+            if (file != null) {
+                RuntimeException cleanupFailure = cleanupStagedSource(file);
+                if (cleanupFailure != null) {
+                    if (primaryFailure != null) {
+                        primaryFailure.addSuppressed(cleanupFailure);
+                    } else {
+                        throw cleanupFailure;
+                    }
+                }
+            }
+        }
+    }
+
+    /** Deletes the only staged source file and its private directory, returning any cleanup error to the caller. */
+    private static RuntimeException cleanupStagedSource(Path sourceFile) {
+        if (sourceFile == null) return null;
+        try {
+            Files.deleteIfExists(sourceFile);
+            Files.deleteIfExists(sourceFile.getParent());
+            return null;
+        } catch (IOException | SecurityException failure) {
+            return new IllegalStateException("source staging cleanup failed", failure);
         }
     }
 
@@ -320,6 +344,11 @@ public final class MediaDevGroundedAnswerRuntime {
         ChildResult speech = attempt("STT", () -> children.speech(source, clock, pin, request.language()));
         ChildResult vision = attempt("VISION", () -> children.vision(source, clock, pin));
         List<ChildResult> results = List.of(speech, vision);
+
+        // The exact source file is no longer needed after both children return. Remove it before answer generation
+        // or output registration so a cleanup failure cannot follow a durable answer side effect.
+        RuntimeException stagingCleanupFailure = cleanupStagedSource(source.file());
+        if (stagingCleanupFailure != null) throw stagingCleanupFailure;
 
         // Clock/version binding is checked before any status handling: a mismatched child is refused outright.
         List<MediaDevGroundedEvidence.Item> evidence = new ArrayList<>();

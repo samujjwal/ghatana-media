@@ -236,6 +236,98 @@ public final class MediaProjectTimelineContracts {
 
     public record Created(Project project, Revision initialRevision, boolean createdNow) { }
 
+    /** One metadata-only row in a bounded, point-in-time project observation. */
+    public record ProjectListRecord(String projectId, String workspaceId, String title,
+                                    String projectState, String headRevisionId) {
+        public ProjectListRecord {
+            projectId = requiredOpaqueId(projectId, "projectId");
+            workspaceId = requiredOpaqueId(workspaceId, "workspaceId");
+            title = requiredProjectTitle(title);
+            projectState = required(projectState, "projectState");
+            if (!"ACTIVE".equals(projectState) && !"ARCHIVED".equals(projectState)) {
+                throw new IllegalArgumentException("projectState must be ACTIVE or ARCHIVED");
+            }
+            headRevisionId = requiredOpaqueVersionId(headRevisionId, "headRevisionId");
+        }
+    }
+
+    /** Trusted, exact request identity passed to a store after the engine computes its fingerprint. */
+    public record ProjectListQuery(Actor actor, String workspaceId, String pageToken, String queryFingerprint,
+                                   String nextPageTokenCandidate, String nextPageTokenQueryFingerprint) {
+        public ProjectListQuery {
+            Objects.requireNonNull(actor, "actor");
+            workspaceId = requireSelectedWorkspaceId(workspaceId);
+            if (pageToken != null) {
+                if (!pageToken.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,2047}")) {
+                    throw new IllegalArgumentException("pageToken must be a bounded opaque identifier");
+                }
+            }
+            if (queryFingerprint == null || !queryFingerprint.matches("sha256:[a-f0-9]{64}")) {
+                throw new IllegalArgumentException("queryFingerprint must be a SHA-256 fingerprint");
+            }
+            nextPageTokenCandidate = requiredOpaqueId(nextPageTokenCandidate, "nextPageTokenCandidate");
+            if (nextPageTokenQueryFingerprint == null
+                    || !nextPageTokenQueryFingerprint.matches("sha256:[a-f0-9]{64}")) {
+                throw new IllegalArgumentException("nextPageTokenQueryFingerprint must be a SHA-256 fingerprint");
+            }
+        }
+    }
+
+    public sealed interface ProjectListResult permits ProjectListObserved, ProjectListUnknown { }
+
+    /** Exact PDP-1 OBSERVED response; snapshots describe metadata at one point in time only. */
+    public record ProjectListObserved(String operationRef, String outcome, String tenantId, String principalId,
+                                      String workspaceId, String queryFingerprint, String snapshotRef,
+                                      String observedAt, List<ProjectListRecord> records, String nextPageToken)
+            implements ProjectListResult {
+        public ProjectListObserved {
+            if (!"media.operation-slice.list-projects".equals(operationRef) || !"OBSERVED".equals(outcome)) {
+                throw new IllegalArgumentException("project-list observation identity is invalid");
+            }
+            tenantId = requiredOpaqueId(tenantId, "tenantId");
+            principalId = requiredOpaqueId(principalId, "principalId");
+            workspaceId = requireSelectedWorkspaceId(workspaceId);
+            if (queryFingerprint == null || !queryFingerprint.matches("sha256:[a-f0-9]{64}")) {
+                throw new IllegalArgumentException("queryFingerprint must be a SHA-256 fingerprint");
+            }
+            snapshotRef = requiredOpaqueId(snapshotRef, "snapshotRef");
+            if (snapshotRef.length() > 256) throw new IllegalArgumentException("snapshotRef exceeds 256 characters");
+            observedAt = required(observedAt, "observedAt");
+            try {
+                java.time.Instant parsed = java.time.Instant.parse(observedAt);
+                if (!observedAt.equals(parsed.toString())) {
+                    throw new IllegalArgumentException("observedAt must use canonical UTC formatting");
+                }
+            }
+            catch (java.time.format.DateTimeParseException invalid) {
+                throw new IllegalArgumentException("observedAt must be a canonical RFC 3339 UTC timestamp", invalid);
+            }
+            records = List.copyOf(Objects.requireNonNull(records, "records"));
+            if (records.size() > 1000) throw new IllegalArgumentException("project-list page exceeds 1000 rows");
+            for (ProjectListRecord record : records) {
+                if (!workspaceId.equals(record.workspaceId())) {
+                    throw new IllegalArgumentException("project-list record is outside the requested workspace");
+                }
+            }
+            if (nextPageToken != null) {
+                nextPageToken = requiredOpaqueId(nextPageToken, "nextPageToken");
+                if (nextPageToken.length() > 2048) throw new IllegalArgumentException("nextPageToken exceeds 2048 characters");
+            }
+        }
+    }
+
+    /** Exact PDP-1 UNKNOWN_OBSERVATION response; it carries no rows or continuation token. */
+    public record ProjectListUnknown(String operationRef, String outcome, String reason) implements ProjectListResult {
+        public ProjectListUnknown {
+            if (!"media.operation-slice.list-projects".equals(operationRef)
+                    || !"UNKNOWN_OBSERVATION".equals(outcome)
+                    || !List.of("AUTHORITY_UNAVAILABLE", "SNAPSHOT_UNAVAILABLE", "PAGE_TOKEN_INVALID",
+                            "QUERY_UNAVAILABLE").contains(reason)) {
+                throw new IllegalArgumentException("project-list unknown observation is invalid");
+            }
+        }
+    }
+
     /** One-writer mutation boundary for the project revision aggregate and its timeline snapshots. */
     public interface ProjectTimelineStore {
         Created create(Actor actor, String workspaceId, String title, String requestId,
@@ -249,6 +341,12 @@ public final class MediaProjectTimelineContracts {
          */
         Revision commit(Actor actor, String projectId, String expectedHeadRevisionId,
                        String newRevisionId, List<TimelineSnapshot> timelines);
+
+        /** Returns one bounded metadata page or a typed unknown with no partial rows. */
+        default ProjectListResult listProjects(ProjectListQuery query) {
+            return new ProjectListUnknown("media.operation-slice.list-projects", "UNKNOWN_OBSERVATION",
+                    "QUERY_UNAVAILABLE");
+        }
 
         /** Reads an immutable request receipt before head CAS so a replay remains resolvable after later edits. */
         default Revision replayCommand(Actor actor, String projectId, String canonicalOperationRef,

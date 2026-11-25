@@ -45,6 +45,7 @@ public final class MediaWorkflowMetrics {
 
     public enum Stage {
         REQUEST,
+        RENDER,
         POLICY,
         JOB,
         ATTEMPT,

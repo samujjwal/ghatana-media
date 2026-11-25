@@ -476,12 +476,23 @@ describe("MediaCanonicalClient stream operations", () => {
     const client = clientWith(fetchImpl);
     const registration = await client.openStream({
       correlationId: "corr-1", streamKind: "AUDIO", maximumBufferedBytes: 1_048_576,
-      leaseDuration: "PT30S", metadata: {}, idempotencyKey: "idem-open",
+      leaseDuration: "PT30S", metadata: {},
     });
     expect(registration.connectionToken).toBe(connectionToken);
     expect(registration.session.sessionId).toBe("sess-1");
     const headers = new Headers(calls[0]!.init.headers);
-    expect(headers.get("Idempotency-Key")).toBe("idem-open");
+    expect(headers.has("Idempotency-Key")).toBe(false);
+  });
+
+  it("rejects a caller-supplied stream-open replay key before dispatch", async () => {
+    const { fetchImpl, calls } = recordedFetch(() =>
+      jsonResponse({ session: session({ state: "OPEN" }), connectionToken }, 201));
+    const client = clientWith(fetchImpl);
+    await expect(client.openStream({
+      correlationId: "corr-1", streamKind: "AUDIO", maximumBufferedBytes: 1_048_576,
+      leaseDuration: "PT30S", idempotencyKey: "unsupported-replay-key",
+    } as never)).rejects.toThrow(/outside the canonical request/u);
+    expect(calls).toHaveLength(0);
   });
 
   it("keeps a dispatched open with a cross-scope session OUTCOME_UNKNOWN", async () => {
@@ -491,11 +502,13 @@ describe("MediaCanonicalClient stream operations", () => {
     const client = clientWith(fetchImpl);
     const failure = await client.openStream({
       correlationId: "corr-1", streamKind: "AUDIO", maximumBufferedBytes: 1_048_576,
-      leaseDuration: "PT30S", idempotencyKey: "idem-open-cross-scope",
+      leaseDuration: "PT30S",
     }).catch((error: unknown) => error);
     expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
-    expect(failure).toMatchObject({ path: "/api/v1/streams", requestKey: "idem-open-cross-scope" });
+    expect(failure).toMatchObject({ path: "/api/v1/streams", requestId: expect.any(String) });
+    expect(failure).toHaveProperty("requestKey", undefined);
     expect(calls).toHaveLength(1);
+    expect(new Headers(calls[0]!.init.headers).has("Idempotency-Key")).toBe(false);
   });
 
   it("connect and close carry the stream token, never the bearer credential in the body", async () => {

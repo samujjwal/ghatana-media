@@ -17,6 +17,7 @@ final class MediaDevOnlyRoutePermissions {
         if ("GET".equals(method) && path.matches("^/dev/v1/artifacts/[^/]+/content$")) return PROJECT_READ;
         if ("POST".equals(method) && path.matches("^/dev/v1/jobs/[^/]+/cancel$")) return JOB_CANCEL;
         if ("POST".equals(method) && "/dev/v1/projects".equals(path)) return PROJECT_CREATE;
+        if ("GET".equals(method) && "/dev/v1/projects".equals(path)) return PROJECT_READ;
         if ("GET".equals(method) && path.matches("^/dev/v1/projects/[^/]+$")) return PROJECT_READ;
         if ("POST".equals(method) && path.matches("^/dev/v1/projects/[^/]+/timelines$")) return PROJECT_WRITE;
         if ("POST".equals(method) && path.matches("^/dev/v1/projects/[^/]+/timelines/[^/]+/edits$")) return PROJECT_WRITE;

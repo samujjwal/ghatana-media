@@ -5,12 +5,22 @@ import static com.ghatana.media.runtime.MediaProjectTimelineContracts.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Process-local reference implementation for tests and isolated development only. */
 public final class InMemoryProjectTimelineStore implements ProjectTimelineStore {
     private final Map<ProjectKey, Aggregate> projects = new HashMap<>();
     private final Map<RequestKey, CreateReceipt> requests = new HashMap<>();
     private final Map<CommandKey, CommandReceipt> commands = new HashMap<>();
+    private final Map<String, ProjectListSnapshot> projectListSnapshots = new HashMap<>();
+    private final Map<String, ProjectListCursor> projectListCursors = new HashMap<>();
+    private final Map<SnapshotOffset, String> projectListTokensByOffset = new HashMap<>();
+    private static final int PROJECT_LIST_PAGE_SIZE = 50;
+    private static final int PROJECT_LIST_MAX_SNAPSHOT_ROWS = 10_000;
 
     @Override
     public synchronized Created create(Actor actor, String workspaceId, String title, String requestId,
@@ -39,6 +49,69 @@ public final class InMemoryProjectTimelineStore implements ProjectTimelineStore 
 
     @Override public synchronized Project project(Actor actor, String projectId) {
         return owned(actor, projectId).project;
+    }
+
+    @Override public synchronized ProjectListResult listProjects(ProjectListQuery query) {
+        Objects.requireNonNull(query, "query");
+        Instant now = Instant.now();
+        projectListSnapshots.values().removeIf(snapshot -> !now.isBefore(snapshot.expiresAt));
+        projectListCursors.values().removeIf(cursor -> !now.isBefore(cursor.expiresAt));
+        projectListTokensByOffset.entrySet().removeIf(entry -> !projectListCursors.containsKey(entry.getValue()));
+
+        ProjectListSnapshot snapshot;
+        int offset;
+        if (query.pageToken() == null) {
+            List<ProjectListRecord> records = projects.values().stream()
+                    .map(aggregate -> aggregate.project)
+                    .filter(project -> project.tenantId().equals(query.actor().tenantId())
+                            && project.ownerPrincipalId().equals(query.actor().principalId())
+                            && project.workspaceId().equals(query.workspaceId()))
+                    .sorted(Comparator.comparing(Project::projectId))
+                    .map(project -> new ProjectListRecord(project.projectId(), project.workspaceId(), project.title(),
+                            "ACTIVE", project.headRevisionId()))
+                    .toList();
+            if (records.size() > PROJECT_LIST_MAX_SNAPSHOT_ROWS) {
+                return new ProjectListUnknown("media.operation-slice.list-projects", "UNKNOWN_OBSERVATION",
+                        "QUERY_UNAVAILABLE");
+            }
+            String snapshotRef = java.util.UUID.randomUUID().toString();
+            snapshot = new ProjectListSnapshot(query.actor().tenantId(), query.actor().principalId(),
+                    query.workspaceId(), snapshotRef, now, now.plus(10, ChronoUnit.MINUTES), records);
+            projectListSnapshots.put(snapshotRef, snapshot);
+            offset = 0;
+        } else {
+            ProjectListCursor cursor = projectListCursors.get(query.pageToken());
+            if (cursor == null || !cursor.tenantId.equals(query.actor().tenantId())
+                    || !cursor.principalId.equals(query.actor().principalId())
+                    || !cursor.workspaceId.equals(query.workspaceId())
+                    || !cursor.queryFingerprint.equals(query.queryFingerprint())) {
+                return new ProjectListUnknown("media.operation-slice.list-projects", "UNKNOWN_OBSERVATION",
+                        "PAGE_TOKEN_INVALID");
+            }
+            snapshot = projectListSnapshots.get(cursor.snapshotRef);
+            if (snapshot == null || !now.isBefore(snapshot.expiresAt)) {
+                return new ProjectListUnknown("media.operation-slice.list-projects", "UNKNOWN_OBSERVATION",
+                        "SNAPSHOT_UNAVAILABLE");
+            }
+            offset = cursor.nextOffset;
+        }
+        int end = Math.min(offset + PROJECT_LIST_PAGE_SIZE, snapshot.records.size());
+        List<ProjectListRecord> page = snapshot.records.subList(offset, end);
+        String nextPageToken = null;
+        if (end < snapshot.records.size()) {
+            SnapshotOffset next = new SnapshotOffset(snapshot.snapshotRef, end);
+            nextPageToken = projectListTokensByOffset.get(next);
+            if (nextPageToken == null) {
+                nextPageToken = query.nextPageTokenCandidate();
+                projectListTokensByOffset.put(next, nextPageToken);
+                projectListCursors.put(nextPageToken, new ProjectListCursor(snapshot.tenantId, snapshot.principalId,
+                        snapshot.workspaceId, snapshot.snapshotRef, end, query.nextPageTokenQueryFingerprint(),
+                        snapshot.expiresAt));
+            }
+        }
+        return new ProjectListObserved("media.operation-slice.list-projects", "OBSERVED", query.actor().tenantId(),
+                query.actor().principalId(), query.workspaceId(), query.queryFingerprint(), snapshot.snapshotRef,
+                snapshot.observedAt.toString(), page, nextPageToken);
     }
 
     @Override public synchronized Revision revision(Actor actor, String projectId, String revisionId) {
@@ -137,6 +210,11 @@ public final class InMemoryProjectTimelineStore implements ProjectTimelineStore 
                                  Project initialProject, String initialRevisionId) { }
     private record CommandKey(String tenantId, String principalId, String operationRef, String requestId) { }
     private record CommandReceipt(String requestFingerprint, String projectId, String revisionId) { }
+    private record SnapshotOffset(String snapshotRef, int offset) { }
+    private record ProjectListCursor(String tenantId, String principalId, String workspaceId, String snapshotRef,
+                                     int nextOffset, String queryFingerprint, Instant expiresAt) { }
+    private record ProjectListSnapshot(String tenantId, String principalId, String workspaceId, String snapshotRef,
+                                       Instant observedAt, Instant expiresAt, List<ProjectListRecord> records) { }
     private static final class Aggregate {
         private Project project;
         private final Map<String, Revision> revisions = new HashMap<>();

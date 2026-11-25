@@ -244,10 +244,18 @@ public final class MediaDevProjectRenderRuntime {
      * compared, so skipping admission would weaken idempotency verification.
      */
     public RenderResult render(String tenantId, String principalId, String projectId, RenderRequest request) {
-        Objects.requireNonNull(request, "request");
-        return runtime.devAdmission().run(MediaDevRenderAdmission.LANE_RENDER,
-                request.format().name().toLowerCase(Locale.ROOT), tenantId,
-                () -> renderAdmitted(tenantId, principalId, projectId, request));
+        io.micrometer.core.instrument.Timer.Sample renderSample = runtime.startWorkflowStage();
+        try {
+            Objects.requireNonNull(request, "request");
+            return runtime.devAdmission().run(MediaDevRenderAdmission.LANE_RENDER,
+                    request.format().name().toLowerCase(Locale.ROOT), tenantId,
+                    () -> renderAdmitted(tenantId, principalId, projectId, request));
+        } finally {
+            // This measures a render attempt through admission and the current authority boundary. A recorded
+            // duration does not imply that source use was admitted or that an artifact was rendered.
+            runtime.stopWorkflowStage(renderSample,
+                    com.ghatana.audiovideo.observability.MediaWorkflowMetrics.Stage.RENDER);
+        }
     }
 
     private RenderResult renderAdmitted(String tenantId, String principalId, String projectId, RenderRequest request) {

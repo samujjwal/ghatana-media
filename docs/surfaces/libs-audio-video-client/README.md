@@ -7,16 +7,18 @@ the capture adapter SPI. Package: `@audio-video/client`
 
 ## Responsibility
 
-- Expose the admitted HTTP operations (artifact upload sessions, artifact
-  reads, job submit/list/get/cancel, stream open/get/connect/frame/close)
-  through `MediaOperationClient` and `MediaCanonicalClient`.
-- Provide the `ghatanamedia-api` CLI with exactly one production command:
-  `artifact inspect`, backed by `MediaOperationClient.getArtifact()`. Artifact
-  upload, upload-session inspection, job, batch, capture, recorder, and stream
-  command identities fail as `INVALID_INVOCATION` before authentication or
-  network dispatch. Broader SDK methods remain available to programmatic
-  consumers; they do not add CLI commands. The separately maintained Explorer
-  CLI remains fixture-only.
+- Expose typed artifact, job, and stream HTTP client bindings through
+  `MediaOperationClient` and `MediaCanonicalClient`; runtime admission remains
+  operation- and host-specific.
+- Provide the `ghatanamedia-api` CLI with source-bound `artifact inspect` and
+  `job get` reads, plus bounded `job list` observations. The list command is an
+  observed wire consumer without an individual PDP-1 operation. Valid
+  `job submit` and `job cancel` invocations retain stable command IDs but
+  return structured `NOT_ADMITTED` after argument validation and before bearer
+  authentication or network dispatch. Other undeclared command identities
+  fail as `INVALID_INVOCATION`. Broader SDK methods remain available to
+  programmatic consumers; they do not add CLI commands. The separately
+  maintained Explorer CLI remains fixture-only.
 - Provide a separate `ghatanamedia-api-dev` executable with an explicit
   loopback-only local-development registry for `artifact upload`,
   `artifact inspect`, `job get`, and `job cancel`. The first three definitions

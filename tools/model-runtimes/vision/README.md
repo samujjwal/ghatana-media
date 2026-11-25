@@ -51,6 +51,20 @@ unchanged files, keyed by size, mtime and inode, across restarts, or start with 
 later requests take a few seconds. Keep VRAM modest on shared GPUs: Florence-2
 about 1.5 GB, Qwen2.5-VL 4-bit about 6 GB.
 
+## Request cancellation
+
+The Java loopback client assigns each inference a canonical UUID in `X-Ghatana-Operation-Id`. An authenticated
+`DELETE /v1/operations/<uuid>` requests cancellation of that active operation and returns `202 CANCEL_REQUESTED`;
+unknown or already-finished IDs return `404`, and an ID already in use is rejected with `409`. Calls without the
+header remain compatible. On a timeout or lost response the client sends the DELETE asynchronously and still reports
+the original outcome as timed out/unknown. Cancellation is cooperative: it is checked while waiting for the serialized
+engine and between model generation steps, but cannot instantly interrupt a model load or native/GPU kernel. The
+sidecar suppresses a partial result if cancellation wins the completion race. No hard process termination or model
+quality claim follows from this mechanism.
+
+Run the model-free protocol tests with `pnpm test:vision-sidecar-cancellation`. They use synthetic engines and a
+loopback HTTP server; they do not download weights or qualify real inference.
+
 ## Licence obligations
 
 See `THIRD_PARTY_NOTICES.md` (MIT notice for Florence-2; Apache-2.0 for Qwen2.5-VL, with the nf4 quantization applied in

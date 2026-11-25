@@ -108,6 +108,43 @@ describe("OfflineReconnectCoordinator", () => {
     });
   });
 
+  it("reports a failed post-replay dirty read as unavailable while preserving the applied result", async () => {
+    let listReads = 0;
+    let failOnListRead = Number.POSITIVE_INFINITY;
+    const flakyStore: OfflineEditStore = {
+      list: async (query) => {
+        listReads++;
+        if (listReads === failOnListRead) throw new Error("private storage detail");
+        return store.list(query);
+      },
+      insert: (record, maximumEntries) => store.insert(record, maximumEntries),
+      put: (record) => store.put(record),
+      compareAndSet: (expected, replacement) => store.compareAndSet(expected, replacement),
+      remove: (_scope, editId) => store.remove(_scope, editId),
+    };
+    const q = await queue(flakyStore);
+    await q.enqueue(edit);
+    const reviewedQueue = await q.readEdits<typeof edit.payload>(scope);
+    // Reconnect performs an initial dirty read, a replay snapshot, then the
+    // final dirty read after the apply result has been persisted.
+    failOnListRead = listReads + 3;
+    let applyCalls = 0;
+    const coordinator = new OfflineReconnectCoordinator(q, scope, operations({
+      applyEdit: async (queued) => {
+        applyCalls++;
+        return { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
+          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "persisted-receipt" };
+      },
+    }));
+
+    await expect(coordinator.reconnect(true, { reviewedQueue })).resolves.toEqual({
+      status: "UNAVAILABLE", reason: "OFFLINE_EDIT_STORE_UNAVAILABLE", dirty: true,
+    });
+    expect(applyCalls).toBe(1);
+    expect(listReads).toBe(failOnListRead);
+    expect(await q.readEdits(scope)).toMatchObject([{ edit, state: "APPLIED" }]);
+  });
+
   it("does not send queued private edits to remote operations while still offline", async () => {
     const q = await queue();
     await q.enqueue(edit);

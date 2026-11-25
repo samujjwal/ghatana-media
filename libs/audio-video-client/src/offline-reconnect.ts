@@ -157,7 +157,15 @@ export class OfflineReconnectCoordinator<T = unknown, R = string> {
       }
       throw error;
     }
-    const stillDirty = await this.queue.hasDirtyEdits(this.scope);
+    let stillDirty: boolean;
+    try {
+      stillDirty = await this.queue.hasDirtyEdits(this.scope);
+    } catch {
+      // Replay may already have crossed the effect boundary and durably
+      // recorded its result. If the final local read fails, report the queue
+      // as dirty and unavailable rather than leaking an untyped rejection.
+      return { status: "UNAVAILABLE", reason: "OFFLINE_EDIT_STORE_UNAVAILABLE", dirty: true };
+    }
     if (results.some((result) => result.state === "STORE_CAS_UNAVAILABLE")) {
       return { status: "UNAVAILABLE", reason: "OFFLINE_STORE_CAS_UNAVAILABLE", dirty: stillDirty, results };
     }

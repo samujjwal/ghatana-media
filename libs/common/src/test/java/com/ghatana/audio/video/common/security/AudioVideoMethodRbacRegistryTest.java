@@ -59,6 +59,10 @@ class AudioVideoMethodRbacRegistryTest {
         assertThat(AudioVideoMethodRbacRegistry.isExempt("evil.v1.AdminService/HealthCheck")).isFalse();
         assertThat(AudioVideoMethodRbacRegistry.isExempt("evil.v1.AdminService/GetStatus")).isFalse();
         assertThat(AudioVideoMethodRbacRegistry.isAllowed("evil.v1.AdminService/GetStatus", "av:user")).isFalse();
+        assertThat(AudioVideoMethodRbacRegistry.methodDisposition("/grpc.health.v1.Health/Check"))
+                .isEqualTo(AudioVideoMethodRbacRegistry.MethodDisposition.STANDARD_HEALTH_EXEMPT);
+        assertThat(AudioVideoMethodRbacRegistry.methodDisposition("evil.v1.AdminService/HealthCheck"))
+                .isEqualTo(AudioVideoMethodRbacRegistry.MethodDisposition.UNMAPPED);
     }
 
     @Test
@@ -113,8 +117,40 @@ class AudioVideoMethodRbacRegistryTest {
         assertThat(AudioVideoMethodRbacRegistry.isAllowed("com.ghatana.audio.video.stt.grpc.STTService/DeleteAll", "av:admin")).isFalse();
         assertThat(AudioVideoMethodRbacRegistry.isAllowedAny("com.ghatana.audio.video.stt.grpc.STTService/DeleteAll",
                 Set.of("av:user", "av:admin"))).isFalse();
+        assertThat(AudioVideoMethodRbacRegistry.methodDisposition(
+                "com.ghatana.audio.video.stt.grpc.STTService/DeleteAll"))
+                .isEqualTo(AudioVideoMethodRbacRegistry.MethodDisposition.UNMAPPED);
         assertThat(AudioVideoMethodRbacRegistry.isAllowed("evil.v1.AdminService/Transcribe", "av:user")).isFalse();
         assertThat(AudioVideoMethodRbacRegistry.isAllowed("Transcribe", "av:user")).isFalse();
+    }
+
+    @Test
+    @DisplayName("current unbound application RPCs have explicit deny-only dispositions")
+    void currentUnboundApplicationMethodsRemainExplicitlyDenied() {
+        Set<String> dispositioned = AudioVideoMethodRbacRegistry.explicitlyDispositionedMethods();
+        long explicitDenials = dispositioned.stream()
+                .filter(method -> AudioVideoMethodRbacRegistry.methodDisposition(method)
+                        == AudioVideoMethodRbacRegistry.MethodDisposition.EXPLICIT_DENY)
+                .count();
+
+        assertThat(dispositioned).hasSize(45);
+        assertThat(explicitDenials).isEqualTo(29);
+        assertThat(AudioVideoMethodRbacRegistry.methodDisposition(
+                "com.ghatana.audio.video.tts.grpc.TTSService/CloneVoice"))
+                .isEqualTo(AudioVideoMethodRbacRegistry.MethodDisposition.EXPLICIT_DENY);
+        assertThat(AudioVideoMethodRbacRegistry.isAllowed(
+                "com.ghatana.audio.video.tts.grpc.TTSService/CloneVoice", "av:admin")).isFalse();
+    }
+
+    @Test
+    @DisplayName("ResolveSourceFrame remains explicitly denied to user and admin")
+    void resolveSourceFrameRemainsExplicitlyDeniedToUserAndAdmin() {
+        String method = "com.ghatana.audio.video.vision.grpc.VisionService/ResolveSourceFrame";
+
+        assertThat(AudioVideoMethodRbacRegistry.methodDisposition(method))
+                .isEqualTo(AudioVideoMethodRbacRegistry.MethodDisposition.EXPLICIT_DENY);
+        assertThat(AudioVideoMethodRbacRegistry.isAllowed(method, "av:user")).isFalse();
+        assertThat(AudioVideoMethodRbacRegistry.isAllowed(method, "av:admin")).isFalse();
     }
 
     @Test

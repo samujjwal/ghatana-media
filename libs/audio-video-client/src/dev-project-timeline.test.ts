@@ -52,6 +52,14 @@ function jsonResponse(value: unknown, status = 200): Response {
   return new Response(JSON.stringify(value), { status, headers: { "Content-Type": "application/json" } });
 }
 
+async function listQueryFingerprint(workspaceId: string, pageToken?: string): Promise<string> {
+  const fields = [String(pageToken === undefined ? 3 : 4), workspaceId,
+    ...(pageToken === undefined ? [] : [pageToken]), context.tenantId, context.principalId];
+  const canonical = fields.map((field) => `${field.length}:${field}`).join("");
+  const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(canonical)));
+  return `sha256:${[...digest].map((byte) => byte.toString(16).padStart(2, "0")).join("")}`;
+}
+
 describe("Media DEV_ONLY project timeline client", () => {
   it.each([
     "https://media.example",
@@ -116,6 +124,95 @@ describe("Media DEV_ONLY project timeline client", () => {
     });
     expect(fetcher).toHaveBeenCalledTimes(1);
     expect(fetcher.mock.calls[0]?.[0]).toBe("http://127.0.0.1:8093/dev/v1/context");
+  });
+
+  it("lists metadata from the selected owner workspace with only the exact workspace and cursor query", async () => {
+    const queryFingerprint = await listQueryFingerprint(context.selectedAuthorizedWorkspaceId, "cursor.1");
+    const observed = {
+      operationRef: "media.operation-slice.list-projects",
+      outcome: "OBSERVED",
+      tenantId: context.tenantId,
+      principalId: context.principalId,
+      workspaceId: context.selectedAuthorizedWorkspaceId,
+      queryFingerprint,
+      snapshotRef: "snapshot-1",
+      observedAt: "2026-11-25T18:30:00Z",
+      records: [{
+        projectId: "project-1", workspaceId: context.selectedAuthorizedWorkspaceId,
+        title: "Local edit", projectState: "ACTIVE", headRevisionId: "revision-1",
+      }],
+      nextPageToken: "cursor.1",
+    };
+    const fetcher = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse(context))
+      .mockResolvedValueOnce(jsonResponse(observed));
+    const client = new MediaDevProjectTimelineClient({ baseUrl: "http://127.0.0.1:8093", bearerToken: "token", fetch: fetcher });
+
+    await expect(client.listProjects(context.selectedAuthorizedWorkspaceId, "cursor.1")).resolves.toEqual(observed);
+    expect(fetcher.mock.calls.map(([url]) => url)).toEqual([
+      "http://127.0.0.1:8093/dev/v1/context",
+      "http://127.0.0.1:8093/dev/v1/projects?workspaceId=dev-workspace.abc123&pageToken=cursor.1",
+    ]);
+    expect(fetcher.mock.calls[1]?.[1]).toMatchObject({ method: "GET", credentials: "omit", redirect: "error", cache: "no-store" });
+  });
+
+  it("does not list a workspace outside the verified host context", async () => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse(context));
+    const client = new MediaDevProjectTimelineClient({ baseUrl: "http://127.0.0.1:8093", bearerToken: "token", fetch: fetcher });
+    await expect(client.listProjects("foreign-workspace")).rejects.toMatchObject({ code: "INVALID_REQUEST" });
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
+  it("accepts only exact unknown project-list outcomes with no partial rows or continuation", async () => {
+    const unknown = {
+      operationRef: "media.operation-slice.list-projects",
+      outcome: "UNKNOWN_OBSERVATION",
+      reason: "PAGE_TOKEN_INVALID",
+    };
+    const fetcher = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse(context))
+      .mockResolvedValueOnce(jsonResponse(unknown));
+    const client = new MediaDevProjectTimelineClient({ baseUrl: "http://127.0.0.1:8093", bearerToken: "token", fetch: fetcher });
+    await expect(client.listProjects(context.selectedAuthorizedWorkspaceId, "tampered-token")).resolves.toEqual(unknown);
+
+    const malformed = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse(context))
+      .mockResolvedValueOnce(jsonResponse({ ...unknown, records: [] }));
+    const malformedClient = new MediaDevProjectTimelineClient({ baseUrl: "http://127.0.0.1:8093", bearerToken: "token", fetch: malformed });
+    await expect(malformedClient.listProjects(context.selectedAuthorizedWorkspaceId, "tampered-token"))
+      .rejects.toMatchObject({ code: "INVALID_RESPONSE" });
+  });
+
+  it("rejects project-list rows whose trusted scope differs from the live context", async () => {
+    const queryFingerprint = await listQueryFingerprint(context.selectedAuthorizedWorkspaceId);
+    const observed = {
+      operationRef: "media.operation-slice.list-projects", outcome: "OBSERVED",
+      tenantId: "foreign-tenant", principalId: context.principalId,
+      workspaceId: context.selectedAuthorizedWorkspaceId,
+      queryFingerprint, snapshotRef: "snapshot-1",
+      observedAt: "2026-11-25T18:30:00Z", records: [], nextPageToken: null,
+    };
+    const fetcher = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse(context))
+      .mockResolvedValueOnce(jsonResponse(observed));
+    const client = new MediaDevProjectTimelineClient({ baseUrl: "http://127.0.0.1:8093", bearerToken: "token", fetch: fetcher });
+    await expect(client.listProjects(context.selectedAuthorizedWorkspaceId)).rejects.toMatchObject({ code: "INVALID_RESPONSE" });
+  });
+
+  it("rejects a project-list fingerprint that does not bind the exact continuation token", async () => {
+    const observed = {
+      operationRef: "media.operation-slice.list-projects", outcome: "OBSERVED",
+      tenantId: context.tenantId, principalId: context.principalId,
+      workspaceId: context.selectedAuthorizedWorkspaceId,
+      queryFingerprint: `sha256:${"a".repeat(64)}`, snapshotRef: "snapshot-1",
+      observedAt: "2026-11-25T18:30:00Z", records: [], nextPageToken: null,
+    };
+    const fetcher = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(jsonResponse(context))
+      .mockResolvedValueOnce(jsonResponse(observed));
+    const client = new MediaDevProjectTimelineClient({ baseUrl: "http://127.0.0.1:8093", bearerToken: "token", fetch: fetcher });
+    await expect(client.listProjects(context.selectedAuthorizedWorkspaceId, "cursor.1"))
+      .rejects.toMatchObject({ code: "INVALID_RESPONSE" });
   });
 
   it.each([

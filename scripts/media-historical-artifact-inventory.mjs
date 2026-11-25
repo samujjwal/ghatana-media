@@ -11,11 +11,11 @@
  *
  * Output: docs/implementation/historical-artifact-inventory.v1.json
  * Usage: node scripts/media-historical-artifact-inventory.mjs [--check]
- *   --check  exit 1 when any tracked historical byte is unclassified.
+ *   --check  read-only; exit 1 when the report is stale or any byte is unclassified.
  */
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync, statSync } from "node:fs";
+import { readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -58,7 +58,7 @@ for (const p of inventory) {
 const inbound = new Map(inventory.map((p) => [p, 0]));
 const NAME_TOKEN = /[A-Za-z0-9_.-]{10,}/g;
 for (const path of tracked) {
-  if (inventorySet.has(path) || path === PRESERVATION || path === OUTPUT) continue;
+  if (path === PRESERVATION || path === OUTPUT) continue;
   // The preservation manifest pins candidate identities, and this generated
   // inventory lists every path; neither is a semantic product reference.
   let text;
@@ -69,6 +69,7 @@ for (const path of tracked) {
     const cand = byBasename.get(m[0]);
     if (!cand) continue;
     for (const target of cand) {
+      if (target === path) continue; // A file does not reference itself.
       const key = `${path}->${target}`;
       if (seen.has(key)) continue;
       seen.add(key);
@@ -152,7 +153,45 @@ const summary = {
   policy: "read-only report; REVIEW_DELETE and EXTERNAL_ARCHIVE are owner-review candidates only — no unreviewed deletions",
 };
 const doc = { schemaVersion: "media.historical-artifact-inventory/v1", summary, artifacts: rows };
-import { writeFileSync } from "node:fs";
-writeFileSync(resolve(root, OUTPUT), JSON.stringify(doc, null, 2) + "\n");
+
+function canonicalize(value) {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value !== null && typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, child]) => [key, canonicalize(child)]));
+  }
+  return value;
+}
+
+function inventoryComparable(value) {
+  if (value === null || typeof value !== "object" || value.summary === null || typeof value.summary !== "object") {
+    return null;
+  }
+  const comparable = { ...value, summary: { ...value.summary } };
+  // Generation time is provenance only; it must not make a semantically current report stale.
+  delete comparable.summary.generated;
+  return canonicalize(comparable);
+}
+
+if (checkMode) {
+  const outputPath = resolve(root, OUTPUT);
+  let existing;
+  try {
+    existing = JSON.parse(readFileSync(outputPath, "utf8"));
+  } catch {
+    console.error(`HISTORICAL_INVENTORY_STALE: ${OUTPUT} is missing or invalid`);
+    process.exitCode = 1;
+  }
+  if (existing !== undefined
+      && JSON.stringify(inventoryComparable(existing)) !== JSON.stringify(inventoryComparable(doc))) {
+    console.error(`HISTORICAL_INVENTORY_STALE: ${OUTPUT} does not match current tracked historical files`);
+    process.exitCode = 1;
+  }
+  if (summary.unclassified > 0) {
+    console.error(`HISTORICAL_INVENTORY_UNCLASSIFIED: ${summary.unclassified} tracked historical file(s)`);
+    process.exitCode = 1;
+  }
+} else {
+  writeFileSync(resolve(root, OUTPUT), JSON.stringify(doc, null, 2) + "\n");
+}
 console.log(JSON.stringify(summary, null, 2));
-if (checkMode && summary.unclassified > 0) process.exit(1);

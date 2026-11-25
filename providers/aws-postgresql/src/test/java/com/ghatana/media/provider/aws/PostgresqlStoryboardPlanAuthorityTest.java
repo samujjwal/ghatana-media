@@ -42,13 +42,13 @@ class PostgresqlStoryboardPlanAuthorityTest {
     @Test
     void exactReplaySurvivesProjectHeadMovementAndAuthorityRestart() throws Exception {
         try (Fixture fixture = openFixture()) {
-            Created created = fixture.createProject(OWNER, "project-create-1");
+            ProjectFixture created = fixture.createProject(OWNER, "project-create-1");
             StoryboardPlanner planner = planner();
-            StoryboardPlanner.ScenePlan plan = plan(created, "plan-a", "v1", "An authored story");
+            StoryboardPlanner.ScenePlan plan = plan(fixture, created, "plan-a", "v1", "An authored story");
             StoryboardPlanner.SavedPlan saved = planner.save(OWNER, plan, null, "save-story-1", fixture.authority);
 
             fixture.projects.commit(OWNER, created.project().projectId(), created.project().headRevisionId(),
-                    "revision-moved", created.initialRevision().timelines());
+                    "revision-moved", created.revision().timelines());
             fixture.authority.close();
             fixture.reopenAuthority();
 
@@ -65,11 +65,11 @@ class PostgresqlStoryboardPlanAuthorityTest {
     @Test
     void changedPayloadUnderSameRequestIdConflictsWithoutChangingPersistedDraft() throws Exception {
         try (Fixture fixture = openFixture()) {
-            Created created = fixture.createProject(OWNER, "project-create-2");
+            ProjectFixture created = fixture.createProject(OWNER, "project-create-2");
             StoryboardPlanner planner = planner();
-            StoryboardPlanner.ScenePlan original = plan(created, "plan-a", "v1", "Original brief");
+            StoryboardPlanner.ScenePlan original = plan(fixture, created, "plan-a", "v1", "Original brief");
             StoryboardPlanner.SavedPlan saved = planner.save(OWNER, original, null, "save-story-2", fixture.authority);
-            StoryboardPlanner.ScenePlan changed = plan(created, "plan-a", "v1", "Changed brief");
+            StoryboardPlanner.ScenePlan changed = plan(fixture, created, "plan-a", "v1", "Changed brief");
 
             assertThatThrownBy(() -> planner.save(OWNER, changed, null, "save-story-2", fixture.authority))
                     .isInstanceOf(StoryboardPlanner.ScenePlanConflictException.class)
@@ -80,24 +80,30 @@ class PostgresqlStoryboardPlanAuthorityTest {
     }
 
     @Test
-    void projectHeadAndParentVersionCasFailuresHaveNoPartialEdition() throws Exception {
+    void staleProjectHeadHasNoPartialEdition() throws Exception {
         try (Fixture fixture = openFixture()) {
-            Created created = fixture.createProject(OWNER, "project-create-3");
+            ProjectFixture created = fixture.createProject(OWNER, "project-create-3");
             StoryboardPlanner planner = planner();
-            StoryboardPlanner.ScenePlan staleHead = new StoryboardPlanner.ScenePlan(
-                    OWNER.tenantId(), OWNER.principalId(), created.project().projectId(), "plan-a", "v1",
-                    "revision-stale", new StoryboardPlanner.AuthoredBrief("brief-v1", "b1", "personal-project",
-                            "A story", List.of()),
-                    List.of(new StoryboardPlanner.PlannedScene("scene-a", 0, "intent", story(0), story(20),
-                            List.of(new StoryboardPlanner.PlannedShot("shot-a", 0, "intent", story(0), story(1), List.of())))),
-                    List.of(), StoryboardPlanner.DraftDisposition.LOCAL_DRAFT_CANDIDATE);
-            assertThatThrownBy(() -> fixture.authority.append(OWNER, staleHead, "revision-stale", null, "save-stale-head"))
+            StoryboardPlanner.ScenePlan staleHead = plan(fixture, created, "plan-stale", "v1", "A story");
+            fixture.timelineEngine.createTimeline(OWNER, created.project().projectId(),
+                    created.project().headRevisionId(), "timeline-moved", "move-project-head");
+
+            assertThatThrownBy(() -> planner.save(OWNER, staleHead, null, "save-stale-head", fixture.authority))
                     .isInstanceOf(StoryboardPlanner.ScenePlanConflictException.class)
                     .hasMessageContaining("project head changed");
+            assertThat(fixture.sqlLong("SELECT count(*) FROM media_storyboard_plan_editions")).isZero();
+            assertThat(fixture.sqlLong("SELECT count(*) FROM media_storyboard_plan_save_receipts")).isZero();
+        }
+    }
 
-            StoryboardPlanner.ScenePlan initial = plan(created, "plan-a", "v1", "A story");
+    @Test
+    void parentVersionCasFailureHasNoPartialEdition() throws Exception {
+        try (Fixture fixture = openFixture()) {
+            ProjectFixture created = fixture.createProject(OWNER, "project-create-parent-cas");
+            StoryboardPlanner planner = planner();
+            StoryboardPlanner.ScenePlan initial = plan(fixture, created, "plan-a", "v1", "A story");
             planner.save(OWNER, initial, null, "save-story-3a", fixture.authority);
-            StoryboardPlanner.ScenePlan next = plan(created, "plan-a", "v2", "A revised story");
+            StoryboardPlanner.ScenePlan next = plan(fixture, created, "plan-a", "v2", "A revised story");
             assertThatThrownBy(() -> planner.save(OWNER, next, "wrong-parent", "save-story-3b", fixture.authority))
                     .isInstanceOf(StoryboardPlanner.ScenePlanConflictException.class)
                     .hasMessageContaining("parent semantic version");
@@ -105,18 +111,20 @@ class PostgresqlStoryboardPlanAuthorityTest {
                     .isInstanceOf(ProjectNotFoundException.class);
             assertThat(fixture.authority.read(OWNER, created.project().projectId(), "plan-a", "v1").plan())
                     .isEqualTo(initial);
+            assertThat(fixture.sqlLong("SELECT count(*) FROM media_storyboard_plan_editions")).isEqualTo(1);
+            assertThat(fixture.sqlLong("SELECT count(*) FROM media_storyboard_plan_save_receipts")).isEqualTo(1);
         }
     }
 
     @Test
     void historicalSemanticVersionCannotBeRecreatedWithAnotherRequest() throws Exception {
         try (Fixture fixture = openFixture()) {
-            Created created = fixture.createProject(OWNER, "project-create-duplicate-version");
+            ProjectFixture created = fixture.createProject(OWNER, "project-create-duplicate-version");
             StoryboardPlanner planner = planner();
-            StoryboardPlanner.ScenePlan first = plan(created, "plan-a", "v1", "Original v1");
+            StoryboardPlanner.ScenePlan first = plan(fixture, created, "plan-a", "v1", "Original v1");
             StoryboardPlanner.SavedPlan savedFirst = planner.save(
                     OWNER, first, null, "save-version-v1", fixture.authority);
-            StoryboardPlanner.ScenePlan second = plan(created, "plan-a", "v2", "New v2");
+            StoryboardPlanner.ScenePlan second = plan(fixture, created, "plan-a", "v2", "New v2");
             StoryboardPlanner.SavedPlan savedSecond = planner.save(
                     OWNER, second, "v1", "save-version-v2", fixture.authority);
 
@@ -140,9 +148,9 @@ class PostgresqlStoryboardPlanAuthorityTest {
     @Test
     void databaseRejectsDirectMutationOfEditionsAndSaveReceipts() throws Exception {
         try (Fixture fixture = openFixture()) {
-            Created created = fixture.createProject(OWNER, "project-create-immutable-trigger");
+            ProjectFixture created = fixture.createProject(OWNER, "project-create-immutable-trigger");
             StoryboardPlanner planner = planner();
-            StoryboardPlanner.ScenePlan plan = plan(created, "plan-a", "v1", "Immutable authored plan");
+            StoryboardPlanner.ScenePlan plan = plan(fixture, created, "plan-a", "v1", "Immutable authored plan");
             StoryboardPlanner.SavedPlan saved = planner.save(
                     OWNER, plan, null, "save-immutable-trigger", fixture.authority);
 
@@ -200,8 +208,8 @@ class PostgresqlStoryboardPlanAuthorityTest {
     @Test
     void tenantAndPrincipalScopeAreCheckedOnPersistedReadback() throws Exception {
         try (Fixture fixture = openFixture()) {
-            Created created = fixture.createProject(OWNER, "project-create-4");
-            StoryboardPlanner.ScenePlan plan = plan(created, "plan-a", "v1", "A story");
+            ProjectFixture created = fixture.createProject(OWNER, "project-create-4");
+            StoryboardPlanner.ScenePlan plan = plan(fixture, created, "plan-a", "v1", "A story");
             fixture.authority.append(OWNER, plan, created.project().headRevisionId(), null, "save-story-4");
 
             assertThatThrownBy(() -> fixture.authority.read(
@@ -216,10 +224,10 @@ class PostgresqlStoryboardPlanAuthorityTest {
     @Test
     void concurrentInitialAppendsHaveOneParentCasWinnerAndNoLosingEdition() throws Exception {
         try (Fixture fixture = openFixture(); var executor = Executors.newFixedThreadPool(2)) {
-            Created created = fixture.createProject(OWNER, "project-create-5");
+            ProjectFixture created = fixture.createProject(OWNER, "project-create-5");
             StoryboardPlanner planner = planner();
-            StoryboardPlanner.ScenePlan first = plan(created, "plan-a", "v1", "First authored story");
-            StoryboardPlanner.ScenePlan second = plan(created, "plan-a", "v2", "Second authored story");
+            StoryboardPlanner.ScenePlan first = plan(fixture, created, "plan-a", "v1", "First authored story");
+            StoryboardPlanner.ScenePlan second = plan(fixture, created, "plan-a", "v2", "Second authored story");
             CountDownLatch start = new CountDownLatch(1);
             var firstResult = executor.submit(() -> appendAfter(start, planner, first, "save-race-1", fixture.authority));
             var secondResult = executor.submit(() -> appendAfter(start, planner, second, "save-race-2", fixture.authority));
@@ -254,13 +262,25 @@ class PostgresqlStoryboardPlanAuthorityTest {
         return new StoryboardPlanner((actor, source, purpose) -> StoryboardPlanner.SourceDecision.ELIGIBLE);
     }
 
-    private static StoryboardPlanner.ScenePlan plan(Created created, String planId, String version, String narrative) {
-        StoryboardPlanner planner = planner();
-        return planner.prepare(OWNER, created.project().projectId(), created.project().headRevisionId(), planId, version,
+    private static StoryboardPlanner.ScenePlan plan(Fixture fixture, ProjectFixture created, String planId,
+            String version, String narrative) {
+        StoryboardPlanner planner = new StoryboardPlanner(
+                (actor, source, purpose) -> StoryboardPlanner.SourceDecision.ELIGIBLE, fixture.timelineEngine);
+        StoryboardPlanner.ScenePlan draft = planner.prepare(OWNER, created.project().projectId(),
+                created.project().headRevisionId(), planId, version,
                 new StoryboardPlanner.AuthoredBrief("brief-" + version, "b1", "personal-project", narrative, List.of()),
                 List.of(new StoryboardPlanner.AuthoredScene("scene-" + version, 0, "scene intent", story(0), story(20),
                         List.of(new StoryboardPlanner.ShotInput("shot-" + version, 0, "shot intent", story(0),
                                 story(1), List.of())))));
+        StoryboardPlanner.ScenePlanRef scenePlanRef = new StoryboardPlanner.ScenePlanRef(
+                OWNER.tenantId(), created.project().projectId(), planId, version);
+        List<StoryboardPlanner.SceneGraphRef> sceneRefs = java.util.stream.IntStream.range(0, draft.scenes().size())
+                .mapToObj(index -> new StoryboardPlanner.SceneGraphRef(OWNER.tenantId(), created.project().projectId(),
+                        "test-graph-" + planId + "-" + index, "test-graph-version-" + version))
+                .toList();
+        StoryboardPlanner.TimelineRef timelineRef = new StoryboardPlanner.TimelineRef(OWNER.tenantId(),
+                created.project().projectId(), created.timeline().timelineId(), created.timeline().semanticVersionId());
+        return planner.bind(OWNER, draft, created.revision().revisionId(), scenePlanRef, sceneRefs, timelineRef);
     }
 
     private static RationalTime story(long seconds) {
@@ -342,20 +362,25 @@ class PostgresqlStoryboardPlanAuthorityTest {
         private final AutoCloseable installed;
         private final String schema;
         private final PostgresqlProjectTimelineStore projects;
+        private final ProjectTimelineEngine timelineEngine;
         private PostgresqlStoryboardPlanAuthority authority;
 
         Fixture(AutoCloseable installed, String schema) {
             this.installed = installed;
             this.schema = schema;
             this.projects = new PostgresqlProjectTimelineStore();
+            this.timelineEngine = new ProjectTimelineEngine(projects);
             this.authority = new PostgresqlStoryboardPlanAuthority();
         }
 
-        Created createProject(Actor actor, String requestId) {
-            Created created = new ProjectTimelineEngine(projects)
+        ProjectFixture createProject(Actor actor, String requestId) {
+            Created created = timelineEngine
                     .createProject(actor, "workspace-storyboard", "Storyboard project", requestId);
             assertThat(created.initialRevision().timelines()).isEmpty();
-            return created;
+            Revision revision = timelineEngine.createTimeline(actor, created.project().projectId(),
+                    created.initialRevision().revisionId(), "timeline-storyboard", requestId + "-timeline");
+            Project project = timelineEngine.project(actor, created.project().projectId());
+            return new ProjectFixture(project, revision, revision.timelines().getFirst());
         }
 
         long sqlLong(String sql) throws Exception {
@@ -400,5 +425,6 @@ class PostgresqlStoryboardPlanAuthorityTest {
         }
     }
 
+    private record ProjectFixture(Project project, Revision revision, TimelineSnapshot timeline) { }
     private record RaceResult(StoryboardPlanner.SavedPlan saved, Throwable failure) { }
 }

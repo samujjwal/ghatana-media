@@ -773,6 +773,72 @@ try {
   assert.equal(packedDevJobRequests[0].redirect, 'error');
   assert.equal((packedDevJob.stdout + packedDevJob.stderr).includes(devToken), false);
 
+  const localSubmitRequestId = 'fixture-dev-submit-request';
+  const submitDevClaims = { ...devClaims, permissions: [...devClaims.permissions, 'media:job:create'] };
+  const submitDevToken = `test.${Buffer.from(JSON.stringify(submitDevClaims)).toString('base64url')}.fixture`;
+  const packedDevSubmitLog = path.join(consumerRoot, 'packed-dev-submit.jsonl');
+  const packedDevSubmit = spawnSync(process.execPath, ['--import', cliFetchFixture, cliDev,
+    'job', 'submit', '--endpoint', 'http://127.0.0.1:8093', '--tenant', 'fixture-tenant',
+    '--principal', 'fixture-principal', '--artifact', 'fixture-artifact',
+    '--request-id', localSubmitRequestId, '--job-type', 'SPEECH_TO_TEXT'], {
+    cwd: consumerRoot,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      GHATANA_MEDIA_BEARER_TOKEN: submitDevToken,
+      GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'job-submit-success',
+      GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: submitDevToken,
+      GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify({ ...cliJob, requestId: localSubmitRequestId }),
+      GHATANA_MEDIA_CLI_TEST_LOG: packedDevSubmitLog,
+    },
+  });
+  assert.equal(packedDevSubmit.status, 0, 'installed DEV_ONLY CLI must submit through the loopback job route');
+  assert.equal(packedDevSubmit.stderr, '');
+  assert.deepEqual(JSON.parse(packedDevSubmit.stdout.trim()), {
+    schemaVersion: 'media.cli-result.v1',
+    commandId: 'media.cli.local-development.job.submit',
+    job: { ...cliJob, requestId: localSubmitRequestId },
+  });
+  assert.equal(JSON.parse(packedDevSubmit.stdout.trim()).job.status, 'RUNNING',
+    'accepted submission is a nonterminal observation, not provider finality');
+  const packedDevSubmitRequests = (await readFile(packedDevSubmitLog, 'utf8')).trim()
+    .split('\n').map(line => JSON.parse(line));
+  assert.equal(packedDevSubmitRequests.length, 1);
+  assert.deepEqual({
+    path: packedDevSubmitRequests[0].path,
+    method: packedDevSubmitRequests[0].method,
+    tenant: packedDevSubmitRequests[0].tenant,
+    principal: packedDevSubmitRequests[0].principal,
+    idempotencyKey: packedDevSubmitRequests[0].idempotencyKey,
+    request: packedDevSubmitRequests[0].request,
+    authenticated: packedDevSubmitRequests[0].authenticated,
+    bearerMatches: packedDevSubmitRequests[0].bearerMatches,
+    redirect: packedDevSubmitRequests[0].redirect,
+  }, {
+    path: '/api/v1/jobs',
+    method: 'POST',
+    tenant: 'fixture-tenant',
+    principal: 'fixture-principal',
+    idempotencyKey: localSubmitRequestId,
+    request: {
+      requestId: localSubmitRequestId,
+      tenantId: 'fixture-tenant',
+      principalId: 'fixture-principal',
+      correlationId: `cli-${localSubmitRequestId}`,
+      artifactId: 'fixture-artifact',
+      jobType: 'SPEECH_TO_TEXT',
+      parameters: {},
+    },
+    authenticated: true,
+    bearerMatches: true,
+    redirect: 'error',
+  });
+  assert.match(packedDevSubmitRequests[0].requestId, /^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu,
+    'transport trace identity is generated separately from the stable domain request ID');
+  assert.notEqual(packedDevSubmitRequests[0].requestId, localSubmitRequestId);
+  assert.equal((packedDevSubmit.stdout + packedDevSubmit.stderr).includes(submitDevToken), false);
+  assert.equal(JSON.stringify(packedDevSubmitRequests).includes(submitDevToken), false);
+
   const packedDevMalformedJobLog = path.join(consumerRoot, 'packed-dev-malformed-job.jsonl');
   const packedDevMalformedJob = spawnSync(process.execPath, ['--import', cliFetchFixture, cliDev,
     'job', 'get', '--endpoint', 'http://127.0.0.1:8093', '--tenant', 'fixture-tenant',
@@ -962,122 +1028,25 @@ try {
     encoding: 'utf8',
     env: {
       ...process.env,
-      GHATANA_MEDIA_BEARER_TOKEN: token,
+      GHATANA_MEDIA_BEARER_TOKEN: '',
       GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
       GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
       GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify({ ...cliJob, requestId: 'fixture-submit-request' }),
       GHATANA_MEDIA_CLI_TEST_LOG: packedProductionSubmitLog,
     },
   });
-  assert.equal(packedProductionSubmit.status, 0, 'installed production CLI must submit a request-bound job');
-  assert.equal(packedProductionSubmit.stderr, '');
-  const packedProductionSubmitResult = JSON.parse(packedProductionSubmit.stdout.trim());
-  assert.deepEqual(packedProductionSubmitResult, {
-    schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.job.submit',
-    job: { ...cliJob, requestId: 'fixture-submit-request' },
+  assert.equal(packedProductionSubmit.status, 3, 'unadmitted production job submission must fail before authentication or dispatch');
+  assert.equal(packedProductionSubmit.stdout, '');
+  assert.deepEqual(JSON.parse(packedProductionSubmit.stderr.trim()), {
+    schemaVersion: 'media.cli-error.v1',
+    commandId: 'media.cli.job.submit',
+    code: 'NOT_ADMITTED',
+    message: 'This production CLI operation is not admitted for the current runtime.',
   });
-  assert.equal(packedProductionSubmitResult.job.status, 'RUNNING',
-    'accepted job submission must retain its non-terminal observed state');
-  assert.ok(!['COMPLETED', 'FAILED', 'CANCELLED'].includes(packedProductionSubmitResult.job.status),
-    'an accepted job submission must not be represented as terminal');
-  const packedProductionSubmitRequests = (await readFile(packedProductionSubmitLog, 'utf8')).trim()
-    .split('\n').map(line => JSON.parse(line));
-  assert.equal(packedProductionSubmitRequests.length, 1);
-  assert.equal(typeof packedProductionSubmitRequests[0].requestId, 'string');
-  assert.ok(packedProductionSubmitRequests[0].requestId.length > 0);
-  const { requestId: _submitCorrelationRequestId, ...packedProductionSubmitRequest } = packedProductionSubmitRequests[0];
-  assert.deepEqual({
-    path: packedProductionSubmitRequest.path,
-    method: packedProductionSubmitRequest.method,
-    tenant: packedProductionSubmitRequest.tenant,
-    principal: packedProductionSubmitRequest.principal,
-    idempotencyKey: packedProductionSubmitRequest.idempotencyKey,
-    request: packedProductionSubmitRequest.request,
-    authenticated: packedProductionSubmitRequest.authenticated,
-    bearerMatches: packedProductionSubmitRequest.bearerMatches,
-    redirect: packedProductionSubmitRequest.redirect,
-  }, {
-    path: '/api/v1/jobs', method: 'POST', tenant: 'fixture-tenant', principal: 'fixture-principal',
-    idempotencyKey: 'fixture-submit-request',
-    request: {
-      requestId: 'fixture-submit-request', tenantId: 'fixture-tenant', principalId: 'fixture-principal',
-      correlationId: 'cli-fixture-submit-request', artifactId: 'fixture-artifact',
-      jobType: 'SPEECH_TO_TEXT', parameters: {},
-    },
-    authenticated: true, bearerMatches: true, redirect: 'error',
-  });
+  await assert.rejects(access(packedProductionSubmitLog), (error) => error.code === 'ENOENT',
+    'unadmitted production job submission must not reach the HTTP transport');
   assert.equal((packedProductionSubmit.stdout + packedProductionSubmit.stderr).includes(token), false,
-    'installed production CLI job submit must not expose the bearer credential');
-
-  const unknownSubmitRequestId = 'fixture-unknown-submit-request';
-  const unknownSubmitLog = path.join(consumerRoot, 'packed-production-unknown-submit.jsonl');
-  const unknownSubmit = spawnSync(process.execPath, ['--import', cliFetchFixture, cli,
-    'job', 'submit', '--endpoint', 'http://127.0.0.1:1', '--tenant', 'fixture-tenant',
-    '--principal', 'fixture-principal', '--artifact', 'fixture-artifact',
-    '--request-id', unknownSubmitRequestId, '--job-type', 'SPEECH_TO_TEXT'], {
-    cwd: consumerRoot,
-    encoding: 'utf8',
-    env: {
-      ...process.env,
-      GHATANA_MEDIA_BEARER_TOKEN: token,
-      GHATANA_MEDIA_REQUEST_TIMEOUT_MS: '1',
-      GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'timeout',
-      GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
-      GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify({ ...cliJob, requestId: unknownSubmitRequestId }),
-      GHATANA_MEDIA_CLI_TEST_LOG: unknownSubmitLog,
-    },
-  });
-  assert.equal(unknownSubmit.status, 6, 'ambiguous production CLI submit must use the JOB_NOT_FINAL exit code');
-  assert.equal(unknownSubmit.stdout, '');
-  const unknownSubmitError = JSON.parse(unknownSubmit.stderr.trim());
-  assert.equal(unknownSubmitError.code, 'OUTCOME_UNKNOWN');
-  assert.equal(unknownSubmitError.commandId, 'media.cli.job.submit');
-  assert.equal(unknownSubmitError.requestId, unknownSubmitRequestId);
-  assert.equal((unknownSubmit.stdout + unknownSubmit.stderr).includes(token), false);
-  const unknownSubmitRequests = (await readFile(unknownSubmitLog, 'utf8')).trim()
-    .split('\n').map(line => JSON.parse(line));
-  assert.equal(unknownSubmitRequests.length, 1, 'ambiguous submit must dispatch once and never blind-retry');
-  assert.equal(unknownSubmitRequests[0].method, 'POST');
-  assert.equal(unknownSubmitRequests[0].idempotencyKey, unknownSubmitRequestId);
-  assert.equal(unknownSubmitRequests[0].request.requestId, unknownSubmitRequestId);
-  assert.equal(unknownSubmitRequests[0].bearerMatches, true);
-
-  const restartSubmitRequestId = 'fixture-restart-submit-request';
-  const restartSubmitState = path.join(consumerRoot, 'packed-production-submit-state.json');
-  const restartedSubmitResults = [];
-  for (const processIndex of [1, 2]) {
-    const restartSubmitLog = path.join(consumerRoot, `packed-production-restart-submit-${processIndex}.jsonl`);
-    const restartedSubmit = spawnSync(process.execPath, ['--import', cliFetchFixture, cli,
-      'job', 'submit', '--endpoint', 'http://127.0.0.1:1', '--tenant', 'fixture-tenant',
-      '--principal', 'fixture-principal', '--artifact', 'fixture-artifact',
-      '--request-id', restartSubmitRequestId, '--job-type', 'SPEECH_TO_TEXT'], {
-      cwd: consumerRoot,
-      encoding: 'utf8',
-      env: {
-        ...process.env,
-        GHATANA_MEDIA_BEARER_TOKEN: token,
-        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'restart',
-        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
-        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify({ ...cliJob, requestId: restartSubmitRequestId }),
-        GHATANA_MEDIA_CLI_TEST_STATE: restartSubmitState,
-        GHATANA_MEDIA_CLI_TEST_LOG: restartSubmitLog,
-      },
-    });
-    assert.equal(restartedSubmit.status, 0, `restart-safe submit process ${processIndex} must read back the job`);
-    assert.equal(restartedSubmit.stderr, '');
-    restartedSubmitResults.push(JSON.parse(restartedSubmit.stdout.trim()));
-    const requests = (await readFile(restartSubmitLog, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
-    assert.equal(requests.length, 1);
-    assert.equal(requests[0].method, 'POST');
-    assert.equal(requests[0].idempotencyKey, restartSubmitRequestId);
-    assert.equal(requests[0].request.requestId, restartSubmitRequestId);
-  }
-  assert.deepEqual(restartedSubmitResults[0], restartedSubmitResults[1],
-    'retry after a process restart must return the original durable job observation');
-  assert.deepEqual(JSON.parse(await readFile(restartSubmitState, 'utf8')), {
-    effectCount: 1,
-    jobs: { [restartSubmitRequestId]: { ...cliJob, requestId: restartSubmitRequestId } },
-  }, 'same idempotency key across CLI processes must produce only one fixture effect');
+    'unadmitted production job submission must not expose a credential');
 
   const trustedResult = spawnSync(process.execPath, [cli, ...args], {
     cwd: consumerRoot,
@@ -1133,7 +1102,7 @@ try {
       'installed CLI must not expose credentials during endpoint validation');
   }
 
-  console.log(`Installed ESM/CJS/types consumers, DEV_ONLY timeline SDK, local upload/inspect/job-get/cancel dispatch, production artifact-inspect boundary, credential/PII scan, and packed CLI admission checks passed (zod ${zodManifest.version}).`);
+  console.log(`Installed ESM/CJS/types consumers, DEV_ONLY timeline SDK and job-submit dispatch, local upload/inspect/job-get/cancel dispatch, production artifact-inspect/admission boundaries, credential/PII scan, and packed CLI checks passed (zod ${zodManifest.version}).`);
 } finally {
   await rm(tempRoot, { recursive: true, force: true });
 }

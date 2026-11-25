@@ -180,6 +180,7 @@ describe('MediaCanonicalClient over real HTTP', () => {
         response.writeHead(status, { 'content-type': 'application/json' }).end(JSON.stringify(payload));
       };
       if (request.url === '/api/v1/streams' && request.method === 'POST') {
+        expect(request.headers['idempotency-key']).toBeUndefined();
         json({ session: session(), connectionToken: streamToken }, 201);
         return;
       }
@@ -199,7 +200,7 @@ describe('MediaCanonicalClient over real HTTP', () => {
       const client = makeClient(endpoint);
       const registration = await client.openStream({
         correlationId: 'corr-1', streamKind: 'VIDEO', maximumBufferedBytes: 1_048_576,
-        leaseDuration: 'PT30S', idempotencyKey: 'open-1',
+        leaseDuration: 'PT30S',
       });
       expect(registration.connectionToken).toBe(streamToken);
       expect((await client.connectStream('sess-1', registration.connectionToken)).state)
@@ -211,6 +212,25 @@ describe('MediaCanonicalClient over real HTTP', () => {
         .toBe('CLOSED');
       // The one-time token was carried on every session mutation.
       expect(tokensSeen).toEqual([streamToken, streamToken, streamToken]);
+    });
+  });
+
+  it('keeps a dispatched stream open with an invalid acknowledgement UNKNOWN without a replay key', async () => {
+    let requests = 0;
+    await withServer((_request, response) => {
+      requests += 1;
+      response.writeHead(201, { 'content-type': 'application/json' })
+        .end(JSON.stringify({ session: session({ tenantId: 'tenant-2' }), connectionToken: streamToken }));
+    }, async (endpoint) => {
+      const client = makeClient(endpoint);
+      const failure = await client.openStream({
+        correlationId: 'corr-unknown', streamKind: 'VIDEO', maximumBufferedBytes: 1_048_576,
+        leaseDuration: 'PT30S',
+      }).catch((error: unknown) => error);
+      expect(failure).toBeInstanceOf(MediaOperationAmbiguousError);
+      expect(failure).toMatchObject({ path: '/api/v1/streams', requestId: expect.any(String) });
+      expect(failure).toHaveProperty('requestKey', undefined);
+      expect(requests).toBe(1);
     });
   });
 

@@ -182,8 +182,35 @@ export function isAllowedArtifactProxyRequest(method, requestUrl) {
 
 /** Match only the exact DEV_ONLY context/project/timeline routes and methods. */
 export function isAllowedDevProjectProxyRequest(method, requestUrl) {
+  if (method === "GET" && isAllowedProjectListRequest(requestUrl)) return true;
   if (typeof method !== "string" || typeof requestUrl !== "string" || !isCanonicalPath(requestUrl)) return false;
   return devProjectRoutes.some((route) => route.method === method && route.path.test(requestUrl));
+}
+
+/** Project listing is the only project collection route with query parameters. */
+function isAllowedProjectListRequest(requestUrl) {
+  if (typeof requestUrl !== "string" || !requestUrl.startsWith("/dev/v1/projects?")
+    || requestUrl.includes("#") || requestUrl.includes("\\") || requestUrl.includes("//")) return false;
+  const rawQuery = requestUrl.slice("/dev/v1/projects?".length);
+  if (rawQuery.length === 0 || rawQuery.length > 8192) return false;
+  const values = new Map();
+  for (const pair of rawQuery.split("&")) {
+    const separator = pair.indexOf("=");
+    if (separator < 1) return false;
+    const key = decodeQueryPart(pair.slice(0, separator));
+    const value = decodeQueryPart(pair.slice(separator + 1));
+    if (key === null || value === null || (key !== "workspaceId" && key !== "pageToken") || values.has(key)) return false;
+    values.set(key, value);
+  }
+  const workspaceId = values.get("workspaceId");
+  const pageToken = values.get("pageToken");
+  return typeof workspaceId === "string" && new RegExp(`^${OPAQUE_ID}$`, "u").test(workspaceId)
+    && (pageToken === undefined || /^[A-Za-z0-9][A-Za-z0-9._:-]{0,2047}$/u.test(pageToken));
+}
+
+function decodeQueryPart(value) {
+  try { return decodeURIComponent(value.replace(/\+/gu, " ")); }
+  catch { return null; }
 }
 
 /** Vite middleware rejects every request in the artifact namespace unless it is allowlisted. */

@@ -212,6 +212,112 @@ class MediaDevProjectTimelineRestartIT {
     }
 
     @Test
+    void projectListSnapshotPagesRemainStableAfterMutationAndLauncherRestart() throws Exception {
+        String run = UUID.randomUUID().toString().replace("-", "");
+        String tenant = "tenant-dev-list-" + run;
+        String principal = "media-dev-list-owner-" + run;
+        String bucket = "media-dev-list-" + run;
+        String schema = "media_dev_list_" + run;
+        int port;
+        try (var socket = new java.net.ServerSocket(0)) { port = socket.getLocalPort(); }
+        Path services = Files.createTempDirectory("media-dev-list-services-");
+        Path log = Files.createTempFile("media-dev-list-process-", ".log");
+        Process launcher = null;
+        try {
+            try (S3Client s3 = s3()) {
+                s3.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+            }
+            installDescriptors(services);
+            String childClasspath = System.getProperty("media.child.classpath", "");
+            assertThat(childClasspath).as("Gradle-resolved child runtime classpath").isNotBlank();
+            String classpath = services + java.io.File.pathSeparator + childClasspath;
+            Map<String, String> environment = environment(bucket, port, schema);
+            String token = issueDevToken(tenant, principal);
+            launcher = startLauncher(classpath, environment, log);
+            awaitReady(launcher, port);
+
+            JsonNode context = JSON.readTree(send(port, tenant, token, "GET", "/dev/v1/context", null).body());
+            String workspaceId = context.path("selectedAuthorizedWorkspaceId").asString();
+            for (int index = 0; index < 51; index++) {
+                HttpResponse<String> created = send(port, tenant, token, "POST", "/dev/v1/projects",
+                        JSON.writeValueAsString(Map.of("selectedAuthorizedWorkspaceId", workspaceId,
+                                "title", "Snapshot project " + index,
+                                "requestId", "list-snapshot-create-" + run + "-" + index)));
+                assertThat(created.statusCode()).as(created.body()).isEqualTo(201);
+            }
+
+            HttpResponse<String> firstResponse = send(port, tenant, token, "GET",
+                    "/dev/v1/projects?workspaceId=" + workspaceId, null);
+            assertThat(firstResponse.statusCode()).as(firstResponse.body()).isEqualTo(200);
+            JsonNode firstPage = JSON.readTree(firstResponse.body());
+            assertThat(firstPage.path("outcome").asString()).isEqualTo("OBSERVED");
+            assertThat(firstPage.path("records").size()).isEqualTo(50);
+            String snapshotRef = firstPage.path("snapshotRef").asString();
+            String observedAt = firstPage.path("observedAt").asString();
+            String nextPageToken = firstPage.path("nextPageToken").asString();
+            assertThat(snapshotRef).isNotBlank();
+            assertThat(observedAt).isNotBlank();
+            assertThat(nextPageToken).isNotBlank();
+
+            HttpResponse<String> lateCreate = send(port, tenant, token, "POST", "/dev/v1/projects",
+                    JSON.writeValueAsString(Map.of("selectedAuthorizedWorkspaceId", workspaceId,
+                            "title", "Created after snapshot", "requestId", "list-snapshot-late-" + run)));
+            assertThat(lateCreate.statusCode()).as(lateCreate.body()).isEqualTo(201);
+
+            String continuationPath = "/dev/v1/projects?workspaceId=" + workspaceId + "&pageToken=" + nextPageToken;
+            HttpResponse<String> beforeRestartResponse = send(port, tenant, token, "GET", continuationPath, null);
+            assertThat(beforeRestartResponse.statusCode()).as(beforeRestartResponse.body()).isEqualTo(200);
+            JsonNode beforeRestartPage = JSON.readTree(beforeRestartResponse.body());
+            assertThat(beforeRestartPage.path("snapshotRef").asString()).isEqualTo(snapshotRef);
+            assertThat(beforeRestartPage.path("observedAt").asString()).isEqualTo(observedAt);
+            assertThat(beforeRestartPage.path("records").size()).isEqualTo(1);
+            assertThat(beforeRestartPage.path("nextPageToken").isNull()).isTrue();
+            assertThat(beforeRestartResponse.body()).doesNotContain("Created after snapshot");
+
+            stopLauncher(launcher);
+            launcher = null;
+            launcher = startLauncher(classpath, environment, log);
+            awaitReady(launcher, port);
+
+            HttpResponse<String> secondResponse = send(port, tenant, token, "GET", continuationPath, null);
+            assertThat(secondResponse.statusCode()).as(secondResponse.body()).isEqualTo(200);
+            JsonNode secondPage = JSON.readTree(secondResponse.body());
+            assertThat(secondPage.path("outcome").asString()).isEqualTo("OBSERVED");
+            assertThat(secondPage.path("snapshotRef").asString()).isEqualTo(snapshotRef);
+            assertThat(secondPage.path("observedAt").asString()).isEqualTo(observedAt);
+            assertThat(secondPage.path("records").size()).isEqualTo(1);
+            assertThat(secondPage.path("nextPageToken").isNull()).isTrue();
+            assertThat(secondPage.path("records")).isEqualTo(beforeRestartPage.path("records"));
+            assertThat(secondPage.path("nextPageToken")).isEqualTo(beforeRestartPage.path("nextPageToken"));
+            assertThat(secondResponse.body()).doesNotContain("Created after snapshot");
+            String selectedProjectId = secondPage.path("records").get(0).path("projectId").asString();
+            HttpResponse<String> selectedReadback = send(port, tenant, token, "GET",
+                    "/dev/v1/projects/" + selectedProjectId, null);
+            assertThat(selectedReadback.statusCode()).as(selectedReadback.body()).isEqualTo(200);
+            assertThat(JSON.readTree(selectedReadback.body()).path("project").path("projectId").asString())
+                    .isEqualTo(selectedProjectId);
+
+            HttpResponse<String> freshSnapshot = send(port, tenant, token, "GET",
+                    "/dev/v1/projects?workspaceId=" + workspaceId, null);
+            assertThat(freshSnapshot.statusCode()).as(freshSnapshot.body()).isEqualTo(200);
+            JsonNode freshPage = JSON.readTree(freshSnapshot.body());
+            assertThat(freshPage.path("snapshotRef").asString()).isNotEqualTo(snapshotRef);
+            assertThat(freshPage.path("records").size()).isEqualTo(50);
+            assertThat(freshPage.path("nextPageToken").asString()).isNotBlank();
+        } finally {
+            if (launcher != null && launcher.isAlive()) stopLauncher(launcher);
+            dropSchema(schema);
+            deleteBucket(bucket);
+            Files.deleteIfExists(log);
+            if (Files.exists(services)) try (var paths = Files.walk(services)) {
+                paths.sorted(java.util.Comparator.reverseOrder()).forEach(path -> {
+                    try { Files.deleteIfExists(path); } catch (Exception ignored) { }
+                });
+            }
+        }
+    }
+
+    @Test
     void projectRevisionRendersRegisteredArtifactThatReopensAfterLauncherRestart() throws Exception {
         String run = UUID.randomUUID().toString().replace("-", "");
         String tenant = "tenant-dev-render-" + run;
@@ -1094,10 +1200,21 @@ class MediaDevProjectTimelineRestartIT {
             throw new AssertionError("Timed out waiting for browser event " + expectedEvent
                     + "; process=" + processState + "; log=" + diagnostics, timeout);
         }
+        if (line == null) {
+            boolean processWasAliveAtEof = browser.isAlive();
+            if (processWasAliveAtEof) {
+                stopProcessTree(browser);
+                browser.waitFor(1, TimeUnit.SECONDS);
+            }
+            String processState = browser.isAlive() ? "still-running-after-cleanup"
+                    : "exited-early(exit=" + browser.exitValue() + ")";
+            String diagnostics = Files.exists(log) ? Files.readString(log) : "<no browser log>";
+            throw new AssertionError("Browser stdout closed before event " + expectedEvent
+                    + "; process-at-EOF=" + (processWasAliveAtEof ? "alive" : "already-exited")
+                    + "; process-after-cleanup=" + processState + "; log=" + diagnostics);
+        }
         String processState = browser.isAlive() ? "still-running" : "exit=" + browser.exitValue();
         String diagnostics = Files.exists(log) ? Files.readString(log) : "<no browser log>";
-        assertThat(line).as("browser event " + expectedEvent + "; process=" + processState + "; log=" + diagnostics)
-                .isNotNull();
         JsonNode event = JSON.readTree(line);
         assertThat(event.path("event").asString()).isEqualTo(expectedEvent);
         return event;

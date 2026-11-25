@@ -1036,6 +1036,12 @@ export class CameraCaptureSession {
 
   private sourcePresentationTime(frameRead: CameraFrameRead): CameraSourcePresentationTime {
     const metadata = this.sourceMetadata;
+    // Missing source clock metadata makes a valid timestamp unusable, but it
+    // must not disguise a malformed timestamp that the host did supply.
+    if (frameRead.presentationTicks !== undefined
+      && !SignedInt64DecimalSchema.safeParse(frameRead.presentationTicks).success) {
+      throw fail("PTS_INVALID", "camera source PTS must be a canonical signed int64 decimal");
+    }
     if (metadata === null) {
       return { disposition: "UNKNOWN", reason: "SOURCE_CLOCK_IDENTITY_NOT_SUPPLIED" };
     }
@@ -1047,9 +1053,6 @@ export class CameraCaptureSession {
     }
     if (metadata.sourceClockRef === null || metadata.sourceStreamRef === null || metadata.sourceOriginRef === null) {
       return { disposition: "UNKNOWN", reason: "SOURCE_CLOCK_IDENTITY_NOT_SUPPLIED" };
-    }
-    if (!SignedInt64DecimalSchema.safeParse(frameRead.presentationTicks).success) {
-      throw fail("PTS_INVALID", "camera source PTS must be a canonical signed int64 decimal");
     }
     const pts = BigInt(frameRead.presentationTicks);
     const declaredDiscontinuity = frameRead.discontinuity;

@@ -8,6 +8,8 @@ import com.ghatana.media.runtime.MediaProjectTimelineContracts.Actor;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Created;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Project;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Revision;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectListResult;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectListUnknown;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -72,6 +74,19 @@ public final class MediaDevProjectTimelineRuntime implements AutoCloseable {
     public Project project(String tenantId, String principalId, String projectId) {
         ensureOpen();
         return engine.project(actor(tenantId, principalId), projectId);
+    }
+
+    /** Lists metadata only inside this verified local principal's deterministic private DEV workspace. */
+    public ProjectListResult listProjects(String tenantId, String principalId, String selectedWorkspaceId,
+                                          String pageToken) {
+        ensureOpen();
+        Actor actor = actor(tenantId, principalId);
+        String authorizedWorkspace = developmentWorkspaceId(actor);
+        if (!authorizedWorkspace.equals(selectedWorkspaceId)) {
+            return new ProjectListUnknown("media.operation-slice.list-projects", "UNKNOWN_OBSERVATION",
+                    "AUTHORITY_UNAVAILABLE");
+        }
+        return engine.listProjects(actor, authorizedWorkspace, pageToken);
     }
 
     public Revision currentRevision(String tenantId, String principalId, String projectId) {

@@ -106,6 +106,42 @@ class BoundedPcmDeclipperTest {
                 BoundedPcmDeclipper.ErrorCode.INVALID_INPUT);
     }
 
+    @Test
+    void acceptsExactPcmByteBudgetAndRejectsFirstCompleteFrameAboveIt() {
+        int sampleRate = 8_000;
+        int maxBytes = BoundedPcmDeclipper.MAX_PCM_BYTES;
+        long framesAtLimit = maxBytes / 2L;
+        Duration exactDuration = Duration.ofSeconds(framesAtLimit / sampleRate,
+                (framesAtLimit % sampleRate) * 1_000_000_000L / sampleRate);
+        AudioData exactLimit = new AudioData(new byte[maxBytes], sampleRate, 1, 16,
+                exactDuration, com.ghatana.media.common.AudioFormat.PCM);
+
+        AudioData repaired = BoundedPcmDeclipper.repair(exactLimit, 0.99, 2);
+
+        assertThat(repaired.dataLength()).isEqualTo(maxBytes);
+        assertThat(repaired.duration()).isEqualTo(exactDuration);
+        assertThat(repaired.data()).isEqualTo(exactLimit.data());
+
+        int oversizedBytes = maxBytes + 2;
+        long oversizedFrames = oversizedBytes / 2L;
+        Duration oversizedDuration = Duration.ofSeconds(oversizedFrames / sampleRate,
+                (oversizedFrames % sampleRate) * 1_000_000_000L / sampleRate);
+        AudioData oversized = new AudioData(new byte[oversizedBytes], sampleRate, 1, 16,
+                oversizedDuration, com.ghatana.media.common.AudioFormat.PCM);
+
+        assertCode(oversized, 0.99, 2, BoundedPcmDeclipper.ErrorCode.RESOURCE_LIMIT);
+    }
+
+    @Test
+    void rejectsPcmDurationThatDriftsFromTheSampleClock() {
+        AudioData source = pcm16(new short[] {100, 200, 300, 400});
+        AudioData drifted = new AudioData(source.data(), source.sampleRate(), source.channels(),
+                source.bitsPerSample(), source.duration().plusNanos(1),
+                com.ghatana.media.common.AudioFormat.PCM);
+
+        assertCode(drifted, 0.99, 2, BoundedPcmDeclipper.ErrorCode.INVALID_INPUT);
+    }
+
     private static void assertCode(AudioData input, double threshold, int maxRun,
                                    BoundedPcmDeclipper.ErrorCode code) {
         assertThatThrownBy(() -> BoundedPcmDeclipper.repair(input, threshold, maxRun))

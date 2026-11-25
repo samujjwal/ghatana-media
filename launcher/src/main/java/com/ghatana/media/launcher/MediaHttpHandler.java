@@ -32,6 +32,9 @@ import com.ghatana.media.runtime.MediaProjectTimelineContracts.Clip;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Clock;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.RationalTime;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceVersion;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectListObserved;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectListUnknown;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectListResult;
 import com.ghatana.media.production.timeline.ProjectTimelineEngine.AddScene;
 import com.ghatana.media.production.timeline.ProjectTimelineEngine.AddTrack;
 import com.ghatana.media.production.timeline.ProjectTimelineEngine.Edit;
@@ -967,7 +970,14 @@ public final class MediaHttpHandler implements HttpHandler {
                 return;
             }
             if ("/dev/v1/projects".equals(path)) {
-                if (!"POST".equals(method)) { methodNotAllowed(exchange, "POST"); return; }
+                if ("GET".equals(method)) {
+                    ProjectListQueryParameters query = projectListQuery(exchange);
+                    ProjectListResult result = devProjectTimeline.listProjects(tenantId, principalId,
+                            query.workspaceId(), query.pageToken());
+                    json(exchange, 200, projectListView(result));
+                    return;
+                }
+                if (!"POST".equals(method)) { methodNotAllowed(exchange, "GET, POST"); return; }
                 DevCreateProjectBody body = mapper.readValue(
                         boundedBody(exchange, runtime.config().maximumBodyBytes()), DevCreateProjectBody.class);
                 var created = devProjectTimeline.createProject(tenantId, principalId,
@@ -1531,6 +1541,69 @@ public final class MediaHttpHandler implements HttpHandler {
         }
         return value;
     }
+
+    /** Parses only the two PDP-1 list parameters; duplicate, malformed, and trusted-context overrides fail closed. */
+    private static ProjectListQueryParameters projectListQuery(HttpExchange exchange) {
+        String rawQuery = exchange.getRequestURI().getRawQuery();
+        if (rawQuery == null || rawQuery.isEmpty()) {
+            throw new IllegalArgumentException("workspaceId query parameter is required");
+        }
+        if (rawQuery.length() > 8192) {
+            throw new IllegalArgumentException("project-list query exceeds its bounded URI length");
+        }
+        String workspaceId = null;
+        String pageToken = null;
+        for (String rawPart : rawQuery.split("&", -1)) {
+            if (rawPart.isEmpty()) throw new IllegalArgumentException("project-list query contains an empty parameter");
+            int separator = rawPart.indexOf('=');
+            if (separator <= 0 || separator == rawPart.length() - 1) {
+                throw new IllegalArgumentException("project-list query parameter must have a value");
+            }
+            String name = decodeOpaqueQueryValue(rawPart.substring(0, separator));
+            String value = decodeOpaqueQueryValue(rawPart.substring(separator + 1));
+            if ("workspaceId".equals(name)) {
+                if (workspaceId != null) throw new IllegalArgumentException("workspaceId must be supplied once");
+                workspaceId = value;
+            } else if ("pageToken".equals(name)) {
+                if (pageToken != null) throw new IllegalArgumentException("pageToken must be supplied once");
+                pageToken = value;
+            } else {
+                throw new IllegalArgumentException("project-list query contains an unsupported parameter");
+            }
+        }
+        workspaceId = com.ghatana.media.runtime.MediaProjectTimelineContracts.requireSelectedWorkspaceId(workspaceId);
+        if (pageToken != null && !pageToken.matches("[A-Za-z0-9][A-Za-z0-9._:-]{0,2047}")) {
+            throw new IllegalArgumentException("pageToken must be a bounded opaque identifier");
+        }
+        return new ProjectListQueryParameters(workspaceId, pageToken);
+    }
+
+    private static Object projectListView(ProjectListResult result) {
+        if (result instanceof ProjectListUnknown unknown) {
+            return Map.of("operationRef", unknown.operationRef(), "outcome", unknown.outcome(),
+                    "reason", unknown.reason());
+        }
+        ProjectListObserved observed = (ProjectListObserved) result;
+        Map<String, Object> response = new java.util.LinkedHashMap<>();
+        response.put("operationRef", observed.operationRef());
+        response.put("outcome", observed.outcome());
+        response.put("tenantId", observed.tenantId());
+        response.put("principalId", observed.principalId());
+        response.put("workspaceId", observed.workspaceId());
+        response.put("queryFingerprint", observed.queryFingerprint());
+        response.put("snapshotRef", observed.snapshotRef());
+        response.put("observedAt", observed.observedAt());
+        response.put("records", observed.records().stream().map(record -> Map.of(
+                "projectId", record.projectId(),
+                "workspaceId", record.workspaceId(),
+                "title", record.title(),
+                "projectState", record.projectState(),
+                "headRevisionId", record.headRevisionId())).toList());
+        response.put("nextPageToken", observed.nextPageToken());
+        return response;
+    }
+
+    private record ProjectListQueryParameters(String workspaceId, String pageToken) { }
 
     private void providers(HttpExchange exchange) throws IOException {
         Map<String, Object> health = runtime.healthSnapshot();

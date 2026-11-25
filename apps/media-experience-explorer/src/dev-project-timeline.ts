@@ -8,6 +8,9 @@ import {
   MediaDevProjectTimelineError,
   MediaDevProjectTimelineClient,
   type DevProject,
+  type DevProjectListObserved,
+  type DevProjectListRecord,
+  type DevProjectListResult,
   type DevProjectTimelineClientOptions,
   type DevRevisionRead,
   type CreateDevTimelineRequest,
@@ -59,6 +62,11 @@ const createProjectButton = byId<HTMLButtonElement>("create-project");
 const replayProjectButton = byId<HTMLButtonElement>("replay-project");
 const projectResult = byId<HTMLDivElement>("project-result");
 const projectJson = byId<HTMLPreElement>("project-json");
+const projectSearchInput = byId<HTMLInputElement>("project-search");
+const refreshProjectListButton = byId<HTMLButtonElement>("refresh-project-list");
+const loadMoreProjectsButton = byId<HTMLButtonElement>("load-more-projects");
+const projectListStatus = byId<HTMLParagraphElement>("project-list-status");
+const projectList = byId<HTMLUListElement>("project-list");
 const openProjectForm = byId<HTMLFormElement>("open-project-form");
 const openProjectIdInput = byId<HTMLInputElement>("open-project-id");
 const openProjectButton = byId<HTMLButtonElement>("open-project");
@@ -75,6 +83,12 @@ let client: MediaDevProjectTimelineClient | null = null;
 let context: DevProjectContext | null = null;
 let lastCreateRequest: ProjectRequest | null = null;
 let unresolvedProjectCreate = false;
+let observedProjects: DevProjectListRecord[] = [];
+let projectListSnapshotRef: string | null = null;
+let projectListObservedAt: string | null = null;
+let projectListNextPageToken: string | null = null;
+let projectListBusy = false;
+let projectListGeneration = 0;
 
 hostChip.textContent = origin;
 
@@ -142,7 +156,13 @@ async function connectWithToken(token: string): Promise<void> {
   forgetButton.disabled = false;
   announce("Reading DEV_ONLY host context…");
   try {
-    context = await client.getContext();
+    const verifiedContext = await client.getContext();
+    if (context && (context.tenantId !== verifiedContext.tenantId
+      || context.principalId !== verifiedContext.principalId
+      || context.selectedAuthorizedWorkspaceId !== verifiedContext.selectedAuthorizedWorkspaceId)) {
+      clearObservedProjectList("Verified identity or workspace changed. Starting a new project snapshot.");
+    }
+    context = verifiedContext;
     renderContext(context);
     setConnected(true);
     reviewerPanel.hidden = false;
@@ -150,6 +170,7 @@ async function connectWithToken(token: string): Promise<void> {
       detail: createDevProjectOutputsClient({ origin, bearerToken: () => bearerToken ?? "", principalId: context.principalId }),
     }));
     announce(`Connected to the local host. Scope: ${context.scope}.`, "success");
+    void loadProjectPage(true);
     projectTitleInput.focus();
   } catch (error) { announce(errorMessage(error), "error"); }
 }
@@ -184,6 +205,7 @@ forgetButton.addEventListener("click", () => {
   context = null;
   lastCreateRequest = null;
   unresolvedProjectCreate = false;
+  clearObservedProjectList("Connect to the local host to observe projects.");
   openProjectIdInput.value = "";
   workspaceRoot.dispatchEvent(new CustomEvent<WorkspaceDetail | null>("media-dev-project-timeline", { detail: null }));
   workspacePanel.hidden = true;
@@ -224,6 +246,10 @@ projectForm.addEventListener("submit", async (event) => {
   await createProject(request, false);
 });
 
+projectSearchInput.addEventListener("input", () => renderProjectList());
+refreshProjectListButton.addEventListener("click", () => { void loadProjectPage(true); });
+loadMoreProjectsButton.addEventListener("click", () => { void loadProjectPage(false); });
+
 replayProjectButton.addEventListener("click", async () => {
   if (lastCreateRequest) await createProject(lastCreateRequest, true);
 });
@@ -252,6 +278,7 @@ async function createProject(request: ProjectRequest, replay: boolean): Promise<
       detail: { client, project: result.project, revision: exactRevision.revision, outputs: createDevProjectOutputsClient({ origin, bearerToken: () => bearerToken ?? "", principalId: context?.principalId }), principalId: context?.principalId ?? "" },
     }));
     announce(`${result.createdNow ? "Created" : "Replayed"} DEV_ONLY project ${result.project.projectId}; exact initial revision ${exactRevision.revision.revisionId} reopened.`, "success");
+    void loadProjectPage(true);
   } catch (error) {
     unresolvedProjectCreate = createAcknowledged || (error instanceof MediaDevProjectTimelineError
       && (error.code === "OUTCOME_UNKNOWN" || error.code === "INVALID_RESPONSE"));
@@ -264,10 +291,139 @@ async function createProject(request: ProjectRequest, replay: boolean): Promise<
 openProjectForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (!client || !context) return;
-  setBusy(true);
-  announce("Reading the existing project from the host…");
+  await openProjectFromOwnerScope(openProjectIdInput.value);
+});
+
+async function loadProjectPage(reset: boolean): Promise<void> {
+  if (!client || !context || projectListBusy || (!reset && !projectListNextPageToken)) return;
+  const pageToken = reset ? undefined : projectListNextPageToken ?? undefined;
+  if (reset) {
+    projectListGeneration += 1;
+    observedProjects = [];
+    projectListSnapshotRef = null;
+    projectListObservedAt = null;
+    projectListNextPageToken = null;
+    projectList.replaceChildren();
+  }
+  const generation = projectListGeneration;
+  projectListBusy = true;
+  projectListStatus.textContent = reset ? "Observing project metadata in the selected workspace…" : "Loading the next page from the same project snapshot…";
+  updateProjectListControls();
   try {
-    const result = await openExistingProject(client, context, openProjectIdInput.value);
+    const page: DevProjectListResult = await client.listProjects(context.selectedAuthorizedWorkspaceId, pageToken);
+    if (generation !== projectListGeneration) return;
+    if (page.outcome === "UNKNOWN_OBSERVATION") {
+      observedProjects = [];
+      projectListSnapshotRef = null;
+      projectListObservedAt = null;
+      projectListNextPageToken = null;
+      projectList.replaceChildren();
+      projectListStatus.textContent = `Project list outcome is UNKNOWN (${page.reason}). No project rows or continuation token are available.`;
+      return;
+    }
+    if (!reset && (page.snapshotRef !== projectListSnapshotRef || page.observedAt !== projectListObservedAt)) {
+      observedProjects = [];
+      projectListSnapshotRef = null;
+      projectListObservedAt = null;
+      projectListNextPageToken = null;
+      projectList.replaceChildren();
+      projectListStatus.textContent = "The next page did not match the current snapshot. Results were cleared; refresh the project list.";
+      return;
+    }
+    if (reset) {
+      projectListSnapshotRef = page.snapshotRef;
+      projectListObservedAt = page.observedAt;
+    }
+    const existingIds = new Set(observedProjects.map((record) => record.projectId));
+    if (page.records.some((record) => existingIds.has(record.projectId))) {
+      observedProjects = [];
+      projectListSnapshotRef = null;
+      projectListObservedAt = null;
+      projectListNextPageToken = null;
+      projectList.replaceChildren();
+      projectListStatus.textContent = "The project snapshot repeated a project row across pages. Results were cleared; refresh the project list.";
+      return;
+    }
+    observedProjects = [...observedProjects, ...page.records];
+    projectListNextPageToken = page.nextPageToken;
+    renderProjectList(page);
+  } catch (error) {
+    if (generation !== projectListGeneration) return;
+    const staleSnapshotLabel = !reset && observedProjects.length > 0 && projectListObservedAt
+      ? `Previously observed snapshot from ${projectListObservedAt} remains displayed and is not current. `
+      : "";
+    projectListStatus.textContent = `${staleSnapshotLabel}${errorMessage(error)}`;
+  } finally {
+    if (generation === projectListGeneration) {
+      projectListBusy = false;
+      updateProjectListControls();
+    }
+  }
+}
+
+function clearObservedProjectList(statusMessage: string): void {
+  projectListGeneration += 1;
+  projectListBusy = false;
+  observedProjects = [];
+  projectListSnapshotRef = null;
+  projectListObservedAt = null;
+  projectListNextPageToken = null;
+  projectSearchInput.value = "";
+  projectList.replaceChildren();
+  projectListStatus.textContent = statusMessage;
+  updateProjectListControls();
+}
+
+function renderProjectList(page?: DevProjectListObserved): void {
+  const term = projectSearchInput.value.trim().toLocaleLowerCase();
+  const observationLabel = projectListObservedAt
+    ? `Snapshot observed at ${projectListObservedAt}; this is not a live currentness guarantee. `
+    : "";
+  const matches = observedProjects.filter((project) => !term
+    || project.title.toLocaleLowerCase().includes(term)
+    || project.projectId.toLocaleLowerCase().includes(term));
+  projectList.replaceChildren();
+  for (const project of matches) {
+    const item = document.createElement("li");
+    const select = document.createElement("button");
+    select.type = "button";
+    select.className = "button secondary";
+    select.textContent = `${project.title} · ${project.projectState} · ${project.projectId} · Head ${project.headRevisionId}`;
+    select.addEventListener("click", () => { void openProjectFromOwnerScope(project.projectId, project.headRevisionId); });
+    item.append(select);
+    projectList.append(item);
+  }
+  if (observedProjects.length === 0 && projectListNextPageToken === null) {
+    projectListStatus.textContent = `${observationLabel}No projects are visible in this selected workspace in this observed snapshot.`;
+  } else if (matches.length === 0 && projectListNextPageToken !== null) {
+    projectListStatus.textContent = `${observationLabel}No matches among the ${observedProjects.length} projects observed so far. More pages may contain a match.`;
+  } else if (matches.length === 0) {
+    projectListStatus.textContent = `${observationLabel}No matches in this observed snapshot (${observedProjects.length} projects).`;
+  } else if (projectListNextPageToken !== null) {
+    projectListStatus.textContent = `${observationLabel}Showing ${matches.length} matches among ${observedProjects.length} projects observed so far. More pages remain in this snapshot.`;
+  } else {
+    projectListStatus.textContent = `${observationLabel}Showing ${matches.length} matching projects from this observed snapshot.`;
+  }
+  if (page && page.records.length === 0 && page.nextPageToken !== null) {
+    projectListStatus.textContent = `${observationLabel}This page contained no rows; more pages remain in the same observed snapshot.`;
+  }
+  updateProjectListControls();
+}
+
+function updateProjectListControls(): void {
+  const connected = Boolean(client && context);
+  projectSearchInput.disabled = !connected || projectListSnapshotRef === null;
+  refreshProjectListButton.disabled = !connected || projectListBusy;
+  loadMoreProjectsButton.hidden = projectListNextPageToken === null;
+  loadMoreProjectsButton.disabled = !connected || projectListBusy || projectListNextPageToken === null;
+}
+
+async function openProjectFromOwnerScope(projectId: string, observedHeadRevisionId?: string): Promise<void> {
+  if (!client || !context) return;
+  setBusy(true);
+  announce("Reading the selected project from the host before opening it…");
+  try {
+    const result = await openExistingProject(client, context, projectId);
     if (!result.ok) { announce(result.message, "error"); return; }
     const { project, currentRevision } = result.read;
     renderJson(projectResult, projectJson, result.read);
@@ -275,11 +431,18 @@ openProjectForm.addEventListener("submit", async (event) => {
     hideReviewerPanel();
     rememberOpenedWorkspace(project, currentRevision);
     workspaceRoot.dispatchEvent(new CustomEvent<WorkspaceDetail>("media-dev-project-timeline", {
-      detail: { client, project, revision: currentRevision, outputs: createDevProjectOutputsClient({ origin, bearerToken: () => bearerToken ?? "", principalId: context?.principalId }), principalId: context?.principalId ?? "" },
+      detail: { client, project, revision: currentRevision, outputs: createDevProjectOutputsClient({ origin, bearerToken: () => bearerToken ?? "", principalId: context.principalId }), principalId: context.principalId },
     }));
-    announce(`Opened existing DEV_ONLY project ${project.projectId}; current head revision ${currentRevision.revisionId} read from the host.`, "success");
-  } finally { setBusy(false); }
-});
+    if (observedHeadRevisionId === undefined) {
+      announce(`Opened existing DEV_ONLY project ${project.projectId}; current head revision ${currentRevision.revisionId} read from the host.`, "success");
+    } else if (currentRevision.revisionId === observedHeadRevisionId) {
+      announce(`Opened existing DEV_ONLY project ${project.projectId}; current head revision ${currentRevision.revisionId} matches the observed snapshot version.`, "success");
+    } else {
+      announce(`Opened existing DEV_ONLY project ${project.projectId}; current head revision ${currentRevision.revisionId} read from the host. The observed snapshot version ${observedHeadRevisionId} is no longer current.`, "success");
+    }
+  } catch (error) { announce(errorMessage(error), "error"); }
+  finally { setBusy(false); }
+}
 
 function renderContext(value: DevProjectContext): void {
   contextFields.replaceChildren();
@@ -310,6 +473,7 @@ function setConnected(connected: boolean): void {
   createProjectButton.disabled = !connected;
   openProjectButton.disabled = !connected;
   replayProjectButton.disabled = !connected || !lastCreateRequest;
+  updateProjectListControls();
 }
 
 function setBusy(busy: boolean): void {
@@ -317,6 +481,7 @@ function setBusy(busy: boolean): void {
   createProjectButton.disabled = busy || !context || unresolvedProjectCreate;
   openProjectButton.disabled = busy || !context;
   replayProjectButton.disabled = busy || !context || !lastCreateRequest;
+  updateProjectListControls();
 }
 
 function announce(message: string, kind: "error" | "success" | "info" = "info"): void {

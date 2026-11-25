@@ -40,38 +40,66 @@ export interface PinnedFfmpegRenderOptions {
 
 interface ToolRun { readonly code: number; readonly stdout: Buffer; readonly stderr: Buffer; }
 
+function codecAbortError(): Error {
+  const error = new Error("codec operation was cancelled");
+  error.name = "AbortError";
+  return error;
+}
+
 function runBounded(executable: string, args: readonly string[], timeoutMillis: number,
-  maxOutputBytes: number): Promise<ToolRun> {
+  maxOutputBytes: number, signal?: AbortSignal): Promise<ToolRun> {
   return new Promise((resolvePromise, reject) => {
+    if (signal?.aborted) {
+      reject(codecAbortError());
+      return;
+    }
     const child = spawn(executable, [...args], { stdio: ["ignore", "pipe", "pipe"], shell: false });
     const stdout: Buffer[] = [];
     const stderr: Buffer[] = [];
     let total = 0;
     let settled = false;
-    const timer = setTimeout(() => child.kill("SIGKILL"), timeoutMillis);
-    const rejectOnce = (error: Error) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      reject(error);
+    let failure: Error | undefined;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let forceKillTimer: ReturnType<typeof setTimeout> | undefined;
+    const cleanup = () => {
+      if (timer) clearTimeout(timer);
+      if (forceKillTimer) clearTimeout(forceKillTimer);
+      signal?.removeEventListener("abort", onAbort);
     };
+    const stop = (error: Error) => {
+      if (settled || failure) return;
+      failure = error;
+      if (timer) clearTimeout(timer);
+      if (child.pid !== undefined) {
+        child.kill("SIGTERM");
+        forceKillTimer = setTimeout(() => child.kill("SIGKILL"), 1_000);
+      }
+    };
+    const onAbort = () => stop(codecAbortError());
+    signal?.addEventListener("abort", onAbort, { once: true });
+    timer = setTimeout(() => stop(new Error("codec process timed out or was terminated")), timeoutMillis);
+    if (signal?.aborted) onAbort();
     const collect = (target: Buffer[], chunk: Buffer) => {
+      if (failure || settled) return;
       total += chunk.byteLength;
       if (total > maxOutputBytes) {
-        child.kill("SIGKILL");
-        rejectOnce(new Error("codec output exceeded bound"));
+        stop(new Error("codec output exceeded bound"));
         return;
       }
       target.push(Buffer.from(chunk));
     };
     child.stdout.on("data", (chunk: Buffer) => collect(stdout, chunk));
     child.stderr.on("data", (chunk: Buffer) => collect(stderr, chunk));
-    child.on("error", (error) => rejectOnce(error));
-    child.on("close", (code, signal) => {
+    child.on("error", (error) => stop(error));
+    child.on("close", (code, processSignal) => {
       if (settled) return;
       settled = true;
-      clearTimeout(timer);
-      if (signal !== null) {
+      cleanup();
+      if (failure) {
+        reject(failure);
+        return;
+      }
+      if (processSignal !== null) {
         reject(new Error("codec process timed out or was terminated"));
         return;
       }
@@ -134,7 +162,8 @@ export class PinnedFfmpegFinalRenderMuxer implements FinalRenderMuxAndProbePort 
     this.ffprobeSha256 = options.ffprobeSha256;
   }
 
-  public async muxAndVerify(request: FinalRenderRequest): Promise<RenderedContainer> {
+  public async muxAndVerify(request: FinalRenderRequest, signal?: AbortSignal): Promise<RenderedContainer> {
+    if (signal?.aborted) throw codecAbortError();
     if (!request.fileName.toLowerCase().endsWith(".mp4") || request.creditRefs.length > 0
       || request.timeBase.numerator !== 1 || request.plan.sceneRuns.length < 1
       || request.plan.sceneRuns.length > MAX_INPUTS) throw new Error("unsupported local render profile");
@@ -145,8 +174,8 @@ export class PinnedFfmpegFinalRenderMuxer implements FinalRenderMuxAndProbePort 
     }
     const ffmpeg = await this.validateTool(this.options.ffmpegPath, this.ffmpegSha256);
     const ffprobe = await this.validateTool(this.options.ffprobePath, this.ffprobeSha256);
-    const version = await runBounded(ffmpeg, ["-version"], this.timeoutMillis, MAX_TOOL_OUTPUT);
-    const probeVersion = await runBounded(ffprobe, ["-version"], this.timeoutMillis, MAX_TOOL_OUTPUT);
+    const version = await runBounded(ffmpeg, ["-version"], this.timeoutMillis, MAX_TOOL_OUTPUT, signal);
+    const probeVersion = await runBounded(ffprobe, ["-version"], this.timeoutMillis, MAX_TOOL_OUTPUT, signal);
     if (version.code !== 0 || probeVersion.code !== 0
       || !version.stdout.toString("utf8").includes(this.options.expectedVersion)
       || !probeVersion.stdout.toString("utf8").includes(this.options.expectedVersion)) {
@@ -165,7 +194,10 @@ export class PinnedFfmpegFinalRenderMuxer implements FinalRenderMuxAndProbePort 
       }
       sceneOffsetMillis += run.durationMillis;
     }
-    if (scenePaths.length + narrationSources.length > MAX_INPUTS) throw new Error("render input count exceeds bound");
+    if (scenePaths.length + narrationSources.length
+      + (Array.isArray(request.captions) && request.captions.length > 0 ? 1 : 0) > MAX_INPUTS) {
+      throw new Error("render input count exceeds bound");
+    }
     const inputBytes = (await Promise.all([...scenePaths, ...narrationSources.map((source) => source.path)]
       .map(async (path) => (await stat(path)).size))).reduce((sum, size) => sum + size, 0);
     if (!Number.isSafeInteger(inputBytes) || inputBytes > MAX_TOTAL_SOURCE_BYTES) {
@@ -179,6 +211,7 @@ export class PinnedFfmpegFinalRenderMuxer implements FinalRenderMuxAndProbePort 
     if (captions.some(({ text }) => typeof text !== "string" || text.trim().length === 0
       || text.length > 2_000 || /[\r\n\u0000-\u0008]/u.test(text))) throw new Error("caption text is invalid");
 
+    if (signal?.aborted) throw codecAbortError();
     const work = await mkdtemp(resolve(tmpdir(), "media-render-"));
     try {
       const subtitlePath = resolve(work, "captions.srt");
@@ -227,15 +260,15 @@ export class PinnedFfmpegFinalRenderMuxer implements FinalRenderMuxAndProbePort 
       for (let i = 0; i < trackRefs.length; i += 1) args.push(`-metadata:s:a:${i}`, `handler_name=${trackRefs[i]}`);
       if (captions.length > 0) args.push("-c:s", "mov_text", "-metadata:s:s:0", "title=Media captions");
       args.push("-t", String(totalMillis / 1000), "-movflags", "+faststart", "-fs", String(MAX_RENDER_OUTPUT), outputPath);
-      const encoded = await runBounded(ffmpeg, args, this.timeoutMillis, MAX_TOOL_OUTPUT);
+      const encoded = await runBounded(ffmpeg, args, this.timeoutMillis, MAX_TOOL_OUTPUT, signal);
       if (encoded.code !== 0) throw new Error("FFmpeg failed to encode the local render");
       const bytes = await readFile(outputPath);
       if (bytes.byteLength < 1 || bytes.byteLength > MAX_RENDER_OUTPUT) throw new Error("render output exceeds local bound");
       const decoded = await runBounded(ffmpeg, ["-hide_banner", "-loglevel", "error", "-nostdin", "-i", outputPath,
-        "-map", "0:v:0", "-map", "0:a?", "-f", "null", "-"], this.timeoutMillis, MAX_TOOL_OUTPUT);
+        "-map", "0:v:0", "-map", "0:a?", "-f", "null", "-"], this.timeoutMillis, MAX_TOOL_OUTPUT, signal);
       if (decoded.code !== 0) throw new Error("FFmpeg could not decode the complete local render");
       const probeRun = await runBounded(ffprobe, ["-v", "error", "-count_frames", "-show_streams", "-show_format",
-        "-of", "json", outputPath], this.timeoutMillis, MAX_TOOL_OUTPUT);
+        "-of", "json", outputPath], this.timeoutMillis, MAX_TOOL_OUTPUT, signal);
       if (probeRun.code !== 0) throw new Error("FFprobe could not inspect the local render");
       const metadata = JSON.parse(probeRun.stdout.toString("utf8")) as ProbeDocument;
       const video = metadata.streams.find((stream) => stream.codec_type === "video");
@@ -255,7 +288,8 @@ export class PinnedFfmpegFinalRenderMuxer implements FinalRenderMuxAndProbePort 
       if (subtitleStreams.length !== (captions.length > 0 ? 1 : 0)) {
         throw new Error("subtitle track inventory differs from request");
       }
-      const packetTimes = captions.length === 0 ? [] : await this.probeCaptionPackets(ffprobe, outputPath, request.timeBase);
+      const packetTimes = captions.length === 0 ? []
+        : await this.probeCaptionPackets(ffprobe, outputPath, request.timeBase, signal);
       if (packetTimes.length !== captions.length) throw new Error("subtitle packet inventory differs from request");
       const captionTimings = captions.map((caption, index) => {
         const packet = packetTimes[index];
@@ -303,12 +337,13 @@ export class PinnedFfmpegFinalRenderMuxer implements FinalRenderMuxAndProbePort 
     ffprobe: string,
     outputPath: string,
     timeBase: RenderRational,
+    signal?: AbortSignal,
   ): Promise<readonly { readonly start: number | null; readonly duration: number | null }[]> {
     // Restrict packet enumeration to the single bounded subtitle stream. Probing every video and
     // audio packet grows with render duration and can exceed the process output ceiling.
     const result = await runBounded(ffprobe, ["-v", "error", "-select_streams", "s", "-show_packets",
       "-show_entries", "packet=pts_time,dts_time,duration_time,size", "-of", "json", outputPath],
-    this.timeoutMillis, MAX_TOOL_OUTPUT);
+    this.timeoutMillis, MAX_TOOL_OUTPUT, signal);
     if (result.code !== 0) throw new Error("FFprobe could not inspect rendered caption packets");
     const metadata = JSON.parse(result.stdout.toString("utf8")) as ProbePacketsDocument;
     if (!Array.isArray(metadata.packets) || metadata.packets.length > 256

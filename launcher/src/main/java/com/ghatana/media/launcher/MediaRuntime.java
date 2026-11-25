@@ -2486,6 +2486,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             future = control.provider().accept(
                     new StreamContext(reserved, control.cancellation(), consent, control.governance()), frame);
         } catch (RuntimeException failure) {
+            workflowMetrics.recordCaptureFrame(captureMetricKind(current.streamKind()),
+                    MediaWorkflowMetrics.Outcome.UNKNOWN);
             throw unknownFrameOutcome("Media stream frame processing outcome is unknown", reserved, failure);
         } catch (Error failure) {
             markStreamOutcomeUnknown(reserved, failure);
@@ -2494,6 +2496,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         if (future == null) {
             IllegalStateException failure =
                     new IllegalStateException("Media streaming provider returned a null future");
+            workflowMetrics.recordCaptureFrame(captureMetricKind(current.streamKind()),
+                    MediaWorkflowMetrics.Outcome.UNKNOWN);
             throw unknownFrameOutcome("Media stream frame processing outcome is unknown", reserved, failure);
         }
         boolean frameAcknowledgementPersisted = false;

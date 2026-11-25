@@ -289,6 +289,42 @@ class MediaRuntimeCanonicalStreamFramePortTest {
     }
 
     @Test
+    void synchronousProviderFailuresRecordOneUnknownFrameMetricAndAreNotReplayed() throws Exception {
+        for (boolean returnNull : List.of(false, true)) {
+            var root = Files.createTempDirectory("media-canonical-audio-stream-sync-failure-");
+            var provider = new SynchronousFailureStreamingProvider(returnNull);
+            var runtime = new MediaRuntime(
+                    new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                            Duration.ofSeconds(2), 1, "", "", true, false, root),
+                    new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                    new LocalMediaRuntimeSupport.JobStore(),
+                    new LocalMediaRuntimeSupport.StreamStore(),
+                    null,
+                    List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()),
+                    List.of(provider));
+
+            try {
+                var registration = runtime.openStream(request(provider, "correlation-sync-failure"));
+                runtime.connectStream("tenant-a", registration.session().sessionId(), registration.connectionToken());
+                var port = runtime.audioStreamFramePort(
+                        "tenant-a", "principal-a", registration.session().sessionId(), registration.connectionToken());
+                var binding = port.currentBinding(
+                        "tenant-a", registration.session().sessionId(), "principal-a").orElseThrow();
+
+                assertThat(port.offer(binding, frame(0)).disposition())
+                        .isEqualTo(CanonicalStreamFramePort.Disposition.OUTCOME_UNKNOWN);
+                assertThat(port.offer(binding, frame(0)).disposition())
+                        .isEqualTo(CanonicalStreamFramePort.Disposition.OUTCOME_UNKNOWN);
+                assertThat(provider.calls()).isEqualTo(1);
+                assertThat(runtime.prometheusMetrics())
+                        .contains("media_capture_frames_total{contract_version=\"v1\",kind=\"audio\",outcome=\"unknown\",service=\"launcher\"} 1.0");
+            } finally {
+                runtime.close();
+            }
+        }
+    }
+
+    @Test
     void canonicalAudioEosUsesNextCursorAndPreservesBackpressureFeedback() throws Exception {
         var root = Files.createTempDirectory("media-canonical-audio-stream-eos-");
         var provider = new FeedbackStreamingProvider();
@@ -456,6 +492,33 @@ class MediaRuntimeCanonicalStreamFramePortTest {
                 com.ghatana.media.runtime.MediaRuntimeContracts.StreamFrame frame) {
             calls.incrementAndGet();
             return new CompletableFuture<>();
+        }
+
+        int calls() { return calls.get(); }
+    }
+
+    private static final class SynchronousFailureStreamingProvider implements MediaStreamingProvider {
+        private final boolean returnNull;
+        private final AtomicInteger calls = new AtomicInteger();
+
+        private SynchronousFailureStreamingProvider(boolean returnNull) {
+            this.returnNull = returnNull;
+        }
+
+        @Override public String providerId() { return "synchronous-failure-audio-stream-provider"; }
+        @Override public Set<StreamKind> capabilities() { return Set.of(StreamKind.AUDIO); }
+        @Override public boolean ready() { return true; }
+        @Override public boolean productionEligible() { return false; }
+        @Override public int priority() { return 1; }
+        @Override public ProcessingBoundary processingBoundary() { return ProcessingBoundary.LOCAL; }
+        @Override public String processingRegion() { return "local"; }
+
+        @Override
+        public CompletableFuture<StreamAck> accept(StreamContext context,
+                com.ghatana.media.runtime.MediaRuntimeContracts.StreamFrame frame) {
+            calls.incrementAndGet();
+            if (returnNull) return null;
+            throw new IllegalStateException("synthetic synchronous provider failure");
         }
 
         int calls() { return calls.get(); }

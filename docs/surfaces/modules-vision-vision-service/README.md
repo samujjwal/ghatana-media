@@ -150,7 +150,9 @@ requirements." Package `com.ghatana.audio.video.vision.local` implements the Flo
 - `LocalVisionSidecarClient` / `LocalVisionSidecarProcess`: loopback-only HTTP sidecar
   (`tools/model-runtimes/vision/vision_sidecar.py`) with bearer token, timeouts and bounded bodies; the client refuses
   non-loopback URLs. The sidecar itself re-verifies the manifest digests before loading a model, never uses remote code
-  or the network for models, and serializes GPU inference.
+  or the network for models, and serializes GPU inference. Inference requests carry an operation UUID so timeout and
+  lost-response paths can request authenticated cooperative cancellation; cancellation does not prove that an in-flight
+  model load or native/GPU kernel has stopped.
 - `LocalVisionEngine`: Florence-2 caption / object detection / scene text and Qwen2.5-VL question answering, shaped into
   deterministic JSON (`media.vision.local-result.v1`) bound to the input SHA-256 and the model identity.
 - `LocalOpenModelVisionProvider` (`local-open-vision`): canonical `MediaProcessingProvider` for `VISION` jobs. Job

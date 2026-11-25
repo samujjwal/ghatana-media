@@ -74,6 +74,36 @@ export interface DevProject {
   readonly headRevisionId: string;
 }
 
+/** Metadata-only row from one point-in-time project-list observation. */
+export interface DevProjectListRecord {
+  readonly projectId: string;
+  readonly workspaceId: string;
+  readonly title: string;
+  readonly projectState: string;
+  readonly headRevisionId: string;
+}
+
+export interface DevProjectListObserved {
+  readonly operationRef: "media.operation-slice.list-projects";
+  readonly outcome: "OBSERVED";
+  readonly tenantId: string;
+  readonly principalId: string;
+  readonly workspaceId: string;
+  readonly queryFingerprint: string;
+  readonly snapshotRef: string;
+  readonly observedAt: string;
+  readonly records: readonly DevProjectListRecord[];
+  readonly nextPageToken: string | null;
+}
+
+export interface DevProjectListUnknown {
+  readonly operationRef: "media.operation-slice.list-projects";
+  readonly outcome: "UNKNOWN_OBSERVATION";
+  readonly reason: "AUTHORITY_UNAVAILABLE" | "SNAPSHOT_UNAVAILABLE" | "PAGE_TOKEN_INVALID" | "QUERY_UNAVAILABLE";
+}
+
+export type DevProjectListResult = DevProjectListObserved | DevProjectListUnknown;
+
 export interface DevTimelineGraph {
   readonly timelineId: string;
   readonly scenes: readonly Readonly<Record<string, unknown>>[];
@@ -272,6 +302,30 @@ export class MediaDevProjectTimelineClient {
       throw invalidResponse("Project read response does not match its current revision head.");
     }
     return result as unknown as DevProjectRead;
+  }
+
+  /**
+   * Reads one metadata-only page from the host's point-in-time project snapshot.
+   * The search control is intentionally local to observed rows; the wire request
+   * carries only the selected workspace and optional opaque continuation token.
+   */
+  async listProjects(workspaceId: string, pageToken?: string, signal?: AbortSignal): Promise<DevProjectListResult> {
+    validateOpaqueId(workspaceId, "workspaceId");
+    if (pageToken !== undefined && (typeof pageToken !== "string"
+      || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,2047}$/u.test(pageToken))) {
+      throw new MediaDevProjectTimelineError("INVALID_REQUEST", 0, "pageToken must be an opaque value of at most 2048 characters.");
+    }
+    const context = await this.getContext(signal);
+    if (workspaceId !== context.selectedAuthorizedWorkspaceId) {
+      throw new MediaDevProjectTimelineError("INVALID_REQUEST", 0, "Project listing is limited to the workspace selected by the verified DEV_ONLY host context.");
+    }
+    const expectedFingerprint = await projectListQueryFingerprint(
+      workspaceId, pageToken, context.tenantId, context.principalId,
+    );
+    const query = new URLSearchParams({ workspaceId });
+    if (pageToken !== undefined) query.set("pageToken", pageToken);
+    const value = await this.request("GET", `/dev/v1/projects?${query.toString()}`, undefined, signal, false);
+    return parseProjectListResult(value, context, workspaceId, expectedFingerprint);
   }
 
   async createTimeline(projectId: string, request: CreateDevTimelineRequest, signal?: AbortSignal): Promise<DevRevisionRead> {
@@ -576,6 +630,70 @@ function parseProject(value: unknown): DevProject {
     if (!isNonEmpty(project[field])) throw invalidResponse(`Project response is missing ${field}.`);
   }
   return project as unknown as DevProject;
+}
+
+async function parseProjectListResult(value: unknown, context: DevProjectContext, requestedWorkspaceId: string,
+                                      expectedFingerprint: string): Promise<DevProjectListResult> {
+  const result = record(value, "project list response");
+  const operationRef = "media.operation-slice.list-projects";
+  if (result.operationRef !== operationRef) throw invalidResponse("Project list response has the wrong operation identity.");
+  if (result.outcome === "UNKNOWN_OBSERVATION") {
+    if (!exactKeys(result, ["operationRef", "outcome", "reason"])
+      || !["AUTHORITY_UNAVAILABLE", "SNAPSHOT_UNAVAILABLE", "PAGE_TOKEN_INVALID", "QUERY_UNAVAILABLE"].includes(String(result.reason))) {
+      throw invalidResponse("Unknown project list response is malformed or contains partial observation data.");
+    }
+    return result as unknown as DevProjectListUnknown;
+  }
+  if (result.outcome !== "OBSERVED" || !exactKeys(result, [
+    "operationRef", "outcome", "tenantId", "principalId", "workspaceId", "queryFingerprint",
+    "snapshotRef", "observedAt", "records", "nextPageToken",
+  ])) {
+    throw invalidResponse("Project list response does not match the exact observation shape.");
+  }
+  if (result.tenantId !== context.tenantId || result.principalId !== context.principalId
+    || result.workspaceId !== requestedWorkspaceId || result.workspaceId !== context.selectedAuthorizedWorkspaceId) {
+    throw invalidResponse("Project list observation is outside the verified DEV_ONLY owner workspace.");
+  }
+  if (result.queryFingerprint !== expectedFingerprint
+    || typeof result.snapshotRef !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,255}$/u.test(result.snapshotRef)
+    || typeof result.observedAt !== "string"
+    || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?Z$/u.test(result.observedAt)
+    || !Number.isFinite(Date.parse(result.observedAt))
+    || !Array.isArray(result.records) || result.records.length > 1000
+    || !(result.nextPageToken === null
+      || typeof result.nextPageToken === "string" && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,2047}$/u.test(result.nextPageToken))) {
+    throw invalidResponse("Project list observation contains invalid scope, page, or snapshot metadata.");
+  }
+  const records = result.records.map((value): DevProjectListRecord => {
+    const project = record(value, "project list record");
+    if (!exactKeys(project, ["projectId", "workspaceId", "title", "projectState", "headRevisionId"])
+      || typeof project.projectId !== "string" || !OPAQUE_ID.test(project.projectId)
+      || project.workspaceId !== requestedWorkspaceId
+      || typeof project.title !== "string" || project.title.length < 1 || project.title.length > 255
+      || typeof project.projectState !== "string" || project.projectState.length < 1 || project.projectState.length > 64
+      || typeof project.headRevisionId !== "string" || !/^[A-Za-z0-9][A-Za-z0-9._:+-]{0,127}$/u.test(project.headRevisionId)) {
+      throw invalidResponse("Project list record is malformed or outside its requested workspace.");
+    }
+    return project as unknown as DevProjectListRecord;
+  });
+  if (new Set(records.map((project) => project.projectId)).size !== records.length) {
+    throw invalidResponse("Project list observation contains duplicate project identities.");
+  }
+  return { ...result, records } as unknown as DevProjectListObserved;
+}
+
+async function projectListQueryFingerprint(workspaceId: string, pageToken: string | undefined,
+                                           tenantId: string, principalId: string): Promise<string> {
+  const fields = [String(pageToken === undefined ? 3 : 4), workspaceId,
+    ...(pageToken === undefined ? [] : [pageToken]), tenantId, principalId];
+  const canonical = fields.map((field) => `${field.length}:${field}`).join("");
+  const subtle = globalThis.crypto?.subtle;
+  if (!subtle) {
+    throw new MediaDevProjectTimelineError("INVALID_CONFIGURATION", 0, "Web Crypto is required to validate project-list scope fingerprints.");
+  }
+  const digest = new Uint8Array(await subtle.digest("SHA-256", new TextEncoder().encode(canonical)));
+  const hex = [...digest].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  return `sha256:${hex}`;
 }
 
 function parseRevision(value: unknown): DevProjectRevision {

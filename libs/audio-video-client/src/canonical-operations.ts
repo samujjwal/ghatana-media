@@ -143,8 +143,6 @@ export interface OpenMediaStreamRequest {
   /** ISO-8601 duration, for example PT30S. */
   readonly leaseDuration: string;
   readonly metadata?: Readonly<Record<string, unknown>>;
-  /** Required by the contract's idempotency declaration. */
-  readonly idempotencyKey: string;
 }
 
 const JOB_TYPES = new Set(["TRANSCODE", "SPEECH_TO_TEXT", "TEXT_TO_SPEECH", "VISION", "MULTIMODAL"]);
@@ -695,19 +693,21 @@ export class MediaCanonicalClient {
     return response;
   }
 
-  /** POST /api/v1/streams — open a session and receive the one-time token. */
+  /**
+   * POST /api/v1/streams — open a session and receive the one-time token.
+   * The contract has no durable replay receipt, so a lost acknowledgement is
+   * OUTCOME_UNKNOWN and must not be retried automatically.
+   */
   public async openStream(
     request: OpenMediaStreamRequest,
     signal?: AbortSignal,
   ): Promise<CanonicalStreamRegistration> {
     const principalId = this.requirePrincipalId("stream open");
     const allowed = new Set(["correlationId", "streamKind", "providerHint",
-      "maximumBufferedBytes", "leaseDuration", "metadata", "idempotencyKey"]);
+      "maximumBufferedBytes", "leaseDuration", "metadata"]);
     if (!request || Object.keys(request).some((key) => !allowed.has(key))) {
       throw new Error("Stream open contains fields outside the canonical request.");
     }
-    const idempotencyKey = safeIdentityHeader("idempotencyKey", request.idempotencyKey);
-    if (!idempotencyKey) throw new Error("idempotencyKey is required by the declared HTTP contract.");
     if (!STREAM_KINDS.has(request.streamKind)) throw new Error("streamKind is outside the runtime enum.");
     if (!Number.isSafeInteger(request.maximumBufferedBytes)
       || request.maximumBufferedBytes < 1 || request.maximumBufferedBytes > 1_073_741_824) {
@@ -745,14 +745,13 @@ export class MediaCanonicalClient {
     let requestId: string | undefined;
     try {
       registration = await this.transport.request(
-        "POST", "/api/v1/streams", body, parser, signal,
-        { "Idempotency-Key": idempotencyKey },
+        "POST", "/api/v1/streams", body, parser, signal, {},
         (id) => { dispatched = true; requestId = id; },
       );
       this.assertSessionScope(registration.session, principalId);
     } catch (failure) {
       if (dispatched && !isDefinitiveClientRejection(failure)) {
-        throw new MediaOperationAmbiguousError("/api/v1/streams", failure, { requestId, requestKey: idempotencyKey });
+        throw new MediaOperationAmbiguousError("/api/v1/streams", failure, { requestId });
       }
       throw failure;
     }
