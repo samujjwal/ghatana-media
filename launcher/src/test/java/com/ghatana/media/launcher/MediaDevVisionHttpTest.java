@@ -49,12 +49,13 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
- * DEV_ONLY local vision lane through the real HTTP host: Florence-2 analysis and Qwen2.5-VL questions over an
+ * DEV_ONLY local vision lane through the real HTTP host: Florence-2 caption/detection and Qwen2.5-VL questions over an
  * exact immutable image (or a video frame) version, registered as a lineage-bound JSON artifact. Runs the real
  * models on this machine; skipped with an explicit reason only when the sidecar runtime or models are absent.
  */
@@ -71,12 +72,13 @@ class MediaDevVisionHttpTest {
 
     private static LocalVisionSidecarProcess sidecar;
     private static LocalVisionEngine engine;
+    private static Path models;
     private static String skipReason;
 
     @BeforeAll
     static void startRealModels() throws Exception {
         Path home = Path.of(System.getProperty("user.home"));
-        Path models = Path.of(System.getenv().getOrDefault("MEDIA_LOCAL_VISION_MODELS_ROOT",
+        models = Path.of(System.getenv().getOrDefault("MEDIA_LOCAL_VISION_MODELS_ROOT",
                 home.resolve(".local/share/ghatana-media/models").toString()));
         Path python = Path.of(System.getenv().getOrDefault("MEDIA_LOCAL_VISION_PYTHON",
                 home.resolve(".local/share/ghatana-media/runtimes/vision-venv/bin/python").toString()));
@@ -117,7 +119,7 @@ class MediaDevVisionHttpTest {
             MediaArtifact source = upload(runtime, "scene.png", "image/png", png);
 
             Map<String, Object> body = Map.of("requestId", "analysis-1", "artifactId", source.artifactId(),
-                    "artifactVersionId", source.version().value(), "tasks", List.of("caption", "detect", "ocr"));
+                    "artifactVersionId", source.version().value(), "tasks", List.of("caption", "detect"));
             HttpResponse<byte[]> created = post(server, "/dev/v1/vision/analyses", PRINCIPAL, ALL, body);
             assertThat(created.statusCode()).as(new String(created.body())).isEqualTo(201);
             Map<String, Object> view = map(created);
@@ -144,8 +146,7 @@ class MediaDevVisionHttpTest {
             System.out.println("DEV-VISION-ANALYSIS-ARTIFACT " + new String(content.toByteArray(), StandardCharsets.UTF_8));
             @SuppressWarnings("unchecked") var inference = (Map<String, Object>) document.get("inference");
             @SuppressWarnings("unchecked") var results = (Map<String, Object>) inference.get("results");
-            @SuppressWarnings("unchecked") var sceneText = (Map<String, Object>) results.get("sceneText");
-            assertThat(((String) sceneText.get("fullText")).toUpperCase()).contains("GHATANA");
+            assertThat(results).containsKeys("caption", "objects").doesNotContainKey("sceneText");
             assertThat(HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256")
                     .digest(content.toByteArray()))).isEqualTo(output.sha256());
 
@@ -338,6 +339,139 @@ class MediaDevVisionHttpTest {
         }
     }
 
+    @Test
+    void genericOcrIsTypedNotAdmittedBeforeRightsReadOrSidecarDispatch() throws Exception {
+        Path root = Files.createTempDirectory("media-dev-vision-ocr-not-admitted-");
+        MediaRuntime runtime = runtime(root);
+        AtomicInteger sidecarCalls = new AtomicInteger();
+        HttpServer sidecar = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        sidecar.createContext("/", exchange -> {
+            exchange.getRequestBody().readAllBytes();
+            sidecarCalls.incrementAndGet();
+            byte[] body = "{}".getBytes(StandardCharsets.UTF_8);
+            exchange.sendResponseHeaders(200, body.length);
+            exchange.getResponseBody().write(body);
+            exchange.close();
+        });
+        sidecar.start();
+        AtomicInteger rightsCalls = new AtomicInteger();
+        RightsConsentResolver rights = new RightsConsentResolver() {
+            @Override public String resolverId() { return "counting-fixture-rights"; }
+            @Override public boolean ready() { return true; }
+            @Override public Resolution resolve(com.ghatana.media.runtime.MediaRightsConsentContracts.ResolutionRequest request) {
+                rightsCalls.incrementAndGet();
+                return fixtureResolver(Verdict.ADMITTED).resolve(request);
+            }
+        };
+        var engine = new LocalVisionEngine(
+                new LocalVisionSidecarClient(URI.create("http://127.0.0.1:" + sidecar.getAddress().getPort()),
+                        "fixture-only-token-0123456789abcdef", Duration.ofSeconds(2)),
+                new LocalModelAdmission(root.resolve("florence"), LocalVisionEngine.FLORENCE_MODEL_ID,
+                        "VISION", "MIT"),
+                new LocalModelAdmission(root.resolve("qwen"), LocalVisionEngine.QWEN_MODEL_ID,
+                        "MULTIMODAL_QA", "Apache-2.0"), LocalVisionRightsAuthority.unavailable());
+        HttpServer server = serverWithVision(runtime, new MediaDevVisionRuntime(runtime, engine, null, rights));
+        try {
+            MediaArtifact source = upload(runtime, "ocr.png", "image/png", testImage());
+            HttpResponse<byte[]> refused = post(server, "/dev/v1/vision/analyses", PRINCIPAL, ALL, Map.of(
+                    "requestId", "ocr-not-admitted", "artifactId", source.artifactId(),
+                    "artifactVersionId", source.version().value(), "tasks", List.of("ocr")));
+            assertThat(refused.statusCode()).as(new String(refused.body(), StandardCharsets.UTF_8)).isEqualTo(422);
+            Map<String, Object> response = map(refused);
+            @SuppressWarnings("unchecked") Map<String, Object> error = (Map<String, Object>) response.get("error");
+            assertThat(error).containsEntry("code", "DOCUMENT_INTELLIGENCE_NOT_ADMITTED");
+            @SuppressWarnings("unchecked") Map<String, Object> details = (Map<String, Object>) error.get("details");
+            assertThat(details).containsEntry("outcome", "NOT_ADMITTED")
+                    .containsEntry("authority", "DOCUMENT_INTELLIGENCE").containsEntry("fallback", "NONE");
+            assertThat(response).doesNotContainKeys("artifact", "outputId", "transcript");
+            assertThat(rightsCalls).hasValue(0);
+            assertThat(sidecarCalls).hasValue(0);
+        } finally {
+            server.stop(0);
+            sidecar.stop(0);
+            runtime.close();
+        }
+    }
+
+    @Test
+    void sidecarServerFailureIsUnavailableAtDevRouteWithoutOutputRegistration() throws Exception {
+        assumeTrue(skipReason == null, () -> "SKIPPED: " + skipReason);
+        Path root = Files.createTempDirectory("media-dev-vision-sidecar-failure-");
+        MediaRuntime runtime = runtime(root);
+        AtomicInteger sidecarStatus = new AtomicInteger(500);
+        AtomicInteger sidecarCalls = new AtomicInteger();
+        HttpServer failingSidecar = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        failingSidecar.createContext("/", exchange -> {
+            exchange.getRequestBody().readAllBytes();
+            sidecarCalls.incrementAndGet();
+            int status = sidecarStatus.get();
+            byte[] body = (status == 500
+                    ? "{\"error\":\"INFERENCE_FAILED\",\"type\":\"OutOfMemoryError\"}"
+                    : "{\"error\":\"BAD_IMAGE\"}").getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().set("Content-Type", "application/json");
+            exchange.sendResponseHeaders(status, body.length);
+            exchange.getResponseBody().write(body);
+            exchange.close();
+        });
+        failingSidecar.start();
+
+        AtomicInteger outputRegistrations = new AtomicInteger();
+        LocalVisionEngine failingEngine = new LocalVisionEngine(
+                new LocalVisionSidecarClient(URI.create("http://127.0.0.1:" + failingSidecar.getAddress().getPort()),
+                        "fixture-only-token-0123456789abcdef", Duration.ofSeconds(5)),
+                new LocalModelAdmission(models.resolve("florence-2-large"), LocalVisionEngine.FLORENCE_MODEL_ID,
+                        "VISION", "MIT"),
+                new LocalModelAdmission(models.resolve("qwen2.5-vl-7b-instruct"), LocalVisionEngine.QWEN_MODEL_ID,
+                        "MULTIMODAL_QA", "Apache-2.0"),
+                LocalVisionRightsAuthority.unavailable());
+        MediaDevVisionRuntime failingVision = new MediaDevVisionRuntime(runtime, failingEngine, null,
+                fixtureResolver(Verdict.ADMITTED), (tenantId, principalId, request, idempotencyKey, bytes) -> {
+                    outputRegistrations.incrementAndGet();
+                    throw new AssertionError("a rejected sidecar call must not register an output");
+                });
+        HttpServer server = serverWithVision(runtime, failingVision);
+        try {
+            MediaArtifact source = upload(runtime, "sidecar-failure.png", "image/png", testImage());
+            Map<String, Object> body = Map.of("requestId", "sidecar-failure-500", "artifactId", source.artifactId(),
+                    "artifactVersionId", source.version().value(), "tasks", List.of("caption"));
+
+            HttpResponse<byte[]> unavailable = post(server, "/dev/v1/vision/analyses", PRINCIPAL, ALL, body);
+            assertThat(unavailable.statusCode()).as(new String(unavailable.body(), StandardCharsets.UTF_8)).isEqualTo(503);
+            Map<String, Object> unavailableView = map(unavailable);
+            @SuppressWarnings("unchecked") Map<String, Object> unavailableError =
+                    (Map<String, Object>) unavailableView.get("error");
+            assertThat(unavailableError).containsEntry("code", "LOCAL_VISION_UNAVAILABLE");
+            @SuppressWarnings("unchecked") Map<String, Object> unavailableDetails =
+                    (Map<String, Object>) unavailableError.get("details");
+            assertThat(unavailableDetails).containsEntry("outcome", "UNAVAILABLE").containsEntry("fallback", "NONE");
+            assertThat(unavailableView).doesNotContainKeys("artifact", "outputId", "transcript");
+            assertThat(sidecarCalls).hasValue(1);
+            assertThat(outputRegistrations).hasValue(0);
+
+            sidecarStatus.set(400);
+            Map<String, Object> badInputBody = Map.of("requestId", "sidecar-failure-400", "artifactId", source.artifactId(),
+                    "artifactVersionId", source.version().value(), "tasks", List.of("caption"));
+            HttpResponse<byte[]> rejected = post(server, "/dev/v1/vision/analyses", PRINCIPAL, ALL, badInputBody);
+            assertThat(rejected.statusCode()).as(new String(rejected.body(), StandardCharsets.UTF_8)).isEqualTo(422);
+            @SuppressWarnings("unchecked") Map<String, Object> rejectedError = (Map<String, Object>) map(rejected).get("error");
+            assertThat(rejectedError).containsEntry("code", "LOCAL_VISION_REJECTED");
+            assertThat(sidecarCalls).hasValue(2);
+            assertThat(outputRegistrations).hasValue(0);
+
+            List<String> outageLines = runtime.prometheusMetrics().lines()
+                    .filter(line -> line.startsWith("media_dev_provider_outages_total{")).toList();
+            assertThat(outageLines).singleElement().satisfies(line -> {
+                assertThat(line).contains("lane=\"vision\"").contains("outcome=\"unavailable\"")
+                        .endsWith(" 1.0");
+                assertThat(line).doesNotContain(TENANT, PRINCIPAL, source.artifactId(), source.version().value());
+            });
+        } finally {
+            server.stop(0);
+            failingSidecar.stop(0);
+            runtime.close();
+        }
+    }
+
     // ---- helpers ----
 
     /** FIXTURE_ONLY resolver returning one fixed verdict for PROCESSING; admits only with a fixture attestation id. */
@@ -400,9 +534,14 @@ class MediaDevVisionHttpTest {
 
     private static HttpServer server(MediaRuntime runtime, LocalOpenModelVisionProvider.FrameExtractor frames)
             throws Exception {
+        return serverWithVision(runtime,
+                new MediaDevVisionRuntime(runtime, engine, frames, fixtureResolver(Verdict.ADMITTED)));
+    }
+
+    private static HttpServer serverWithVision(MediaRuntime runtime, MediaDevVisionRuntime vision) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         MediaHttpHandler handler = new MediaHttpHandler(runtime, null, null, null, (MediaDevReviewRuntime) null)
-                .withDevVision(new MediaDevVisionRuntime(runtime, engine, frames, fixtureResolver(Verdict.ADMITTED)));
+                .withDevVision(vision);
         server.createContext("/", new MediaSecurityFilter(handler, "dev",
                 Map.of("MEDIA_DEV_IDENTITY_ENABLED", "true", "MEDIA_DEV_JWT_HMAC_SECRET", SECRET), CLOCK));
         server.start();

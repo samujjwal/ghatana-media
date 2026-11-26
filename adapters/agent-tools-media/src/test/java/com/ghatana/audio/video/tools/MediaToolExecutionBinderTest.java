@@ -24,6 +24,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -120,7 +121,7 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
     private static MediaToolExecutionBinder binder(
             InMemoryLedger ledger, Map<String, String> durableJobs) {
         return new MediaToolExecutionBinder(ledger,
-                (tenant, invocation) -> Optional.ofNullable(durableJobs.get(invocation)),
+                (authenticated, tenant, invocation) -> Optional.ofNullable(durableJobs.get(invocation)),
                 (authenticated, identity) -> authenticated.tenantId().equals(identity.tenantId())
                         && authenticated.principalId().equals(identity.callerAgentId()));
     }
@@ -248,7 +249,7 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
         InMemoryLedger ledger = new InMemoryLedger();
         AtomicInteger readbacks = new AtomicInteger();
         AtomicInteger dispatches = new AtomicInteger();
-        var binder = new MediaToolExecutionBinder(ledger, (tenant, invocation) -> {
+        var binder = new MediaToolExecutionBinder(ledger, (authenticated, tenant, invocation) -> {
             readbacks.incrementAndGet();
             return Optional.of("RUNNING");
         }, (authenticated, identity) -> authenticated.tenantId().equals(identity.tenantId())
@@ -508,7 +509,7 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
         };
 
         assertThatThrownBy(() -> runPromise(() -> new MediaToolExecutionBinder(legacy,
-                (tenant, invocation) -> Optional.empty(), (authenticated, identity) -> true)
+                (authenticated, tenant, invocation) -> Optional.empty(), (authenticated, identity) -> true)
                 .execute(delegate, envelope, contractFor(envelope), new AuthenticatedPrincipal(
                         envelope.tenantId(), envelope.callerAgentId(), Instant.now()))))
                 .isInstanceOf(InvocationClaimUnavailableException.class);
@@ -598,7 +599,7 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
         };
 
         assertThatThrownBy(() -> runPromise(() -> authenticatedExecute(new MediaToolExecutionBinder(malformed,
-                (tenant, invocation) -> Optional.empty(), (authenticated, identity) ->
+                (authenticated, tenant, invocation) -> Optional.empty(), (authenticated, identity) ->
                         authenticated.tenantId().equals(identity.tenantId())
                                 && authenticated.principalId().equals(identity.callerAgentId())), delegate, requested)))
                 .isInstanceOf(InvocationClaimUnavailableException.class);
@@ -639,12 +640,16 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
     @Test
     void unknownExceptionDoesNotEchoCallerIdentityOrUnrecognizedReadbackState() {
         InMemoryLedger ledger = new InMemoryLedger();
+        AtomicReference<AuthenticatedPrincipal> readbackPrincipal = new AtomicReference<>();
         ToolExecutionEnvelope random = envelope("av.vision-analysis");
         ToolExecutionEnvelope envelope = new ToolExecutionEnvelope("private-invocation-marker",
                 random.toolId(), random.toolVersion(), random.callerAgentId(), random.callerReleaseId(),
                 random.tenantId(), random.actionClass(), random.requestSchemaVersion(), random.input(), random.requestedAt());
         var binder = new MediaToolExecutionBinder(ledger,
-                (tenant, invocation) -> Optional.of("private-state-marker"),
+                (authenticated, tenant, invocation) -> {
+                    readbackPrincipal.set(authenticated);
+                    return Optional.of("private-state-marker");
+                },
                 (authenticated, identity) -> authenticated.tenantId().equals(identity.tenantId())
                         && authenticated.principalId().equals(identity.callerAgentId()));
         var delegate = (com.ghatana.toolruntime.ToolHandler) (e, c) ->
@@ -654,6 +659,9 @@ class MediaToolExecutionBinderTest extends EventloopTestBase {
                 .isInstanceOf(OutcomeUnknownException.class)
                 .hasMessage("tool invocation outcome is unknown")
                 .satisfies(thrown -> assertThat(((OutcomeUnknownException) thrown).durableJobState()).isNull());
+        assertThat(readbackPrincipal.get()).isNotNull();
+        assertThat(readbackPrincipal.get().tenantId()).isEqualTo(envelope.tenantId());
+        assertThat(readbackPrincipal.get().principalId()).isEqualTo(envelope.callerAgentId());
     }
 
     @Test

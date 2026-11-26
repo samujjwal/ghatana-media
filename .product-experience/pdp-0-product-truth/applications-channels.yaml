@@ -18956,7 +18956,7 @@ logicalConsumerPdp0Scope:
       scopeMode: CHANNEL_LEAF_APPLICABILITY
       channelRefs: [media.channel.agent]
       scopeSourceRef: capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/channelApplicability
-      rationale: Only exact leaves selected for agent invocation are in scope; exact tool binding and host authorization remain pending.
+      rationale: Only exact leaves selected for agent invocation are in scope. av.multimodal-inference is bound to media.operation.capability.media-multimodal-analyze-cross-modal by PXD-238; other tool bindings and host authorization remain pending.
     - surfaceRef: media.surface.events
       scopeMode: NON_INVOCATION_CHANNEL
       channelRefs: [media.channel.event]

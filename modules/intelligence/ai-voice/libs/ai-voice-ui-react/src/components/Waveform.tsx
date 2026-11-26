@@ -70,17 +70,20 @@ export const Waveform: React.FC<WaveformProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
-  const normalizedPosition = clamp(position);
-  const normalizedHeight = Math.max(24, height);
+  const positionAvailable = Number.isFinite(position);
+  const normalizedPosition = positionAvailable ? clamp(position) : 0;
+  const normalizedHeight = Number.isFinite(height) ? Math.max(24, height) : 80;
+  const canSeek = Boolean(onSeek && positionAvailable);
+  const dataAvailable = useMemo(() => data.every(Number.isFinite), [data]);
 
   const normalizedData = useMemo(() => {
-    if (data.length === 0) return [];
+    if (!dataAvailable || data.length === 0) return [];
     const maximum = data.reduce(
       (current, value) => Math.max(current, Math.abs(value)),
       0,
     );
     return maximum > 0 ? data.map((value) => value / maximum) : [...data];
-  }, [data]);
+  }, [data, dataAvailable]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -114,7 +117,7 @@ export const Waveform: React.FC<WaveformProps> = ({
     context.fillStyle = effectiveBackgroundColor;
     context.fillRect(0, 0, width, normalizedHeight);
 
-    if (normalizedData.length === 0) return;
+    if (!dataAvailable || normalizedData.length === 0) return;
     const sampleWidth = width / normalizedData.length;
     const centerY = normalizedHeight / 2;
     const progressX = normalizedPosition * width;
@@ -123,7 +126,7 @@ export const Waveform: React.FC<WaveformProps> = ({
       normalizedData.forEach((value, index) => {
         const x = index * sampleWidth;
         const barHeight = Math.max(1, Math.abs(value) * normalizedHeight * 0.8);
-        context.fillStyle = x < progressX ? effectiveProgressColor : effectiveColor;
+        context.fillStyle = positionAvailable && x < progressX ? effectiveProgressColor : effectiveColor;
         context.fillRect(
           x,
           centerY - barHeight / 2,
@@ -142,7 +145,7 @@ export const Waveform: React.FC<WaveformProps> = ({
         else context.lineTo(x, y);
       });
       context.stroke();
-      if (normalizedPosition > 0) {
+      if (positionAvailable && normalizedPosition > 0) {
         context.save();
         context.beginPath();
         context.rect(0, 0, progressX, normalizedHeight);
@@ -153,15 +156,19 @@ export const Waveform: React.FC<WaveformProps> = ({
       }
     }
 
-    context.fillStyle = effectivePlayheadColor;
-    context.fillRect(Math.max(0, progressX - 1), 0, 2, normalizedHeight);
+    if (positionAvailable) {
+      context.fillStyle = effectivePlayheadColor;
+      context.fillRect(Math.max(0, progressX - 1), 0, 2, normalizedHeight);
+    }
   }, [
+    dataAvailable,
     effectiveBackgroundColor,
     effectiveColor,
     effectivePlayheadColor,
     normalizedData,
     normalizedHeight,
     normalizedPosition,
+    positionAvailable,
     effectiveProgressColor,
     variant,
     width,
@@ -169,48 +176,72 @@ export const Waveform: React.FC<WaveformProps> = ({
 
   const seek = useCallback(
     (nextPosition: number): void => {
-      onSeek?.(clamp(nextPosition));
+      if (Number.isFinite(nextPosition)) onSeek?.(clamp(nextPosition));
     },
     [onSeek],
   );
 
   const handleClick = useCallback(
     (event: React.MouseEvent<HTMLDivElement>): void => {
-      if (!onSeek || !containerRef.current) return;
+      if (!canSeek || !containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
       if (rect.width <= 0) return;
       seek((event.clientX - rect.left) / rect.width);
     },
-    [onSeek, seek],
+    [canSeek, seek],
   );
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>): void => {
-      if (!onSeek) return;
+      if (!canSeek) return;
       let next: number | undefined;
       if (event.key === "ArrowLeft" || event.key === "ArrowDown") {
+        if (!Number.isFinite(seekStep)) return;
         next = normalizedPosition - seekStep;
       } else if (event.key === "ArrowRight" || event.key === "ArrowUp") {
+        if (!Number.isFinite(seekStep)) return;
         next = normalizedPosition + seekStep;
       } else if (event.key === "PageDown") {
+        if (!Number.isFinite(seekStep)) return;
         next = normalizedPosition - seekStep * 10;
       } else if (event.key === "PageUp") {
+        if (!Number.isFinite(seekStep)) return;
         next = normalizedPosition + seekStep * 10;
       } else if (event.key === "Home") {
         next = 0;
       } else if (event.key === "End") {
         next = 1;
       }
-      if (next === undefined) return;
+      if (next === undefined || !Number.isFinite(next)) return;
       event.preventDefault();
       seek(next);
     },
-    [normalizedPosition, onSeek, seek, seekStep],
+    [canSeek, normalizedPosition, seek, seekStep],
   );
 
-  const valueText = duration
-    ? `${formatTime(normalizedPosition * duration)} of ${formatTime(duration)}`
-    : `${Math.round(normalizedPosition * 100)} percent`;
+  const valueText = !positionAvailable
+    ? "unavailable"
+    : typeof duration === "number" && Number.isFinite(duration) && duration > 0
+      ? `${formatTime(normalizedPosition * duration)} of ${formatTime(duration)}`
+      : `${Math.round(normalizedPosition * 100)} percent`;
+  const unavailableMessage = !positionAvailable && !dataAvailable
+    ? "Waveform and playback position unavailable"
+    : !positionAvailable
+      ? "Playback position unavailable"
+      : !dataAvailable
+        ? "Waveform unavailable"
+        : data.length === 0
+          ? "No waveform data"
+          : undefined;
+  const waveformStateLabel = !dataAvailable
+    ? "waveform unavailable"
+    : data.length === 0
+      ? "no waveform data"
+      : undefined;
+  const imageLabel = waveformStateLabel
+    ? `${ariaLabel}, ${waveformStateLabel}, playback position ${valueText}`
+    : `${ariaLabel}, playback position ${valueText}`;
+  const sliderLabel = waveformStateLabel ? `${ariaLabel}, ${waveformStateLabel}` : ariaLabel;
 
   return (
     <div
@@ -218,18 +249,18 @@ export const Waveform: React.FC<WaveformProps> = ({
       className={twMerge(
         clsx(
           "relative w-full overflow-hidden rounded-lg",
-          onSeek && "cursor-pointer focus-visible:outline-none focus-visible:ring-2",
+          canSeek && "cursor-pointer focus-visible:outline-none focus-visible:ring-2",
         ),
         className,
       )}
       style={{ minHeight: normalizedHeight, "--tw-ring-color": colors.focus } as React.CSSProperties}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
-      {...(onSeek
+      {...(canSeek
         ? {
             role: "slider",
             tabIndex: 0,
-            "aria-label": ariaLabel,
+            "aria-label": sliderLabel,
             "aria-valuemin": 0,
             "aria-valuemax": 100,
             "aria-valuenow": Math.round(normalizedPosition * 100),
@@ -238,13 +269,13 @@ export const Waveform: React.FC<WaveformProps> = ({
           }
         : {
             role: "img",
-            "aria-label": `${ariaLabel}, playback position ${valueText}`,
+            "aria-label": imageLabel,
           })}
     >
       <canvas ref={canvasRef} className="block w-full" aria-hidden="true" />
-      {normalizedData.length === 0 && (
+      {unavailableMessage && (
         <span className="absolute inset-0 flex items-center justify-center text-xs" style={{ color: colors.contentSecondary }}>
-          No waveform data
+          {unavailableMessage}
         </span>
       )}
     </div>

@@ -1,6 +1,8 @@
 package com.ghatana.audio.video.multimodal.grpc;
 
 import com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding;
+import com.ghatana.audio.video.multimodal.grpc.proto.CanonicalAnalysisRequest;
+import com.ghatana.audio.video.multimodal.grpc.proto.CanonicalAnalysisCriteria;
 import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
 import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import io.grpc.Context;
@@ -38,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 
 /**
  * Production canonical operation executor for the multimodal gRPC boundary.
@@ -64,6 +67,15 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
     private static final Duration UPLOAD_RETENTION = Duration.ofDays(1);
     private static final int MAX_PORT_CALL_WORKERS = 8;
     private static final int PORT_CALL_QUEUE_CAPACITY = 64;
+    private static final String CROSS_MODAL_CAPABILITY_REF = "media.multimodal.analyze.cross-modal";
+    private static final String CROSS_MODAL_OPERATION_REF =
+            "media.operation.capability.media-multimodal-analyze-cross-modal";
+    private static final int MAX_CROSS_MODAL_DIMENSIONS = 32;
+    private static final int MAX_CROSS_MODAL_DIMENSION_LENGTH = 128;
+    private static final Pattern CROSS_MODAL_DIMENSION_PATTERN =
+            Pattern.compile("^[A-Za-z0-9][A-Za-z0-9._:-]*$");
+    private static final Pattern CROSS_MODAL_CONFIGURATION_DIGEST_PATTERN =
+            Pattern.compile("^sha256:[a-f0-9]{64}$");
     /** Process-scoped bounded pool: executor instances created by service composition do not own threads. */
     private static final ThreadPoolExecutor PORT_CALL_WORKERS = createPortCallWorkers();
 
@@ -136,6 +148,25 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
             throw new IllegalArgumentException(
                     "canonical multimodal operation requires at least one modality child");
         }
+        boolean crossModalOperation = isCanonicalCrossModalOperation(binding, operationRef);
+        boolean declaresCrossModal = CROSS_MODAL_CAPABILITY_REF.equals(binding.getCapabilityRef())
+                || CROSS_MODAL_OPERATION_REF.equals(binding.getOperationRef())
+                || CROSS_MODAL_OPERATION_REF.equals(operationRef);
+        if (declaresCrossModal && !crossModalOperation) {
+            throw new IllegalArgumentException("canonical cross-modal operation binding is inconsistent");
+        }
+        if (!crossModalOperation && binding.hasAnalysisRequest()) {
+            throw new IllegalArgumentException(
+                    "analysis_request is only supported by the canonical cross-modal operation");
+        }
+        CanonicalAnalysisRequest crossModalRequest = null;
+        if (crossModalOperation) {
+            if (!CROSS_MODAL_CAPABILITY_REF.equals(plan.capabilityRef())) {
+                throw new IllegalArgumentException(
+                        "canonical cross-modal operation plan does not match its capability binding");
+            }
+            crossModalRequest = validateCrossModalRequest(binding);
+        }
         // Resolve and version-check the caller's canonical source before ingesting any
         // inline child payload. Otherwise a stale/mismatched source binding can leave
         // durable child artifacts behind even though the parent operation is refused.
@@ -160,7 +191,7 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
                     source.sha256(),
                     children,
                     sourceClock,
-                    Map.of("purpose", binding.getPurpose()));
+                    operationPlan(binding, crossModalOperation, crossModalRequest));
             Map<String, Object> parameters = new LinkedHashMap<>();
             parameters.put(MultimodalOperationSpec.PARAMETERS_KEY, spec.toParametersValue());
             jobRequest = new ProcessingJobRequest(
@@ -248,6 +279,124 @@ public final class MediaCanonicalOperationExecutor implements CanonicalOperation
             }
         }
         return referencedChildren;
+    }
+
+    private static boolean isCanonicalCrossModalOperation(
+            CanonicalOperationBinding binding, String operationRef) {
+        return CROSS_MODAL_CAPABILITY_REF.equals(binding.getCapabilityRef())
+                && CROSS_MODAL_OPERATION_REF.equals(binding.getOperationRef())
+                && CROSS_MODAL_OPERATION_REF.equals(operationRef);
+    }
+
+    /** Validates the exact PDP-1 cross-modal request before reading or uploading any artifact. */
+    private static CanonicalAnalysisRequest validateCrossModalRequest(CanonicalOperationBinding binding) {
+        if (!binding.getDimensionsList().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "canonical cross-modal requests must use analysis_request, not legacy dimensions");
+        }
+        if (!binding.hasAnalysisRequest()) {
+            throw new IllegalArgumentException("canonical cross-modal analysis_request is required");
+        }
+        CanonicalAnalysisRequest request = binding.getAnalysisRequest();
+        validateCrossModalDimensions(request.getDimensionsList());
+        if (!request.hasCriteria()) {
+            throw new IllegalArgumentException("canonical cross-modal criteria are required");
+        }
+        CanonicalAnalysisCriteria criteria = request.getCriteria();
+        validateReferenceList(criteria.getSubjectRefsList(), 1, 16, 384, "subjectRefs", true);
+        validateReference(criteria.getAnalysisMethodRef(), 1, 256, "analysisMethodRef");
+        validateReference(criteria.getProfileRef(), 1, 384, "profileRef");
+        if (!CROSS_MODAL_CONFIGURATION_DIGEST_PATTERN.matcher(criteria.getConfigurationDigest()).matches()) {
+            throw new IllegalArgumentException("cross-modal configurationDigest must be a SHA-256 reference");
+        }
+        validateReference(criteria.getPurposeRef(), 1, 256, "purposeRef");
+        if (criteria.hasSourceTimeRangeRef()) {
+            validateReference(criteria.getSourceTimeRangeRef(), 1, 384, "sourceTimeRangeRef");
+        }
+        if (criteria.hasRegionOrChannelRefs()) {
+            validateReferenceList(criteria.getRegionOrChannelRefs().getValuesList(),
+                    0, 64, 384, "regionOrChannelRefs", true);
+        }
+        if (criteria.hasUncertaintyPolicyRef()) {
+            validateReference(criteria.getUncertaintyPolicyRef(), 1, 384, "uncertaintyPolicyRef");
+        }
+        if (request.hasTimeRange()) validateReference(request.getTimeRange(), 1, 256, "timeRange");
+        if (request.hasPageSize() && (request.getPageSize() < 1 || request.getPageSize() > 100)) {
+            throw new IllegalArgumentException("cross-modal pageSize must be between 1 and 100");
+        }
+        if (request.hasPageToken()) validateReference(request.getPageToken(), 1, 512, "pageToken");
+        return request;
+    }
+
+    private static List<String> validateCrossModalDimensions(List<String> dimensions) {
+        if (dimensions.isEmpty() || dimensions.size() > MAX_CROSS_MODAL_DIMENSIONS) {
+            throw new IllegalArgumentException(
+                    "cross-modal dimensions must contain between 1 and "
+                            + MAX_CROSS_MODAL_DIMENSIONS + " entries");
+        }
+        for (String dimension : dimensions) {
+            if (dimension == null || dimension.isEmpty()
+                    || dimension.length() > MAX_CROSS_MODAL_DIMENSION_LENGTH
+                    || !CROSS_MODAL_DIMENSION_PATTERN.matcher(dimension).matches()) {
+                throw new IllegalArgumentException("cross-modal dimension reference is malformed");
+            }
+        }
+        // The canonical input schema does not declare uniqueItems; preserve the supplied
+        // order and duplicates exactly so the durable request fingerprint is faithful.
+        return List.copyOf(dimensions);
+    }
+
+    private static void validateReferenceList(
+            List<String> values, int minItems, int maxItems, int maxLength, String name, boolean unique) {
+        if (values.size() < minItems || values.size() > maxItems) {
+            throw new IllegalArgumentException(name + " must contain between " + minItems + " and " + maxItems
+                    + " entries");
+        }
+        java.util.Set<String> seen = unique ? new java.util.HashSet<>() : null;
+        for (String value : values) {
+            validateReference(value, 1, maxLength, name);
+            if (unique && !seen.add(value)) {
+                throw new IllegalArgumentException(name + " must not contain duplicate references");
+            }
+        }
+    }
+
+    private static void validateReference(String value, int minLength, int maxLength, String name) {
+        if (value == null || value.length() < minLength || value.length() > maxLength) {
+            throw new IllegalArgumentException(name + " is outside its declared length bounds");
+        }
+    }
+
+    private static Map<String, Object> operationPlan(
+            CanonicalOperationBinding binding, boolean crossModalOperation, CanonicalAnalysisRequest request) {
+        if (!crossModalOperation) return Map.of("purpose", binding.getPurpose());
+        Objects.requireNonNull(request, "request");
+        Map<String, Object> plan = new LinkedHashMap<>();
+        plan.put("purpose", binding.getPurpose());
+        Map<String, Object> analysisRequest = new LinkedHashMap<>();
+        analysisRequest.put("dimensions", List.copyOf(request.getDimensionsList()));
+        if (request.hasTimeRange()) analysisRequest.put("timeRange", request.getTimeRange());
+        if (request.hasPageSize()) analysisRequest.put("pageSize", request.getPageSize());
+        if (request.hasPageToken()) analysisRequest.put("pageToken", request.getPageToken());
+        CanonicalAnalysisCriteria criteria = request.getCriteria();
+        Map<String, Object> encodedCriteria = new LinkedHashMap<>();
+        encodedCriteria.put("subjectRefs", List.copyOf(criteria.getSubjectRefsList()));
+        encodedCriteria.put("analysisMethodRef", criteria.getAnalysisMethodRef());
+        encodedCriteria.put("profileRef", criteria.getProfileRef());
+        encodedCriteria.put("configurationDigest", criteria.getConfigurationDigest());
+        encodedCriteria.put("purposeRef", criteria.getPurposeRef());
+        if (criteria.hasSourceTimeRangeRef()) {
+            encodedCriteria.put("sourceTimeRangeRef", criteria.getSourceTimeRangeRef());
+        }
+        if (criteria.hasRegionOrChannelRefs()) {
+            encodedCriteria.put("regionOrChannelRefs", List.copyOf(criteria.getRegionOrChannelRefs().getValuesList()));
+        }
+        if (criteria.hasUncertaintyPolicyRef()) {
+            encodedCriteria.put("uncertaintyPolicyRef", criteria.getUncertaintyPolicyRef());
+        }
+        analysisRequest.put("criteria", Map.copyOf(encodedCriteria));
+        plan.put("analysisRequest", Map.copyOf(analysisRequest));
+        return Map.copyOf(plan);
     }
 
     private List<MultimodalOperationSpec.ChildOperationSpec> resolveChildren(

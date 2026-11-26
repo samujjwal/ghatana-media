@@ -6,77 +6,589 @@ toolId: "av.multimodal-inference"
 toolVersion: "1.0.0"
 name: "Multimodal Inference"
 description: >
-  Runs cross-modal inference combining audio transcriptions and visual frame analysis
-  to produce unified semantic understanding of video media. Uses the CrossModalFusionEngine
-  and MultimodalAnalysisEngine to align audio and visual timelines and generate
-  composite analysis results.
+  Source-grounded analysis request for one exact immutable media artifact version
+  across explicitly declared dimensions and criteria. Success requires one typed
+  source-grounded result artifact with provenance; rejected and unknown outcomes
+  carry no result claim. Modality, method, profile, configuration, and purpose
+  references are explicit inputs; legacy toggles and defaults are not accepted.
 actionClass: "CALL_EXTERNAL"
 requiresApproval: false
 isReversible: true
 
 inputSchema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  $id: urn:media:agent-tool-input:multimodal-inference:v1
   type: object
-  required: [mediaArtifactId]
+  additionalProperties: false
+  required:
+    - input1
+    - input2
   properties:
-    sourceArtifactVersion:
-      type: string
-      pattern: "^sha256:[0-9a-f]{64}$"
-      description: "Exact immutable source artifact version the call is bound to (required for canonical Media job submission)"
-    mediaArtifactId:
-      type: string
-      description: "Platform media artifact ID for the source video in Data Cloud"
-    inferenceMode:
-      type: string
-      enum: [SUMMARY, SEGMENT, FRAME_BY_FRAME, FULL]
-      default: SUMMARY
-      description: >
-        SUMMARY: single composite result for the whole video;
-        SEGMENT: per-diarization-segment results;
-        FRAME_BY_FRAME: results per sampled frame;
-        FULL: all of the above combined
-    samplingRateMs:
-      type: integer
-      default: 1000
-      description: "Frame sampling interval in milliseconds (used for FRAME_BY_FRAME and FULL modes)"
-    enableTranscription:
-      type: boolean
-      default: true
-      description: "Whether to include audio transcription in the fusion pipeline"
-    enableVisionAnalysis:
-      type: boolean
-      default: true
-      description: "Whether to include visual analysis in the fusion pipeline"
-    languageCode:
-      type: string
-      default: "en-US"
-      description: "BCP-47 language tag for audio transcription"
+    input1:
+      type: object
+      additionalProperties: false
+      required:
+        - artifactType
+        - payload
+      properties:
+        artifactType:
+          const: authorized-media-artifacts
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+            - artifactId
+            - versionId
+          properties:
+            artifactId:
+              type: string
+              format: opaque-id
+              pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+              minLength: 1
+              maxLength: 128
+            versionId:
+              type: string
+              format: opaque-version-id
+              pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
+              minLength: 1
+              maxLength: 128
+            sourceRef:
+              type: string
+              format: opaque-versioned-reference
+              minLength: 1
+              maxLength: 384
+            declaredMediaType:
+              type: string
+              format: iana-media-type
+              pattern: ^[A-Za-z0-9!#$&^_.+-]+/[A-Za-z0-9!#$&^_.+-]+$
+              minLength: 3
+              maxLength: 127
+            declaredByteLength:
+              type: integer
+              minimum: 0
+              maximum: 2147483648
+    input2:
+      type: object
+      additionalProperties: false
+      required:
+        - artifactType
+        - payload
+      properties:
+        artifactType:
+          const: analysis-request
+        payload:
+          type: object
+          additionalProperties: false
+          required:
+            - dimensions
+            - criteria
+          properties:
+            dimensions:
+              type: array
+              minItems: 1
+              maxItems: 32
+              items:
+                type: string
+                format: opaque-dimension-reference
+                pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+                minLength: 1
+                maxLength: 128
+            timeRange:
+              type: string
+              format: opaque-time-range-reference
+              minLength: 1
+              maxLength: 256
+            criteria:
+              type: object
+              additionalProperties: false
+              required:
+                - subjectRefs
+                - analysisMethodRef
+                - profileRef
+                - configurationDigest
+                - purposeRef
+              properties:
+                subjectRefs:
+                  type: array
+                  minItems: 1
+                  maxItems: 16
+                  uniqueItems: true
+                  items:
+                    type: string
+                    format: opaque-versioned-reference
+                    minLength: 1
+                    maxLength: 384
+                analysisMethodRef:
+                  type: string
+                  format: opaque-reference
+                  minLength: 1
+                  maxLength: 256
+                profileRef:
+                  type: string
+                  format: opaque-versioned-reference
+                  minLength: 1
+                  maxLength: 384
+                configurationDigest:
+                  type: string
+                  pattern: ^sha256:[a-f0-9]{64}$
+                purposeRef:
+                  type: string
+                  format: opaque-reference
+                  minLength: 1
+                  maxLength: 256
+                sourceTimeRangeRef:
+                  type: string
+                  format: opaque-versioned-reference
+                  minLength: 1
+                  maxLength: 384
+                regionOrChannelRefs:
+                  type: array
+                  minItems: 0
+                  maxItems: 64
+                  uniqueItems: true
+                  items:
+                    type: string
+                    format: opaque-versioned-reference
+                    minLength: 1
+                    maxLength: 384
+                uncertaintyPolicyRef:
+                  type: string
+                  format: opaque-versioned-reference
+                  minLength: 1
+                  maxLength: 384
+            pageSize:
+              type: integer
+              minimum: 1
+              maximum: 100
+            pageToken:
+              type: string
+              format: opaque-continuation-token
+              minLength: 1
+              maxLength: 512
 
 outputSchema:
+  $schema: https://json-schema.org/draft/2020-12/schema
+  $id: urn:media:agent-tool-result:multimodal-inference:v1
   type: object
-  properties:
-    summary:
-      type: string
-      description: "High-level natural language summary of the video content"
-    segments:
-      type: array
-      items:
-        type: object
-        properties:
-          startMs: {type: integer}
-          endMs: {type: integer}
-          transcript: {type: string}
-          dominantObjects: {type: array, items: {type: string}}
-          dominantScenes: {type: array, items: {type: string}}
-          speaker: {type: string}
-    confidence:
-      type: number
-      description: "Overall confidence of the multimodal fusion result"
-    processingMetadata:
-      type: object
+  oneOf:
+    - type: object
+      additionalProperties: false
+      required:
+        - contractId
+        - toolId
+        - outcome
+        - invocationId
+        - safeErrorCode
+        - rejectedAt
       properties:
-        framesAnalyzed: {type: integer}
-        audioSegments: {type: integer}
-        fusionScore: {type: number}
+        contractId: &a16
+          const: media.agent-tool-contract.multimodal-inference.v1
+        toolId: &a17
+          const: av.multimodal-inference
+        outcome:
+          const: REJECTED_PRE_DISPATCH
+        invocationId: &a18
+          type: string
+          minLength: 1
+          maxLength: 512
+        safeErrorCode:
+          type: string
+          pattern: ^[A-Z][A-Z0-9_]{1,63}$
+        rejectedAt: &a19
+          type: string
+          format: date-time
+    - type: object
+      additionalProperties: false
+      required:
+        - contractId
+        - toolId
+        - outcome
+        - operationRef
+        - operationId
+        - requestId
+        - requestFingerprint
+        - acceptedAt
+        - statusQueryRef
+      properties:
+        contractId: *a16
+        toolId: *a17
+        outcome:
+          const: ACCEPTED
+        operationRef: &a20
+          const: media.operation.capability.media-multimodal-analyze-cross-modal
+        operationId:
+          type: string
+          format: opaque-id
+          minLength: 1
+          maxLength: 128
+        requestId:
+          type: string
+          format: opaque-idempotency-key
+          minLength: 1
+          maxLength: 128
+        acceptedAt: *a19
+        statusQueryRef:
+          type: string
+          minLength: 1
+          maxLength: 1024
+        requestFingerprint:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        attemptId:
+          type: string
+          minLength: 1
+          maxLength: 256
+    - type: object
+      additionalProperties: false
+      required:
+        - contractId
+        - toolId
+        - outcome
+        - invocationId
+        - requestId
+        - requestFingerprint
+        - identityDisposition
+        - observedAt
+      properties:
+        contractId: *a16
+        toolId: *a17
+        outcome:
+          const: OUTCOME_UNKNOWN
+        operationRef:
+          const: media.operation.capability.media-multimodal-analyze-cross-modal
+        operationId:
+          type: string
+          minLength: 1
+          maxLength: 512
+        attemptId:
+          type: string
+          minLength: 1
+          maxLength: 256
+        invocationId: *a18
+        requestId:
+          type: string
+          format: opaque-idempotency-key
+          minLength: 1
+          maxLength: 128
+        requestFingerprint:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        statusQueryRef:
+          type: string
+          minLength: 1
+          maxLength: 1024
+        identityDisposition:
+          enum:
+            - OPERATION_ID_KNOWN
+            - DISPATCHED_IDENTITY_UNRESOLVED
+        observedAt: *a19
+      oneOf:
+        - required:
+            - identityDisposition
+            - operationRef
+            - operationId
+            - statusQueryRef
+          properties:
+            identityDisposition:
+              const: OPERATION_ID_KNOWN
+        - required:
+            - identityDisposition
+            - invocationId
+            - requestFingerprint
+          properties:
+            identityDisposition:
+              const: DISPATCHED_IDENTITY_UNRESOLVED
+          not:
+            required:
+              - operationId
+    - type: object
+      additionalProperties: false
+      required:
+        - contractId
+        - toolId
+        - outcome
+        - operationRef
+        - operationId
+        - requestId
+        - requestFingerprint
+        - observedAt
+        - canonicalResult
+      properties:
+        contractId: *a16
+        toolId: *a17
+        outcome:
+          const: FAILED
+        operationRef: *a20
+        operationId:
+          type: string
+          format: opaque-id
+          minLength: 1
+          maxLength: 128
+        requestId:
+          type: string
+          format: opaque-idempotency-key
+          minLength: 1
+          maxLength: 128
+        requestFingerprint:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        attemptId:
+          type: string
+          format: opaque-id
+          minLength: 1
+          maxLength: 128
+        observedAt: *a19
+        canonicalResult:
+          type: object
+          additionalProperties: false
+          required:
+            - outcome
+            - observedAt
+            - outputs
+            - provenance
+            - implementationState
+            - qualificationState
+            - runtimeAvailability
+          properties:
+            outcome:
+              const: REJECTED
+            observedAt:
+              type: string
+              format: date-time
+              pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$
+            outputs:
+              type: array
+              maxItems: 0
+            provenance:
+              type: object
+              additionalProperties: false
+              required:
+                - operationRef
+                - observedAt
+                - sourceRefs
+              properties:
+                operationRef:
+                  const: media.operation.capability.media-multimodal-analyze-cross-modal
+                observedAt:
+                  type: string
+                  format: date-time
+                  pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$
+                sourceRefs:
+                  type: array
+                  minItems: 0
+                  maxItems: 64
+                  items:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                inputDigest:
+                  type: string
+                  pattern: ^sha256:[a-f0-9]{64}$
+                outputDigest:
+                  type: string
+                  pattern: ^sha256:[a-f0-9]{64}$
+                profileRef:
+                  type: string
+                  maxLength: 384
+                qualificationRef:
+                  type: string
+                  maxLength: 384
+            implementationState:
+              const: UNKNOWN
+            qualificationState:
+              const: NOT_EVALUATED
+            runtimeAvailability:
+              const: UNKNOWN
+    - type: object
+      additionalProperties: false
+      required:
+        - contractId
+        - toolId
+        - outcome
+        - operationRef
+        - operationId
+        - requestedAt
+        - statusQueryRef
+      properties:
+        contractId: *a16
+        toolId: *a17
+        outcome:
+          const: CANCELLATION_REQUESTED
+        operationRef: *a20
+        operationId: *a18
+        attemptId:
+          type: string
+          minLength: 1
+          maxLength: 256
+        requestedAt: *a19
+        statusQueryRef:
+          type: string
+          minLength: 1
+          maxLength: 1024
+    - type: object
+      additionalProperties: false
+      required:
+        - contractId
+        - toolId
+        - outcome
+        - operationRef
+        - operationId
+        - attemptId
+        - terminalEvidenceRef
+        - observedAt
+      properties:
+        contractId: *a16
+        toolId: *a17
+        outcome:
+          const: CANCELLED
+        operationRef: *a20
+        operationId: *a18
+        attemptId: *a18
+        terminalEvidenceRef:
+          type: string
+          minLength: 1
+          maxLength: 1024
+        observedAt: *a19
+    - type: object
+      additionalProperties: false
+      required:
+        - contractId
+        - toolId
+        - outcome
+        - operationRef
+        - operationId
+        - requestId
+        - requestFingerprint
+        - completedAt
+        - canonicalResult
+      properties:
+        contractId: *a16
+        toolId: *a17
+        outcome:
+          const: SUCCEEDED
+        operationRef: *a20
+        operationId:
+          type: string
+          format: opaque-id
+          minLength: 1
+          maxLength: 128
+        requestId:
+          type: string
+          format: opaque-idempotency-key
+          minLength: 1
+          maxLength: 128
+        requestFingerprint:
+          type: string
+          pattern: ^sha256:[a-f0-9]{64}$
+        attemptId:
+          type: string
+          format: opaque-id
+          minLength: 1
+          maxLength: 128
+        completedAt: *a19
+        canonicalResult:
+          type: object
+          additionalProperties: false
+          required:
+            - outcome
+            - observedAt
+            - outputs
+            - provenance
+            - implementationState
+            - qualificationState
+            - runtimeAvailability
+          properties:
+            outcome:
+              const: SUCCEEDED
+            observedAt:
+              type: string
+              format: date-time
+            outputs:
+              type: array
+              minItems: 1
+              maxItems: 1
+              items:
+                type: object
+                additionalProperties: false
+                required:
+                  - artifactType
+                  - payload
+                properties:
+                  artifactType:
+                    const: source-grounded-cross-modal-result-with-provenance-and-uncertainty
+                  payload:
+                    type: object
+                    additionalProperties: false
+                    required:
+                      - artifactId
+                      - versionId
+                    properties:
+                      artifactId:
+                        type: string
+                        format: opaque-id
+                        pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+                        minLength: 1
+                        maxLength: 128
+                      versionId:
+                        type: string
+                        format: opaque-version-id
+                        pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
+                        minLength: 1
+                        maxLength: 128
+                      sourceRef:
+                        type: string
+                        format: opaque-versioned-reference
+                        minLength: 1
+                        maxLength: 384
+                      declaredMediaType:
+                        type: string
+                        format: iana-media-type
+                        pattern: ^[A-Za-z0-9!#$&^_.+-]+/[A-Za-z0-9!#$&^_.+-]+$
+                        minLength: 3
+                        maxLength: 127
+                      declaredByteLength:
+                        type: integer
+                        minimum: 0
+                        maximum: 2147483648
+            provenance:
+              type: object
+              additionalProperties: false
+              required:
+                - operationRef
+                - observedAt
+                - sourceRefs
+              properties:
+                operationRef:
+                  const: media.operation.capability.media-multimodal-analyze-cross-modal
+                observedAt:
+                  type: string
+                  format: date-time
+                sourceRefs:
+                  type: array
+                  minItems: 0
+                  maxItems: 64
+                  items:
+                    type: string
+                    minLength: 1
+                    maxLength: 512
+                inputDigest:
+                  type: string
+                  pattern: ^sha256:[a-f0-9]{64}$
+                outputDigest:
+                  type: string
+                  pattern: ^sha256:[a-f0-9]{64}$
+                profileRef:
+                  type: string
+                  maxLength: 384
+                qualificationRef:
+                  type: string
+                  maxLength: 384
+            implementationState:
+              const: UNKNOWN
+            qualificationState:
+              const: NOT_EVALUATED
+            runtimeAvailability:
+              const: UNKNOWN
 
 policyTags:
   - "multimodal-processing"

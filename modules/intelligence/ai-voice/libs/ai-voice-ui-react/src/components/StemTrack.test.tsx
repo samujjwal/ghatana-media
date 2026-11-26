@@ -30,4 +30,42 @@ describe("StemTrack", () => {
     expect(html).toContain('aria-label="Drums volume"');
     expect(html).toContain('aria-label="Drums pan"');
   });
+
+  it.each([
+    ["NaN", Number.NaN],
+    ["positive infinity", Number.POSITIVE_INFINITY],
+    ["negative infinity", Number.NEGATIVE_INFINITY],
+  ] as const)("does not guess a volume control for %s", (_label, volume) => {
+    const html = renderToStaticMarkup(
+      <StemTrack
+        stem={{ ...stem("vocals", "Vocals"), volume }}
+        onVolumeChange={() => undefined}
+        onPanChange={() => undefined}
+      />,
+    );
+
+    expect(html).toContain("<output>Unavailable</output>");
+    expect(html).not.toContain('aria-label="Vocals volume"');
+    expect(html).toContain('aria-label="Vocals pan"');
+    expect(html).not.toMatch(/(?:NaN|Infinity)/);
+  });
+
+  it.each([
+    ["NaN", Number.NaN],
+    ["positive infinity", Number.POSITIVE_INFINITY],
+    ["negative infinity", Number.NEGATIVE_INFINITY],
+  ] as const)("does not guess a pan control for %s", (_label, pan) => {
+    const html = renderToStaticMarkup(
+      <StemTrack
+        stem={{ ...stem("vocals", "Vocals"), pan }}
+        onVolumeChange={() => undefined}
+        onPanChange={() => undefined}
+      />,
+    );
+
+    expect(html).toContain("<output>Unavailable</output>");
+    expect(html).toContain('aria-label="Vocals volume"');
+    expect(html).not.toContain('aria-label="Vocals pan"');
+    expect(html).not.toMatch(/(?:NaN|Infinity)/);
+  });
 });

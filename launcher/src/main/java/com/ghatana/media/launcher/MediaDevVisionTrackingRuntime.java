@@ -41,7 +41,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * DEV_ONLY video detection and tracking, and region-of-interest analysis, over an exact owner-visible source
+ * DEV_ONLY video detection and tracking, and region-of-interest detection, over an exact owner-visible source
  * artifact version. Both register an immutable {@code application/json} artifact through the canonical idempotent
  * upload path, with lineage to the exact source version digest and the digest-qualified model identity.
  *
@@ -54,7 +54,8 @@ import java.util.stream.Stream;
  * processed: a sidecar failure part-way is {@link VisionOutcomeUnknownException} (outcome UNKNOWN, never success) and a
  * retry with the same requestId re-derives identical bytes, so the upload idempotency key makes it exactly-once.
  *
- * <p><b>ROI analysis</b> ({@link #analyzeRoi}): detection or scene-text inside a region. Structural ROI faults
+ * <p><b>ROI analysis</b> ({@link #analyzeRoi}): object detection inside a region. Generic OCR is owned by Document
+ * Intelligence and is rejected before source access. Structural ROI faults
  * (non-integer, negative, zero-size, overflowing) are refused when the request is parsed, before any source lookup or
  * byte read; an ROI outside the decoded frame is refused before any model call. The model sees only the crop, and the
  * results are translated back to source-frame pixel coordinates.
@@ -109,8 +110,9 @@ public final class MediaDevVisionTrackingRuntime {
             Objects.requireNonNull(artifactId, "artifactId");
             Objects.requireNonNull(artifactVersionId, "artifactVersionId");
             Objects.requireNonNull(roi, "roi");
-            if (tasks == null || tasks.isEmpty() || !Set.of("detect", "ocr").containsAll(tasks)) {
-                throw new IllegalArgumentException("tasks must be a non-empty subset of detect, ocr");
+            LocalVisionEngine.requireNoOcrTask(tasks);
+            if (tasks == null || tasks.isEmpty() || !Set.of("detect").containsAll(tasks)) {
+                throw new IllegalArgumentException("tasks must be a non-empty subset of detect");
             }
             tasks = Set.copyOf(tasks);
             if (frameIndex < 0) throw new IllegalArgumentException("frameIndex must not be negative");
@@ -380,11 +382,13 @@ public final class MediaDevVisionTrackingRuntime {
 
     public MediaDevVisionRuntime.VisionResult analyzeRoi(String tenantId, String principalId, RoiRequest request) {
         Objects.requireNonNull(request, "request");
+        LocalVisionEngine.requireNoOcrTask(request.tasks());
         return runtime.devAdmission().run(MediaDevRenderAdmission.LANE_CREATIVE, "vision_roi", tenantId,
                 () -> executeRoi(tenantId, principalId, request));
     }
 
     private MediaDevVisionRuntime.VisionResult executeRoi(String tenantId, String principalId, RoiRequest request) {
+        LocalVisionEngine.requireNoOcrTask(request.tasks());
         MediaArtifact source = source(tenantId, principalId, request.artifactId(), request.artifactVersionId());
         Resolution resolution = admit(tenantId, source);
         String contentType = source.contentType().toLowerCase(Locale.ROOT);
@@ -417,6 +421,7 @@ public final class MediaDevVisionTrackingRuntime {
     private MediaDevVisionRuntime.VisionResult produceRoi(String tenantId, String principalId, RoiRequest request,
                                                           MediaArtifact source, Resolution resolution,
                                                           boolean isVideo) {
+        LocalVisionEngine.requireNoOcrTask(request.tasks());
         LocalVisionEngine engine = vision.engine();
         requireAdmitted(engine);
         Path dir = privateTempDirectory();
@@ -467,6 +472,8 @@ public final class MediaDevVisionTrackingRuntime {
                 inference = engine.analyze(crop, cropSha, request.tasks());
             } catch (LocalVisionSidecarClient.SidecarUnavailableException unavailable) {
                 throw MediaDevVisionRuntime.sidecarOutage(unavailable, 0, 1);
+            } catch (LocalVisionEngine.OcrNotAdmittedException refusal) {
+                throw refusal;
             } catch (LocalVisionEngine.NotAdmittedException refusal) {
                 throw new MediaDevVisionRuntime.VisionNotAdmittedException(refusal.modelId(), refusal.code());
             } catch (LocalVisionSidecarClient.SidecarRejectedException rejected) {
@@ -517,7 +524,7 @@ public final class MediaDevVisionTrackingRuntime {
         }
     }
 
-    /** Detection boxes and scene-text quads, shifted from crop to source-frame pixels and bounds-checked. */
+    /** Detection boxes shifted from crop to source-frame pixels and bounds-checked. */
     private static Map<String, Object> translatedResults(Map<String, Object> inference, RegionOfInterest roi,
                                                          int frameWidth, int frameHeight) {
         Map<String, Object> out = new LinkedHashMap<>();
@@ -538,29 +545,6 @@ public final class MediaDevVisionTrackingRuntime {
             }
             out.put("objects", objects);
             out.put("rejectedObjects", rejected);
-        }
-        if (results.containsKey("sceneText")) {
-            Map<?, ?> sceneText = (Map<?, ?>) results.get("sceneText");
-            List<Map<String, Object>> regions = new ArrayList<>();
-            for (Object raw : (List<?>) sceneText.get("regions")) {
-                Map<?, ?> region = (Map<?, ?>) raw;
-                List<?> quad = (List<?>) region.get("quad");
-                List<Double> shifted = new ArrayList<>(quad.size());
-                for (int i = 0; i < quad.size(); i++) {
-                    double v = number(quad.get(i)) + (i % 2 == 0 ? roi.x() : roi.y());
-                    double limit = i % 2 == 0 ? frameWidth : frameHeight;
-                    shifted.add(Math.round(Math.max(0, Math.min(limit, v)) * 10.0) / 10.0);
-                }
-                Map<String, Object> entry = new LinkedHashMap<>();
-                entry.put("text", region.get("text"));
-                entry.put("quad", shifted);
-                regions.add(entry);
-            }
-            Map<String, Object> text = new LinkedHashMap<>();
-            text.put("engine", sceneText.get("engine"));
-            text.put("regions", regions);
-            text.put("fullText", sceneText.get("fullText"));
-            out.put("sceneText", text);
         }
         return out;
     }

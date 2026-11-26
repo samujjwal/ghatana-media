@@ -78,7 +78,7 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         Ledger ledger = new Ledger();
         AtomicBoolean delegateSawSnapshot = new AtomicBoolean();
         MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
-                (tenant, invocation) -> Optional.empty(), (principal, identity) -> {
+                (authenticated, tenant, invocation) -> Optional.empty(), (principal, identity) -> {
                     nested.add("changed-after-identity");
                     input.put("added-after-identity", true);
                     return mapsToEnvelopeActor(principal, identity);
@@ -115,7 +115,7 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         AtomicBoolean replayAuthority = new AtomicBoolean(true);
         AtomicInteger providerCalls = new AtomicInteger();
         MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
-                (tenant, invocation) -> Optional.empty(), (principal, identity) -> replayAuthority.get()
+                (authenticated, tenant, invocation) -> Optional.empty(), (principal, identity) -> replayAuthority.get()
                         && mapsToEnvelopeActor(principal, identity));
         ToolHandler configuredProvider = (envelope, contract) -> {
             providerCalls.incrementAndGet();
@@ -169,7 +169,7 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         AtomicInteger providerCalls = new AtomicInteger();
         AtomicBoolean replayAuthority = new AtomicBoolean(true);
         MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
-                (tenant, invocation) -> Optional.empty(), (principal, identity) -> replayAuthority.get()
+                (authenticated, tenant, invocation) -> Optional.empty(), (principal, identity) -> replayAuthority.get()
                         && mapsToEnvelopeActor(principal, identity));
         ToolHandler configuredProvider = (envelope, contract) -> {
             providerCalls.incrementAndGet();
@@ -228,7 +228,7 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         AtomicBoolean replayAuthority = new AtomicBoolean(true);
         AtomicInteger providerCalls = new AtomicInteger();
         MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
-                (tenant, invocation) -> Optional.empty(), (principal, identity) -> replayAuthority.get()
+                (authenticated, tenant, invocation) -> Optional.empty(), (principal, identity) -> replayAuthority.get()
                         && mapsToEnvelopeActor(principal, identity));
         ToolHandler configuredProvider = (envelope, contract) -> {
             providerCalls.incrementAndGet();
@@ -284,7 +284,7 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         Ledger ledger = new Ledger();
         AtomicInteger providerCalls = new AtomicInteger();
         MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
-                (tenant, invocation) -> Optional.empty(), (principal, identity) -> {
+                (authenticated, tenant, invocation) -> Optional.empty(), (principal, identity) -> {
                     throw new IllegalStateException("host replay authorization unavailable");
                 });
         ToolHandler configuredProvider = (envelope, contract) -> {
@@ -334,7 +334,7 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
                 });
         AtomicInteger providerCalls = new AtomicInteger();
         MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
-                (tenant, invocation) -> Optional.empty(), AgentOutcomeAdmissionScenarioTest::mapsToEnvelopeActor);
+                (authenticated, tenant, invocation) -> Optional.empty(), AgentOutcomeAdmissionScenarioTest::mapsToEnvelopeActor);
         ToolExecutionEnvelope envelope = envelope("tenant-j25", "agent-j25");
         ToolHandler delegate = (request, contract) -> {
             providerCalls.incrementAndGet();
@@ -376,7 +376,7 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
             return io.activej.promise.Promise.of(result);
         };
         MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
-                (tenant, invocation) -> Optional.empty(), AgentOutcomeAdmissionScenarioTest::mapsToEnvelopeActor);
+                (authenticated, tenant, invocation) -> Optional.empty(), AgentOutcomeAdmissionScenarioTest::mapsToEnvelopeActor);
 
         assertThatThrownBy(() -> runPromise(() -> binder.execute(delegate, envelope, contract, principal)))
                 .isInstanceOf(MediaToolExecutionBinder.OutcomeUnknownException.class)
@@ -387,7 +387,7 @@ class AgentOutcomeAdmissionScenarioTest extends EventloopTestBase {
         FileInvocationLedger restartedLedger = new FileInvocationLedger(
                 ledgerDirectory, new SecretKeySpec(new byte[32], "AES"), Duration.ofMinutes(5), Clock.systemUTC());
         MediaToolExecutionBinder restartedBinder = new MediaToolExecutionBinder(restartedLedger,
-                (tenant, invocation) -> Optional.empty(), AgentOutcomeAdmissionScenarioTest::mapsToEnvelopeActor);
+                (authenticated, tenant, invocation) -> Optional.empty(), AgentOutcomeAdmissionScenarioTest::mapsToEnvelopeActor);
         assertThatThrownBy(() -> runPromise(
                 () -> restartedBinder.execute(delegate, envelope, contract, principal)))
                 .isInstanceOf(MediaToolExecutionBinder.OutcomeUnknownException.class)

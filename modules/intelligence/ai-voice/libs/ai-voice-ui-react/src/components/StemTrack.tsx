@@ -45,8 +45,12 @@ export const StemTrack: React.FC<StemTrackProps> = ({
   const controlsId = useId();
   const displayName = stem.name || stem.type;
   const color = colors.action;
-  const volume = clamp(stem.volume, 0, 1);
-  const pan = clamp(stem.pan, -1, 1);
+  const volume = Number.isFinite(stem.volume)
+    ? clamp(stem.volume, 0, 1)
+    : undefined;
+  const pan = Number.isFinite(stem.pan)
+    ? clamp(stem.pan, -1, 1)
+    : undefined;
 
   return (
     <section
@@ -124,61 +128,67 @@ export const StemTrack: React.FC<StemTrackProps> = ({
           <label className="grid gap-1 text-xs" style={{ color: colors.contentSecondary }}>
             <span className="flex justify-between gap-2">
               <span>Volume</span>
-              <output htmlFor={`${controlsId}-volume`}>
-                {Math.round(volume * 100)}%
+              <output htmlFor={volume === undefined ? undefined : `${controlsId}-volume`}>
+                {volume === undefined ? "Unavailable" : `${Math.round(volume * 100)}%`}
               </output>
             </span>
-            <input
-              id={`${controlsId}-volume`}
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={volume}
-              onChange={(event) =>
-                onVolumeChange?.(Number.parseFloat(event.target.value))
-              }
-              disabled={disabled || !onVolumeChange}
-              className="min-h-11 w-full cursor-pointer"
-              style={{ accentColor: colors.focus }}
-              aria-label={`${displayName} volume`}
-              aria-valuetext={`${Math.round(volume * 100)} percent`}
-            />
+            {volume !== undefined && (
+              <input
+                id={`${controlsId}-volume`}
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={volume}
+                onChange={(event) =>
+                  onVolumeChange?.(Number.parseFloat(event.target.value))
+                }
+                disabled={disabled || !onVolumeChange}
+                className="min-h-11 w-full cursor-pointer"
+                style={{ accentColor: colors.focus }}
+                aria-label={`${displayName} volume`}
+                aria-valuetext={`${Math.round(volume * 100)} percent`}
+              />
+            )}
           </label>
 
           <label className="grid gap-1 text-xs" style={{ color: colors.contentSecondary }}>
             <span className="flex justify-between gap-2">
               <span>Pan</span>
-              <output htmlFor={`${controlsId}-pan`}>
-                {pan === 0
-                  ? "Center"
-                  : pan < 0
-                    ? `${Math.round(Math.abs(pan) * 100)}% left`
-                    : `${Math.round(pan * 100)}% right`}
+              <output htmlFor={pan === undefined ? undefined : `${controlsId}-pan`}>
+                {pan === undefined
+                  ? "Unavailable"
+                  : pan === 0
+                    ? "Center"
+                    : pan < 0
+                      ? `${Math.round(Math.abs(pan) * 100)}% left`
+                      : `${Math.round(pan * 100)}% right`}
               </output>
             </span>
-            <input
-              id={`${controlsId}-pan`}
-              type="range"
-              min="-1"
-              max="1"
-              step="0.01"
-              value={pan}
-              onChange={(event) =>
-                onPanChange?.(Number.parseFloat(event.target.value))
-              }
-              disabled={disabled || !onPanChange}
-              className="min-h-11 w-full cursor-pointer"
-              style={{ accentColor: colors.focus }}
-              aria-label={`${displayName} pan`}
-              aria-valuetext={
-                pan === 0
-                  ? "center"
-                  : pan < 0
-                    ? `${Math.round(Math.abs(pan) * 100)} percent left`
-                    : `${Math.round(pan * 100)} percent right`
-              }
-            />
+            {pan !== undefined && (
+              <input
+                id={`${controlsId}-pan`}
+                type="range"
+                min="-1"
+                max="1"
+                step="0.01"
+                value={pan}
+                onChange={(event) =>
+                  onPanChange?.(Number.parseFloat(event.target.value))
+                }
+                disabled={disabled || !onPanChange}
+                className="min-h-11 w-full cursor-pointer"
+                style={{ accentColor: colors.focus }}
+                aria-label={`${displayName} pan`}
+                aria-valuetext={
+                  pan === 0
+                    ? "center"
+                    : pan < 0
+                      ? `${Math.round(Math.abs(pan) * 100)} percent left`
+                      : `${Math.round(pan * 100)} percent right`
+                }
+              />
+            )}
           </label>
         </div>
       </div>

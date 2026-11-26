@@ -142,23 +142,55 @@ tools:
     handler: MultimodalInferenceToolHandler
     handlerSource: adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java
     registration: AudioVideoToolHandlerFactory
-    experienceBinding: pending-owner-review
+    experienceBinding: source-bound-to-J-25-by-PXD-241; independent-experience-review-pending
     executionAdmitted: false
-    operationBinding: {value: media.operation.capability.media-multimodal-analyze-cross-modal, status: owner-defined-operation-candidate; adapter-mapping-and-runtime-pending}
+    operationBinding: {value: media.operation.capability.media-multimodal-analyze-cross-modal, status: source-bound-by-PXD-238/PXD-240; request-mapping-implemented-but-not-wired; result-and-runtime-pending}
     mediaDefinitionContractRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#mediaOwnedToolDefinitionContracts/contracts/@id=media.agent-tool-contract.multimodal-inference.v1
+    experienceContract:
+      decisionRef: .product-experience/decision-log.md#PXD-241
+      status: SOURCE_BOUND_DEFINITION_ONLY; INDEPENDENT_REVIEW_PENDING
+      journeyRef: J-25
+      journeyContractRef: .product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml
+      channelRef: media.channel.agent
+      consumerSurfaceId: media.surface.agent-tools
+      actingPersonRefs: [media.creator, media.editor, media.reviewer]
+      actorBoundary: The acting person must hold the current exact delegated grant; the agent is only a mediator and receives no independent actor role or authority. Trusted tenant, principal, workspace, delegation, and invocation identity come from the verified host context.
+      requestBoundary: Exactly the referenced P2 tool input contract and canonical P1 operation; require one immutable authorized artifact version, explicit analysis dimensions, and required subjectRefs, analysisMethodRef, profileRef, configurationDigest, and purposeRef. Optional fields retain their PXD-238/PXD-240 semantics. No provider/model/profile/language/sampling defaults.
+      outcomeSemantics:
+        preDispatch: Denial or unavailable prerequisites return no operation identity and no result.
+        accepted: Preserve canonical owner-issued jobId, requestId, requestFingerprint, and exact statusQueryRef; do not report an output.
+        succeeded: Preserve the canonical result and its single source-grounded artifact version, provenance, uncertainty, and media.multimodal.result-content.cross-modal.v1 content.
+        failed: Map only the exact terminal canonical REJECTED result with zero outputs to FAILED.
+        unknown: Return OUTCOME_UNKNOWN without a success payload and reconcile using the same request identity before retry.
+      prohibitedPresentation: No single-modality child, partial result, inline summary, or model confidence is presented as cross-modal success.
+      runtimeAdmission: NOT_ADMITTED
     inputSchema:
       observationStatus: handler-source-observation-only
       schemaVersion: {value: null, status: not-declared-by-handler}
       closed: true
       sourceType: Map<String,Object> from ToolExecutionEnvelope.input()
       fields:
-        - {name: mediaArtifactId, type: String, presence: required, maxLength: 512}
-        - {name: inferenceMode, type: String, presence: optional, default: SUMMARY, enum: SUMMARY|SEGMENT|FRAME_BY_FRAME|FULL}
-        - {name: samplingRateMs, type: integer, presence: optional, default: 1000, minimum: 100, maximum: 60000}
-        - {name: enableTranscription, type: boolean, presence: optional, default: true, validation: strict boolean}
-        - {name: enableVisionAnalysis, type: boolean, presence: optional, default: true, validation: strict boolean}
-        - {name: languageCode, type: String, presence: optional, default: en-US, validation: valid BCP-47 tag}
-      rejection: Rejects missing or blank mediaArtifactId, invalid mode/rate/language/boolean values, unknown top-level fields, and requests with both modality flags false before delegation.
+        - {name: input1, type: object, presence: required, artifactType: authorized-media-artifacts}
+        - {name: input1.payload.artifactId, type: String, presence: required, maxLength: 128}
+        - {name: input1.payload.versionId, type: String, presence: required, maxLength: 128}
+        - {name: input1.payload.sourceRef, type: String, presence: optional, maxLength: 384}
+        - {name: input1.payload.declaredMediaType, type: String, presence: optional, maxLength: 127}
+        - {name: input1.payload.declaredByteLength, type: integer, presence: optional, minimum: 0, maximum: 2147483648}
+        - {name: input2, type: object, presence: required, artifactType: analysis-request}
+        - {name: input2.payload.dimensions, type: array<String>, presence: required, minimumItems: 1, maximumItems: 32}
+        - {name: input2.payload.criteria, type: object, presence: required, requiredKeys: [subjectRefs, analysisMethodRef, profileRef, configurationDigest, purposeRef]}
+        - {name: input2.payload.criteria.subjectRefs, type: array<String>, presence: required, minimumItems: 1, maximumItems: 16, uniqueItems: true}
+        - {name: input2.payload.criteria.analysisMethodRef, type: String, presence: required, maxLength: 256}
+        - {name: input2.payload.criteria.profileRef, type: String, presence: required, maxLength: 384}
+        - {name: input2.payload.criteria.configurationDigest, type: String, presence: required, format: sha256}
+        - {name: input2.payload.criteria.purposeRef, type: String, presence: required, maxLength: 256}
+        - {name: input2.payload.timeRange, type: String, presence: optional, maxLength: 256}
+        - {name: input2.payload.pageSize, type: integer, presence: optional, minimum: 1, maximum: 100}
+        - {name: input2.payload.pageToken, type: String, presence: optional, maxLength: 512}
+        - {name: input2.payload.criteria.sourceTimeRangeRef, type: String, presence: optional, maxLength: 384}
+        - {name: input2.payload.criteria.regionOrChannelRefs, type: array<String>, presence: optional, maximumItems: 64}
+        - {name: input2.payload.criteria.uncertaintyPolicyRef, type: String, presence: optional, maxLength: 384}
+      rejection: Rejects missing or unknown keys, wrong artifact types, malformed nested objects, invalid types, or schema-bound violations before returning not-admitted; structural validation does not resolve references or authorize effects.
     observedResult:
       javaType: Promise<ToolExecutionResult>
       schemaVersion: {value: null, status: not-declared-by-handler-or-delegate-contract}

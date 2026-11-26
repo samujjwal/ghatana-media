@@ -193,7 +193,7 @@ export function MediaTaskFlow({
         </ol>
       </nav>
 
-      {observation && <section aria-labelledby={scopedId("media-operation-title")} >
+      {observation && <section className="media-task-operation-status" aria-labelledby={scopedId("media-operation-title")} >
         <div role="status" aria-live="polite" aria-atomic="true">
           <div>
             <h2 id={scopedId("media-operation-title")} >{observation.state.replaceAll("_", " ").toLowerCase()}</h2>

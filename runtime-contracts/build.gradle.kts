@@ -20,4 +20,24 @@ dependencies {
     testRuntimeOnly(libs.junit.jupiter.engine)
 }
 
-tasks.test { useJUnitPlatform() }
+tasks.test {
+    useJUnitPlatform()
+    dependsOn(tasks.jar)
+
+    doFirst {
+        val runtimeDependencyJars = configurations.runtimeClasspath.get().files
+            .filter { it.isFile && it.extension.equals("jar", ignoreCase = true) }
+            .map { it.canonicalPath }
+            .distinct()
+            .sorted()
+
+        systemProperty(
+            "media.public.events.consumer.archive",
+            tasks.jar.get().archiveFile.get().asFile.canonicalPath
+        )
+        systemProperty(
+            "media.public.events.consumer.runtimeClasspath",
+            runtimeDependencyJars.joinToString(File.pathSeparator)
+        )
+    }
+}

@@ -91,7 +91,7 @@ export interface DemoHostVerificationPort {
   attest(manifest: InteractiveDemoManifest): DemoHostAttestation | undefined;
 }
 
-export type DemoPlayerStatus = "READY" | "POLICY_DENIED" | "UNAVAILABLE" | "FINISHED";
+export type DemoPlayerStatus = "READY" | "OFFLINE" | "POLICY_DENIED" | "UNAVAILABLE" | "FINISHED";
 
 export type DemoPlayerFailure =
   | "HOST_ORIGIN_MISMATCH"
@@ -139,6 +139,8 @@ export type DemoPlayerAction =
   | { readonly type: "progress"; readonly positionMs: number }
   | { readonly type: "ended" }
   | { readonly type: "playback-failed" }
+  | { readonly type: "network-offline" }
+  | { readonly type: "network-online" }
   | { readonly type: "seek"; readonly positionMs: number }
   | { readonly type: "choose-branch"; readonly branchId: string }
   | { readonly type: "finish" };
@@ -507,11 +509,13 @@ export function reduceDemoPlayerState(
   action: DemoPlayerAction,
   verificationPort?: DemoHostVerificationPort,
 ): DemoPlayerState {
-  if (state.status !== "READY") return state;
   if (!action || typeof action !== "object" ||
-    !["play", "pause", "progress", "ended", "playback-failed", "seek", "choose-branch", "finish"].includes((action as { type?: string }).type ?? "")) {
+    !["play", "pause", "progress", "ended", "playback-failed", "network-offline", "network-online", "seek", "choose-branch", "finish"].includes((action as { type?: string }).type ?? "")) {
     return state;
   }
+  const offlineLocalAction = state.status === "OFFLINE" &&
+    ["network-online", "network-offline", "seek", "choose-branch", "finish"].includes(action.type);
+  if (state.status !== "READY" && !offlineLocalAction) return state;
   const verification = requestAttestation(manifest, verificationPort);
   if (typeof verification === "string") return failedState(verification);
   if (
@@ -558,6 +562,20 @@ export function reduceDemoPlayerState(
         playing: false,
         announcement: "Interactive demonstration unavailable: media playback failed.",
       });
+    case "network-offline":
+      if (state.status === "OFFLINE") return state;
+      return appendHistory(state, action, {
+        status: "OFFLINE",
+        playing: false,
+        announcement: "Offline. Media playback is unsupported without a verified local asset; known branches remain available.",
+      });
+    case "network-online":
+      if (state.status !== "OFFLINE") return state;
+      return appendHistory(state, action, {
+        status: "READY",
+        playing: false,
+        announcement: `${demoSourceTruthLabel(verification.sourceTruth)} ready. ${scene.label}.`,
+      });
     case "seek": {
       if (!Number.isSafeInteger(action.positionMs) || action.positionMs < 0) {
         return state;
@@ -578,7 +596,7 @@ export function reduceDemoPlayerState(
         route,
         branches,
         playing: false,
-        announcement: `Seeked to ${target.scene.label}, ${Math.round(action.positionMs)} milliseconds.`,
+        announcement: `${state.status === "OFFLINE" ? "Offline. Playback remains unavailable. " : ""}Seeked to ${target.scene.label}, ${Math.round(action.positionMs)} milliseconds.`,
       });
     }
     case "choose-branch": {
@@ -597,7 +615,7 @@ export function reduceDemoPlayerState(
         route,
         branches,
         playing: false,
-        announcement: `Showing ${target.label}.`,
+        announcement: `${state.status === "OFFLINE" ? "Offline. Playback remains unavailable. " : ""}Showing ${target.label}.`,
       });
     }
     case "finish":

@@ -147,6 +147,42 @@ class GrpcVideoSourceCaptureTest {
     }
 
     @Test
+    void nullSourceBatchReturnsUnknownWithoutAcknowledgingOrOfferingFrames() {
+        FakePort port = new FakePort();
+        FakeSource source = new FakeSource(null);
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.UNKNOWN);
+        assertThat(result.acknowledgedFrames()).isZero();
+        assertThat(result.lastSourceCursor()).isEqualTo(-1);
+        assertThat(source.batchReads).isEqualTo(1);
+        assertThat(port.offerCalls).isZero();
+        assertThat(port.offeredSequences).isEmpty();
+        assertThat(port.lastAck).isEqualTo(-1);
+        assertThat(port.eosCalls).isZero();
+    }
+
+    @Test
+    void throwingSourceBatchReturnsUnknownWithoutAcknowledgingOrOfferingFrames() {
+        FakePort port = new FakePort();
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(
+                List.of(frame(10, 0, "video@v3", 20)), false));
+        source.batchFailure = new IllegalStateException("source unavailable");
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.UNKNOWN);
+        assertThat(result.acknowledgedFrames()).isZero();
+        assertThat(result.lastSourceCursor()).isEqualTo(-1);
+        assertThat(source.batchReads).isEqualTo(1);
+        assertThat(port.offerCalls).isZero();
+        assertThat(port.offeredSequences).isEmpty();
+        assertThat(port.lastAck).isEqualTo(-1);
+        assertThat(port.eosCalls).isZero();
+    }
+
+    @Test
     void reordersFramesAndUsesCanonicalPortAsOnlyWriter() {
         FakePort port = new FakePort();
         FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(
@@ -514,6 +550,7 @@ class GrpcVideoSourceCaptureTest {
         private int denyReadbackCall = -1;
         private int readbackCalls;
         private int batchReads;
+        private RuntimeException batchFailure;
 
         private FakeSource(GrpcVideoSourceCapture.Batch batch) { this.batch = batch; }
 
@@ -532,6 +569,7 @@ class GrpcVideoSourceCaptureTest {
             batchReads++;
             assertThat(maxFrames).isEqualTo(GrpcVideoSourceCapture.MAX_BATCH_FRAMES);
             assertThat(maxBytes).isEqualTo(GrpcVideoSourceCapture.MAX_BATCH_BYTES);
+            if (batchFailure != null) throw batchFailure;
             return batch;
         }
     }

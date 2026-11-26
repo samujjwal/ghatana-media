@@ -23,7 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MediaCreativePreviewTest {
     private static final String SOURCE_VERSION = "local-fixture:creative-preview:v1";
-    private static final List<String> OUTPUTS = List.of("png", "gif", "wav", "wavClipped", "wavRepaired", "interactiveDemoAudio", "glb", "simulation");
+    private static final List<String> OUTPUTS = List.of("png", "gif", "wav", "wavClipped", "wavRepaired",
+            "audioRepairOracle", "interactiveDemoAudio", "glb", "simulation");
 
     @TempDir Path tempDir;
 
@@ -145,6 +146,14 @@ class MediaCreativePreviewTest {
         assertEquals(false, audioRepair.get("hasIndependentReference"));
         assertEquals(null, audioRepair.get("snrDbVsReference"));
         assertEquals(false, audioRepair.get("qualityClaim"));
+        Map<String, Object> referenceDiagnostic = object(audioRepair.get("referenceDiagnostic"));
+        assertEquals("SYNTHETIC_FIXTURE_DIAGNOSTIC", referenceDiagnostic.get("kind"));
+        assertEquals("local-preclip-sine-oracle-v1", referenceDiagnostic.get("fixtureVersionRef"));
+        assertEquals("signed-int32-little-endian-sample-values-in-pcm16-code-units",
+                referenceDiagnostic.get("representation"));
+        assertEquals(false, referenceDiagnostic.get("hasIndependentReference"));
+        assertEquals(false, referenceDiagnostic.get("qualityClaim"));
+        assertEquals(outputs.get("audioRepairOracle"), referenceDiagnostic.get("oracle"));
         Map<String, Object> comparisonMetrics = object(audioRepair.get("comparisonMetrics"));
         assertEquals("DESCRIPTIVE_PCM_ONLY", comparisonMetrics.get("kind"));
         assertEquals(32768L, number(comparisonMetrics.get("sourcePeak")));
@@ -156,9 +165,23 @@ class MediaCreativePreviewTest {
         assertTrue(Double.isFinite(number(comparisonMetrics.get("rmsChangeDb")).doubleValue()));
         byte[] clippedPcm = decodedPcm(output.resolve("original-clipped.wav"));
         byte[] repairedPcm = decodedPcm(output.resolve("repaired-candidate.wav"));
+        byte[] oracleBytes = Files.readAllBytes(output.resolve("pre-clip-sine-oracle.i32le"));
         assertTrue(hasClippedSample(clippedPcm), "fixture includes hard-clipped PCM samples");
         assertEquals(sha256(clippedPcm), audioRepair.get("sourcePcmSha256"));
         assertEquals(sha256(repairedPcm), audioRepair.get("repairedPcmSha256"));
+        assertEquals(sha256(oracleBytes), string(object(referenceDiagnostic.get("oracle")).get("sha256")));
+        assertEquals(480 * 2 * Integer.BYTES, oracleBytes.length);
+        assertOracleMatchesPreClipSine(oracleBytes, clippedPcm);
+        double expectedSourceSnr = independentlyComputedSnrDb(oracleBytes, clippedPcm);
+        double expectedRepairedSnr = independentlyComputedSnrDb(oracleBytes, repairedPcm);
+        double expectedImprovement = expectedRepairedSnr - expectedSourceSnr;
+        assertEquals(expectedSourceSnr,
+                number(referenceDiagnostic.get("sourceSnrDbVsSyntheticFixture")).doubleValue(), 1.0e-12);
+        assertEquals(expectedRepairedSnr,
+                number(referenceDiagnostic.get("repairedSnrDbVsSyntheticFixture")).doubleValue(), 1.0e-12);
+        assertEquals(expectedImprovement,
+                number(referenceDiagnostic.get("repairedSnrImprovementDb")).doubleValue(), 1.0e-12);
+        assertEquals(expectedImprovement > 0.0, referenceDiagnostic.get("repairImprovedAgainstSyntheticFixture"));
         assertEquals(countChangedSamples(clippedPcm, repairedPcm),
                 number(comparisonMetrics.get("changedSampleCount")).longValue());
         assertTrue(!java.util.Arrays.equals(clippedPcm, repairedPcm), "repair candidate preserves a distinct PCM revision");
@@ -211,7 +234,7 @@ class MediaCreativePreviewTest {
         assertTrue(limitations.contains("fixture output is not lawful model quality"));
         assertTrue(limitations.contains("simulation is not measurement evidence"));
         assertTrue(limitations.contains("clipped audio is synthetic and the repaired candidate is an estimate, not recovered source truth"));
-        assertTrue(limitations.contains("no independent audio reference was supplied; no SNR or quality claim is made"));
+        assertTrue(limitations.contains("the pre-clip sine-oracle SNR and delta are synthetic fixture diagnostics only, not independent-reference or quality claims"));
         assertTrue(limitations.contains("GLB uses FLOAT32_APPROXIMATION"));
         assertTrue(limitations.contains("no hosted product, delivery receipt, or job finality is implied"));
     }
@@ -420,6 +443,38 @@ class MediaCreativePreviewTest {
             }
         }
         return changed;
+    }
+
+    private static void assertOracleMatchesPreClipSine(byte[] oracleI32Le, byte[] clippedPcm16Le) {
+        assertEquals(480 * 2 * Integer.BYTES, oracleI32Le.length);
+        assertEquals(480 * 2 * Short.BYTES, clippedPcm16Le.length);
+        ByteBuffer oracle = ByteBuffer.wrap(oracleI32Le).order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer clipped = ByteBuffer.wrap(clippedPcm16Le).order(ByteOrder.LITTLE_ENDIAN);
+        for (int frame = 0; frame < 480; frame++) {
+            int expected = (int) Math.round(Math.sin(2 * Math.PI * 440 * frame / 48_000.0) * 40_000);
+            short clippedExpected = (short) Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, expected));
+            assertEquals(expected, oracle.getInt(), "left pre-clip oracle sample " + frame);
+            assertEquals(expected, oracle.getInt(), "right pre-clip oracle sample " + frame);
+            assertEquals(clippedExpected, clipped.getShort(), "left clipped sample " + frame);
+            assertEquals(clippedExpected, clipped.getShort(), "right clipped sample " + frame);
+        }
+    }
+
+    private static double independentlyComputedSnrDb(byte[] oracleI32Le, byte[] candidatePcm16Le) {
+        assertEquals(oracleI32Le.length / Integer.BYTES, candidatePcm16Le.length / Short.BYTES);
+        ByteBuffer oracle = ByteBuffer.wrap(oracleI32Le).order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer candidate = ByteBuffer.wrap(candidatePcm16Le).order(ByteOrder.LITTLE_ENDIAN);
+        double signalEnergy = 0.0;
+        double errorEnergy = 0.0;
+        while (oracle.hasRemaining()) {
+            long expected = oracle.getInt();
+            long actual = candidate.getShort();
+            signalEnergy += (double) expected * expected;
+            long error = expected - actual;
+            errorEnergy += (double) error * error;
+        }
+        assertTrue(signalEnergy > 0.0 && errorEnergy > 0.0);
+        return 10.0 * Math.log10(signalEnergy / errorEnergy);
     }
 
     @SuppressWarnings("unchecked")

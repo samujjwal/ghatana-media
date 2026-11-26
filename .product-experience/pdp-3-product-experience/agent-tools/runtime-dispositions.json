@@ -1,7 +1,7 @@
 {
   "schemaVersion": "media.agent-tool-runtime-dispositions.v1",
   "status": "ALL_TOOLS_NOT_ADMITTED",
-  "sourceBasis": "Current source-owned handler observations in tool-registry.yaml identify Java handler classes and dynamic ToolExecutionEnvelope inputs; operation links in these records remain candidates. These dispositions describe the available boundary and do not establish handler parity or admission.",
+  "sourceBasis": "Current source-owned handler observations in tool-registry.yaml identify Java handler classes and ToolExecutionEnvelope inputs. PXD-238 binds av.multimodal-inference to its canonical cross-modal capability operation; other operation links remain candidates. These dispositions describe current handler boundaries and do not establish complete handler parity or runtime admission.",
   "tools": [
     {
       "toolId": "av.speech-to-text",
@@ -72,15 +72,15 @@
       "status": "NOT_ADMITTED",
       "requestMapping": {
         "disposition": "UNSUPPORTED_NO_DISPATCH",
-        "reason": "The handler validates a dynamic ToolExecutionEnvelope, then returns MULTIMODAL_NOT_ADMITTED before dispatch. The proposed modality flags and sampling controls are not bound to an accepted operation, immutable source version, or qualified component profile."
+        "reason": "PXD-238 binds the canonical cross-modal operation and exact typed inputs. The handler now validates the canonical input1/input2 structure and bounds, rejects legacy aliases, and returns MULTIMODAL_NOT_ADMITTED before dispatch. It does not resolve artifact versions, dimensions, subject, method, profile, configuration, or purpose references against current owner authority; no canonical runtime adapter is wired."
       },
       "resultErrorMapping": {
         "disposition": "UNSUPPORTED_NO_DISPATCH",
-        "reason": "Valid requests return typed MULTIMODAL_NOT_ADMITTED; local validation failures return a generic FAILED result. No delegate output or success result is accepted, and component results, partial outcomes, provenance, finality, and public typed errors are unmapped."
+        "reason": "PXD-238 defines canonical accepted, success, rejection, and unknown-outcome mappings, with one typed source-grounded artifact on success and no partial result. The current handler accepts no delegate output or canonical result, so these mappings remain unimplemented and runtime stays NOT_ADMITTED."
       },
       "operationMapping": {
         "disposition": "NOT_ADMITTED",
-        "reason": "media.operation.capability.media-multimodal-analyze-cross-modal is a candidate link only; no accepted PDP-1 operation mapping or exact handler equivalence exists."
+        "reason": "PXD-238 binds media.operation.capability.media-multimodal-analyze-cross-modal as the source-defined operation, but the handler does not invoke its canonical request/result adapter. Source binding alone does not establish operation parity or runtime admission."
       },
       "authorityExecution": {
         "disposition": "UNSUPPORTED_NO_DISPATCH",

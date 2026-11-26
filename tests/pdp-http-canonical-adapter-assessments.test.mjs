@@ -98,7 +98,19 @@ function materialAssessmentIsValid(rows) {
       } else {
         if (!canonical.resultSchema?.required?.includes("readVersion") || !canonical.resultSchema?.required?.includes("observedAt")) return false;
         if (wireFields.has("readVersion") || wireFields.has("observedAt")) return false;
-        if (record.identity === "getMediaStream" && Object.keys(schemaAt(record.responseSchemaRef)?.properties ?? {}).length !== 0) return false;
+        if (record.identity === "getMediaStream") {
+          const responseSchemaRef = operation.responses?.["200"]?.content?.["application/json"]?.schema?.$ref;
+          const responseSchema = schemaAt(record.responseSchemaRef);
+          const observedResult = canonical.resultSchema?.properties?.observation?.oneOf?.find(
+            ({ properties }) => properties?.disposition?.const === "OBSERVED",
+          );
+          const ownerRequired = ["sessionId", "observation", "observedAt", "readVersion"];
+          if (record.responseSchemaRef !== `contracts/openapi/media.yaml${responseSchemaRef}`) return false;
+          if (!responseSchema || JSON.stringify(Object.keys(responseSchema.properties ?? {})) !== JSON.stringify(record.responseFields)) return false;
+          if (!ownerRequired.every((field) => canonical.resultSchema?.required?.includes(field))) return false;
+          if (!observedResult?.required?.includes("stateAuthorityRef") || !observedResult.required.includes("stateEvidenceRef")) return false;
+          if (!record.missingSemantics?.includes(materialWireGaps.get(record.identity)[0])) return false;
+        }
       }
     }
     if (record.requestSchemaRef) {
@@ -163,4 +175,13 @@ test("adapter assessment rejects omission, wrong route, invented operation, and 
   const falseConsent = structuredClone(contracts.records);
   falseConsent.find(({ identity }) => identity === "revokeMediaConsent").missingRequestSemantics = [];
   assert.equal(materialAssessmentIsValid(falseConsent), false, "explicit authority/scope inputs cannot disappear from the adapter assessment");
+  const wrongStreamResponseSchema = structuredClone(contracts.records);
+  wrongStreamResponseSchema.find(({ identity }) => identity === "getMediaStream").responseSchemaRef = "contracts/openapi/media.yaml#/components/schemas/StreamSessionRegistration";
+  assert.equal(materialAssessmentIsValid(wrongStreamResponseSchema), false, "stream inspection must bind the exact GET 200 OpenAPI response schema");
+  const missingStreamResponseField = structuredClone(contracts.records);
+  missingStreamResponseField.find(({ identity }) => identity === "getMediaStream").responseFields = missingStreamResponseField.find(({ identity }) => identity === "getMediaStream").responseFields.slice(1);
+  assert.equal(materialAssessmentIsValid(missingStreamResponseField), false, "stream wire response fields must exactly match the referenced OpenAPI schema");
+  const missingStreamOwnerGap = structuredClone(contracts.records);
+  missingStreamOwnerGap.find(({ identity }) => identity === "getMediaStream").missingSemantics = missingStreamOwnerGap.find(({ identity }) => identity === "getMediaStream").missingSemantics.filter((gap) => gap !== materialWireGaps.get("getMediaStream")[0]);
+  assert.equal(materialAssessmentIsValid(missingStreamOwnerGap), false, "owner-required observedAt/readVersion/authority evidence gap cannot disappear");
 });

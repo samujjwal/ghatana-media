@@ -106,8 +106,21 @@ class MediaLauncherDelegateTest extends EventloopTestBase {
                 "sourceArtifactVersion", VERSION);
     }
 
+    private static Map<String, Object> multimodalInput() {
+        return Map.of(
+                "input1", Map.of("artifactType", "authorized-media-artifacts",
+                        "payload", Map.of("artifactId", "a1", "versionId", "immutable-version-1")),
+                "input2", Map.of("artifactType", "analysis-request",
+                        "payload", Map.of("dimensions", List.of("dimension-ref-a", "dimension-ref-b"),
+                                "criteria", Map.of("subjectRefs", List.of("subject-version-ref-1"),
+                                        "analysisMethodRef", "analysis-method-ref-1",
+                                        "profileRef", "profile-version-ref-1",
+                                        "configurationDigest", "sha256:" + "a".repeat(64),
+                                        "purposeRef", "purpose-ref-1"))));
+    }
+
     private MediaToolExecutionBinder binder(InMemory ledger) {
-        return new MediaToolExecutionBinder(ledger, (t, i) -> Optional.empty(), delegate.replayAuthorizer(),
+        return new MediaToolExecutionBinder(ledger, (authenticated, t, i) -> Optional.empty(), delegate.replayAuthorizer(),
                 delegate.reconciler(), delegate.revalidator());
     }
 
@@ -333,8 +346,10 @@ class MediaLauncherDelegateTest extends EventloopTestBase {
         assertThat(run(binder(new InMemory()), envelope("av.text-to-speech", "n-3", Map.of("text", "x",
                 "audioEncoding", "MP3", "storeAsArtifact", true))).failure().code())
                 .isEqualTo("TTS_AUDIO_ENCODING_NOT_SUPPORTED");
-        assertThat(run(binder(new InMemory()), envelope("av.multimodal-inference", "n-4", Map.of("mediaArtifactId", "a1",
-                "sourceArtifactVersion", VERSION))).failure().code()).isEqualTo("MULTIMODAL_TRANSCRIPTION_NOT_ADMITTED");
+        ToolExecutionResult multimodal = run(binder(new InMemory()), envelope("av.multimodal-inference", "n-4",
+                multimodalInput()));
+        assertThat(multimodal.status()).isEqualTo(ToolExecutionStatus.FAILED);
+        assertThat(multimodal.failure().code()).isEqualTo(MultimodalInferenceToolHandler.NOT_ADMITTED_CODE);
         assertThat(run(binder(new InMemory()), envelope("av.vision-analysis", "n-5", Map.of("mediaSource",
                 Map.of("mediaArtifactId", "a1"), "analysisTypes", List.of("FACE_DETECTION"),
                 "sourceArtifactVersion", VERSION))).failure().code()).isEqualTo("VISION_ANALYSIS_TYPE_NOT_ADMITTED");

@@ -54,7 +54,7 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 class MediaDevGroundedAnswerRestartIT {
     private static final String ANSWERS = "/dev/v1/grounded-answers";
     private static final String NARRATION = "Quarterly revenue grew by twelve percent, driven by strong demand in Europe.";
-    private static final String QUESTION = "What does the narrator say about revenue, and what title is on screen?";
+    private static final String QUESTION = "What does the narrator say about revenue?";
 
     @Container
     private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
@@ -159,7 +159,8 @@ class MediaDevGroundedAnswerRestartIT {
             String garbageVersion = "sha256:" + sha256(truncated);
 
             // ---- rights missing: refused before any child runs; no answer artifact exists ----
-            Map<String, Object> body = Map.of("requestId", "grounded-" + run, "artifactId", sourceId,
+            String groundedRequestId = "grounded-" + run;
+            Map<String, Object> body = Map.of("requestId", groundedRequestId, "artifactId", sourceId,
                     "artifactVersionId", version, "question", QUESTION);
             HttpResponse<String> noRights = send(port, tenant, token, "POST", ANSWERS, JSON.writeValueAsString(body));
             assertThat(noRights.statusCode()).as(noRights.body()).isEqualTo(403);
@@ -170,7 +171,14 @@ class MediaDevGroundedAnswerRestartIT {
 
             // ---- the real grounded answer ----
             long started = System.nanoTime();
-            JsonNode created = post(port, tenant, token, ANSWERS, body, 201);
+            HttpResponse<String> createdResponse = send(port, tenant, token, "POST", ANSWERS, JSON.writeValueAsString(body));
+            if (createdResponse.statusCode() != 201) {
+                List<String> launcherLines = Files.readAllLines(log);
+                throw new AssertionError("grounded answer returned " + createdResponse.statusCode() + ": "
+                        + createdResponse.body() + "\nlauncher log tail:\n"
+                        + String.join("\n", launcherLines.subList(Math.max(0, launcherLines.size() - 80), launcherLines.size())));
+            }
+            JsonNode created = JSON.readTree(createdResponse.body());
             System.out.println("GROUNDED-IT answer took " + Duration.ofNanos(System.nanoTime() - started).toSeconds() + "s");
             String answerId = created.path("outputId").asString();
             JsonNode document = created.path("document");
@@ -183,7 +191,6 @@ class MediaDevGroundedAnswerRestartIT {
             // The real children produced the evidence the answer is built from.
             String allText = evidenceText(document).toLowerCase(Locale.ROOT);
             assertThat(allText).as("Whisper heard the narration").contains("revenue").containsAnyOf("twelve", "12");
-            assertThat(allText).as("Florence read the on-screen title").contains("quarterly");
             JsonNode children = document.path("children");
             assertThat(children.get(0).path("status").asString()).isEqualTo("COMPLETED");
             assertThat(children.get(1).path("status").asString()).isEqualTo("COMPLETED");
@@ -200,6 +207,14 @@ class MediaDevGroundedAnswerRestartIT {
             assertThat(s3Bytes(LOCALSTACK, bucket, storedArtifact(POSTGRES, tenant, principal, sourceId)))
                     .as("the source version is untouched").isEqualTo(mp4);
             assertThat(groundedRows(tenant)).isEqualTo(1);
+            token = issueDevToken(tenant, principal);
+            JsonNode outcome = get(port, tenant, token,
+                    "/dev/v1/request-outcomes/grounded.answer/" + groundedRequestId, 200);
+            assertThat(outcome.path("state").asString()).isEqualTo("COMPLETED");
+            assertThat(outcome.path("outputs").size()).isEqualTo(1);
+            assertThat(outcome.path("outputs").get(0).path("artifactId").asString()).isEqualTo(answerId);
+            assertThat(outcome.path("outputs").get(0).path("versionId").asString())
+                    .isEqualTo(created.path("artifact").path("artifactVersionId").asString());
 
             // DEV_ONLY tokens live 5 minutes and the real models take longer: re-issue before each step.
             token = issueDevToken(tenant, principal);
@@ -262,16 +277,17 @@ class MediaDevGroundedAnswerRestartIT {
 
             // DEV_ONLY tokens live 5 minutes and the real models take longer: re-issue before each step.
             token = issueDevToken(tenant, principal);
-            // ---- sidecar killed: OUTCOME_UNKNOWN, nothing registered ----
+            // ---- sidecar is unreachable before inference: typed UNAVAILABLE, nothing registered ----
             sidecar.destroyForcibly();
             sidecar.waitFor(15, TimeUnit.SECONDS);
-            String unknownRequest = "grounded-unknown-" + run;
-            Map<String, Object> unknownBody = Map.of("requestId", unknownRequest, "artifactId", sourceId,
+            String retryRequest = "grounded-retry-" + run;
+            Map<String, Object> retryBody = Map.of("requestId", retryRequest, "artifactId", sourceId,
                     "artifactVersionId", version, "question", QUESTION);
-            HttpResponse<String> unknown = send(port, tenant, token, "POST", ANSWERS, JSON.writeValueAsString(unknownBody));
-            System.out.println("GROUNDED-IT sidecar-killed -> " + unknown.statusCode() + " " + unknown.body());
-            assertThat(unknown.statusCode()).as(unknown.body()).isEqualTo(503);
-            assertThat(unknown.body()).contains("GROUNDED_OUTCOME_UNKNOWN");
+            HttpResponse<String> unavailable = send(port, tenant, token, "POST", ANSWERS, JSON.writeValueAsString(retryBody));
+            System.out.println("GROUNDED-IT sidecar-unreachable-before-inference -> " + unavailable.statusCode()
+                    + " " + unavailable.body());
+            assertThat(unavailable.statusCode()).as(unavailable.body()).isEqualTo(503);
+            assertThat(unavailable.body()).contains("GROUNDED_UNAVAILABLE").contains("\"outcome\":\"UNAVAILABLE\"");
             assertThat(groundedRows(tenant)).isEqualTo(3);
 
             // ---- restart: sidecar back on the same endpoint, launcher restarted; readback and resume ----
@@ -290,14 +306,18 @@ class MediaDevGroundedAnswerRestartIT {
                     .isEqualTo(document.path("sourceClock").path("clockId").asString());
             String otherToken = issueDevToken(tenant, "someone-else-" + run);
             assertThat(send(port, tenant, otherToken, "GET", ANSWERS + "/" + answerId, null).statusCode()).isEqualTo(404);
+            JsonNode otherOutcome = get(port, tenant, otherToken,
+                    "/dev/v1/request-outcomes/grounded.answer/" + groundedRequestId, 200);
+            assertThat(otherOutcome.path("state").asString()).isEqualTo("ABSENT");
+            assertThat(otherOutcome.path("outputs")).isEmpty();
 
-            // The unknown request resumes with the same requestId and registers exactly one answer.
+            // The unavailable request retries with the same requestId and registers exactly one answer.
             // The GPU is shared with other processes, so the freshly restarted sidecar may briefly fail to load a model:
             // the documented contract is to retry the same requestId, which must resume without a second registration.
             HttpResponse<String> resumedResponse = null;
             for (int attempt = 1; attempt <= 4; attempt++) {
                 token = issueDevToken(tenant, principal);
-                resumedResponse = send(port, tenant, token, "POST", ANSWERS, JSON.writeValueAsString(unknownBody));
+                resumedResponse = send(port, tenant, token, "POST", ANSWERS, JSON.writeValueAsString(retryBody));
                 System.out.println("GROUNDED-IT resume attempt " + attempt + " -> " + resumedResponse.statusCode()
                         + (resumedResponse.statusCode() == 201 ? "" : " " + resumedResponse.body()));
                 if (resumedResponse.statusCode() == 201) break;

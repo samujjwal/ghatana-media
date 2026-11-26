@@ -9,15 +9,15 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * Admission-gated local inference: Florence-2 (MIT) for caption / object detection / scene text, and
+ * Admission-gated local inference: Florence-2 (MIT) for caption / object detection, and
  * Qwen2.5-VL-7B-Instruct (Apache-2.0) for visual question answering. Every call first re-evaluates the
  * model's digest-bound {@link LocalModelAdmission}; a model that is not QUALIFIED is never dispatched
  * and the call fails with {@link NotAdmittedException}. Results are deterministic JSON-able maps
  * (no timestamps or latencies) bound to the exact input digest and the exact model identity, so an
  * identical request re-derives identical bytes.
  *
- * <p>Scene text is produced by Florence-2's own OCR task and is labelled as such; it is not the
- * Document Intelligence OCR gateway and makes no accuracy claim.
+ * <p>Generic OCR is owned by Document Intelligence. This Media engine refuses Florence OCR before
+ * calling the sidecar, even when a local model manifest is otherwise qualified.
  *
  * @doc.type class
  * @doc.purpose Admission-gated Florence-2 and Qwen2.5-VL inference over the loopback sidecar
@@ -29,7 +29,7 @@ public final class LocalVisionEngine {
     public static final String FLORENCE_MODEL_ID = "florence-community/Florence-2-large";
     public static final String QWEN_MODEL_ID = "Qwen/Qwen2.5-VL-7B-Instruct";
     public static final String RESULT_SCHEMA = "media.vision.local-result.v1";
-    public static final Set<String> FLORENCE_TASKS = Set.of("caption", "detect", "ocr");
+    public static final Set<String> FLORENCE_TASKS = Set.of("caption", "detect");
     public static final int MAX_QUESTION_CHARS = 1000;
     /** Language pairs the text-only translation lane admits (owner decision 2026-11-15: English to Spanish). */
     public static final Set<String> TRANSLATION_PAIRS = Set.of("en>es");
@@ -47,6 +47,22 @@ public final class LocalVisionEngine {
         }
         public String modelId() { return modelId; }
         public String code() { return code; }
+    }
+
+    /** OCR is owned by Document Intelligence; local Florence OCR is not an admitted Media operation. */
+    public static final class OcrNotAdmittedException extends IllegalArgumentException {
+        public static final String CODE = "DOCUMENT_INTELLIGENCE_NOT_ADMITTED";
+
+        public OcrNotAdmittedException() {
+            super("generic OCR must use an admitted Document Intelligence client");
+        }
+
+        public String code() { return CODE; }
+    }
+
+    /** Shared pre-dispatch guard for all Media call paths that use this local engine. */
+    public static void requireNoOcrTask(Set<String> tasks) {
+        if (tasks != null && tasks.contains("ocr")) throw new OcrNotAdmittedException();
     }
 
     private final LocalVisionSidecarClient client;
@@ -118,6 +134,7 @@ public final class LocalVisionEngine {
 
     /** Florence-2 caption, detection and scene-text in one bound result. */
     public Map<String, Object> analyze(byte[] image, String imageSha256, Set<String> tasks) {
+        requireNoOcrTask(tasks);
         requireImage(image);
         if (tasks == null || tasks.isEmpty() || !FLORENCE_TASKS.containsAll(tasks)) {
             throw new IllegalArgumentException("tasks must be a non-empty subset of " + FLORENCE_TASKS);
@@ -125,7 +142,7 @@ public final class LocalVisionEngine {
         LocalModelAdmission.Admission admission = florence.evaluate();
         if (!admission.qualified()) throw new NotAdmittedException(FLORENCE_MODEL_ID, admission.reasonCode());
         List<String> ordered = new ArrayList<>();
-        for (String task : List.of("caption", "detect", "ocr")) if (tasks.contains(task)) ordered.add(task);
+        for (String task : List.of("caption", "detect")) if (tasks.contains(task)) ordered.add(task);
         LocalVisionSidecarClient.AnalyzeResponse response = client.analyze(image, ordered, 256);
         Map<String, Object> out = base("IMAGE_ANALYSIS", admission, imageSha256, response.width(), response.height());
         Map<String, Object> results = new LinkedHashMap<>();
@@ -134,9 +151,6 @@ public final class LocalVisionEngine {
         }
         if (ordered.contains("detect")) {
             results.put("objects", detections(response.results().get("detect")));
-        }
-        if (ordered.contains("ocr")) {
-            results.put("sceneText", sceneText(response.results().get("ocr")));
         }
         out.put("results", results);
         return out;

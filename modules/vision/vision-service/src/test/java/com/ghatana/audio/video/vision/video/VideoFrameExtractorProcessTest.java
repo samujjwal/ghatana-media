@@ -21,7 +21,46 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 class VideoFrameExtractorProcessTest {
+    private static final int SELECTOR_TEST_FRAME_LIMIT = 10_000;
+
     @TempDir Path tempDir;
+
+    private static List<VideoFrameExtractor.ExtractedFrame> underreportedFrameList(
+            VideoFrameExtractor.ExtractedFrame frame,
+            java.util.concurrent.atomic.AtomicInteger consumed) {
+        return new java.util.AbstractList<>() {
+            @Override
+            public VideoFrameExtractor.ExtractedFrame get(int index) {
+                if (index != 0) throw new IndexOutOfBoundsException(index);
+                return frame;
+            }
+
+            @Override
+            public int size() {
+                return 1;
+            }
+
+            @Override
+            public java.util.Iterator<VideoFrameExtractor.ExtractedFrame> iterator() {
+                return new java.util.Iterator<>() {
+                    private int emitted;
+
+                    @Override
+                    public boolean hasNext() {
+                        return emitted <= SELECTOR_TEST_FRAME_LIMIT;
+                    }
+
+                    @Override
+                    public VideoFrameExtractor.ExtractedFrame next() {
+                        if (!hasNext()) throw new java.util.NoSuchElementException();
+                        emitted++;
+                        consumed.incrementAndGet();
+                        return frame;
+                    }
+                };
+            }
+        };
+    }
 
     @Test
     void exactFrameConfigSelectsSourceOrdinalAndBoundsOutputToOne() throws Exception {
@@ -788,6 +827,32 @@ class VideoFrameExtractorProcessTest {
                 SourceMediaTimestamp.fromPts("1", "1/3"), 5);
         assertThat(VideoFrameExtractor.selectExactFrameAtUs(List.of(subMicrosecond), 5, 333_333).status())
                 .isEqualTo(VideoFrameExtractor.FrameSelectionStatus.NOT_FOUND);
+    }
+
+    @Test
+    void exactFrameSelectorRejectsUnderreportedOversizedListBeforeConsumingFrame10001() {
+        var frame = new VideoFrameExtractor.ExtractedFrame(tempDir.resolve("bounded-exact.png"),
+                SourceMediaTimestamp.fromPts("12", "1/25"), 3);
+        var consumed = new java.util.concurrent.atomic.AtomicInteger();
+
+        var selected = VideoFrameExtractor.selectExactFrame(
+                underreportedFrameList(frame, consumed), 3, 12, 1, 25);
+
+        assertThat(selected.status()).isEqualTo(VideoFrameExtractor.FrameSelectionStatus.INVALID_REQUEST);
+        assertThat(consumed.get()).isEqualTo(SELECTOR_TEST_FRAME_LIMIT);
+    }
+
+    @Test
+    void exactMicrosecondSelectorRejectsUnderreportedOversizedListBeforeConsumingFrame10001() {
+        var frame = new VideoFrameExtractor.ExtractedFrame(tempDir.resolve("bounded-exact-us.png"),
+                SourceMediaTimestamp.fromPts("12", "1/25"), 3);
+        var consumed = new java.util.concurrent.atomic.AtomicInteger();
+
+        var selected = VideoFrameExtractor.selectExactFrameAtUs(
+                underreportedFrameList(frame, consumed), 3, 480_000);
+
+        assertThat(selected.status()).isEqualTo(VideoFrameExtractor.FrameSelectionStatus.INVALID_REQUEST);
+        assertThat(consumed.get()).isEqualTo(SELECTOR_TEST_FRAME_LIMIT);
     }
 
     @Test

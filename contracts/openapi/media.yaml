@@ -622,12 +622,12 @@ paths:
           }
       responses:
         "200":
-          description: Tenant-scoped processing jobs
+          description: Principal-scoped processing job observations with store snapshot metadata
           content:
             application/json:
               schema:
                 type: object
-                required: [jobs]
+                required: [jobs, observedAt, readVersion]
                 properties:
                   {
                     jobs:
@@ -635,7 +635,16 @@ paths:
                         type: array,
                         items: { $ref: "#/components/schemas/ProcessingJob" },
                       },
+                    observedAt: { type: string, format: date-time },
+                    readVersion:
+                      {
+                        type: string,
+                        minLength: 1,
+                        maxLength: 256,
+                        description: Opaque store-issued identifier for the exact tenant/principal/limit snapshot,
+                      },
                   }
+        "503": { $ref: "#/components/responses/Error" }
         "401": { $ref: "#/components/responses/Error" }
         "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: GET /api/v1/jobs

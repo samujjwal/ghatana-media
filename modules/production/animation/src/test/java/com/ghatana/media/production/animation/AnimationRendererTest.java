@@ -352,6 +352,13 @@ class AnimationRendererTest {
     }
 
     @Test
+    void rasterAssetShapeRequiresAnAssetId() {
+        assertThatThrownBy(() -> new AnimationRenderer.Shape("unbound-logo", AnimationRenderer.Primitive.RASTER_ASSET,
+                0, 0, 1, 1, 0, 0xffffffff, List.of(), null))
+                .isInstanceOf(NullPointerException.class).hasMessage("shape.assetId");
+    }
+
+    @Test
     void rasterAndVectorShapesApplyTheSameCenterBasedKeyframeTransform() throws Exception {
         var keyframes = List.of(new AnimationRenderer.Keyframe(0, 0, 0, 2, 1, 0, 1,
                 AnimationRenderer.Easing.LINEAR));

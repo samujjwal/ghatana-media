@@ -75,14 +75,16 @@ commands:
     sdkMethod: libs/audio-video-client/src/canonical-operations.ts#MediaCanonicalClient.listJobs
     wireOperationId: listMediaJobs
     sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs/get
-    operationRef: null
-    operationDisposition: observed-bounded-wire-query; no-individual-PDP1-operation-is-inferred
-    options: [--endpoint, --tenant, --principal, --limit]
+    operationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-list.v1
+    ownerDecisionRefs: [.product-experience/decision-log.md#PXD-242]
+    operationDisposition: SOURCE_BOUND_TO_OWNER_DEFINED_QUERY; OBSERVED_V1_WIRE_IS_NOT_A_CONFORMING_ADAPTER
+    options: [--endpoint, --tenant, --principal, --request-json]
     credentialSource: GHATANA_MEDIA_BEARER_TOKEN-environment-only
-    output: scoped-CanonicalProcessingJob-observations-in-media.cli-result.v1-JSON-envelope
-    readSemantics: owning-principal-scoped-bounded-list; no-provider-finality-or-global-absence
-    runtimeAdmission: host-configured-source-consumer-only; production-host-identity-and-qualification-open
-    status: implemented-observed-wire-consumer; owner-integration-review-pending
+    request: exact-owner-defined-media.operation.job-list.v1-limit-object
+    output: exact-owner-defined-media.operation.job-list.v1-jobs-observedAt-readVersion-in-media.cli-result.v1-JSON-envelope
+    readSemantics: host-attested-tenant-and-owning-principal-scoped-bounded-observation; preserve-raw-status; no-finality-or-global-absence
+    runtimeAdmission: NOT_ADMITTED; observed-v1-wire-misses-observedAt-and-readVersion; host-identity-and-qualification-open
+    status: source-bound-definition-only; legacy-wire-not-admitted
   - id: media.cli.job.cancel
     canonicalCommand: ghatanamedia-api job cancel
     package: libs/audio-video-client/package.json#bin.ghatanamedia-api

@@ -8,29 +8,29 @@ import com.ghatana.agent.framework.tools.ToolContract;
 import com.ghatana.agent.framework.tools.ToolExecutionFailure;
 import com.ghatana.agent.framework.tools.ToolExecutionEnvelope;
 import com.ghatana.agent.framework.tools.ToolExecutionResult;
-import com.ghatana.toolruntime.ToolHandler;
-import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
-import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal;
+import com.ghatana.toolruntime.ToolHandler;
 import io.activej.promise.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * {@link ToolHandler} adapter for the Audio-Video Multimodal Inference service.
  *
- * <p>A configured delegate does not establish source authorization, version,
- * temporal provenance, modality eligibility, consent, or cancellation
- * finality. Until an admitted public Media operation binds those inputs,
- * inference fails closed before dispatch.
+ * <p>The tool is source-bound by PXD-238 to the canonical cross-modal analysis
+ * operation. A configured delegate does not establish source authorization,
+ * version, temporal provenance, modality eligibility, consent, or cancellation
+ * finality. A structural canonical request mapper exists, but until
+ * owner-authoritative reference/profile/rights resolution and the canonical
+ * runtime submit/result path are wired and admitted, inference fails closed
+ * before dispatch.
  *
  * @doc.type class
  * @doc.purpose ToolHandler adapter for the Multimodal Inference capability
@@ -41,49 +41,30 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
 
     private static final Logger log = LoggerFactory.getLogger(MultimodalInferenceToolHandler.class);
     public static final String TOOL_ID = "av.multimodal-inference";
+    static final String NOT_ADMITTED_CODE = "MULTIMODAL_NOT_ADMITTED";
+    private static final Set<String> INPUT_FIELDS = Set.of("input1", "input2");
+    private static final Pattern ARTIFACT_ID = Pattern.compile("[A-Za-z0-9][A-Za-z0-9._:-]*");
+    private static final Pattern VERSION_ID = Pattern.compile("[A-Za-z0-9][A-Za-z0-9._:+-]*");
+    private static final Pattern MEDIA_TYPE = Pattern.compile("[A-Za-z0-9!#$&^_.+-]+/[A-Za-z0-9!#$&^_.+-]+");
+    private static final Pattern SHA256 = Pattern.compile("sha256:[a-f0-9]{64}");
     static final Set<String> VALIDATION_CODES = Set.of(
             "TOOL_ID_MISMATCH", "TOOL_VERSION_MISMATCH", "TOOL_ACTION_CLASS_MISMATCH",
-            "UNKNOWN_INPUT_FIELD", "MISSING_TENANT_CONTEXT", "TOOL_INPUT_SCHEMA_VIOLATION",
-            "SOURCE_ARTIFACT_REQUIRED", "SOURCE_VERSION_REQUIRED", "SOURCE_VERSION_INVALID", "INVALID_MEDIAARTIFACTID", "INVALID_INFERENCE_MODE", "INVALID_SAMPLING_RATE",
-            "INVALID_LANGUAGE_CODE", "INVALID_ENABLETRANSCRIPTION", "INVALID_ENABLEVISIONANALYSIS",
-            "NO_MODALITY_SELECTED");
+            "UNKNOWN_INPUT_FIELD", "MISSING_TENANT_CONTEXT", "TOOL_INPUT_SCHEMA_VIOLATION");
 
     public MultimodalInferenceToolHandler() {
         this(null);
     }
 
-    /** Compatibility constructor; a delegate cannot provide admission authority. */
-    public MultimodalInferenceToolHandler(ToolHandler ignoredDelegate) {
-        this.bridge = null;
-        this.launcher = null;
-        this.principal = null;
-    }
+    /** Compatibility constructor; a generic delegate cannot supply the canonical operation binding. */
+    public MultimodalInferenceToolHandler(ToolHandler ignoredDelegate) { }
 
-    private final MediaToolJobBridge bridge;
-    private final MediaLauncherDelegate launcher;
-    private final AuthenticatedPrincipal principal;
+    /** Compatibility constructor; a bridge cannot supply owner resolution or canonical runtime submit/result readback. */
+    public MultimodalInferenceToolHandler(MediaToolJobBridge ignoredBridge,
+            AuthenticatedPrincipal ignoredPrincipal) { }
 
-    /**
-     * Canonical-job constructor: after validation the call is submitted as exactly one Media
-     * {@link JobType#MULTIMODAL} job through the bridge. Without a bridge the handler stays
-     * typed NOT_ADMITTED. The principal is the host-authenticated Media identity.
-     */
-    public MultimodalInferenceToolHandler(MediaToolJobBridge bridge, AuthenticatedPrincipal principal) {
-        this.bridge = java.util.Objects.requireNonNull(bridge, "bridge");
-        this.launcher = null;
-        this.principal = principal;
-    }
-
-    /**
-     * Delegating constructor: after validation the call is delegated, as the host-authenticated user and under that
-     * user's scoped revocable grant, to the real Media launcher operation that matches this tool's intent (see
-     * {@link MediaDelegatedPlans}). Anything the launcher operation cannot honour stays typed NOT_ADMITTED.
-     */
-    public MultimodalInferenceToolHandler(MediaLauncherDelegate launcher, AuthenticatedPrincipal principal) {
-        this.bridge = null;
-        this.launcher = java.util.Objects.requireNonNull(launcher, "launcher");
-        this.principal = principal;
-    }
+    /** Compatibility constructor; the vision-track launcher operation is not the canonical cross-modal operation. */
+    public MultimodalInferenceToolHandler(MediaLauncherDelegate ignoredLauncher,
+            AuthenticatedPrincipal ignoredPrincipal) { }
 
     @Override
     public Promise<ToolExecutionResult> handle(ToolExecutionEnvelope envelope, ToolContract contract) {
@@ -91,57 +72,14 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
         Objects.requireNonNull(contract, "contract must not be null");
 
         Instant start = Instant.now();
-        if (launcher != null) {
-            return MediaDelegatedPlans.run(launcher, principal, envelope, contract, start, "MULTIMODAL_INPUT_INVALID", VALIDATION_CODES);
-        }
         Map<String, Object> input;
-        String sourceId = null;
-        String sourceVersion = null;
-        Map<String, Object> jobParameters = null;
 
         try {
-            input = AgentToolInput.checked(envelope, contract, TOOL_ID, Set.of("mediaArtifactId", "inferenceMode", "samplingRateMs", "enableTranscription", "enableVisionAnalysis", "languageCode", "sourceArtifactVersion"));
-            AgentToolInput.requiredString(input, "mediaArtifactId", 512);
-            Object mode = input.getOrDefault("inferenceMode", "SUMMARY");
-            if (!(mode instanceof String inferenceMode) || !Set.of("SUMMARY", "SEGMENT", "FRAME_BY_FRAME", "FULL").contains(inferenceMode)) throw new IllegalArgumentException("INVALID_INFERENCE_MODE");
-            Object sampling = input.getOrDefault("samplingRateMs", 1000);
-            if (!(sampling instanceof Number rate) || rate.intValue() != rate.doubleValue() || rate.intValue() < 100 || rate.intValue() > 60_000)
-                throw new IllegalArgumentException("INVALID_SAMPLING_RATE");
-            AgentToolInput.languageTag(input.get("languageCode"), "en-US");
-            boolean enableTranscription = optionalBoolean(input, "enableTranscription", true);
-            boolean enableVision = optionalBoolean(input, "enableVisionAnalysis", true);
-            if (!enableTranscription && !enableVision) throw new IllegalArgumentException("NO_MODALITY_SELECTED");
-
-            if (bridge != null) {
-                sourceId = AgentToolInput.requiredString(input, "mediaArtifactId", 512);
-                sourceVersion = AgentToolInput.sourceVersion(input);
-                jobParameters = new LinkedHashMap<>();
-                jobParameters.put("inferenceMode", (String) mode);
-                jobParameters.put("samplingRateMs", ((Number) sampling).intValue());
-                jobParameters.put("language", AgentToolInput.languageTag(input.get("languageCode"), "en-US"));
-                jobParameters.put("enableTranscription", enableTranscription);
-                jobParameters.put("enableVisionAnalysis", enableVision);
-                if (!enableTranscription && enableVision) {
-                    // A vision-only observation can be fully specified from the call itself: one canonical
-                    // VISION child on the exact source version.
-                    jobParameters.put(MultimodalOperationSpec.PARAMETERS_KEY,
-                            visionOnlySpec(sourceId, sourceVersion).toParametersValue());
-                } else {
-                    // A transcription child needs a speech profile the tool contract does not carry. The profile is
-                    // the server-owned pin on the bridge (as for av.speech-to-text); an agent can never supply it.
-                    // Without a pin no spec is attached and the runtime keeps its typed refusal.
-                    Map<String, Object> sttParameters = bridge.speechChildParameters(
-                            AgentToolInput.languageTag(input.get("languageCode"), "en-US"));
-                    if (sttParameters != null) {
-                        jobParameters.put(MultimodalOperationSpec.PARAMETERS_KEY,
-                                transcriptionSpec(sourceId, sourceVersion, enableVision, sttParameters)
-                                        .toParametersValue());
-                    }
-                }
-            }
+            input = AgentToolInput.checked(envelope, contract, TOOL_ID, INPUT_FIELDS);
+            validateCanonicalInput(input);
         } catch (Exception e) {
             String errorCode = validationErrorCode(e);
-            if (errorCode.startsWith("SOURCE_")) {
+            if ("UNKNOWN_INPUT_FIELD".equals(errorCode) || "TOOL_INPUT_SCHEMA_VIOLATION".equals(errorCode)) {
                 return Promise.of(MediaToolJobBridge.validationFailure(envelope, errorCode, start));
             }
             log.warn("Multimodal input rejected: {}", errorCode);
@@ -153,13 +91,8 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
                     end,
                     Duration.between(start, end)));
         }
-        if (bridge != null) {
-            return bridge.submit(envelope, principal, JobType.MULTIMODAL, sourceId, sourceVersion,
-                    jobParameters, start);
-        }
-        // A generic ToolHandler is not an admission or provenance authority.
-        // The current public operation contract does not bind source version,
-        // temporal region, rights/consent, or durable cancellation/finality.
+        // Owner-backed resolution and the admitted canonical runtime submit/result path are absent. Neither a generic
+        // job bridge, compatibility ToolHandler, nor the vision-track delegate can stand in for those authorities.
         return notAdmitted(envelope, start);
     }
 
@@ -172,47 +105,96 @@ public final class MultimodalInferenceToolHandler implements ToolHandler {
                 envelope.invocationId(), end, Duration.between(start, end)));
     }
 
-    /** Durable, source-bound multimodal operation with a single VISION child over the exact source version. */
-    static MultimodalOperationSpec visionOnlySpec(String sourceId, String sourceVersion) {
-        String sha256 = sourceVersion.substring("sha256:".length());
-        return new MultimodalOperationSpec(
-                MultimodalOperationSpec.SPEC_VERSION,
-                "media.multimodal.observe.source-grounded",
-                "media.operation.capability.media-multimodal-observe-source-grounded",
-                1, sourceId, sourceVersion, sha256,
-                List.of(new MultimodalOperationSpec.ChildOperationSpec("vision", JobType.VISION, sourceId,
-                        sourceVersion, sha256, "",
-                        Map.of("analysisTypes", List.of("SCENE_CLASSIFICATION", "OCR", "OBJECT_DETECTION")))),
-                null, Map.of());
+    /** Structural validation for the exact PDP-1 input1/input2 tool contract. */
+    static void validateCanonicalInput(Map<String, Object> input) {
+        requireKeys(input, Set.of("input1", "input2"), Set.of("input1", "input2"));
+
+        Map<?, ?> input1 = object(input.get("input1"));
+        requireKeys(input1, Set.of("artifactType", "payload"), Set.of("artifactType", "payload"));
+        requireConst(input1.get("artifactType"), "authorized-media-artifacts");
+        Map<?, ?> artifact = object(input1.get("payload"));
+        requireKeys(artifact, Set.of("artifactId", "versionId"),
+                Set.of("artifactId", "versionId", "sourceRef", "declaredMediaType", "declaredByteLength"));
+        requirePattern(artifact.get("artifactId"), 1, 128, ARTIFACT_ID);
+        requirePattern(artifact.get("versionId"), 1, 128, VERSION_ID);
+        if (artifact.containsKey("sourceRef")) requireString(artifact.get("sourceRef"), 1, 384);
+        if (artifact.containsKey("declaredMediaType")) requirePattern(artifact.get("declaredMediaType"), 3, 127, MEDIA_TYPE);
+        if (artifact.containsKey("declaredByteLength")) requireInteger(artifact.get("declaredByteLength"), 0, 2_147_483_648L);
+
+        Map<?, ?> input2 = object(input.get("input2"));
+        requireKeys(input2, Set.of("artifactType", "payload"), Set.of("artifactType", "payload"));
+        requireConst(input2.get("artifactType"), "analysis-request");
+        Map<?, ?> analysis = object(input2.get("payload"));
+        requireKeys(analysis, Set.of("dimensions", "criteria"),
+                Set.of("dimensions", "criteria", "timeRange", "pageSize", "pageToken"));
+        requireStringArray(analysis.get("dimensions"), 1, 32, 128, ARTIFACT_ID, false);
+        if (analysis.containsKey("timeRange")) requireString(analysis.get("timeRange"), 1, 256);
+        if (analysis.containsKey("pageSize")) requireInteger(analysis.get("pageSize"), 1, 100);
+        if (analysis.containsKey("pageToken")) requireString(analysis.get("pageToken"), 1, 512);
+
+        Map<?, ?> criteria = object(analysis.get("criteria"));
+        requireKeys(criteria,
+                Set.of("subjectRefs", "analysisMethodRef", "profileRef", "configurationDigest", "purposeRef"),
+                Set.of("subjectRefs", "analysisMethodRef", "profileRef", "configurationDigest", "purposeRef",
+                        "sourceTimeRangeRef", "regionOrChannelRefs", "uncertaintyPolicyRef"));
+        requireStringArray(criteria.get("subjectRefs"), 1, 16, 384, null, true);
+        requireString(criteria.get("analysisMethodRef"), 1, 256);
+        requireString(criteria.get("profileRef"), 1, 384);
+        requirePattern(criteria.get("configurationDigest"), 71, 71, SHA256);
+        requireString(criteria.get("purposeRef"), 1, 256);
+        if (criteria.containsKey("sourceTimeRangeRef")) requireString(criteria.get("sourceTimeRangeRef"), 1, 384);
+        if (criteria.containsKey("regionOrChannelRefs"))
+            requireStringArray(criteria.get("regionOrChannelRefs"), 0, 64, 384, null, true);
+        if (criteria.containsKey("uncertaintyPolicyRef")) requireString(criteria.get("uncertaintyPolicyRef"), 1, 384);
     }
 
-    /**
-     * Durable, source-bound multimodal operation with a SPEECH_TO_TEXT child (server-pinned profile parameters) and,
-     * when requested, a VISION child, both over the exact source version.
-     */
-    static MultimodalOperationSpec transcriptionSpec(String sourceId, String sourceVersion, boolean withVision,
-                                                     Map<String, Object> sttParameters) {
-        String sha256 = sourceVersion.substring("sha256:".length());
-        List<MultimodalOperationSpec.ChildOperationSpec> children = new java.util.ArrayList<>();
-        children.add(new MultimodalOperationSpec.ChildOperationSpec("stt", JobType.SPEECH_TO_TEXT, sourceId,
-                sourceVersion, sha256, "", sttParameters));
-        if (withVision) {
-            children.add(new MultimodalOperationSpec.ChildOperationSpec("vision", JobType.VISION, sourceId,
-                    sourceVersion, sha256, "",
-                    Map.of("analysisTypes", List.of("SCENE_CLASSIFICATION", "OCR", "OBJECT_DETECTION"))));
+    private static Map<?, ?> object(Object value) {
+        if (value instanceof Map<?, ?> object) return object;
+        throw inputSchemaViolation();
+    }
+
+    private static void requireKeys(Map<?, ?> object, Set<String> required, Set<String> allowed) {
+        if (!object.keySet().containsAll(required)
+                || object.keySet().stream().anyMatch(key -> !(key instanceof String text) || !allowed.contains(text))) {
+            throw inputSchemaViolation();
         }
-        return new MultimodalOperationSpec(
-                MultimodalOperationSpec.SPEC_VERSION,
-                "media.multimodal.observe.source-grounded",
-                "media.operation.capability.media-multimodal-observe-source-grounded",
-                1, sourceId, sourceVersion, sha256, List.copyOf(children), null, Map.of());
     }
 
-    private boolean optionalBoolean(Map<String, Object> input, String key, boolean fallback) {
-        Object value = input.get(key);
-        if (value == null) return fallback;
-        if (!(value instanceof Boolean flag)) throw new IllegalArgumentException("INVALID_" + key.toUpperCase());
-        return flag;
+    private static void requireConst(Object value, String expected) {
+        if (!expected.equals(value)) throw inputSchemaViolation();
+    }
+
+    private static void requireString(Object value, int minLength, int maxLength) {
+        if (!(value instanceof String text) || text.length() < minLength || text.length() > maxLength)
+            throw inputSchemaViolation();
+    }
+
+    private static void requirePattern(Object value, int minLength, int maxLength, Pattern pattern) {
+        if (!(value instanceof String text) || text.length() < minLength || text.length() > maxLength
+                || !pattern.matcher(text).matches()) throw inputSchemaViolation();
+    }
+
+    private static void requireStringArray(Object value, int minItems, int maxItems, int maxLength,
+            Pattern pattern, boolean unique) {
+        if (!(value instanceof java.util.List<?> items) || items.size() < minItems || items.size() > maxItems)
+            throw inputSchemaViolation();
+        Set<String> seen = unique ? new java.util.HashSet<>() : null;
+        for (Object item : items) {
+            requireString(item, 1, maxLength);
+            String text = (String) item;
+            if (pattern != null && !pattern.matcher(text).matches()) throw inputSchemaViolation();
+            if (unique && !seen.add(text)) throw inputSchemaViolation();
+        }
+    }
+
+    private static void requireInteger(Object value, long min, long max) {
+        if (!(value instanceof Number number) || !AgentToolInput.isSupportedJsonNumber(number)
+                || !Double.isFinite(number.doubleValue()) || number.doubleValue() != Math.rint(number.doubleValue())
+                || number.doubleValue() < min || number.doubleValue() > max) throw inputSchemaViolation();
+    }
+
+    private static IllegalArgumentException inputSchemaViolation() {
+        return new IllegalArgumentException("TOOL_INPUT_SCHEMA_VIOLATION");
     }
 
     private static String validationErrorCode(Exception error) {

@@ -28644,6 +28644,9 @@ capabilities:
       - given: Admitted typed inputs and an eligible binding for this exact leaf and requested dimensions.
         when: The actor invokes analyze across modalities.
         then: The result is typed, traceable, and bounded; actual outputs and unsupported/estimated dimensions are disclosed.
+      - given: A creator, editor, or reviewer invokes through an admitted host-agent channel with current delegated authority, exact artifact version, and a request that resolves to at least two supported modalities.
+        when: The host submits this cross-modal operation on the actor's behalf.
+        then: The same rights, profile, provenance, uncertainty, and finality rules apply; the host agent gains no independent actor role or authority.
       - given: An applicable precondition or qualification dimension is unknown, unsupported, or denied.
         when: The actor requests analyze across modalities.
         then: Execution is blocked or the request receives only an explicitly policy-permitted fallback; no support or finality is fabricated.
@@ -28662,7 +28665,8 @@ capabilities:
       - cli
       - api
       - embedded
-    channelDispositionState: supported-channels-authored-as-proposal; journey-channel-accessibility-owner-review-pending
+      - agent
+    channelDispositionState: owner-defined-delegated-agent-invocation-applicability; journey-channel-accessibility-owner-review-pending
     explicitUnsupportedCases:
       - Any unqualified language, format, size, output dimension, physical/scientific regime, identity/likeness use, provider, license, locality, or profile.
       - Any unsupported parameter value or combination; do not substitute silently.

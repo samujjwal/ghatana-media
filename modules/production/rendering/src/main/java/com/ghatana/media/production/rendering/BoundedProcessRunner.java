@@ -75,13 +75,16 @@ public final class BoundedProcessRunner {
         Capture out = new Capture(process.getInputStream(), maxStdoutBytes, "bounded-process-stdout");
         Capture err = new Capture(process.getErrorStream(), maxStderrBytes, "bounded-process-stderr");
         CancellationToken token = cancellation == null ? CancellationToken.NEVER : cancellation;
-        long deadline = System.nanoTime() + timeout.toNanos();
+        long startedNanos = System.nanoTime();
+        long timeoutBudgetNanos = timeoutNanos(timeout);
         End end = End.EXITED;
         try {
             while (true) {
                 if (process.waitFor(POLL_MILLIS, TimeUnit.MILLISECONDS)) break;
                 if (token.isCancelled()) { end = End.CANCELLED; break; }
-                if (System.nanoTime() - deadline >= 0) { end = End.TIMED_OUT; break; }
+                // Compare elapsed time instead of adding a potentially saturated timeout to the
+                // monotonic clock; that addition can overflow for large positive Durations.
+                if (System.nanoTime() - startedNanos >= timeoutBudgetNanos) { end = End.TIMED_OUT; break; }
                 if (out.total.get() > maxStdoutBytes) { end = End.STDOUT_OVERFLOW; break; }
                 if (watchedFile != null && size(watchedFile) > watchedMaxBytes) {
                     end = End.WATCHED_FILE_TOO_LARGE;
@@ -99,6 +102,19 @@ public final class BoundedProcessRunner {
         err.join();
         int exit = process.isAlive() ? -1 : process.exitValue();
         return new Result(end, exit, out.bytes(), err.total.get(), err.sha256());
+    }
+
+    /**
+     * Keep every positive {@link Duration} representable as a finite monotonic deadline. A Duration
+     * may be larger than {@code long} nanoseconds; saturating it avoids throwing after the child has
+     * started (which would otherwise leave an unobserved process running).
+     */
+    private static long timeoutNanos(Duration timeout) {
+        try {
+            return timeout.toNanos();
+        } catch (ArithmeticException tooLarge) {
+            return Long.MAX_VALUE;
+        }
     }
 
     private static long size(Path file) {

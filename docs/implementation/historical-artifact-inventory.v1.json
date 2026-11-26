@@ -1,7 +1,7 @@
 {
   "schemaVersion": "media.historical-artifact-inventory/v1",
   "summary": {
-    "generated": "2026-11-25T05:34:16.441Z",
+    "generated": "2026-11-25T16:54:59.317Z",
     "historicalPrefixes": [
       "docs/implementation/",
       "archive/",
@@ -19,7 +19,7 @@
       "derived": 803
     },
     "unclassified": 0,
-    "policy": "read-only report; REVIEW_DELETE and EXTERNAL_ARCHIVE are owner-review candidates only — no unreviewed deletions"
+    "policy": "read-only report; REVIEW_DELETE and EXTERNAL_ARCHIVE are owner-review candidates only \u2014 no unreviewed deletions"
   },
   "artifacts": [
     {
@@ -1227,7 +1227,7 @@
       "bytes": 361,
       "sha256": "9c3f2dfba1b54d08513e723feb261c2468e879291c70a1f21b5b27edb2e1bceb",
       "kind": "record",
-      "inboundReferences": 20,
+      "inboundReferences": 21,
       "retentionOwner": "compatibility-archive",
       "disposition": "KEEP",
       "reason": "compatibility archive preserved by design"
@@ -3187,10 +3187,10 @@
       "bytes": 98855,
       "sha256": "a751e799f41ac9cf4e309be8d78cc3ac7ecb32951db16305f3b12280466e8506",
       "kind": "source",
-      "inboundReferences": 8,
+      "inboundReferences": 9,
       "retentionOwner": "implementation-planning",
       "disposition": "KEEP",
-      "reason": "8 inbound reference(s)"
+      "reason": "9 inbound reference(s)"
     },
     {
       "path": "docs/implementation/MEDIA-WAVE2-COMPLETION-EXECUTION-2026-10-29.md",
@@ -3227,10 +3227,10 @@
       "bytes": 144658,
       "sha256": "cfd6ead5d9281f3505920e192c37ac0a17467e7f8b8271697cf27ad32134f0c4",
       "kind": "source",
-      "inboundReferences": 17,
+      "inboundReferences": 16,
       "retentionOwner": "implementation-planning",
       "disposition": "KEEP",
-      "reason": "17 inbound reference(s)"
+      "reason": "16 inbound reference(s)"
     },
     {
       "path": "docs/implementation/MEDIA-WAVE2-R10-OWNER-UNBLOCKED-EXECUTION.md",

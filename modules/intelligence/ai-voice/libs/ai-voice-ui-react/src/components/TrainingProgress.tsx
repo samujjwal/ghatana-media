@@ -62,14 +62,19 @@ export const TrainingProgress: React.FC<TrainingProgressProps> = ({
     completed: colors.success,
     failed: colors.error,
   };
-  const boundedProgress = Math.max(0, Math.min(100, progress));
+  const boundedProgress = Number.isFinite(progress)
+    ? Math.max(0, Math.min(100, progress))
+    : undefined;
   const active = status !== "completed" && status !== "failed";
   const currentStepIndex = STEPS.indexOf(status as (typeof STEPS)[number]);
   const announcement = useMemo(() => {
     if (status === "failed") return error ? `Training failed. ${error}` : "Training failed.";
     if (status === "completed") return "Voice model training completed successfully.";
-    return `${statusLabels[status]}, ${Math.round(boundedProgress)} percent complete.`;
-  }, [boundedProgress, error, status]);
+    // The native progressbar exposes the changing value. Keep the live region
+    // stable between status transitions so frequent progress ticks are not
+    // announced repeatedly to assistive technology.
+    return statusLabels[status];
+  }, [error, status]);
 
   return (
     <section
@@ -117,12 +122,14 @@ export const TrainingProgress: React.FC<TrainingProgressProps> = ({
       <div className="mb-3">
         <div className="mb-1 flex justify-between gap-3 text-sm" style={{ color: colors.contentSecondary }}>
           <span>{statusLabels[status]}</span>
-          <span>{Math.round(boundedProgress)}%</span>
+          {boundedProgress !== undefined && <span>{Math.round(boundedProgress)}%</span>}
         </div>
         <MediaProgress
           value={boundedProgress}
           label="Voice-model training progress"
-          valueText={`${statusLabels[status]}, ${Math.round(boundedProgress)} percent`}
+          valueText={boundedProgress === undefined
+            ? undefined
+            : `${statusLabels[status]}, ${Math.round(boundedProgress)} percent`}
           tone={status === "completed" ? "success" : status === "failed" ? "error" : status === "pending" ? "neutral" : "primary"}
         />
       </div>

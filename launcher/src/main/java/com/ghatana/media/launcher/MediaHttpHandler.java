@@ -17,6 +17,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadStatus;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobListUnavailableException;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import com.ghatana.media.runtime.MediaStreamOutcomeUnknownException;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
@@ -525,6 +526,8 @@ public final class MediaHttpHandler implements HttpHandler {
         } catch (MediaRuntime.JobCancellationRequestConflictException failure) {
             error(exchange, 409, "IDEMPOTENCY_CONFLICT",
                     "A different cancellation request already owns this job; inspect the durable job state");
+        } catch (MediaJobListUnavailableException failure) {
+            error(exchange, 503, "UNAVAILABLE", "Media job-list store is unavailable");
         } catch (SecurityException failure) {
             runtime.recordDeniedRequest();
             error(exchange, 403, "TENANT_FORBIDDEN", "Request tenant is not permitted");
@@ -1303,8 +1306,16 @@ public final class MediaHttpHandler implements HttpHandler {
     }
 
     private void listJobs(HttpExchange exchange, String tenantId, String principalId) throws IOException {
-        var jobs = runtime.jobViews(tenantId, principalId, queryLimit(exchange, 100));
-        json(exchange, 200, Map.of("jobs", jobs));
+        var observation = runtime.jobListSnapshot(tenantId, principalId, queryLimit(exchange, 100));
+        if (!observation.observed()) {
+            error(exchange, 503, "UNKNOWN_OBSERVATION", "Media job-list snapshot could not be established");
+            return;
+        }
+        var jobs = observation.jobs().stream().map(runtime::projectJobListView).toList();
+        json(exchange, 200, Map.of(
+                "jobs", jobs,
+                "observedAt", observation.observedAt(),
+                "readVersion", observation.readVersion()));
     }
 
     private void job(HttpExchange exchange, String tenantId, String principalId, String jobId) throws IOException {

@@ -114,9 +114,12 @@ The installed executable has no artifact upload or upload-session commands,
 and no batch, capture, recorder, or stream command. Although the installed
 binary contains the observed job command identities above, those identities do
 not establish product admission. In particular, `job submit` and `job cancel`
-remain `NOT_ADMITTED`. PDP-1 defines a scoped `job list` query, but its current
-HTTP projection does not provide the required `readVersion` and `observedAt`,
-so transport mapping and runtime remain `NOT_ADMITTED`. The 11 Explorer fixture
+remain `NOT_ADMITTED`. PDP-1 defines the scoped `job list` operation and its
+closed bounded result. `readVersion` is an opaque store-issued token for the
+same coherent tenant/principal query snapshot as `jobs` and `observedAt`; it is
+not a cursor, timestamp, response digest, or max row version. The current HTTP
+projection omits those result fields, so the command returns `NOT_ADMITTED`
+before parsing, credentials, or network dispatch. The 11 Explorer fixture
 commands remain a separate synthetic population. Local client tests do not
 qualify a production host or release.
 

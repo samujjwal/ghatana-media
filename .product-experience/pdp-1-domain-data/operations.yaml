@@ -29083,6 +29083,8 @@ ownerDefinedOperationContracts:
     - id: media.operation.job-list.v1
       operationKind: QUERY
       contractVersion: 1
+      capabilityRef: media.job.list
+      decisionRef: .product-experience/decision-log.md#PXD-242
       decisionAuthority: user-delegated-Media-product-semantic-owner-under-EXECUTE-MEDIA-PDP-0-3-38-TASKS
       sourceRefs:
         - contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs/get
@@ -29124,9 +29126,17 @@ ownerDefinedOperationContracts:
                 version: { type: integer, minimum: 1, maximum: 9007199254740991 }
           observedAt: { type: string, format: date-time }
           readVersion: { type: string, minLength: 1, maxLength: 256 }
-      readSemantics: Return only tenant-and-owning-principal-scoped stored job
-        observations. Preserve raw runtime status; ACCEPTED is not durable
-        QUEUED, and status alone is not attempt or provider finality evidence.
+      readSemantics: Use one coherent store snapshot for the exact bounded query
+        and host-attested tenant/principal. The outer readVersion is an opaque
+        token issued by that store snapshot; it identifies this scoped read and
+        is not a cursor, page token, observedAt timestamp, response digest, or
+        maximum job.version. observedAt is server-generated for the same query
+        observation. If the store cannot provide the exact snapshot/readVersion,
+        return UNKNOWN_OBSERVATION with no partial job list; if the store is
+        unavailable, return UNAVAILABLE. Return only tenant-and-owning-principal-
+        scoped stored job observations. Preserve raw runtime status; ACCEPTED is
+        not durable QUEUED, and status alone is not attempt or provider finality
+        evidence.
       errors: [ INVALID_REQUEST, ACCESS_DENIED, UNAVAILABLE, UNKNOWN_OBSERVATION ]
       implementationState: UNKNOWN
       qualificationState: NOT_EVALUATED
@@ -44982,6 +44992,230 @@ capabilityOperationContracts:
     - id: media.typed-output.source-grounded-cross-modal-result-with-provenance-and-uncertainty
       artifactType: source-grounded-cross-modal-result-with-provenance-and-uncertainty
       payloadKind: IMMUTABLE_ARTIFACT_OR_SOURCE_REFERENCE
+      contentSchemaRef: media.multimodal.result-content.cross-modal.v1
+      contentSchema:
+        id: media.multimodal.result-content.cross-modal.v1
+        sourceDecisionRef: .product-experience/decision-log.md#PXD-239
+        schema:
+          type: object
+          additionalProperties: false
+          required: [resultDisposition, sourceRefs, claims, reasonRefs]
+          properties:
+            resultDisposition:
+              type: string
+              enum: [REPORTED, UNKNOWN, ABSTAINED]
+            sourceRefs:
+              type: array
+              minItems: 1
+              maxItems: 64
+              uniqueItems: true
+              items:
+                type: string
+                format: opaque-versioned-reference
+                minLength: 1
+                maxLength: 384
+            claims:
+              type: array
+              minItems: 0
+              maxItems: 512
+              items:
+                type: object
+                additionalProperties: false
+                required: [claimRef, disposition, dimensionEvidence, uncertainty]
+                properties:
+                  claimRef:
+                    type: string
+                    format: opaque-versioned-reference
+                    minLength: 1
+                    maxLength: 384
+                  disposition:
+                    type: string
+                    enum: [REPORTED, UNKNOWN, ABSTAINED]
+                  dimensionEvidence:
+                    type: object
+                    minProperties: 2
+                    maxProperties: 32
+                    propertyNames:
+                      pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+                    additionalProperties:
+                      type: object
+                      additionalProperties: false
+                      required: [sourceRef, evidenceDisposition, evidenceRefs, reasonRefs]
+                      properties:
+                        sourceRef:
+                          type: string
+                          format: opaque-versioned-reference
+                          minLength: 1
+                          maxLength: 384
+                        evidenceDisposition:
+                          type: string
+                          enum: [PRESENT, UNKNOWN, ABSTAINED]
+                        evidenceRefs:
+                          type: array
+                          maxItems: 64
+                          uniqueItems: true
+                          items:
+                            type: string
+                            format: opaque-versioned-reference
+                            minLength: 1
+                            maxLength: 384
+                        reasonRefs:
+                          type: array
+                          maxItems: 64
+                          uniqueItems: true
+                          items:
+                            type: string
+                            format: opaque-versioned-reference
+                            minLength: 1
+                            maxLength: 384
+                      allOf:
+                        - if:
+                            properties:
+                              evidenceDisposition: { const: PRESENT }
+                            required: [evidenceDisposition]
+                          then:
+                            properties:
+                              evidenceRefs: { minItems: 1 }
+                        - if:
+                            properties:
+                              evidenceDisposition: { enum: [UNKNOWN, ABSTAINED] }
+                            required: [evidenceDisposition]
+                          then:
+                            properties:
+                              reasonRefs: { minItems: 1 }
+                  uncertainty:
+                    type: object
+                    additionalProperties: false
+                    required: [scopeRef, disposition, evidenceDisposition, evidenceRefs, limitationRefs, reasonRefs]
+                    properties:
+                      scopeRef:
+                        type: string
+                        format: opaque-versioned-reference
+                        minLength: 1
+                        maxLength: 384
+                      disposition:
+                        type: string
+                        enum: [QUANTIFIED, QUALITATIVE, UNKNOWN]
+                      evidenceDisposition:
+                        type: string
+                        enum: [PRESENT, UNKNOWN, ABSTAINED]
+                      evidenceRefs:
+                        type: array
+                        maxItems: 64
+                        uniqueItems: true
+                        items:
+                          type: string
+                          format: opaque-versioned-reference
+                          minLength: 1
+                          maxLength: 384
+                      limitationRefs:
+                        type: array
+                        maxItems: 64
+                        uniqueItems: true
+                        items:
+                          type: string
+                          format: opaque-versioned-reference
+                          minLength: 1
+                          maxLength: 384
+                      reasonRefs:
+                        type: array
+                        maxItems: 64
+                        uniqueItems: true
+                        items:
+                          type: string
+                          format: opaque-versioned-reference
+                          minLength: 1
+                          maxLength: 384
+                    allOf:
+                      - if:
+                          properties:
+                            evidenceDisposition: { const: PRESENT }
+                          required: [evidenceDisposition]
+                        then:
+                          properties:
+                            evidenceRefs: { minItems: 1 }
+                      - if:
+                          properties:
+                            evidenceDisposition: { enum: [UNKNOWN, ABSTAINED] }
+                          required: [evidenceDisposition]
+                        then:
+                          properties:
+                            reasonRefs: { minItems: 1 }
+                      - if:
+                          properties:
+                            disposition: { const: UNKNOWN }
+                          required: [disposition]
+                        then:
+                          properties:
+                            reasonRefs: { minItems: 1 }
+                allOf:
+                  - if:
+                      properties:
+                        disposition: { const: REPORTED }
+                      required: [disposition]
+                    then:
+                      properties:
+                        dimensionEvidence:
+                          additionalProperties:
+                            properties:
+                              evidenceDisposition: { const: PRESENT }
+                              evidenceRefs: { minItems: 1 }
+                        uncertainty:
+                          properties:
+                            disposition: { enum: [QUANTIFIED, QUALITATIVE] }
+                            evidenceDisposition: { const: PRESENT }
+                            evidenceRefs: { minItems: 1 }
+                  - if:
+                      properties:
+                        disposition: { enum: [UNKNOWN, ABSTAINED] }
+                      required: [disposition]
+                    then:
+                      properties:
+                        uncertainty:
+                          required: [reasonRefs]
+                          properties:
+                            disposition: { const: UNKNOWN }
+                            reasonRefs: { minItems: 1 }
+            reasonRefs:
+              type: array
+              maxItems: 64
+              uniqueItems: true
+              items:
+                type: string
+                format: opaque-versioned-reference
+                minLength: 1
+                maxLength: 384
+          allOf:
+            - if:
+                properties:
+                  resultDisposition: { const: REPORTED }
+                required: [resultDisposition]
+              then:
+                properties:
+                  claims: { minItems: 1 }
+            - if:
+                properties:
+                  resultDisposition: { enum: [UNKNOWN, ABSTAINED] }
+                required: [resultDisposition]
+              then:
+                properties:
+                  reasonRefs: { minItems: 1 }
+        ownerDefinition: Each claimRef must resolve under the exact currently
+          admitted profileRef and analysisMethodRef. uncertainty.scopeRef must
+          equal that exact claimRef. Each claim is linked to the exact requested
+          dimension set through dimensionEvidence keys and exact immutable
+          source/evidence refs. The owner resolver must
+          validate that the requested dimensions resolve to at least two
+          distinct supported modalities in the exact input artifact; the
+          schema's key count alone does not establish this. Each claim carries
+          scoped uncertainty, explicit evidence disposition, and a present
+          limitations array. REPORTED claims require PRESENT evidence and a
+          QUANTIFIED or QUALITATIVE uncertainty assessment; UNKNOWN or ABSTAINED
+          claim/evidence states require explicit UNKNOWN status and reason refs.
+          An empty claims array is valid only with an
+          UNKNOWN or ABSTAINED result disposition and explicit reason refs; no
+          claim is fabricated. No modality vocabulary, provider, metric,
+          confidence threshold, or calibration claim is introduced.
       schema:
         type: object
         additionalProperties: false
@@ -44997,6 +45231,7 @@ capabilityOperationContracts:
             required:
               - artifactId
               - versionId
+              - contentSchemaRef
             properties:
               artifactId:
                 type: string
@@ -45010,6 +45245,8 @@ capabilityOperationContracts:
                 pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
                 minLength: 1
                 maxLength: 128
+              contentSchemaRef:
+                const: media.multimodal.result-content.cross-modal.v1
               sourceRef:
                 type: string
                 format: opaque-versioned-reference
@@ -72272,8 +72509,17 @@ capabilityOperationContracts:
               payload:
                 type: object
                 additionalProperties: false
-                required: []
+                required:
+                  - sessionDisposition
+                  - sourceRef
+                  - sequenceStart
+                  - clockDomainRef
                 properties:
+                  sessionDisposition:
+                    type: string
+                    enum:
+                      - CREATE_NEW
+                      - RESUME_EXISTING
                   streamSessionId:
                     type: string
                     format: opaque-id
@@ -72288,11 +72534,32 @@ capabilityOperationContracts:
                   sequenceStart:
                     type: integer
                     minimum: 0
+                    maximum: 9007199254740991
                   clockDomainRef:
                     type: string
                     format: opaque-reference
                     minLength: 1
                     maxLength: 256
+                allOf:
+                  - if:
+                      properties:
+                        sessionDisposition:
+                          const: RESUME_EXISTING
+                      required:
+                        - sessionDisposition
+                    then:
+                      required:
+                        - streamSessionId
+                  - if:
+                      properties:
+                        sessionDisposition:
+                          const: CREATE_NEW
+                      required:
+                        - sessionDisposition
+                    then:
+                      not:
+                        required:
+                          - streamSessionId
           input2:
             type: object
             additionalProperties: false
@@ -72305,7 +72572,9 @@ capabilityOperationContracts:
               payload:
                 type: object
                 additionalProperties: false
-                required: []
+                required:
+                  - purposeRef
+                  - rightsEvidenceRefs
                 properties:
                   purposeRef:
                     type: string
@@ -103740,6 +104009,7 @@ capabilityOperationContracts:
                 additionalProperties: false
                 required:
                   - dimensions
+                  - criteria
                 properties:
                   dimensions:
                     type: array
@@ -103759,6 +104029,61 @@ capabilityOperationContracts:
                   criteria:
                     type: object
                     additionalProperties: false
+                    required:
+                      - subjectRefs
+                      - analysisMethodRef
+                      - profileRef
+                      - configurationDigest
+                      - purposeRef
+                    properties:
+                      subjectRefs:
+                        type: array
+                        minItems: 1
+                        maxItems: 16
+                        uniqueItems: true
+                        items:
+                          type: string
+                          format: opaque-versioned-reference
+                          minLength: 1
+                          maxLength: 384
+                      analysisMethodRef:
+                        type: string
+                        format: opaque-reference
+                        minLength: 1
+                        maxLength: 256
+                      profileRef:
+                        type: string
+                        format: opaque-versioned-reference
+                        minLength: 1
+                        maxLength: 384
+                      configurationDigest:
+                        type: string
+                        pattern: ^sha256:[a-f0-9]{64}$
+                      purposeRef:
+                        type: string
+                        format: opaque-reference
+                        minLength: 1
+                        maxLength: 256
+                      sourceTimeRangeRef:
+                        type: string
+                        format: opaque-versioned-reference
+                        minLength: 1
+                        maxLength: 384
+                      regionOrChannelRefs:
+                        type: array
+                        minItems: 0
+                        maxItems: 64
+                        uniqueItems: true
+                        items:
+                          type: string
+                          format: opaque-versioned-reference
+                          minLength: 1
+                          maxLength: 384
+                      uncertaintyPolicyRef:
+                        type: string
+                        format: opaque-versioned-reference
+                        minLength: 1
+                        maxLength: 384
                   pageSize:
                     type: integer
                     minimum: 1
@@ -103821,6 +104146,7 @@ capabilityOperationContracts:
                       required:
                         - artifactId
                         - versionId
+                        - contentSchemaRef
                       properties:
                         artifactId:
                           type: string
@@ -103834,6 +104160,8 @@ capabilityOperationContracts:
                           pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
                           minLength: 1
                           maxLength: 128
+                        contentSchemaRef:
+                          const: media.multimodal.result-content.cross-modal.v1
                         sourceRef:
                           type: string
                           format: opaque-versioned-reference
@@ -103924,6 +104252,7 @@ capabilityOperationContracts:
                             required:
                               - artifactId
                               - versionId
+                              - contentSchemaRef
                             properties:
                               artifactId:
                                 type: string
@@ -103937,6 +104266,8 @@ capabilityOperationContracts:
                                 pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
                                 minLength: 1
                                 maxLength: 128
+                              contentSchemaRef:
+                                const: media.multimodal.result-content.cross-modal.v1
                               sourceRef:
                                 type: string
                                 format: opaque-versioned-reference
@@ -103995,6 +104326,7 @@ capabilityOperationContracts:
       successOutputs:
         - artifactType: source-grounded-cross-modal-result-with-provenance-and-uncertainty
           payloadSchemaRef: media.typed-output.source-grounded-cross-modal-result-with-provenance-and-uncertainty
+          contentSchemaRef: media.multimodal.result-content.cross-modal.v1
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -104021,9 +104353,29 @@ capabilityOperationContracts:
             license, locality, or profile.
           - Any unsupported parameter value or combination; do not substitute
             silently.
+          - Any requested dimension, subject, method, profile, configuration
+            digest, or purpose reference that does not resolve to current
+            owner-authoritative and authorized source records.
+          - Any request whose resolved dimensions do not cover at least two
+            distinct supported modalities in the exact source artifact; do not
+            treat independent single-modality results as cross-modal success.
       effect:
         semanticOutcome: A caller can analyze across modalities with explicit
           preconditions, effect, provenance, and recovery semantics.
+        resultContentConstraints:
+          contentSchemaRef: media.multimodal.result-content.cross-modal.v1
+          claimBinding: Every claimRef must resolve under the exact admitted
+            input2.payload.criteria.profileRef and analysisMethodRef;
+            uncertainty.scopeRef must equal that exact claimRef.
+          dimensionEvidenceKeys: Must equal the exact input2.payload.dimensions
+            reference set for every emitted claim; no missing, substituted, or
+            extra dimension reference is accepted.
+          modalityResolution: The owner-authoritative resolver must establish
+            that the exact requested dimension set resolves to at least two
+            distinct supported modalities in input1's immutable artifact
+            version. A two-key schema shape alone is insufficient.
+          outputValidation: The exact referenced artifact version must conform
+            to the content schema before SUCCEEDED is returned.
         sourceConstraints:
           - No product default/model/provider is inferred from names, package
             presence, tests, or source documentation.
@@ -104034,9 +104386,10 @@ capabilityOperationContracts:
         noSilentFallback: true
         mutationBoundary: no effect until all admission guards pass; authoritative state
           receipt required
-      finality: success requires authoritative owner receipt and exact output version
-        references; transport acknowledgement or dispatch is not completion;
-        ambiguous finality is UNKNOWN_OUTCOME
+      finality: success requires authoritative owner receipt, exact output version
+        references, and conformance to media.multimodal.result-content.cross-modal.v1;
+        transport acknowledgement or dispatch is not completion; ambiguous
+        finality is UNKNOWN_OUTCOME
       idempotency: tenant+principal+operationRef+requestId+canonical-payload-fingerprint;
         exact replay returns same receipt; key reuse with different payload
         conflicts.
@@ -104224,6 +104577,7 @@ capabilityOperationContracts:
                       required:
                         - artifactId
                         - versionId
+                        - contentSchemaRef
                       properties:
                         artifactId:
                           type: string
@@ -104237,6 +104591,8 @@ capabilityOperationContracts:
                           pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
                           minLength: 1
                           maxLength: 128
+                        contentSchemaRef:
+                          const: media.multimodal.result-content.cross-modal.v1
                         sourceRef:
                           type: string
                           format: opaque-versioned-reference
@@ -104327,6 +104683,7 @@ capabilityOperationContracts:
                             required:
                               - artifactId
                               - versionId
+                              - contentSchemaRef
                             properties:
                               artifactId:
                                 type: string
@@ -104340,6 +104697,8 @@ capabilityOperationContracts:
                                 pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
                                 minLength: 1
                                 maxLength: 128
+                              contentSchemaRef:
+                                const: media.multimodal.result-content.cross-modal.v1
                               sourceRef:
                                 type: string
                                 format: opaque-versioned-reference
@@ -104398,6 +104757,7 @@ capabilityOperationContracts:
       successOutputs:
         - artifactType: source-grounded-cross-modal-result-with-provenance-and-uncertainty
           payloadSchemaRef: media.typed-output.source-grounded-cross-modal-result-with-provenance-and-uncertainty
+          contentSchemaRef: media.multimodal.result-content.cross-modal.v1
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -104627,6 +104987,7 @@ capabilityOperationContracts:
                       required:
                         - artifactId
                         - versionId
+                        - contentSchemaRef
                       properties:
                         artifactId:
                           type: string
@@ -104640,6 +105001,8 @@ capabilityOperationContracts:
                           pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
                           minLength: 1
                           maxLength: 128
+                        contentSchemaRef:
+                          const: media.multimodal.result-content.cross-modal.v1
                         sourceRef:
                           type: string
                           format: opaque-versioned-reference
@@ -104730,6 +105093,7 @@ capabilityOperationContracts:
                             required:
                               - artifactId
                               - versionId
+                              - contentSchemaRef
                             properties:
                               artifactId:
                                 type: string
@@ -104743,6 +105107,8 @@ capabilityOperationContracts:
                                 pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
                                 minLength: 1
                                 maxLength: 128
+                              contentSchemaRef:
+                                const: media.multimodal.result-content.cross-modal.v1
                               sourceRef:
                                 type: string
                                 format: opaque-versioned-reference
@@ -104801,6 +105167,7 @@ capabilityOperationContracts:
       successOutputs:
         - artifactType: source-grounded-cross-modal-result-with-provenance-and-uncertainty
           payloadSchemaRef: media.typed-output.source-grounded-cross-modal-result-with-provenance-and-uncertainty
+          contentSchemaRef: media.multimodal.result-content.cross-modal.v1
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -105030,6 +105397,7 @@ capabilityOperationContracts:
                       required:
                         - artifactId
                         - versionId
+                        - contentSchemaRef
                       properties:
                         artifactId:
                           type: string
@@ -105043,6 +105411,8 @@ capabilityOperationContracts:
                           pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
                           minLength: 1
                           maxLength: 128
+                        contentSchemaRef:
+                          const: media.multimodal.result-content.cross-modal.v1
                         sourceRef:
                           type: string
                           format: opaque-versioned-reference
@@ -105133,6 +105503,7 @@ capabilityOperationContracts:
                             required:
                               - artifactId
                               - versionId
+                              - contentSchemaRef
                             properties:
                               artifactId:
                                 type: string
@@ -105146,6 +105517,8 @@ capabilityOperationContracts:
                                 pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
                                 minLength: 1
                                 maxLength: 128
+                              contentSchemaRef:
+                                const: media.multimodal.result-content.cross-modal.v1
                               sourceRef:
                                 type: string
                                 format: opaque-versioned-reference
@@ -105204,6 +105577,7 @@ capabilityOperationContracts:
       successOutputs:
         - artifactType: source-grounded-cross-modal-result-with-provenance-and-uncertainty
           payloadSchemaRef: media.typed-output.source-grounded-cross-modal-result-with-provenance-and-uncertainty
+          contentSchemaRef: media.multimodal.result-content.cross-modal.v1
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -105433,6 +105807,7 @@ capabilityOperationContracts:
                       required:
                         - artifactId
                         - versionId
+                        - contentSchemaRef
                       properties:
                         artifactId:
                           type: string
@@ -105446,6 +105821,8 @@ capabilityOperationContracts:
                           pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
                           minLength: 1
                           maxLength: 128
+                        contentSchemaRef:
+                          const: media.multimodal.result-content.cross-modal.v1
                         sourceRef:
                           type: string
                           format: opaque-versioned-reference
@@ -105536,6 +105913,7 @@ capabilityOperationContracts:
                             required:
                               - artifactId
                               - versionId
+                              - contentSchemaRef
                             properties:
                               artifactId:
                                 type: string
@@ -105549,6 +105927,8 @@ capabilityOperationContracts:
                                 pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
                                 minLength: 1
                                 maxLength: 128
+                              contentSchemaRef:
+                                const: media.multimodal.result-content.cross-modal.v1
                               sourceRef:
                                 type: string
                                 format: opaque-versioned-reference
@@ -105607,6 +105987,7 @@ capabilityOperationContracts:
       successOutputs:
         - artifactType: source-grounded-cross-modal-result-with-provenance-and-uncertainty
           payloadSchemaRef: media.typed-output.source-grounded-cross-modal-result-with-provenance-and-uncertainty
+          contentSchemaRef: media.multimodal.result-content.cross-modal.v1
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -105839,6 +106220,7 @@ capabilityOperationContracts:
                       required:
                         - artifactId
                         - versionId
+                        - contentSchemaRef
                       properties:
                         artifactId:
                           type: string
@@ -105852,6 +106234,8 @@ capabilityOperationContracts:
                           pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
                           minLength: 1
                           maxLength: 128
+                        contentSchemaRef:
+                          const: media.multimodal.result-content.cross-modal.v1
                         sourceRef:
                           type: string
                           format: opaque-versioned-reference
@@ -105942,6 +106326,7 @@ capabilityOperationContracts:
                             required:
                               - artifactId
                               - versionId
+                              - contentSchemaRef
                             properties:
                               artifactId:
                                 type: string
@@ -105955,6 +106340,8 @@ capabilityOperationContracts:
                                 pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
                                 minLength: 1
                                 maxLength: 128
+                              contentSchemaRef:
+                                const: media.multimodal.result-content.cross-modal.v1
                               sourceRef:
                                 type: string
                                 format: opaque-versioned-reference
@@ -106013,6 +106400,7 @@ capabilityOperationContracts:
       successOutputs:
         - artifactType: source-grounded-cross-modal-result-with-provenance-and-uncertainty
           payloadSchemaRef: media.typed-output.source-grounded-cross-modal-result-with-provenance-and-uncertainty
+          contentSchemaRef: media.multimodal.result-content.cross-modal.v1
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []
@@ -106242,6 +106630,7 @@ capabilityOperationContracts:
                       required:
                         - artifactId
                         - versionId
+                        - contentSchemaRef
                       properties:
                         artifactId:
                           type: string
@@ -106255,6 +106644,8 @@ capabilityOperationContracts:
                           pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
                           minLength: 1
                           maxLength: 128
+                        contentSchemaRef:
+                          const: media.multimodal.result-content.cross-modal.v1
                         sourceRef:
                           type: string
                           format: opaque-versioned-reference
@@ -106345,6 +106736,7 @@ capabilityOperationContracts:
                             required:
                               - artifactId
                               - versionId
+                              - contentSchemaRef
                             properties:
                               artifactId:
                                 type: string
@@ -106358,6 +106750,8 @@ capabilityOperationContracts:
                                 pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
                                 minLength: 1
                                 maxLength: 128
+                              contentSchemaRef:
+                                const: media.multimodal.result-content.cross-modal.v1
                               sourceRef:
                                 type: string
                                 format: opaque-versioned-reference
@@ -106416,6 +106810,7 @@ capabilityOperationContracts:
       successOutputs:
         - artifactType: source-grounded-cross-modal-result-with-provenance-and-uncertainty
           payloadSchemaRef: media.typed-output.source-grounded-cross-modal-result-with-provenance-and-uncertainty
+          contentSchemaRef: media.multimodal.result-content.cross-modal.v1
           requiredOnSuccess: true
       nonSuccessOutputs:
         REJECTED: []

@@ -27,7 +27,7 @@ import java.util.Set;
 
 /**
  * DEV_ONLY local vision lane: analyze an exact owner-visible image (or one frame of an exact video version)
- * with Florence-2, or ask Qwen2.5-VL a question about it, and register the structured result as an immutable
+ * with Florence-2 caption/detection, or ask Qwen2.5-VL a question about it, and register the structured result as an immutable
  * {@code application/json} artifact through the canonical idempotent upload path. Lineage binds the result to
  * the exact source artifact version, its SHA-256, the frame position and digest when a video frame was used, and
  * the exact digest-qualified model identity (id, revision, SPDX licence, file-set digest).
@@ -60,8 +60,9 @@ public final class MediaDevVisionRuntime {
             requestId = boundedId(requestId);
             Objects.requireNonNull(artifactId, "artifactId");
             Objects.requireNonNull(artifactVersionId, "artifactVersionId");
+            LocalVisionEngine.requireNoOcrTask(tasks);
             if (tasks == null || tasks.isEmpty() || !LocalVisionEngine.FLORENCE_TASKS.containsAll(tasks)) {
-                throw new IllegalArgumentException("tasks must be a non-empty subset of caption, detect, ocr");
+                throw new IllegalArgumentException("tasks must be a non-empty subset of caption, detect");
             }
             tasks = Set.copyOf(tasks);
             if (frameTimeMs < 0 || frameTimeMs > 24L * 3600 * 1000) {
@@ -252,6 +253,7 @@ public final class MediaDevVisionRuntime {
 
     public VisionResult analyze(String tenantId, String principalId, AnalyzeRequest request) {
         Objects.requireNonNull(request, "request");
+        LocalVisionEngine.requireNoOcrTask(request.tasks());
         return runtime.devAdmission().run(MediaDevRenderAdmission.LANE_CREATIVE, "vision_analyze", tenantId,
                 () -> execute(tenantId, principalId, request.requestId(), request.artifactId(),
                         request.artifactVersionId(), request.frameTimeMs(), KIND_ANALYSIS, request.tasks(), null));
@@ -267,6 +269,7 @@ public final class MediaDevVisionRuntime {
     private VisionResult execute(String tenantId, String principalId, String requestId, String artifactId,
                                  String versionId, long frameTimeMs, String kind, Set<String> tasks,
                                  String question) {
+        LocalVisionEngine.requireNoOcrTask(tasks);
         MediaArtifact source = runtime.artifact(tenantId, principalId, artifactId)
                 .filter(found -> found.version().value().equals(versionId))
                 .orElseThrow(MediaDevProjectRenderRuntime.SourceVersionUnavailableException::new);
@@ -310,6 +313,7 @@ public final class MediaDevVisionRuntime {
     private VisionResult produce(String tenantId, String principalId, String requestId, MediaArtifact source,
                                  Resolution resolution, long frameTimeMs, String kind, Set<String> tasks,
                                  String question) {
+        LocalVisionEngine.requireNoOcrTask(tasks);
         if (source.sizeBytes() > MAX_SOURCE_BYTES) {
             throw new VisionUnsupportedException("VISION_LIMIT_EXCEEDED", "source exceeds the byte ceiling");
         }

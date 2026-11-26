@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/** The J-25 read-only request-outcome route is guarded by exact method and path and only names known lanes. */
+/** The DEV_ONLY read-only request-outcome route is guarded by exact method and path and only names known lanes. */
 class MediaDevOnlyRequestOutcomePermissionsTest {
 
     @Test
@@ -22,7 +22,7 @@ class MediaDevOnlyRequestOutcomePermissionsTest {
     @Test
     void onlyTheLedgerBackedModelLanesAreReadable() {
         assertThat(MediaDevRequestOutcomeRoutes.LANES).containsExactlyInAnyOrder("speech.transcribe", "speech.synthesize",
-                "vision.analyze", "vision.ask", "vision.track", "vision.roi");
+                "vision.analyze", "vision.ask", "vision.track", "vision.roi", "grounded.answer");
         assertThat(MediaDevRequestOutcomeRoutes.handles("/dev/v1/request-outcomes/speech.synthesize/x")).isTrue();
         assertThat(MediaDevRequestOutcomeRoutes.handles("/dev/v1/speech/outputs/x")).isFalse();
     }

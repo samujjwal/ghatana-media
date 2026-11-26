@@ -130,6 +130,66 @@ class StreamFrameReconcilerTest {
     }
 
     @Test
+    @DisplayName("a held sequence with changed timestamp or payload is a conflicting replay")
+    void heldConflictingReplayDoesNotReplaceAcceptedFrame() {
+        StreamFrameReconciler rec = StreamFrameReconciler.open(identity("t1"));
+        AudioStreamSession.DecodedFrame accepted = new AudioStreamSession.DecodedFrame(
+                2, 2_000L, new byte[]{4, 5, 6});
+
+        assertThat(rec.offer(accepted)).isEqualTo(Disposition.HELD);
+        assertThat(rec.offer(new AudioStreamSession.DecodedFrame(
+                2, 2_001L, new byte[]{4, 5, 6}))).isEqualTo(Disposition.CONFLICTING_REPLAY);
+        assertThat(rec.offer(new AudioStreamSession.DecodedFrame(
+                2, 2_000L, new byte[]{4, 5, 9}))).isEqualTo(Disposition.CONFLICTING_REPLAY);
+        assertThat(rec.pendingCount()).isEqualTo(1);
+        assertThat(rec.pendingBytes()).isEqualTo(3);
+
+        assertThat(rec.offer(frame(0))).isEqualTo(Disposition.DELIVERED);
+        assertThat(rec.offer(frame(1))).isEqualTo(Disposition.DELIVERED);
+        AudioStreamSession.DecodedFrame released = rec.takeDelivered();
+        assertThat(released.timestampMillis()).isEqualTo(2_000L);
+        assertThat(released.payload()).containsExactly((byte) 4, (byte) 5, (byte) 6);
+        assertThat(rec.nextAck()).isEqualTo(2);
+        assertThat(rec.pendingCount()).isZero();
+        assertThat(rec.pendingBytes()).isZero();
+    }
+
+    @Test
+    @DisplayName("a replay of a newly eligible held frame stays pending until one release")
+    void newlyEligibleHeldReplayRemainsPendingUntilReleased() {
+        StreamFrameReconciler rec = StreamFrameReconciler.open(identity("t1"));
+        byte[] heldPayload = new byte[]{4, 5, 6};
+        AudioStreamSession.DecodedFrame held = new AudioStreamSession.DecodedFrame(
+                2, 2_000L, heldPayload);
+
+        assertThat(rec.offer(held)).isEqualTo(Disposition.HELD);
+        assertThat(rec.nextAck()).isEqualTo(-1);
+        assertThat(rec.pendingCount()).isEqualTo(1);
+        assertThat(rec.pendingBytes()).isEqualTo(3);
+
+        assertThat(rec.offer(frame(0))).isEqualTo(Disposition.DELIVERED);
+        assertThat(rec.offer(frame(1))).isEqualTo(Disposition.DELIVERED);
+        assertThat(rec.nextAck()).isEqualTo(1);
+        assertThat(rec.pendingCount()).isEqualTo(1);
+        assertThat(rec.pendingBytes()).isEqualTo(3);
+
+        assertThat(rec.offer(new AudioStreamSession.DecodedFrame(
+                2, 2_000L, heldPayload.clone()))).isEqualTo(Disposition.DUPLICATE);
+        assertThat(rec.nextAck()).isEqualTo(1);
+        assertThat(rec.pendingCount()).isEqualTo(1);
+        assertThat(rec.pendingBytes()).isEqualTo(3);
+
+        AudioStreamSession.DecodedFrame released = rec.takeDelivered();
+        assertThat(released).isNotNull();
+        assertThat(released.sequenceNumber()).isEqualTo(2);
+        assertThat(released.payload()).containsExactly((byte) 4, (byte) 5, (byte) 6);
+        assertThat(rec.nextAck()).isEqualTo(2);
+        assertThat(rec.pendingCount()).isZero();
+        assertThat(rec.pendingBytes()).isZero();
+        assertThat(rec.takeDelivered()).isNull();
+    }
+
+    @Test
     @DisplayName("an unbounded reorder storm is rejected at the held-frame bound")
     void reorderStormBounded() {
         StreamFrameReconciler rec = StreamFrameReconciler.open(identity("t1"));

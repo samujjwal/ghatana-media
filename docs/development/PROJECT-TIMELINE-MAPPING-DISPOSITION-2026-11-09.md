@@ -73,6 +73,18 @@ must be rejected or remain undefined until its owning product authority defines 
 `runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaProjectTimelineContracts.java`; this reference
 supports the field mapping and does not claim runtime or storage parity.
 
+## Addendum — timeline edit replay identity (2026-11-25)
+
+**Disposition:** user-authorized delegated technical product-owner decision for the existing PDP-1 timeline graph mapping.<br>
+**Rationale:** the declared typed payload contains ticks, a reduced rate pair, and a clock. `RationalTime.equals` compares exact same-clock instants for graph/value comparison, while immutable idempotency receipts retain only the payload fingerprint and resulting revision, not the original edit. Treating a different tick/rate tuple as the same command after storage would require reconstructing information the receipt does not contain.<br>
+**Acceptance effect:** none; this is not independent review or phase acceptance. Independent PDP-1 review remains open and runtime admission remains `NOT_ADMITTED`.
+
+For timeline edit idempotency, fingerprint the typed rational-time tuple `(ticks, rateNumerator, rateDenominator, clock)` after the existing rate-pair gcd reduction. Do not rescale ticks or reduce the value to an exact-seconds fraction for request identity. Exact same-clock instants can therefore compare equal as graph values while different tuples remain different command payloads and conflict when they reuse a request ID. Identical typed payloads replay the original receipt. Command order, node IDs, source versions, and all other edit fields remain fingerprint-bound.
+
+Negative acceptance cases include treating different tick/rate tuples for the same exact instant as an idempotent replay; matching or converting `SOURCE_PRESENTATION` and `STORY`; using floating-point values or rounding; and accepting any changed edit field or command order under the same request ID. The existing immutable DEV_ONLY/test receipt schemas do not retain source payloads, so the rule preserves their current exact-fingerprint replay behavior and requires no receipt rewrite. This decision does not admit those stores for production use.
+
+The source authority is `.product-experience/pdp-1-domain-data/domain-objects.yaml#media.domain.timeline.graphSchema`; the executable behavior is in `modules/production/timeline/src/main/java/com/ghatana/media/production/timeline/ProjectTimelineEngine.java` and DEV_ONLY durable replay is exercised by `providers/aws-postgresql/src/test/java/com/ghatana/media/provider/aws/PostgresqlDevProjectTimelineStoreFactoryTest.java`.
+
 ## Addendum — source use for DEV_ONLY project rendering (2026-11-22)
 
 **Disposition:** accepted delegated technical product-owner decision for the exact project-render source-use boundary.<br>

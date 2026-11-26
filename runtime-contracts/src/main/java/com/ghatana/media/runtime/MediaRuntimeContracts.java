@@ -31,6 +31,11 @@ public final class MediaRuntimeContracts {
         public MediaJobStoreConflictException(String message) { super(message); }
     }
 
+    /** The durable job-list read is unavailable; no read observation was produced. */
+    public static final class MediaJobListUnavailableException extends RuntimeException {
+        public MediaJobListUnavailableException(String message, Throwable cause) { super(message, cause); }
+    }
+
     /** Finalization was fenced because the job processing deadline elapsed before durable commit. */
     public static final class MediaJobFinalizationDeadlineExceededException extends IllegalStateException {
         public MediaJobFinalizationDeadlineExceededException(String message) { super(message); }
@@ -800,6 +805,10 @@ public final class MediaRuntimeContracts {
         public static final int MAX_CHILDREN = 8;
         private static final int MAX_SERIALIZED_CHILD_PARAMETERS = 8_192;
         private static final int MAX_SERIALIZED_PLAN = 8_192;
+        private static final String CROSS_MODAL_CAPABILITY_REF =
+                "media.multimodal.analyze.cross-modal";
+        private static final String CROSS_MODAL_OPERATION_REF =
+                "media.operation.capability.media-multimodal-analyze-cross-modal";
         private static final java.util.Set<JobType> ADMITTED_CHILD_JOB_TYPES =
                 java.util.Set.of(JobType.SPEECH_TO_TEXT, JobType.VISION);
 
@@ -852,6 +861,12 @@ public final class MediaRuntimeContracts {
                     throw new IllegalArgumentException(
                             "multimodal operation admits at most one child per capability");
                 }
+            }
+            if (CROSS_MODAL_CAPABILITY_REF.equals(capabilityRef)
+                    && CROSS_MODAL_OPERATION_REF.equals(operationRef)
+                    && seenTypes.size() < 2) {
+                throw new IllegalArgumentException(
+                        "cross-modal operation requires at least two distinct child modalities");
             }
             plan = immutableJsonObject(plan == null ? Map.of() : plan);
             if (MediaJobRequestFingerprint.canonicalJson(plan).length() > MAX_SERIALIZED_PLAN) {
@@ -2176,6 +2191,31 @@ public final class MediaRuntimeContracts {
         @Override default void close() { }
     }
 
+    /** One principal-scoped bounded job-list observation from a single store snapshot. */
+    public record JobListSnapshot(
+            List<ProcessingJob> jobs, String readVersion, Instant observedAt) {
+        public JobListSnapshot {
+            jobs = List.copyOf(java.util.Objects.requireNonNull(jobs, "jobs"));
+            if (readVersion == null || readVersion.isBlank() || observedAt == null) {
+                if (!jobs.isEmpty()) {
+                    throw new IllegalArgumentException("Unknown job-list observations cannot contain partial jobs");
+                }
+                readVersion = null;
+                observedAt = null;
+            } else if (readVersion.length() > 256) {
+                throw new IllegalArgumentException("Job-list readVersion exceeds its bound");
+            }
+        }
+
+        public static JobListSnapshot unknown() {
+            return new JobListSnapshot(List.of(), null, null);
+        }
+
+        public boolean observed() {
+            return readVersion != null && observedAt != null;
+        }
+    }
+
     public interface MediaJobStore extends AutoCloseable {
         String storeId();
         /** Creates a job bound to the request fingerprint already pinned on the record. */
@@ -2239,6 +2279,13 @@ public final class MediaRuntimeContracts {
             throw new UnsupportedOperationException("durable processing attempt readback is not supported");
         }
         List<ProcessingJob> list(String tenantId, int limit);
+        /**
+         * Reads a bounded tenant/principal-scoped job list and its store-issued observation
+         * metadata atomically. Implementations that cannot prove snapshot consistency fail closed.
+         */
+        default JobListSnapshot listSnapshot(String tenantId, String principalId, int limit) {
+            return JobListSnapshot.unknown();
+        }
         JobLease claim(ProcessingJob expected, String ownerId, Instant expiresAt);
         boolean leaseValid(JobLease lease);
         void release(JobLease lease);

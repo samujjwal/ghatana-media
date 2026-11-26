@@ -63,6 +63,39 @@ class MultimodalOperationSpecTest {
     }
 
     @Test
+    void canonicalCrossModalSpecRequiresTwoDistinctChildModalities() {
+        assertThat(operationSpec(
+                "media.multimodal.analyze.cross-modal",
+                "media.operation.capability.media-multimodal-analyze-cross-modal",
+                List.of(child("stt"), visionChild())).children()).hasSize(2);
+
+        for (var singleChild : List.of(child("stt"), visionChild())) {
+            assertThatThrownBy(() -> operationSpec(
+                    "media.multimodal.analyze.cross-modal",
+                    "media.operation.capability.media-multimodal-analyze-cross-modal",
+                    List.of(singleChild)))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("at least two distinct child modalities");
+        }
+    }
+
+    @Test
+    void crossModalMinimumIsLimitedToTheExactCapabilityOperationPair() {
+        assertThat(operationSpec(
+                "media.multimodal.observe.source-grounded",
+                "media.operation.capability.media-multimodal-observe-source-grounded",
+                List.of(child("stt"))).children()).hasSize(1);
+        assertThat(operationSpec(
+                "media.multimodal.analyze.cross-modal",
+                "media.operation.other",
+                List.of(child("stt"))).children()).hasSize(1);
+        assertThat(operationSpec(
+                "media.capability.other",
+                "media.operation.capability.media-multimodal-analyze-cross-modal",
+                List.of(child("stt"))).children()).hasSize(1);
+    }
+
+    @Test
     void childListsAreBoundedByIterationEvenWhenReportedSizeLies() {
         List<MultimodalOperationSpec.ChildOperationSpec> children = new ArrayList<>();
         for (int i = 0; i < MultimodalOperationSpec.MAX_CHILDREN + 1; i++) {
@@ -515,6 +548,17 @@ class MultimodalOperationSpecTest {
                 "media.operation.capability.media-multimodal-observe-source-grounded",
                 1, "src", "sha256:" + SHA_A, SHA_A,
                 List.of(child("stt"), visionChild()), null, Map.of());
+    }
+
+    private static MultimodalOperationSpec operationSpec(
+            String capabilityRef,
+            String operationRef,
+            List<MultimodalOperationSpec.ChildOperationSpec> children) {
+        return new MultimodalOperationSpec(
+                MultimodalOperationSpec.SPEC_VERSION,
+                capabilityRef,
+                operationRef,
+                1, "src", "sha256:" + SHA_A, SHA_A, children, null, Map.of());
     }
 
     private static MultimodalOperationSpec.ChildOperationSpec child(String key) {

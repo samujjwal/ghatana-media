@@ -16,6 +16,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * DEV_ONLY grounded-answer routes (outside the canonical manifest/OpenAPI):
@@ -23,6 +25,7 @@ import java.util.regex.Pattern;
  * {@code GET /dev/v1/grounded-answers/{outputId}}. Every response is labelled DEV_ONLY.
  */
 final class MediaDevGroundedRoutes {
+    private static final Logger log = LoggerFactory.getLogger(MediaDevGroundedRoutes.class);
     static final String STATUS = "/dev/v1/grounded-answers/status";
     static final String ANSWERS = "/dev/v1/grounded-answers";
     private static final Pattern OUTPUT = Pattern.compile("^/dev/v1/grounded-answers/([^/]+)$");
@@ -73,6 +76,13 @@ final class MediaDevGroundedRoutes {
         } catch (MediaDevGroundedAnswerRuntime.GroundedRegistrationFailedException failure) {
             out.error(exchange, 502, "GROUNDED_OUTPUT_REGISTRATION_FAILED",
                     "The answer was not registered; retry with the same requestId to resume", Map.of());
+        } catch (IllegalStateException failure) {
+            // Keep unexpected grounded-lane state failures out of MediaHttpHandler's broad timeline conflict mapper.
+            // The output may already have been registered, so the response must not claim that nothing happened.
+            log.error("Unexpected state failure in DEV_ONLY grounded-answer route", failure);
+            out.error(exchange, 500, "GROUNDED_INTERNAL_ERROR",
+                    "The grounded-answer result could not be confirmed; inspect the same requestId before retrying",
+                    Map.of());
         }
     }
 

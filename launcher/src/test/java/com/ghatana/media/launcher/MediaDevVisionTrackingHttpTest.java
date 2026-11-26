@@ -240,7 +240,7 @@ class MediaDevVisionTrackingHttpTest {
 
     @Test
     @Order(3)
-    void roiDetectionAndSceneTextAreReturnedInSourceFrameCoordinates() throws Exception {
+    void roiDetectionIsReturnedInSourceFrameCoordinatesAndGenericOcrIsNotAdmitted() throws Exception {
         Path root = Files.createTempDirectory("media-dev-vision-roi-");
         MediaRuntime runtime = runtime(root);
         HttpServer server = server(runtime, RIGHTS.verdict(Verdict.ADMITTED));
@@ -267,30 +267,24 @@ class MediaDevVisionTrackingHttpTest {
             assertThat(box[1]).isGreaterThanOrEqualTo(220);
             assertThat(obj(detectDoc.get("frame"))).containsEntry("frameIndex", 0).containsEntry("pts", 0);
 
+            int callsBeforeOcr = proxy.analyzeCalls.get();
             HttpResponse<byte[]> ocr = post(server, ROI, PRINCIPAL, ALL, Map.of("requestId", "roi-ocr-1",
                     "artifactId", source.artifactId(), "artifactVersionId", source.version().value(),
                     "tasks", List.of("ocr"), "frameIndex", 0, "roi", roi(0, 0, 320, 100)));
-            assertThat(ocr.statusCode()).as(new String(ocr.body())).isEqualTo(201);
-            Map<String, Object> ocrDoc = readDocument(runtime, (String) map(ocr).get("outputId"));
-            System.out.println("J05-ROI-OCR " + JSON.writeValueAsString(ocrDoc));
-            Map<String, Object> sceneText = obj(obj(ocrDoc.get("results")).get("sceneText"));
-            assertThat(((String) sceneText.get("fullText")).toUpperCase()).contains("GHATANA");
-            for (Map<String, Object> region : list(sceneText.get("regions"))) {
-                List<?> quad = (List<?>) region.get("quad");
-                for (int i = 0; i < quad.size(); i++) {
-                    double v = number(quad.get(i));
-                    assertThat(v).isBetween(0.0, i % 2 == 0 ? 640.0 : 360.0);
-                }
-            }
+            assertThat(ocr.statusCode()).as(new String(ocr.body())).isEqualTo(422);
+            assertThat(new String(ocr.body())).contains("DOCUMENT_INTELLIGENCE_NOT_ADMITTED")
+                    .contains("NOT_ADMITTED").contains("DOCUMENT_INTELLIGENCE");
+            assertThat(map(ocr)).doesNotContainKeys("artifact", "outputId");
+            assertThat(proxy.analyzeCalls.get()).as("OCR is refused before model dispatch").isEqualTo(callsBeforeOcr);
 
             // Image source: same ROI semantics on a still.
             MediaArtifact image = upload(runtime, "still.png", "image/png", TrackingVideoFixture.background());
             HttpResponse<byte[]> imageOcr = post(server, ROI, PRINCIPAL, ALL, Map.of("requestId", "roi-img-1",
                     "artifactId", image.artifactId(), "artifactVersionId", image.version().value(),
                     "tasks", List.of("ocr"), "roi", roi(0, 0, 320, 100)));
-            assertThat(imageOcr.statusCode()).as(new String(imageOcr.body())).isEqualTo(201);
-            assertThat(((String) obj(obj(readDocument(runtime, (String) map(imageOcr).get("outputId")).get("results"))
-                    .get("sceneText")).get("fullText")).toUpperCase()).contains("GHATANA");
+            assertThat(imageOcr.statusCode()).as(new String(imageOcr.body())).isEqualTo(422);
+            assertThat(new String(imageOcr.body())).contains("DOCUMENT_INTELLIGENCE_NOT_ADMITTED");
+            assertThat(proxy.analyzeCalls.get()).isEqualTo(callsBeforeOcr);
 
             MediaArtifact rotated = upload(runtime, "still-rotated.jpg", "image/jpeg",
                     jpegWithExifOrientation(TrackingVideoFixture.background(), 6));
@@ -386,7 +380,7 @@ class MediaDevVisionTrackingHttpTest {
             // An ROI exactly equal to the frame is valid (boundary).
             HttpResponse<byte[]> full = post(server, ROI, PRINCIPAL, ALL, Map.of("requestId", "full-frame",
                     "artifactId", image.artifactId(), "artifactVersionId", image.version().value(),
-                    "tasks", List.of("ocr"), "roi", roi(0, 0, 640, 360)));
+                    "tasks", List.of("detect"), "roi", roi(0, 0, 640, 360)));
             assertThat(full.statusCode()).as(new String(full.body())).isEqualTo(201);
             assertThat(proxy.analyzeCalls.get()).isEqualTo(calls + 1);
         } finally {

@@ -105,6 +105,17 @@ class DubbingOrchestratorTest {
     }
 
     @Test
+    void rejectsTargetLocaleEquivalentToTranscriptSourceLocale() {
+        Fixture f = new Fixture();
+        Request valid = f.request();
+
+        assertThatThrownBy(() -> new Request(valid.tenantId(), valid.requestId(), valid.sourceVersion(),
+                valid.transcript(), "EN-us", valid.voice(), valid.purpose()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("target locale must differ from transcript source locale");
+    }
+
+    @Test
     void transcriptRejectsUnderreportedListWithoutTraversingPastSegmentLimit() {
         AtomicInteger yielded = new AtomicInteger();
         List<TranscriptSegment> underreported = underreportedList(yielded,

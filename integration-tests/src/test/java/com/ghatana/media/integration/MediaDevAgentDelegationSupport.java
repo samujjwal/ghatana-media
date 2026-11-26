@@ -48,7 +48,7 @@ final class MediaDevAgentDelegationSupport {
 
     static MediaToolExecutionBinder binder(MediaToolExecutionBinder.InvocationLedger ledger,
             MediaLauncherDelegate delegate) {
-        return new MediaToolExecutionBinder(ledger, (tenant, invocation) -> Optional.empty(),
+        return new MediaToolExecutionBinder(ledger, (authenticated, tenant, invocation) -> Optional.empty(),
                 delegate.replayAuthorizer(), delegate.reconciler(), delegate.revalidator());
     }
 

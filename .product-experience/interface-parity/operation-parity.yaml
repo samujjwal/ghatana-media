@@ -1713,6 +1713,7 @@ typedHttpCanonicalAdapterAssessments:
           result,
           failureCode,
           version,
+          expectedArtifactVersion,
           requestFingerprint
         ]
       canonicalOperationRef: media.operation.job.submit.v1
@@ -1803,6 +1804,7 @@ typedHttpCanonicalAdapterAssessments:
           result,
           failureCode,
           version,
+          expectedArtifactVersion,
           requestFingerprint
         ]
       canonicalOperationRef: media.operation-slice.inspect-job
@@ -1836,6 +1838,7 @@ typedHttpCanonicalAdapterAssessments:
           result,
           failureCode,
           version,
+          expectedArtifactVersion,
           requestFingerprint
         ]
       canonicalOperationRef: media.operation-slice.cancel-job
@@ -1889,6 +1892,27 @@ typedHttpCanonicalAdapterAssessments:
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1streams~1{sessionId}/get
       pathFields: [ sessionId ]
       responseSchemaRef: contracts/openapi/media.yaml#/components/schemas/StreamSession
+      responseFields:
+        [
+          tenantId,
+          sessionId,
+          principalId,
+          streamKind,
+          providerId,
+          state,
+          lastSequence,
+          bufferedBytes,
+          maximumBufferedBytes,
+          reconnectCount,
+          leaseExpiresAt,
+          createdAt,
+          updatedAt,
+          closedAt,
+          metadata,
+          version,
+          acknowledgementRevision,
+          finality
+        ]
       canonicalOperationRef: media.operation.stream-session.inspect.v1
       disposition: ADAPTER_REQUIRED
       missingSemantics:

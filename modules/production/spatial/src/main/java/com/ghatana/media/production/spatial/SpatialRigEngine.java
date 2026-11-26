@@ -741,6 +741,7 @@ public final class SpatialRigEngine {
                 }
             }
         }
+        validateGlbEmbeddedBuffer(document, bytes);
         validateGlbImageResources(document, bytes);
         JsonNode metadata = document.path("extras").path("mediaSpatial");
         if (!"2.0".equals(document.path("asset").path("version").asString())
@@ -784,6 +785,32 @@ public final class SpatialRigEngine {
         if (embedded.size() != embeddedSources.size() || !embedded.equals(new HashSet<>(sourceVersions))) {
             throw new IllegalArgumentException("GLB spatial source versions do not match artifact lineage");
         }
+    }
+
+    /** Validates the GLB buffer declaration even when the asset has no animation accessors. */
+    private static void validateGlbEmbeddedBuffer(JsonNode document, byte[] bytes) {
+        JsonNode buffers = document.path("buffers");
+        if (buffers.isMissingNode()) return;
+        if (!buffers.isArray() || buffers.size() != 1 || !buffers.get(0).isObject()) {
+            throw invalidGlbBufferData();
+        }
+        JsonNode byteLengthNode = buffers.get(0).path("byteLength");
+        if (!byteLengthNode.isInt() || byteLengthNode.intValue() <= 0) throw invalidGlbBufferData();
+
+        final GlbBinaryRange binary;
+        try {
+            binary = glbBinaryRange(bytes);
+        } catch (IllegalArgumentException missingBinaryChunk) {
+            throw invalidGlbBufferData();
+        }
+        int declaredLength = byteLengthNode.intValue();
+        if (declaredLength > binary.length() || binary.length() - declaredLength > 3) {
+            throw invalidGlbBufferData();
+        }
+    }
+
+    private static IllegalArgumentException invalidGlbBufferData() {
+        return new IllegalArgumentException("GLB spatial buffer length does not match embedded binary chunk");
     }
 
     private static void validateGlbImageResources(JsonNode document, byte[] glbBytes) {

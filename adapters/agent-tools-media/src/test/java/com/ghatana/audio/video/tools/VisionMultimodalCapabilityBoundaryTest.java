@@ -38,20 +38,14 @@ class VisionMultimodalCapabilityBoundaryTest extends EventloopTestBase {
         ToolExecutionResult result = runPromise(() -> new VisionAnalysisToolHandler(delegate(delegateCalls))
                 .handle(envelope, contract(envelope)));
 
-        assertUnadmitted(result, envelope, "VISION_NOT_ADMITTED");
+        assertUnadmitted(result, envelope, "VISION_ANALYSIS_TYPE_NOT_ADMITTED");
         assertThat(delegateCalls).hasValue(0);
     }
 
     @Test
     void fullySpecifiedMultimodalRequestDoesNotImplyProviderOrRightsAdmission() {
         AtomicInteger delegateCalls = new AtomicInteger();
-        ToolExecutionEnvelope envelope = envelope(MultimodalInferenceToolHandler.TOOL_ID, Map.of(
-                "mediaArtifactId", "source-artifact-2",
-                "inferenceMode", "FRAME_BY_FRAME",
-                "samplingRateMs", 500,
-                "enableTranscription", true,
-                "enableVisionAnalysis", true,
-                "languageCode", "en-US"));
+        ToolExecutionEnvelope envelope = envelope(MultimodalInferenceToolHandler.TOOL_ID, canonicalMultimodalInput());
 
         ToolExecutionResult result = runPromise(() -> new MultimodalInferenceToolHandler(delegate(delegateCalls))
                 .handle(envelope, contract(envelope)));
@@ -69,9 +63,10 @@ class VisionMultimodalCapabilityBoundaryTest extends EventloopTestBase {
                 "mediaSource", Map.of("mediaArtifactId", "source-artifact-3",
                         "tenantId", claimedTenant, "consentRef", claimedConsent),
                 "analysisTypes", List.of("OBJECT_DETECTION")));
-        ToolExecutionEnvelope multimodal = envelope(MultimodalInferenceToolHandler.TOOL_ID, Map.of(
-                "mediaArtifactId", "source-artifact-3", "tenantId", claimedTenant,
-                "consentRef", claimedConsent));
+        Map<String, Object> multimodalInput = new java.util.LinkedHashMap<>(canonicalMultimodalInput());
+        multimodalInput.put("tenantId", claimedTenant);
+        multimodalInput.put("consentRef", claimedConsent);
+        ToolExecutionEnvelope multimodal = envelope(MultimodalInferenceToolHandler.TOOL_ID, multimodalInput);
 
         ToolExecutionResult visionResult = runPromise(() -> new VisionAnalysisToolHandler(delegate(delegateCalls))
                 .handle(vision, contract(vision)));
@@ -79,7 +74,7 @@ class VisionMultimodalCapabilityBoundaryTest extends EventloopTestBase {
                 .handle(multimodal, contract(multimodal)));
 
         assertValidationFailure(visionResult);
-        assertValidationFailure(multimodalResult);
+        assertValidationFailure(multimodalResult, "UNKNOWN_INPUT_FIELD");
         assertThat(delegateCalls).hasValue(0);
         assertThat(visionResult.toString()).doesNotContain(claimedTenant, claimedConsent);
         assertThat(multimodalResult.toString()).doesNotContain(claimedTenant, claimedConsent);
@@ -101,6 +96,26 @@ class VisionMultimodalCapabilityBoundaryTest extends EventloopTestBase {
         assertThat(result.output()).isNull();
         assertThat(result.failure().code()).isEqualTo("TOOL_EXECUTION_FAILED");
         assertThat(result.errorMessage()).isEqualTo("TOOL_EXECUTION_FAILED");
+    }
+
+    private static void assertValidationFailure(ToolExecutionResult result, String code) {
+        assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
+        assertThat(result.output()).isNull();
+        assertThat(result.failure().kind()).isEqualTo(ToolExecutionFailure.Kind.VALIDATION);
+        assertThat(result.failure().code()).isEqualTo(code);
+    }
+
+    private static Map<String, Object> canonicalMultimodalInput() {
+        return Map.of(
+                "input1", Map.of("artifactType", "authorized-media-artifacts",
+                        "payload", Map.of("artifactId", "source-artifact-2", "versionId", "immutable-version-7")),
+                "input2", Map.of("artifactType", "analysis-request",
+                        "payload", Map.of("dimensions", List.of("dimension-ref-a", "dimension-ref-b"),
+                                "criteria", Map.of("subjectRefs", List.of("subject-version-ref-1"),
+                                        "analysisMethodRef", "analysis-method-ref-1",
+                                        "profileRef", "profile-version-ref-1",
+                                        "configurationDigest", "sha256:" + "a".repeat(64),
+                                        "purposeRef", "purpose-ref-1"))));
     }
 
     private static ToolHandler delegate(AtomicInteger calls) {

@@ -133,6 +133,30 @@ class SimulationSemanticValidatorTest {
     }
 
     @Test
+    void abstainsOnNonHexInputDigestBeforeReferenceVerification() {
+        var complete = binding();
+        var inputs = new ArrayList<>(complete.inputs());
+        var model = inputs.getFirst();
+        inputs.set(0, new SimulationSemanticValidator.VersionedInput(model.role(), model.identity(),
+                model.version(), "g".repeat(64)));
+        var malformed = new SimulationSemanticValidator.RunBinding(complete.runIdentity(), inputs,
+                complete.invariants(), complete.expectedDuration());
+        var verifierCalls = new java.util.concurrent.atomic.AtomicInteger();
+
+        var validation = SimulationSemanticValidator.validate(malformed, result(), input -> {
+            verifierCalls.incrementAndGet();
+            return SimulationSemanticValidator.ReferenceStatus.CURRENT;
+        });
+
+        assertThat(validation.disposition()).isEqualTo(SimulationSemanticValidator.Disposition.ABSTAIN);
+        assertThat(validation.findings()).anySatisfy(finding -> {
+            assertThat(finding.reason()).isEqualTo(SimulationSemanticValidator.Reason.INVALID_INPUT_REFERENCE);
+            assertThat(finding.subject()).isEqualTo(model.role().name());
+        });
+        assertThat(verifierCalls).hasValue(0);
+    }
+
+    @Test
     void abstainsInsteadOfNormalizingPaddedRunIdentity() {
         var complete = binding();
         var padded = new SimulationSemanticValidator.RunBinding(" " + complete.runIdentity(), complete.inputs(),

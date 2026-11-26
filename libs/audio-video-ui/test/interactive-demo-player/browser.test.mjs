@@ -309,3 +309,37 @@ for (const denied of ["asset", "caption"]) {
     assert.deepEqual(requests.filter((url) => /\.(?:wav|vtt)$/.test(new URL(url).pathname)), []);
   });
 }
+
+test("drops media offline, keeps branch navigation local, and recovers paused after reconnect", async (t) => {
+  const { page, player, requests } = await openPlayer(t);
+  await expectStatus(player, "Simulated demonstration ready. Introduction.");
+  await expectNativePosition(page, 0);
+
+  const mediaRequestCount = () => requests.filter((url) => new URL(url).pathname === `/${audioFilename}`).length;
+  const initialMediaRequestCount = mediaRequestCount();
+  assert.ok(initialMediaRequestCount > 0, "The online player must load the bound preview audio before going offline.");
+
+  await page.context().setOffline(true);
+  await page.waitForFunction(() => !navigator.onLine, null, { timeout });
+  await expectStatus(player,
+    "Offline. Media playback is unsupported without a verified local asset; known branches remain available.");
+  assert.equal(await player.getAttribute("data-demo-status"), "OFFLINE");
+  assert.equal(await player.locator("audio, video").count(), 0);
+  assert.equal(await player.getByRole("button", { name: "Play Introduction" }).isDisabled(), true);
+
+  await player.getByRole("button", { name: "Hear the first passage; continue to First passage" }).click();
+  await expectStatus(player, "Offline. Playback remains unavailable. Showing First passage.");
+  assert.equal(await player.getAttribute("data-demo-status"), "OFFLINE");
+  assert.equal(await player.locator("audio, video").count(), 0);
+  assert.equal(mediaRequestCount(), initialMediaRequestCount,
+    "Local branch navigation while offline must not issue another media request.");
+
+  await page.context().setOffline(false);
+  await page.waitForFunction(() => navigator.onLine, null, { timeout });
+  await expectStatus(player, "Simulated demonstration ready. First passage.");
+  await expectNativePosition(page, durationMs / 4);
+  assert.equal(await player.getAttribute("data-demo-status"), "READY");
+  assert.equal(await player.locator("audio").evaluate((media) => media.paused), true,
+    "Reconnect must not autoplay the selected scene.");
+  assert.equal(await player.getByRole("button", { name: "Play First passage" }).isDisabled(), false);
+});

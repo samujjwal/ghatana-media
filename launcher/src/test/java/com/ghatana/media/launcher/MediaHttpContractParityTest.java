@@ -121,6 +121,14 @@ class MediaHttpContractParityTest {
             }
         }
         assertThat(hasRequestId).as("job reconciliation requestId query must be documented").isTrue();
+
+        JsonNode jobListSchema = openApi.path("paths").path("/api/v1/jobs").path("get")
+                .path("responses").path("200").path("content").path("application/json").path("schema");
+        assertThat(jobListSchema.path("required").toString())
+                .as("job list must require its stored rows and snapshot metadata")
+                .contains("jobs", "observedAt", "readVersion");
+        assertThat(jobListSchema.path("properties").has("readVersion")).isTrue();
+        assertThat(jobListSchema.path("properties").has("observedAt")).isTrue();
     }
 
     @Test

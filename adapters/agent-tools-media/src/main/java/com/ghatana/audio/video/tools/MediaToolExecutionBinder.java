@@ -166,7 +166,8 @@ public final class MediaToolExecutionBinder {
 
     @FunctionalInterface
     public interface MediaJobReadback {
-        Optional<String> durableJobState(String tenantId, String invocationId);
+        Optional<String> durableJobState(
+                AuthenticatedPrincipal authenticated, String tenantId, String invocationId);
     }
 
     /** Host-owned decision that maps a freshly authenticated principal to the envelope actor. */
@@ -352,11 +353,11 @@ public final class MediaToolExecutionBinder {
         // The durable UNKNOWN fence exists before this effect boundary. Any
         // dispatch/completion ambiguity retains that fence, preventing replay.
         return AgentToolInput.dispatch(delegate, boundEnvelope, contract)
-                .map(result -> finishIfTerminal(result, identity, boundEnvelope))
+                .map(result -> finishIfTerminal(result, identity, boundEnvelope, authenticated))
                 .mapException(failure -> {
                     if (failure instanceof OutcomeUnknownException) return failure;
                     // Keep the dispatch failure as the cause for operator diagnostics; it never reaches a result.
-                    OutcomeUnknownException unknown = unknown(boundEnvelope);
+                    OutcomeUnknownException unknown = unknown(boundEnvelope, authenticated);
                     unknown.initCause(failure);
                     return unknown;
                 });
@@ -423,7 +424,7 @@ public final class MediaToolExecutionBinder {
             return Promise.ofException(new InvocationReplayDeniedException());
         }
         if (prior.outcome() == LogicalOutcome.OUTCOME_UNKNOWN) {
-            if (reconciler == null) return Promise.ofException(unknown(envelope));
+            if (reconciler == null) return Promise.ofException(unknown(envelope, authenticated));
             // Read-only reconciliation: never re-dispatches. A terminal result is recorded over the exact UNKNOWN fence
             // (CAS), so the single real outcome becomes the invocation's durable result.
             return Promise.ofBlocking(RECONCILE_EXECUTOR, () -> {
@@ -437,18 +438,18 @@ public final class MediaToolExecutionBinder {
                     .then(established -> {
                         if (established == null || established.isEmpty()
                                 || !envelope.invocationId().equals(established.get().invocationId())) {
-                            return Promise.<ToolExecutionResult>ofException(unknown(envelope));
+                            return Promise.<ToolExecutionResult>ofException(unknown(envelope, authenticated));
                         }
                         if (established.get().status() == ToolExecutionStatus.DENIED) {
                             // Authority was withdrawn: return the denial without recording it over the fence.
                             return Promise.of(established.get());
                         }
                         try {
-                            return Promise.of(finishIfTerminal(established.get(), identity, envelope));
+                            return Promise.of(finishIfTerminal(established.get(), identity, envelope, authenticated));
                         } catch (RuntimeException unacknowledged) {
-                            return Promise.<ToolExecutionResult>ofException(unknown(envelope));
+                            return Promise.<ToolExecutionResult>ofException(unknown(envelope, authenticated));
                         }
-                    }, failure -> Promise.<ToolExecutionResult>ofException(unknown(envelope)));
+                    }, failure -> Promise.<ToolExecutionResult>ofException(unknown(envelope, authenticated)));
         }
         if (prior.result() == null) {
             return Promise.ofException(new InvocationClaimUnavailableException());
@@ -484,12 +485,13 @@ public final class MediaToolExecutionBinder {
     }
 
     private ToolExecutionResult finishIfTerminal(
-            ToolExecutionResult result, RequestIdentity identity, ToolExecutionEnvelope envelope) {
+            ToolExecutionResult result, RequestIdentity identity, ToolExecutionEnvelope envelope,
+            AuthenticatedPrincipal authenticated) {
         ToolExecutionStatus status = result.status();
         if (status == ToolExecutionStatus.TIMEOUT) {
             // Shared labels timeout terminal, but a lost response does not
             // establish that no downstream effect happened.
-            throw unknown(envelope);
+            throw unknown(envelope, authenticated);
         }
         if (!status.isTerminal()) {
             // Preserve nonfinal status to the caller while leaving the durable
@@ -503,16 +505,17 @@ public final class MediaToolExecutionBinder {
         try {
             acknowledged = ledger.complete(terminal);
         } catch (RuntimeException lostAcknowledgment) {
-            throw unknown(envelope);
+            throw unknown(envelope, authenticated);
         }
-        if (!acknowledged) throw unknown(envelope);
+        if (!acknowledged) throw unknown(envelope, authenticated);
         return result;
     }
 
-    private OutcomeUnknownException unknown(ToolExecutionEnvelope envelope) {
+    private OutcomeUnknownException unknown(
+            ToolExecutionEnvelope envelope, AuthenticatedPrincipal authenticated) {
         String state = null;
         try {
-            state = jobReadback.durableJobState(envelope.tenantId(), envelope.invocationId())
+            state = jobReadback.durableJobState(authenticated, envelope.tenantId(), envelope.invocationId())
                     .flatMap(MediaToolExecutionBinder::canonicalJobStatus).orElse(null);
         } catch (RuntimeException unavailable) {
             // Readback failure cannot make an ambiguous dispatch final.

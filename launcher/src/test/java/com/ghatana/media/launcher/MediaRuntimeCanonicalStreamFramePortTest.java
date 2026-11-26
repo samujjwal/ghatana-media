@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.nio.file.Files;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -377,6 +378,56 @@ class MediaRuntimeCanonicalStreamFramePortTest {
     }
 
     @Test
+    void expiredCanonicalAudioLeaseCannotDispatchAFrame() throws Exception {
+        var root = Files.createTempDirectory("media-canonical-audio-stream-expired-");
+        var provider = new LocalStreamingProvider();
+        var streamStore = new LocalMediaRuntimeSupport.StreamStore();
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 1, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                streamStore,
+                null,
+                List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()),
+                List.of(provider));
+        String connectionToken = "expired-audio-connection-token";
+        Instant now = Instant.now();
+        Instant expiredAt = now.minusSeconds(1);
+        String sessionId = "expired-audio-session";
+        var expiredSession = new com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession(
+                "tenant-a", sessionId, "principal-a", StreamKind.AUDIO,
+                provider.providerId(), StreamState.CONNECTED,
+                -1, 0, 512, 1, expiredAt, now.minusSeconds(60), now.minusSeconds(2), null,
+                java.util.Map.of("governance.purpose", "media.stream.audio.capture"), 1);
+        streamStore.create(expiredSession, tokenHash(connectionToken));
+        var persistedBefore = runtime.stream("tenant-a", "principal-a", sessionId).orElseThrow();
+
+        try {
+            var port = runtime.audioStreamFramePort(
+                    "tenant-a", "principal-a", sessionId, connectionToken);
+            assertThat(port.currentBinding("tenant-a", sessionId, "principal-a")).isEmpty();
+            var staleBinding = new CanonicalStreamFramePort.Binding(
+                    sessionId, "tenant-a", "principal-a", "media.stream.audio.capture",
+                    1, 1, -1, expiredAt);
+
+            assertThat(port.offer(staleBinding, frame(0)).disposition())
+                    .isEqualTo(CanonicalStreamFramePort.Disposition.LEASE_EXPIRED);
+            assertThat(provider.calls()).isZero();
+            assertThat(runtime.stream("tenant-a", "principal-a", sessionId).orElseThrow())
+                    .satisfies(current -> {
+                        assertThat(current.version()).isEqualTo(persistedBefore.version());
+                        assertThat(current.lastSequence()).isEqualTo(persistedBefore.lastSequence());
+                        assertThat(current.inFlightSequence()).isEqualTo(persistedBefore.inFlightSequence());
+                        assertThat(current.inFlightAttemptId()).isEqualTo(persistedBefore.inFlightAttemptId());
+                        assertThat(current.bufferedBytes()).isEqualTo(persistedBefore.bufferedBytes());
+                    });
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void placeholderPurposeDoesNotProduceAFrameBinding() throws Exception {
         var root = Files.createTempDirectory("media-canonical-audio-stream-purpose-");
         var provider = new LocalStreamingProvider();
@@ -445,6 +496,11 @@ class MediaRuntimeCanonicalStreamFramePortTest {
 
     private static AudioStreamSession.DecodedFrame frame(int sequence) {
         return new AudioStreamSession.DecodedFrame(sequence, sequence * 20L, new byte[] {1, 2, 3});
+    }
+
+    private static String tokenHash(String token) throws Exception {
+        return java.util.HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256")
+                .digest(token.getBytes(java.nio.charset.StandardCharsets.UTF_8)));
     }
 
     private static StreamSessionRequest request(MediaStreamingProvider provider, String correlationId) {

@@ -38,6 +38,33 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class MediaRuntimeMultimodalAdmissionTest {
 
     @Test
+    void jobByRequestIdUsesTheAuthenticatedTenantAndPrincipalScope() throws Exception {
+        var root = Files.createTempDirectory("media-mm-request-readback-");
+        var jobStore = new LocalMediaRuntimeSupport.JobStore();
+        Instant createdAt = Instant.parse("2026-11-25T12:00:00Z");
+        jobStore.create(new ProcessingJob("job-request-readback", "request-readback", "tenant-a", "principal-a",
+                "artifact-a", JobType.VISION, "provider-a", JobStatus.ACCEPTED, createdAt, null, null,
+                Map.of(), "", 1, "", "a".repeat(64)));
+        var runtime = runtime(root, jobStore, List.of(), null);
+        var owner = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                "tenant-a", "principal-a", createdAt);
+        var otherPrincipal = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                "tenant-a", "principal-b", createdAt);
+        var otherTenant = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                "tenant-b", "principal-a", createdAt);
+        try {
+            assertThat(runtime.jobByRequestId("request-readback", owner))
+                    .contains(jobStore.find("tenant-a", "job-request-readback").orElseThrow());
+            assertThat(runtime.jobByRequestId("request-readback", otherPrincipal)).isEmpty();
+            assertThat(runtime.jobByRequestId("request-readback", otherTenant)).isEmpty();
+            assertThat(runtime.jobByRequestId("other-request", owner)).isEmpty();
+            assertThat(runtime.jobByRequestId("request-readback", null)).isEmpty();
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void authenticatedPortSubmitRejectsMismatchedPrincipal() throws Exception {
         var root = Files.createTempDirectory("media-mm-auth-");
         var runtime = runtime(root, List.of(), null);
@@ -260,17 +287,20 @@ class MediaRuntimeMultimodalAdmissionTest {
                             sttParameters())));
             var accepted = submitAuthenticated(runtime, mmRequest(source, spec));
             var childJob = awaitJob(jobStore, "req-mm:stt");
-            var cancellationRequested = runtime.cancel("tenant-a", "principal-a", accepted.jobId());
-            assertThat(cancellationRequested.status()).isEqualTo(JobStatus.RUNNING);
-            assertThat(cancellationRequested.result())
-                    .containsEntry("cancellationOutcome", "REQUESTED_UNCONFIRMED");
+            var parentBeforeCancellation = jobStore.find("tenant-a", accepted.jobId()).orElseThrow();
+            var cancellationRequested = runtime.requestJobCancellation("tenant-a", "principal-a", accepted.jobId(),
+                    "cancel-req-mm-parent-1", parentBeforeCancellation.version(), "USER_REQUEST");
+            assertThat(cancellationRequested.job().status()).isEqualTo(JobStatus.RUNNING);
+            assertThat(cancellationRequested.state()).isEqualTo(MediaRuntime.JobCancellationState.CANCEL_REQUESTED);
+            assertThat(((Map<?, ?>) cancellationRequested.job().result().get("cancellationRequest"))
+                    .get("providerOutcome")).isEqualTo("REQUESTED_UNCONFIRMED");
             awaitTerminal(jobStore, accepted.jobId());
             awaitTerminal(jobStore, childJob.jobId());
             var childAfter = jobStore.find("tenant-a", childJob.jobId()).orElseThrow();
             assertThat(childAfter.status()).isEqualTo(JobStatus.CANCELLED);
             var parentAfter = jobStore.find("tenant-a", accepted.jobId()).orElseThrow();
             assertThat(parentAfter.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
-            assertThat(parentAfter.result()).containsEntry("cancellationOutcome", "REQUESTED_UNCONFIRMED")
+            assertThat(parentAfter.result()).containsEntry("cancellationOutcome", "UNCONFIRMED")
                     .containsEntry("providerOutcome", "UNKNOWN");
             assertThat(parentAfter.result()).doesNotContainKey("observations");
         } finally {
@@ -295,13 +325,17 @@ class MediaRuntimeMultimodalAdmissionTest {
                             sttParameters())));
             var accepted = submitAuthenticated(runtime, mmRequest(source, spec));
             var childBefore = awaitJob(jobStore, "req-mm:stt");
-            runtime.cancel("tenant-a", "principal-a", accepted.jobId());
+            var parentBeforeCancellation = jobStore.find("tenant-a", accepted.jobId()).orElseThrow();
+            var cancellationRequested = runtime.requestJobCancellation(
+                    "tenant-a", "principal-a", accepted.jobId(), "cancel-req-mm-parent-2",
+                    parentBeforeCancellation.version(), "USER_REQUEST");
+            assertThat(cancellationRequested.state()).isEqualTo(MediaRuntime.JobCancellationState.CANCEL_REQUESTED);
             awaitTerminal(jobStore, accepted.jobId());
 
             var parentAfter = jobStore.find("tenant-a", accepted.jobId()).orElseThrow();
             var childAfter = jobStore.find("tenant-a", childBefore.jobId()).orElseThrow();
             assertThat(parentAfter.status()).isEqualTo(JobStatus.OUTCOME_UNKNOWN);
-            assertThat(parentAfter.result()).containsEntry("cancellationOutcome", "REQUESTED_UNCONFIRMED")
+            assertThat(parentAfter.result()).containsEntry("cancellationOutcome", "UNCONFIRMED")
                     .containsEntry("providerOutcome", "UNKNOWN")
                     .doesNotContainKey("observations");
             assertThat(childAfter.status()).isEqualTo(JobStatus.RUNNING);

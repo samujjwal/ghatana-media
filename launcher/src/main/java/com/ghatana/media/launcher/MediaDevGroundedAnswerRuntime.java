@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -293,12 +294,26 @@ public final class MediaDevGroundedAnswerRuntime {
         }
     }
 
-    /** Deletes the only staged source file and its private directory, returning any cleanup error to the caller. */
-    private static RuntimeException cleanupStagedSource(Path sourceFile) {
+    /** Deletes the request-private source tree, including bounded child intermediates, and returns any cleanup error. */
+    static RuntimeException cleanupStagedSource(Path sourceFile) {
         if (sourceFile == null) return null;
         try {
-            Files.deleteIfExists(sourceFile);
-            Files.deleteIfExists(sourceFile.getParent());
+            Path directory = sourceFile.getParent();
+            if (directory == null) return new IllegalStateException("source staging directory is unavailable");
+            try (var paths = Files.walk(directory)) {
+                IOException cleanupFailure = null;
+                for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) {
+                    try {
+                        Files.deleteIfExists(path);
+                    } catch (IOException failure) {
+                        if (cleanupFailure == null) cleanupFailure = failure;
+                        else cleanupFailure.addSuppressed(failure);
+                    }
+                }
+                if (cleanupFailure != null) throw cleanupFailure;
+            }
+            return null;
+        } catch (java.nio.file.NoSuchFileException absent) {
             return null;
         } catch (IOException | SecurityException failure) {
             return new IllegalStateException("source staging cleanup failed", failure);

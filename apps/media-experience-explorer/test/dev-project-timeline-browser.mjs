@@ -435,7 +435,11 @@ try {
   const proxyProbe = await fetch(`${baseUrl}/dev/v1/context`, { headers: { Authorization: `Bearer ${token}` } });
   assert.equal(proxyProbe.status, 200, `loopback Vite proxy did not reach fixture API; requests=${JSON.stringify(fixture.requests)}; vite=${viteOutput}`);
   fixture.requests.length = 0;
-  browser = await chromium.launch({ headless: true });
+  const chromiumBinary = process.env.MEDIA_DEV_CHROMIUM_BINARY;
+  browser = await chromium.launch({
+    headless: true,
+    ...(chromiumBinary ? { executablePath: chromiumBinary } : {}),
+  });
   const page = await browser.newPage();
   await page.addInitScript(() => {
     const inputAudit = { pointerDowns: 0, pointerClicks: 0 };

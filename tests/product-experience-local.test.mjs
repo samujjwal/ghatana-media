@@ -7,66 +7,62 @@ import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:f
 import { tmpdir } from "node:os";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const fixturePaths = [".product-experience", "apps/media-experience-explorer", "docs", "libs/media-experience-simulation"];
+let sharedFixture;
 
-function checkWithScreenMutation(mutate, contract = "create-media.yaml") {
+function getSharedFixture() {
+  if (sharedFixture) return sharedFixture;
   const fixture = mkdtempSync(`${tmpdir()}/media-pdp-check-`);
   try {
-    for (const path of [".product-experience", "apps/media-experience-explorer", "docs", "libs/media-experience-simulation"]) {
+    for (const path of fixturePaths) {
       cpSync(resolve(repositoryRoot, path), resolve(fixture, path), { recursive: true });
     }
-    const contractPath = resolve(fixture, `.product-experience/pdp-3-product-experience/${contract.includes("journey-contracts/") ? contract : `screen-contracts/${contract}`}`);
-    const source = readFileSync(contractPath, "utf8");
-    const mutated = mutate(source);
-    assert.notEqual(mutated, source, "test mutation must change the fixture");
-    writeFileSync(contractPath, mutated);
-    return spawnSync(process.execPath, ["scripts/check-product-experience-local.mjs", `--root=${fixture}`], {
+    sharedFixture = fixture;
+    return sharedFixture;
+  } catch (error) {
+    rmSync(fixture, { recursive: true, force: true });
+    throw error;
+  }
+}
+
+function checkWithMutation(relativePath, mutate) {
+  const fixture = getSharedFixture();
+  const targetPath = resolve(fixture, relativePath);
+  const source = readFileSync(targetPath, "utf8");
+  const mutated = mutate(source);
+  assert.notEqual(mutated, source, "test mutation must change the fixture");
+  try {
+    writeFileSync(targetPath, mutated);
+    const result = spawnSync(process.execPath, ["scripts/check-product-experience-local.mjs", `--root=${fixture}`], {
       cwd: repositoryRoot,
       encoding: "utf8",
+      timeout: 30_000,
+      maxBuffer: 4 * 1024 * 1024,
     });
+    if (result.error) throw new Error(`Product Definition local check process failed: ${result.error.message}`);
+    if (result.status === null) throw new Error("Product Definition local check process ended without an exit status");
+    return result;
   } finally {
-    rmSync(fixture, { recursive: true, force: true });
+    writeFileSync(targetPath, source);
   }
+}
+
+function checkWithScreenMutation(mutate, contract = "create-media.yaml") {
+  const screenPath = `.product-experience/pdp-3-product-experience/${contract.includes("journey-contracts/") ? contract : `screen-contracts/${contract}`}`;
+  return checkWithMutation(screenPath, mutate);
 }
 
 function checkWithTransitionMutation(mutate) {
-  const fixture = mkdtempSync(`${tmpdir()}/media-pdp-check-`);
-  try {
-    for (const path of [".product-experience", "apps/media-experience-explorer", "docs", "libs/media-experience-simulation"]) {
-      cpSync(resolve(repositoryRoot, path), resolve(fixture, path), { recursive: true });
-    }
-    const transitionPath = resolve(fixture, ".product-experience/pdp-1-domain-data/transitions.yaml");
-    const source = readFileSync(transitionPath, "utf8");
-    const mutated = mutate(source);
-    assert.notEqual(mutated, source, "test mutation must change the fixture");
-    writeFileSync(transitionPath, mutated);
-    return spawnSync(process.execPath, ["scripts/check-product-experience-local.mjs", `--root=${fixture}`], {
-      cwd: repositoryRoot,
-      encoding: "utf8",
-    });
-  } finally {
-    rmSync(fixture, { recursive: true, force: true });
-  }
+  return checkWithMutation(".product-experience/pdp-1-domain-data/transitions.yaml", mutate);
 }
 
 function checkWithCampaignSourceMutation(mutate, relativePath = ".product-experience/pdp-0-product-truth/campaign-extensions.yaml") {
-  const fixture = mkdtempSync(`${tmpdir()}/media-pdp-check-`);
-  try {
-    for (const path of [".product-experience", "apps/media-experience-explorer", "docs", "libs/media-experience-simulation"]) {
-      cpSync(resolve(repositoryRoot, path), resolve(fixture, path), { recursive: true });
-    }
-    const sourcePath = resolve(fixture, relativePath);
-    const source = readFileSync(sourcePath, "utf8");
-    const mutated = mutate(source);
-    assert.notEqual(mutated, source, "test mutation must change the fixture");
-    writeFileSync(sourcePath, mutated);
-    return spawnSync(process.execPath, ["scripts/check-product-experience-local.mjs", `--root=${fixture}`], {
-      cwd: repositoryRoot,
-      encoding: "utf8",
-    });
-  } finally {
-    rmSync(fixture, { recursive: true, force: true });
-  }
+  return checkWithMutation(relativePath, mutate);
 }
+
+test.after(() => {
+  if (sharedFixture) rmSync(sharedFixture, { recursive: true, force: true });
+});
 
 test("Product Definition local invariant check covers all phase denominators", () => {
   const output = execFileSync(process.execPath, ["scripts/check-product-experience-local.mjs"], {

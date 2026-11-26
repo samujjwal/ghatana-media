@@ -211,13 +211,12 @@ class MediaDevVisionTrackingLiveIT {
             assertThat(s3Bytes(LOCALSTACK, bucket, storedArtifact(POSTGRES, tenant, principal, videoId)))
                     .as("the source video is never modified").isEqualTo(video);
 
-            // ---- ROI OCR/detect over the real launcher, results in source-frame pixels ----
-            JsonNode roiOcr = post(port, tenant, token, ROI, Map.of("requestId", "roi-ocr-" + run, "artifactId", videoId,
-                    "artifactVersionId", version, "tasks", List.of("ocr"), "frameIndex", 0, "roi", roi(0, 0, 320, 100)), 201);
-            JsonNode roiDoc = JSON.readTree(new String(s3Bytes(LOCALSTACK, bucket, storedArtifact(POSTGRES, tenant,
-                    principal, roiOcr.path("outputId").asString())), StandardCharsets.UTF_8));
-            System.out.println("J05-IT-ROI-OCR " + roiDoc);
-            assertThat(roiDoc.path("results").path("sceneText").path("fullText").asString().toUpperCase()).contains("GHATANA");
+            // ---- Generic OCR is owned by Document Intelligence and has no Media local fallback. ----
+            HttpResponse<String> roiOcr = send(port, tenant, token, "POST", ROI, JSON.writeValueAsString(Map.of(
+                    "requestId", "roi-ocr-" + run, "artifactId", videoId, "artifactVersionId", version,
+                    "tasks", List.of("ocr"), "frameIndex", 0, "roi", roi(0, 0, 320, 100))));
+            assertThat(roiOcr.statusCode()).as(roiOcr.body()).isEqualTo(422);
+            assertThat(roiOcr.body()).contains("DOCUMENT_INTELLIGENCE_NOT_ADMITTED").contains("NOT_ADMITTED");
 
             // ---- real Chromium on the Explorer page, launcher restart, reopen, revocation ----
             Path repoRoot = findMediaRepoRoot();

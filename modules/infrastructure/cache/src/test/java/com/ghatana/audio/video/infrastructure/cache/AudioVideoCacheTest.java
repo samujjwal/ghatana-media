@@ -161,6 +161,69 @@ class AudioVideoCacheTest {
     }
 
     @Test
+    @DisplayName("concurrent scoped waiters fail closed when authority is revoked during their shared source load")
+    void concurrentScopedLoadIsNotDisclosedToAnyWaiterAfterRevocation() {
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
+        var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 0L);
+        var unrelatedScope = new AudioVideoCache.CacheKeyScope("tenant-b", "principal-b", "rights-8",
+                "transcription", "CONFIDENTIAL", "artifact-b", "artifact-v2", "transcript-v3",
+                "sha256-source-3", "policy-epoch-4", "model-license-v1", 0L);
+        String key = cache.buildScopedKey(scope, "transcript-a");
+        String unrelatedKey = cache.buildScopedKey(unrelatedScope, "transcript-b");
+        CompletableFuture<Optional<String>> cacheRead = new CompletableFuture<>();
+        CompletableFuture<String> sourceRead = new CompletableFuture<>();
+        when(port.get(key)).thenReturn(AsyncOperation.from(cacheRead));
+        when(port.invalidateAsync(key)).thenReturn(AsyncOperation.success(null));
+        AtomicInteger sourceLoads = new AtomicInteger();
+        AtomicInteger authorityReads = new AtomicInteger();
+        AtomicBoolean revoked = new AtomicBoolean();
+        AudioVideoCache.ScopedAuthority authority = requested -> {
+            authorityReads.incrementAndGet();
+            return AsyncOperation.success(revoked.get()
+                    ? AudioVideoCache.ScopedAuthorityResult.rejected(requested)
+                    : AudioVideoCache.ScopedAuthorityResult.current(
+                            requested, java.time.Instant.now().plusSeconds(3600)));
+        };
+
+        AsyncOperation<String> first = cache.getOrLoadScopedWithAuthority(scope, "transcript-a", authority,
+                ignored -> {
+                    sourceLoads.incrementAndGet();
+                    return AsyncOperation.from(sourceRead);
+                });
+        AsyncOperation<String> second = cache.getOrLoadScopedWithAuthority(scope, "transcript-a", authority,
+                ignored -> {
+                    sourceLoads.incrementAndGet();
+                    return AsyncOperation.from(sourceRead);
+                });
+
+        // Both callers have passed their initial exact-scope authority checks and are
+        // waiting on the same cache read before the single shared source load begins.
+        assertThat(authorityReads.get()).isGreaterThanOrEqualTo(2);
+        cacheRead.complete(Optional.empty());
+        assertThat(sourceLoads).hasValue(1);
+
+        // Revoke while both callers await the shared source response, before either
+        // caller can observe or persist the protected value.
+        revoked.set(true);
+        sourceRead.complete("protected source value");
+
+        assertThatThrownBy(() -> await(first))
+                .hasRootCauseInstanceOf(SecurityException.class)
+                .hasRootCauseMessage("Current cache authority changed or became unavailable before disclosure");
+        assertThatThrownBy(() -> await(second))
+                .hasRootCauseInstanceOf(SecurityException.class)
+                .hasRootCauseMessage("Current cache authority changed or became unavailable before disclosure");
+        assertThat(sourceLoads).hasValue(1);
+        verify(port).get(key);
+        verify(port, org.mockito.Mockito.never()).put(eq(key), any(), any(Duration.class));
+        verify(port, org.mockito.Mockito.atLeastOnce()).invalidateAsync(key);
+        verify(port, org.mockito.Mockito.never()).invalidateAsync(unrelatedKey);
+    }
+
+    @Test
     void authorityRevokedWhileProtectedCacheWriteIsPendingInvalidatesAfterWriteSettles() {
         DistributedCacheService port = mock(DistributedCacheService.class);
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");

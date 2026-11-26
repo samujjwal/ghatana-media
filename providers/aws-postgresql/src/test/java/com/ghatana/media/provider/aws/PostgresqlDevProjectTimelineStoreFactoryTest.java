@@ -1,14 +1,25 @@
 package com.ghatana.media.provider.aws;
 
 import com.ghatana.media.production.timeline.ProjectTimelineEngine;
+import com.ghatana.media.production.timeline.ProjectTimelineEngine.AddScene;
+import com.ghatana.media.production.timeline.ProjectTimelineEngine.AddTrack;
+import com.ghatana.media.production.timeline.ProjectTimelineEngine.Edit;
+import com.ghatana.media.production.timeline.ProjectTimelineEngine.PutClip;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.Actor;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.Clock;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.Clip;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.IdempotencyConflictException;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectAccessDeniedException;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectNotFoundException;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectListObserved;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectListQuery;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.ProjectListUnknown;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.RationalTime;
 import com.ghatana.media.runtime.MediaProjectTimelineContracts.RevisionConflictException;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.Scene;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.SourceVersion;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.Track;
+import com.ghatana.media.runtime.MediaProjectTimelineContracts.TrackKind;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -45,6 +56,9 @@ class PostgresqlDevProjectTimelineStoreFactoryTest {
         String timelineRevisionId;
         String editedRevisionId;
         String restoredRevisionId;
+        String editRequestId = "timeline-edit-replay-main";
+        List<Edit> replayableEdit;
+        List<Edit> equivalentEncoding;
 
         try (var store = factory.createDevOnly(environment)) {
             ProjectTimelineEngine engine = new ProjectTimelineEngine(store);
@@ -73,15 +87,32 @@ class PostgresqlDevProjectTimelineStoreFactoryTest {
                     .isInstanceOf(RevisionConflictException.class);
             assertThat(engine.project(actor, projectId).headRevisionId()).isEqualTo(timelineRevisionId);
 
+            Scene scene = new Scene("scene-main", 0);
+            Track track = new Track("track-main", scene.sceneId(), TrackKind.VIDEO, 0);
+            Clip clip = new Clip("clip-main", scene.sceneId(), track.trackId(),
+                    new SourceVersion("artifact-main", "version-main"),
+                    new RationalTime(0, 30_000, 1, Clock.SOURCE_PRESENTATION),
+                    new RationalTime(30_000, 30_000, 1, Clock.SOURCE_PRESENTATION),
+                    new RationalTime(0, 24, 1, Clock.STORY),
+                    new RationalTime(24, 24, 1, Clock.STORY));
+            replayableEdit = List.of(new AddScene(scene), new AddTrack(track), new PutClip(clip));
+            Clip equivalentClip = new Clip(clip.clipId(), clip.sceneId(), clip.trackId(), clip.source(),
+                    new RationalTime(0, 1, 1, Clock.SOURCE_PRESENTATION),
+                    new RationalTime(1, 1, 1, Clock.SOURCE_PRESENTATION),
+                    new RationalTime(0, 1, 1, Clock.STORY),
+                    new RationalTime(1, 1, 1, Clock.STORY));
+            assertThat(equivalentClip).isEqualTo(clip);
+            equivalentEncoding = List.of(new AddScene(scene), new AddTrack(track),
+                    new PutClip(equivalentClip));
             var edited = engine.edit(actor, projectId, "timeline-main", timelineRevisionId,
-                    java.util.List.of(new ProjectTimelineEngine.AddScene(
-                            new com.ghatana.media.runtime.MediaProjectTimelineContracts.Scene("scene-main", 0))));
+                    replayableEdit, editRequestId);
             editedRevisionId = edited.revisionId();
             assertThat(edited.timelines()).singleElement().satisfies(snapshot -> {
                 assertThat(snapshot.timelineId()).isEqualTo("timeline-main");
                 assertThat(snapshot.semanticVersionId()).isNotEqualTo(
                         engine.revision(actor, projectId, timelineRevisionId).timelines().getFirst().semanticVersionId());
-                assertThat(snapshot.graph().scenes()).extracting(scene -> scene.sceneId()).containsExactly("scene-main");
+                assertThat(snapshot.graph().scenes()).extracting(sceneEntry -> sceneEntry.sceneId())
+                        .containsExactly("scene-main");
             });
             var restored = engine.restore(actor, projectId, editedRevisionId, initialRevisionId);
             restoredRevisionId = restored.revisionId();
@@ -97,6 +128,12 @@ class PostgresqlDevProjectTimelineStoreFactoryTest {
                     .extracting(snapshot -> snapshot.timelineId()).containsExactly("timeline-main");
             assertThat(engine.revision(actor, projectId, editedRevisionId).timelines().getFirst().graph().scenes())
                     .extracting(scene -> scene.sceneId()).containsExactly("scene-main");
+            assertThat(engine.edit(actor, projectId, "timeline-main", timelineRevisionId,
+                    replayableEdit, editRequestId)).isEqualTo(
+                    engine.revision(actor, projectId, editedRevisionId));
+            assertThatThrownBy(() -> engine.edit(actor, projectId, "timeline-main", timelineRevisionId,
+                    equivalentEncoding, editRequestId)).isInstanceOf(IdempotencyConflictException.class);
+            assertThat(engine.project(actor, projectId).headRevisionId()).isEqualTo(restoredRevisionId);
             assertThat(engine.currentRevision(actor, projectId).timelines()).isEmpty();
             var replay = engine.createProject(actor,
                     "dev-workspace.8fcb3f014ad7505274bca5de0470c1a7", "Persisted project", "request-dev-1");

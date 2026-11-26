@@ -666,6 +666,23 @@ mod tests {
     }
 
     #[test]
+    fn denoise_rejects_profile_sample_rate_mismatch() {
+        let input = mono(vec![0.01; 16]);
+        let original_samples = input.samples.clone();
+        let estimated = NoiseProfile::estimate(&input, 0, 8).unwrap();
+        let mismatched = NoiseProfile {
+            sample_rate: 16_000,
+            ..estimated
+        };
+
+        assert!(matches!(
+            denoise_bounded(&input, &mismatched, DenoiseOptions::DEFAULT, RepairLimits::DEFAULT),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+        assert_eq!(input.samples, original_samples);
+    }
+
+    #[test]
     fn declip_interpolates_only_bounded_interior_spans_and_preserves_input() {
         let input = mono(vec![0.0, 0.2, 1.0, 1.0, 0.8, 0.0]);
         let repaired = declip(&input, 0.98).unwrap();

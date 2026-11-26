@@ -169,6 +169,11 @@ function formatDuration(seconds: number | undefined): string {
   return `${minutes}:${remainder.toString().padStart(2, "0")}`;
 }
 
+function formatQualityScore(score: number | undefined): string {
+  if (score === undefined || !Number.isFinite(score)) return "Not evaluated";
+  return `${Math.round(score * 100)}%`;
+}
+
 function hasExactArtifactVersionRef(
   reference: MediaComponentValueTypes.MediaComponentValueTypes.ExactArtifactVersionRef | undefined,
 ): reference is MediaComponentValueTypes.MediaComponentValueTypes.ExactArtifactVersionRef {
@@ -420,9 +425,7 @@ export function VoiceProductionWorkflow({
             <div className="rounded-lg border p-3">
               <dt className="text-xs" style={{ color: colors.contentSecondary }}>Quality</dt>
               <dd className="mt-1 font-medium">
-                {source.qualityScore === undefined
-                  ? "Not evaluated"
-                  : `${Math.round(source.qualityScore * 100)}%`}
+                {formatQualityScore(source.qualityScore)}
               </dd>
             </div>
             <div className="rounded-lg border p-3">

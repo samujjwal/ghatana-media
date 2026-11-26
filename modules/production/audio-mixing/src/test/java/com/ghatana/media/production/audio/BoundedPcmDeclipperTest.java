@@ -102,6 +102,8 @@ class BoundedPcmDeclipperTest {
     void validates_parameter_bounds() {
         assertCode(pcm16(new short[] {10, 20}), Double.NaN, 2,
                 BoundedPcmDeclipper.ErrorCode.INVALID_INPUT);
+        assertCode(pcm16(new short[] {10, 20}), 0.49, 2,
+                BoundedPcmDeclipper.ErrorCode.INVALID_INPUT);
         assertCode(pcm16(new short[] {10, 20}), 0.99, BoundedPcmDeclipper.MAX_RUN_FRAMES + 1,
                 BoundedPcmDeclipper.ErrorCode.INVALID_INPUT);
     }

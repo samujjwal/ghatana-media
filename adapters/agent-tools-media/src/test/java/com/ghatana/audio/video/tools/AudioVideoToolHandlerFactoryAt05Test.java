@@ -68,7 +68,7 @@ class AudioVideoToolHandlerFactoryAt05Test extends EventloopTestBase {
     void injectedBinderFactoryCarriesHostIdentityPerCallAndReauthorizesReplay() {
         TestLedger ledger = new TestLedger();
         MediaToolExecutionBinder binder = new MediaToolExecutionBinder(ledger,
-                (tenant, invocation) -> Optional.empty(),
+                (authenticated, tenant, invocation) -> Optional.empty(),
                 (principal, identity) -> principal.tenantId().equals(identity.tenantId())
                         && principal.principalId().equals(identity.callerAgentId()));
         AudioVideoToolHandlerFactory factory = new AudioVideoToolHandlerFactory(binder);
@@ -118,7 +118,7 @@ class AudioVideoToolHandlerFactoryAt05Test extends EventloopTestBase {
             @Override public Optional<LogicalAction> find(String invocationId) { return Optional.empty(); }
             @Override public void record(LogicalAction action) { throw new AssertionError("must not record"); }
         };
-        var binder = new MediaToolExecutionBinder(unavailable, (tenant, invocation) -> Optional.empty(),
+        var binder = new MediaToolExecutionBinder(unavailable, (authenticated, tenant, invocation) -> Optional.empty(),
                 (principal, identity) -> principal.tenantId().equals(identity.tenantId())
                         && principal.principalId().equals(identity.callerAgentId()));
         var factory = new AudioVideoToolHandlerFactory(binder);

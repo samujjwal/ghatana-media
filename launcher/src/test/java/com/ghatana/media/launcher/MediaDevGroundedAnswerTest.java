@@ -146,6 +146,17 @@ class MediaDevGroundedAnswerTest {
                 .isInstanceOf(MediaDevGroundedClock.ClockBindingException.class);
     }
 
+    @Test
+    void sourceCleanupRemovesChildIntermediatesWithThePrivateStagingDirectory() throws Exception {
+        Path directory = Files.createTempDirectory("media-dev-grounded-cleanup-");
+        Path source = Files.writeString(directory.resolve("source.bin"), "source");
+        Files.writeString(directory.resolve("audio.wav"), "extracted audio");
+        Files.writeString(directory.resolve("frame-0.png"), "extracted frame");
+
+        assertThat(MediaDevGroundedAnswerRuntime.cleanupStagedSource(source)).isNull();
+        assertThat(Files.exists(directory)).isFalse();
+    }
+
     // ---------------- prompt and validation ----------------
 
     @Test

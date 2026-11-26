@@ -10,16 +10,145 @@ const Ajv2020 = requireTools("ajv/dist/2020").default;
 const addFormats = requireTools("ajv-formats").default;
 const conventionsPath = ".product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml";
 const registryPath = ".product-experience/pdp-3-product-experience/agent-tools/tool-registry.yaml";
+const j25Path = ".product-experience/pdp-3-product-experience/journey-contracts/return-bounded-results-to-integrating-products.yaml";
+const operationsPath = ".product-experience/pdp-1-domain-data/operations.yaml";
+const domainObjectsPath = ".product-experience/pdp-1-domain-data/domain-objects.yaml";
 const root = process.cwd();
 const readYaml = (path) => parse(readFileSync(path, "utf8"));
+const decisionLog = readFileSync(resolve(root, ".product-experience/decision-log.md"), "utf8");
 const conventions = () => readYaml(conventionsPath);
 const registry = () => readYaml(registryPath);
+let operationsCache;
+const operations = () => operationsCache ??= readYaml(operationsPath);
 const expected = new Map([
   ["av.speech-to-text", ["media.agent-tool-contract.speech-to-text.v1", "media.operation.transcription", "media.operation.transcription-submission", "operations/@id=media.operation.transcription-submission", "media.capability-bounds.media-speech-transcription-file", "capabilityOperationContracts/records/@id=media.capability-binding.media-speech-transcription-file"]],
   ["av.text-to-speech", ["media.agent-tool-contract.text-to-speech.v1", "media.operation.synthesis", "media.operation.capability.media-speech-synthesis-text-to-speech", "capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech", "media.capability-bounds.media-speech-synthesis-text-to-speech", "capabilityOperationContracts/records/@id=media.operation.capability.media-speech-synthesis-text-to-speech"]],
   ["av.vision-analysis", ["media.agent-tool-contract.vision-analysis.v1", "media.operation.vision-analysis", "media.operation.capability.media-vision-detect", "capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect", "media.capability-bounds.media-vision-detect", "capabilityOperationContracts/records/@id=media.operation.capability.media-vision-detect"]],
   ["av.multimodal-inference", ["media.agent-tool-contract.multimodal-inference.v1", "media.operation.multimodal-analysis", "media.operation.capability.media-multimodal-analyze-cross-modal", "capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-analyze-cross-modal", "media.capability-bounds.media-multimodal-analyze-cross-modal", "capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-analyze-cross-modal"]],
 ]);
+const genericOperationBindingStatus = "OWNER_DEFINED_OPERATION_CANDIDATE; adapter mapping and runtime admission pending";
+const genericRegistryBindingStatus = "owner-defined-operation-candidate; adapter-mapping-and-runtime-pending";
+const multimodalOperationBindingStatus = "OWNER_DEFINED_CANONICAL_OPERATION_BINDING; request mapping implemented but not wired, result adapter, independent review, and runtime admission pending";
+const multimodalRegistryBindingStatus = "source-bound-by-PXD-238/PXD-240; request-mapping-implemented-but-not-wired; result-and-runtime-pending";
+const multimodalOperationRef = "media.operation.capability.media-multimodal-analyze-cross-modal";
+
+function validateMultimodalResultContract(contract, errors) {
+  const input = contract.inputSchema;
+  const input1 = input?.properties?.input1;
+  const artifact = input1?.properties?.payload;
+  const input2 = input?.properties?.input2;
+  const analysis = input2?.properties?.payload;
+  const criteria = analysis?.properties?.criteria;
+  const requiredCriteria = ["subjectRefs", "analysisMethodRef", "profileRef", "configurationDigest", "purposeRef"];
+  if (!input?.required?.includes("input1") || !input.required.includes("input2")
+      || input1?.properties?.artifactType?.const !== "authorized-media-artifacts"
+      || !artifact?.required?.includes("artifactId") || !artifact.required.includes("versionId")
+      || input2?.properties?.artifactType?.const !== "analysis-request"
+      || !analysis?.required?.includes("dimensions") || !analysis.required.includes("criteria")
+      || requiredCriteria.some((field) => !criteria?.required?.includes(field))) {
+    errors.push("av.multimodal-inference: input schema must preserve exact PDP-1 typed inputs and required criteria");
+  }
+  for (const field of ["mediaArtifactId", "inferenceMode", "samplingRateMs", "enableTranscription", "enableVisionAnalysis", "languageCode"]) {
+    if (input?.properties?.[field]) errors.push(`av.multimodal-inference: legacy input ${field} must not be accepted`);
+  }
+  if (criteria?.properties?.profileRef?.default || criteria?.properties?.configurationDigest?.default) {
+    errors.push("av.multimodal-inference: profile and configuration cannot have defaults");
+  }
+
+  const variants = contract.resultSchema?.oneOf ?? [];
+  const variant = (outcome) => variants.find((branch) => branch.properties?.outcome?.const === outcome);
+  const accepted = variant("ACCEPTED");
+  const acceptedFields = ["operationRef", "operationId", "requestId", "requestFingerprint", "acceptedAt", "statusQueryRef"];
+  if (acceptedFields.some((field) => !accepted?.required?.includes(field))
+      || accepted?.properties?.operationRef?.const !== multimodalOperationRef) {
+    errors.push("av.multimodal-inference: accepted result must preserve canonical receipt and request identity");
+  }
+  if (accepted?.required?.includes("attemptId")) errors.push("av.multimodal-inference: attemptId must remain optional on ACCEPTED");
+  if (!/ACCEPTED -> media\.operation\.job\.submit\.v1 receipt/u.test(contract.resultAdapter?.mappings?.find((mapping) => mapping.startsWith("ACCEPTED")) ?? "")) {
+    errors.push("av.multimodal-inference: accepted result must use the canonical job submission receipt");
+  }
+
+  const failed = variant("FAILED");
+  const rejected = failed?.properties?.canonicalResult;
+  if (!failed?.required?.includes("canonicalResult") || rejected?.properties?.outcome?.const !== "REJECTED"
+      || !rejected?.required?.includes("outputs") || !rejected?.required?.includes("provenance")) {
+    errors.push("av.multimodal-inference: FAILED must preserve the canonical REJECTED result");
+  }
+  if (failed?.required?.includes("attemptId")) errors.push("av.multimodal-inference: attemptId must remain optional on FAILED");
+  if (rejected?.properties?.outputs?.maxItems !== 0) errors.push("av.multimodal-inference: REJECTED canonical result must contain zero outputs");
+  if (failed?.properties?.safeErrorCode || failed?.properties?.finalityEvidenceRef) {
+    errors.push("av.multimodal-inference: terminal rejection must not synthesize error or finality evidence");
+  }
+
+  const success = variant("SUCCEEDED");
+  const canonicalResult = success?.properties?.canonicalResult;
+  const outputSchema = canonicalResult?.properties?.outputs;
+  const outputItem = outputSchema?.items;
+  const payload = outputItem?.properties?.payload;
+  const provenance = canonicalResult?.properties?.provenance;
+  const successFields = ["operationRef", "operationId", "requestId", "requestFingerprint", "completedAt", "canonicalResult"];
+  if (successFields.some((field) => !success?.required?.includes(field))
+      || success?.properties?.operationRef?.const !== multimodalOperationRef
+      || canonicalResult?.properties?.outcome?.const !== "SUCCEEDED") {
+    errors.push("av.multimodal-inference: success must preserve the canonical SUCCEEDED result");
+  }
+  if (outputSchema?.minItems !== 1 || outputSchema?.maxItems !== 1
+      || outputItem?.properties?.artifactType?.const !== "source-grounded-cross-modal-result-with-provenance-and-uncertainty"
+      || !payload?.required?.includes("artifactId") || !payload?.required?.includes("versionId")
+      || !payload?.required?.includes("contentSchemaRef")
+      || payload?.properties?.contentSchemaRef?.const !== "media.multimodal.result-content.cross-modal.v1") {
+    errors.push("av.multimodal-inference: success must carry one exact typed output artifact version");
+  }
+  if (!provenance?.required?.includes("operationRef") || provenance?.properties?.operationRef?.const !== multimodalOperationRef
+      || !provenance?.required?.includes("observedAt") || !provenance?.required?.includes("sourceRefs")) {
+    errors.push("av.multimodal-inference: success must preserve canonical source provenance");
+  }
+  if (success?.required?.includes("attemptId") || success?.properties?.finalityEvidenceRef || success?.properties?.canonicalPayload) {
+    errors.push("av.multimodal-inference: success must not require an attempt or invent generic finality/payload fields");
+  }
+  if (!/completedAt equals canonicalResult\.observedAt/u.test(contract.resultAdapter?.mappings?.find((mapping) => mapping.startsWith("SUCCEEDED")) ?? "")) {
+    errors.push("av.multimodal-inference: success timestamp must follow canonical result observation");
+  }
+  const contentRef = "media.multimodal.result-content.cross-modal.v1";
+  const metadataAssertionMapping = contract.requestAdapter?.mappings?.find((mapping) =>
+    mapping.startsWith("optional input1 sourceRef")) ?? "";
+  if (contract.requestAdapter?.status !== "SOURCE_BOUND_IMPLEMENTED_NOT_WIRED"
+      || contract.requestAdapter?.artifactMetadataDecisionRef !== ".product-experience/decision-log.md#PXD-240"
+      || !/untrusted artifact metadata assertions/u.test(metadataAssertionMapping)
+      || !/exact owner-authoritative comparison before dispatch/u.test(metadataAssertionMapping)
+      || !decisionLog.includes("### PXD-240 — Bind optional multimodal artifact metadata assertions")) {
+    errors.push("av.multimodal-inference: optional artifact metadata assertion binding is missing or admitted");
+  }
+  if (contract.resultContentDecisionRef !== ".product-experience/decision-log.md#PXD-239") {
+    errors.push("av.multimodal-inference: PXD-239 result-content decision binding is missing");
+  }
+  const p1 = operations().capabilityOperationContracts;
+  const outputType = p1.outputPayloadSchemas.find((item) => item.id === "media.typed-output.source-grounded-cross-modal-result-with-provenance-and-uncertainty");
+  const content = outputType?.contentSchema;
+  if (outputType?.contentSchemaRef !== contentRef || content?.id !== contentRef
+      || content?.sourceDecisionRef !== ".product-experience/decision-log.md#PXD-239") {
+    errors.push("av.multimodal-inference: P1 output type must bind the exact PXD-239 content schema");
+  }
+  const operation = p1.records.find((record) => record.id === multimodalOperationRef);
+  const constraints = operation?.effect?.resultContentConstraints;
+  if (operation?.successOutputs?.[0]?.contentSchemaRef !== contentRef
+      || constraints?.contentSchemaRef !== contentRef
+      || !/exact input2\.payload\.dimensions reference set/u.test(constraints?.dimensionEvidenceKeys ?? "")
+      || !/at least two distinct supported modalities/u.test(constraints?.modalityResolution ?? "")
+      || !/uncertainty\.scopeRef must equal that exact claimRef/u.test(constraints?.claimBinding ?? "")
+      || !/exact admitted input2\.payload\.criteria\.profileRef and analysisMethodRef/u.test(constraints?.claimBinding ?? "")) {
+    errors.push("av.multimodal-inference: P1 operation must bind claim dimension keys and owner modality resolution");
+  }
+  const successMapping = contract.resultAdapter?.mappings?.find((mapping) => mapping.startsWith("SUCCEEDED")) ?? "";
+  if (!successMapping.includes(`contentSchemaRef=${contentRef}`) || !/referenced artifact version must conform/u.test(successMapping)) {
+    errors.push("av.multimodal-inference: successful result must validate the exact referenced artifact content");
+  }
+
+  const unknown = variant("OUTCOME_UNKNOWN");
+  if (unknown?.properties?.canonicalResult || unknown?.properties?.canonicalPayload || unknown?.properties?.payloadRef) {
+    errors.push("av.multimodal-inference: unknown outcome cannot carry a success result");
+  }
+}
 
 function resolveSelector(value, selector) {
   let cursor = value;
@@ -74,7 +203,9 @@ function validateDefinitions(source) {
     const sourceOperation = resolveSourceRef(`.product-experience/pdp-1-domain-data/operations.yaml#${selector}`);
     if (!sourceOperation || sourceOperation.id !== operationId) errors.push(`${toolId}: canonical operation record selector does not resolve exactly`);
     if (contract.toolId !== toolId || contract.operationFamilyRef !== familyRef || contract.canonicalOperationRef !== `.product-experience/pdp-1-domain-data/operations.yaml#${selector}`) errors.push(`${toolId}: identity/canonical operation mismatch`);
-    if (contract.operationBindingStatus !== "OWNER_DEFINED_OPERATION_CANDIDATE; adapter mapping and runtime admission pending") errors.push(`${toolId}: candidate binding promoted`);
+    const isMultimodal = toolId === "av.multimodal-inference";
+    const expectedBindingStatus = isMultimodal ? multimodalOperationBindingStatus : genericOperationBindingStatus;
+    if (contract.operationBindingStatus !== expectedBindingStatus) errors.push(`${toolId}: operation binding status mismatch`);
     if (contract.runtimeAdmission !== "NOT_ADMITTED") errors.push(`${toolId}: runtime admission promoted`);
     if (contract.executionBudgetBoundsRef !== `.product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/bounds/@id=${boundId}`) errors.push(`${toolId}: execution budget must bind its exact PDP-1 capability bound`);
     const bound = resolveSourceRef(contract.executionBudgetBoundsRef);
@@ -96,7 +227,8 @@ function validateDefinitions(source) {
     if (!unknown?.oneOf || unknown.oneOf.length !== 2) errors.push(`${toolId}: unknown result must distinguish known and unresolved operation identity`);
     if (unknown?.properties?.payloadRef || unknown?.properties?.canonicalPayload) errors.push(`${toolId}: unknown outcome carries success payload`);
     const success = contract.resultSchema.oneOf.find((b) => b.properties?.outcome?.const === "SUCCEEDED");
-    if (success) {
+    if (isMultimodal) validateMultimodalResultContract(contract, errors);
+    else if (success) {
       const payload = success.properties?.canonicalPayload;
       for (const field of ["attemptId", "operationId", "canonicalPayload"]) if (!success.required?.includes(field)) errors.push(`${toolId}: success omits required ${field}`);
       for (const field of ["payloadTypeRef", "payloadSchemaRef", "subjectObjectRef", "subjectVersionRef", "producerRef", "profileRef", "profileVersionRef", "provenanceRef", "evidenceRefs", "observedAt"]) if (!payload?.required?.includes(field)) errors.push(`${toolId}: success payload omits ${field}`);
@@ -104,13 +236,18 @@ function validateDefinitions(source) {
     const fields = new Set(Object.keys(contract.inputSchema?.properties ?? {}));
     for (const forbidden of ["tenantId", "principalId", "delegation", "policyDecision", "idempotencyKey", "deadline", "cancellationToken", "executionBudget", "budgetRef", "capabilityBoundsRef"]) if (fields.has(forbidden)) errors.push(`${toolId}: trusted context field ${forbidden} must not be model supplied`);
     for (const ref of contract.authorityRefs ?? []) if (!resolveSourceRef(ref)) errors.push(`${toolId}: authority source reference does not resolve: ${ref}`);
-    for (const ref of [contract.canonicalOperationRef, contract.requestAdapter?.canonicalContractRef]) if (!resolveSourceRef(ref)) errors.push(`${toolId}: canonical source reference does not resolve: ${ref}`);
+    for (const ref of [contract.canonicalOperationRef, contract.requestAdapter?.canonicalContractRef]) {
+      if (!resolveSourceRef(ref)) errors.push(`${toolId}: canonical source reference does not resolve: ${ref}`);
+    }
     const requestSource = resolveSourceRef(contract.requestAdapter?.canonicalContractRef);
     if (!requestSource || typeof requestSource !== "object") errors.push(`${toolId}: exact canonical request schema selector does not resolve`);
     const registryTool = (registry().tools ?? []).find((item) => item.id === toolId);
     if (!registryTool || registryTool.mediaDefinitionContractRef !== `.product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#mediaOwnedToolDefinitionContracts/contracts/@id=${contractId}`) errors.push(`${toolId}: registry contract ref mismatch`);
-    if (registryTool?.operationBinding?.value !== operationId || registryTool.operationBinding.status !== "owner-defined-operation-candidate; adapter-mapping-and-runtime-pending") errors.push(`${toolId}: registry binding scope mismatch`);
-    if (registryTool?.executionAdmitted !== false || contract.requestAdapter?.status !== "NOT_IMPLEMENTED" || contract.resultAdapter?.status !== "NOT_IMPLEMENTED") errors.push(`${toolId}: candidate admission/adapter boundary promoted`);
+    const expectedRegistryStatus = isMultimodal ? multimodalRegistryBindingStatus : genericRegistryBindingStatus;
+    if (registryTool?.operationBinding?.value !== operationId || registryTool.operationBinding.status !== expectedRegistryStatus) errors.push(`${toolId}: registry binding scope mismatch`);
+    const requestAdapterPending = contract.requestAdapter?.status === (isMultimodal ? "SOURCE_BOUND_IMPLEMENTED_NOT_WIRED" : "NOT_IMPLEMENTED");
+    const resultAdapterPending = contract.resultAdapter?.status === (isMultimodal ? "SOURCE_BOUND_NOT_IMPLEMENTED" : "NOT_IMPLEMENTED");
+    if (registryTool?.executionAdmitted !== false || !requestAdapterPending || !resultAdapterPending) errors.push(`${toolId}: adapter or runtime admission boundary mismatch`);
   }
   const host = source.mediaOwnedToolDefinitionContracts?.hostInvocationContext?.schema;
   if (!host?.required?.includes("executionBudget")) errors.push("host invocation context must require an execution budget disposition");
@@ -151,6 +288,153 @@ test("Media Agent Tool contracts resolve exact canonical source records and stay
   assert.equal(media.sharedBinding.status, "NOT_BOUND");
   assert.equal(media.sharedBinding.adapterStatus, "NOT_IMPLEMENTED; no Media adapter currently maps the proposed Media result schemas to the installed Tools SPI.");
   assert.equal(media.status, "MEDIA_OWNER_DEFINITION_ONLY; public-runtime-binding-pending");
+});
+
+test("multimodal Agent Tool experience binds J-25 without admitting runtime execution", () => {
+  const tool = registry().tools.find((item) => item.id === "av.multimodal-inference");
+  assert.equal(tool.experienceBinding, "source-bound-to-J-25-by-PXD-241; independent-experience-review-pending");
+  assert.equal(tool.experienceContract?.decisionRef, ".product-experience/decision-log.md#PXD-241");
+  assert.equal(tool.experienceContract?.journeyRef, "J-25");
+  assert.equal(tool.experienceContract?.channelRef, "media.channel.agent");
+  assert.equal(tool.experienceContract?.consumerSurfaceId, "media.surface.agent-tools");
+  assert.equal(tool.experienceContract?.status, "SOURCE_BOUND_DEFINITION_ONLY; INDEPENDENT_REVIEW_PENDING");
+  assert.equal(tool.experienceContract?.runtimeAdmission, "NOT_ADMITTED");
+  assert.deepEqual(tool.experienceContract?.actingPersonRefs, ["media.creator", "media.editor", "media.reviewer"]);
+  assert.match(tool.experienceContract?.requestBoundary ?? "", /profileRef, configurationDigest, and purposeRef/u);
+  assert.match(tool.experienceContract?.outcomeSemantics?.accepted ?? "", /jobId, requestId, requestFingerprint, and exact statusQueryRef/u);
+  assert.match(tool.experienceContract?.outcomeSemantics?.unknown ?? "", /same request identity before retry/u);
+  const journey = readYaml(j25Path);
+  const journeyToolBinding = journey.agentToolBindings?.find((binding) => binding.toolId === "av.multimodal-inference");
+  assert.ok(journey.channels.includes("media.channel.agent"));
+  assert.equal(journey.pdp1ResultEvidence.channelAndRuntimeBoundary.intendedChannels.includes("media.channel.agent"), true);
+  assert.equal(journeyToolBinding?.sourceDecisionRef, ".product-experience/decision-log.md#PXD-241");
+  assert.equal(journeyToolBinding?.consumerSurfaceId, "media.surface.agent-tools");
+  assert.equal(journeyToolBinding?.channelTransport, "UNBOUND");
+  assert.equal(journeyToolBinding?.runtimeAdmission, "NOT_ADMITTED");
+  assert.match(decisionLog, /### PXD-241 — Bind the cross-modal Agent Tool experience to J-25/u);
+  assert.equal(tool.executionAdmitted, false);
+});
+
+test("cross-modal artifact content is version-bound, source-scoped, uncertainty-complete, and admits explicit unknown", () => {
+  const p1 = operations().capabilityOperationContracts;
+  const outputType = p1.outputPayloadSchemas.find((item) => item.id === "media.typed-output.source-grounded-cross-modal-result-with-provenance-and-uncertainty");
+  const contentSchema = outputType.contentSchema.schema;
+  const dimensionEvidenceMatchesRequest = (content, requestedDimensions) => content.claims.every((claim) => {
+    const actual = Object.keys(claim.dimensionEvidence).sort();
+    return claim.uncertainty.scopeRef === claim.claimRef
+      && JSON.stringify(actual) === JSON.stringify([...requestedDimensions].sort());
+  });
+  assert.match(outputType.contentSchema.ownerDefinition, /uncertainty\.scopeRef must equal that exact claimRef/u);
+  assert.match(outputType.contentSchema.ownerDefinition, /exact requested dimension set/u);
+  const validContent = {
+    resultDisposition: "REPORTED",
+    sourceRefs: ["source:artifact:version-1"],
+    claims: [{
+      claimRef: "profile:claim:version-1",
+      disposition: "REPORTED",
+      dimensionEvidence: {
+        "dimension:audio": { sourceRef: "source:artifact:version-1", evidenceDisposition: "PRESENT", evidenceRefs: ["evidence:audio:version-1"], reasonRefs: [] },
+        "dimension:visual": { sourceRef: "source:artifact:version-1", evidenceDisposition: "PRESENT", evidenceRefs: ["evidence:visual:version-1"], reasonRefs: [] },
+      },
+      uncertainty: {
+        scopeRef: "profile:claim:version-1",
+        disposition: "QUALITATIVE",
+        evidenceDisposition: "PRESENT",
+        evidenceRefs: ["uncertainty:evidence:version-1"],
+        limitationRefs: [],
+        reasonRefs: [],
+      },
+    }],
+    reasonRefs: [],
+  };
+  const validateContent = compile(contentSchema);
+  assert.equal(validateContent(validContent), true, "reported claims retain exact source and scoped uncertainty evidence");
+  assert.equal(dimensionEvidenceMatchesRequest(validContent, ["dimension:audio", "dimension:visual"]), true,
+    "claim uncertainty scope and dimension refs join to the exact request");
+  const wrongScope = structuredClone(validContent);
+  wrongScope.claims[0].uncertainty.scopeRef = "profile:another-claim:version-1";
+  assert.equal(dimensionEvidenceMatchesRequest(wrongScope, ["dimension:audio", "dimension:visual"]), false,
+    "a claim cannot reuse another claim's uncertainty scope");
+  assert.equal(dimensionEvidenceMatchesRequest(validContent, ["dimension:audio", "dimension:depth"]), false,
+    "a claim cannot substitute a requested dimension key");
+  assert.equal(validateContent({ ...validContent, claims: [] }), false, "REPORTED cannot silently omit every claim");
+  const unknownWithoutReason = { resultDisposition: "UNKNOWN", sourceRefs: validContent.sourceRefs, claims: [], reasonRefs: [] };
+  assert.equal(validateContent(unknownWithoutReason), false, "empty UNKNOWN output requires an explicit reason");
+  assert.equal(validateContent({ ...unknownWithoutReason, reasonRefs: ["reason:unknown:version-1"] }), true,
+    "explicit UNKNOWN with no fabricated claim is representable");
+  const unknownClaim = structuredClone(validContent);
+  unknownClaim.claims[0].disposition = "UNKNOWN";
+  unknownClaim.claims[0].uncertainty.disposition = "UNKNOWN";
+  unknownClaim.claims[0].uncertainty.evidenceDisposition = "UNKNOWN";
+  unknownClaim.claims[0].uncertainty.evidenceRefs = [];
+  unknownClaim.claims[0].uncertainty.reasonRefs = ["reason:unknown-claim:version-1"];
+  assert.equal(validateContent(unknownClaim), true, "UNKNOWN claim is explicit, scoped, and reasoned");
+  const oneDimension = structuredClone(validContent);
+  delete oneDimension.claims[0].dimensionEvidence["dimension:visual"];
+  assert.equal(validateContent(oneDimension), false, "a claim cannot carry fewer than two dimension evidence entries");
+  const missingClaimReason = structuredClone(validContent);
+  missingClaimReason.claims[0].disposition = "ABSTAINED";
+  missingClaimReason.claims[0].uncertainty.reasonRefs = [];
+  assert.equal(validateContent(missingClaimReason), false, "ABSTAINED claim requires a reason");
+  const missingEvidence = structuredClone(validContent);
+  missingEvidence.claims[0].dimensionEvidence["dimension:audio"].evidenceRefs = [];
+  assert.equal(validateContent(missingEvidence), false, "PRESENT evidence disposition requires evidence references");
+  const unknownEvidenceWithoutReason = structuredClone(validContent);
+  unknownEvidenceWithoutReason.claims[0].dimensionEvidence["dimension:audio"].evidenceDisposition = "UNKNOWN";
+  unknownEvidenceWithoutReason.claims[0].dimensionEvidence["dimension:audio"].evidenceRefs = [];
+  assert.equal(validateContent(unknownEvidenceWithoutReason), false, "UNKNOWN evidence disposition requires a reason");
+  const unknownUncertaintyWithoutReason = structuredClone(validContent);
+  unknownUncertaintyWithoutReason.claims[0].uncertainty.disposition = "UNKNOWN";
+  unknownUncertaintyWithoutReason.claims[0].uncertainty.evidenceDisposition = "UNKNOWN";
+  unknownUncertaintyWithoutReason.claims[0].uncertainty.evidenceRefs = [];
+  assert.equal(validateContent(unknownUncertaintyWithoutReason), false, "UNKNOWN uncertainty requires a reason");
+  const reportedWithoutUncertaintyEvidence = structuredClone(validContent);
+  reportedWithoutUncertaintyEvidence.claims[0].uncertainty.disposition = "UNKNOWN";
+  reportedWithoutUncertaintyEvidence.claims[0].uncertainty.evidenceDisposition = "UNKNOWN";
+  reportedWithoutUncertaintyEvidence.claims[0].uncertainty.evidenceRefs = [];
+  reportedWithoutUncertaintyEvidence.claims[0].uncertainty.reasonRefs = ["reason:uncertainty-unknown:version-1"];
+  assert.equal(validateContent(reportedWithoutUncertaintyEvidence), false,
+    "REPORTED claim cannot pass when uncertainty is UNKNOWN or unsupported by evidence");
+
+  const contract = conventions().mediaOwnedToolDefinitionContracts.contracts.find((item) => item.toolId === "av.multimodal-inference");
+  const observedAt = "2026-11-26T12:00:00Z";
+  const successfulToolResult = {
+    contractId: contract.id,
+    toolId: contract.toolId,
+    outcome: "SUCCEEDED",
+    operationRef: multimodalOperationRef,
+    operationId: "job:exact-1",
+    requestId: "request:exact-1",
+    requestFingerprint: `sha256:${"a".repeat(64)}`,
+    completedAt: observedAt,
+    canonicalResult: {
+      outcome: "SUCCEEDED",
+      observedAt,
+      outputs: [{
+        artifactType: "source-grounded-cross-modal-result-with-provenance-and-uncertainty",
+        payload: { artifactId: "artifact:result-1", versionId: "version:1", contentSchemaRef: outputType.contentSchemaRef },
+      }],
+      provenance: { operationRef: multimodalOperationRef, observedAt, sourceRefs: ["source:artifact:version-1"] },
+      implementationState: "UNKNOWN",
+      qualificationState: "NOT_EVALUATED",
+      runtimeAvailability: "UNKNOWN",
+    },
+  };
+  const validateToolResult = compile(contract.resultSchema);
+  assert.equal(validateToolResult(successfulToolResult), true, "success binds the exact output content schema");
+  const missingRef = structuredClone(successfulToolResult);
+  delete missingRef.canonicalResult.outputs[0].payload.contentSchemaRef;
+  assert.equal(validateToolResult(missingRef), false, "success cannot omit the artifact content schema ref");
+  const substitutedRef = structuredClone(successfulToolResult);
+  substitutedRef.canonicalResult.outputs[0].payload.contentSchemaRef = "media.multimodal.result-content.other.v1";
+  assert.equal(validateToolResult(substitutedRef), false, "success cannot substitute a different content schema");
+  const outputTypeMapping = readYaml(domainObjectsPath).ownerOutputArtifactTypeCrosswalk.records.find(
+    (item) => item.artifactType === "source-grounded-cross-modal-result-with-provenance-and-uncertainty",
+  );
+  assert.equal(outputTypeMapping.contentSchemaRef, outputType.contentSchemaRef, "P1 domain mapping binds the exact content schema");
+  assert.equal(outputTypeMapping.contentSchemaSourceRef,
+    ".product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.source-grounded-cross-modal-result-with-provenance-and-uncertainty/contentSchema");
+  assert.equal(outputTypeMapping.sourceDecisionRef, ".product-experience/decision-log.md#PXD-239");
 });
 
 test("host execution budget capability bounds join exactly to each selected canonical operation", () => {
@@ -269,8 +553,16 @@ test("closed result/error union uses bounded error codes and keeps unknown non-f
       const variant=contract.resultSchema.oneOf.find((branch)=>branch.properties?.outcome?.const===outcome);
       assert.ok(variant,`${contract.toolId}: ${outcome} error variant exists`);
       assert.equal(variant.additionalProperties,false,`${contract.toolId}: ${outcome} rejects undeclared error detail`);
-      assert.ok(variant.required.includes("safeErrorCode"),`${contract.toolId}: ${outcome} requires safeErrorCode`);
-      assert.ok(variant.properties.safeErrorCode.pattern,`${contract.toolId}: error code is bounded`);
+      if(contract.toolId==="av.multimodal-inference"&&outcome==="FAILED"){
+        assert.ok(variant.required.includes("canonicalResult"),"multimodal terminal failure preserves the canonical result");
+        assert.equal(variant.properties.canonicalResult.properties.outcome.const,"REJECTED");
+        assert.equal(variant.properties.canonicalResult.properties.outputs.maxItems,0,"canonical rejection carries zero outputs");
+        assert.equal(variant.properties.safeErrorCode,undefined,"canonical rejection does not synthesize a safe error code");
+        assert.equal(variant.properties.finalityEvidenceRef,undefined,"canonical rejection does not invent finality evidence");
+      }else{
+        assert.ok(variant.required.includes("safeErrorCode"),`${contract.toolId}: ${outcome} requires safeErrorCode`);
+        assert.ok(variant.properties.safeErrorCode.pattern,`${contract.toolId}: error code is bounded`);
+      }
       assert.equal(variant.properties.message,undefined,`${contract.toolId}: error message is not exposed`);
     }
     const unknown=contract.resultSchema.oneOf.find((branch)=>branch.properties?.outcome?.const==="OUTCOME_UNKNOWN");
@@ -293,7 +585,7 @@ test("pre-dispatch failure, accepted receipt, unknown dispatch, and completion r
   assert.equal(validate({...unknown,operationId:"invented"}),false);
   assert.equal(validate({...unknown,payloadRef:"fake-success"}),false);
   assert.equal(contract.resultSchema.oneOf.some(b=>b.properties?.outcome?.const==="SUCCEEDED"),false,"STT submission schema cannot claim transcript completion");
-  for(const c of conventions().mediaOwnedToolDefinitionContracts.contracts.filter(c=>c.toolId!=="av.speech-to-text")){
+  for(const c of conventions().mediaOwnedToolDefinitionContracts.contracts.filter(c=>c.toolId!=="av.speech-to-text"&&c.toolId!=="av.multimodal-inference")){
     const schema=compile(c.resultSchema), success=c.resultSchema.oneOf.find(b=>b.properties?.outcome?.const==="SUCCEEDED");
     const op=success.properties.operationRef.const;
     const payload={payloadTypeRef:"media.typed-output.example",payloadSchemaRef:"schema:typed-output:v1",payloadRef:"payload:1",subjectObjectRef:"media.domain.artifact",subjectVersionRef:"artifact-version:1",producerRef:"producer:1",profileRef:"profile:1",profileVersionRef:"profile-version:1",provenanceRef:"provenance:1",evidenceRefs:["evidence:1"],observedAt:"2026-10-09T12:00:00Z"};
@@ -303,4 +595,38 @@ test("pre-dispatch failure, accepted receipt, unknown dispatch, and completion r
     assert.equal(schema({...good,canonicalPayload:{...payload,provenanceRef:undefined}}),false,`${c.toolId}: result without provenance rejected`);
     assert.equal(schema({...good,attemptId:undefined}),false,`${c.toolId}: completed result without attempt evidence rejected`);
   }
+
+  const mm=conventions().mediaOwnedToolDefinitionContracts.contracts.find(c=>c.toolId==="av.multimodal-inference");
+  const mmSchema=compile(mm.resultSchema);
+  const mmBase=(outcome)=>baseFor(mm,outcome);
+  const requestId=`agtool-${"d".repeat(64)}`;
+  const requestFingerprint=`sha256:${"e".repeat(64)}`;
+  const operationRef=multimodalOperationRef;
+  const mmAccepted={...mmBase("ACCEPTED"),operationRef,operationId:"job-1",requestId,requestFingerprint,acceptedAt:"2026-10-09T12:00:00Z",statusQueryRef:"inspect-job:job-1"};
+  assert.equal(mmSchema(mmAccepted),true,"accepted result is the canonical job receipt without an attempt claim");
+  assert.equal(mmSchema({...mmAccepted,attemptId:"attempt-1"}),true,"accepted receipt preserves an optional exact attempt identity");
+  assert.equal(mmSchema({...mmAccepted,canonicalResult:{outcome:"SUCCEEDED"}}),false,"accepted receipt cannot carry an output result");
+
+  const mmUnknown={...mmBase("OUTCOME_UNKNOWN"),identityDisposition:"DISPATCHED_IDENTITY_UNRESOLVED",invocationId:"inv-mm-1",requestId,requestFingerprint,observedAt:"2026-10-09T12:00:00Z"};
+  assert.equal(mmSchema(mmUnknown),true,"unknown dispatch keeps request correlation without claiming success");
+  assert.equal(mmSchema({...mmUnknown,canonicalResult:{outcome:"SUCCEEDED"}}),false,"unknown result cannot carry a canonical success payload");
+  assert.equal(mmSchema({...mmUnknown,payloadRef:"fake-success"}),false,"unknown result cannot carry a success reference");
+
+  const rejected={outcome:"REJECTED",observedAt:"2026-10-09T12:00:00Z",outputs:[],provenance:{operationRef,observedAt:"2026-10-09T12:00:00Z",sourceRefs:[]},implementationState:"UNKNOWN",qualificationState:"NOT_EVALUATED",runtimeAvailability:"UNKNOWN"};
+  const failed={...mmBase("FAILED"),operationRef,operationId:"job-1",requestId,requestFingerprint,observedAt:"2026-10-09T12:00:00Z",canonicalResult:rejected};
+  assert.equal(mmSchema(failed),true,"terminal FAILED preserves the exact canonical REJECTED result");
+  assert.equal(mmSchema({...failed,attemptId:"attempt-1"}),true,"terminal failure preserves an optional exact attempt identity");
+  assert.equal(mmSchema({...failed,safeErrorCode:"INTERNAL_ERROR"}),false,"terminal FAILED does not add a synthetic error code");
+  assert.equal(mmSchema({...failed,finalityEvidenceRef:"invented"}),false,"terminal FAILED does not add a synthetic finality reference");
+  assert.equal(mmSchema({...failed,canonicalResult:{...rejected,outputs:[{artifactType:"unexpected"} ]}}),false,"terminal REJECTED result must have zero outputs");
+
+  const observedAt="2026-10-09T12:01:00Z";
+  const canonicalResult={outcome:"SUCCEEDED",observedAt,outputs:[{artifactType:"source-grounded-cross-modal-result-with-provenance-and-uncertainty",payload:{artifactId:"artifact-1",versionId:"version-1",contentSchemaRef:"media.multimodal.result-content.cross-modal.v1"}}],provenance:{operationRef,observedAt,sourceRefs:[]},implementationState:"UNKNOWN",qualificationState:"NOT_EVALUATED",runtimeAvailability:"UNKNOWN"};
+  const succeeded={...mmBase("SUCCEEDED"),operationRef,operationId:"job-1",requestId,requestFingerprint,completedAt:observedAt,canonicalResult};
+  assert.equal(mmSchema(succeeded),true,"success preserves one typed source-grounded artifact and canonical provenance without requiring attemptId");
+  assert.equal(mmSchema({...succeeded,attemptId:"attempt-1"}),true,"success preserves an optional exact attempt identity when present");
+  assert.equal(mmSchema({...succeeded,canonicalResult:{...canonicalResult,outputs:[...canonicalResult.outputs,...canonicalResult.outputs]}}),false,"success must carry exactly one output artifact");
+  assert.equal(mmSchema({...succeeded,canonicalResult:{...canonicalResult,outputs:[{artifactType:"source-grounded-cross-modal-result-with-provenance-and-uncertainty",payload:{artifactId:"artifact-1"}}]}}),false,"success artifact must preserve its immutable versionId");
+  assert.equal(mmSchema({...succeeded,canonicalResult:{...canonicalResult,provenance:undefined}}),false,"success must preserve source provenance");
+  assert.equal(mmSchema({...succeeded,finalityEvidenceRef:"invented"}),false,"success does not invent a separate finality reference");
 });

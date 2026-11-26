@@ -300,41 +300,36 @@ observedHandlerInventory:
         reconciliation; canonical sanitized errors and partial-result rules
         remain pending
     - canonicalToolId: av.multimodal-inference
-      idStatus: observed-in-handler; canonical registry admission pending
+      idStatus: PXD-238/PXD-240 define the canonical cross-modal request binding and PXD-239 its typed result; a local structural request mapper exists but is not wired, and runtime admission remains pending
       inputSchema:
-        status: observed-subset-not-authoritative
+        status: current-handler-structural-observation; canonical product schema is defined in mediaOwnedToolDefinitionContracts
         fields:
-          mediaArtifactId: "Observed required nonblank string."
-          inferenceMode: "Observed optional strict enum
-            SUMMARY|SEGMENT|FRAME_BY_FRAME|FULL, default SUMMARY."
-          samplingRateMs: "Observed optional integer in inclusive range 100..60000,
-            default 1000."
-          enableTranscription: "Observed optional strict boolean, default true;
-            non-boolean values reject."
-          enableVisionAnalysis: "Observed optional strict boolean, default true;
-            non-boolean values reject."
-          languageCode: "Observed optional BCP-47 language tag, default en-US."
-          rejection: "Rejects unknown top-level fields and rejects when both modality
-            flags are false."
-      resultSchema: unresolved; define versioned component outputs, partial/failure
-        semantics, finality, operation identity, and evidence before admission
-      authorityAndDelegation: unresolved; require authorization for exact
-        artifact/version and each enabled analysis; one permission must not
-        imply another
-      idempotency: unresolved across component calls and provider effects; default no
-        automatic retry
-      timeout: unresolved finite end-to-end and component bounds; runtime binding
-        pending; timeout must not imply no component ran
-      cancellation: unresolved across component calls; partial completion and
-        cancellation races pending
-      unknownOutcome: unresolved result binding; resolve original operation and
-        component states before retry
-      evidence: unresolved per-component source/version, provider/model, provenance,
-        and partial-result evidence
-      safeFailure: observed handler rejects missing artifact ID and reports
-        unavailable delegate; post-dispatch ambiguity is preserved for runtime
-        reconciliation; canonical sanitized errors and partial-effect/result
-        rules remain pending
+          input1: "Required authorized-media-artifacts object with artifactId/versionId; optional sourceRef, declaredMediaType, and declaredByteLength are structurally checked."
+          input2: "Required analysis-request object with dimensions and required criteria; optional timeRange, pageSize, and pageToken are structurally checked."
+          criteria: "Requires subjectRefs, analysisMethodRef, profileRef, SHA-256 configurationDigest, and purposeRef; optional range, region/channel, and uncertainty references are structurally checked."
+          rejection: "Rejects unknown top-level or nested keys and malformed values before dispatch. Structurally valid input still returns MULTIMODAL_NOT_ADMITTED; references and authority are not resolved by this handler."
+      resultSchema: PXD-238/PXD-239 and the canonical Media tool contract define accepted, succeeded,
+        rejected, and unknown outcomes with one typed source-grounded output on success;
+        its artifact reference carries the exact cross-modal contentSchemaRef and the
+        referenced version must conform to that P1 content schema; this handler has no
+        result adapter and returns NOT_ADMITTED before dispatch
+      authorityAndDelegation: PXD-238 defines verified creator/editor/reviewer mediation
+        under a current delegated grant; the handler does not verify principal, artifact
+        rights, delegation, or profile authority and performs no dispatch
+      idempotency: PXD-238 defines invocation-derived requestId and claim binding; no
+        canonical operation submit/readback adapter is wired, so no effect retry occurs
+      timeout: PXD-238 requires a current admitted profile and bounded execution; the
+        operation-specific profile resolver and deadline adapter are not implemented
+      cancellation: No operation-specific dispatch or cancellation adapter is wired;
+        provider cancellation and its terminal race remain unimplemented
+      unknownOutcome: PXD-238 requires reconciliation by the same requestId; the current
+        runtime port has no durable canonical result lookup, so this handler does not dispatch
+      evidence: PXD-238/PDP-1/PXD-239 define one source-grounded output artifact with
+        provenance, scoped uncertainty, exact per-dimension evidence, and reasoned
+        UNKNOWN/ABSTAINED states under media.multimodal.result-content.cross-modal.v1;
+        the current handler produces no output or provenance
+      safeFailure: Structural violations reject before effect; structurally valid input
+        returns typed MULTIMODAL_NOT_ADMITTED. No post-dispatch ambiguity is reachable
 
 admissionGates:
   handlerCapabilityTransportRuntimeBindings: pending; resolve exact registered
@@ -413,17 +408,28 @@ ownerSemanticSelections:
         safety-and-injection; safe-failure
       executionAdmitted: false
     - toolId: av.multimodal-inference
+      sourceDecisionRef: .product-experience/decision-log.md#PXD-238
+      resultContentDecisionRef: .product-experience/decision-log.md#PXD-239
       canonicalOperationFamily: media.operation.multimodal-analysis
-      inputBoundary: Exact authorized artifact/version with separately approved
-        enabled transcription and/or vision sub-capabilities and bounded
-        aggregate resource budget.
-      effectSemantics: Treat each modality as a distinct sub-effect; report partial,
-        unknown and per-component provenance without overclaiming aggregate
-        success.
-      requiredProof: exact-composition-schema; per-modality-policy;
-        sub-effect-idempotency; partial-finality;
-        finite-aggregate-and-component-timeout; per-component-provenance;
-        cancellation-and-reconcile
+      canonicalOperationRef: media.operation.capability.media-multimodal-analyze-cross-modal
+      inputBoundary: Exactly PDP-1 input1 authorized-media-artifacts with an immutable
+        artifactId/versionId and input2 analysis-request with dimensions and required
+        criteria; the exact closed schema is defined by the PXD-238-linked contract above.
+      effectSemantics: One canonical cross-modal operation over at least two resolved,
+        supported modalities. Preserve the canonical submit receipt and terminal result;
+        success requires exactly one source-grounded typed output bound to
+        media.multimodal.result-content.cross-modal.v1, with provenance and scoped
+        uncertainty. Each claimRef resolves under the exact admitted profile and
+        method, and uncertainty.scopeRef equals that claimRef. Every claim's
+        dimensionEvidence key set must equal the exact
+        requested dimensions, whose owner-authoritative resolver establishes at least
+        two distinct supported modalities in the exact source version. Do not synthesize
+        child results, per-modality partial success, or provider/profile defaults.
+      requiredProof: exact-input-and-result-schema; current artifact/version rights;
+        verified host identity and delegated grant; owner-authoritative dimension,
+        subject, method, profile, configuration and purpose resolution; at-least-two
+        supported modalities; qualified profile/configuration; canonical idempotency,
+        finality and same-request reconciliation; durable typed result/readback
       executionAdmitted: false
 
 mediaHandlerImplementationObservation:
@@ -2042,85 +2048,198 @@ mediaOwnedToolDefinitionContracts:
         - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#dataHandling/purposeBoundDataAccess
       runtimeAdmission: NOT_ADMITTED
     - id: media.agent-tool-contract.multimodal-inference.v1
+      sourceDecisionRef: .product-experience/decision-log.md#PXD-238
+      resultContentDecisionRef: .product-experience/decision-log.md#PXD-239
       toolId: av.multimodal-inference
       handlerSource: adapters/agent-tools-media/src/main/java/com/ghatana/audio/video/tools/MultimodalInferenceToolHandler.java
       operationFamilyRef: media.operation.multimodal-analysis
       canonicalOperationRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-analyze-cross-modal
       executionBudgetBoundsRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/bounds/@id=media.capability-bounds.media-multimodal-analyze-cross-modal
       resultSchemaRole: CLOSED_DISCRIMINATED_RESULT_AND_ERROR_UNION
-      operationBindingStatus: OWNER_DEFINED_OPERATION_CANDIDATE; adapter mapping and
+      operationBindingStatus: OWNER_DEFINED_CANONICAL_OPERATION_BINDING; request
+        mapping implemented but not wired, result adapter, independent review, and
         runtime admission pending
       requestAdapter:
-        status: NOT_IMPLEMENTED
-        mappings:
-          - mediaArtifactId -> canonical authorized-media-artifacts artifactId
-            plus trusted immutable version
-          - inferenceMode and samplingRateMs -> explicit profile parameters only
-            when admitted
-          - enabled modalities -> separate exact capability refs and independent
-            authority
-        refusedInputs:
-          - languageCode and per-modality toggles require exact canonical
-            profile parameters; reject unsupported combinations before dispatch
+        status: SOURCE_BOUND_IMPLEMENTED_NOT_WIRED
         canonicalContractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-analyze-cross-modal/requestSchema
-      resultAdapter:
-        status: NOT_IMPLEMENTED
+        artifactMetadataDecisionRef: .product-experience/decision-log.md#PXD-240
         mappings:
-          - each modality result -> independently typed output/evidence ref
-          - aggregate SUCCEEDED only when every requested component has a typed
-            terminal outcome
-          - unresolved component -> OUTCOME_UNKNOWN or explicit partial result
-        failureRule: REJECTED_PRE_DISPATCH carries no operation identity; ACCEPTED is
-          only the canonical submission receipt; SUCCEEDED requires an
-          independently observed typed canonical result and
-          source-version/provenance evidence; any uncertain post-dispatch result
-          remains OUTCOME_UNKNOWN.
+          - input1 -> exact canonical authorized-media-artifacts typed input; preserve artifactId and immutable versionId without substituting a latest alias or a content digest not equal to that versionId
+          - optional input1 sourceRef, declaredMediaType, and declaredByteLength -> preserve as untrusted artifact metadata assertions alongside the canonical binding; require exact owner-authoritative comparison before dispatch, and never forward as operation parameters
+          - input2 -> exact canonical analysis-request typed input; preserve dimensions, required subjectRefs, analysisMethodRef, profileRef, configurationDigest, purposeRef, and any optional range/channel/uncertainty references
+          - parameters -> construct the canonical empty object; no caller-supplied operation parameters are accepted
+          - requestId -> agtool- plus lowercase SHA-256 hex of the UTF-8 invocationId; bind tenant, principal, tool and canonical payload fingerprint in the existing durable claim
+          - trustedContext -> inject only from the verified host principal/workspace and current delegated grant; never accept caller identity fields
+        semanticChecks:
+          - each dimension, subject, method, profile, configuration digest and purpose reference must resolve in current owner-authoritative sources and be authorized for this invocation
+          - resolved requested dimensions must cover at least two distinct supported modalities in the exact source artifact; unknown or unsupported references reject before dispatch
+          - the profile and configuration digest are explicit request criteria; the agent cannot select or substitute a provider/model, and no profile default is inferred
+        refusedInputs:
+          - mediaArtifactId, inferenceMode, samplingRateMs, enableTranscription, enableVisionAnalysis and languageCode have no canonical input slots and are not accepted aliases
+          - unsupported or unresolved dimensions, single-modality requests, stale artifact versions, missing profile/purpose authority, and any attempt to override trusted context are rejected before dispatch
+      resultAdapter:
+        status: SOURCE_BOUND_NOT_IMPLEMENTED
+        canonicalContractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-analyze-cross-modal/resultSchema
+        mappings:
+          - ACCEPTED -> media.operation.job.submit.v1 receipt; operationId is its exact owner-issued jobId, requestId and fingerprint are preserved, and statusQueryRef names the exact inspect-job query; no output claim
+          - SUCCEEDED -> operationId is the exact owner-issued jobId; return the same requestId/fingerprint and preserve the exact canonical SUCCEEDED result, single typed source-grounded output artifactId/versionId and contentSchemaRef=media.multimodal.result-content.cross-modal.v1, provenance, uncertainty and status fields under canonicalResult; the referenced artifact version must conform to that schema; completedAt equals canonicalResult.observedAt
+          - REJECTED -> FAILED only when the exact canonical result is terminal REJECTED with zero outputs; preserve that result under canonicalResult and observedAt; no synthesized error code or separate evidence reference
+          - unknown dispatch, result, provenance or finality -> OUTCOME_UNKNOWN with no success payload; reconcile by the same invocation-derived requestId before any retry
+          - attemptId -> include only when an exact owner-authoritative JobAttempt identity is returned; never derive one from jobId or attempt count
+        prohibitedMapping:
+          - no inline summary, segment, confidence, partial-result, modality-toggle, or provider metadata is fabricated from child jobs
+          - no independent per-modality result is relabelled as cross-modal success; partial success is unsupported by this canonical result schema
+        failureRule: REJECTED_PRE_DISPATCH carries no operation identity; ACCEPTED is only the canonical submission receipt; SUCCEEDED requires an independently observed canonical result with the exact immutable source version, typed output, contentSchemaRef and provenance, and the referenced content must conform to the exact PXD-239 schema; the canonical result is the terminal result evidence, and uncertain post-dispatch result remains OUTCOME_UNKNOWN.
       inputSchema:
         $schema: https://json-schema.org/draft/2020-12/schema
         $id: urn:media:agent-tool-input:multimodal-inference:v1
         type: object
         additionalProperties: false
         required:
-          - mediaArtifactId
+          - input1
+          - input2
         properties:
-          mediaArtifactId:
-            type: string
-            minLength: 1
-            maxLength: 512
-          inferenceMode:
-            enum:
-              - SUMMARY
-              - SEGMENT
-              - FRAME_BY_FRAME
-              - FULL
-            default: SUMMARY
-          samplingRateMs:
-            type: integer
-            minimum: 100
-            maximum: 60000
-            default: 1000
-          enableTranscription:
-            type: boolean
-            default: true
-          enableVisionAnalysis:
-            type: boolean
-            default: true
-          languageCode:
-            type: string
-            minLength: 1
-            maxLength: 64
-            default: en-US
-            pattern: ^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$
-        allOf:
-          - not:
-              properties:
-                enableTranscription:
-                  const: false
-                enableVisionAnalysis:
-                  const: false
-              required:
-                - enableTranscription
-                - enableVisionAnalysis
+          input1:
+            type: object
+            additionalProperties: false
+            required:
+              - artifactType
+              - payload
+            properties:
+              artifactType:
+                const: authorized-media-artifacts
+              payload:
+                type: object
+                additionalProperties: false
+                required:
+                  - artifactId
+                  - versionId
+                properties:
+                  artifactId:
+                    type: string
+                    format: opaque-id
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+                    minLength: 1
+                    maxLength: 128
+                  versionId:
+                    type: string
+                    format: opaque-version-id
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
+                    minLength: 1
+                    maxLength: 128
+                  sourceRef:
+                    type: string
+                    format: opaque-versioned-reference
+                    minLength: 1
+                    maxLength: 384
+                  declaredMediaType:
+                    type: string
+                    format: iana-media-type
+                    pattern: ^[A-Za-z0-9!#$&^_.+-]+/[A-Za-z0-9!#$&^_.+-]+$
+                    minLength: 3
+                    maxLength: 127
+                  declaredByteLength:
+                    type: integer
+                    minimum: 0
+                    maximum: 2147483648
+          input2:
+            type: object
+            additionalProperties: false
+            required:
+              - artifactType
+              - payload
+            properties:
+              artifactType:
+                const: analysis-request
+              payload:
+                type: object
+                additionalProperties: false
+                required:
+                  - dimensions
+                  - criteria
+                properties:
+                  dimensions:
+                    type: array
+                    minItems: 1
+                    maxItems: 32
+                    items:
+                      type: string
+                      format: opaque-dimension-reference
+                      pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+                      minLength: 1
+                      maxLength: 128
+                  timeRange:
+                    type: string
+                    format: opaque-time-range-reference
+                    minLength: 1
+                    maxLength: 256
+                  criteria:
+                    type: object
+                    additionalProperties: false
+                    required:
+                      - subjectRefs
+                      - analysisMethodRef
+                      - profileRef
+                      - configurationDigest
+                      - purposeRef
+                    properties:
+                      subjectRefs:
+                        type: array
+                        minItems: 1
+                        maxItems: 16
+                        uniqueItems: true
+                        items:
+                          type: string
+                          format: opaque-versioned-reference
+                          minLength: 1
+                          maxLength: 384
+                      analysisMethodRef:
+                        type: string
+                        format: opaque-reference
+                        minLength: 1
+                        maxLength: 256
+                      profileRef:
+                        type: string
+                        format: opaque-versioned-reference
+                        minLength: 1
+                        maxLength: 384
+                      configurationDigest:
+                        type: string
+                        pattern: ^sha256:[a-f0-9]{64}$
+                      purposeRef:
+                        type: string
+                        format: opaque-reference
+                        minLength: 1
+                        maxLength: 256
+                      sourceTimeRangeRef:
+                        type: string
+                        format: opaque-versioned-reference
+                        minLength: 1
+                        maxLength: 384
+                      regionOrChannelRefs:
+                        type: array
+                        minItems: 0
+                        maxItems: 64
+                        uniqueItems: true
+                        items:
+                          type: string
+                          format: opaque-versioned-reference
+                          minLength: 1
+                          maxLength: 384
+                      uncertaintyPolicyRef:
+                        type: string
+                        format: opaque-versioned-reference
+                        minLength: 1
+                        maxLength: 384
+                  pageSize:
+                    type: integer
+                    minimum: 1
+                    maximum: 100
+                  pageToken:
+                    type: string
+                    format: opaque-continuation-token
+                    minLength: 1
+                    maxLength: 512
       resultSchema:
         $schema: https://json-schema.org/draft/2020-12/schema
         $id: urn:media:agent-tool-result:multimodal-inference:v1
@@ -2160,9 +2279,10 @@ mediaOwnedToolDefinitionContracts:
               - outcome
               - operationRef
               - operationId
+              - requestId
+              - requestFingerprint
               - acceptedAt
               - statusQueryRef
-              - requestFingerprint
             properties:
               contractId: *a16
               toolId: *a17
@@ -2170,7 +2290,16 @@ mediaOwnedToolDefinitionContracts:
                 const: ACCEPTED
               operationRef: &a20
                 const: media.operation.capability.media-multimodal-analyze-cross-modal
-              operationId: *a18
+              operationId:
+                type: string
+                format: opaque-id
+                minLength: 1
+                maxLength: 128
+              requestId:
+                type: string
+                format: opaque-idempotency-key
+                minLength: 1
+                maxLength: 128
               acceptedAt: *a19
               statusQueryRef:
                 type: string
@@ -2190,6 +2319,7 @@ mediaOwnedToolDefinitionContracts:
               - toolId
               - outcome
               - invocationId
+              - requestId
               - requestFingerprint
               - identityDisposition
               - observedAt
@@ -2209,6 +2339,11 @@ mediaOwnedToolDefinitionContracts:
                 minLength: 1
                 maxLength: 256
               invocationId: *a18
+              requestId:
+                type: string
+                format: opaque-idempotency-key
+                minLength: 1
+                maxLength: 128
               requestFingerprint:
                 type: string
                 pattern: ^sha256:[a-f0-9]{64}$
@@ -2248,26 +2383,96 @@ mediaOwnedToolDefinitionContracts:
               - outcome
               - operationRef
               - operationId
-              - attemptId
-              - safeErrorCode
-              - terminalEvidenceRef
+              - requestId
+              - requestFingerprint
               - observedAt
+              - canonicalResult
             properties:
               contractId: *a16
               toolId: *a17
               outcome:
                 const: FAILED
               operationRef: *a20
-              operationId: *a18
-              attemptId: *a18
-              safeErrorCode:
+              operationId:
                 type: string
-                pattern: ^[A-Z][A-Z0-9_]{1,63}$
-              terminalEvidenceRef:
-                type: string
+                format: opaque-id
                 minLength: 1
-                maxLength: 1024
+                maxLength: 128
+              requestId:
+                type: string
+                format: opaque-idempotency-key
+                minLength: 1
+                maxLength: 128
+              requestFingerprint:
+                type: string
+                pattern: ^sha256:[a-f0-9]{64}$
+              attemptId:
+                type: string
+                format: opaque-id
+                minLength: 1
+                maxLength: 128
               observedAt: *a19
+              canonicalResult:
+                type: object
+                additionalProperties: false
+                required:
+                  - outcome
+                  - observedAt
+                  - outputs
+                  - provenance
+                  - implementationState
+                  - qualificationState
+                  - runtimeAvailability
+                properties:
+                  outcome:
+                    const: REJECTED
+                  observedAt:
+                    type: string
+                    format: date-time
+                    pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$
+                  outputs:
+                    type: array
+                    maxItems: 0
+                  provenance:
+                    type: object
+                    additionalProperties: false
+                    required:
+                      - operationRef
+                      - observedAt
+                      - sourceRefs
+                    properties:
+                      operationRef:
+                        const: media.operation.capability.media-multimodal-analyze-cross-modal
+                      observedAt:
+                        type: string
+                        format: date-time
+                        pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$
+                      sourceRefs:
+                        type: array
+                        minItems: 0
+                        maxItems: 64
+                        items:
+                          type: string
+                          minLength: 1
+                          maxLength: 512
+                      inputDigest:
+                        type: string
+                        pattern: ^sha256:[a-f0-9]{64}$
+                      outputDigest:
+                        type: string
+                        pattern: ^sha256:[a-f0-9]{64}$
+                      profileRef:
+                        type: string
+                        maxLength: 384
+                      qualificationRef:
+                        type: string
+                        maxLength: 384
+                  implementationState:
+                    const: UNKNOWN
+                  qualificationState:
+                    const: NOT_EVALUATED
+                  runtimeAvailability:
+                    const: UNKNOWN
           - type: object
             additionalProperties: false
             required:
@@ -2326,85 +2531,147 @@ mediaOwnedToolDefinitionContracts:
               - outcome
               - operationRef
               - operationId
-              - attemptId
+              - requestId
+              - requestFingerprint
               - completedAt
-              - canonicalPayload
-              - finalityEvidenceRef
+              - canonicalResult
             properties:
               contractId: *a16
               toolId: *a17
               outcome:
                 const: SUCCEEDED
               operationRef: *a20
-              operationId: *a18
-              attemptId: *a18
+              operationId:
+                type: string
+                format: opaque-id
+                minLength: 1
+                maxLength: 128
+              requestId:
+                type: string
+                format: opaque-idempotency-key
+                minLength: 1
+                maxLength: 128
+              requestFingerprint:
+                type: string
+                pattern: ^sha256:[a-f0-9]{64}$
+              attemptId:
+                type: string
+                format: opaque-id
+                minLength: 1
+                maxLength: 128
               completedAt: *a19
-              canonicalPayload:
+              canonicalResult:
                 type: object
                 additionalProperties: false
                 required:
-                  - payloadTypeRef
-                  - payloadSchemaRef
-                  - payloadRef
-                  - subjectObjectRef
-                  - subjectVersionRef
-                  - producerRef
-                  - profileRef
-                  - profileVersionRef
-                  - provenanceRef
-                  - evidenceRefs
+                  - outcome
                   - observedAt
+                  - outputs
+                  - provenance
+                  - implementationState
+                  - qualificationState
+                  - runtimeAvailability
                 properties:
-                  payloadTypeRef:
+                  outcome:
+                    const: SUCCEEDED
+                  observedAt:
                     type: string
-                    minLength: 1
-                    maxLength: 512
-                  payloadSchemaRef:
-                    type: string
-                    minLength: 1
-                    maxLength: 1024
-                  payloadRef:
-                    type: string
-                    minLength: 1
-                    maxLength: 1024
-                  subjectObjectRef:
-                    type: string
-                    minLength: 1
-                    maxLength: 512
-                  subjectVersionRef:
-                    type: string
-                    minLength: 1
-                    maxLength: 512
-                  producerRef:
-                    type: string
-                    minLength: 1
-                    maxLength: 512
-                  profileRef:
-                    type: string
-                    minLength: 1
-                    maxLength: 512
-                  profileVersionRef:
-                    type: string
-                    minLength: 1
-                    maxLength: 512
-                  provenanceRef:
-                    type: string
-                    minLength: 1
-                    maxLength: 1024
-                  evidenceRefs:
+                    format: date-time
+                  outputs:
                     type: array
                     minItems: 1
-                    maxItems: 64
-                    uniqueItems: true
+                    maxItems: 1
                     items:
-                      type: string
-                      minLength: 1
-                      maxLength: 1024
-                  observedAt: *a19
-              finalityEvidenceRef:
-                type: string
-                minLength: 1
-                maxLength: 1024
+                      type: object
+                      additionalProperties: false
+                      required:
+                        - artifactType
+                        - payload
+                      properties:
+                        artifactType:
+                          const: source-grounded-cross-modal-result-with-provenance-and-uncertainty
+                        payload:
+                          type: object
+                          additionalProperties: false
+                          required:
+                            - artifactId
+                            - versionId
+                            - contentSchemaRef
+                          properties:
+                            artifactId:
+                              type: string
+                              format: opaque-id
+                              pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]*$
+                              minLength: 1
+                              maxLength: 128
+                            versionId:
+                              type: string
+                              format: opaque-version-id
+                              pattern: ^[A-Za-z0-9][A-Za-z0-9._:+-]*$
+                              minLength: 1
+                              maxLength: 128
+                            contentSchemaRef:
+                              const: media.multimodal.result-content.cross-modal.v1
+                            sourceRef:
+                              type: string
+                              format: opaque-versioned-reference
+                              minLength: 1
+                              maxLength: 384
+                            declaredMediaType:
+                              type: string
+                              format: iana-media-type
+                              pattern: ^[A-Za-z0-9!#$&^_.+-]+/[A-Za-z0-9!#$&^_.+-]+$
+                              minLength: 3
+                              maxLength: 127
+                            declaredByteLength:
+                              type: integer
+                              minimum: 0
+                              maximum: 2147483648
+                  provenance:
+                    type: object
+                    additionalProperties: false
+                    required:
+                      - operationRef
+                      - observedAt
+                      - sourceRefs
+                    properties:
+                      operationRef:
+                        const: media.operation.capability.media-multimodal-analyze-cross-modal
+                      observedAt:
+                        type: string
+                        format: date-time
+                      sourceRefs:
+                        type: array
+                        minItems: 0
+                        maxItems: 64
+                        items:
+                          type: string
+                          minLength: 1
+                          maxLength: 512
+                      inputDigest:
+                        type: string
+                        pattern: ^sha256:[a-f0-9]{64}$
+                      outputDigest:
+                        type: string
+                        pattern: ^sha256:[a-f0-9]{64}$
+                      profileRef:
+                        type: string
+                        maxLength: 384
+                      qualificationRef:
+                        type: string
+                        maxLength: 384
+                  implementationState:
+                    const: UNKNOWN
+                  qualificationState:
+                    const: NOT_EVALUATED
+                  runtimeAvailability:
+                    const: UNKNOWN
+      resultSemantics:
+        operationId: The exact owner-issued jobId from media.operation.job.submit.v1; no operation identity is reported before its receipt exists.
+        requestIdentity: Return the invocation-derived requestId and the exact canonical request fingerprint on accepted, unknown, and terminal outcomes.
+        attemptId: Optional only when an exact owner-authoritative JobAttempt identity is available; this operation's canonical result does not require or fabricate one.
+        terminalResult: completedAt equals canonicalResult.observedAt; canonicalResult is the owner-authoritative PDP-1 result envelope, whose exact output version and provenance establish the declared terminal result. No separate finalityEvidenceRef is invented.
+        sourceDecisionOverride: PXD-238 overrides the generic attemptId/payload-reference result shape for this operation because PDP-1 defines one typed artifact-reference result envelope and no required attempt or finalityEvidenceRef fields.
       authorityRefs:
         - .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-multimodal-analyze-cross-modal
         - .product-experience/pdp-0-product-truth/policy-authority-model.yaml#dataHandling/purposeBoundDataAccess

@@ -61,20 +61,25 @@ public final class MediaCreativePreview {
                   },
                   "audioInput": {"stemVersionRef": "local-tone-v1", "pcmSha256": "%s", "sampleRateHz": 48000, "channels": 2, "sampleFormat": "PCM_S16LE", "frameCount": 480},
                   "audioMix": %s,
-                  "audioRepair": {"fixtureVersionRef": "local-clipped-tone-v1", "fixture": {"generator": "sine-hard-clip", "frequencyHz": 440, "preClipPeak": 40000, "clipLevelPositive": 32767, "clipLevelNegative": -32768}, "sampleRateHz": 48000, "channels": 2, "sampleFormat": "PCM_S16LE", "frameCount": 480, "sourcePcmSha256": "%s", "repairedPcmSha256": "%s", "sourceWav": %s, "repairedWav": %s, "repairAlgorithm": "BoundedPcmDeclipper.linear-interpolation", "repairThreshold": 0.94, "maxRunFrames": 64, "hasIndependentReference": false, "snrDbVsReference": null, "qualityClaim": false, "comparisonMetrics": %s},
-                  "outputs": {"png": %s, "gif": %s, "wav": %s, "wavClipped": %s, "wavRepaired": %s, "interactiveDemoAudio": %s, "glb": %s, "simulation": %s},
+                  "audioRepair": {"fixtureVersionRef": "local-clipped-tone-v1", "fixture": {"generator": "sine-hard-clip", "frequencyHz": 440, "preClipPeak": 40000, "clipLevelPositive": 32767, "clipLevelNegative": -32768}, "sampleRateHz": 48000, "channels": 2, "sampleFormat": "PCM_S16LE", "frameCount": 480, "sourcePcmSha256": "%s", "repairedPcmSha256": "%s", "sourceWav": %s, "repairedWav": %s, "repairAlgorithm": "BoundedPcmDeclipper.linear-interpolation", "repairThreshold": 0.94, "maxRunFrames": 64, "hasIndependentReference": false, "snrDbVsReference": null, "referenceDiagnostic": {"kind": "SYNTHETIC_FIXTURE_DIAGNOSTIC", "fixtureVersionRef": "local-preclip-sine-oracle-v1", "representation": "signed-int32-little-endian-sample-values-in-pcm16-code-units", "oracle": %s, "sourceSnrDbVsSyntheticFixture": %s, "repairedSnrDbVsSyntheticFixture": %s, "repairedSnrImprovementDb": %s, "repairImprovedAgainstSyntheticFixture": %s, "hasIndependentReference": false, "qualityClaim": false}, "qualityClaim": false, "comparisonMetrics": %s},
+                  "outputs": {"png": %s, "gif": %s, "wav": %s, "wavClipped": %s, "wavRepaired": %s, "audioRepairOracle": %s, "interactiveDemoAudio": %s, "glb": %s, "simulation": %s},
                   "animation": %s,
                   "glbValidation": %s,
-                  "limitations": ["fixture output is not lawful model quality", "clipped audio is synthetic and the repaired candidate is an estimate, not recovered source truth", "no independent audio reference was supplied; no SNR or quality claim is made", "simulation is not measurement evidence", "GLB uses FLOAT32_APPROXIMATION", "no hosted product, delivery receipt, or job finality is implied"]
+                  "limitations": ["fixture output is not lawful model quality", "clipped audio is synthetic and the repaired candidate is an estimate, not recovered source truth", "the pre-clip sine-oracle SNR and delta are synthetic fixture diagnostics only, not independent-reference or quality claims", "simulation is not measurement evidence", "GLB uses FLOAT32_APPROXIMATION", "no hosted product, delivery receipt, or job finality is implied"]
                 }
                 """.formatted(SOURCE_VERSION, SOURCE_VERSION,
                 simulation.startTimeSeconds, simulation.endTimeSeconds, simulation.observationCount,
                 audio.inputPcmSha256, audio.mixMetricsJson, audio.clippedPcmSha256, audio.repairedPcmSha256,
                 artifactJson(audio.clipped), artifactJson(audio.repaired),
+                artifactJson(audio.repairOracle),
+                jsonNumber(audio.sourceSnrDbVsSyntheticFixture),
+                jsonNumber(audio.repairedSnrDbVsSyntheticFixture),
+                jsonNumber(audio.repairedSnrImprovementDb),
+                Boolean.toString(audio.repairImprovedAgainstSyntheticFixture),
                 audioRepairMetricsJson(audio.comparisonMetrics),
                 artifactJson(animation.png), artifactJson(animation.gif), artifactJson(audio.wav),
                 artifactJson(audio.clipped), artifactJson(audio.repaired),
-                artifactJson(audio.interactiveDemoAudio),
+                artifactJson(audio.repairOracle), artifactJson(audio.interactiveDemoAudio),
                 artifactJson(glb.artifact), artifactJson(simulation.artifact),
                 animation.manifestJson, glb.validation.toJson());
         Files.writeString(output.resolve("preview-manifest.json"), manifest, StandardCharsets.UTF_8);
@@ -85,7 +90,12 @@ public final class MediaCreativePreview {
     private record AnimationFiles(Artifact png, Artifact gif, String manifestJson) { }
     private record AudioFiles(Artifact wav, Artifact clipped, Artifact repaired, Artifact interactiveDemoAudio,
                              String inputPcmSha256, String clippedPcmSha256,
-                             String repairedPcmSha256, AudioRepairComparison.Metrics comparisonMetrics,
+                             String repairedPcmSha256, Artifact repairOracle,
+                             double sourceSnrDbVsSyntheticFixture,
+                             double repairedSnrDbVsSyntheticFixture,
+                             double repairedSnrImprovementDb,
+                             boolean repairImprovedAgainstSyntheticFixture,
+                             AudioRepairComparison.Metrics comparisonMetrics,
                              String mixMetricsJson) { }
     private record SimulationFiles(Artifact artifact, double startTimeSeconds,
                                    double endTimeSeconds, int observationCount) { }
@@ -303,10 +313,14 @@ public final class MediaCreativePreview {
         }
 
         ByteBuffer clippedPcm = ByteBuffer.allocate(480 * 2 * 2).order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer oracleSamples = ByteBuffer.allocate(480 * 2 * Integer.BYTES).order(ByteOrder.LITTLE_ENDIAN);
         for (int frame = 0; frame < 480; frame++) {
-            int generated = (int) Math.round(Math.sin(2 * Math.PI * 440 * frame / 48_000.0) * 40_000);
+            double sine = Math.sin(2 * Math.PI * 440 * frame / 48_000.0);
+            int generated = (int) Math.round(sine * 40_000);
             short clipped = (short) Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, generated));
             clippedPcm.putShort(clipped).putShort(clipped);
+            // Preserve the exact pre-clip sample code in an int32 diagnostic vector.
+            oracleSamples.putInt(generated).putInt(generated);
         }
         AudioData clippedSource = new AudioData(clippedPcm.array(), 48_000, 2, 16,
                 Duration.ofMillis(10), com.ghatana.media.common.AudioFormat.PCM);
@@ -319,24 +333,65 @@ public final class MediaCreativePreview {
 
         Path clippedWav = output.resolve("original-clipped.wav");
         Path repairedWav = output.resolve("repaired-candidate.wav");
+        Path oraclePath = output.resolve("pre-clip-sine-oracle.i32le");
         writePcmWav(clippedWav, comparison.source());
         writePcmWav(repairedWav, comparison.repaired());
+        Files.write(oraclePath, oracleSamples.array());
         byte[] reopenedClipped = readPcmWav(clippedWav, 480);
         byte[] reopenedRepaired = readPcmWav(repairedWav, 480);
+        byte[] reopenedOracle = Files.readAllBytes(oraclePath);
         if (!java.util.Arrays.equals(reopenedClipped, comparison.source().data())
-                || !java.util.Arrays.equals(reopenedRepaired, comparison.repaired().data())) {
-            throw new IOException("audio repair WAV bytes differ from the immutable comparison branches");
+                || !java.util.Arrays.equals(reopenedRepaired, comparison.repaired().data())
+                || !java.util.Arrays.equals(reopenedOracle, oracleSamples.array())) {
+            throw new IOException("audio repair readback differs from the immutable branches or fixture oracle");
         }
         String clippedDigest = sha256(reopenedClipped);
         String repairedDigest = sha256(reopenedRepaired);
+        String oracleDigest = sha256(reopenedOracle);
         if (!clippedDigest.equals(comparison.sourceSha256())
                 || !repairedDigest.equals(comparison.repairedSha256())) {
             throw new IOException("audio repair PCM digests differ from comparison lineage");
         }
+        double sourceSnr = syntheticFixtureSnrDb(reopenedOracle, reopenedClipped);
+        double repairedSnr = syntheticFixtureSnrDb(reopenedOracle, reopenedRepaired);
+        double repairedSnrImprovement = repairedSnr - sourceSnr;
+        if (!Double.isFinite(sourceSnr) || !Double.isFinite(repairedSnr)
+                || !Double.isFinite(repairedSnrImprovement)) {
+            throw new IOException("synthetic fixture oracle must produce finite SNR diagnostics");
+        }
+        Artifact persistedOracle = persistedArtifact(oraclePath);
+        if (!oracleDigest.equals(persistedOracle.sha256())) {
+            throw new IOException("synthetic fixture oracle digest differs from persisted artifact metadata");
+        }
         return new AudioFiles(persistedArtifact(wav), persistedArtifact(clippedWav),
                 persistedArtifact(repairedWav), persistedArtifact(interactiveDemoWav), inputPcmSha256,
-                clippedDigest, repairedDigest, comparison.metrics(),
+                clippedDigest, repairedDigest, persistedOracle, sourceSnr,
+                repairedSnr, repairedSnrImprovement, repairedSnrImprovement > 0.0, comparison.metrics(),
                 audioMixMetricsJson(mix, reopenedMixPcmSha256));
+    }
+
+    /** Compare samples in PCM16 code units while retaining out-of-range oracle samples in int32 storage. */
+    private static double syntheticFixtureSnrDb(byte[] oracleI32Le, byte[] candidatePcm16Le) throws IOException {
+        if (oracleI32Le.length == 0 || oracleI32Le.length % Integer.BYTES != 0
+                || oracleI32Le.length / Integer.BYTES != candidatePcm16Le.length / Short.BYTES
+                || candidatePcm16Le.length % Short.BYTES != 0) {
+            throw new IOException("synthetic oracle and PCM candidate sample counts differ");
+        }
+        ByteBuffer oracle = ByteBuffer.wrap(oracleI32Le).order(ByteOrder.LITTLE_ENDIAN);
+        ByteBuffer candidate = ByteBuffer.wrap(candidatePcm16Le).order(ByteOrder.LITTLE_ENDIAN);
+        double referenceEnergy = 0.0;
+        double errorEnergy = 0.0;
+        while (oracle.hasRemaining()) {
+            int expected = oracle.getInt();
+            int actual = candidate.getShort();
+            double error = (double) expected - actual;
+            referenceEnergy += (double) expected * expected;
+            errorEnergy += error * error;
+        }
+        if (referenceEnergy == 0.0 || errorEnergy == 0.0) {
+            throw new IOException("synthetic oracle SNR is undefined for silence or zero error");
+        }
+        return 10.0 * Math.log10(referenceEnergy / errorEnergy);
     }
 
     private static void writePcmWav(Path path, AudioData audio) throws IOException {

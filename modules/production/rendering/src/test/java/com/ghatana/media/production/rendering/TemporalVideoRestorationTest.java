@@ -746,6 +746,8 @@ class TemporalVideoRestorationTest {
                 .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("timeBase");
         assertThatThrownBy(() -> new Frame(0, 0, 2_049, 1, new Roi(0, 0, 1, 1), new byte[3]))
                 .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("dimensions");
+        assertThatThrownBy(() -> new Frame(0, 0, 1, 2_049, new Roi(0, 0, 1, 1), new byte[3 * 2_049]))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("dimensions");
     }
 
     @Test

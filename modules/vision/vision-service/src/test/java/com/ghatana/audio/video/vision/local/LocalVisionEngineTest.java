@@ -37,7 +37,7 @@ class LocalVisionEngineTest {
         try (var sidecar = new LocalVisionTestFixtures.FakeSidecar((path, body) -> ANALYZE_RESPONSE)) {
             byte[] png = LocalVisionTestFixtures.testImagePng();
             var out = engine(sidecar, true).analyze(png, LocalVisionTestFixtures.sha256(png),
-                    Set.of("caption", "detect", "ocr"));
+                    Set.of("caption", "detect"));
             assertThat(out).containsEntry("schema", LocalVisionEngine.RESULT_SCHEMA).containsEntry("kind", "IMAGE_ANALYSIS");
             @SuppressWarnings("unchecked") var model = (Map<String, Object>) out.get("model");
             assertThat(model).containsEntry("id", LocalVisionEngine.FLORENCE_MODEL_ID).containsEntry("spdxLicense", "MIT");
@@ -47,9 +47,20 @@ class LocalVisionEngineTest {
             assertThat(objects).hasSize(1);
             assertThat(objects.get(0)).containsEntry("label", "box");
             assertThat(objects.get(0).get("boundingBox")).isEqualTo(Map.of("x", 10.0, "y", 20.0, "width", 100.0, "height", 200.0));
-            @SuppressWarnings("unchecked") var text = (Map<String, Object>) results.get("sceneText");
-            assertThat(text).containsEntry("fullText", "HELLO");
+            assertThat(results).doesNotContainKey("sceneText");
             assertThat(out.toString()).doesNotContain("</s>");
+        }
+    }
+
+    @Test
+    void genericOcrIsNotAdmittedBeforeTheSidecarIsCalled() throws Exception {
+        try (var sidecar = new LocalVisionTestFixtures.FakeSidecar((path, body) -> ANALYZE_RESPONSE)) {
+            var engine = engine(sidecar, true);
+            assertThatThrownBy(() -> engine.analyze("not an image".getBytes(), "0".repeat(64), Set.of("ocr")))
+                    .isInstanceOfSatisfying(LocalVisionEngine.OcrNotAdmittedException.class,
+                            refusal -> assertThat(refusal.code())
+                                    .isEqualTo("DOCUMENT_INTELLIGENCE_NOT_ADMITTED"));
+            assertThat(sidecar.inferenceCalls.get()).isZero();
         }
     }
 

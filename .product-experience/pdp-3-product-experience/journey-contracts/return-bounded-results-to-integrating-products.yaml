@@ -8,7 +8,8 @@ status: pdp0-grounded-proposal;
   pdp3-action-state-scenario-channel-and-owner-bindings-pending; not-accepted
 scope: PDP-0 outcome and ordered view intents mapped to the PDP-3 screen
   registry; exact action/state transitions, per-channel behavior, scenarios,
-  wire bindings, and runtime commitments remain unresolved.
+  wire bindings, and runtime commitments remain unresolved except the
+  source-defined av.multimodal-inference tool semantics recorded below.
 outcomes:
   - media.goal.integrate-repeatably
 actors:
@@ -18,7 +19,25 @@ actors:
 channels:
   - media.channel.product-integration
   - media.channel.http-api
-channelBindingState: "PDP-3 binding registry records source references and explicit UNBOUND dispositions; exact channel equivalence and runtime admission remain pending (NOT_ADMITTED)."
+  - media.channel.agent
+channelBindingState: "PXD-241 source-binds av.multimodal-inference to media.channel.agent; agent-channel transport equivalence and runtime admission remain UNBOUND / NOT_ADMITTED."
+agentToolBindings:
+  - toolId: av.multimodal-inference
+    sourceDecisionRef: .product-experience/decision-log.md#PXD-241
+    status: SOURCE_BOUND_DEFINITION_ONLY; INDEPENDENT_REVIEW_PENDING
+    channelRef: media.channel.agent
+    consumerSurfaceId: media.surface.agent-tools
+    operationRef: media.operation.capability.media-multimodal-analyze-cross-modal
+    mediaToolContractRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#mediaOwnedToolDefinitionContracts/contracts/@id=media.agent-tool-contract.multimodal-inference.v1
+    inputContractRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#mediaOwnedToolDefinitionContracts/contracts/@id=media.agent-tool-contract.multimodal-inference.v1/inputSchema
+    resultContractRef: .product-experience/pdp-2-design-interface-system/agent-tools/conventions.yaml#mediaOwnedToolDefinitionContracts/contracts/@id=media.agent-tool-contract.multimodal-inference.v1/resultSchema
+    resultContentRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.source-grounded-cross-modal-result-with-provenance-and-uncertainty/contentSchema
+    actingPersonRefs: [media.creator, media.editor, media.reviewer]
+    actorBoundary: The acting person holds the current exact delegated grant; the Agent Tool is a mediator and has no independent actor role or authority. The host supplies authenticated tenant, principal, workspace, delegation, and invocation identity.
+    requestBoundary: Exactly one immutable authorized-media-artifacts version and one analysis-request with explicit dimensions and required subjectRefs, analysisMethodRef, profileRef, configurationDigest, and purposeRef; optional request and artifact metadata assertions retain PXD-238/PXD-240 semantics. No provider, model, modality, language, sampling, profile, or configuration default.
+    outcomeBoundary: ACCEPTED exposes only the canonical job receipt and status query; SUCCEEDED preserves the exact canonical result with one source-grounded artifact, provenance, uncertainty, and typed content; FAILED requires the terminal canonical REJECTED result with no output; OUTCOME_UNKNOWN carries no success payload and reconciles with the same request identity before retry.
+    channelTransport: UNBOUND
+    runtimeAdmission: NOT_ADMITTED
 pdp1ResultEvidence:
   status: SOURCE_BOUND_DEFINITION_ONLY; PDP3_CHANNEL_BINDING_PENDING
   sourceRefs:
@@ -63,7 +82,7 @@ pdp1ResultEvidence:
       unknownDisposition: Missing, stale, mismatched, denied, unavailable, or incomplete lineage is UNKNOWN and contains no artifact version, digest, or source lineage.
   resultCompleteness: Every operation is covered by its exact purpose-bound P1 observation contract and appears once in the delegated result tuple; the tuple must resolve under trusted tenant, principal, read authority, and read version.
   channelAndRuntimeBoundary:
-    intendedChannels: [media.channel.product-integration, media.channel.http-api]
+    intendedChannels: [media.channel.product-integration, media.channel.http-api, media.channel.agent]
     interfaceGrammarRefs:
       - .product-experience/pdp-2-design-interface-system/interface-grammar.yaml#/channels/headless
     transport: UNBOUND

@@ -68,7 +68,37 @@ message CanonicalOperationBinding {
   string source_version_id = 6;
   string purpose = 7;
   string correlation_id = 8;
+  // Legacy selector retained for noncanonical operation callers. Canonical
+  // cross-modal requests use analysis_request; supplying both is rejected.
   repeated string dimensions = 9;
+  // Additive transport representation of PDP-1 input2.payload. References are
+  // caller selections only and do not establish rights, identity, or admission.
+  CanonicalAnalysisRequest analysis_request = 10;
+}
+
+message CanonicalAnalysisRequest {
+  repeated string dimensions = 1;
+  optional string time_range = 2;
+  optional uint32 page_size = 3;
+  optional string page_token = 4;
+  CanonicalAnalysisCriteria criteria = 5;
+}
+
+message CanonicalAnalysisCriteria {
+  repeated string subject_refs = 1;
+  string analysis_method_ref = 2;
+  string profile_ref = 3;
+  string configuration_digest = 4;
+  string purpose_ref = 5;
+  optional string source_time_range_ref = 6;
+  CanonicalReferenceList region_or_channel_refs = 7;
+  optional string uncertainty_policy_ref = 8;
+}
+
+// Message presence distinguishes an omitted optional array from an explicitly
+// supplied empty array, preserving request identity through durable readback.
+message CanonicalReferenceList {
+  repeated string values = 1;
 }
 
 message MultimodalResponse {

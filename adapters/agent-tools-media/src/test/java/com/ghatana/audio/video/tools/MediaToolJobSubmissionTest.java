@@ -60,8 +60,11 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
             principals.add(authenticated);
             return behavior.apply(request);
         }
-        @Override public Optional<ProcessingJob> findByRequestId(String tenantId, String requestId) {
-            return Optional.ofNullable(byRequest.get(requestId));
+        @Override public Optional<ProcessingJob> findByRequestId(AuthenticatedPrincipal authenticated, String requestId) {
+            if (authenticated == null) return Optional.empty();
+            return Optional.ofNullable(byRequest.get(requestId))
+                    .filter(job -> job.tenantId().equals(authenticated.tenantId())
+                            && job.principalId().equals(authenticated.principalId()));
         }
     }
 
@@ -97,9 +100,24 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
                         Map.of("analysisTypes", List.of("OBJECT_DETECTION"), "maxResults", 10,
                                 "confidenceThreshold", 0.5), "art-vis"),
                 new Case("av.multimodal-inference", JobType.MULTIMODAL,
-                        Map.of("mediaArtifactId", "art-mm", "sourceArtifactVersion", VERSION),
-                        Map.of("inferenceMode", "SUMMARY", "samplingRateMs", 1000, "language", "en-US",
-                                "enableTranscription", true, "enableVisionAnalysis", true), "art-mm"));
+                        crossModalInput(), Map.of(), "art-mm"));
+    }
+
+    private static List<Case> jobCases() {
+        return cases().subList(0, 3);
+    }
+
+    private static Map<String, Object> crossModalInput() {
+        return Map.of(
+                "input1", Map.of("artifactType", "authorized-media-artifacts",
+                        "payload", Map.of("artifactId", "art-mm", "versionId", VERSION)),
+                "input2", Map.of("artifactType", "analysis-request",
+                        "payload", Map.of("dimensions", List.of("dimension-ref-a", "dimension-ref-b"),
+                                "criteria", Map.of("subjectRefs", List.of("subject-version-ref-1"),
+                                        "analysisMethodRef", "analysis-method-ref-1",
+                                        "profileRef", "profile-version-ref-1",
+                                        "configurationDigest", "sha256:" + "c".repeat(64),
+                                        "purposeRef", "purpose-ref-1"))));
     }
 
     private static ToolExecutionEnvelope envelope(Case c, Map<String, Object> input) {
@@ -134,7 +152,7 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
 
     @Test
     void notAdmittedPassesRuntimeRefusalThroughForEachToolWithoutProviderEffect() {
-        for (Case c : cases()) {
+        for (Case c : jobCases()) {
             TestOnlyPort port = new TestOnlyPort();
             port.behavior = r -> { throw new MediaCapabilityNotAdmittedException(Reason.NOT_ADMITTED, r.jobType().name()); };
             MediaToolJobBridge bridge = new MediaToolJobBridge(port, "dev");
@@ -153,7 +171,7 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
 
     @Test
     void positiveMapsExactJobRequestAndReturnsObservedTerminalOutcome() {
-        for (Case c : cases()) {
+        for (Case c : jobCases()) {
             TestOnlyPort port = new TestOnlyPort();
             port.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("audioArtifactRef", "urn:out", "text", "t"), "");
             MediaToolJobBridge bridge = new MediaToolJobBridge(port, "test");
@@ -242,7 +260,7 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
 
     @Test
     void duplicateInvocationSubmitsOnlyOnceAndReplaysTerminalResult() {
-        Case c = cases().get(3);
+        Case c = cases().get(0);
         TestOnlyPort port = new TestOnlyPort();
         port.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("answer", "x"), "");
         MediaToolJobBridge bridge = new MediaToolJobBridge(port, "dev");
@@ -279,7 +297,7 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
                 .satisfies(t -> assertThat(((MediaToolExecutionBinder.OutcomeUnknownException) t).durableJobState())
                         .isEqualTo("RUNNING"));
         assertThat(port.submitted).hasSize(1); // no second submission while the fence is UNKNOWN
-        assertThat(bridge.readback().durableJobState(TENANT, e.invocationId())).contains("RUNNING");
+        assertThat(bridge.readback().durableJobState(principal(), TENANT, e.invocationId())).contains("RUNNING");
     }
 
     @Test
@@ -305,7 +323,7 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
 
     @Test
     void missingOrMalformedSourceVersionOrInlineSourceIsRejectedWithoutSubmission() {
-        for (Case c : cases()) {
+        for (Case c : jobCases()) {
             TestOnlyPort port = new TestOnlyPort();
             port.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("text", "t"), "");
             MediaToolJobBridge bridge = new MediaToolJobBridge(port, "dev");
@@ -356,7 +374,7 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
     @Test
     void productionLikeAndUnknownProfilesFailClosedWithoutSubmission() {
         for (String profile : List.of("prod", "production", "staging", "sovereign", "integration", "e2e", "bogus", "")) {
-            for (Case c : cases()) {
+            for (Case c : jobCases()) {
                 TestOnlyPort port = new TestOnlyPort();
                 port.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("text", "t"), "");
                 MediaToolJobBridge bridge = new MediaToolJobBridge(port, profile);
@@ -430,7 +448,7 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
 
     @Test
     void serverOwnedSpeechProfilePinAndLanguageIntentAreAddedOnlyToSpeechToTextJobs() {
-        for (Case c : cases()) {
+        for (Case c : jobCases()) {
             TestOnlyPort port = new TestOnlyPort();
             port.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("text", "t"), "");
             MediaToolJobBridge bridge = new MediaToolJobBridge(port, "test", PIN, java.time.Duration.ZERO);
@@ -460,7 +478,8 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
             @Override public ProcessingJob submit(ProcessingJobRequest request, AuthenticatedPrincipal authenticated) {
                 return port.submit(request, authenticated);
             }
-            @Override public Optional<ProcessingJob> findByRequestId(String tenantId, String requestId) {
+            @Override public Optional<ProcessingJob> findByRequestId(
+                    AuthenticatedPrincipal authenticated, String requestId) {
                 ProcessingJobRequest r = port.submitted.get(0);
                 return Optional.of(job(r, polls.incrementAndGet() < 3 ? JobStatus.RUNNING : JobStatus.COMPLETED,
                         Map.of("text", "observed transcript"), ""));
@@ -487,7 +506,8 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
             @Override public ProcessingJob submit(ProcessingJobRequest request, AuthenticatedPrincipal authenticated) {
                 return port.submit(request, authenticated);
             }
-            @Override public Optional<ProcessingJob> findByRequestId(String tenantId, String requestId) {
+            @Override public Optional<ProcessingJob> findByRequestId(
+                    AuthenticatedPrincipal authenticated, String requestId) {
                 return Optional.of(job(port.submitted.get(0), JobStatus.RUNNING, Map.of(), ""));
             }
         };
@@ -501,47 +521,19 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
     }
 
     @Test
-    void transcriptionMultimodalCallCarriesTheServerPinnedSttChildAndANeverAgentSuppliedProfile() {
+    void canonicalCrossModalCallStaysNotAdmittedWithoutAChildJobOrProviderDispatch() {
         Case mm = cases().get(3);
-        // Agent input that tries to smuggle its own profile is rejected before submission.
-        TestOnlyPort rejectedPort = new TestOnlyPort();
-        rejectedPort.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("observations", List.of()), "");
-        MediaToolJobBridge rejectedBridge = new MediaToolJobBridge(rejectedPort, "test", PIN, java.time.Duration.ZERO);
-        var rejectedFactory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), rejectedBridge), rejectedBridge);
-        Map<String, Object> smuggled = new HashMap<>(mm.input());
-        smuggled.put("profileId", "evil-profile");
-        ToolExecutionResult rejected = run(rejectedFactory, mm, envelope(mm, smuggled), principal());
-        assertThat(rejected.status()).isNotEqualTo(ToolExecutionStatus.SUCCESS);
-        assertThat(rejectedPort.submitted).isEmpty();
-
-        // Pinned bridge: transcription + vision -> two children, the STT child carries the pin and language intent.
         TestOnlyPort port = new TestOnlyPort();
         port.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("observations", List.of()), "");
         MediaToolJobBridge bridge = new MediaToolJobBridge(port, "test", PIN, java.time.Duration.ZERO);
         var factory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), bridge), bridge);
-        run(factory, mm, envelope(mm, mm.input()), principal());
-        var spec = com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec.from(port.submitted.get(0));
-        assertThat(spec.children()).extracting(child -> child.jobType())
-                .containsExactly(JobType.SPEECH_TO_TEXT, JobType.VISION);
-        var stt = spec.child("stt");
-        assertThat(stt.artifactId()).isEqualTo("art-mm");
-        assertThat(stt.artifactVersion()).isEqualTo(VERSION);
-        assertThat(stt.parameters()).containsEntry("profileId", PIN.profileId())
-                .containsEntry("profileVersion", PIN.profileVersion())
-                .containsEntry("profileConfigurationDigest", PIN.configurationDigest())
-                .containsEntry("languageIntent", Map.of("mode", "EXPLICIT", "languageTag", "en"));
+        ToolExecutionResult result = run(factory, mm, envelope(mm, mm.input()), principal());
 
-        // Transcription only: a single STT child.
-        TestOnlyPort sttOnlyPort = new TestOnlyPort();
-        sttOnlyPort.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("observations", List.of()), "");
-        MediaToolJobBridge sttOnlyBridge = new MediaToolJobBridge(sttOnlyPort, "test", PIN, java.time.Duration.ZERO);
-        var sttOnlyFactory = new AudioVideoToolHandlerFactory(binder(new TestLedger(), sttOnlyBridge), sttOnlyBridge);
-        Map<String, Object> sttOnly = new HashMap<>(mm.input());
-        sttOnly.put("enableVisionAnalysis", false);
-        run(sttOnlyFactory, mm, envelope(mm, sttOnly), principal());
-        assertThat(com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSpec
-                .from(sttOnlyPort.submitted.get(0)).children()).extracting(child -> child.jobType())
-                .containsExactly(JobType.SPEECH_TO_TEXT);
+        assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
+        assertThat(result.failure().kind()).isEqualTo(ToolExecutionFailure.Kind.UNAVAILABLE);
+        assertThat(result.failure().stage()).isEqualTo(ToolExecutionFailure.Stage.ADMISSION);
+        assertThat(result.failure().code()).isEqualTo(MultimodalInferenceToolHandler.NOT_ADMITTED_CODE);
+        assertThat(port.submitted).isEmpty();
     }
 
     @Test
@@ -596,7 +588,7 @@ final class MediaToolJobSubmissionTest extends EventloopTestBase {
                 Set.of("local"), false, "short-lived-media", false, false, "",
                 com.ghatana.media.runtime.MediaRuntimeContracts.BiometricSensitivity.NONE,
                 com.ghatana.media.runtime.MediaRuntimeContracts.AutomationRisk.ASSISTIVE);
-        for (Case c : cases()) {
+        for (Case c : jobCases()) {
             TestOnlyPort port = new TestOnlyPort();
             port.behavior = r -> job(r, JobStatus.COMPLETED, Map.of("text", "t"), "");
             MediaToolJobBridge bridge = new MediaToolJobBridge(port, "test", PIN, java.time.Duration.ZERO,

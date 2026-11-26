@@ -178,6 +178,28 @@ class VideoFrameReconcilerTest {
     }
 
     @Test
+    @DisplayName("a newly eligible held frame still rejects duplicate and conflicting replays")
+    void newlyEligibleHeldFrameRejectsReplaysUntilReleased() {
+        VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));
+        rec.offer(frame(0, true, 0));
+        VideoStreamSession.DecodedFrame held = frame(2, true, 66);
+        assertThat(rec.offer(held)).isEqualTo(Disposition.HELD);
+        assertThat(rec.offer(frame(1, false, 33))).isEqualTo(Disposition.DELIVERED);
+
+        assertThat(rec.offer(held)).isEqualTo(Disposition.DUPLICATE);
+        assertThat(rec.offer(new VideoStreamSession.DecodedFrame(2, true, 66, new byte[]{9})))
+                .isEqualTo(Disposition.CONFLICTING_REPLAY);
+        assertThat(rec.nextAck()).isEqualTo(1);
+        assertThat(rec.pendingCount()).isEqualTo(1);
+        assertThat(rec.pendingBytes()).isEqualTo(1);
+
+        assertThat(rec.takeDelivered()).isSameAs(held);
+        assertThat(rec.nextAck()).isEqualTo(2);
+        assertThat(rec.pendingCount()).isZero();
+        assertThat(rec.pendingBytes()).isZero();
+    }
+
+    @Test
     @DisplayName("duplicates never redeliver; reorder storm is bounded")
     void dedupAndBoundedStorm() {
         VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));

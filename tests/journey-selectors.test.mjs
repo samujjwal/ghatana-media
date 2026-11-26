@@ -52,7 +52,10 @@ test('J-06 selector evidence may come from progress, but removing it from both f
   const task = source.tasks.find((x) => x.id === j.taskId);
   const simple = j.classes[0].slice(j.classes[0].lastIndexOf('.') + 1);
 
-  assert.ok(task.progress.includes(simple));
+  // This test exercises the progress fallback independently from whichever
+  // source field currently carries the citation. Keep the fixture stable when
+  // a coordinator compacts progress and preserves history in verificationEvidence.
+  task.progress = `${task.progress ?? ''}\n${simple}`;
   task.verificationEvidence = '';
   let { errors } = validateManifest(m, { remaining: source, repoRoot: REPO_ROOT });
   assert.deepEqual(errors.filter((error) => error.startsWith('J-06:')), []);

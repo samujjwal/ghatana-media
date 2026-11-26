@@ -58,7 +58,10 @@ export function InteractiveDemoPlayer({
   const verifiedState = createDemoPlayerState(manifest, verificationPort);
   const [state, setState] = useState(verifiedState);
   const [positionedMedia, setPositionedMedia] = useState<PositionedMedia>();
+  const [networkOnline, setNetworkOnline] = useState<boolean>();
+  const networkOnlineRef = useRef<boolean | undefined>(undefined);
   const mediaRef = useRef<HTMLMediaElement>(null);
+  const metadataReadyMedia = useRef<PositionedMedia | undefined>(undefined);
   const sceneLabelRef = useRef<HTMLParagraphElement>(null);
   const stopAtSceneBoundary = useRef(false);
   const viewState = verifiedState.status === "READY" && state.trustBinding === verifiedState.trustBinding
@@ -82,7 +85,9 @@ export function InteractiveDemoPlayer({
     ? `${viewState.trustBinding}:${activeScene.id}:${activeScene.asset.version}`
     : undefined;
   const mediaReady = Boolean(
-    mediaKey && mediaRef.current && positionedMedia?.key === mediaKey && positionedMedia.element === mediaRef.current,
+    mediaKey && mediaRef.current &&
+    metadataReadyMedia.current?.key === mediaKey && metadataReadyMedia.current.element === mediaRef.current &&
+    positionedMedia?.key === mediaKey && positionedMedia.element === mediaRef.current,
   );
   const isCurrentMedia = (media: HTMLMediaElement) => mediaRef.current === media && media.isConnected;
   const dispatch = (action: DemoPlayerAction) => setState((current) => {
@@ -91,6 +96,42 @@ export function InteractiveDemoPlayer({
       : verifiedState;
     return reduceDemoPlayerState(manifest, basis, action, verificationPort);
   });
+  const dispatchRef = useRef(dispatch);
+  dispatchRef.current = dispatch;
+  useEffect(() => {
+    const updateNetworkState = () => {
+      const online = typeof navigator === "undefined" || navigator.onLine !== false;
+      const previous = networkOnlineRef.current;
+      networkOnlineRef.current = online;
+      setNetworkOnline(online);
+      if (previous === online) return;
+      if (!online) {
+        metadataReadyMedia.current = undefined;
+        setPositionedMedia(undefined);
+        dispatchRef.current({ type: "network-offline" });
+        const media = mediaRef.current;
+        if (media?.isConnected && !media.paused) {
+          stopAtSceneBoundary.current = true;
+          try {
+            media.pause();
+          } catch {
+            stopAtSceneBoundary.current = false;
+          }
+        }
+      } else if (previous === false) {
+        metadataReadyMedia.current = undefined;
+        setPositionedMedia(undefined);
+        dispatchRef.current({ type: "network-online" });
+      }
+    };
+    window.addEventListener("online", updateNetworkState);
+    window.addEventListener("offline", updateNetworkState);
+    updateNetworkState();
+    return () => {
+      window.removeEventListener("online", updateNetworkState);
+      window.removeEventListener("offline", updateNetworkState);
+    };
+  }, []);
   const pauseForNavigation = () => {
     const media = mediaRef.current;
     if (media && media.isConnected && !media.paused) {
@@ -104,7 +145,7 @@ export function InteractiveDemoPlayer({
   };
   const failPlayback = () => dispatch({ type: "playback-failed" });
   const playMedia = () => {
-    if (viewState.status !== "READY" || !mediaReady || !mediaRef.current) return;
+    if (viewState.status !== "READY" || networkOnlineRef.current !== true || !mediaReady || !mediaRef.current) return;
     const media = mediaRef.current;
     if (!media.isConnected) return;
     try {
@@ -129,13 +170,16 @@ export function InteractiveDemoPlayer({
     dispatch({ type: "seek", positionMs });
     const media = mediaRef.current;
     if (
+      networkOnlineRef.current === true &&
       media && activeScene && mediaKey && isCurrentMedia(media) &&
       positionMs >= activeScene.startMs && positionMs <= activeScene.endMs
     ) {
+      const readyMedia = metadataReadyMedia.current;
+      const metadataReady = readyMedia !== undefined && readyMedia.key === mediaKey && readyMedia.element === media;
       setPositionedMedia(undefined);
       try {
         media.currentTime = positionMs / 1_000;
-        if (!media.seeking && Math.abs(media.currentTime - positionMs / 1_000) < 0.001) {
+        if (metadataReady && !media.seeking && Math.abs(media.currentTime - positionMs / 1_000) < 0.001) {
           setPositionedMedia({ key: mediaKey, element: media });
         }
       } catch {
@@ -146,9 +190,15 @@ export function InteractiveDemoPlayer({
   const sourceLabel = viewState.sourceTruth ? demoSourceTruthLabel(viewState.sourceTruth) : "Unverified demonstration";
   const activeMediaKind = activeScene ? demoSceneMediaKind(activeScene) : "video";
   const MediaElement = activeMediaKind === "audio" ? "audio" : "video";
+  const displayStatus = viewState.status === "READY" && networkOnline === undefined
+    ? "LOADING"
+    : viewState.status;
+  const announcement = viewState.status === "READY" && networkOnline === undefined
+    ? "Checking connection before media playback."
+    : viewState.announcement;
 
   return (
-    <section aria-label={label} className="media-interactive-demo-player" data-demo-status={viewState.status}>
+    <section aria-label={label} className="media-interactive-demo-player" data-demo-status={displayStatus}>
       <p className="media-interactive-demo-player__source" aria-label={`Source: ${sourceLabel}`}>{sourceLabel}</p>
       <div role="group" className="media-interactive-demo-player__scene" aria-label={activeScene?.label ?? "Demonstration scene unavailable"}>
         <p ref={sceneLabelRef} tabIndex={-1}>{activeScene?.label ?? viewState.announcement}</p>
@@ -162,7 +212,7 @@ export function InteractiveDemoPlayer({
             {demoCaptionAt(activeScene, viewState.positionMs)}
           </p>
         )}
-        {activeScene && viewState.status === "READY" && (
+        {activeScene && viewState.status === "READY" && networkOnline === true && (
           <MediaElement
             key={mediaKey}
             ref={(element) => { mediaRef.current = element; }}
@@ -177,8 +227,10 @@ export function InteractiveDemoPlayer({
             {...(activeMediaKind === "audio" ? {} : { playsInline: true })}
             onLoadedMetadata={(event) => {
               const media = event.currentTarget;
-              if (!isCurrentMedia(media)) return;
-              const target = activeScene.startMs / 1_000;
+              if (networkOnlineRef.current !== true || !mediaKey || !isCurrentMedia(media)) return;
+              metadataReadyMedia.current = { key: mediaKey, element: media };
+              setPositionedMedia(undefined);
+              const target = viewState.positionMs / 1_000;
               try {
                 media.currentTime = target;
                 // Some browsers expose the requested currentTime while the
@@ -194,13 +246,20 @@ export function InteractiveDemoPlayer({
             onSeeked={(event) => {
               const media = event.currentTarget;
               const target = viewState.positionMs / 1_000;
-              if (Math.abs(media.currentTime - target) < 0.001 && mediaKey && isCurrentMedia(media)) {
+              const readyMedia = metadataReadyMedia.current;
+              const metadataReady = readyMedia !== undefined && readyMedia.key === mediaKey && readyMedia.element === media;
+              if (networkOnlineRef.current === true && metadataReady && Math.abs(media.currentTime - target) < 0.001 && mediaKey && isCurrentMedia(media)) {
                 setPositionedMedia({ key: mediaKey, element: media });
               }
             }}
             onPlay={(event) => {
               const media = event.currentTarget;
               if (!isCurrentMedia(media)) return;
+              if (networkOnlineRef.current !== true) {
+                stopAtSceneBoundary.current = true;
+                try { media.pause(); } catch { stopAtSceneBoundary.current = false; }
+                return;
+              }
               if (!mediaReady || viewState.status !== "READY") {
                 stopAtSceneBoundary.current = true;
                 try {
@@ -215,6 +274,7 @@ export function InteractiveDemoPlayer({
             }}
             onPause={(event) => {
               if (!isCurrentMedia(event.currentTarget)) return;
+              if (networkOnlineRef.current !== true) return;
               if (stopAtSceneBoundary.current || event.currentTarget.ended) {
                 stopAtSceneBoundary.current = false;
                 return;
@@ -223,7 +283,7 @@ export function InteractiveDemoPlayer({
             }}
             onTimeUpdate={(event) => {
               const media = event.currentTarget;
-              if (!isCurrentMedia(media)) return;
+              if (!isCurrentMedia(media) || networkOnlineRef.current !== true) return;
               const positionMs = Math.floor(media.currentTime * 1_000);
               if (positionMs >= activeScene.endMs) {
                 stopAtSceneBoundary.current = true;
@@ -242,26 +302,29 @@ export function InteractiveDemoPlayer({
             }}
             onEnded={(event) => {
               const media = event.currentTarget;
-              if (!isCurrentMedia(media)) return;
+              if (!isCurrentMedia(media) || networkOnlineRef.current !== true) return;
               const positionMs = Math.floor(media.currentTime * 1_000);
               if (positionMs >= activeScene.endMs) dispatch({ type: "ended" });
               else failPlayback();
             }}
             onError={(event) => {
-              if (isCurrentMedia(event.currentTarget)) failPlayback();
+              if (networkOnlineRef.current === true && isCurrentMedia(event.currentTarget)) failPlayback();
             }}
           />
         )}
       </div>
-      <p role="status" aria-live="polite" aria-atomic="true">{viewState.announcement}</p>
-      {activeScene && viewState.status === "READY" && (
+      <p role="status" aria-live="polite" aria-atomic="true">{announcement}</p>
+      {activeScene && (viewState.status === "READY" || viewState.status === "OFFLINE") && (
         <>
           <div role="group" aria-label="Playback controls">
-            <button type="button" onClick={playMedia} aria-label={`Play ${activeScene.label}`} disabled={!mediaReady || viewState.playing || viewState.positionMs >= activeScene.endMs}>Play</button>
-            <button type="button" onClick={pauseMedia} aria-label={`Pause ${activeScene.label}`} disabled={!viewState.playing}>Pause</button>
+            <button type="button" onClick={playMedia} aria-label={`Play ${activeScene.label}`} disabled={viewState.status !== "READY" || networkOnline !== true || !mediaReady || viewState.playing || viewState.positionMs >= activeScene.endMs}>Play</button>
+            <button type="button" onClick={pauseMedia} aria-label={`Pause ${activeScene.label}`} disabled={viewState.status !== "READY" || !viewState.playing}>Pause</button>
             <button type="button" onClick={() => {
               pauseForNavigation();
-              const next = replayDemoBranchPath(manifest, verificationPort, viewState.branches);
+              const replayed = replayDemoBranchPath(manifest, verificationPort, viewState.branches);
+              const next = viewState.status === "OFFLINE"
+                ? reduceDemoPlayerState(manifest, replayed, { type: "network-offline" }, verificationPort)
+                : replayed;
               setState(next);
               const media = mediaRef.current;
               if (

@@ -115,6 +115,9 @@ neither supported exposition type is acceptable, the existing JSON health
 snapshot is returned.
 Canonical capture frame outcomes have a runtime-owned success/unknown counter
 and a warning rule for recent ambiguous outcomes. This does not provide a
-render metric: the render path has no canonical runtime producer or metrics
-handoff, so render remains absent/unknown rather than zero. Capture telemetry
-does not establish model quality or provider eligibility.
+canonical render outcome or quality metric. The DEV_ONLY project and composite
+render runtimes emit a bounded `stage="render"` attempt-duration measurement
+through admission and the source-authority boundary; it does not imply rendered
+output, artifact registration, provider quality, or runtime finality. Those
+canonical outcome and quality observations remain absent/unknown rather than
+zero. Capture telemetry does not establish model quality or provider eligibility.

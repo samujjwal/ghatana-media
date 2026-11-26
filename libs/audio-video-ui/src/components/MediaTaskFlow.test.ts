@@ -45,8 +45,13 @@ describe("MediaTaskFlow instance-scoped accessibility IDs", () => {
     ));
     const ids = [...html.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]!);
     const uniqueIds = new Set(ids);
+    const operationSections = [...html.matchAll(/<section class="media-task-operation-status" aria-labelledby="([^"]+)"/gu)]
+      .map((match) => match[1]!);
+    const operationHeadingIds = new Set([...html.matchAll(/<h2 id="([^"]*media-operation-title)">/gu)].map((match) => match[1]!));
 
     expect(uniqueIds.size).toBe(ids.length);
+    expect(operationSections).toHaveLength(2);
+    for (const label of operationSections) expect(operationHeadingIds).toContain(label);
 
     for (const attribute of ["aria-labelledby", "aria-describedby"] as const) {
       const references = [...html.matchAll(new RegExp(`${attribute}="([^"]+)"`, "gu"))]

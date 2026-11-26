@@ -184,6 +184,22 @@ class VisionRoiAdmissionIntegrationTest {
                 .isEqualTo(Status.INVALID_ARGUMENT.getCode());
         assertThat(observer.responses).isZero();
         assertThat(observer.completed).isFalse();
+
+        DetectRequest zeroHeight = DetectRequest.newBuilder()
+                .setImageData(ByteString.copyFrom(png(4, 3)))
+                .setSourceRasterRoi(SourceRasterRoi.newBuilder()
+                        .setX(1).setY(1).setWidth(1).setHeight(0)
+                        .setSourceFrameVersion("source-frame-v7"))
+                .build();
+        CapturingObserver zeroHeightObserver = new CapturingObserver();
+
+        withTenant("tenant-j05", () -> service.detectObjects(zeroHeight, zeroHeightObserver));
+
+        assertThat(zeroHeightObserver.error).isInstanceOf(StatusRuntimeException.class);
+        assertThat(((StatusRuntimeException) zeroHeightObserver.error).getStatus().getCode())
+                .isEqualTo(Status.INVALID_ARGUMENT.getCode());
+        assertThat(zeroHeightObserver.responses).isZero();
+        assertThat(zeroHeightObserver.completed).isFalse();
         assertThat(providerCalls).hasValue(0);
     }
 

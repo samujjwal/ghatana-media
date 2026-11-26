@@ -75,15 +75,14 @@ class LocalVisionRealModelsIT {
     }
 
     @Test
-    void florenceReadsTheTextAndSeesTheScene() throws Exception {
+    void florenceCaptionsAndDetectsWithoutGenericOcr() throws Exception {
         assumeTrue(skipReason == null, () -> "SKIPPED: " + skipReason);
         byte[] png = LocalVisionTestFixtures.testImagePng();
         Map<String, Object> out = engine.analyze(png, LocalVisionTestFixtures.sha256(png),
-                Set.of("caption", "detect", "ocr"));
+                Set.of("caption", "detect"));
         System.out.println("FLORENCE-REAL-OUTPUT " + out.get("results"));
         @SuppressWarnings("unchecked") var results = (Map<String, Object>) out.get("results");
-        @SuppressWarnings("unchecked") var text = (Map<String, Object>) results.get("sceneText");
-        assertThat(((String) text.get("fullText")).toUpperCase()).contains("GHATANA");
+        assertThat(results).doesNotContainKey("sceneText").containsKeys("caption", "objects");
         assertThat(((String) results.get("caption")).toLowerCase()).containsAnyOf("red", "blue", "circle", "square");
         assertThat((List<?>) results.get("objects")).isNotNull();
     }
@@ -96,10 +95,6 @@ class LocalVisionRealModelsIT {
                 "What color is the square on the left side of the image?");
         System.out.println("QWEN-REAL-OUTPUT " + color.get("answer"));
         assertThat(((String) color.get("answer")).toLowerCase()).contains("red");
-        Map<String, Object> text = engine.ask(png, LocalVisionTestFixtures.sha256(png),
-                "What words are written at the top of the image?");
-        System.out.println("QWEN-REAL-OUTPUT " + text.get("answer"));
-        assertThat(((String) text.get("answer")).toUpperCase()).contains("GHATANA");
     }
 
     @Test
@@ -107,7 +102,8 @@ class LocalVisionRealModelsIT {
         assumeTrue(skipReason == null, () -> "SKIPPED: " + skipReason);
         byte[] png = LocalVisionTestFixtures.testImagePng();
         String sha = LocalVisionTestFixtures.sha256(png);
-        assertThat(engine.analyze(png, sha, Set.of("caption", "ocr"))).isEqualTo(engine.analyze(png, sha, Set.of("caption", "ocr")));
+        assertThat(engine.analyze(png, sha, Set.of("caption", "detect")))
+                .isEqualTo(engine.analyze(png, sha, Set.of("caption", "detect")));
         assertThat(engine.ask(png, sha, "How many shapes are there?")).isEqualTo(engine.ask(png, sha, "How many shapes are there?"));
     }
 }

@@ -1,6 +1,7 @@
 package com.ghatana.media.launcher;
 
 import com.ghatana.audio.video.vision.tracking.RegionOfInterest;
+import com.ghatana.audio.video.vision.local.LocalVisionEngine;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifact;
 import com.sun.net.httpserver.HttpExchange;
 import tools.jackson.core.StreamReadFeature;
@@ -22,7 +23,7 @@ import java.util.regex.Pattern;
 
 /**
  * DEV_ONLY local vision routes (outside the canonical manifest/OpenAPI): {@code GET /dev/v1/vision/status},
- * {@code POST /dev/v1/vision/analyses} (Florence-2 caption/detect/ocr), {@code POST /dev/v1/vision/questions}
+ * {@code POST /dev/v1/vision/analyses} (Florence-2 caption/detection), {@code POST /dev/v1/vision/questions}
  * (Qwen2.5-VL question about an image or video frame) and {@code GET /dev/v1/vision/outputs/{outputId}}.
  * Every response is labelled DEV_ONLY.
  */
@@ -74,6 +75,10 @@ final class MediaDevVisionRoutes {
                     "The exact source version has no current PROCESSING rights and consent admission; nothing was dispatched",
                     Map.of("scope", "PROCESSING", "verdict", failure.resolution().verdict().name(),
                             "reasons", failure.resolution().reasons().stream().map(Enum::name).sorted().toList()));
+        } catch (LocalVisionEngine.OcrNotAdmittedException failure) {
+            out.error(exchange, 422, failure.code(),
+                    "Generic OCR is owned by Document Intelligence and is not admitted on this Media local route",
+                    Map.of("outcome", "NOT_ADMITTED", "authority", "DOCUMENT_INTELLIGENCE", "fallback", "NONE"));
         } catch (MediaDevVisionRuntime.VisionNotAdmittedException failure) {
             out.error(exchange, 503, "LOCAL_MODEL_NOT_ADMITTED",
                     "The required local model is not digest-qualified; nothing was dispatched",

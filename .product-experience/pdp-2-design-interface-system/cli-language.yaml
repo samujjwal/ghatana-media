@@ -646,12 +646,13 @@ ownerDefinedCanonicalCommandContracts:
     capabilityRef: media.job.list
     capabilitySourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.job.list
     ownerLeafAdjudicationRef: .product-experience/pdp-0-product-truth/capability-leaf-review.yaml#ownerCapabilityLeafAdjudication/records/@capabilityRef=media.job.list
-    operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-list
+    ownerDecisionRef: .product-experience/decision-log.md#PXD-242
+    operationContractRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-list.v1
     operationVersion: 1
-    requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-list/requestSchema
-    resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-list/resultSchema
-    typedSchemaBindingStatus: EXACT_OPERATION_TYPED_REQUEST_AND_RESULT_SCHEMAS
-    canonicalSourceContractRefs: []
+    requestSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-list.v1/requestSchema
+    resultSchemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-list.v1/resultSchema
+    typedSchemaBindingStatus: EXACT_OWNER_DEFINED_TYPED_REQUEST_AND_RESULT_SCHEMAS
+    canonicalSourceContractRefs: [.product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-list.v1]
     canonicalActionRef: null
     actionBindingStatus: MACHINE_ONLY_NO_EXACT_UI_ACTION
     actionApplicability: MACHINE_ONLY_NO_EXACT_UI_ACTION
@@ -665,17 +666,17 @@ ownerDefinedCanonicalCommandContracts:
     argumentContract:
       encoding: ONE_CLOSED_JSON_REQUEST_OBJECT
       option: --request-json
-      schemaRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-list/requestSchema
+      schemaRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-list.v1/requestSchema
       positionalData: FORBIDDEN
       additionalProperties: REJECT
       validationOrder: BEFORE_AUTHORIZED_EFFECT_OR_DISPATCH
     commandSpecificSemanticRefs:
-      authority: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-list/canonicalAuthorityRefs
-      errors: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-list/errors
-      finality: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-list/finality
+      authority: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-list.v1/authorityRefs
+      errors: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-list.v1/errors
+      finality: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-list.v1/readSemantics
       idempotency: NOT_APPLICABLE_READ_ONLY
-      recovery: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-list/recovery
-      waitDisposition: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/records/@id=media.operation.capability.media-job-list/asyncSubmissionDisposition
+      recovery: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-list.v1/readSemantics
+      waitDisposition: NOT_APPLICABLE_READ_ONLY_QUERY
   - id: media.cli.command.job-status.v1
     argvPrefix: [job, status]
     capabilityRef: media.job.view-status

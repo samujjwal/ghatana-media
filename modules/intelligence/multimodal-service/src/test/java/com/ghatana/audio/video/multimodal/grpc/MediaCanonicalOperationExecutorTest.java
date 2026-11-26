@@ -1,6 +1,9 @@
 package com.ghatana.audio.video.multimodal.grpc;
 
 import com.ghatana.audio.video.multimodal.grpc.proto.CanonicalOperationBinding;
+import com.ghatana.audio.video.multimodal.grpc.proto.CanonicalAnalysisRequest;
+import com.ghatana.audio.video.multimodal.grpc.proto.CanonicalAnalysisCriteria;
+import com.ghatana.audio.video.multimodal.grpc.proto.CanonicalReferenceList;
 import com.ghatana.media.runtime.MediaCapabilityNotAdmittedException;
 import com.ghatana.media.runtime.MediaProcessingRuntimePort;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt;
@@ -48,6 +51,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class MediaCanonicalOperationExecutorTest {
 
     private static final String SHA = "ab".repeat(32);
+    private static final String CROSS_MODAL_CAPABILITY_REF = "media.multimodal.analyze.cross-modal";
+    private static final String CROSS_MODAL_OPERATION_REF =
+            "media.operation.capability.media-multimodal-analyze-cross-modal";
     private static final AuthenticatedPrincipal AUTH =
             new AuthenticatedPrincipal("tenant-a", "principal-a", Instant.now());
     private static final ScheduledExecutorService DEADLINE_TIMER = Executors.newSingleThreadScheduledExecutor(runnable -> {
@@ -152,6 +158,188 @@ class MediaCanonicalOperationExecutorTest {
         assertThat(clock.ticksPerSecond()).isEqualTo(48_000);
         assertThat(clock.durationTicks()).isEqualTo(96_000);
         assertThat(spec.children()).hasSize(1);
+        assertThat(spec.plan()).isEqualTo(Map.of("purpose", "mm-observe"));
+    }
+
+    @Test
+    void canonicalCrossModalDimensionsAreValidatedBeforeAnyArtifactReadOrUpload() {
+        List<CanonicalOperationBinding> invalidBindings = List.of(
+                crossModalBinding(List.of()),
+                crossModalBinding(java.util.Collections.nCopies(33, "media.dimension.audio")),
+                crossModalBinding(List.of("not a dimension reference")),
+                crossModalBinding(List.of("a".repeat(129))),
+                binding().toBuilder()
+                        .setCapabilityRef(CROSS_MODAL_CAPABILITY_REF)
+                        .setOperationRef(CROSS_MODAL_OPERATION_REF)
+                        .build(),
+                crossModalBinding(CanonicalAnalysisRequest.newBuilder()
+                        .addDimensions("media.dimension.audio")
+                        .build()),
+                crossModalBinding(canonicalAnalysisRequest(List.of("media.dimension.audio"))
+                        .setCriteria(CanonicalAnalysisCriteria.newBuilder()
+                                .addSubjectRefs("subject-v1")
+                                .setAnalysisMethodRef("method-v1")
+                                .setProfileRef("profile-v1")
+                                .setConfigurationDigest("not-a-digest")
+                                .setPurposeRef("purpose-v1"))
+                        .build()),
+                crossModalBinding(canonicalAnalysisRequest(List.of("media.dimension.audio"))
+                        .setCriteria(CanonicalAnalysisCriteria.newBuilder()
+                                .addSubjectRefs("subject-v1")
+                                .addSubjectRefs("subject-v1")
+                                .setAnalysisMethodRef("method-v1")
+                                .setProfileRef("profile-v1")
+                                .setConfigurationDigest("sha256:" + "a".repeat(64))
+                                .setPurposeRef("purpose-v1"))
+                        .build()),
+                crossModalBinding(canonicalAnalysisRequest(List.of("media.dimension.audio"))
+                        .setPageSize(101)
+                        .build()),
+                crossModalBinding(canonicalAnalysisRequest(List.of("media.dimension.audio"))
+                        .setCriteria(canonicalAnalysisRequest(List.of("media.dimension.audio"))
+                                .getCriteria().toBuilder()
+                                .setRegionOrChannelRefs(CanonicalReferenceList.newBuilder()
+                                        .addValues("channel-v1")
+                                        .addValues("channel-v1")))
+                        .build()),
+                crossModalBinding(List.of("media.dimension.audio")).toBuilder()
+                        .addDimensions("media.dimension.video")
+                        .build());
+
+        for (CanonicalOperationBinding invalidBinding : invalidBindings) {
+            var port = new FixturePort().withSource(Map.of());
+            var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+
+            assertThatThrownBy(() -> executor.execute(
+                    invalidBinding, CROSS_MODAL_OPERATION_REF, crossModalOperation(), AUTH))
+                    .isInstanceOf(IllegalArgumentException.class);
+
+            assertThat(port.artifactReads).hasValue(0);
+            assertThat(port.uploads).isEmpty();
+            assertThat(port.submitted).isEmpty();
+        }
+    }
+
+    @Test
+    void canonicalCrossModalRequestRoundTripsExactPdp1CriteriaAndOptions() throws Exception {
+        List<String> dimensions = List.of("media.dimension.audio", "media.dimension.video");
+        CanonicalAnalysisRequest request = canonicalAnalysisRequest(dimensions)
+                .setTimeRange("source-time-window-v1")
+                .setPageSize(17)
+                .setPageToken("page-token-v1")
+                .setCriteria(canonicalAnalysisRequest(dimensions).getCriteria().toBuilder()
+                        .addSubjectRefs("subject-v2")
+                        .setAnalysisMethodRef("method-v2")
+                        .setProfileRef("profile-v2")
+                        .setConfigurationDigest("sha256:" + "b".repeat(64))
+                        .setPurposeRef("purpose-v2")
+                        .setSourceTimeRangeRef("source-clock-range-v2")
+                        .setRegionOrChannelRefs(CanonicalReferenceList.newBuilder()
+                                .addValues("region-v2")
+                                .addValues("channel-v2"))
+                        .setUncertaintyPolicyRef("uncertainty-policy-v2"))
+                .build();
+        FixturePort port = new FixturePort() {
+            @Override public Optional<MediaArtifact> artifact(
+                    String tenantId, String principalId, String artifactId) {
+                Optional<MediaArtifact> existing = super.artifact(tenantId, principalId, artifactId);
+                if (existing.isPresent()) return existing;
+                if ("vision-art".equals(artifactId)) {
+                    return Optional.of(new MediaArtifact("tenant-a", "principal-a", "vision-art",
+                            "vision.bin", "application/octet-stream", 4, SHA, "ref", "CONFIDENTIAL",
+                            Instant.now(), Instant.now().plusSeconds(3_600), Map.of()));
+                }
+                return Optional.empty();
+            }
+        }.withSource(Map.of()).thenStatuses(JobStatus.COMPLETED);
+        var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+
+        executor.execute(crossModalBinding(request), CROSS_MODAL_OPERATION_REF,
+                crossModalOperation(), AUTH);
+
+        ProcessingJobRequest submitted = port.submitted.peek();
+        MultimodalOperationSpec spec = MultimodalOperationSpec.from(submitted);
+        assertThat(spec.plan().get("analysisRequest")).isEqualTo(Map.of(
+                "dimensions", dimensions,
+                "timeRange", "source-time-window-v1",
+                "pageSize", 17,
+                "pageToken", "page-token-v1",
+                "criteria", Map.of(
+                        "subjectRefs", List.of("subject-v1", "subject-v2"),
+                        "analysisMethodRef", "method-v2",
+                        "profileRef", "profile-v2",
+                        "configurationDigest", "sha256:" + "b".repeat(64),
+                        "purposeRef", "purpose-v2",
+                        "sourceTimeRangeRef", "source-clock-range-v2",
+                        "regionOrChannelRefs", List.of("region-v2", "channel-v2"),
+                        "uncertaintyPolicyRef", "uncertainty-policy-v2")));
+        assertThat(MultimodalOperationSpec.fromParameterValue(spec.toParametersValue()).plan())
+                .isEqualTo(spec.plan());
+        assertThat(port.uploads).isEmpty();
+    }
+
+    @Test
+    void canonicalCrossModalRequestPresenceAndCriteriaBindSameRequestIdFingerprint() throws Exception {
+        FixturePort port = new FixturePort() {
+            @Override public Optional<MediaArtifact> artifact(
+                    String tenantId, String principalId, String artifactId) {
+                Optional<MediaArtifact> existing = super.artifact(tenantId, principalId, artifactId);
+                if (existing.isPresent()) return existing;
+                if ("vision-art".equals(artifactId)) {
+                    return Optional.of(new MediaArtifact("tenant-a", "principal-a", "vision-art",
+                            "vision.bin", "application/octet-stream", 4, SHA, "ref", "CONFIDENTIAL",
+                            Instant.now(), Instant.now().plusSeconds(3_600), Map.of()));
+                }
+                return Optional.empty();
+            }
+        }.withSource(Map.of()).thenStatuses(JobStatus.COMPLETED, JobStatus.COMPLETED);
+        var executor = executor(port, Duration.ofSeconds(5), Duration.ofMillis(5));
+        List<String> firstDimensions = new ArrayList<>();
+        for (int index = 0; index < 32; index++) firstDimensions.add("dimension-" + index);
+        firstDimensions.set(0, "media.dimension.audio");
+        firstDimensions.set(1, "media.dimension.audio");
+        firstDimensions.set(31, "a".repeat(128));
+        firstDimensions = List.copyOf(firstDimensions);
+        CanonicalAnalysisRequest firstRequest = canonicalAnalysisRequest(firstDimensions).build();
+        CanonicalAnalysisRequest secondRequest = canonicalAnalysisRequest(
+                List.of("media.dimension.video", "media.dimension.audio"))
+                .setCriteria(canonicalAnalysisRequest(List.of("media.dimension.video"))
+                        .getCriteria().toBuilder()
+                        .setProfileRef("profile-v2")
+                        .setRegionOrChannelRefs(CanonicalReferenceList.newBuilder()))
+                .build();
+
+        executor.execute(crossModalBinding(firstRequest), CROSS_MODAL_OPERATION_REF,
+                crossModalOperation(), AUTH);
+        executor.execute(crossModalBinding(secondRequest), CROSS_MODAL_OPERATION_REF,
+                crossModalOperation(), AUTH);
+
+        ProcessingJobRequest first = port.submitted.getFirst();
+        ProcessingJobRequest second = port.submitted.getLast();
+        assertThat(first.requestId()).isEqualTo(second.requestId());
+        MultimodalOperationSpec firstSpec = MultimodalOperationSpec.from(first);
+        MultimodalOperationSpec secondSpec = MultimodalOperationSpec.from(second);
+        assertThat(firstSpec.plan().get("analysisRequest")).isEqualTo(Map.of(
+                "dimensions", firstDimensions,
+                "criteria", Map.of(
+                        "subjectRefs", List.of("subject-v1"),
+                        "analysisMethodRef", "analysis-method-v1",
+                        "profileRef", "profile-v1",
+                        "configurationDigest", "sha256:" + "a".repeat(64),
+                        "purposeRef", "purpose-v1")));
+        assertThat(secondSpec.plan().get("analysisRequest")).isEqualTo(Map.of(
+                "dimensions", List.of("media.dimension.video", "media.dimension.audio"),
+                "criteria", Map.of(
+                        "subjectRefs", List.of("subject-v1"),
+                        "analysisMethodRef", "analysis-method-v1",
+                        "profileRef", "profile-v2",
+                        "configurationDigest", "sha256:" + "a".repeat(64),
+                        "purposeRef", "purpose-v1",
+                        "regionOrChannelRefs", List.of())));
+        assertThat(firstSpec.specDigest()).isNotEqualTo(secondSpec.specDigest());
+        assertThat(com.ghatana.media.runtime.MediaJobRequestFingerprint.compute(first, List.of()))
+                .isNotEqualTo(com.ghatana.media.runtime.MediaJobRequestFingerprint.compute(second, List.of()));
+        assertThat(port.uploads).isEmpty();
     }
 
     @Test
@@ -1016,6 +1204,37 @@ class MediaCanonicalOperationExecutorTest {
                         CanonicalOperations.childInline(
                                 "stt", JobType.SPEECH_TO_TEXT, payload, "audio/wav"))),
                 () -> null, outcome -> outcome);
+    }
+
+    private static CanonicalOperation<CanonicalOperationOutcome> crossModalOperation() {
+        return CanonicalOperations.of(
+                CanonicalOperations.plan(CROSS_MODAL_CAPABILITY_REF, List.of(
+                        CanonicalOperations.childArtifact("stt", JobType.SPEECH_TO_TEXT, "child-art"),
+                        CanonicalOperations.childArtifact("vision", JobType.VISION, "vision-art"))),
+                () -> null, outcome -> outcome);
+    }
+
+    private static CanonicalAnalysisRequest.Builder canonicalAnalysisRequest(List<String> dimensions) {
+        return CanonicalAnalysisRequest.newBuilder()
+                .addAllDimensions(dimensions)
+                .setCriteria(CanonicalAnalysisCriteria.newBuilder()
+                        .addSubjectRefs("subject-v1")
+                        .setAnalysisMethodRef("analysis-method-v1")
+                        .setProfileRef("profile-v1")
+                        .setConfigurationDigest("sha256:" + "a".repeat(64))
+                        .setPurposeRef("purpose-v1"));
+    }
+
+    private static CanonicalOperationBinding crossModalBinding(List<String> dimensions) {
+        return crossModalBinding(canonicalAnalysisRequest(dimensions).build());
+    }
+
+    private static CanonicalOperationBinding crossModalBinding(CanonicalAnalysisRequest request) {
+        return binding().toBuilder()
+                .setCapabilityRef(CROSS_MODAL_CAPABILITY_REF)
+                .setOperationRef(CROSS_MODAL_OPERATION_REF)
+                .setAnalysisRequest(request)
+                .build();
     }
 
     private static CanonicalOperationBinding binding() {

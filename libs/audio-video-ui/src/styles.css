@@ -46,7 +46,7 @@
 .media-task-flow[data-density="compact"] {
   padding-block: var(--media-space-compact);
 }
-.media-task-flow[data-density="compact"] > section[aria-labelledby="media-operation-title"],
+.media-task-flow[data-density="compact"] > .media-task-operation-status,
 .media-task-flow[data-density="compact"] > div > section,
 .media-task-flow[data-density="compact"] > div > aside > section {
   margin-block: var(--media-space-compact);
@@ -56,7 +56,7 @@
 .media-task-flow[data-density="comfortable"] {
   padding-block: var(--media-space-comfortable);
 }
-.media-task-flow[data-density="comfortable"] > section[aria-labelledby="media-operation-title"],
+.media-task-flow[data-density="comfortable"] > .media-task-operation-status,
 .media-task-flow[data-density="comfortable"] > div > section,
 .media-task-flow[data-density="comfortable"] > div > aside > section {
   margin-block: var(--media-space-comfortable);
@@ -138,7 +138,7 @@
 .media-task-flow nav li > button > span:nth-child(2) { font-weight: var(--media-weight-emphasis); }
 .media-task-flow nav li > button > span:nth-child(3) { color: GrayText; font-size: var(--media-font-supporting); }
 
-.media-task-flow > section[aria-labelledby="media-operation-title"],
+.media-task-flow > .media-task-operation-status,
 .media-task-flow > div > section,
 .media-task-flow > div > aside > section {
   min-width: 0;
@@ -148,7 +148,7 @@
   border-radius: .75rem;
   background: Canvas;
 }
-.media-task-flow > section[aria-labelledby="media-operation-title"] > div:first-child { display: flex; justify-content: space-between; gap: 1rem; }
+.media-task-flow > .media-task-operation-status > div:first-child { display: flex; justify-content: space-between; gap: 1rem; }
 .media-progress {
   display: block;
   width: 100%;
@@ -294,6 +294,7 @@
 .media-family__reason { color: GrayText; }
 .media-family__keyboard-note { margin-block-end: 0; color: GrayText; font-size: var(--media-font-metadata); }
 .media-family :focus-visible { outline: 3px solid Highlight; outline-offset: 2px; }
+.media-interactive-demo-player :focus-visible { outline: 3px solid Highlight; outline-offset: 2px; }
 .media-family button:disabled { cursor: not-allowed; }
 
 @media (max-width: 48rem) {
@@ -325,7 +326,7 @@
   .media-task-flow .media-progress--warning { color: Mark; }
   .media-task-flow nav li > button[aria-current="step"] { outline-color: Highlight; }
   .media-task-flow nav li > button:disabled { color: ButtonText; background: ButtonFace; border-color: CanvasText; }
-  .media-task-flow > section[aria-labelledby="media-operation-title"],
+  .media-task-flow > .media-task-operation-status,
   .media-task-flow > div > section,
   .media-task-flow > div > aside > section,
   .media-task-flow nav li > button { border-color: CanvasText; }

@@ -1,5 +1,7 @@
+// @vitest-environment jsdom
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { TrainingProgress } from "./TrainingProgress";
 import { VoiceProductionWorkflow } from "./VoiceProductionWorkflow";
@@ -30,6 +32,47 @@ describe("VoiceProductionWorkflow", () => {
     expect(html).toContain('aria-label="Voice-model training progress"');
     expect(html).toContain('aria-valuetext="Training voice model, 32 percent"');
     expect(html).not.toMatch(/<progress[^>]*style=/);
+  });
+
+  it("keeps progress ticks out of live announcements while exposing the exact value", () => {
+    const { container, rerender } = render(
+      <TrainingProgress status="training" progress={32} />,
+    );
+    const announcement = container.querySelector(
+      '[aria-live="polite"][aria-atomic="true"]',
+    );
+    const progress = screen.getByRole("progressbar", {
+      name: "Voice-model training progress",
+    });
+
+    expect(announcement?.textContent).toBe("Training voice model");
+    expect(progress.getAttribute("aria-valuetext")).toBe(
+      "Training voice model, 32 percent",
+    );
+
+    rerender(<TrainingProgress status="training" progress={76} />);
+
+    expect(announcement?.textContent).toBe("Training voice model");
+    expect(progress.getAttribute("aria-valuetext")).toBe(
+      "Training voice model, 76 percent",
+    );
+  });
+
+  it.each([
+    ["NaN", Number.NaN],
+    ["positive infinity", Number.POSITIVE_INFINITY],
+    ["negative infinity", Number.NEGATIVE_INFINITY],
+  ] as const)("keeps %s training progress indeterminate", (_label, progressValue) => {
+    const { container } = render(
+      <TrainingProgress status="training" progress={progressValue} />,
+    );
+    const progress = container.querySelector("progress");
+
+    expect(progress).not.toBeNull();
+    expect(progress?.getAttribute("aria-busy")).toBe("true");
+    expect(progress?.hasAttribute("value")).toBe(false);
+    expect(progress?.hasAttribute("aria-valuetext")).toBe(false);
+    expect(container.textContent).not.toMatch(/(?:NaN|Infinity|%)/);
   });
 
   it("keeps heading and status references unique across training jobs", () => {
@@ -238,6 +281,39 @@ describe("VoiceProductionWorkflow", () => {
 
     expect(html).toContain("Source version reference (provided, not verified)");
     expect(html).toContain("tenant-1 / source-1 / version-7");
+  });
+
+  it.each([
+    ["NaN", Number.NaN],
+    ["positive infinity", Number.POSITIVE_INFINITY],
+    ["negative infinity", Number.NEGATIVE_INFINITY],
+  ] as const)("does not present a non-finite source quality score as evaluated (%s)", (_label, qualityScore) => {
+    const html = renderToStaticMarkup(
+      <VoiceProductionWorkflow
+        projectName="Voice campaign"
+        currentStep="inspect"
+        source={{ fileName: "source.wav", qualityScore }}
+        consent={{ rightsAttested: false }}
+        capabilities={activeCapabilities}
+      />,
+    );
+
+    expect(html).toMatch(/<dt[^>]*>Quality<\/dt>\s*<dd[^>]*>Not evaluated<\/dd>/);
+    expect(html).not.toContain(`${String(qualityScore)}%`);
+  });
+
+  it("keeps the existing percentage display for finite source quality scores", () => {
+    const html = renderToStaticMarkup(
+      <VoiceProductionWorkflow
+        projectName="Voice campaign"
+        currentStep="inspect"
+        source={{ fileName: "source.wav", qualityScore: 0.8 }}
+        consent={{ rightsAttested: false }}
+        capabilities={activeCapabilities}
+      />,
+    );
+
+    expect(html).toMatch(/<dt[^>]*>Quality<\/dt>\s*<dd[^>]*>80%<\/dd>/);
   });
 
   it("keeps process disabled even with a complete tuple until trusted exact-target authority is available", () => {

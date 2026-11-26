@@ -117,7 +117,7 @@ class MediaDevVisionRestartIT {
 
             // ---- rights: without a real attestation for the exact version nothing is read or inferred ----
             Map<String, Object> analyzeBody = Map.of("requestId", "analysis-" + run, "artifactId", sourceId,
-                    "artifactVersionId", version, "tasks", List.of("caption", "detect", "ocr"));
+                    "artifactVersionId", version, "tasks", List.of("caption", "detect"));
             HttpResponse<String> notYet = send(port, tenant, token, "POST", ANALYSES,
                     JSON.writeValueAsString(analyzeBody));
             assertThat(notYet.statusCode()).as(notYet.body()).isEqualTo(403);
@@ -145,8 +145,7 @@ class MediaDevVisionRestartIT {
             assertThat(sha256(analysisBytes)).isEqualTo(analysisRow.sha256());
             JsonNode analysisDocument = JSON.readTree(new String(analysisBytes, StandardCharsets.UTF_8));
             System.out.println("REAL-STORE-VISION-ANALYSIS " + new String(analysisBytes, StandardCharsets.UTF_8));
-            assertThat(analysisDocument.path("inference").path("results").path("sceneText").path("fullText")
-                    .asString().toUpperCase()).contains("GHATANA");
+            assertThat(analysisDocument.path("inference").path("results").has("sceneText")).isFalse();
             assertThat(analysisDocument.path("inference").path("model").path("id").asString())
                     .isEqualTo("florence-community/Florence-2-large");
             // The source artifact is untouched.
@@ -244,7 +243,7 @@ class MediaDevVisionRestartIT {
         throw new AssertionError("vision sidecar did not become healthy");
     }
 
-    /** Text and two shapes rendered with Java2D, so OCR and visual questions have something real to read. */
+    /** Text and two shapes rendered with Java2D, so visual captioning/questions have something real to inspect. */
     private static byte[] scenePng() throws Exception {
         var image = new java.awt.image.BufferedImage(640, 480, java.awt.image.BufferedImage.TYPE_INT_RGB);
         var g = image.createGraphics();

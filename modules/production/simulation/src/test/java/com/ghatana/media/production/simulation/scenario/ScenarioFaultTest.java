@@ -97,6 +97,9 @@ class ScenarioFaultTest {
         Map<String, Object> steps = spring(1, 1, 0, goodSolver());
         ((Map<String, Object>) steps.get("solver")).put("maxAcceptedSteps", 10_001);
         refused(steps, Kind.BUDGET, "$.solver.maxAcceptedSteps");
+        Map<String, Object> iterations = spring(1, 1, 0, goodSolver());
+        ((Map<String, Object>) iterations.get("solver")).put("maxIterations", Scenario.MAX_ITERATIONS + 1);
+        refused(iterations, Kind.BUDGET, "$.solver.maxIterations");
         Map<String, Object> ratio = spring(1, 1, 0, solver(100_000, 1.0, 1e-9, 1000, "ADAPTIVE"));
         refused(ratio, Kind.BUDGET, "$.solver.minStep");
         refused(spring(1, 1, 0, solver(100_001, 1.0, 1.0, 1000, "ADAPTIVE")), Kind.BUDGET, "$.solver.duration");

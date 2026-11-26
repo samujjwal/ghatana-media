@@ -22,6 +22,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactContentReade
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaConsentAuthority;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaGovernanceContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStore;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobListSnapshot;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobFinalizationDeadlineExceededException;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaProcessingProvider;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaStreamSessionStore;
@@ -1691,6 +1692,23 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 .filter(value -> value.principalId().equals(principalId));
     }
 
+    /**
+     * Reads a canonical job by its idempotent request identity under the authenticated
+     * tenant/principal. Request ids never grant access to another principal's job.
+     */
+    @Override
+    public Optional<ProcessingJob> jobByRequestId(
+            String requestId, MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+        if (authenticated == null || requestId == null || requestId.isBlank()) return Optional.empty();
+        ensureOpen();
+        String tenantId = authenticated.tenantId();
+        String principalId = authenticated.principalId();
+        return jobStore.findByRequest(tenantId, requestId)
+                .filter(value -> value.tenantId().equals(tenantId)
+                        && value.principalId().equals(principalId)
+                        && value.requestId().equals(requestId));
+    }
+
     /** @deprecated A tenant-scoped list is insufficient where jobs belong to principals. */
     @Deprecated
     public List<ProcessingJob> jobs(String tenantId, int limit) {
@@ -1717,6 +1735,27 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
 
     public List<MediaJobView> jobViews(String tenantId, String principalId, int limit) {
         return jobs(tenantId, principalId, limit).stream().map(this::projectJobView).toList();
+    }
+
+    /** Returns one host-scoped, bounded job-list observation from the owning store snapshot. */
+    public JobListSnapshot jobListSnapshot(String tenantId, String principalId, int limit) {
+        ensureOpen();
+        requirePrincipal(principalId);
+        if (tenantId == null || tenantId.isBlank()) throw new IllegalArgumentException("tenantId is required");
+        if (limit < 1 || limit > 1_000) throw new IllegalArgumentException("limit must be between 1 and 1000");
+        JobListSnapshot snapshot = jobStore.listSnapshot(tenantId, principalId, limit);
+        if (snapshot == null || !snapshot.observed() || snapshot.jobs().size() > limit
+                || snapshot.jobs().stream().anyMatch(job -> !tenantId.equals(job.tenantId())
+                        || !principalId.equals(job.principalId()))) {
+            return JobListSnapshot.unknown();
+        }
+        return snapshot;
+    }
+
+    /** Projects only from the row in the list snapshot; it does not issue an out-of-snapshot attempt read. */
+    public MediaJobView projectJobListView(ProcessingJob job) {
+        return MediaJobView.of(job, MediaLifecycleProjection.projectJob(
+                job, null, MediaLifecycleProjection.JobFacts.none()));
     }
 
     /**

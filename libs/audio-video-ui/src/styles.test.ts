@@ -34,6 +34,20 @@ describe("central Media UI treatment", () => {
     expect(styles).toContain("outline: 3px solid Highlight; outline-offset: 2px");
   });
 
+  it("keeps focus visible when the interactive player is rendered outside a family wrapper", () => {
+    const rule = /\.media-interactive-demo-player :focus-visible\s*\{([^}]+)\}/u.exec(styles)?.[1] ?? "";
+
+    expect(rule).toContain("outline: 3px solid Highlight");
+    expect(rule).toContain("outline-offset: 2px");
+  });
+
+  it("styles operation observations with a stable hook, not generated accessibility IDs", () => {
+    expect(styles).toContain('.media-task-flow[data-density="compact"] > .media-task-operation-status');
+    expect(styles).toContain('.media-task-flow[data-density="comfortable"] > .media-task-operation-status');
+    expect(styles).toContain(".media-task-flow > .media-task-operation-status");
+    expect(styles).not.toContain('aria-labelledby="media-operation-title"');
+  });
+
   it("defines only CSS token aliases registered by the PDP-2 source", () => {
     const registered = new Set([...tokenAliases.matchAll(/^\s+cssVariable:\s*(--media-[a-z0-9-]+)\s*$/gmu)].map((match) => match[1]!));
     const locallyDefined = new Set([...styles.matchAll(/^\s*(--media-[a-z0-9-]+)\s*:/gmu)].map((match) => match[1]!));

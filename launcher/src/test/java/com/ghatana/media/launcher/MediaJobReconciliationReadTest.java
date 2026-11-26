@@ -7,6 +7,8 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MediaProcessingProvider;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobListSnapshot;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobListUnavailableException;
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
@@ -190,6 +192,72 @@ class MediaJobReconciliationReadTest {
             }
         } finally {
             runtime.close();
+        }
+    }
+
+    @Test
+    void jobListScopesBeforeLimitAndReturnsStoreSnapshotMetadata() throws Exception {
+        var root = Files.createTempDirectory("media-job-list-snapshot-");
+        var jobs = new LocalMediaRuntimeSupport.JobStore();
+        jobs.create(new ProcessingJob(
+                "foreign-latest", "request-foreign", "tenant-a", "principal-b", "artifact-1", JobType.VISION,
+                "provider-1", JobStatus.ACCEPTED, Instant.EPOCH.plusSeconds(3), null, null, Map.of(), "", 1));
+        jobs.create(new ProcessingJob(
+                "owned-latest", "request-owned-latest", "tenant-a", "principal-a", "artifact-1", JobType.VISION,
+                "provider-1", JobStatus.ACCEPTED, Instant.EPOCH.plusSeconds(2), null, null, Map.of(), "", 2));
+        jobs.create(new ProcessingJob(
+                "owned-older", "request-owned-older", "tenant-a", "principal-a", "artifact-1", JobType.VISION,
+                "provider-1", JobStatus.ACCEPTED, Instant.EPOCH.plusSeconds(1), null, null, Map.of(), "", 1));
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root), jobs,
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(processingProvider(new AtomicInteger())),
+                List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        try {
+            ExchangeResult response = request(new MediaHttpHandler(runtime), "/api/v1/jobs?limit=1");
+            assertThat(response.status()).isEqualTo(200);
+            assertThat(response.body()).contains("\"jobId\":\"owned-latest\"", "\"readVersion\":\"",
+                    "\"observedAt\":\"")
+                    .contains("\"requestId\":\"request-owned-latest\"", "\"principalId\":\"principal-a\"")
+                    .doesNotContain("foreign-latest", "owned-older");
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void unknownOrUnavailableJobListSnapshotNeverReturnsPartialJobs() throws Exception {
+        for (boolean unavailable : List.of(false, true)) {
+            var root = Files.createTempDirectory("media-job-list-unknown-");
+            var jobs = Mockito.spy(new LocalMediaRuntimeSupport.JobStore());
+            jobs.create(new ProcessingJob(
+                    "job-hidden-on-unknown", "request-unknown", "tenant-a", "principal-a", "artifact-1",
+                    JobType.VISION, "provider-1", JobStatus.ACCEPTED, Instant.EPOCH, null, null,
+                    Map.of(), "", 1));
+            if (unavailable) {
+                Mockito.doThrow(new MediaJobListUnavailableException("fixture unavailable", new IllegalStateException()))
+                        .when(jobs).listSnapshot("tenant-a", "principal-a", 100);
+            } else {
+                Mockito.doReturn(JobListSnapshot.unknown())
+                        .when(jobs).listSnapshot("tenant-a", "principal-a", 100);
+            }
+            var runtime = new MediaRuntime(
+                    new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                            Duration.ofSeconds(2), 2, "", "", true, false, root),
+                    new LocalMediaRuntimeSupport.FileArtifactStore(root), jobs,
+                    new LocalMediaRuntimeSupport.StreamStore(), null,
+                    List.of(processingProvider(new AtomicInteger())),
+                    List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+            try {
+                ExchangeResult response = request(new MediaHttpHandler(runtime), "/api/v1/jobs");
+                assertThat(response.status()).isEqualTo(503);
+                assertThat(response.body()).contains(unavailable ? "UNAVAILABLE" : "UNKNOWN_OBSERVATION")
+                        .doesNotContain("job-hidden-on-unknown", "\"jobs\"");
+            } finally {
+                runtime.close();
+            }
         }
     }
 

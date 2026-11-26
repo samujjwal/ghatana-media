@@ -259,82 +259,18 @@ describe('ghatanamedia-api production executable', () => {
     } finally { await rm(directory, { recursive: true, force: true }); }
   });
 
-  it('lists only caller-scoped canonical jobs with the bounded limit and strict JSON envelope', async () => {
-    const directory = await mkdtemp(join(tmpdir(), 'media-cli-production-job-list-'));
-    const requestLogPath = join(directory, 'requests.jsonl');
-    const jobs = [canonicalJob(), canonicalJob({ jobId: 'job-b', requestId: 'request-b' })];
-    try {
-      const result = await invoke(productionJobListCommand('https://media.example.test', 25), token, {
-        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
-        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
-        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(jobs[0]),
-        GHATANA_MEDIA_CLI_TEST_JOBS: JSON.stringify(jobs),
-        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
-      }, fetchFixture);
-      expect(result.status).toBe(0);
-      expect(result.stderr).toBe('');
-      expect(JSON.parse(result.stdout)).toEqual({
-        schemaVersion: 'media.cli-result.v1', commandId: 'media.cli.job.list', jobs,
-      });
-      const [request] = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
-      expect(request).toMatchObject({
-        method: 'GET', path: '/api/v1/jobs', search: '?limit=25', tenant: 'tenant-a', principal: 'principal-a',
-        authenticated: true, bearerMatches: true,
-      });
-      expect(JSON.stringify(request)).not.toContain(token);
-    } finally {
-      await rm(directory, { recursive: true, force: true });
-    }
-  });
-
-  it('uses the canonical default list bound and fails closed on out-of-scope job rows', async () => {
-    const directory = await mkdtemp(join(tmpdir(), 'media-cli-production-job-list-scope-'));
+  it.each([
+    ['P2 owner-defined request-json option', ['job', 'list', '--request-json', '{"limit":25}']],
+    ['legacy P3 query shape', productionJobListCommand('https://media.example.test', 25)],
+  ])('keeps production job list not admitted before parsing %s, auth, or fetch', async (_shape, args) => {
+    const directory = await mkdtemp(join(tmpdir(), 'media-cli-production-job-list-not-admitted-'));
     const requestLogPath = join(directory, 'requests.jsonl');
     try {
-      const defaultLimit = await invoke(productionJobListCommand('https://media.example.test'), token, {
-        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
-        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
-        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(canonicalJob()),
-        GHATANA_MEDIA_CLI_TEST_JOBS: JSON.stringify([canonicalJob()]),
-        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
-      }, fetchFixture);
-      expect(defaultLimit.status).toBe(0);
-      expect(JSON.parse(defaultLimit.stdout).jobs).toHaveLength(1);
-
-      const outOfScope = await invoke(productionJobListCommand('https://media.example.test'), token, {
-        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
-        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
-        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(canonicalJob()),
-        GHATANA_MEDIA_CLI_TEST_JOBS: JSON.stringify([canonicalJob({ principalId: 'principal-b' })]),
-        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
-      }, fetchFixture);
-      expect(outOfScope.status).toBe(1);
-      expect(outOfScope.stdout).toBe('');
-      expect(JSON.parse(outOfScope.stderr)).toMatchObject({
-        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.list', code: 'INVALID_MEDIA_RESPONSE',
-      });
-      const requests = (await readFile(requestLogPath, 'utf8')).trim().split('\n').map(line => JSON.parse(line));
-      expect(requests.map(request => request.search)).toEqual(['?limit=100', '?limit=100']);
-    } finally {
-      await rm(directory, { recursive: true, force: true });
-    }
-  });
-
-  it.each(['0', '1001', '01', '1e2'])('rejects a noncanonical job-list limit %s before dispatch', async (limit) => {
-    const directory = await mkdtemp(join(tmpdir(), 'media-cli-production-job-list-limit-'));
-    const requestLogPath = join(directory, 'requests.jsonl');
-    try {
-      const result = await invoke(['job', 'list', '--endpoint', 'https://media.example.test', '--tenant', 'tenant-a',
-        '--principal', 'principal-a', '--limit', limit], token, {
-        GHATANA_MEDIA_CLI_TEST_FETCH_MODE: 'success',
-        GHATANA_MEDIA_CLI_TEST_EXPECT_BEARER: token,
-        GHATANA_MEDIA_CLI_TEST_JOB: JSON.stringify(canonicalJob()),
-        GHATANA_MEDIA_CLI_TEST_LOG: requestLogPath,
-      }, fetchFixture);
-      expect(result.status).toBe(2);
+      const result = await invoke(args, '', fixtureEnvironment('success', requestLogPath), fetchFixture);
+      expect(result.status).toBe(3);
       expect(result.stdout).toBe('');
       expect(JSON.parse(result.stderr)).toMatchObject({
-        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.list', code: 'INVALID_INVOCATION',
+        schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.job.list', code: 'NOT_ADMITTED',
       });
       await expect(readFile(requestLogPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
     } finally {

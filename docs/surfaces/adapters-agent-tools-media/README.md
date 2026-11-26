@@ -160,15 +160,18 @@ version, the job runs the model and completes with a result bound to that versio
 detection, `OCR` to its scene-text task, `SCENE_CLASSIFICATION`/`LABEL_DETECTION` to its caption. `FACE_DETECTION` and
 `CUSTOM_MODEL` are proven no-effect (unsupported). The tool reports the accepted job and the job completes
 asynchronously; nothing is invented in the tool result. Without the provider the call stays `MEDIA_NOT_ADMITTED`.
-`av.multimodal-inference` with `enableTranscription:false, enableVisionAnalysis:true` now carries a durable
-`multimodalOperation` spec with exactly one canonical `VISION` child on the exact source version (scene classification,
-OCR and object detection), so with `DelegatingMultimodalProvider` and the local provider composed the parent job fuses the
-child's local result. A call that needs a transcription child now carries a durable spec too when the host bridge has the
-server-owned `SpeechProfilePin` (the same pin `av.speech-to-text` uses; an agent can never supply or alter it): an `stt`
-child with the pinned profile and an explicit language intent, plus the `vision` child when vision is enabled, both over the
-exact source version. Without a pin it still carries no spec and keeps the runtime refusal. Source-rights `PROCESSING` is
-still required for the source (parent and each child are admitted independently); the STT child of an MP4 source needs
-`MEDIA_FFMPEG` on the speech provider (see the STT surface README).
+`av.multimodal-inference` is bound by [PXD-238](../../../.product-experience/decision-log.md#pxd-238--bind-the-agent-tool-to-canonical-cross-modal-analysis)
+to the canonical cross-modal operation `media.operation.capability.media-multimodal-analyze-cross-modal`. Its request
+contains the exact immutable authorized artifact version and an `analysis-request` with opaque dimensions plus required
+subject, method, profile, configuration-digest, and purpose references. No profile, dimension, provider, language, or
+modality default is inferred. The tool validates the closed input shape and a structural canonical request mapper
+exists, but it remains `MULTIMODAL_NOT_ADMITTED` until references resolve against current authority and the canonical
+runtime submit/result readback path is wired and admitted.
+The operation requires at least two distinct supported modalities in the exact source; a vision-only child cannot be
+reported as cross-modal success. On admission, the canonical receipt and exact request/status identities must be
+preserved; success carries one source-grounded typed artifact version with provenance and uncertainty, while rejection
+and unknown outcomes carry no output. See the [PXD-238 decision](../../../.product-experience/decision-log.md#pxd-238--bind-the-agent-tool-to-canonical-cross-modal-analysis)
+for the full contract and negative criteria.
 `av.text-to-speech` results now surface `audioArtifactId` / `audioArtifactVersion` (the synthesized audio is a canonical
 artifact version with lineage; see the TTS surface README), and a bridge configured with
 `withSupportedTtsEncodings(provider.supportedEncodings())` refuses an unsupported encoding as
@@ -176,4 +179,4 @@ artifact version with lineage; see the TTS surface README), and a bridge configu
 (PDP-owned) and is not invented here: question answering is reachable through the `question` job parameter of the
 provider and the DEV_ONLY `/dev/v1/vision/questions` route (adding it to the tool schema needs a PDP contract change).
 Evidence: `MediaToolLocalVisionJourneyTest` in the launcher module (real model, FIXTURE_ONLY rights authority) and
-`MultimodalVisionOnlySpecTest`.
+`MultimodalAdmissionBoundaryTest` (closed request shape and fail-closed runtime admission only).

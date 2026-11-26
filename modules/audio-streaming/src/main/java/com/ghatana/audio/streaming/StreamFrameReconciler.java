@@ -36,6 +36,8 @@ public final class StreamFrameReconciler {
         HELD,
         /** A duplicate of an already-acked or held frame — no second delivery. */
         DUPLICATE,
+        /** A held sequence was replayed with a different timestamp or payload. */
+        CONFLICTING_REPLAY,
         /** A held frame whose gap could never be filled within bounds. */
         OVERFLOW
     }
@@ -135,6 +137,13 @@ public final class StreamFrameReconciler {
         if (payload == null || payload.length > AudioStreamSession.MAX_FRAME_PAYLOAD_BYTES) {
             throw new IllegalArgumentException("audio frame payload is outside the bounded size");
         }
+        // Check retained identity before the contiguous fast path: a gap fill
+        // can make a held frame equal nextExpected while its original copy is
+        // still waiting for takeDelivered().
+        AudioStreamSession.DecodedFrame held = pending.get(sequence);
+        if (held != null) {
+            return sameFrame(held, frame) ? Disposition.DUPLICATE : Disposition.CONFLICTING_REPLAY;
+        }
         if (sequence < nextExpected) {
             return Disposition.DUPLICATE;
         }
@@ -143,9 +152,6 @@ public final class StreamFrameReconciler {
             return Disposition.DELIVERED;
         }
         // Out-of-order ahead of the cursor — hold bounded until the gap fills.
-        if (pending.containsKey(sequence)) {
-            return Disposition.DUPLICATE;
-        }
         if (pending.size() >= MAX_PENDING) {
             return Disposition.OVERFLOW;
         }
@@ -214,5 +220,11 @@ public final class StreamFrameReconciler {
 
     private void advance(int sequence) {
         nextExpected = sequence + 1;
+    }
+
+    private static boolean sameFrame(
+            AudioStreamSession.DecodedFrame left, AudioStreamSession.DecodedFrame right) {
+        return left.timestampMillis() == right.timestampMillis()
+                && java.util.Arrays.equals(left.payload(), right.payload());
     }
 }

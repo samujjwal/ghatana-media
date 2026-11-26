@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  */
 final class MediaDevRequestOutcomeRoutes {
     static final Set<String> LANES = Set.of("speech.transcribe", "speech.synthesize", "vision.analyze", "vision.ask",
-            "vision.track", "vision.roi");
+            "vision.track", "vision.roi", "grounded.answer");
     static final String SCHEMA = "media.dev.request-outcome.v1";
     private static final Pattern PATH = Pattern.compile("^/dev/v1/request-outcomes/([a-z]+\\.[a-z]+)/([A-Za-z0-9][A-Za-z0-9._:-]{0,127})$");
 

@@ -10,10 +10,13 @@ the capture adapter SPI. Package: `@audio-video/client`
 - Expose typed artifact, job, and stream HTTP client bindings through
   `MediaOperationClient` and `MediaCanonicalClient`; runtime admission remains
   operation- and host-specific.
-- Provide the `ghatanamedia-api` CLI with source-bound `artifact inspect` and
-  `job get` reads, plus bounded `job list` observations. The list command is an
-  observed wire consumer without an individual PDP-1 operation. Valid
-  `job submit` and `job cancel` invocations retain stable command IDs but
+- Provide the `ghatanamedia-api` CLI with source-bound definitions for
+  `artifact inspect`, `job get`, and `job list`. `job list` binds to the P1
+  owner operation `media.operation.job-list.v1` and its closed bounded request,
+  but the production command stays `NOT_ADMITTED`: the current v1 response lacks
+  the required server `observedAt` and coherent-snapshot `readVersion`, so the
+  CLI rejects before parsing, bearer authentication, or network dispatch.
+  Valid `job submit` and `job cancel` invocations retain stable command IDs but
   return structured `NOT_ADMITTED` after argument validation and before bearer
   authentication or network dispatch. Other undeclared command identities
   fail as `INVALID_INVOCATION`. Broader SDK methods remain available to
@@ -26,8 +29,8 @@ the capture adapter SPI. Package: `@audio-video/client`
   signed DEV_ONLY loopback route, requires a stable request ID, and uses its
   durable reservation/replay behavior; its outcomes never imply provider
   finality. This local-development binding does not admit the production
-  operation or host. The production CLI remains artifact-inspect-only and
-  production admission remains OPEN.
+  operation or host. The production command identities remain source-only;
+  host qualification and production admission remain OPEN.
 - The same local-development registry (`media.dev.structured-cli`) adds
   `project render`, `project render-get`, `export create`, and `export get`,
   bound to the DEV_ONLY launcher routes `POST /dev/v1/projects/{id}/renders`,

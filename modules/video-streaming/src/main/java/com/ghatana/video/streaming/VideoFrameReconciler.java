@@ -157,16 +157,16 @@ public final class VideoFrameReconciler {
         if (sequence < nextExpected) {
             return Disposition.DUPLICATE;
         }
+        VideoStreamSession.DecodedFrame held = pending.get(sequence);
+        if (held != null) {
+            return sameFrame(held, frame) ? Disposition.DUPLICATE : Disposition.CONFLICTING_REPLAY;
+        }
         if (sequence == nextExpected) {
             nextExpected = sequence + 1;
             if (frame.keyFrame()) {
                 lastKeyFrameSequence = sequence;
             }
             return Disposition.DELIVERED;
-        }
-        VideoStreamSession.DecodedFrame held = pending.get(sequence);
-        if (held != null) {
-            return sameFrame(held, frame) ? Disposition.DUPLICATE : Disposition.CONFLICTING_REPLAY;
         }
         if (pending.size() >= MAX_PENDING) {
             return Disposition.OVERFLOW;

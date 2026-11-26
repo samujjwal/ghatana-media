@@ -139,6 +139,27 @@ class DelegatingMultimodalProviderTest {
     }
 
     @Test
+    void completedCrossModalChildrenRemainUnknownWithoutTypedResultArtifactReadback() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var dispatcher = new FixtureDispatcher()
+                    .with(JobType.SPEECH_TO_TEXT, JobStatus.COMPLETED, Map.of("text", "transcript"))
+                    .with(JobType.VISION, JobStatus.COMPLETED, Map.of("detections", List.of()));
+
+            var submission = provider.processAttempt(context(dispatcher, crossModalRequest()), attempt())
+                    .get(10, TimeUnit.SECONDS);
+
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
+            assertThat(dispatcher.submits).hasValue(2);
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
     void oversizedChildProjectionPreservesUnknownFinalityWithoutPartialSuccess() throws Exception {
         var scheduler = Executors.newSingleThreadScheduledExecutor();
         try {
@@ -892,6 +913,32 @@ class DelegatingMultimodalProviderTest {
                         "vision", JobType.VISION, "vision-art",
                         "sha256:" + SHA, SHA, "", Map.of())),
                 null, Map.of());
+        return new ProcessingJobRequest("req-1", "tenant-a", "principal-a", "corr-1",
+                "src", "sha256:" + SHA, JobType.MULTIMODAL, "",
+                Map.of(MultimodalOperationSpec.PARAMETERS_KEY, spec.toParametersValue()));
+    }
+
+    private static ProcessingJobRequest crossModalRequest() {
+        Map<String, Object> analysisRequest = Map.of(
+                "dimensions", List.of("dimension:a", "dimension:b"),
+                "criteria", Map.of(
+                        "subjectRefs", List.of("subject:test"),
+                        "analysisMethodRef", "method:test",
+                        "profileRef", "profile:test",
+                        "configurationDigest", "sha256:" + "00".repeat(32),
+                        "purposeRef", "purpose:test"));
+        var spec = new MultimodalOperationSpec(
+                MultimodalOperationSpec.SPEC_VERSION,
+                "media.multimodal.analyze.cross-modal",
+                "media.operation.capability.media-multimodal-analyze-cross-modal",
+                1, "src", "sha256:" + SHA, SHA,
+                List.of(new MultimodalOperationSpec.ChildOperationSpec(
+                        "stt", JobType.SPEECH_TO_TEXT, "stt-art",
+                        "sha256:" + SHA, SHA, "", Map.of()),
+                        new MultimodalOperationSpec.ChildOperationSpec(
+                        "vision", JobType.VISION, "vision-art",
+                        "sha256:" + SHA, SHA, "", Map.of())),
+                null, Map.of("analysisRequest", analysisRequest));
         return new ProcessingJobRequest("req-1", "tenant-a", "principal-a", "corr-1",
                 "src", "sha256:" + SHA, JobType.MULTIMODAL, "",
                 Map.of(MultimodalOperationSpec.PARAMETERS_KEY, spec.toParametersValue()));

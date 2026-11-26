@@ -91,6 +91,41 @@ class PostgresqlMediaJobStoreMetricsTest {
     }
 
     @Test
+    void listSnapshotScopesBeforeLimitAndPinsMetadataToTheDatabaseSnapshot() throws Exception {
+        String suffix = UUID.randomUUID().toString().replace("-", "");
+        String bucket = "media-job-list-" + suffix;
+        try (S3Client client = s3Client()) {
+            client.createBucket(CreateBucketRequest.builder().bucket(bucket).build());
+        }
+        try (AutoCloseable ignored = MediaAwsPostgresqlRuntimeState.installForTesting(integrationEnvironment(bucket));
+             PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
+            String tenant = "tenant-list-" + suffix;
+            store.create(job("foreign-latest-" + suffix, "foreign-request-" + suffix, tenant, "principal-b",
+                    Instant.ofEpochMilli(3_000)));
+            store.create(job("owned-latest-" + suffix, "owned-request-latest-" + suffix, tenant, "principal-a",
+                    Instant.ofEpochMilli(2_000)));
+            store.create(job("owned-older-" + suffix, "owned-request-older-" + suffix, tenant, "principal-a",
+                    Instant.ofEpochMilli(1_000)));
+
+            var first = store.listSnapshot(tenant, "principal-a", 1);
+            assertThat(first.observed()).isTrue();
+            assertThat(first.readVersion()).matches("[0-9a-f]{64}");
+            assertThat(first.observedAt()).isNotNull();
+            assertThat(first.jobs()).extracting(ProcessingJob::jobId)
+                    .containsExactly("owned-latest-" + suffix);
+
+            var sameSnapshot = store.listSnapshot(tenant, "principal-a", 1);
+            assertThat(sameSnapshot.readVersion()).isEqualTo(first.readVersion());
+            store.create(job("owned-newest-" + suffix, "owned-request-newest-" + suffix, tenant, "principal-a",
+                    Instant.ofEpochMilli(4_000)));
+            var afterMutation = store.listSnapshot(tenant, "principal-a", 1);
+            assertThat(afterMutation.readVersion()).isNotEqualTo(first.readVersion());
+            assertThat(afterMutation.jobs()).extracting(ProcessingJob::jobId)
+                    .containsExactly("owned-newest-" + suffix);
+        }
+    }
+
+    @Test
     void postgresRelayAcknowledgesCanonicalAcceptedIntentAndReplaysWithoutRepublish() throws Exception {
         String runId = UUID.randomUUID().toString().replace("-", "");
         String bucket = "media-outbox-ack-" + runId;
@@ -325,6 +360,13 @@ class PostgresqlMediaJobStoreMetricsTest {
                 status == JobStatus.OUTCOME_UNKNOWN ? Instant.now() : null,
                 status == JobStatus.OUTCOME_UNKNOWN ? Map.of("providerOutcome", "UNKNOWN") : Map.of(),
                 status == JobStatus.OUTCOME_UNKNOWN ? "PROCESSING_OUTCOME_UNKNOWN" : "", version, "",
+                REQUEST_FINGERPRINT);
+    }
+
+    private static ProcessingJob job(
+            String jobId, String requestId, String tenantId, String principalId, Instant createdAt) {
+        return new ProcessingJob(jobId, requestId, tenantId, principalId, "artifact-a", JobType.VISION,
+                "provider-a", JobStatus.ACCEPTED, createdAt, null, null, Map.of(), "", 1, "",
                 REQUEST_FINGERPRINT);
     }
 }

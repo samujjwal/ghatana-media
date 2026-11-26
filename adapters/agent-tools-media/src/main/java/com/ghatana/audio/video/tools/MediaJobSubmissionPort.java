@@ -30,8 +30,8 @@ public interface MediaJobSubmissionPort {
     ProcessingJob submit(ProcessingJobRequest request, AuthenticatedPrincipal authenticated);
 
     /**
-     * Read-only lookup of the job created for a derived request id, used to reconcile an
-     * ambiguous submission. Empty means "not observable", never "no job was created".
+     * Read-only lookup of the job created for a derived request id, scoped to the
+     * authenticated principal. Empty means "not observable", never "no job was created".
      */
-    Optional<ProcessingJob> findByRequestId(String tenantId, String requestId);
+    Optional<ProcessingJob> findByRequestId(AuthenticatedPrincipal authenticated, String requestId);
 }

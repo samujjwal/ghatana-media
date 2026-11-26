@@ -278,6 +278,25 @@ class GrpcAudioSourceCaptureTest {
     }
 
     @Test
+    void unavailableSourceBatchReturnsUnknownWithoutOfferingFrames() {
+        for (boolean throwOnBatchRead : List.of(false, true)) {
+            FakePort port = new FakePort();
+            FakeSource source = new FakeSource(new GrpcAudioSourceCapture.Batch(
+                    List.of(frame(10, 0, "source@v7")), false));
+            source.nullBatch = !throwOnBatchRead;
+            source.throwBatchRead = throwOnBatchRead;
+
+            var result = new GrpcAudioSourceCapture(port, source).capture(REQUEST);
+
+            assertThat(result.disposition()).isEqualTo(GrpcAudioSourceCapture.Disposition.UNKNOWN);
+            assertThat(result.acknowledgedFrames()).isZero();
+            assertThat(source.batchReads).isEqualTo(1);
+            assertThat(port.offerCalls).isZero();
+            assertThat(port.offeredSequences).isEmpty();
+        }
+    }
+
+    @Test
     void changedCanonicalGenerationBeforeSourceReadDoesNotFetchSourceFrames() {
         FakePort port = new FakePort();
         port.changeGenerationOnBindingCall = 2;
@@ -432,6 +451,8 @@ class GrpcAudioSourceCaptureTest {
         private GrpcAudioSourceCapture.Authorization authorization = GrpcAudioSourceCapture.Authorization.AUTHORIZED;
         private int denyReadbackCall = -1;
         private int throwReadbackCall = -1;
+        private boolean nullBatch;
+        private boolean throwBatchRead;
         private int readbackCalls;
         private int batchReads;
 
@@ -453,6 +474,8 @@ class GrpcAudioSourceCaptureTest {
             batchReads++;
             assertThat(maxFrames).isEqualTo(GrpcAudioSourceCapture.MAX_BATCH_FRAMES);
             assertThat(maxBytes).isEqualTo(GrpcAudioSourceCapture.MAX_BATCH_BYTES);
+            if (throwBatchRead) throw new IllegalStateException("source batch unavailable");
+            if (nullBatch) return null;
             return batch;
         }
     }

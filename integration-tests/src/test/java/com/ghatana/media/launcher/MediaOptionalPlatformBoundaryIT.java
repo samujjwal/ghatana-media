@@ -136,7 +136,8 @@ class MediaOptionalPlatformBoundaryIT extends EventloopTestBase {
                 throw new AssertionError("no local ledger may fabricate an Action Plane completion");
             }
         };
-        var binder = new MediaToolExecutionBinder(absentOwnerLedger, (tenant, invocation) -> Optional.empty(),
+        var binder = new MediaToolExecutionBinder(absentOwnerLedger,
+                (authenticated, tenant, invocation) -> Optional.empty(),
                 (authenticated, identity) -> authenticated.tenantId().equals(identity.tenantId())
                         && authenticated.principalId().equals(identity.callerAgentId()));
         var envelope = ToolExecutionEnvelope.of("av.speech-to-text", "1.0.0", "caller-agent", null,

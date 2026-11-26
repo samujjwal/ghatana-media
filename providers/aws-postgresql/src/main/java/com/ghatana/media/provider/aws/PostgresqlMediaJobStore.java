@@ -11,6 +11,8 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.JobType;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStoreConflictException;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobFinalizationDeadlineExceededException;
+import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobListUnavailableException;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobListSnapshot;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MultimodalOperationSnapshot;
@@ -342,6 +344,80 @@ public final class PostgresqlMediaJobStore implements MediaJobStore {
             return List.copyOf(values);
         } catch (SQLException failure) {
             throw databaseFailure("list Media jobs", failure);
+        }
+    }
+
+    @Override
+    public JobListSnapshot listSnapshot(String tenantId, String principalId, int limit) {
+        if (tenantId == null || tenantId.isBlank() || principalId == null || principalId.isBlank()) {
+            throw new IllegalArgumentException("Job-list tenant and principal are required");
+        }
+        if (limit < 1 || limit > 1_000) throw new IllegalArgumentException("limit must be between 1 and 1000");
+        try {
+            ensureOpen();
+        } catch (RuntimeException unavailable) {
+            throw new MediaJobListUnavailableException("Media job-list store is unavailable", unavailable);
+        }
+        try (Connection connection = state.connection()) {
+            connection.setReadOnly(true);
+            connection.setTransactionIsolation(Connection.TRANSACTION_REPEATABLE_READ);
+            connection.setAutoCommit(false);
+            try {
+                String snapshotId;
+                Instant observedAt;
+                try (PreparedStatement metadata = connection.prepareStatement(
+                        "SELECT txid_current_snapshot()::text AS read_snapshot, clock_timestamp() AS observed_at");
+                     ResultSet result = metadata.executeQuery()) {
+                    if (!result.next()) {
+                        connection.rollback();
+                        return JobListSnapshot.unknown();
+                    }
+                    snapshotId = result.getString("read_snapshot");
+                    Timestamp timestamp = result.getTimestamp("observed_at");
+                    observedAt = timestamp == null ? null : timestamp.toInstant();
+                }
+                if (snapshotId == null || snapshotId.isBlank() || observedAt == null) {
+                    connection.rollback();
+                    return JobListSnapshot.unknown();
+                }
+
+                String readVersion;
+                try {
+                    String identity = "media-job-list-v1\u0000" + snapshotId + "\u0000"
+                            + tenantId + "\u0000" + principalId + "\u0000" + limit;
+                    byte[] digest = java.security.MessageDigest.getInstance("SHA-256")
+                            .digest(identity.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                    readVersion = java.util.HexFormat.of().formatHex(digest);
+                } catch (java.security.NoSuchAlgorithmException unavailable) {
+                    connection.rollback();
+                    return JobListSnapshot.unknown();
+                }
+
+                List<ProcessingJob> values = new ArrayList<>();
+                try (PreparedStatement statement = connection.prepareStatement(
+                        "SELECT job_id,request_id,principal_id,artifact_id,job_type,provider_id,status,created_at,started_at,"
+                                + "completed_at,result_json,failure_code,version,expected_artifact_version,"
+                                + "COALESCE(NULLIF(request_fingerprint,''),submission_digest) AS job_fingerprint "
+                                + "FROM media_processing_jobs WHERE tenant_id=? AND principal_id=? "
+                                + "ORDER BY created_at DESC,job_id LIMIT ?")) {
+                    statement.setString(1, tenantId);
+                    statement.setString(2, principalId);
+                    statement.setInt(3, limit);
+                    try (ResultSet result = statement.executeQuery()) {
+                        while (result.next()) values.add(read(tenantId, result.getString("job_id"), result));
+                    }
+                }
+                connection.commit();
+                return new JobListSnapshot(values, readVersion, observedAt);
+            } catch (Exception failure) {
+                rollback(connection, failure);
+                if (failure instanceof RuntimeException runtimeFailure) throw runtimeFailure;
+                if (failure instanceof SQLException sqlFailure) throw sqlFailure;
+                throw new SQLException("Media job-list snapshot failed", failure);
+            }
+        } catch (Exception failure) {
+            if (failure instanceof MediaJobListUnavailableException unavailable) throw unavailable;
+            throw new MediaJobListUnavailableException("Unable to read a coherent Media job-list snapshot", failure);
         }
     }
 

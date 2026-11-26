@@ -69,6 +69,18 @@ public interface MediaProcessingRuntimePort {
     Optional<ProcessingJob> job(String tenantId, String principalId, String jobId);
 
     /**
+     * Read-only lookup of the canonical job for an authenticated request identity.
+     * Implementations must scope the lookup to the credential's exact tenant and principal;
+     * the request id is only a selector, never authority. Empty means the job is not
+     * observable through this port and does not prove that no job was created. The default
+     * fails closed for ports without durable request-id lookup.
+     */
+    default Optional<ProcessingJob> jobByRequestId(
+            String requestId, AuthenticatedPrincipal authenticated) {
+        return Optional.empty();
+    }
+
+    /**
      * Outcome of a principal-scoped cancel request. {@link #CANCELLED} is reported only when the
      * durable job state is actually CANCELLED; a request the provider could not confirm is
      * {@link #UNKNOWN} and the job may still be running or have an unresolved effect.

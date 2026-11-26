@@ -18,15 +18,17 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Maps each Media agent tool's declared intent to the closest launcher operation that exists on this host, and
- * refuses (typed, no dispatch) everything the launcher operation cannot honour truthfully.
+ * Maps each supported Media agent tool's declared intent to a launcher operation, and refuses (typed, no dispatch)
+ * everything the launcher operation cannot honour truthfully. Multimodal inference has a structural canonical
+ * request mapper, but remains unadmitted until owner-backed reference/profile/rights resolution and canonical
+ * runtime submit/result readback are wired and admitted.
  *
  * <table>
  *   <caption>tool to launcher operation</caption>
  *   <tr><td>av.speech-to-text</td><td>POST /dev/v1/speech/transcriptions (local Whisper; PROCESSING rights admission of the exact version)</td></tr>
  *   <tr><td>av.text-to-speech</td><td>POST /dev/v1/speech/syntheses (local Kokoro stock voice, WAV artifact)</td></tr>
  *   <tr><td>av.vision-analysis</td><td>POST /dev/v1/vision/analyses (local Florence-2: detect, ocr, caption)</td></tr>
- *   <tr><td>av.multimodal-inference</td><td>POST /dev/v1/vision/tracks (vision-only observation of a video: sampled-frame detection)</td></tr>
+ *   <tr><td>av.multimodal-inference</td><td>NOT_ADMITTED (owner-backed resolution and canonical runtime submit/result path are not admitted)</td></tr>
  * </table>
  *
  * @doc.type class
@@ -184,35 +186,11 @@ final class MediaDelegatedPlans {
 
     private static MediaLauncherDelegate.Call multimodal(ToolExecutionEnvelope envelope, ToolContract contract) {
         Map<String, Object> input = AgentToolInput.checked(envelope, contract, MultimodalInferenceToolHandler.TOOL_ID,
-                Set.of("mediaArtifactId", "inferenceMode", "samplingRateMs", "enableTranscription",
-                        "enableVisionAnalysis", "languageCode", "sourceArtifactVersion"));
-        String artifactId = AgentToolInput.requiredString(input, "mediaArtifactId", 512);
-        Object mode = input.getOrDefault("inferenceMode", "SUMMARY");
-        if (!(mode instanceof String inferenceMode) || !Set.of("SUMMARY", "SEGMENT", "FRAME_BY_FRAME", "FULL").contains(inferenceMode))
-            throw new IllegalArgumentException("INVALID_INFERENCE_MODE");
-        Object sampling = input.getOrDefault("samplingRateMs", 1000);
-        if (!(sampling instanceof Number rate) || rate.intValue() != rate.doubleValue() || rate.intValue() < 100 || rate.intValue() > 60_000)
-            throw new IllegalArgumentException("INVALID_SAMPLING_RATE");
-        AgentToolInput.languageTag(input.get("languageCode"), "en-US");
-        boolean transcription = flag(input, "enableTranscription", true);
-        boolean vision = flag(input, "enableVisionAnalysis", true);
-        if (!transcription && !vision) throw new IllegalArgumentException("NO_MODALITY_SELECTED");
-        String version = AgentToolInput.sourceVersion(input);
-        // Cross-modal fusion (transcript + frames) has no CPU launcher operation: only the vision-only observation of
-        // a video is delegated; a transcription child stays NOT_ADMITTED.
-        if (transcription) throw new NotAdmittedException("MULTIMODAL_TRANSCRIPTION_NOT_ADMITTED");
-        int maxFrames = "FRAME_BY_FRAME".equals(inferenceMode) || "FULL".equals(inferenceMode) ? 4 : 2;
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("artifactId", artifactId);
-        body.put("artifactVersionId", version);
-        body.put("maxFrames", maxFrames);
-        return new MediaLauncherDelegate.Call(MediaLauncherDelegate.Operation.VISION_TRACK, artifactId, body,
-                view -> {
-                    Map<String, Object> out = visionOutput(view, artifactId, version, "observation");
-                    out.put("maxFrames", maxFrames);
-                    out.put("samplingRateMsHonored", false);
-                    return out;
-                });
+                Set.of("input1", "input2"));
+        MultimodalInferenceToolHandler.validateCanonicalInput(input);
+        // VISION_TRACK is a vision-only observation, not the bound cross-modal operation. Reject every valid input
+        // variant here so a configured launcher cannot turn this tool call into a provider or job dispatch.
+        throw new NotAdmittedException(MultimodalInferenceToolHandler.NOT_ADMITTED_CODE);
     }
 
     private static Map<String, Object> visionOutput(JsonNode view, String artifactId, String version, String role) {

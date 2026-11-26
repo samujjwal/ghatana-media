@@ -110,6 +110,26 @@ class LocalOpenModelVisionProviderTest {
     }
 
     @Test
+    void genericOcrIsRejectedBeforeSourceReadWithNoResultOrSidecarDispatch() throws Exception {
+        try (var sidecar = new LocalVisionTestFixtures.FakeSidecar((p, b) -> ANALYZE)) {
+            var provider = provider(sidecar, true, LocalVisionRightsAuthority.unavailable(), null);
+            byte[] png = LocalVisionTestFixtures.testImagePng();
+            var sourceCopied = new java.util.concurrent.atomic.AtomicBoolean();
+            var submission = provider.processAttempt(contextWithReader(png,
+                    Map.of("analysisTypes", List.of("OCR")), (target, max) -> {
+                        sourceCopied.set(true);
+                        target.write(png);
+                        return receipt(png);
+                    }), attempt()).get();
+
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.NO_EFFECT_PROVEN);
+            assertThat(submission.result()).isEmpty();
+            assertThat(sourceCopied).isFalse();
+            assertThat(sidecar.inferenceCalls.get()).isZero();
+        }
+    }
+
+    @Test
     void nonImageWithoutFrameExtractorProvesNoEffect() throws Exception {
         try (var sidecar = new LocalVisionTestFixtures.FakeSidecar((p, b) -> ANALYZE)) {
             var provider = provider(sidecar, true, LocalVisionRightsAuthority.unavailable(), null);
@@ -131,7 +151,7 @@ class LocalOpenModelVisionProviderTest {
             });
             byte[] video = "FIXTURE_ONLY-not-really-a-video-but-not-an-image".getBytes();
             var submission = provider.processAttempt(context(video, "video/mp4",
-                    Map.of("analysisTypes", List.of("OCR"), "frameTimeMs", 1500), true), attempt()).get();
+                    Map.of("analysisTypes", List.of("SCENE_CLASSIFICATION"), "frameTimeMs", 1500), true), attempt()).get();
             assertThat(submission.finality()).isEqualTo(AttemptFinality.SUCCEEDED);
             assertThat(requested.get()).isEqualTo(1500);
             @SuppressWarnings("unchecked") var frameInfo = (Map<String, Object>) submission.result().get("frame");
@@ -163,8 +183,9 @@ class LocalOpenModelVisionProviderTest {
             var provider = provider(sidecar, true, LocalVisionRightsAuthority.unavailable(), null);
             byte[] png = LocalVisionTestFixtures.testImagePng();
             var result = provider.process(context(png, "image/png",
-                    Map.of("analysisTypes", List.of("OCR")), true)).get();
-            assertThat(result).containsKeys("labels", "sceneText", "models").containsEntry("sourceArtifactSha256",
+                    Map.of("analysisTypes", List.of("SCENE_CLASSIFICATION")), true)).get();
+            assertThat(result).containsKeys("caption", "models").doesNotContainKeys("labels", "sceneText")
+                    .containsEntry("sourceArtifactSha256",
                     LocalVisionTestFixtures.sha256(png));
             assertThatThrownBy(() -> provider.process(context(png, "image/png",
                     Map.of("analysisTypes", List.of("FACE_DETECTION")), true)).join())
@@ -184,7 +205,12 @@ class LocalOpenModelVisionProviderTest {
 
     private static MediaRuntimeContracts.ProcessingContext contextWithReader(byte[] bytes,
             MediaRuntimeContracts.MediaArtifactContentReader reader) {
-        return build(bytes, "image/png", Map.of(), reader);
+        return contextWithReader(bytes, Map.of(), reader);
+    }
+
+    private static MediaRuntimeContracts.ProcessingContext contextWithReader(byte[] bytes,
+            Map<String, Object> parameters, MediaRuntimeContracts.MediaArtifactContentReader reader) {
+        return build(bytes, "image/png", parameters, reader);
     }
 
     private static MediaRuntimeContracts.ProcessingContext build(byte[] bytes, String contentType,

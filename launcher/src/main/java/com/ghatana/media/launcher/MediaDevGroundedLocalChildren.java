@@ -22,8 +22,9 @@ import java.util.Set;
 
 /**
  * Production wiring of the grounded-answer children: real FFmpeg/FFprobe (absolute operator-configured paths, bounded
- * process runner, cleared environment), real whisper.cpp through {@link LocalWhisperCppRunner}, real Florence-2 and
- * Qwen2.5-VL through the loopback vision sidecar.
+ * process runner, cleared environment), real whisper.cpp through {@link LocalWhisperCppRunner}, real Florence-2
+ * caption/detection and Qwen2.5-VL through the loopback vision sidecar. Generic OCR remains owned by Document
+ * Intelligence and is not synthesized into grounded evidence by this local child.
  *
  * <p>Time binding: ffprobe gives the container {@code start_time} and per-stream {@code start_pts}/{@code time_base}.
  * Whisper segment times count from the first decoded audio sample, which is the audio stream's start, so a segment
@@ -181,7 +182,7 @@ final class MediaDevGroundedLocalChildren implements MediaDevGroundedAnswerRunti
                 byte[] png = extractFrame(source, frameNumber);
                 if (firstFrame == null) firstFrame = png;
                 Map<String, Object> inference = vision.analyze(png, MediaDevProjectRenderRuntime.sha256Hex(png),
-                        Set.of("caption", "detect", "ocr"));
+                        Set.of("caption", "detect"));
                 if (model == null) {
                     @SuppressWarnings("unchecked") Map<String, Object> m = (Map<String, Object>) inference.get("model");
                     model = m;
@@ -213,28 +214,6 @@ final class MediaDevGroundedLocalChildren implements MediaDevGroundedAnswerRunti
                                 MediaDevGroundedEvidence.Kind.FRAME_OBJECT, micros, micros, frame,
                                 new MediaDevGroundedEvidence.Box(num(box.get("x")), num(box.get("y")),
                                         num(box.get("width")), num(box.get("height"))), label, origin));
-                    }
-                }
-                int s = 0;
-                if (results.get("sceneText") instanceof Map<?, ?> sceneText
-                        && sceneText.get("regions") instanceof List<?> regions) {
-                    for (Object raw : regions) {
-                        if (s >= MAX_PER_FRAME) break;
-                        Map<?, ?> region = (Map<?, ?>) raw;
-                        String text = String.valueOf(region.get("text")).strip();
-                        List<?> quad = (List<?>) region.get("quad");
-                        if (text.isEmpty() || quad == null || quad.size() < 8) continue;
-                        double minX = Double.MAX_VALUE, minY = Double.MAX_VALUE, maxX = -Double.MAX_VALUE,
-                                maxY = -Double.MAX_VALUE;
-                        for (int i = 0; i + 1 < quad.size(); i += 2) {
-                            minX = Math.min(minX, num(quad.get(i)));
-                            maxX = Math.max(maxX, num(quad.get(i)));
-                            minY = Math.min(minY, num(quad.get(i + 1)));
-                            maxY = Math.max(maxY, num(quad.get(i + 1)));
-                        }
-                        items.add(new MediaDevGroundedEvidence.Item("F" + f + ".S" + s++,
-                                MediaDevGroundedEvidence.Kind.FRAME_TEXT, micros, micros, frame,
-                                new MediaDevGroundedEvidence.Box(minX, minY, maxX - minX, maxY - minY), text, origin));
                     }
                 }
             }

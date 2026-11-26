@@ -86,6 +86,14 @@ class PcmStemMixerTest {
     }
 
     @Test
+    void rejectsNonFinitePanBeforeMixing() {
+        Stem badPan = synthetic("pan-nan-v1", pcm(new short[] {1_000, -1_000}), 1,
+                1.0f, Float.NaN);
+
+        expect(ErrorCode.INVALID_INPUT, () -> mix(List.of(badPan), 1, 0.98f));
+    }
+
+    @Test
     void gainDbFactoryConvertsAmplitudeAndRejectsNonFiniteOrAboveCeilingValues() {
         byte[] source = pcm(new short[] {12_000, -9_000});
         Stem unity = Stem.withGainDb("gain-db-unity-v1", RATE, 2, 16, source, 0.0,

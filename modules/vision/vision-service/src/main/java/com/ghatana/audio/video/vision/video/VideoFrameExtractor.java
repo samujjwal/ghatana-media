@@ -20,6 +20,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
@@ -255,7 +256,14 @@ public class VideoFrameExtractor {
         ExtractedFrame identityMatch = null;
         int identityMatches = 0;
         int exactMatches = 0;
-        for (ExtractedFrame frame : frames) {
+        Iterator<ExtractedFrame> iterator = frames.iterator();
+        int traversed = 0;
+        while (iterator.hasNext()) {
+            if (traversed == MAX_SELECTABLE_FRAMES) {
+                return new FrameSelection(FrameSelectionStatus.INVALID_REQUEST, null);
+            }
+            ExtractedFrame frame = iterator.next();
+            traversed++;
             if (frame == null || frame.getFrameNumber() != frameNumber) continue;
             identityMatches++;
             SourceMediaTimestamp timestamp = frame.getSourceTimestamp();
@@ -288,7 +296,14 @@ public class VideoFrameExtractor {
         }
         ExtractedFrame exactMatch = null;
         int identityMatches = 0;
-        for (ExtractedFrame frame : frames) {
+        Iterator<ExtractedFrame> iterator = frames.iterator();
+        int traversed = 0;
+        while (iterator.hasNext()) {
+            if (traversed == MAX_SELECTABLE_FRAMES) {
+                return new FrameSelection(FrameSelectionStatus.INVALID_REQUEST, null);
+            }
+            ExtractedFrame frame = iterator.next();
+            traversed++;
             if (frame == null || frame.getFrameNumber() != frameNumber) continue;
             identityMatches++;
             SourceMediaTimestamp timestamp = frame.getSourceTimestamp();

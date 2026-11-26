@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Canonical {@link MediaProcessingProvider} for {@link JobType#VISION} backed by the owner-selected
- * local open models: Florence-2 (caption, object detection, scene text) and, when the job carries a
+ * local open models: Florence-2 (caption and object detection) and, when the job carries a
  * {@code question}, Qwen2.5-VL-7B-Instruct. Local processing boundary, no provider data retention.
  *
  * <p>The provider is {@code ready} only when the sidecar is healthy and the Florence manifest digests
@@ -224,18 +224,6 @@ public final class LocalOpenModelVisionProvider implements MediaProcessingProvid
             if (analysis.get("results") instanceof Map<?, ?> results) {
                 if (results.get("caption") != null) result.put("caption", results.get("caption"));
                 if (results.get("objects") != null) result.put("objects", results.get("objects"));
-                if (results.get("sceneText") instanceof Map<?, ?> text) {
-                    result.put("sceneText", text);
-                    List<String> labels = new ArrayList<>();
-                    if (text.get("regions") instanceof List<?> regions) {
-                        for (Object region : regions) {
-                            if (region instanceof Map<?, ?> m && m.get("text") != null) {
-                                labels.add(String.valueOf(m.get("text")));
-                            }
-                        }
-                    }
-                    result.put("labels", labels);
-                }
             }
         }
         if (questionDoc instanceof Map<?, ?> question && question.get("answer") != null) {
@@ -270,7 +258,7 @@ public final class LocalOpenModelVisionProvider implements MediaProcessingProvid
                 for (Object type : types) {
                     switch (String.valueOf(type)) {
                         case "OBJECT_DETECTION" -> tasks.add("detect");
-                        case "OCR" -> tasks.add("ocr");
+                        case "OCR" -> LocalVisionEngine.requireNoOcrTask(Set.of("ocr"));
                         case "SCENE_CLASSIFICATION", "LABEL_DETECTION" -> tasks.add("caption");
                         default -> throw new IllegalArgumentException("analysis type is not supported: " + type);
                     }

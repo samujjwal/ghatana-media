@@ -5,7 +5,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   createDemoPlayerState,
   demoCaptionAt,
@@ -21,6 +21,12 @@ import {
 
 const HOST = "https://media.example.test";
 const BASE_DIGEST = "a".repeat(64);
+const MEDIA_ROOT = resolve(process.cwd(), "../..");
+const PREVIEW_OUTPUT_DIRECTORY = resolve(
+  MEDIA_ROOT,
+  process.env.MEDIA_CREATIVE_PREVIEW_DIR ?? "examples/media-creative-preview/build/media-creative-preview",
+);
+const PREVIEW_WAV_PATH = resolve(PREVIEW_OUTPUT_DIRECTORY, "preview.wav");
 const BASE: InteractiveDemoManifest = {
   id: "demo-1",
   revision: "demo-rev-4",
@@ -72,6 +78,14 @@ const BASE: InteractiveDemoManifest = {
   ],
 };
 
+const originalNavigatorOnline = Object.getOwnPropertyDescriptor(window.navigator, "onLine");
+
+afterEach(() => {
+  if (originalNavigatorOnline) Object.defineProperty(window.navigator, "onLine", originalNavigatorOnline);
+  else Reflect.deleteProperty(window.navigator, "onLine");
+  vi.restoreAllMocks();
+});
+
 /** Test fake only; it models an independently trusted host response. */
 function testAuthority(
   attestedManifest: InteractiveDemoManifest,
@@ -90,11 +104,10 @@ function testAuthority(
 }
 
 describe("interactive demo player", () => {
-  it.skipIf(!existsSync(resolve(process.cwd(), "../../build/media-creative-preview/preview.wav")))(
+  it.skipIf(!existsSync(PREVIEW_WAV_PATH))(
     "binds the generated local preview WAV to audio controls and caption seeking",
     () => {
-      const wavPath = resolve(process.cwd(), "../../build/media-creative-preview/preview.wav");
-      const wav = readFileSync(wavPath);
+      const wav = readFileSync(PREVIEW_WAV_PATH);
       expect(wav.toString("ascii", 0, 4)).toBe("RIFF");
       expect(wav.toString("ascii", 8, 12)).toBe("WAVE");
       const version = `sha256:${createHash("sha256").update(wav).digest("hex")}`;
@@ -448,12 +461,14 @@ describe("interactive demo player", () => {
     expect(html).toContain('aria-label="Seek within Introduction"');
     expect(html).toContain('aria-label="Explore left path; continue to Left path"');
     expect(html).toContain('role="status" aria-live="polite" aria-atomic="true"');
+    expect(html).toContain('data-demo-status="LOADING"');
+    expect(html).toContain("Checking connection before media playback.");
     expect(html).toContain('<button type="button"');
     expect(html).toContain('<input type="range"');
     expect(html).toContain("Simulated demonstration");
     expect(html).toContain('tabindex="-1"');
-    expect(html).toContain('<video aria-label="Media for Introduction"');
-    expect(html).toContain('src="/assets/intro.mp4"');
+    expect(html).not.toContain("<video");
+    expect(html).not.toContain('src="/assets/intro.mp4"');
     expect(html).not.toContain("<iframe");
   });
 
@@ -591,6 +606,79 @@ describe("interactive demo player", () => {
     playMock.mockRestore();
   });
 
+  it("keeps offline playback unavailable while allowing local branch navigation", () => {
+    Object.defineProperty(window.navigator, "onLine", { configurable: true, value: false });
+    const { container } = render(React.createElement(InteractiveDemoPlayer, {
+      manifest: BASE,
+      verificationPort: testAuthority(BASE),
+    }));
+
+    const player = container.querySelector(".media-interactive-demo-player")!;
+    expect(player.getAttribute("data-demo-status")).toBe("OFFLINE");
+    expect(container.querySelector("video, audio")).toBeNull();
+    expect(screen.getByRole("status").textContent).toContain("without a verified local asset");
+    expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(true);
+
+    fireEvent.click(screen.getByRole("button", { name: "Explore left path; continue to Left path" }));
+    expect(screen.getByRole("group", { name: "Left path" })).toBeTruthy();
+    expect(player.getAttribute("data-demo-status")).toBe("OFFLINE");
+    expect(screen.getByRole("status").textContent).toContain("Offline. Playback remains unavailable.");
+    expect(container.querySelector("video, audio")).toBeNull();
+  });
+
+  it("reattests before online recovery attaches media and never autoplays", () => {
+    Object.defineProperty(window.navigator, "onLine", { configurable: true, value: false });
+    const authority = testAuthority(BASE);
+    const attest = vi.fn(authority.attest);
+    const play = vi.spyOn(HTMLMediaElement.prototype, "play").mockImplementation(() => Promise.resolve());
+    const { container } = render(React.createElement(InteractiveDemoPlayer, {
+      manifest: BASE,
+      verificationPort: { attest },
+    }));
+    expect(container.querySelector("video, audio")).toBeNull();
+    const callsBeforeRecovery = attest.mock.calls.length;
+
+    Object.defineProperty(window.navigator, "onLine", { configurable: true, value: true });
+    fireEvent(window, new Event("online"));
+
+    expect(attest.mock.calls.length).toBeGreaterThan(callsBeforeRecovery);
+    expect(container.querySelector(".media-interactive-demo-player")?.getAttribute("data-demo-status")).toBe("READY");
+    expect(container.querySelector("video")?.getAttribute("src")).toBe("/assets/intro.mp4");
+    expect(play).not.toHaveBeenCalled();
+  });
+
+  it("withholds media when the host attestation changes during online recovery", () => {
+    Object.defineProperty(window.navigator, "onLine", { configurable: true, value: false });
+    let revokeAttestation = false;
+    const authority = testAuthority(BASE);
+    const verificationPort: DemoHostVerificationPort = {
+      attest: (manifest) => {
+        const attestation = authority.attest(manifest);
+        return revokeAttestation && attestation ? { ...attestation, revision: "revoked-revision" } : attestation;
+      },
+    };
+    const { container } = render(React.createElement(InteractiveDemoPlayer, {
+      manifest: BASE,
+      verificationPort,
+    }));
+    expect(container.querySelector("video, audio")).toBeNull();
+
+    Object.defineProperty(window.navigator, "onLine", { configurable: true, value: true });
+    fireEvent(window, new Event("online"));
+    expect(container.querySelector("video")).toBeTruthy();
+
+    Object.defineProperty(window.navigator, "onLine", { configurable: true, value: false });
+    fireEvent(window, new Event("offline"));
+    expect(container.querySelector("video, audio")).toBeNull();
+    revokeAttestation = true;
+    Object.defineProperty(window.navigator, "onLine", { configurable: true, value: true });
+    fireEvent(window, new Event("online"));
+
+    expect(container.querySelector("video, audio")).toBeNull();
+    expect(container.querySelector(".media-interactive-demo-player")?.getAttribute("data-demo-status")).toBe("UNAVAILABLE");
+    expect(screen.getByRole("status").textContent).toContain("trust attestation mismatch");
+  });
+
   it("stops at the authored scene boundary without choosing a branch and reports media failure", () => {
     const { rerender } = render(React.createElement(InteractiveDemoPlayer, {
       manifest: BASE,
@@ -653,9 +741,14 @@ describe("interactive demo player", () => {
 
     const video = screen.getByRole("group", { name: "Introduction" }).querySelector("video")!;
     Object.defineProperty(video, "currentTime", { configurable: true, writable: true, value: 0 });
+    const seek = screen.getByRole("slider", { name: "Seek within Introduction" });
+    fireEvent.change(seek, { target: { value: "500" } });
+    expect(video.currentTime).toBe(0.5);
+    expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(true);
+
     Object.defineProperty(video, "seeking", { configurable: true, get: () => true });
     fireEvent.loadedMetadata(video);
-
+    expect(video.currentTime).toBe(0.5);
     expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(true);
 
     Object.defineProperty(video, "seeking", { configurable: true, get: () => false });
@@ -663,13 +756,11 @@ describe("interactive demo player", () => {
     expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(false);
 
     Object.defineProperty(video, "seeking", { configurable: true, get: () => true });
-    fireEvent.change(screen.getByRole("slider", { name: "Seek within Introduction" }), {
-      target: { value: "500" },
-    });
-    expect(video.currentTime).toBe(0.5);
+    fireEvent.change(seek, { target: { value: "750" } });
+    expect(video.currentTime).toBe(0.75);
     expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(true);
 
-    Object.defineProperty(video, "currentTime", { configurable: true, writable: true, value: 0.5 });
+    Object.defineProperty(video, "currentTime", { configurable: true, writable: true, value: 0.75 });
     Object.defineProperty(video, "seeking", { configurable: true, get: () => false });
     fireEvent.seeked(video);
     expect((screen.getByRole("button", { name: "Play Introduction" }) as HTMLButtonElement).disabled).toBe(false);

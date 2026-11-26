@@ -410,6 +410,31 @@ class SpatialRigEngineTest {
     }
 
     @Test
+    void publicGlbArtifactRejectsDeclaredBufferLengthOutsideEmbeddedBinaryChunk() throws Exception {
+        var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-static-rig", "version-1");
+        var rig = new SpatialRigEngine.Rig("rig-buffer-length", glbFrame(), "UNIT_QUATERNION_XYZW", List.of(source),
+                List.of(bone("root", null, SpatialRigEngine.LocalTransform.identity(), Math.PI)), Map.of(),
+                "project:edit:revision-1");
+        var artifact = engine.exportGlb(rig, ignored -> SpatialRigEngine.RightsOutcome.ELIGIBLE);
+        String json = readGlbJson(artifact.bytes());
+        String withBuffer = json.replace("\"asset\":", "\"buffers\":[{\"byteLength\":5}],\"asset\":");
+        assertThat(withBuffer).isNotEqualTo(json);
+
+        // Four BIN bytes cannot satisfy a declaration of five bytes. The GLB
+        // has no animation accessors, so artifact validation must check the
+        // generic buffer-to-chunk relationship independently of animation.
+        byte[] malformed = appendGlbChunk(replaceGlbJson(artifact.bytes(), withBuffer),
+                0x004e4942, new byte[4]);
+        String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(malformed));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new SpatialRigEngine.GlbArtifact(
+                artifact.rigId(), artifact.sourceProjectRevisionRef(), artifact.frameRef(), artifact.frameVersionRef(),
+                artifact.sourceVersions(), artifact.mimeType(), artifact.timeEncoding(), artifact.lossDisposition(),
+                digest, malformed))
+                .withMessageContaining("buffer length");
+    }
+
+    @Test
     void publicGlbArtifactAcceptsEmbeddedImageResourcesAndRejectsExternalUris() throws Exception {
         var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
         var rig = new SpatialRigEngine.Rig("rig-image-uri", glbFrame(), "UNIT_QUATERNION_XYZW", List.of(source),

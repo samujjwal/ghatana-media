@@ -9,6 +9,7 @@ const read = (path) => JSON.parse(readFileSync(resolve(root, path), "utf8"));
 const work = read("docs/development/remaining-work.json");
 const preservation = read("docs/development/historical-content-preservation.json");
 const inventory = read("docs/implementation/historical-artifact-inventory.v1.json");
+const remainingWorkMarkdown = readFileSync(resolve(root, "docs/development/REMAINING-WORK.md"), "utf8");
 
 test("register counts and source identity coverage come from actual rows", () => {
   const ids = work.tasks.map((task) => task.id);
@@ -48,6 +49,39 @@ test("integration prerequisites form an acyclic dependency graph", () => {
   for (const task of work.tasks) dfs(task.id);
   assert.equal(visited.size, 103);
   assert.match(work.dependencySemantics, /not reasons to postpone/i);
+});
+test("human task paths match the canonical register", () => {
+  const byId = new Map(work.tasks.map((task) => [task.id, task]));
+  const lines = remainingWorkMarkdown.split("\n");
+  let matched = 0;
+  for (let i = 0; i < lines.length; i += 1) {
+    const header = lines[i].match(/^\*\*`([^`]+)`\*\* · (OPEN|VERIFIED|OPTIONAL_DEFERRED_NO_CORE_BLOCKER)$/u);
+    if (!header) continue;
+    const task = byId.get(header[1]);
+    assert.ok(task, `unknown task in Markdown: ${header[1]}`);
+    assert.equal(task.state, header[2], `${task.id}: state differs from canonical register`);
+    let whereLine;
+    for (let j = i + 1; j < Math.min(lines.length, i + 8); j += 1) {
+      if (/^\*\*`[^`]+`\*\* · /u.test(lines[j])) break;
+      if (lines[j].startsWith("- **Where:**")) {
+        whereLine = lines[j];
+        break;
+      }
+    }
+    assert.ok(whereLine, `${task.id}: Markdown is missing its Where row`);
+    const paths = [...whereLine.matchAll(/`([^`]+)`/gu)].map((match) => match[1]);
+    assert.deepEqual(paths, task.where, `${task.id}: paths differ from canonical register`);
+    matched += 1;
+  }
+  assert.equal(matched, work.tasks.filter((task) => task.state !== "VERIFIED").length);
+});
+test("task progress stays bounded so history remains in verificationEvidence", () => {
+  for (const task of work.tasks) {
+    assert.ok(
+      (task.progress ?? "").length <= 1_500,
+      `${task.id}: keep progress to the current delta and next blocker; retain exact history in verificationEvidence`,
+    );
+  }
 });
 test("42 pinned historical artifacts cannot be deleted without immutable off-main readback", () => {
   const flagged = inventory.artifacts.filter((r) => r.disposition === "EXTERNAL_ARCHIVE");

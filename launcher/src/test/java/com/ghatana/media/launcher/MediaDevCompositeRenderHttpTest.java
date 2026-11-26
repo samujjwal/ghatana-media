@@ -89,6 +89,15 @@ class MediaDevCompositeRenderHttpTest {
             Map<String, Object> spec = spec(fx.revisionId, "r-main", "BOTH", null);
             HttpResponse<String> created = post(base, spec);
             assertThat(created.statusCode()).as(created.body()).isEqualTo(201);
+            String renderTimerCount = runtime.prometheusMetrics().lines()
+                    .filter(line -> line.startsWith("media_workflow_stage_duration_seconds_count{"))
+                    .filter(line -> line.contains("stage=\"render\""))
+                    .findFirst().orElseThrow(() -> new AssertionError("composite render duration was not scraped"));
+            assertThat(renderTimerCount).contains("contract_version=\"v1\"", "service=\"launcher\"", "stage=\"render\"")
+                    .doesNotContain("tenant", "principal", "project", "artifact", "request", "revision", "source", "digest")
+                    .endsWith(" 1");
+            String labelSet = renderTimerCount.substring(renderTimerCount.indexOf('{') + 1, renderTimerCount.indexOf('}'));
+            assertThat(labelSet.split(",")).hasSize(3);
             Map<String, Object> body = read(created.body());
             Map<String, Object> artifact = object(body.get("artifact"));
             assertThat(artifact).containsEntry("contentType", "video/mp4");

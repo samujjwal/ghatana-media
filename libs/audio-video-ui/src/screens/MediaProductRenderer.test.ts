@@ -261,7 +261,7 @@ describe("MediaProductRenderer", () => {
     expect(html).toContain('value="42"');
     expect(html).toContain('aria-label="Upload progress"');
     expect(html).toContain('role="status" aria-live="polite" aria-atomic="true"');
-    expect(html).toContain('<h2 id="media-operation-title">uploading</h2>');
+    expect(html).toMatch(/<h2 id="[^"]*media-operation-title">uploading<\/h2>/u);
     expect(html).not.toMatch(/<progress[^>]*style=/);
   });
 

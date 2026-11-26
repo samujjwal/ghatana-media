@@ -423,6 +423,8 @@ objects:
       trackKinds: [VIDEO, AUDIO, CAPTION, OVERLAY]
       clipFields: [clipId, sceneId, trackId, source(artifactId, artifactVersionId), sourceIn, sourceOut, storyStart, storyDuration]
       rationalTimeFields: [ticks, rateNumerator, rateDenominator, clock]
+      rationalTimeFingerprintIdentity: Canonical command-payload identity is the typed tuple (ticks, reduced rateNumerator, reduced rateDenominator, clock); do not rescale ticks to reduce the exact-seconds fraction. RationalTime value equality may still compare exact same-clock instants.
+      rationalTimeFingerprintNegativeCases: [different-tick-rate-tuples-that-denote-the-same-instant-conflict-for-the-same-requestId, different-clocks-never-match-or-convert, no-floating-point-or-rounding]
       ordering: scenes-by-order-then-sceneId; tracks-by-scene-order-then-track-order-then-trackId; clips-by-scene-order-then-track-order-then-storyStart-then-clipId
       invariants: [nonnegative-ticks-and-positive-rates, sourceIn-before-sourceOut-in-SOURCE_PRESENTATION, positive-storyDuration-in-STORY, representable-story-end, unique-node-ids-and-orders, tracks-reference-existing-scenes, clips-reference-existing-track-and-same-scene]
       emptyTimeline: explicit-creation-produces-zero-scenes-tracks-and-clips; distinct-from-project-revision-with-zero-timelines
@@ -1751,11 +1753,14 @@ ownerOutputArtifactTypeCrosswalk:
       id: media.output-type-definition.typed-visual-analysis-result-with-applicability-and-uncertainty
     - artifactType: source-grounded-cross-modal-result-with-provenance-and-uncertainty
       disposition: EXACT_OUTPUT_TYPE_TO_DOMAIN_OBJECT_OWNER_MAPPING
+      contentSchemaRef: media.multimodal.result-content.cross-modal.v1
       domainObjectRefs:
         - media.domain.quality-assessment
         - media.domain.provenance-manifest
-      reason: This exact output type resolves to media.domain.quality-assessment, media.domain.provenance-manifest as its canonical owner domain object(s); it does not assert persistence, registration or runtime materialization.
+      reason: This exact output type resolves to media.domain.quality-assessment and media.domain.provenance-manifest and is bound to the source-grounded content schema; it does not assert persistence, registration or runtime materialization.
       sourceRef: .product-experience/pdp-0-product-truth/capabilities.yaml#artifactType:source-grounded-cross-modal-result-with-provenance-and-uncertainty
+      contentSchemaSourceRef: .product-experience/pdp-1-domain-data/operations.yaml#capabilityOperationContracts/outputPayloadSchemas/@id=media.typed-output.source-grounded-cross-modal-result-with-provenance-and-uncertainty/contentSchema
+      sourceDecisionRef: .product-experience/decision-log.md#PXD-239
       ownerDefinitionState: OWNER_DEFINED_DEFINITION_ONLY
       implementationState: UNKNOWN
       qualificationState: NOT_EVALUATED

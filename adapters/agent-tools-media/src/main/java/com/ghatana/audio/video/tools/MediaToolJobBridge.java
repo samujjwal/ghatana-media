@@ -174,8 +174,15 @@ public final class MediaToolJobBridge {
 
     /** Runtime-readback adapter used by the binder to reconcile ambiguous submissions. */
     public MediaToolExecutionBinder.MediaJobReadback readback() {
-        return (tenantId, invocationId) -> port.findByRequestId(tenantId, requestIdFor(invocationId))
-                .map(job -> job.status().name());
+        return (authenticated, tenantId, invocationId) -> {
+            if (authenticated == null || !authenticated.tenantId().equals(tenantId)) return Optional.empty();
+            String requestId = requestIdFor(invocationId);
+            return port.findByRequestId(authenticated, requestId)
+                    .filter(job -> requestId.equals(job.requestId())
+                            && tenantId.equals(job.tenantId())
+                            && authenticated.principalId().equals(job.principalId()))
+                    .map(job -> job.status().name());
+        };
     }
 
     Promise<ToolExecutionResult> submit(ToolExecutionEnvelope envelope, AuthenticatedPrincipal authenticated,
@@ -233,7 +240,7 @@ public final class MediaToolJobBridge {
         }
         if (!awaitTerminal.isZero() && !terminal(job)) {
             return Promise.ofBlocking(AWAIT_EXECUTOR, () -> {
-                ProcessingJob latest = awaitTerminalState(request, job);
+                ProcessingJob latest = awaitTerminalState(request, job, authenticated);
                 return observed(envelope, latest, start);
             });
         }
@@ -248,13 +255,14 @@ public final class MediaToolJobBridge {
     }
 
     /** Polls the exact request-id lookup until a terminal state or the bounded deadline; never invents a result. */
-    private ProcessingJob awaitTerminalState(ProcessingJobRequest request, ProcessingJob accepted)
+    private ProcessingJob awaitTerminalState(ProcessingJobRequest request, ProcessingJob accepted,
+            AuthenticatedPrincipal authenticated)
             throws InterruptedException {
         long deadline = System.nanoTime() + awaitTerminal.toNanos();
         ProcessingJob latest = accepted;
         while (!terminal(latest) && System.nanoTime() < deadline) {
             Thread.sleep(POLL_MILLIS);
-            Optional<ProcessingJob> found = port.findByRequestId(request.tenantId(), request.requestId());
+            Optional<ProcessingJob> found = port.findByRequestId(authenticated, request.requestId());
             if (found.isPresent() && matches(request, found.get())) latest = found.get();
         }
         return latest;

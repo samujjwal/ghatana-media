@@ -50,7 +50,7 @@ const DEV_TYPED_ERROR_CODES: Readonly<Record<number, ReadonlySet<string>>> = {
   503: new Set(['RENDER_CODEC_UNAVAILABLE', 'DELIVERY_DESTINATION_UNAVAILABLE', 'EXPORT_AUTHORIZATION_UNAVAILABLE', 'DELIVERY_STATE_UNAVAILABLE']),
 };
 const DEV_TYPED_422_PATTERN = /^(?:RENDER|EXPORT|TIMELINE|TRACK|SOURCE)_[A-Z0-9_]{1,56}$/u;
-const PRODUCTION_USAGE = 'Usage: ghatanamedia-api artifact inspect --endpoint URL --tenant ID --principal ID --artifact ID | job get --endpoint URL --tenant ID --principal ID --job ID [--request-id ID] | job submit --endpoint URL --tenant ID --principal ID --artifact ID --request-id ID [--job-type TYPE] [--provider-hint ID] | job cancel --endpoint URL --tenant ID --principal ID --job ID --request-id ID --expected-version N [--reason USER_REQUEST|POLICY_CHANGE|ADMINISTRATIVE_STOP] | job list --endpoint URL --tenant ID --principal ID [--limit N]';
+const PRODUCTION_USAGE = 'Usage: ghatanamedia-api artifact inspect --endpoint URL --tenant ID --principal ID --artifact ID | job get --endpoint URL --tenant ID --principal ID --job ID [--request-id ID] | job submit --endpoint URL --tenant ID --principal ID --artifact ID --request-id ID [--job-type TYPE] [--provider-hint ID] | job cancel --endpoint URL --tenant ID --principal ID --job ID --request-id ID --expected-version N [--reason USER_REQUEST|POLICY_CHANGE|ADMINISTRATIVE_STOP]';
 const LOCAL_DEVELOPMENT_USAGE = 'Usage: ghatanamedia-api-dev artifact upload --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH --content-type TYPE --classification CLASS --retention PERIOD --idempotency-key KEY | artifact inspect --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID | job get --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID [--request-id ID] [--await-finality-ms N] | job submit --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID --request-id ID [--job-type TYPE] [--provider-hint ID] [--await-finality-ms N] | job cancel --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID --request-id ID [--expected-version N]';
 const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
 const MAX_REQUEST_TIMEOUT_MS = 300_000;
@@ -83,7 +83,6 @@ const PRODUCTION_COMMAND_OPTIONS: Readonly<Record<string, readonly string[]>> = 
   'job get': COMMAND_OPTIONS['job get']!,
   'job submit': ['--endpoint', '--tenant', '--principal', '--artifact', '--request-id', '--job-type', '--provider-hint'],
   'job cancel': ['--endpoint', '--tenant', '--principal', '--job', '--request-id', '--expected-version', '--reason'],
-  'job list': ['--endpoint', '--tenant', '--principal', '--limit'],
 };
 
 const LOCAL_DEVELOPMENT_COMMAND_OPTIONS: Readonly<Record<string, readonly string[]>> = {
@@ -100,7 +99,6 @@ const LOCAL_DEVELOPMENT_COMMAND_OPTIONS: Readonly<Record<string, readonly string
 const OPTIONAL_COMMAND_OPTIONS: Readonly<Record<string, readonly string[]>> = {
   'job get': ['--request-id', '--await-finality-ms'],
   'job submit': ['--job-type', '--provider-hint', '--await-finality-ms'],
-  'job list': ['--limit'],
   'job cancel': ['--expected-version', '--reason'],
   'project render': ['--format'],
 };
@@ -687,6 +685,18 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
     writeError('INVALID_INVOCATION', `Unknown command. ${usage}`, {}, 2, command, commandIds);
     return;
   }
+  if (channel === 'production' && command === 'job list') {
+    // The legacy v1 list response lacks the owner-defined observedAt/readVersion result.
+    writeError(
+      'NOT_ADMITTED',
+      'This production CLI operation is not admitted for the current runtime.',
+      {},
+      3,
+      command,
+      commandIds,
+    );
+    return;
+  }
   // Parse and reject unsupported command identities before reading credentials
   // or constructing an authenticated transport.
   let args: Arguments;
@@ -905,15 +915,6 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
       process.stdout.write(`${JSON.stringify({ schemaVersion: 'media.cli-result.v1',
         commandId: commandIds[args.command], cancellation: canonicalizeJsonValue(cancellation) })}\n`);
       if (cancellation.state === 'UNKNOWN_OUTCOME') process.exitCode = JOB_NOT_FINAL_EXIT_CODE;
-      return;
-    }
-    if (args.command === 'job list') {
-      const jobs = await canonical.listJobs({ limit: Number(args.values['--limit'] ?? 100) });
-      if (containsCredential(jobs, bearerToken)) {
-        writeError('INVALID_MEDIA_RESPONSE', 'Media returned a job-list response containing credential material.', {}, 1, args.command, commandIds);
-        return;
-      }
-      process.stdout.write(`${JSON.stringify({ schemaVersion: 'media.cli-result.v1', commandId: commandIds[args.command], jobs: canonicalizeJsonValue(jobs) })}\n`);
       return;
     }
     const awaitMs = Number(args.values['--await-finality-ms'] ?? 0);

@@ -9,6 +9,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactVersion;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ArtifactContentReadReceipt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaArtifactStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStore;
+import com.ghatana.media.runtime.MediaRuntimeContracts.JobListSnapshot;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobFinalizationDeadlineExceededException;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingAttempt;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProviderAttemptObservation;
@@ -47,6 +48,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.Instant;
@@ -767,6 +769,9 @@ public final class LocalMediaRuntimeSupport {
 
     public static final class JobStore implements MediaJobStore {
         private final ConcurrentMap<String, ProcessingJob> jobs = new ConcurrentHashMap<>();
+        private final Object jobSnapshotLock = new Object();
+        private final String snapshotIssuer = UUID.randomUUID().toString();
+        private long snapshotGeneration;
         private final ConcurrentMap<String, String> requests = new ConcurrentHashMap<>();
         private final ConcurrentMap<String, String> submissionDigests = new ConcurrentHashMap<>();
         private final ConcurrentMap<String, SttSubmissionSnapshot> sttSubmissionSnapshots = new ConcurrentHashMap<>();
@@ -884,11 +889,15 @@ public final class LocalMediaRuntimeSupport {
                     return existing;
                 }
                 String jobKey = key(job.tenantId(), job.jobId());
-                if (jobs.putIfAbsent(jobKey, job) != null) {
-                    throw new IllegalStateException("Media job already exists");
+                synchronized (jobSnapshotLock) {
+                    long nextGeneration = Math.incrementExact(snapshotGeneration);
+                    if (jobs.putIfAbsent(jobKey, job) != null) {
+                        throw new IllegalStateException("Media job already exists");
+                    }
+                    submissionDigests.put(requestKey, submissionDigest);
+                    requests.put(requestKey, job.jobId());
+                    snapshotGeneration = nextGeneration;
                 }
-                submissionDigests.put(requestKey, submissionDigest);
-                requests.put(requestKey, job.jobId());
                 return job;
             }
         }
@@ -906,9 +915,13 @@ public final class LocalMediaRuntimeSupport {
                         "Media terminal job state " + expected.status() + " cannot be rewritten to "
                                 + updated.status() + " through an unconditional update");
             }
-            if (!jobs.replace(key(expected.tenantId(), expected.jobId()), expected, updated)) {
-                throw new com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStoreConflictException(
-                        "Media job version changed concurrently");
+            synchronized (jobSnapshotLock) {
+                long nextGeneration = Math.incrementExact(snapshotGeneration);
+                if (!jobs.replace(key(expected.tenantId(), expected.jobId()), expected, updated)) {
+                    throw new com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobStoreConflictException(
+                            "Media job version changed concurrently");
+                }
+                snapshotGeneration = nextGeneration;
             }
             return updated;
         }
@@ -963,6 +976,33 @@ public final class LocalMediaRuntimeSupport {
             return jobs.values().stream().filter(job -> job.tenantId().equals(tenantId))
                     .sorted(Comparator.comparing(ProcessingJob::createdAt).reversed())
                     .limit(Math.max(1, Math.min(limit, 1_000))).toList();
+        }
+        @Override public JobListSnapshot listSnapshot(String tenantId, String principalId, int limit) {
+            if (tenantId == null || tenantId.isBlank() || principalId == null || principalId.isBlank()
+                    || limit < 1 || limit > 1_000) {
+                throw new IllegalArgumentException("Job-list tenant, principal, and bounded limit are required");
+            }
+            synchronized (jobSnapshotLock) {
+                Instant observedAt = Instant.now();
+                List<ProcessingJob> scopedJobs = jobs.values().stream()
+                        .filter(job -> job.tenantId().equals(tenantId)
+                                && job.principalId().equals(principalId))
+                        .sorted(Comparator.comparing(ProcessingJob::createdAt).reversed()
+                                .thenComparing(ProcessingJob::jobId))
+                        .limit(limit)
+                        .toList();
+                String readVersion;
+                try {
+                    String identity = "media-job-list-v1\u0000" + snapshotIssuer + "\u0000"
+                            + snapshotGeneration + "\u0000" + tenantId + "\u0000" + principalId
+                            + "\u0000" + limit;
+                    readVersion = HexFormat.of().formatHex(
+                            MessageDigest.getInstance("SHA-256").digest(identity.getBytes(StandardCharsets.UTF_8)));
+                } catch (java.security.NoSuchAlgorithmException impossible) {
+                    return JobListSnapshot.unknown();
+                }
+                return new JobListSnapshot(scopedJobs, readVersion, observedAt);
+            }
         }
         @Override public JobLease claim(ProcessingJob expected, String ownerId, Instant expiresAt) {
             String key = key(expected.tenantId(), expected.jobId());
@@ -1049,7 +1089,10 @@ public final class LocalMediaRuntimeSupport {
         @Override public boolean ready() { return true; }
         @Override public void close() {
             if (clearStateOnClose) {
-                jobs.clear();
+                synchronized (jobSnapshotLock) {
+                    snapshotGeneration = Math.incrementExact(snapshotGeneration);
+                    jobs.clear();
+                }
                 requests.clear();
                 submissionDigests.clear();
                 sttSubmissionSnapshots.clear();

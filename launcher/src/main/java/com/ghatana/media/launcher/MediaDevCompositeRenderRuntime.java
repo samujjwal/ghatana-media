@@ -235,8 +235,14 @@ final class MediaDevCompositeRenderRuntime {
 
     Result render(String tenantId, String principalId, Request request) {
         Objects.requireNonNull(request, "request");
-        return runtime.devAdmission().run(MediaDevRenderAdmission.LANE_RENDER, "composite", tenantId,
-                () -> renderAdmitted(tenantId, principalId, request));
+        io.micrometer.core.instrument.Timer.Sample renderSample = runtime.startWorkflowStage();
+        try {
+            return runtime.devAdmission().run(MediaDevRenderAdmission.LANE_RENDER, "composite", tenantId,
+                    () -> renderAdmitted(tenantId, principalId, request));
+        } finally {
+            runtime.stopWorkflowStage(renderSample,
+                    com.ghatana.audiovideo.observability.MediaWorkflowMetrics.Stage.RENDER);
+        }
     }
 
     private Result renderAdmitted(String tenantId, String principalId, Request request) {

@@ -65,6 +65,9 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
     private static final Duration DEFAULT_OPERATION_DEADLINE = Duration.ofMinutes(4);
     private static final Duration DEFAULT_POLL_INTERVAL = Duration.ofMillis(250);
     private static final int MAX_OBSERVATION_RESULT_CHARS = 8_192;
+    private static final String CROSS_MODAL_CAPABILITY_REF = "media.multimodal.analyze.cross-modal";
+    private static final String CROSS_MODAL_OPERATION_REF =
+            "media.operation.capability.media-multimodal-analyze-cross-modal";
     /** Canonical child job types this orchestrator can fan out to. */
     private static final Set<JobType> DELEGATED_CHILDREN =
             Set.of(JobType.SPEECH_TO_TEXT, JobType.VISION);
@@ -392,6 +395,14 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
         }
         if (anyUnknown || anyCancelled) return OperationOutcome.unknown();
         if (completed == children.size()) {
+            if (CROSS_MODAL_CAPABILITY_REF.equals(spec.capabilityRef())
+                    && CROSS_MODAL_OPERATION_REF.equals(spec.operationRef())) {
+                // Completed child observations are not the canonical cross-modal result artifact.
+                // Until an owner-bound result writer/readback can bind and validate the exact typed
+                // content version, preserve UNKNOWN rather than committing generic fused observations
+                // as SUCCEEDED under the source-defined cross-modal contract.
+                return OperationOutcome.unknown();
+            }
             return OperationOutcome.succeeded(MultimodalOperationSpec.fusedResult(spec, children));
         }
         if (failed == children.size()) return OperationOutcome.failed("CHILD_FAILED");

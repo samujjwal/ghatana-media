@@ -126,6 +126,8 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+    inputs.property("mediaDevRenderFfmpeg", providers.environmentVariable("MEDIA_DEV_RENDER_FFMPEG").orElse(""))
+    inputs.property("mediaDevRenderFfprobe", providers.environmentVariable("MEDIA_DEV_RENDER_FFPROBE").orElse(""))
     doFirst {
         systemProperty("media.child.classpath", sourceSets.test.get().runtimeClasspath.asPath)
     }

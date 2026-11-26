@@ -37,9 +37,13 @@ exists and runs on CPU: `av.speech-to-text` to `POST /dev/v1/speech/transcriptio
 artifact; MP3/other encodings, pitch, `storeAsArtifact=false` and a source
 artifact stay typed refusals), `av.vision-analysis` to `POST /dev/v1/vision/analyses`
 (Florence-2 `detect`/`ocr`/`caption`; face detection, custom models and inline
-bytes stay refused) and `av.multimodal-inference` to `POST /dev/v1/vision/tracks`
-(vision-only observation of a video; `enableTranscription=true` stays
-`MULTIMODAL_TRANSCRIPTION_NOT_ADMITTED` and `samplingRateMs` is not honoured).
+bytes stay refused). PXD-238 binds `av.multimodal-inference` to the canonical
+cross-modal analysis operation; the current handler validates its exact
+`input1`/`input2` contract, then returns `MULTIMODAL_NOT_ADMITTED` before
+dispatch. A structural canonical request mapper is unit-tested, but owner-backed
+reference/profile/rights resolution and canonical runtime submit/result readback
+remain unavailable. It does not route to the vision-only `/dev/v1/vision/tracks`
+operation or accept legacy modality toggles.
 The grant is re-read on every dispatch, replay and reconciliation, and revoking it
 also stops a recorded result from being replayed. The launcher request id is
 derived from the durable invocation id, so the launcher's own request ledger makes

@@ -160,10 +160,10 @@ importers:
       '@ghatana/cli-contracts':
         specifier: workspace:*
         version: link:../cli-contracts
+    devDependencies:
       '@ghatana/tool-platform-contracts':
         specifier: workspace:*
         version: link:../tool-platform-contracts
-    devDependencies:
       '@types/node':
         specifier: catalog:lifecycle
         version: 26.6.4
@@ -615,9 +615,15 @@ importers:
       '@ghatana/evidence-contracts':
         specifier: workspace:*
         version: link:../../libs/evidence-contracts
+      '@ghatana/execution-cache':
+        specifier: workspace:*
+        version: link:../execution-cache
       '@ghatana/tool-platform-contracts':
         specifier: workspace:*
         version: link:../../libs/tool-platform-contracts
+      '@ghatana/work-planner':
+        specifier: workspace:*
+        version: link:../work-planner
 
   ../ghatana-shared/platform/typescript/accessibility:
     dependencies:

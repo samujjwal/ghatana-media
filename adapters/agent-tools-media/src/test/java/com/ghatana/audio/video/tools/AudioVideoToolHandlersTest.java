@@ -66,6 +66,19 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
                 ToolTransport.IN_PROCESS, null, Map.of());
     }
 
+    private static Map<String, Object> canonicalMultimodalInput() {
+        return Map.of(
+                "input1", Map.of("artifactType", "authorized-media-artifacts",
+                        "payload", Map.of("artifactId", "source-artifact-1", "versionId", "immutable-version-1")),
+                "input2", Map.of("artifactType", "analysis-request",
+                        "payload", Map.of("dimensions", List.of("dimension-ref-a", "dimension-ref-b"),
+                                "criteria", Map.of("subjectRefs", List.of("subject-version-ref-1"),
+                                        "analysisMethodRef", "analysis-method-ref-1",
+                                        "profileRef", "profile-version-ref-1",
+                                        "configurationDigest", "sha256:" + "a".repeat(64),
+                                        "purposeRef", "purpose-ref-1"))));
+    }
+
     private ToolExecutionResult await(Promise<ToolExecutionResult> p) {
         return runPromise(() -> p);
     }
@@ -490,7 +503,7 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         };
         ToolExecutionEnvelope vision = envelope("av.vision-analysis", Map.of(
                 "mediaSource", Map.of("mediaArtifactId", "a"), "analysisTypes", List.of("OBJECT_DETECTION")));
-        ToolExecutionEnvelope multimodal = envelope("av.multimodal-inference", Map.of("mediaArtifactId", "a"));
+        ToolExecutionEnvelope multimodal = envelope("av.multimodal-inference", canonicalMultimodalInput());
 
         assertNotAdmitted(await(new VisionAnalysisToolHandler(delegate).handle(vision, contractFor(vision))),
                 "VISION_NOT_ADMITTED");
@@ -516,7 +529,7 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         assertThat(await(new VisionAnalysisToolHandler(delegate).handle(vision, contractFor(vision)))
                 .failure().code()).isEqualTo("TOOL_EXECUTION_FAILED");
         assertThat(await(new MultimodalInferenceToolHandler(delegate).handle(multimodal, contractFor(multimodal)))
-                .failure().code()).isEqualTo("TOOL_EXECUTION_FAILED");
+                .failure().code()).isEqualTo("UNKNOWN_INPUT_FIELD");
         assertThat(dispatches.get()).isZero();
     }
 
@@ -601,9 +614,13 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
             assertThat(result.correlationId()).isEqualTo(input.invocationId());
             assertThat(result.output()).isNull();
             assertThat(result.sideEffectSummary()).isEmpty();
-            assertThat(result.errorMessage()).isEqualTo("TOOL_EXECUTION_FAILED");
+            String expectedErrorCode = MultimodalInferenceToolHandler.TOOL_ID.equals(input.toolId())
+                    ? "TOOL_INPUT_SCHEMA_VIOLATION" : "TOOL_EXECUTION_FAILED";
+            assertThat(result.errorMessage()).isEqualTo(expectedErrorCode);
             assertThat(result.failure()).isNotNull();
-            assertThat(result.failure().kind()).isEqualTo(com.ghatana.agent.framework.tools.ToolExecutionFailure.Kind.INTERNAL);
+            assertThat(result.failure().kind()).isEqualTo(expectedErrorCode.equals("TOOL_INPUT_SCHEMA_VIOLATION")
+                    ? com.ghatana.agent.framework.tools.ToolExecutionFailure.Kind.VALIDATION
+                    : com.ghatana.agent.framework.tools.ToolExecutionFailure.Kind.INTERNAL);
             assertThat(result.failure().stage()).isEqualTo(com.ghatana.agent.framework.tools.ToolExecutionFailure.Stage.EXECUTION);
             assertThat(result.failure().retryable()).isFalse();
             assertThat(result.failure().observedAt()).isEqualTo(result.completedAt());
@@ -730,11 +747,11 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         }
 
         @Test
-        @DisplayName("valid analysis options still fail closed before delegate output is observed")
+        @DisplayName("valid detection options still fail closed before delegate output is observed")
         void doesNotObserveVisionDelegateOutputWithoutAdmission() {
             Map<String, Object> input = Map.of(
                     "mediaSource", Map.of("mediaArtifactId", "img-42"),
-                    "analysisTypes", List.of("OBJECT_DETECTION", "OCR"));
+                    "analysisTypes", List.of("OBJECT_DETECTION"));
             ToolExecutionEnvelope env = envelope("av.vision-analysis", input);
             Map<String, Object> objectSchema = Map.of("type", "object", "properties", Map.of(
                     "label", Map.of("type", "string"),
@@ -794,16 +811,16 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         }
 
         @Test
-        @DisplayName("valid mediaArtifactId remains not admitted without source authority")
-        void validArtifactRemainsNotAdmittedWithoutAuthority() {
-            Map<String, Object> input = Map.of("mediaArtifactId", "video-artifact-1");
+        @DisplayName("valid canonical cross-modal request remains not admitted without source authority")
+        void validCrossModalRequestRemainsNotAdmittedWithoutAuthority() {
+            Map<String, Object> input = canonicalMultimodalInput();
             ToolExecutionEnvelope env = envelope("av.multimodal-inference", input);
             ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
             assertNotAdmitted(result, "MULTIMODAL_NOT_ADMITTED");
         }
 
         @Test
-        @DisplayName("fails when mediaArtifactId is missing")
+        @DisplayName("fails when canonical inputs are missing")
         void failsWhenArtifactMissing() {
             ToolExecutionEnvelope env = envelope("av.multimodal-inference", Map.of());
             ToolExecutionResult result = await(handler.handle(env, contractFor(env)));
@@ -813,7 +830,7 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         @Test
         @DisplayName("does not observe multimodal delegate output without admission")
         void doesNotObserveMultimodalDelegateOutputWithoutAdmission() {
-            Map<String, Object> input = Map.of("mediaArtifactId", "v-1", "inferenceMode", "FULL");
+            Map<String, Object> input = canonicalMultimodalInput();
             ToolExecutionEnvelope env = envelope("av.multimodal-inference", input);
             Map<String, Object> schema = Map.of("type", "object", "properties", Map.of(
                     "summary", Map.of("type", "string"),
@@ -829,7 +846,7 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         void doesNotObserveMalformedMultimodalDelegateMetadata() {
             MultimodalInferenceToolHandler invalid = new MultimodalInferenceToolHandler(delegateReturning(Map.of(
                     "processingMetadata", Map.of("framesAnalyzed", "many"))));
-            ToolExecutionEnvelope env = envelope("av.multimodal-inference", Map.of("mediaArtifactId", "v-1"));
+            ToolExecutionEnvelope env = envelope("av.multimodal-inference", canonicalMultimodalInput());
             Map<String, Object> schema = Map.of("type", "object", "properties", Map.of(
                     "processingMetadata", Map.of("type", "object", "properties", Map.of(
                             "framesAnalyzed", Map.of("type", "integer")))));
@@ -841,7 +858,7 @@ class AudioVideoToolHandlersTest extends EventloopTestBase {
         @DisplayName("fails closed when provider delegate is missing")
         void failsClosedWhenProviderDelegateMissing() {
             MultimodalInferenceToolHandler defaultHandler = new MultimodalInferenceToolHandler();
-            ToolExecutionEnvelope env = envelope("av.multimodal-inference", Map.of("mediaArtifactId", "video-1"));
+            ToolExecutionEnvelope env = envelope("av.multimodal-inference", canonicalMultimodalInput());
 
             ToolExecutionResult result = await(defaultHandler.handle(env, contractFor(env)));
 

@@ -115,7 +115,7 @@ final class MediaToolLocalVisionJourneyTest extends EventloopTestBase {
             var envelope = ToolExecutionEnvelope.of("av.vision-analysis", "1.0.0", AGENT, null, TENANT,
                     ToolActionClass.CALL_EXTERNAL, "1.0", Map.of(
                             "mediaSource", Map.of("mediaArtifactId", source.artifactId()),
-                            "analysisTypes", List.of("OCR", "SCENE_CLASSIFICATION", "OBJECT_DETECTION"),
+                            "analysisTypes", List.of("SCENE_CLASSIFICATION", "OBJECT_DETECTION"),
                             "sourceArtifactVersion", source.version().value()));
             var contract = new ToolContract(envelope.toolId(), envelope.toolVersion(), "test", "test",
                     envelope.actionClass(), false, true, Map.of(), Map.of(), Set.of(), ToolTransport.IN_PROCESS, null,
@@ -133,16 +133,14 @@ final class MediaToolLocalVisionJourneyTest extends EventloopTestBase {
             assertThat(job.providerId()).isEqualTo(LocalOpenModelVisionProvider.PROVIDER_ID);
             assertThat(job.expectedArtifactVersion()).isEqualTo(source.version().value());
             assertThat(job.result()).containsEntry("sourceArtifactSha256", source.sha256());
-            @SuppressWarnings("unchecked") var sceneText = (Map<String, Object>) job.result().get("sceneText");
-            assertThat(((String) sceneText.get("fullText")).toUpperCase()).contains("GHATANA");
-            assertThat(job.result()).containsKeys("caption", "objects", "models");
+            assertThat(job.result()).containsKeys("caption", "objects", "models").doesNotContainKey("sceneText");
         } finally {
             runtime.close();
         }
     }
 
     @Test
-    void multimodalToolVisionOnlyObservationRunsAsAParentWithACanonicalVisionChild() throws Exception {
+    void legacyVisionOnlyMultimodalToolInputIsRejectedBeforeCanonicalJobCreation() throws Exception {
         assumeTrue(skipReason == null, () -> "SKIPPED: " + skipReason);
         Path root = Files.createTempDirectory("media-tool-mm-");
         var jobStore = new LocalMediaRuntimeSupport.JobStore();
@@ -163,18 +161,11 @@ final class MediaToolLocalVisionJourneyTest extends EventloopTestBase {
                     Map.of());
             ToolExecutionResult result = runPromise(() -> factory.createAuthenticated("av.multimodal-inference")
                     .handle(envelope, contract, new AuthenticatedPrincipal(TENANT, AGENT, Instant.now())));
-            assertThat(result.status()).as(String.valueOf(result.failure()))
-                    .isIn(ToolExecutionStatus.OUTCOME_UNKNOWN, ToolExecutionStatus.SUCCESS);
             String requestId = MediaToolJobBridge.requestIdFor(envelope.invocationId());
-            var parent = awaitTerminal(jobStore, requestId);
-            System.out.println("AGENT-TOOL-MULTIMODAL-JOB status=" + parent.status() + " result=" + parent.result());
-            assertThat(parent.status()).isEqualTo(JobStatus.COMPLETED);
-            var child = jobStore.findByRequest(TENANT, requestId + ":vision").orElseThrow();
-            assertThat(child.jobType()).isEqualTo(com.ghatana.media.runtime.MediaRuntimeContracts.JobType.VISION);
-            assertThat(child.status()).isEqualTo(JobStatus.COMPLETED);
-            assertThat(child.providerId()).isEqualTo(LocalOpenModelVisionProvider.PROVIDER_ID);
-            assertThat(child.expectedArtifactVersion()).isEqualTo(source.version().value());
-            assertThat(child.result().toString().toUpperCase()).contains("GHATANA");
+            assertThat(result.status()).as(String.valueOf(result.failure())).isEqualTo(ToolExecutionStatus.FAILED);
+            assertThat(result.failure().code()).isEqualTo("UNKNOWN_INPUT_FIELD");
+            assertThat(jobStore.findByRequest(TENANT, requestId)).isEmpty();
+            assertThat(jobStore.findByRequest(TENANT, requestId + ":vision")).isEmpty();
         } finally {
             runtime.close();
         }
@@ -183,7 +174,8 @@ final class MediaToolLocalVisionJourneyTest extends EventloopTestBase {
     @Test
     void withoutTheLocalProviderTheSameToolCallIsTypedNotAdmittedAndNothingRuns() throws Exception {
         Path root = Files.createTempDirectory("media-tool-vision-none-");
-        MediaRuntime runtime = runtime(root, new LocalMediaRuntimeSupport.JobStore(), List.of(), fixtureAuthority());
+        var jobStore = new LocalMediaRuntimeSupport.JobStore();
+        MediaRuntime runtime = runtime(root, jobStore, List.of(), fixtureAuthority());
         try {
             MediaArtifact source = upload(runtime, image());
             var bridge = new MediaToolJobBridge(new RuntimeMediaJobSubmissionPort(runtime), "dev");
@@ -200,7 +192,9 @@ final class MediaToolLocalVisionJourneyTest extends EventloopTestBase {
             ToolExecutionResult result = runPromise(() -> factory.createAuthenticated("av.vision-analysis")
                     .handle(envelope, contract, new AuthenticatedPrincipal(TENANT, AGENT, Instant.now())));
             assertThat(result.status()).isEqualTo(ToolExecutionStatus.FAILED);
-            assertThat(result.failure().code()).isEqualTo("MEDIA_NOT_ADMITTED");
+            assertThat(result.failure().code()).isEqualTo("VISION_ANALYSIS_TYPE_NOT_ADMITTED");
+            String requestId = MediaToolJobBridge.requestIdFor(envelope.invocationId());
+            assertThat(jobStore.findByRequest(TENANT, requestId)).isEmpty();
         } finally {
             runtime.close();
         }

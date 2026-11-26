@@ -75,6 +75,21 @@ export JAVA_HOME=/home/samujjwal/.gradle/jdks/eclipse_adoptium-27-amd64-linux.2
 node scripts/check-journey-selectors.mjs --print J-24 --command   # copy the printed line and run it
 ```
 
-`--command` prints `./gradlew` with the four required `-P` flags (dependency profile, FULL composite scope, and the kernel/tools/lifecycle paths), then `:services:media:integration-tests:test` and the `--tests` arguments. Run it from the repository root. Before a Gradle run, wait for other Gradle builds on the shared machine, and set the FFmpeg variables described in the shared rules.
+`--command` prints `./gradlew` with the four required `-P` flags (dependency profile, FULL composite scope, and the kernel/tools/lifecycle paths), then `:services:media:integration-tests:test` and the `--tests` arguments. Run it from the repository root. Before a Gradle run, wait for other Gradle builds on the shared machine.
+
+J-20 requires `MEDIA_FFMPEG` and `MEDIA_FFPROBE`; either missing variable skips its test methods. Its live browser helper pins Playwright 1.63.0 Chromium revision 1243 (153.0.8010.12); a different system Chrome version is not a substitute. Set the same writable browser cache for installation and the Gradle run:
+
+```bash
+export MEDIA_FFMPEG="$(command -v ffmpeg)"
+export MEDIA_FFPROBE="$(command -v ffprobe)"
+export PLAYWRIGHT_BROWSERS_PATH=/tmp/ghatana-playwright-browsers
+
+# Only when the pinned browser is absent from that cache:
+node apps/media-experience-explorer/node_modules/playwright/cli.js install chromium
+"$PLAYWRIGHT_BROWSERS_PATH/chromium-1243/chrome-linux64/chrome" --version
+# Expected: Google Chrome for Testing 153.0.8010.12
+```
+
+Keep these exports in the shell that runs the generated J-20 Gradle command. The J-20 helper checks the Playwright package and browser version before opening Chromium.
 
 Flags per class are source-derived and direct only: `needsLocalModel` means the class references a local model root or Whisper profile variable; `needsChromium` means Playwright or Chromium; `needsNode` means a Node helper script; `needsFfmpeg` means an FFmpeg variable. `cpu-only` contains journeys whose classes reference no local model; Chromium, Node and FFmpeg are not excluded by it. Whether a model actually runs on GPU is not determinable from these sources. `faultKinds` are keyword matches in the journey evidence text.

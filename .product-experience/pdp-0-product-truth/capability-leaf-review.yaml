@@ -91252,9 +91252,9 @@ ownerCapabilityLeafAdjudication:
           phase0Admission: pending
           executionAdmission: NOT_ADMITTED
         - channelRef: media.channel.agent
-          disposition: OUTSIDE_SELECTED_ACTOR_SCOPE
-          sourceLabel: null
-          ruleRef: NO_AGENT_ROLE_OR_PRODUCT_INTEGRATION_IN_THIS_LEAF_SOURCE
+          disposition: SOURCE_DECLARED_DEFINITION_APPLICABLE
+          sourceLabel: agent
+          ruleRef: VERIFIED_USER_DELEGATION_NO_AGENT_ROLE_OR_AUTHORITY_ELEVATION
           phase0Admission: pending
           executionAdmission: NOT_ADMITTED
         - channelRef: media.channel.event
