@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import hashlib
 import asyncio
 import logging
 import os
@@ -194,14 +193,10 @@ def create_app(settings: WorkerSettings | None = None, runtime: WorkerRuntime | 
         temporary_run = None
         temporary_path = None
         resolved_language = metadata.language_hint
-        fingerprint = hashlib.sha256(json.dumps([
-            operation_kind, metadata.provider_ref, metadata.media_type, metadata.language_hint,
-            metadata.timeout_ms, metadata.limits, hashlib.sha256(data).hexdigest(),
-        ], sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")).hexdigest()
         try:
             if not runtime.health.ready or runtime.health.shutting_down:
                 raise WorkerError("PROVIDER_UNAVAILABLE", retryable=True, provider_ref=metadata.provider_ref)
-            committed = await runtime.operations.get_outcome(metadata.operation_id, metadata.operation_generation, fingerprint)
+            committed = await runtime.operations.get_outcome(metadata.operation_id, metadata.operation_generation)
             if committed is not None:
                 return JSONResponse(committed.response, status_code=committed.status_code)
             # I6-58: resolve the working language through the authority order
@@ -222,7 +217,6 @@ def create_app(settings: WorkerSettings | None = None, runtime: WorkerRuntime | 
                 metadata.provider_ref,
                 metadata.timeout_ms,
                 metadata.operation_generation,
-                fingerprint,
             )
             try:
                 # I6-85: each admitted operation gets a private 0700 namespace;
@@ -244,24 +238,13 @@ def create_app(settings: WorkerSettings | None = None, runtime: WorkerRuntime | 
                 output_payload = response(metadata.operation_id, metadata.provider_ref, output)
                 validate_provider_output(output_payload, settings.limits)
                 if not await runtime.operations.publish_success(operation, output_payload):
-                    # Never return an uncommitted losing writer's output.
-                    committed = await runtime.operations.get_outcome(
-                        operation.operation_id, operation.operation_generation, fingerprint)
-                    if committed is not None:
-                        return JSONResponse(committed.response, status_code=committed.status_code)
-                    raise WorkerError("PROVIDER_UNAVAILABLE", retryable=True, provider_ref=metadata.provider_ref)
+                    raise WorkerError("CANCELLED", provider_ref=metadata.provider_ref)
                 log_event(logger, operationId=metadata.operation_id, providerRef=metadata.provider_ref, mediaType=metadata.media_type, language=resolved_language, inputByteCount=len(data), elapsedMs=timer.elapsed_ms(), status="success")
                 return JSONResponse(output_payload)
         except WorkerError as exc:
             if operation is not None:
                 error_payload = exc.envelope(metadata.operation_id)
                 await runtime.operations.publish_failure(operation, error_payload, 409 if exc.code == "DUPLICATE_OPERATION" else 429 if exc.code == "PROVIDER_BUSY" else 400 if not exc.retryable else 503)
-                committed = await runtime.operations.get_outcome(
-                    operation.operation_id, operation.operation_generation, fingerprint)
-                if committed is not None:
-                    return JSONResponse(committed.response, status_code=committed.status_code)
-                if operation.claim_token is not None:
-                    exc = WorkerError("PROVIDER_UNAVAILABLE", retryable=True, provider_ref=metadata.provider_ref)
             log_event(logger, operationId=metadata.operation_id, providerRef=metadata.provider_ref, mediaType=metadata.media_type, language=resolved_language, inputByteCount=len(data), elapsedMs=0, status="failure", failureCategory=exc.code)
             status = 409 if exc.code == "DUPLICATE_OPERATION" else 429 if exc.code == "PROVIDER_BUSY" else 400 if not exc.retryable else 503
             return JSONResponse(exc.envelope(metadata.operation_id), status_code=status)
@@ -322,7 +305,7 @@ def create_app(settings: WorkerSettings | None = None, runtime: WorkerRuntime | 
         raw = metadata.get("payload")
         if not isinstance(raw, dict):
             return JSONResponse(WorkerError("INVALID_REQUEST").envelope(parsed.operation_id), status_code=400)
-        return await execute(parsed, json.dumps(raw, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8"), "extract")
+        return await execute(parsed, json.dumps(raw, ensure_ascii=False, separators=(",", ":")).encode("utf-8"), "extract")
 
     @app.post("/v1/embed")
     async def embed(
@@ -343,7 +326,7 @@ def create_app(settings: WorkerSettings | None = None, runtime: WorkerRuntime | 
         raw = metadata.get("projection")
         if not isinstance(raw, dict):
             return JSONResponse(WorkerError("INVALID_REQUEST").envelope(parsed.operation_id), status_code=400)
-        return await execute(parsed, json.dumps({"projection": raw}, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8"), "embed")
+        return await execute(parsed, json.dumps({"projection": raw}, ensure_ascii=False, separators=(",", ":")).encode("utf-8"), "embed")
 
     @app.delete("/v1/operations/{operation_id}")
     async def cancel(
