@@ -58,7 +58,7 @@ class MediaSecurityFilterTest {
         String headerJson = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
         String payloadJson = "{\"sub\":\"user-1\",\"tenant_id\":\"" + tenantId
                 + "\",\"iss\":\"https://issuer.example\",\"aud\":\"ghatana-runtime\",\"exp\":"
-                + CLOCK.instant().plusSeconds(300).getEpochSecond()
+                + CLOCK.instant().plusSeconds(300).getEpochSecond() + ",\"iat\":1609459200"
                 + ",\"permissions\":[\"media:job:read\"]}";
         String header = Base64.getUrlEncoder().withoutPadding()
                 .encodeToString(headerJson.getBytes(StandardCharsets.UTF_8));
@@ -293,6 +293,33 @@ class MediaSecurityFilterTest {
                         assertThat(identity.principalId()).isEqualTo("user-1");
                         assertThat(identity.authenticatedAt()).isEqualTo(CLOCK.instant());
                     });
+            var verifiedIdentity = MediaSecurityFilter.verifiedIdentity(seen.getValue());
+            assertThat(verifiedIdentity).isNotNull();
+            assertThat(verifiedIdentity.issuer()).isEqualTo("https://issuer.example");
+            assertThat(verifiedIdentity.subject()).isEqualTo("user-1");
+            assertThat(verifiedIdentity.tenantId()).isEqualTo("tenant-a");
+            assertThat(verifiedIdentity.assurance())
+                    .isEqualTo(com.ghatana.media.runtime.MediaVerifiedIdentityContracts.AssuranceSource.SHARED_SECRET_JWT);
+            assertThat(verifiedIdentity.authenticatedAt()).isEqualTo(CLOCK.instant());
+            assertThat(MediaSecurityFilter.authenticatedPrincipal(seen.getValue()))
+                    .isEqualTo(verifiedIdentity.toAuthenticatedPrincipal());
+        }
+
+        @Test
+        void rejectsCallerTenantThatDiffersFromVerifiedJwtTenant() throws Exception {
+            HttpHandler delegate = mock(HttpHandler.class);
+            MediaSecurityFilter filter = new MediaSecurityFilter(delegate, "local", environment(), CLOCK);
+            Map<String, String> headers = new HashMap<>();
+            headers.put("X-Tenant-Id", "caller-selected-tenant");
+            headers.put("X-Principal-Id", "forged-admin");
+            headers.put("Authorization", "Bearer " + signedJwt("tenant-a"));
+            HttpExchange exchange = mockExchange("/api/v1/jobs", headers);
+
+            filter.handle(exchange);
+
+            verify(delegate, never()).handle(any());
+            verify(exchange).sendResponseHeaders(eq(401), anyLong());
+            assertThat(MediaSecurityFilter.verifiedIdentity(exchange)).isNull();
         }
 
         @Test

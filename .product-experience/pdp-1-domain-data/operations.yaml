@@ -195049,9 +195049,29 @@ capabilityOperationContracts:
           parameters: &a462_scope_1_scope_1_scope_1_scope_1_scope_1
             type: object
             additionalProperties: false
-            required: []
-            properties: {}
-            emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
+            required:
+              - noiseOnlyFrameRange
+              - profileRef
+            properties:
+              noiseOnlyFrameRange:
+                type: object
+                additionalProperties: false
+                required:
+                  - startFrame
+                  - endFrame
+                properties:
+                  startFrame:
+                    type: integer
+                    minimum: 0
+                    maximum: 6000000
+                  endFrame:
+                    type: integer
+                    minimum: 1
+                    maximum: 6000000
+                description: Half-open decoded PCM frame span [startFrame,endFrame) of caller-designated noise-only audio from the exact input1 artifact/version; must be non-empty, in source bounds, and no longer than 2,000,000 frames. Media never infers or classifies this span.
+              profileRef:
+                const: RMS_BLOCK_GATE_V1
+                description: Fixed deterministic speech-audio-rust profile; thresholdMultiple=2.0, floorGain=0.08, blockFrames=256. No profile values or method overrides are accepted.
           requestId:
             type: string
             format: opaque-idempotency-key

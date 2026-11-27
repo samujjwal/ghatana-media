@@ -82654,7 +82654,7 @@ capabilities:
     operation: noise-suppression
     label: Suppress audio noise
     definitionState: IN_SCOPE_DRAFT
-    outcome: For the requested task to suppress audio noise, the result is a local derived-audio candidate based on the exact audio artifact actually consumed, with the source preserved and the declared measurement output kept distinct from signal content. The preservation-and-enhancement policy supplies the task intent; no additional parameters, model, provider, or method are selected by this capability definition. Any estimated or reconstructed signal detail is disclosed as such and is not presented as recovered source truth. The candidate does not itself change the source or establish downstream acceptance.
+    outcome: For the requested task to suppress audio noise, the result is a local derived-audio candidate based on the exact audio artifact actually consumed, with the source preserved and measurements kept distinct from signal content. The caller supplies a half-open noise-only frame range for that exact source version and selects the fixed RMS_BLOCK_GATE_V1 profile; the range is never inferred or classified by Media. The profile uses the deterministic speech-audio-rust block RMS gate with thresholdMultiple 2.0, floorGain 0.08, and blockFrames 256. Any estimated or reconstructed signal detail is disclosed as such and is not presented as recovered source truth. The candidate does not itself change the source or establish downstream acceptance.
     sourceScope:
       masterPlanSection: §6.7
       sourcePhrase: Noise suppression/speech enhancement; dereverberation/de-echo/acoustic echo cancellation; dehum/declick/decrackle/declip; wind/plosive reduction/de-essing; source/speaker/music-vocal/stem separation; background removal; speech separation; audio super-resolution/bandwidth extension; sample-rate conversion; phase/channel repair
@@ -82677,9 +82677,13 @@ capabilities:
       - Verified actor/workspace and required delegated authority.
       - Inputs and references are available, validated, rights/consent eligible, and within declared bounds.
       - Capability, profile, license, policy, resource, and deployment admission are checked at the effect boundary.
-    supportedParameters: P0 defines no additional parameter fields in ownerDefinition.parameterSchema; this leaf's P0 ownerDefinition.typedInputSlots carry request meaning. No additional fields are implied; support, qualification, and runtime availability remain separate decisions.
+    supportedParameters: The caller must provide noiseOnlyFrameRange.startFrame and endFrame as a non-empty half-open span of decoded PCM frames from the exact input1 artifact/version, plus profileRef RMS_BLOCK_GATE_V1. The span must be in source bounds and at most 2,000,000 frames. Profile values are fixed at thresholdMultiple 2.0, floorGain 0.08, and blockFrames 256; callers cannot override them. This defines request shape only; quality qualification and runtime availability remain separate decisions.
     constraints:
       - No product default/model/provider is inferred from names, package presence, tests, or source documentation.
+      - For this leaf only, use the explicitly selected deterministic RMS_BLOCK_GATE_V1 profile; its values are fixed at thresholdMultiple 2.0, floorGain 0.08, and blockFrames 256, with no caller overrides or silent method substitution.
+      - The caller must designate a non-empty half-open noise-only frame range on the exact consumed input1 artifact/version; indices are decoded PCM frames, endFrame is exclusive, and the range must be in source bounds and at most 2,000,000 frames. Never infer the range or classify audio content as noise.
+      - Reject malformed, reversed, empty, out-of-bounds, or over-limit ranges before candidate output; preserve the source and return a distinct candidate only after successful processing and comparison.
+      - Existing waveform metrics are diagnostics only. An absent independent reference leaves reference-based quality metrics absent; no perceptual or quality-improvement claim follows from attenuation or synthetic tests.
       - Unsupported combinations remain explicit; no silent substitution.
       - Preserve exact source lineage only for source-derived outputs; source-free authored or generated outputs identify their origin without fabricating a source artifact. Report reconstruction or estimation distinctly from measured/ground-truth output.
       - Preserve-policy forbids invented semantic detail; reconstruction requires the declared policy and candidate comparison.
@@ -82846,9 +82850,29 @@ capabilities:
       parameterSchema:
         type: object
         additionalProperties: false
-        required: []
-        properties: {}
-        emptyDisposition: NO_ADDITIONAL_PARAMETERS_REQUIRED_INPUTS_CARRY_THE_TYPED_INTENT_AND_REFERENCES
+        required:
+          - noiseOnlyFrameRange
+          - profileRef
+        properties:
+          noiseOnlyFrameRange:
+            type: object
+            additionalProperties: false
+            required:
+              - startFrame
+              - endFrame
+            properties:
+              startFrame:
+                type: integer
+                minimum: 0
+                maximum: 6000000
+              endFrame:
+                type: integer
+                minimum: 1
+                maximum: 6000000
+            description: Half-open decoded PCM frame span [startFrame,endFrame) of caller-designated noise-only audio from the exact input1 artifact/version; must be non-empty, in source bounds, and no longer than 2,000,000 frames. Media never infers or classifies this span.
+          profileRef:
+            const: RMS_BLOCK_GATE_V1
+            description: Fixed deterministic speech-audio-rust profile; thresholdMultiple=2.0, floorGain=0.08, blockFrames=256. No profile values or method overrides are accepted.
       successOutputs:
         - artifactType: derived-audio-candidate-with-source-preserved-and-measurements
           requiredOnSuccess: true
@@ -82856,10 +82880,11 @@ capabilities:
         REJECTED: []
         UNKNOWN_OUTCOME: []
       semanticOutcomeContract:
-        result: For the requested task to suppress audio noise, the result is a local derived-audio candidate based on the exact audio artifact actually consumed, with the source preserved and the declared measurement output kept distinct from signal content. The preservation-and-enhancement policy supplies the task intent; no additional parameters, model, provider, or method are selected by this capability definition. Any estimated or reconstructed signal detail is disclosed as such and is not presented as recovered source truth. The candidate does not itself change the source or establish downstream acceptance.
+        result: For the requested task to suppress audio noise, the result is a local derived-audio candidate based on the exact audio artifact actually consumed, with the source preserved and measurements kept distinct from signal content. The caller supplies a half-open noise-only frame range for that exact source version and selects the fixed RMS_BLOCK_GATE_V1 profile; the range is never inferred or classified by Media. The profile uses the deterministic speech-audio-rust block RMS gate with thresholdMultiple 2.0, floorGain 0.08, and blockFrames 256. Any estimated or reconstructed signal detail is disclosed as such and is not presented as recovered source truth. The candidate does not itself change the source or establish downstream acceptance.
         outputDistinctions:
           - The task intent concerns noise and unwanted background components; this request does not by itself prove that the requested change was effective or that quality improved.
           - source content retained under preservation policy; measured attenuation, if reported, is distinct from perceived improvement; any applicable requested-versus-effective property and measured-versus-estimated evidence remain separate in the candidate description.
+          - RMS, changed-sample count, clipping counts, and stereo correlation delta are diagnostics only; without an independent reference, reference-based SNR values remain absent. These measures do not establish perceived improvement or quality.
           - The exact consumed source artifact/version and applicable rights decision govern source-derived lineage; an available reference that was not consumed is not lineage, and these source-requiring leaves do not describe source-free creation.
           - The output is a local candidate/draft with the source preserved; it does not state that a canonical revision was committed, the candidate was accepted, or a final artifact was produced.
         unknownDisposition: If the effective transformation, exact consumed source/version, applicable measurement or its scope cannot be established, retain the result as UNKNOWN or the measurement as NOT_EVALUATED/ABSTAINED with its reason. Do not infer success, failure, improvement, recovered detail, source linkage, dispatch, or retry safety.
@@ -82878,8 +82903,9 @@ capabilities:
           - .product-experience/pdp-0-product-truth/journey-catalog.yaml#/journeys/@id=J-19
           - .product-experience/pdp-0-product-truth/quality-policy.yaml#/ownerEnhancementSelectionRule
           - .product-experience/pdp-0-product-truth/capabilities.yaml#capabilities/@id=media.enhance.audio.noise-suppression/preconditions
+          - .product-experience/decision-log.md#PXD-250
       effect:
-        semanticOutcome: For the requested task to suppress audio noise, the result is a local derived-audio candidate based on the exact audio artifact actually consumed, with the source preserved and the declared measurement output kept distinct from signal content. The preservation-and-enhancement policy supplies the task intent; no additional parameters, model, provider, or method are selected by this capability definition. Any estimated or reconstructed signal detail is disclosed as such and is not presented as recovered source truth. The candidate does not itself change the source or establish downstream acceptance.
+        semanticOutcome: For the requested task to suppress audio noise, the result is a local derived-audio candidate based on the exact audio artifact actually consumed, with the source preserved and measurements kept distinct from signal content. The caller supplies a half-open noise-only frame range for that exact source version and selects the fixed RMS_BLOCK_GATE_V1 profile; the range is never inferred or classified by Media. The profile uses the deterministic speech-audio-rust block RMS gate with thresholdMultiple 2.0, floorGain 0.08, and blockFrames 256. Any estimated or reconstructed signal detail is disclosed as such and is not presented as recovered source truth. The candidate does not itself change the source or establish downstream acceptance.
         sourcePreservationRequired: true
         noSilentFallback: true
         effectIntentScope: LOCAL_CANDIDATE_OR_DRAFT

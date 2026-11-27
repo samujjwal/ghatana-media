@@ -118,6 +118,7 @@ public final class MediaSecurityFilter implements HttpHandler {
             String authorization = exchange.getRequestHeaders().getFirst(SecurityFilterSupport.HEADER_AUTHORIZATION);
             boolean hasApiKey = exchange.getRequestHeaders().getFirst(SecurityFilterSupport.HEADER_API_KEY) != null;
             MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated = null;
+            VerifiedIdentity verifiedIdentity = null;
             if (hasApiKey && authorization != null) {
                 SecurityFilterSupport.sendError(exchange, 401, "AMBIGUOUS_CREDENTIALS", "Use one authentication mechanism");
                 return;
@@ -212,8 +213,10 @@ public final class MediaSecurityFilter implements HttpHandler {
                 }
                 replaceHint(exchange, SecurityFilterSupport.HEADER_TENANT_ID, identity.tenantId());
                 replaceHint(exchange, "X-Principal-Id", identity.subject());
-                authenticated = new MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
-                        identity.tenantId(), identity.subject(), clock.instant(), AssuranceSource.SHARED_SECRET_JWT);
+                verifiedIdentity = new VerifiedIdentity(
+                        identity.issuer(), identity.subject(), identity.tenantId(), clock.instant(),
+                        AssuranceSource.SHARED_SECRET_JWT);
+                authenticated = verifiedIdentity.toAuthenticatedPrincipal();
             } else if (!devIdentityEnabled && !productionLike) {
                 // Local identities are intentionally synthetic and cannot be selected by clients.
                 // Tenant remains a fixture input in local profiles; production uses verified JWT
@@ -236,9 +239,12 @@ public final class MediaSecurityFilter implements HttpHandler {
                 // The controller consumes this server-side context. Request headers remain useful
                 // for compatibility, but are never the controller's source of identity.
                 exchange.setAttribute(AUTHENTICATED_PRINCIPAL_ATTRIBUTE, authenticated);
-                exchange.setAttribute(VERIFIED_IDENTITY_ATTRIBUTE, new VerifiedIdentity(
-                        nonIdpIssuer(authenticated.assurance()), authenticated.principalId(),
-                        authenticated.tenantId(), authenticated.authenticatedAt(), authenticated.assurance()));
+                if (verifiedIdentity == null) {
+                    verifiedIdentity = new VerifiedIdentity(
+                            nonIdpIssuer(authenticated.assurance()), authenticated.principalId(),
+                            authenticated.tenantId(), authenticated.authenticatedAt(), authenticated.assurance());
+                }
+                exchange.setAttribute(VERIFIED_IDENTITY_ATTRIBUTE, verifiedIdentity);
             }
             support.handle(exchange);
         } catch (Exception e) {

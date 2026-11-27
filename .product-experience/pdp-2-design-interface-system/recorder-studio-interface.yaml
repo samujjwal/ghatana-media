@@ -693,6 +693,21 @@ pdp0AcceptanceCaseProjection:
       surfaceId: media.surface.capture-adapters
       presentation: provider-inspection-and-declared-signal-matrix
       denialRecovery: unavailable-when-unsupported
+      captureIndicatorContract:
+        decisionRef: PXD-251
+        observation: "Use only the host-observed selected MediaStreamTrack and host permission state; camera maps to video tracks and microphone maps to audio tracks. Unknown track readback remains UNKNOWN."
+        states:
+          "LIVE + GRANTED": "ON"
+          "no selected live track + GRANTED": "OFF"
+          "PROMPT or UNKNOWN permission": "UNKNOWN_AWAITING_PERMISSION"
+          "DENIED or REVOKED permission": "BLOCKED"
+          "ended track or closed stream": "OFF_ENDED"
+        precedence: "DENIED or REVOKED is BLOCKED; PROMPT or UNKNOWN permission is UNKNOWN_AWAITING_PERMISSION; then ended/closed track is OFF_ENDED; ON requires a matching live track and GRANTED permission."
+        constraints:
+          - "Presentation communicates host-observed activity and permission state only; it is not permission, consent, rights, or authorization evidence."
+          - "The indicator never opens a device, requests permission, prompts the browser, or automatically reopens capture."
+          - "Keep camera and microphone indicators distinct and omit device IDs and device labels."
+          - "Use the existing source-selection and capture action path for device opening; this presentation adds no action or admission."
     - id: media.recorder.p2.group.exec.v1
       pdp1OperationRefs: [media.recorder.operation.run.submit.v1, media.recorder.operation.run.observe.v1, media.recorder.operation.run.reconcile.v1]
       cases: [MEDIA-REC-P0-AC-012, MEDIA-REC-P0-AC-013, MEDIA-REC-P0-AC-014, MEDIA-REC-P0-AC-015, MEDIA-REC-P0-AC-016]

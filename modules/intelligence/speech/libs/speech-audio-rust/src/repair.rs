@@ -15,6 +15,9 @@ const MAX_DECLIP_RUN_FRAMES: usize = 4_096;
 const MAX_REPAIR_CHANNELS: u16 = 8;
 const MAX_REPAIR_SAMPLE_RATE: u32 = 768_000;
 
+/// Fixed profile selected for the bounded local noise-suppression operation.
+pub const RMS_BLOCK_GATE_V1: &str = "RMS_BLOCK_GATE_V1";
+
 #[derive(Debug, Clone, Copy)]
 pub struct RepairLimits {
     pub max_samples: usize,
@@ -98,6 +101,58 @@ impl NoiseProfile {
             rms_by_channel,
             profile_frames,
         })
+    }
+}
+
+/// Caller-designated half-open noise-only frame span in one decoded source.
+///
+/// The span is never inferred from the waveform. Frame offsets refer to PCM
+/// frames (all interleaved channels at one time position), not sample indices.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct NoiseOnlyFrameRange {
+    start_frame: usize,
+    end_frame: usize,
+}
+
+impl NoiseOnlyFrameRange {
+    /// Create a non-empty range within the crate's fixed profiling budget.
+    pub fn new(start_frame: usize, end_frame: usize) -> Result<Self> {
+        if start_frame >= end_frame {
+            return Err(SpeechAudioError::InvalidInput(
+                "noise-only frame range must be a non-empty half-open span".into(),
+            ));
+        }
+        if end_frame - start_frame > MAX_PROFILE_FRAMES {
+            return Err(SpeechAudioError::ResourceLimit(
+                "noise-only frame range exceeds the configured frame budget".into(),
+            ));
+        }
+        Ok(Self {
+            start_frame,
+            end_frame,
+        })
+    }
+
+    pub fn start_frame(self) -> usize {
+        self.start_frame
+    }
+
+    pub fn end_frame(self) -> usize {
+        self.end_frame
+    }
+
+    fn validate_for(self, source_frames: usize) -> Result<()> {
+        if self.start_frame >= self.end_frame || self.end_frame > source_frames {
+            return Err(SpeechAudioError::InvalidInput(
+                "noise-only frame range must be non-empty and within the decoded source".into(),
+            ));
+        }
+        if self.end_frame - self.start_frame > MAX_PROFILE_FRAMES {
+            return Err(SpeechAudioError::ResourceLimit(
+                "noise-only frame range exceeds the configured frame budget".into(),
+            ));
+        }
+        Ok(())
     }
 }
 
@@ -389,6 +444,73 @@ impl AudioComparison {
     }
 }
 
+/// Immutable candidate and diagnostics for the fixed RMS_BLOCK_GATE_V1 profile.
+///
+/// The comparison retains an owned source snapshot and a separate candidate.
+/// Metrics are waveform diagnostics only; reference-based SNR is absent unless
+/// a separate compatible reference was supplied. This API does not qualify
+/// perceptual or speech quality.
+#[derive(Debug, Clone, PartialEq)]
+pub struct NoiseSuppressionComparison {
+    comparison: AudioComparison,
+    noise_range: NoiseOnlyFrameRange,
+}
+
+impl NoiseSuppressionComparison {
+    /// The fixed profile identifier selected for this candidate.
+    pub fn profile_ref(&self) -> &'static str {
+        RMS_BLOCK_GATE_V1
+    }
+
+    /// The caller-designated half-open noise-only frame range.
+    pub fn noise_range(&self) -> NoiseOnlyFrameRange {
+        self.noise_range
+    }
+
+    pub fn source(&self) -> &AudioBuffer {
+        self.comparison.source()
+    }
+
+    /// Borrow the distinct derived candidate.
+    pub fn candidate(&self) -> &AudioBuffer {
+        self.comparison.repaired()
+    }
+
+    /// Borrow the waveform diagnostics calculated for source and candidate.
+    pub fn metrics(&self) -> &AudioQualityMetrics {
+        self.comparison.metrics()
+    }
+
+    /// Return an exact copy of the immutable source snapshot for undo/revert.
+    pub fn undo(&self) -> Result<AudioBuffer> {
+        self.comparison.undo()
+    }
+}
+
+/// Build a candidate using only the fixed RMS_BLOCK_GATE_V1 profile.
+///
+/// `noise_range` must be designated by the caller for this exact decoded
+/// `input`; this function does not infer noise segments. A supplied `reference`
+/// must be an independent compatible audio value. No candidate is returned if
+/// range validation, DSP, or comparison fails.
+pub fn suppress_noise(
+    input: &AudioBuffer,
+    noise_range: NoiseOnlyFrameRange,
+    reference: Option<&AudioBuffer>,
+) -> Result<NoiseSuppressionComparison> {
+    validate_buffer(input, RepairLimits::DEFAULT)?;
+    noise_range.validate_for(input.frame_count())?;
+
+    let profile =
+        NoiseProfile::estimate(input, noise_range.start_frame(), noise_range.end_frame())?;
+    let candidate = denoise(input, &profile, DenoiseOptions::DEFAULT)?;
+    let comparison = compare_audio(input, &candidate, reference)?;
+    Ok(NoiseSuppressionComparison {
+        comparison,
+        noise_range,
+    })
+}
+
 /// Build an owned source/repaired comparison pair and compare an optional independent
 /// reference. SNR is omitted unless the reference has the exact same PCM shape.
 pub fn compare_audio(
@@ -584,6 +706,128 @@ mod tests {
     }
 
     #[test]
+    fn noise_suppression_rejects_malformed_out_of_bounds_and_over_limit_ranges() {
+        assert!(matches!(
+            NoiseOnlyFrameRange::new(4, 4),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+        assert!(matches!(
+            NoiseOnlyFrameRange::new(5, 4),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+        assert!(matches!(
+            NoiseOnlyFrameRange::new(0, MAX_PROFILE_FRAMES + 1),
+            Err(SpeechAudioError::ResourceLimit(_))
+        ));
+
+        let input = mono(vec![0.01; 16]);
+        let original = input.clone();
+        let out_of_bounds = NoiseOnlyFrameRange::new(8, 17).unwrap();
+        assert!(matches!(
+            suppress_noise(&input, out_of_bounds, None),
+            Err(SpeechAudioError::InvalidInput(_))
+        ));
+        assert_eq!(input, original, "rejection must preserve the source");
+    }
+
+    #[test]
+    fn fixed_noise_suppression_attenuates_designated_noise_deterministically() {
+        let mut samples = Vec::with_capacity(512);
+        for frame in 0..512 {
+            let noise = if frame % 2 == 0 { 0.01 } else { -0.01 };
+            let speech = if frame >= 256 { 0.35 } else { 0.0 };
+            samples.push(noise + speech);
+        }
+        let input = mono(samples);
+        let original = input.clone();
+        let range = NoiseOnlyFrameRange::new(0, 128).unwrap();
+
+        let first = suppress_noise(&input, range, None).unwrap();
+        let second = suppress_noise(&input, range, None).unwrap();
+
+        assert_eq!(first.profile_ref(), "RMS_BLOCK_GATE_V1");
+        assert_eq!(first.noise_range(), range);
+        assert_eq!(first.candidate(), second.candidate());
+        assert_eq!(input, original, "candidate creation must not mutate source");
+        let input_noise_rms = rms(&input.samples[..256]);
+        let candidate_noise_rms = rms(&first.candidate().samples[..256]);
+        assert!(candidate_noise_rms < input_noise_rms);
+        assert!(candidate_noise_rms > 0.0);
+        assert!(rms(&first.candidate().samples[448..]) > 0.3);
+        assert_eq!(first.metrics().source_snr_db_vs_reference, None);
+        assert_eq!(first.metrics().snr_db_vs_reference, None);
+        assert!(first.metrics().changed_sample_count > 0);
+    }
+
+    #[test]
+    fn fixed_noise_suppression_preserves_silence_and_exact_source_undo() {
+        let input = mono(vec![0.0; 512]);
+        let original = input.clone();
+        let comparison =
+            suppress_noise(&input, NoiseOnlyFrameRange::new(0, 256).unwrap(), None).unwrap();
+
+        assert_eq!(comparison.candidate(), &original);
+        assert_eq!(comparison.source(), &original);
+        assert_eq!(comparison.undo().unwrap(), original);
+        assert_eq!(&input, comparison.source());
+        assert_eq!(comparison.metrics().source_snr_db_vs_reference, None);
+        assert_eq!(comparison.metrics().snr_db_vs_reference, None);
+
+        let mut samples = vec![0.0; 512];
+        samples[256] = -0.0;
+        samples[301] = 0.125;
+        samples[477] = -0.375;
+        let exact_source = mono(samples);
+        let source_bits: Vec<_> = exact_source
+            .samples
+            .iter()
+            .map(|sample| sample.to_bits())
+            .collect();
+        let exact_comparison = suppress_noise(
+            &exact_source,
+            NoiseOnlyFrameRange::new(0, 256).unwrap(),
+            None,
+        )
+        .unwrap();
+
+        let undone = exact_comparison.undo().unwrap();
+        let undone_bits: Vec<_> = undone
+            .samples
+            .iter()
+            .map(|sample| sample.to_bits())
+            .collect();
+        assert_eq!(undone_bits, source_bits);
+    }
+
+    #[test]
+    fn fixed_noise_suppression_uses_shared_stereo_gain_and_preserves_phase_relation() {
+        let config = crate::AudioConfig {
+            sample_rate: 8_000,
+            channels: 2,
+            sample_format: SampleFormat::F32,
+        };
+        let mut samples = Vec::with_capacity(512 * 2);
+        for frame in 0..512 {
+            let noise = if frame % 2 == 0 { 0.01 } else { -0.01 };
+            let speech = if frame >= 256 { 0.25 } else { 0.0 };
+            let left = noise + speech;
+            samples.extend_from_slice(&[left, -left * 0.5]);
+        }
+        let input = AudioBuffer::new(samples, config);
+        let original = input.clone();
+        let comparison =
+            suppress_noise(&input, NoiseOnlyFrameRange::new(0, 128).unwrap(), None).unwrap();
+
+        assert_eq!(input, original);
+        for frame in [8usize, 80, 180, 300, 400, 500] {
+            let left = comparison.candidate().samples[frame * 2];
+            let right = comparison.candidate().samples[frame * 2 + 1];
+            assert!((right + left * 0.5).abs() < 1.0e-7);
+        }
+        assert!(comparison.metrics().stereo_correlation_delta.unwrap() < 1.0e-12);
+    }
+
+    #[test]
     fn noise_gate_reduces_noise_and_preserves_source_for_comparison() {
         let mut source = vec![0.01f32; 512];
         for value in &mut source[256..384] {
@@ -676,7 +920,12 @@ mod tests {
         };
 
         assert!(matches!(
-            denoise_bounded(&input, &mismatched, DenoiseOptions::DEFAULT, RepairLimits::DEFAULT),
+            denoise_bounded(
+                &input,
+                &mismatched,
+                DenoiseOptions::DEFAULT,
+                RepairLimits::DEFAULT
+            ),
             Err(SpeechAudioError::InvalidInput(_))
         ));
         assert_eq!(input.samples, original_samples);

@@ -20,8 +20,9 @@ use thiserror::Error;
 
 mod repair;
 pub use repair::{
-    compare_audio, declip, declip_bounded, denoise, AudioComparison, AudioQualityMetrics,
-    DenoiseOptions, NoiseProfile, RepairLimits,
+    compare_audio, declip, declip_bounded, denoise, suppress_noise, AudioComparison,
+    AudioQualityMetrics, DenoiseOptions, NoiseOnlyFrameRange, NoiseProfile,
+    NoiseSuppressionComparison, RepairLimits, RMS_BLOCK_GATE_V1,
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

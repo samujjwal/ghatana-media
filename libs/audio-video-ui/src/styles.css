@@ -169,6 +169,27 @@
 .media-progress::-webkit-progress-value { border-radius: inherit; background: currentColor; }
 .media-progress::-moz-progress-bar { border-radius: inherit; background: currentColor; }
 .media-task-flow .media-progress { margin-block-start: .75rem; }
+.media-capture-indicator {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: .25rem .5rem;
+}
+.media-capture-indicator__light {
+  display: inline-block;
+  flex: 0 0 .65em;
+  width: .65em;
+  height: .65em;
+  border-radius: 50%;
+  background: GrayText;
+}
+.media-capture-indicator[data-state="on"] .media-capture-indicator__light { background: LinkText; }
+.media-capture-indicator[data-state="awaiting-permission"] .media-capture-indicator__light { background: Mark; }
+.media-capture-indicator[data-state="blocked"] .media-capture-indicator__light { background: MarkText; }
+.media-capture-indicator[data-state="off"] .media-capture-indicator__light,
+.media-capture-indicator[data-state="ended"] .media-capture-indicator__light,
+.media-capture-indicator[data-state="unknown"] .media-capture-indicator__light { background: GrayText; }
+.media-capture-indicator__scope { color: GrayText; font-size: .875em; }
 .media-task-flow progress:not(.media-progress) {
   display: block;
   width: 100%;

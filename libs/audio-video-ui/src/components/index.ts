@@ -1,6 +1,14 @@
 export { MediaTaskFlow } from "./MediaTaskFlow";
 export { MediaProgress } from "./MediaProgress";
 export type { MediaProgressProps, MediaProgressTone } from "./MediaProgress";
+export { MediaCaptureIndicator, deriveCaptureIndicatorState } from "./MediaCaptureIndicator";
+export type {
+  CaptureIndicatorDevice,
+  CaptureIndicatorPermission,
+  CaptureIndicatorState,
+  HostSelectedTrackObservation,
+  MediaCaptureIndicatorProps,
+} from "./MediaCaptureIndicator";
 export {
   IdentityContextBoundary,
   IntentLauncher,
