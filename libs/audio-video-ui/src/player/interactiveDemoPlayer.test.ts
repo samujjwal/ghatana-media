@@ -280,6 +280,41 @@ describe("interactive demo player", () => {
     expect(createDemoPlayerState(allowedCaption, testAuthority(allowedCaption)).status).toBe("READY");
   });
 
+  it("rejects remote plaintext origins while allowing loopback preview", () => {
+    const insecureHost: InteractiveDemoManifest = { ...BASE, hostOrigin: "http://media.example.test" };
+    expect(createDemoPlayerState(insecureHost, testAuthority(insecureHost, {
+      actualEmbeddingOrigin: "http://media.example.test",
+    }))).toMatchObject({ status: "POLICY_DENIED", failure: "INVALID_ORIGIN" });
+
+    const insecureAsset: InteractiveDemoManifest = {
+      ...BASE,
+      scenes: BASE.scenes.map((scene, index) => index === 0
+        ? { ...scene, asset: { ...scene.asset, url: "http://cdn.example.test/intro.mp4" } }
+        : scene),
+    };
+    expect(createDemoPlayerState(insecureAsset, testAuthority(insecureAsset))).toMatchObject({
+      status: "POLICY_DENIED",
+      failure: "UNAUTHORIZED_ASSET_ORIGIN",
+    });
+
+    const insecureCaption: InteractiveDemoManifest = {
+      ...BASE,
+      scenes: BASE.scenes.map((scene, index) => index === 0
+        ? { ...scene, captions: { ...scene.captions, sourceUrl: "http://cdn.example.test/intro.vtt" } }
+        : scene),
+      originPermissions: [{ origin: "https://cdn.example.test", capabilities: ["read-caption"] }],
+    };
+    expect(createDemoPlayerState(insecureCaption, testAuthority(insecureCaption))).toMatchObject({
+      status: "POLICY_DENIED",
+      failure: "UNAUTHORIZED_CAPTION_ORIGIN",
+    });
+
+    const loopbackHost: InteractiveDemoManifest = { ...BASE, hostOrigin: "http://127.0.0.1:4173" };
+    expect(createDemoPlayerState(loopbackHost, testAuthority(loopbackHost, {
+      actualEmbeddingOrigin: "http://127.0.0.1:4173",
+    })).status).toBe("READY");
+  });
+
   it("blocks stale asset revisions and captions bound to another immutable asset", () => {
     const staleAsset = {
       ...BASE,

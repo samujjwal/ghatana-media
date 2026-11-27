@@ -254,7 +254,7 @@ describe("MediaProductRenderer", () => {
         sizeBytes: 128,
         sha256: "a".repeat(64),
         objectReference: "opaque-ref",
-        classification: "INTERNAL",
+        classification: "INTERNAL" as const,
         createdAt: "2026-11-01T12:00:00Z",
         expiresAt: "2026-12-01T12:00:00Z",
         metadata: {},

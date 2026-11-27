@@ -177,6 +177,12 @@ function exactOrigin(value: string): string | undefined {
     ) {
       return undefined;
     }
+    // Remote plaintext origins cannot preserve the manifest and media integrity
+    // checks across the network. Keep HTTP only for local development hosts.
+    const localDevelopmentHost = ["localhost", "127.0.0.1", "[::1]"].includes(parsed.hostname.toLowerCase());
+    if (parsed.protocol === "http:" && !localDevelopmentHost) {
+      return undefined;
+    }
     return parsed.origin;
   } catch {
     return undefined;

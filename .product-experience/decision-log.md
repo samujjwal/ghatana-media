@@ -3433,3 +3433,15 @@ This equality check is an identity-consistency guard only. It does not prove the
 **Negative acceptance criteria:** Do not infer or publish a product, API, UI, or runtime default from this fixture or from the implementation. Do not apply this binding to real/source media or claim restoration quality, denoising effectiveness, motion/detail preservation, or user-visible improvement. The repeated `a`/`b` SHA strings, synthetic rights references, synthetic `allowed(...)` callbacks, and generated reference pixels are test placeholders; they prove no source provenance, rights, consent, policy authorization, independent review, or quality. Exact-reference metrics in this fixture establish only deterministic comparison with its synthetic expected pixels. Do not infer codec, playable-video, provider, external-system, production, or release support.
 
 **Limits:** This decision permits only the named local test to exercise the existing deterministic profile and its preservation invariants. PDP-1's empty parameter schema remains unchanged; PDP-0's no-inferred-default rule remains in force, and PDP-2 is unchanged. No external or qualified approval, source admission, closure, or production qualification is recorded.
+
+### PXD-263 — Require TLS for remote interactive-player origins
+
+**Authority:** Delegated Media technical product-owner decision under the user's explicit instruction to decide and continue. This clarifies the existing interactive-player network-egress guard; it does not admit a hosted player or grant asset rights.
+
+**Source basis:** PDP-2 `recorder-studio-interface.yaml` defines the interactive-demo-player security requirements `content-security-policy`, `signed-bundle-integrity`, and `no-unapproved-network-egress`, and requires a sandboxed player without privileged actions. The player already requires exact host attestation and explicit per-origin capabilities, and renders media without ambient credentials.
+
+**Decision:** Require HTTPS for every non-loopback player-host, asset, and caption origin. Permit HTTP only for loopback local preview at `localhost`, `127.0.0.1`, or `[::1]`. Apply the same URL-origin validation to the host origin and all asset/caption origins. The loopback exception is for local development only and never establishes hosted behavior. HTTPS does not replace exact-origin capability, current host attestation, asset/caption rights, content-integrity verification, or the no-credential sandbox requirements.
+
+**Negative criteria:** Do not permit a remote HTTP origin through a manifest capability or host attestation. Do not treat the loopback exception as runtime admission, a secure remote asset, source-rights evidence, or proof of hosted integrity. Do not forward ambient credentials to any player asset origin.
+
+**Limits:** This decision applies the existing PDP-2 origin/egress security guard to transport security; it does not change P1/P2 definitions or host-admission state. No production admission, remote asset integrity proof, external approval, or release qualification is recorded.
