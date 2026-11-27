@@ -257,6 +257,44 @@ class AudioVideoCacheTest {
     }
 
     @Test
+    void currentPolicyEpochChangeWhileProtectedCacheWriteIsPendingInvalidatesOnlyPriorScopeKey() {
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
+        var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 0L);
+        var currentScope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-13", "model-license-v1", 0L);
+        String priorKey = cache.buildScopedKey(scope, "transcript-a");
+        String currentKey = cache.buildScopedKey(currentScope, "transcript-a");
+        CompletableFuture<Void> pendingWrite = new CompletableFuture<>();
+        when(port.get(priorKey)).thenReturn(AsyncOperation.success(Optional.empty()));
+        when(port.put(eq(priorKey), eq("protected source value"), any(Duration.class)))
+                .thenReturn(AsyncOperation.from(pendingWrite));
+        when(port.invalidateAsync(priorKey)).thenReturn(AsyncOperation.success(null));
+        AtomicReference<AudioVideoCache.CacheKeyScope> observedScope = new AtomicReference<>(scope);
+
+        String value = await(cache.getOrLoadScopedWithAuthority(scope, "transcript-a", requested ->
+                AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(
+                        observedScope.get(), java.time.Instant.now().plusSeconds(3600))),
+                ignored -> AsyncOperation.success("protected source value")));
+
+        assertThat(value).isEqualTo("protected source value");
+        assertThat(pendingWrite).isNotCompleted();
+        verify(port, org.mockito.Mockito.never()).invalidateAsync(priorKey);
+
+        // A current policy observation with a new epoch no longer authorizes the
+        // exact old scope, even though rights still report CURRENT.
+        observedScope.set(currentScope);
+        pendingWrite.complete(null);
+
+        assertThat(currentKey).isNotEqualTo(priorKey);
+        verify(port).invalidateAsync(priorKey);
+        verify(port, org.mockito.Mockito.never()).invalidateAsync(currentKey);
+    }
+
+    @Test
     void sourceRevisionChangeCannotReusePriorProtectedCacheEntry() {
         DistributedCacheService port = mock(DistributedCacheService.class);
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");
