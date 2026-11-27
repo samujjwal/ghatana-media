@@ -20,6 +20,7 @@ import java.security.MessageDigest;
 import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Typed Event Plane client for neutral Media lifecycle events. */
@@ -27,6 +28,9 @@ final class MediaLifecyclePublisher implements MediaLifecycleEventPublisher {
     private static final int MAX_EVENT_PLANE_IDENTIFIER_LENGTH = 255;
     private static final int MAX_APPEND_RECEIPT_BYTES = 8 * 1024;
     private static final int MAX_EVENT_READBACK_BYTES = 64 * 1024;
+    private static final String ACCEPTED_JOB_EVENT_TYPE = "media.job.accepted";
+    private static final Set<String> ACCEPTED_JOB_PAYLOAD_FIELDS =
+            Set.of("jobId", "operationRef", "admissionState");
 
     private final ObjectMapper mapper = JsonMapper.builder().addModules(tools.jackson.databind.cfg.MapperBuilder.findModules()).build();
     private final HttpClient client;
@@ -144,10 +148,12 @@ final class MediaLifecyclePublisher implements MediaLifecycleEventPublisher {
             MediaLifecycleEvent event, boolean exactReadbackRequired) {
         if (!ready()) return null;
         java.util.Objects.requireNonNull(event, "event");
+        boolean acceptedJobEvent = isAcceptedJobEvent(event);
+        validateAcceptedJobEvent(event);
         requireEventPlaneText(event.eventId(), "eventId");
         requireEventPlaneText(event.eventType(), "eventType");
         requireEventPlaneText(event.tenantId(), "tenantId");
-        requireEventPlaneText(event.principalId(), "principalId");
+        if (!acceptedJobEvent) requireEventPlaneText(event.principalId(), "principalId");
         requireEventPlaneText(event.correlationId(), "correlationId");
         if (!event.causationId().isBlank()) requireEventPlaneText(event.causationId(), "causationId");
         byte[] requestBody;
@@ -160,8 +166,9 @@ final class MediaLifecyclePublisher implements MediaLifecycleEventPublisher {
             body.put("correlationId", event.correlationId());
             if (!event.causationId().isBlank()) body.put("causationId", event.causationId());
             body.put("source", "media");
-            body.put("userId", event.principalId());
+            if (!acceptedJobEvent) body.put("userId", event.principalId());
             body.put("contentType", "application/json");
+            if (acceptedJobEvent) body.put("headers", mediaEventHeaders(event));
             body.put("payload", lifecyclePayload(event));
             requestBody = mapper.writeValueAsBytes(body);
         } catch (Exception failure) {
@@ -199,10 +206,14 @@ final class MediaLifecyclePublisher implements MediaLifecycleEventPublisher {
                         .header("Content-Type", "application/json")
                         .header("Accept", "application/json")
                         .header("X-Tenant-Id", event.tenantId())
-                        .header("X-Principal-Id", event.principalId())
-                        .header("X-Correlation-Id", event.correlationId())
-                        .header("Idempotency-Key", idempotencyKey)
-                        .POST(HttpRequest.BodyPublishers.ofByteArray(requestBody));
+                        .header("Idempotency-Key", idempotencyKey);
+                // Event Plane authentication derives this principal from the verified relay
+                // workload credential. The submitting actor is event provenance, not authority.
+                if (!acceptedJobEvent) {
+                    request.header("X-Principal-Id", event.principalId());
+                    request.header("X-Correlation-Id", event.correlationId());
+                }
+                request.POST(HttpRequest.BodyPublishers.ofByteArray(requestBody));
                 if (!bearerToken.isBlank()) request.header("Authorization", "Bearer " + bearerToken);
                 HttpResponse<InputStream> response = client.send(
                         request.build(), HttpResponse.BodyHandlers.ofInputStream());
@@ -319,15 +330,18 @@ final class MediaLifecyclePublisher implements MediaLifecycleEventPublisher {
     }
 
     private LookupResult lookup(MediaLifecycleEvent event, String idempotencyKey) throws Exception {
+        boolean acceptedJobEvent = isAcceptedJobEvent(event);
         URI lookupUri = URI.create(readEndpoint.toString()
                 + URLEncoder.encode(event.eventId(), StandardCharsets.UTF_8).replace("+", "%20"));
         HttpRequest.Builder request = HttpRequest.newBuilder(lookupUri)
                 .timeout(timeout)
                 .header("Accept", "application/json")
-                .header("X-Tenant-Id", event.tenantId())
-                .header("X-Principal-Id", event.principalId())
-                .header("X-Correlation-Id", event.correlationId())
-                .GET();
+                .header("X-Tenant-Id", event.tenantId());
+        if (!acceptedJobEvent) {
+            request.header("X-Principal-Id", event.principalId());
+            request.header("X-Correlation-Id", event.correlationId());
+        }
+        request.GET();
         if (!readerBearerToken.isBlank()) request.header("Authorization", "Bearer " + readerBearerToken);
         HttpResponse<InputStream> response = client.send(request.build(), HttpResponse.BodyHandlers.ofInputStream());
         if (response.statusCode() == 404) {
@@ -371,12 +385,17 @@ final class MediaLifecyclePublisher implements MediaLifecycleEventPublisher {
         if (!(rawHeaders instanceof Map<?, ?> headers)) {
             throw new IllegalStateException("Event Plane exact lookup is missing headers");
         }
-        Map<String, String> expectedHeaders = Map.of(
-                "tenantId", event.tenantId(),
-                "principalId", event.principalId(),
-                "callerEventId", event.eventId(),
-                "streamId", streamId,
-                "correlationId", event.correlationId());
+        boolean acceptedJobEvent = isAcceptedJobEvent(event);
+        Object storedPrincipal = headers.get("principalId");
+        if (!(storedPrincipal instanceof String principalText) || principalText.isBlank()) {
+            throw new IllegalStateException("Event Plane exact lookup is missing its authenticated principal");
+        }
+        Map<String, String> expectedHeaders = new LinkedHashMap<>(mediaEventHeaders(event));
+        expectedHeaders.put("tenantId", event.tenantId());
+        expectedHeaders.put("principalId", acceptedJobEvent ? principalText : event.principalId());
+        expectedHeaders.put("callerEventId", event.eventId());
+        expectedHeaders.put("streamId", streamId);
+        expectedHeaders.put("correlationId", event.correlationId());
         Object rawCausationId = record.get("causationId");
         String causationId = rawCausationId instanceof String text ? text : "";
         Object rawPayload = record.get("payload");
@@ -399,7 +418,9 @@ final class MediaLifecyclePublisher implements MediaLifecycleEventPublisher {
                 || !isNonNegativeOffset(offset)
                 || !expectedHeaders.equals(headers)
                 || !"media".equals(record.get("source"))
-                || !event.principalId().equals(record.get("userId"))
+                || (acceptedJobEvent
+                        ? record.containsKey("userId")
+                        : !event.principalId().equals(record.get("userId")))
                 || !event.correlationId().equals(record.get("correlationId"))
                 || !event.causationId().equals(causationId)) {
             throw new IllegalStateException("Event Plane exact lookup does not match the immutable Media event");
@@ -408,6 +429,10 @@ final class MediaLifecyclePublisher implements MediaLifecycleEventPublisher {
     }
 
     private Map<String, Object> lifecyclePayload(MediaLifecycleEvent event) {
+        if (isAcceptedJobEvent(event)) {
+            validateAcceptedJobEvent(event);
+            return new LinkedHashMap<>(event.attributes());
+        }
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("aggregateType", event.aggregateType());
         payload.put("aggregateId", event.aggregateId());
@@ -415,6 +440,40 @@ final class MediaLifecyclePublisher implements MediaLifecycleEventPublisher {
         payload.put("classification", event.classification());
         payload.put("attributes", event.attributes());
         return payload;
+    }
+
+    private Map<String, String> mediaEventHeaders(MediaLifecycleEvent event) {
+        if (!isAcceptedJobEvent(event)) return Map.of();
+        validateAcceptedJobEvent(event);
+        return Map.of(
+                "media.aggregateType", event.aggregateType(),
+                "media.aggregateId", event.aggregateId(),
+                "media.aggregateVersion", Long.toString(event.aggregateVersion()),
+                "media.dataClassification", event.classification());
+    }
+
+    private static boolean isAcceptedJobEvent(MediaLifecycleEvent event) {
+        return ACCEPTED_JOB_EVENT_TYPE.equals(event.eventType());
+    }
+
+    private static void validateAcceptedJobEvent(MediaLifecycleEvent event) {
+        if (!isAcceptedJobEvent(event)) return;
+        Map<String, Object> payload = event.attributes();
+        Object rawJobId = payload.get("jobId");
+        Object rawOperation = payload.get("operationRef");
+        Object rawAdmissionState = payload.get("admissionState");
+        String jobId = rawJobId instanceof String text ? text : "";
+        if (!ACCEPTED_JOB_PAYLOAD_FIELDS.equals(payload.keySet())
+                || !"processing-job".equals(event.aggregateType())
+                || !event.aggregateId().equals(jobId)
+                || !("media:" + ACCEPTED_JOB_EVENT_TYPE + ":" + jobId + ":" + event.aggregateVersion())
+                        .equals(event.eventId())
+                || !"media.operation-slice.submit-job".equals(rawOperation)
+                || !"ACCEPTED".equals(rawAdmissionState)
+                || !Set.of("INTERNAL", "CONFIDENTIAL", "RESTRICTED").contains(event.classification())) {
+            throw new IllegalArgumentException(
+                    "media.job.accepted does not match its canonical Media event contract");
+        }
     }
 
     private static String tenantScopedIdempotencyKey(String tenantId, String eventId) {

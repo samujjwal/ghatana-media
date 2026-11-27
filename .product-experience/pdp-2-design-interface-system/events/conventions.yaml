@@ -125,6 +125,40 @@ sourceDefinedEventBindings:
     directPublication: removed-for-this-event-only
     classification: max(INTERNAL, source-artifact-classification); PUBLIC-maps-to-INTERNAL; unknown-fails-closed
     scope: source-defined-contract-and-local-implementation; execution-admission-remains-NOT_ADMITTED
+    eventPlaneProjection:
+      ownerDecisionRef: .product-experience/decision-log.md#PXD-246
+      status: media-defined-request-mapping; Event-Plane-owner-acceptance-and-runtime-admission-not-implied
+      contractRef: ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/paths/~1api~1v1~1streams~1{streamId}~1events/post
+      request:
+        eventId: eventId
+        eventType: eventType
+        eventVersion: eventVersion
+        timestamp: occurredAt
+        correlationId: correlationId
+        causationId: causationId-when-nonblank
+        source: media
+        contentType: application/json
+        payload: exact-event-payload
+        idempotencyHeader: Idempotency-Key=tenant-scoped-stable-key-from-tenantId-and-eventId
+        tenantHeader: trusted-event-tenantId; Event-Plane-authentication-must-confirm-same-tenant
+        headers:
+          media.aggregateType: aggregateType
+          media.aggregateId: aggregateId
+          media.aggregateVersion: aggregateVersion-as-base10-string
+          media.dataClassification: classification
+        omitted:
+          - userId: source-principal-has-no-Event-Plane-userId-authority-mapping
+          - X-Principal-Id: Event-Plane-authentication-resolves-relay-workload-principal
+          - X-Correlation-Id: body-correlationId-is-canonical-and-platform-populates-record-header
+          - principalRef: absent-unless-host-resolved-Kernel-principal-contract-is-available
+      acceptedJobPayload: {jobId: aggregateId, operationRef: media.operation-slice.submit-job, admissionState: ACCEPTED}
+      exactReadback: compare-all-source-event-fields-and-media-prefixed-headers; accept-only-verified-nonblank-platform-principal-header-without-matching-it-to-submitting-actor
+      sourceRefs:
+        - .product-experience/pdp-1-domain-data/events.yaml#id=media.event-contract.media-job-accepted
+        - ../ghatana/services/event-plane/contracts/openapi/event-plane.yaml#/components/schemas/AppendEventRequest
+        - ../ghatana/services/event-plane/launcher/src/main/java/com/ghatana/event/plane/launcher/EventPlaneSecurityFilter.java
+        - ../ghatana/services/event-plane/launcher/src/main/java/com/ghatana/event/plane/launcher/EventPlaneHttpHandler.java#event
+      negativeCases: [nested-or-extra-accepted-payload-fields, caller-principal-as-Event-Plane-principal, caller-principal-as-userId, caller-supplied-principalRef, mismatched-tenant, wrong-aggregate-or-classification-header]
     negativeCases: [duplicate-event-on-request-replay, backfill-legacy-job-without-V016-intent, direct-parallel-publication, V011-forward-or-delete, terminal-or-cancel-event-mapping, extra-payload-fields, pre-commit-publication]
     sourceRefs:
       - .product-experience/pdp-1-domain-data/events.yaml#id=media.event-contract.media-job-accepted
@@ -161,8 +195,8 @@ rules:
 mediaOwnerDefinitionDecision:
   status: MEDIA_OWNER_DEFINED_DEFINITION_ONLY
   authority: User-delegated Media product-semantic owner under the PDP-0–PDP-3 mandate
-  scope: The additive event meaning boundaries below; no taxonomy, platform, wire compatibility, owner acceptance, or delivery guarantee is established.
-  excluded: [canonical-event-taxonomy, external-event-owner-acceptance, end-to-end-durable-Event-Plane-delivery, replay-or-retention-guarantee, consumer-acknowledgement, runtime-admission]
+  scope: The additive event meaning boundaries below and PXD-246's Media-side projection of one source-defined accepted event into the currently published Event Plane request slots; this does not establish Event Plane owner acceptance or a delivery guarantee.
+  excluded: [canonical-event-taxonomy, external-event-owner-acceptance, Event-Plane-contract-acceptance, end-to-end-durable-Event-Plane-delivery, replay-or-retention-guarantee, consumer-acknowledgement, runtime-admission]
 ownerDefinedEventRules:
   - id: media.events.request-fact-finality-boundary.v1
     sourceRefs: [.product-experience/pdp-2-design-interface-system/events/conventions.yaml#committedFactsAndRequests/proposalRules, .product-experience/pdp-2-design-interface-system/events/conventions.yaml#deliveryAndFailure, .product-experience/pdp-1-domain-data/transitions.yaml#ownerDefinedTransitionRecords]

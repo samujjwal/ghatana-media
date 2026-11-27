@@ -104,6 +104,109 @@ class MediaLifecyclePublisherTest {
     }
 
     @Test
+    void acceptedJobUsesCanonicalPayloadAndRelayWorkloadIdentityOnExactReadback() throws Exception {
+        MediaLifecycleEvent accepted = acceptedJobEvent();
+        AtomicReference<String> requestBody = new AtomicReference<>();
+        AtomicReference<String> idempotencyKey = new AtomicReference<>();
+        AtomicReference<String> tenantHeader = new AtomicReference<>();
+        AtomicReference<String> principalHeader = new AtomicReference<>();
+        AtomicReference<String> correlationHeader = new AtomicReference<>();
+        AtomicReference<String> authorizationHeader = new AtomicReference<>();
+        AtomicReference<String> lookupAuthorization = new AtomicReference<>();
+        AtomicInteger appendCalls = new AtomicInteger();
+        AtomicInteger lookupCalls = new AtomicInteger();
+        HttpServer server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        server.createContext("/api/v1/streams/media-lifecycle/events", exchange -> {
+            if ("GET".equals(exchange.getRequestMethod())) {
+                lookupCalls.incrementAndGet();
+                lookupAuthorization.set(exchange.getRequestHeaders().getFirst("Authorization"));
+                byte[] record = validAcceptedReadback(idempotencyKey.get(), "17")
+                        .getBytes(StandardCharsets.UTF_8);
+                try (exchange) {
+                    exchange.sendResponseHeaders(200, record.length);
+                    exchange.getResponseBody().write(record);
+                }
+                return;
+            }
+            appendCalls.incrementAndGet();
+            requestBody.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
+            idempotencyKey.set(exchange.getRequestHeaders().getFirst("Idempotency-Key"));
+            tenantHeader.set(exchange.getRequestHeaders().getFirst("X-Tenant-Id"));
+            principalHeader.set(exchange.getRequestHeaders().getFirst("X-Principal-Id"));
+            correlationHeader.set(exchange.getRequestHeaders().getFirst("X-Correlation-Id"));
+            authorizationHeader.set(exchange.getRequestHeaders().getFirst("Authorization"));
+            exchange.close(); // Simulate a committed append whose HTTP response was lost.
+        });
+        server.start();
+        MediaLifecyclePublicationReceipt receipt;
+        try (MediaLifecyclePublisher publisher = MediaLifecyclePublisher.compose(devRelayEnvironment(Map.of(
+                "MEDIA_EVENT_PLANE_URL", "http://127.0.0.1:" + server.getAddress().getPort())), false)) {
+            receipt = publisher.publishWithReceipt(accepted);
+        } finally {
+            server.stop(0);
+        }
+
+        assertThat(receipt).isEqualTo(new MediaLifecyclePublicationReceipt(
+                accepted.eventId(), MediaLifecyclePublicationReceipt.stableStoredEventId(accepted.eventId()),
+                "media-lifecycle", "17"));
+        assertThat(appendCalls).hasValue(1);
+        assertThat(lookupCalls).hasValue(1);
+        assertThat(idempotencyKey).hasValue(tenantScopedIdempotencyKey(accepted.tenantId(), accepted.eventId()));
+        assertThat(tenantHeader).hasValue(accepted.tenantId());
+        assertThat(principalHeader).hasValue(null);
+        assertThat(correlationHeader).hasValue(null);
+        assertThat(authorizationHeader).hasValue("Bearer dev-event-plane-token");
+        assertThat(lookupAuthorization).hasValue("Bearer dev-event-plane-read-token");
+
+        Map<String, Object> request = mapper.readValue(requestBody.get(), new TypeReference<>() { });
+        assertThat(request.keySet()).containsExactlyInAnyOrderElementsOf(Set.of(
+                "eventId", "eventType", "eventVersion", "timestamp", "correlationId", "causationId",
+                "source", "contentType", "headers", "payload"));
+        assertThat(request)
+                .containsEntry("eventId", accepted.eventId())
+                .containsEntry("eventType", "media.job.accepted")
+                .containsEntry("eventVersion", "1.0.0")
+                .containsEntry("timestamp", accepted.occurredAt().toString())
+                .containsEntry("correlationId", accepted.correlationId())
+                .containsEntry("causationId", accepted.causationId())
+                .containsEntry("source", "media")
+                .containsEntry("contentType", "application/json");
+        assertThat(request).doesNotContainKey("userId");
+        @SuppressWarnings("unchecked")
+        Map<String, Object> payload = (Map<String, Object>) request.get("payload");
+        assertThat(payload.keySet()).containsExactlyInAnyOrderElementsOf(Set.of(
+                "jobId", "operationRef", "admissionState"));
+        assertThat(payload).containsExactlyInAnyOrderEntriesOf(Map.of(
+                "jobId", "job-accepted", "operationRef", "media.operation-slice.submit-job",
+                "admissionState", "ACCEPTED"));
+        @SuppressWarnings("unchecked")
+        Map<String, Object> headers = (Map<String, Object>) request.get("headers");
+        assertThat(headers).containsExactlyInAnyOrderEntriesOf(Map.of(
+                "media.aggregateType", "processing-job",
+                "media.aggregateId", "job-accepted",
+                "media.aggregateVersion", "2",
+                "media.dataClassification", "INTERNAL"));
+        assertThat(requestBody.get()).doesNotContain("submitting-principal");
+    }
+
+    @Test
+    void rejectsMalformedAcceptedJobPayloadBeforeAppend() {
+        MediaLifecycleEvent valid = acceptedJobEvent();
+        MediaLifecycleEvent malformed = new MediaLifecycleEvent(
+                valid.eventId(), valid.eventType(), valid.tenantId(), valid.principalId(),
+                valid.correlationId(), valid.causationId(), valid.aggregateType(), valid.aggregateId(),
+                valid.aggregateVersion(), valid.classification(), valid.occurredAt(),
+                Map.of("jobId", "job-accepted", "operationRef", "media.operation-slice.submit-job",
+                        "admissionState", "ACCEPTED", "extra", "not-allowed"));
+        try (MediaLifecyclePublisher publisher = MediaLifecyclePublisher.compose(devRelayEnvironment(Map.of(
+                "MEDIA_EVENT_PLANE_URL", "http://127.0.0.1:1")), false)) {
+            assertThatThrownBy(() -> publisher.publish(malformed))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("canonical Media event contract");
+        }
+    }
+
+    @Test
     void doesNotTreatNonContractSuccessStatusAsDurableAcceptance() throws Exception {
         AtomicInteger postCalls = new AtomicInteger();
         AtomicInteger lookupCalls = new AtomicInteger();
@@ -566,6 +669,52 @@ class MediaLifecyclePublisherTest {
         } catch (Exception failure) {
             throw new IllegalStateException("Could not create the exact Event Plane readback fixture", failure);
         }
+    }
+
+    private static String validAcceptedReadback(String idempotencyKey, String offset) {
+        MediaLifecycleEvent event = acceptedJobEvent();
+        Map<String, Object> headers = new HashMap<>();
+        headers.put("media.aggregateType", event.aggregateType());
+        headers.put("media.aggregateId", event.aggregateId());
+        headers.put("media.aggregateVersion", Long.toString(event.aggregateVersion()));
+        headers.put("media.dataClassification", event.classification());
+        headers.put("tenantId", event.tenantId());
+        headers.put("principalId", "media-relay-workload");
+        headers.put("callerEventId", event.eventId());
+        headers.put("streamId", "media-lifecycle");
+        headers.put("correlationId", event.correlationId());
+        ObjectMapper mapper = JsonMapper.builder().build();
+        Map<String, Object> record = new HashMap<>();
+        String storedEventId = MediaLifecyclePublicationReceipt.stableStoredEventId(event.eventId());
+        record.put("eventId", storedEventId);
+        record.put("storedEventId", storedEventId);
+        record.put("callerEventId", event.eventId());
+        record.put("streamId", "media-lifecycle");
+        record.put("offset", offset);
+        record.put("eventType", event.eventType());
+        record.put("eventVersion", "1.0.0");
+        record.put("timestamp", event.occurredAt().toString());
+        record.put("contentType", "application/json");
+        record.put("headers", headers);
+        record.put("idempotencyKey", idempotencyKey);
+        record.put("correlationId", event.correlationId());
+        record.put("causationId", event.causationId());
+        record.put("source", "media");
+        try {
+            record.put("payload", mapper.writeValueAsString(event.attributes()));
+            return mapper.writeValueAsString(record);
+        } catch (Exception failure) {
+            throw new IllegalStateException("Could not create the accepted-job Event Plane readback fixture", failure);
+        }
+    }
+
+    private static MediaLifecycleEvent acceptedJobEvent() {
+        return new MediaLifecycleEvent(
+                "media:media.job.accepted:job-accepted:2", "media.job.accepted",
+                "tenant-a", "submitting-principal", "correlation-accepted", "request-accepted",
+                "processing-job", "job-accepted", 2, "INTERNAL", Instant.parse("2026-11-27T10:00:00Z"),
+                Map.of("jobId", "job-accepted", "operationRef", "media.operation-slice.submit-job",
+                        "admissionState", "ACCEPTED"));
     }
 
     private static String tenantScopedIdempotencyKey(String tenantId, String eventId) {
