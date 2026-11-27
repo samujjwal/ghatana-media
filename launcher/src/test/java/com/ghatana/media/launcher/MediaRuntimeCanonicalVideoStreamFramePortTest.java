@@ -13,6 +13,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import com.ghatana.video.streaming.CanonicalVideoStreamFramePort;
+import com.ghatana.video.streaming.VideoFrameTimebase;
 import com.ghatana.video.streaming.VideoStreamSession;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
@@ -81,32 +82,69 @@ class MediaRuntimeCanonicalVideoStreamFramePortTest {
             var binding = port.currentBinding(
                     "tenant-video", registration.session().sessionId(), "principal-video").orElseThrow();
 
-            var first = port.offerWithFeedback(binding,
+            var missingPts = port.offerWithFeedback(binding,
                     new VideoStreamSession.DecodedFrame(0, true, 987_654L, new byte[] {1}, "video@v3", 10L));
+            assertThat(missingPts.result().disposition()).isEqualTo(CanonicalVideoStreamFramePort.Disposition.NOT_ADMITTED);
+            assertThat(provider.calls()).isZero();
+            var untouched = runtime.stream("tenant-video", registration.session().sessionId()).orElseThrow();
+            assertThat(untouched.lastSequence()).isEqualTo(-1);
+            assertThat(untouched.sourceVersion()).isNull();
+            assertThat(untouched.sourceCursor()).isNull();
+            assertThat(untouched.sourcePresentationTime()).isNull();
+
+            var firstPts = VideoFrameTimebase.SourceTimestamp.known(-9_007_199_254_740_993L,
+                    1001, 30000, "camera.clock.v1");
+            var first = port.offerWithFeedback(binding,
+                    new VideoStreamSession.DecodedFrame(0, true, 987_654L, new byte[] {1},
+                            "video@v3", 10L, firstPts));
             assertThat(first.result()).isEqualTo(CanonicalVideoStreamFramePort.Result.acknowledged(0));
             var stored = runtime.stream("tenant-video", registration.session().sessionId()).orElseThrow();
             assertThat(stored.lastSequence()).isZero();
             assertThat(stored.sourceVersion()).isEqualTo("video@v3");
             assertThat(stored.sourceCursor()).isEqualTo(10L);
+            assertThat(stored.sourcePresentationTime().ticks()).isEqualTo(-9_007_199_254_740_993L);
+            assertThat(stored.sourcePresentationTime().timebaseNumerator()).isEqualTo(1001L);
+            assertThat(stored.sourcePresentationTime().timebaseDenominator()).isEqualTo(30000L);
+            assertThat(stored.sourcePresentationTime().clockId()).isEqualTo("camera.clock.v1");
 
             var nextBinding = port.currentBinding(
                     "tenant-video", registration.session().sessionId(), "principal-video").orElseThrow();
             var gap = port.offerWithFeedback(nextBinding,
-                    new VideoStreamSession.DecodedFrame(1, false, 987_655L, new byte[] {2}, "video@v3", 12L));
+                    new VideoStreamSession.DecodedFrame(1, false, 987_655L, new byte[] {2}, "video@v3", 12L,
+                            VideoFrameTimebase.SourceTimestamp.known(20, 1001, 30000, "camera.clock.v1")));
             assertThat(gap.result().disposition()).isEqualTo(CanonicalVideoStreamFramePort.Disposition.NOT_ADMITTED);
             var changedVersion = port.offerWithFeedback(nextBinding,
-                    new VideoStreamSession.DecodedFrame(1, false, 987_655L, new byte[] {2}, "video@v4", 11L));
+                    new VideoStreamSession.DecodedFrame(1, false, 987_655L, new byte[] {2}, "video@v4", 11L,
+                            VideoFrameTimebase.SourceTimestamp.known(20, 1001, 30000, "camera.clock.v1")));
             assertThat(changedVersion.result().disposition()).isEqualTo(CanonicalVideoStreamFramePort.Disposition.NOT_ADMITTED);
             assertThat(provider.calls()).isEqualTo(1);
 
             var second = port.offerWithFeedback(nextBinding,
-                    new VideoStreamSession.DecodedFrame(1, false, 987_656L, new byte[] {3}, "video@v3", 11L));
+                    new VideoStreamSession.DecodedFrame(1, false, 987_656L, new byte[] {3}, "video@v3", 11L,
+                            VideoFrameTimebase.SourceTimestamp.known(Long.MIN_VALUE + 17,
+                                    1, 90_000, "camera.clock.v1")));
             assertThat(second.result()).isEqualTo(CanonicalVideoStreamFramePort.Result.acknowledged(1));
             var advanced = runtime.stream("tenant-video", registration.session().sessionId()).orElseThrow();
             assertThat(advanced.lastSequence()).isEqualTo(1);
             assertThat(advanced.sourceVersion()).isEqualTo("video@v3");
             assertThat(advanced.sourceCursor()).isEqualTo(11L);
+            assertThat(advanced.sourcePresentationTime().ticks()).isEqualTo(Long.MIN_VALUE + 17);
             assertThat(provider.calls()).isEqualTo(2);
+
+            var afterKnown = port.currentBinding(
+                    "tenant-video", registration.session().sessionId(), "principal-video").orElseThrow();
+            var unknown = VideoFrameTimebase.SourceTimestamp.unknown("source omitted presentation time");
+            var third = port.offerWithFeedback(afterKnown,
+                    new VideoStreamSession.DecodedFrame(2, false, 987_657L, new byte[] {4}, "video@v3", 12L, unknown));
+            assertThat(third.result()).isEqualTo(CanonicalVideoStreamFramePort.Result.acknowledged(2));
+            var storedUnknown = runtime.stream("tenant-video", registration.session().sessionId()).orElseThrow()
+                    .sourcePresentationTime();
+            assertThat(storedUnknown.status().name()).isEqualTo("UNKNOWN");
+            assertThat(storedUnknown.ticks()).isNull();
+            assertThat(storedUnknown.timebaseNumerator()).isNull();
+            assertThat(storedUnknown.timebaseDenominator()).isNull();
+            assertThat(storedUnknown.clockId()).isNull();
+            assertThat(storedUnknown.unknownReason()).isEqualTo("source omitted presentation time");
         } finally {
             runtime.close();
         }

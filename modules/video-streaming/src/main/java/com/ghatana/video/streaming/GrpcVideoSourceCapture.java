@@ -216,7 +216,7 @@ public final class GrpcVideoSourceCapture {
             }
             VideoStreamSession.DecodedFrame decoded = new VideoStreamSession.DecodedFrame(
                     frame.mediaSequence(), frame.keyFrame(), frame.transportTimestampMillis(), frame.payload(),
-                    frame.sourceVersion(), frame.sourceCursor());
+                    frame.sourceVersion(), frame.sourceCursor(), frame.presentationPts());
             CanonicalVideoStreamFramePort.OfferFeedback offered;
             try {
                 offered = canonical.offerWithFeedback(refreshed.get(), decoded);

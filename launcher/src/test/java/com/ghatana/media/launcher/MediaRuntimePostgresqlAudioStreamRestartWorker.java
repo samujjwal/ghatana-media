@@ -3,6 +3,7 @@ package com.ghatana.media.launcher;
 import com.ghatana.audio.streaming.AudioStreamSession;
 import com.ghatana.audio.streaming.CanonicalStreamFramePort;
 import com.ghatana.video.streaming.CanonicalVideoStreamFramePort;
+import com.ghatana.video.streaming.VideoFrameTimebase;
 import com.ghatana.video.streaming.VideoStreamSession;
 import com.ghatana.media.provider.aws.PostgresqlMediaStreamSessionStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaGovernanceContext;
@@ -13,6 +14,8 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StreamContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFrame;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRequest;
+import com.ghatana.media.runtime.MediaRuntimeContracts.SourcePresentationTime;
+import com.ghatana.media.runtime.MediaRuntimeContracts.SourcePresentationTimeStatus;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,6 +39,12 @@ public final class MediaRuntimePostgresqlAudioStreamRestartWorker {
     private static final String VIDEO_PURPOSE = "media.stream.video.capture";
     private static final String SOURCE_VERSION = "source@v1";
     private static final long INITIAL_SOURCE_CURSOR = 900L;
+    private static final VideoFrameTimebase.SourceTimestamp INITIAL_VIDEO_PTS =
+            VideoFrameTimebase.SourceTimestamp.known(-9_007_199_254_740_993L, 1001, 30000, "camera.clock.v1");
+    private static final VideoFrameTimebase.SourceTimestamp NEXT_VIDEO_PTS =
+            VideoFrameTimebase.SourceTimestamp.known(Long.MIN_VALUE + 17, 1, 90_000, "camera.clock.v1");
+    private static final VideoFrameTimebase.SourceTimestamp UNKNOWN_VIDEO_PTS =
+            VideoFrameTimebase.SourceTimestamp.unknown("source omitted presentation time");
 
     private record RuntimeFixture(MediaRuntime runtime, CountingLocalStreamingProvider provider) { }
 
@@ -193,12 +202,19 @@ public final class MediaRuntimePostgresqlAudioStreamRestartWorker {
                     tenantId, registration.session().sessionId(), PRINCIPAL_VIDEO_ID).orElseThrow();
             require(binding.lastAcknowledgedSequence() == -1,
                     "new video session must start before frame zero");
-            require(port.offer(binding, videoFrame(0)).equals(
+            require(port.offer(binding, videoFrame(0, INITIAL_SOURCE_CURSOR, INITIAL_VIDEO_PTS)).equals(
                             CanonicalVideoStreamFramePort.Result.acknowledged(0)),
                     "seed video frame zero must be acknowledged by the canonical store");
-            require(runtime.stream(tenantId, PRINCIPAL_VIDEO_ID, binding.streamId()).orElseThrow()
-                            .lastSequence() == 0,
+            var stored = runtime.stream(tenantId, PRINCIPAL_VIDEO_ID, binding.streamId()).orElseThrow();
+            require(stored.lastSequence() == 0,
                     "video frame zero cursor must be durable before process termination");
+            require(SOURCE_VERSION.equals(stored.sourceVersion())
+                            && stored.sourceCursor() == INITIAL_SOURCE_CURSOR,
+                    "video source version and cursor must commit with frame-zero ACK");
+            require(binding.sourcePresentationTime() == null,
+                    "pre-ACK binding must not claim frame-zero source presentation time");
+            require(sourcePresentationTimeMatches(stored.sourcePresentationTime(), INITIAL_VIDEO_PTS),
+                    "exact synthetic video PTS must be durable with frame-zero source position");
 
             Properties properties = new Properties();
             properties.setProperty("tenantId", binding.tenantId());
@@ -252,24 +268,85 @@ public final class MediaRuntimePostgresqlAudioStreamRestartWorker {
                     "video reconnect generation must advance after restart");
             require(resumed.lastAcknowledgedSequence() == 0,
                     "video frame zero ACK cursor must be restored from PostgreSQL");
+            var restored = runtime.stream(tenantId, PRINCIPAL_VIDEO_ID, resumed.streamId()).orElseThrow();
+            require(SOURCE_VERSION.equals(restored.sourceVersion())
+                            && restored.sourceCursor() == INITIAL_SOURCE_CURSOR,
+                    "video source version and cursor must be restored exactly after restart");
+            require(INITIAL_VIDEO_PTS.equals(resumed.sourcePresentationTime())
+                            && sourcePresentationTimeMatches(restored.sourcePresentationTime(), INITIAL_VIDEO_PTS),
+                    "signed ticks, rational timebase, opaque clock ID and status must round-trip after restart");
 
-            require(port.offer(preRestartBinding, videoFrame(1)).disposition()
+            require(port.offer(preRestartBinding,
+                            videoFrame(1, INITIAL_SOURCE_CURSOR + 1, NEXT_VIDEO_PTS)).disposition()
                             == CanonicalVideoStreamFramePort.Disposition.NOT_ADMITTED,
                     "pre-restart video binding must not submit into the new connection generation");
-            require(port.offer(resumed, videoFrame(0)).disposition()
+            require(port.offer(resumed,
+                            videoFrame(0, INITIAL_SOURCE_CURSOR, INITIAL_VIDEO_PTS)).disposition()
                             == CanonicalVideoStreamFramePort.Disposition.NOT_ADMITTED,
                     "durably acknowledged video frame zero must not be replayed");
             require(fixture.provider().calls() == 0,
                     "stale and duplicate video frames must not invoke the provider");
 
-            require(port.offer(resumed, videoFrame(1)).equals(
+            require(port.offer(resumed, videoFrame(1, INITIAL_SOURCE_CURSOR + 1)).disposition()
+                            == CanonicalVideoStreamFramePort.Disposition.NOT_ADMITTED,
+                    "a source-bound VIDEO frame without an observation must be rejected");
+            var afterMissingPts = runtime.stream(tenantId, PRINCIPAL_VIDEO_ID, resumed.streamId()).orElseThrow();
+            require(afterMissingPts.lastSequence() == 0
+                            && SOURCE_VERSION.equals(afterMissingPts.sourceVersion())
+                            && afterMissingPts.sourceCursor() == INITIAL_SOURCE_CURSOR
+                            && sourcePresentationTimeMatches(
+                                    afterMissingPts.sourcePresentationTime(), INITIAL_VIDEO_PTS),
+                    "missing PTS must leave video ACK, cursor and prior PTS unchanged");
+            require(fixture.provider().calls() == 0,
+                    "missing source PTS must be rejected before provider dispatch");
+
+            require(port.offer(resumed, videoFrame(1, INITIAL_SOURCE_CURSOR + 2, NEXT_VIDEO_PTS)).disposition()
+                            == CanonicalVideoStreamFramePort.Disposition.NOT_ADMITTED,
+                    "a skipped source cursor must be rejected before provider dispatch");
+            var afterRejectedCursor = runtime.stream(tenantId, PRINCIPAL_VIDEO_ID, resumed.streamId()).orElseThrow();
+            require(afterRejectedCursor.lastSequence() == 0
+                            && SOURCE_VERSION.equals(afterRejectedCursor.sourceVersion())
+                            && afterRejectedCursor.sourceCursor() == INITIAL_SOURCE_CURSOR
+                            && sourcePresentationTimeMatches(
+                                    afterRejectedCursor.sourcePresentationTime(), INITIAL_VIDEO_PTS),
+                    "rejected cursor must leave ACK, cursor and PTS unchanged");
+            require(fixture.provider().calls() == 0,
+                    "rejected video source cursor must not invoke the provider");
+
+            require(port.offer(resumed, videoFrame(1, INITIAL_SOURCE_CURSOR + 1, NEXT_VIDEO_PTS)).equals(
                             CanonicalVideoStreamFramePort.Result.acknowledged(1)),
                     "video frame one must be the next accepted sequence after restart");
             require(fixture.provider().calls() == 1, "only the new video frame may invoke the provider");
             var durable = runtime.stream(tenantId, PRINCIPAL_VIDEO_ID, resumed.streamId()).orElseThrow();
             require(durable.lastSequence() == 1, "next video frame ACK must be durable after process restart");
+            require(SOURCE_VERSION.equals(durable.sourceVersion())
+                            && durable.sourceCursor() == INITIAL_SOURCE_CURSOR + 1
+                            && sourcePresentationTimeMatches(durable.sourcePresentationTime(), NEXT_VIDEO_PTS),
+                    "accepted next cursor, exact PTS and Media ACK must commit atomically");
+
+            var afterKnown = port.currentBinding(tenantId, resumed.streamId(), PRINCIPAL_VIDEO_ID).orElseThrow();
+            require(port.offer(afterKnown, videoFrame(2, INITIAL_SOURCE_CURSOR + 2, UNKNOWN_VIDEO_PTS)).equals(
+                            CanonicalVideoStreamFramePort.Result.acknowledged(2)),
+                    "explicit UNKNOWN PTS must be accepted for the exact next source cursor");
+            require(fixture.provider().calls() == 2, "one provider call is expected for each accepted VIDEO frame");
+            var durableUnknown = runtime.stream(tenantId, PRINCIPAL_VIDEO_ID, resumed.streamId()).orElseThrow();
+            require(durableUnknown.lastSequence() == 2
+                            && durableUnknown.sourceCursor() == INITIAL_SOURCE_CURSOR + 2
+                            && sourcePresentationTimeMatches(durableUnknown.sourcePresentationTime(), UNKNOWN_VIDEO_PTS),
+                    "UNKNOWN must persist its reason without fabricated ticks or clock fields");
+
+            var beforeEos = port.currentBinding(tenantId, resumed.streamId(), PRINCIPAL_VIDEO_ID).orElseThrow();
+            require(port.endOfStreamWithFeedback(beforeEos).result().equals(
+                            CanonicalVideoStreamFramePort.Result.acknowledged(3)),
+                    "video EOS must receive the next canonical Media ACK");
+            var afterEos = runtime.stream(tenantId, PRINCIPAL_VIDEO_ID, resumed.streamId()).orElseThrow();
+            require(afterEos.lastSequence() == 3
+                            && SOURCE_VERSION.equals(afterEos.sourceVersion())
+                            && afterEos.sourceCursor() == INITIAL_SOURCE_CURSOR + 2
+                            && sourcePresentationTimeMatches(afterEos.sourcePresentationTime(), UNKNOWN_VIDEO_PTS),
+                    "EOS ACK must preserve the last source checkpoint and exact PTS observation");
             require(durable.reconnectCount() == 2, "durable video reconnect generation must be two");
-            write(marker, "VIDEO_DURABLE_CURSOR_AND_REPLAY_FENCE_VERIFIED");
+            write(marker, "VIDEO_DURABLE_SOURCE_PTS_ACK_AND_REPLAY_FENCE_VERIFIED");
         } finally {
             runtime.close();
         }
@@ -308,6 +385,35 @@ public final class MediaRuntimePostgresqlAudioStreamRestartWorker {
 
     private static VideoStreamSession.DecodedFrame videoFrame(int sequence) {
         return new VideoStreamSession.DecodedFrame(sequence, sequence == 0, sequence * 33L, new byte[] {4, 5, 6});
+    }
+
+    private static VideoStreamSession.DecodedFrame videoFrame(
+            int sequence, long sourceCursor, VideoFrameTimebase.SourceTimestamp presentationPts) {
+        return new VideoStreamSession.DecodedFrame(sequence, sequence == 0, sequence * 33L,
+                new byte[] {4, 5, 6}, SOURCE_VERSION, sourceCursor, presentationPts);
+    }
+
+    private static VideoStreamSession.DecodedFrame videoFrame(int sequence, long sourceCursor) {
+        return videoFrame(sequence, sourceCursor, null);
+    }
+
+    private static boolean sourcePresentationTimeMatches(
+            SourcePresentationTime actual, VideoFrameTimebase.SourceTimestamp expected) {
+        if (actual == null || expected == null) return actual == null && expected == null;
+        if (expected.status() == VideoFrameTimebase.Status.KNOWN) {
+            return actual.status() == SourcePresentationTimeStatus.KNOWN
+                    && java.util.Objects.equals(actual.ticks(), expected.ticks())
+                    && java.util.Objects.equals(actual.timebaseNumerator(), expected.timebaseNumerator())
+                    && java.util.Objects.equals(actual.timebaseDenominator(), expected.timebaseDenominator())
+                    && java.util.Objects.equals(actual.clockId(), expected.clockId())
+                    && actual.unknownReason() == null;
+        }
+        return actual.status() == SourcePresentationTimeStatus.UNKNOWN
+                && actual.ticks() == null
+                && actual.timebaseNumerator() == null
+                && actual.timebaseDenominator() == null
+                && actual.clockId() == null
+                && java.util.Objects.equals(actual.unknownReason(), expected.unknownReason());
     }
 
     private static void write(Path marker, String value) throws Exception {

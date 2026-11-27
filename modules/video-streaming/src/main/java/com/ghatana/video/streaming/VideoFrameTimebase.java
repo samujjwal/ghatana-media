@@ -13,6 +13,7 @@ import java.util.Objects;
 public final class VideoFrameTimebase {
 
     private static final int MAX_IDENTITY_LENGTH = 128;
+    private static final int MAX_UNKNOWN_REASON_LENGTH = 256;
 
     private VideoFrameTimebase() { }
 
@@ -93,7 +94,8 @@ public final class VideoFrameTimebase {
                     throw new IllegalArgumentException("source clock identity must be a bounded opaque identifier");
                 }
             } else if (ticks != null || timebaseNumerator != null || timebaseDenominator != null
-                    || clockId != null || unknownReason == null || unknownReason.isBlank()) {
+                    || clockId != null || unknownReason == null || unknownReason.isBlank()
+                    || !validUnknownReason(unknownReason)) {
                 throw new IllegalArgumentException("unknown source timestamps must not contain fabricated clock values");
             }
         }
@@ -106,6 +108,21 @@ public final class VideoFrameTimebase {
 
         public static SourceTimestamp unknown(String reason) {
             return new SourceTimestamp(Status.UNKNOWN, null, null, null, null, reason);
+        }
+
+        private static boolean validUnknownReason(String value) {
+            if (value.codePointCount(0, value.length()) > MAX_UNKNOWN_REASON_LENGTH) return false;
+            for (int index = 0; index < value.length(); index++) {
+                char current = value.charAt(index);
+                if (current == '\0') return false;
+                if (Character.isHighSurrogate(current)) {
+                    if (index + 1 >= value.length() || !Character.isLowSurrogate(value.charAt(index + 1))) return false;
+                    index++;
+                } else if (Character.isLowSurrogate(current)) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         /**

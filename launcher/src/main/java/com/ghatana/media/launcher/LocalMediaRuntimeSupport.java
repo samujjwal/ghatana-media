@@ -29,6 +29,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StreamAck;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality;
+import com.ghatana.media.runtime.MediaRuntimeContracts.SourcePresentationTime;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
@@ -1118,6 +1119,7 @@ public final class LocalMediaRuntimeSupport {
     public static final class StreamStore implements MediaStreamSessionStore {
         private final ConcurrentMap<String, StoredStream> sessions = new ConcurrentHashMap<>();
         @Override public String storeId() { return "local-stream-store"; }
+        @Override public boolean supportsSourcePresentationTimeCheckpoint() { return true; }
         int sessionCount() { return sessions.size(); }
         @Override public StreamSession create(StreamSession session, String tokenHash) {
             java.util.Objects.requireNonNull(session, "session");
@@ -1126,6 +1128,9 @@ public final class LocalMediaRuntimeSupport {
             }
             if (session.sourceVersion() != null) {
                 throw new IllegalArgumentException("New Media stream sessions cannot contain a source checkpoint");
+            }
+            if (session.sourcePresentationTime() != null) {
+                throw new IllegalArgumentException("New Media stream sessions cannot contain source presentation time");
             }
             if (session.leaseExpiresAt() == null) {
                 throw new IllegalArgumentException("New Media stream sessions require a connection lease");
@@ -1191,7 +1196,7 @@ public final class LocalMediaRuntimeSupport {
                     expected.closedAt(), expected.metadata(), expected.version() + 1,
                     expected.sequenceTokenHash(), expected.acknowledgementRevision(), expected.finality(),
                     expected.inFlightSequence(), expected.inFlightAttemptId(),
-                    expected.sourceVersion(), expected.sourceCursor());
+                    expected.sourceVersion(), expected.sourceCursor(), expected.sourcePresentationTime());
             StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
             replace(expected, updated, current == null ? "" : current.tokenHash());
             return updated;
@@ -1248,7 +1253,8 @@ public final class LocalMediaRuntimeSupport {
                     expected.reconnectCount(), expected.leaseExpiresAt(), expected.createdAt(), Instant.now(),
                     expected.closedAt(), expected.metadata(), expected.version() + 1,
                     expected.sequenceTokenHash(), expected.acknowledgementRevision(), expected.finality(),
-                    sequence, boundedAttemptId, expected.sourceVersion(), expected.sourceCursor());
+                    sequence, boundedAttemptId, expected.sourceVersion(), expected.sourceCursor(),
+                    expected.sourcePresentationTime());
             StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
             replace(expected, updated, current == null ? "" : current.tokenHash());
             return updated;
@@ -1259,6 +1265,11 @@ public final class LocalMediaRuntimeSupport {
         @Override public StreamSession recordFrame(
                 StreamSession expected, long sequence, long buffered, boolean end,
                 String sourceVersion, Long sourceCursor) {
+            return recordFrame(expected, sequence, buffered, end, sourceVersion, sourceCursor, null);
+        }
+        @Override public StreamSession recordFrame(
+                StreamSession expected, long sequence, long buffered, boolean end,
+                String sourceVersion, Long sourceCursor, SourcePresentationTime sourcePresentationTime) {
             if (expected.state() != StreamState.CONNECTED && expected.state() != StreamState.DEGRADED) {
                 throw new IllegalStateException("Media stream must be connected before accepting frames");
             }
@@ -1278,11 +1289,27 @@ public final class LocalMediaRuntimeSupport {
             }
             String committedSourceVersion = expected.sourceVersion();
             Long committedSourceCursor = expected.sourceCursor();
+            SourcePresentationTime committedPresentationTime = expected.sourcePresentationTime();
             if (end) {
-                if (sourceVersion != null || sourceCursor != null) {
-                    throw new IllegalArgumentException("Media stream EOS cannot advance the source checkpoint");
+                if (sourceVersion != null || sourceCursor != null || sourcePresentationTime != null) {
+                    throw new IllegalArgumentException("Media stream EOS cannot advance a source checkpoint");
                 }
-            } else if (sourceVersion != null || sourceCursor != null) {
+            } else {
+                if (expected.streamKind() == StreamKind.VIDEO) {
+                    if ((sourceVersion != null) != (sourcePresentationTime != null)) {
+                        throw new IllegalArgumentException(
+                                "Source-bound VIDEO frame requires one source presentation-time observation");
+                    }
+                } else if (sourcePresentationTime != null) {
+                    throw new IllegalArgumentException("AUDIO stream frames do not carry source presentation time");
+                }
+                if (sourcePresentationTime != null && (sourceVersion == null
+                        || expected.streamKind() != StreamKind.VIDEO)) {
+                    throw new IllegalArgumentException(
+                            "Source presentation time requires a source-bound VIDEO frame");
+                }
+            }
+            if (!end && (sourceVersion != null || sourceCursor != null)) {
                 if (sourceVersion == null || sourceCursor == null || sourceCursor < 0
                         || sourceCursor == Long.MAX_VALUE || sourceVersion.isBlank()
                         || sourceVersion.codePointCount(0, sourceVersion.length()) > 384) {
@@ -1299,6 +1326,7 @@ public final class LocalMediaRuntimeSupport {
                 }
                 committedSourceVersion = sourceVersion;
                 committedSourceCursor = sourceCursor;
+                committedPresentationTime = sourcePresentationTime;
             } else if (expected.sourceVersion() != null && !end) {
                 throw new IllegalStateException("Source-bound Media stream frame requires its next source position");
             }
@@ -1309,7 +1337,7 @@ public final class LocalMediaRuntimeSupport {
                     expected.maximumBufferedBytes(), expected.reconnectCount(), expected.leaseExpiresAt(),
                     expected.createdAt(), now, expected.closedAt(), expected.metadata(), expected.version() + 1,
                     expected.sequenceTokenHash(), expected.acknowledgementRevision() + 1, expected.finality(),
-                    null, "", committedSourceVersion, committedSourceCursor);
+                    null, "", committedSourceVersion, committedSourceCursor, committedPresentationTime);
             StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
             replace(expected, updated, current == null ? "" : current.tokenHash());
             return updated;
@@ -1329,7 +1357,7 @@ public final class LocalMediaRuntimeSupport {
                     expected.metadata(), expected.version() + 1, expected.sequenceTokenHash(),
                     expected.acknowledgementRevision() + 1, StreamFinality.UNKNOWN,
                     expected.inFlightSequence(), expected.inFlightAttemptId(),
-                    expected.sourceVersion(), expected.sourceCursor());
+                    expected.sourceVersion(), expected.sourceCursor(), expected.sourcePresentationTime());
             StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
             replace(expected, updated, current == null ? "" : current.tokenHash());
             return updated;
@@ -1381,7 +1409,7 @@ public final class LocalMediaRuntimeSupport {
                     (state == StreamState.CLOSED || state == StreamState.FAILED)
                             && (value.finality() == StreamFinality.NONE || value.inFlightSequence() != null)
                             ? StreamFinality.UNKNOWN : value.finality(), inFlightSequence, inFlightAttemptId,
-                    value.sourceVersion(), value.sourceCursor());
+                    value.sourceVersion(), value.sourceCursor(), value.sourcePresentationTime());
         }
         private static String requireAttemptId(String value) {
             if (value == null || value.isBlank() || value.length() > 128

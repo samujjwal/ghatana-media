@@ -2492,10 +2492,19 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
     private static void validateStreamSourcePosition(StreamSession current, StreamFrame frame) {
         boolean hasSourcePosition = frame.sourceVersion() != null;
         if (frame.endOfStream()) {
-            if (hasSourcePosition) {
-                throw new IllegalArgumentException("Media stream EOS cannot advance the source checkpoint");
+            if (hasSourcePosition || frame.sourcePresentationTime() != null) {
+                throw new IllegalArgumentException("Media stream EOS cannot advance a source checkpoint");
             }
             return;
+        }
+        boolean hasPresentationTime = frame.sourcePresentationTime() != null;
+        if (current.streamKind() == MediaRuntimeContracts.StreamKind.VIDEO) {
+            if (hasSourcePosition != hasPresentationTime) {
+                throw new IllegalArgumentException(
+                        "Source-bound VIDEO frame requires one source presentation-time observation");
+            }
+        } else if (hasPresentationTime) {
+            throw new IllegalArgumentException("AUDIO stream frames do not carry source presentation time");
         }
         if (current.sourceVersion() == null) {
             if (hasSourcePosition && current.lastSequence() != -1) {
@@ -2538,6 +2547,11 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             throw new IllegalStateException("Media stream connection lease expired");
         }
         validateStreamSourcePosition(current, frame);
+        if ((frame.sourcePresentationTime() != null || current.sourcePresentationTime() != null)
+                && !streamStore.supportsSourcePresentationTimeCheckpoint()) {
+            throw new IllegalArgumentException(
+                    "Canonical stream store cannot preserve source presentation time with the ACK");
+        }
         StreamControl control = activeStreams.computeIfAbsent(
                 streamKey(frame.tenantId(), frame.sessionId()),
                 ignored -> streamControlFor(current));
@@ -2576,7 +2590,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
                 throw new IllegalStateException("Media streaming provider exceeded the session buffer limit");
             }
             streamStore.recordFrame(reserved, frame.sequence(), ack.bufferedBytes(), frame.endOfStream(),
-                    frame.sourceVersion(), frame.sourceCursor());
+                    frame.sourceVersion(), frame.sourceCursor(), frame.sourcePresentationTime());
             frameAcknowledgementPersisted = true;
             workflowMetrics.recordCaptureFrame(captureMetricKind(current.streamKind()),
                     MediaWorkflowMetrics.Outcome.SUCCESS);

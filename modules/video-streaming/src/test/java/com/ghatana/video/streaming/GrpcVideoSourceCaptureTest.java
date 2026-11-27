@@ -46,6 +46,16 @@ class GrpcVideoSourceCaptureTest {
     }
 
     @Test
+    void sourceTimestampRejectsUnknownReasonsPostgreSqlCannotRoundTripExactly() {
+        assertThatThrownBy(() -> VideoFrameTimebase.SourceTimestamp.unknown("x".repeat(257)))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> VideoFrameTimebase.SourceTimestamp.unknown("bad\u0000reason"))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> VideoFrameTimebase.SourceTimestamp.unknown("bad\uD800reason"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     void trustedSourceVersionsRespectVersionReferenceLength() {
         String overlength = "v".repeat(385);
         assertThatThrownBy(() -> new GrpcVideoSourceCapture.Readback(
@@ -196,6 +206,10 @@ class GrpcVideoSourceCaptureTest {
                 .containsExactly("video@v3", "video@v3");
         assertThat(port.offeredFrames).extracting(VideoStreamSession.DecodedFrame::sourceCursor)
                 .containsExactly(10L, 11L);
+        assertThat(port.offeredFrames).extracting(VideoStreamSession.DecodedFrame::presentationPts)
+                .containsExactly(
+                        VideoFrameTimebase.SourceTimestamp.known(20, 1, 90_000, "source-clock"),
+                        VideoFrameTimebase.SourceTimestamp.known(30, 1, 90_000, "source-clock"));
     }
 
     @Test
@@ -508,6 +522,8 @@ class GrpcVideoSourceCaptureTest {
 
         assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.ACCEPTED);
         assertThat(port.offeredFrames.get(0).timestampMillis()).isEqualTo(987654L);
+        assertThat(port.offeredFrames.get(0).presentationPts())
+                .isEqualTo(VideoFrameTimebase.SourceTimestamp.unknown("SOURCE_PTS_NOT_SUPPLIED"));
     }
 
     @Test

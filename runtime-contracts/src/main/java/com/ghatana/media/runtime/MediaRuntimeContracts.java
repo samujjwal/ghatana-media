@@ -1974,6 +1974,65 @@ public final class MediaRuntimeContracts {
         }
     }
 
+    public enum SourcePresentationTimeStatus { KNOWN, UNKNOWN }
+
+    /** Exact internal source-reported video presentation-time observation; carries no trust decision. */
+    public record SourcePresentationTime(
+            SourcePresentationTimeStatus status,
+            Long ticks,
+            Long timebaseNumerator,
+            Long timebaseDenominator,
+            String clockId,
+            String unknownReason) {
+        public SourcePresentationTime {
+            status = java.util.Objects.requireNonNull(status, "status");
+            if (status == SourcePresentationTimeStatus.KNOWN) {
+                if (ticks == null || timebaseNumerator == null || timebaseNumerator <= 0
+                        || timebaseDenominator == null || timebaseDenominator <= 0
+                        || !validSourceClockId(clockId) || unknownReason != null) {
+                    throw new IllegalArgumentException(
+                            "known source presentation time requires signed ticks, a positive rational, and a bounded opaque clockId");
+                }
+            } else if (ticks != null || timebaseNumerator != null || timebaseDenominator != null
+                    || clockId != null || unknownReason == null || unknownReason.isBlank()
+                    || !validUnknownPresentationTimeReason(unknownReason)) {
+                throw new IllegalArgumentException(
+                        "unknown source presentation time requires only a bounded nonblank reason");
+            }
+        }
+
+        public static SourcePresentationTime known(
+                long ticks, long timebaseNumerator, long timebaseDenominator, String clockId) {
+            return new SourcePresentationTime(SourcePresentationTimeStatus.KNOWN,
+                    ticks, timebaseNumerator, timebaseDenominator, clockId, null);
+        }
+
+        public static SourcePresentationTime unknown(String reason) {
+            return new SourcePresentationTime(SourcePresentationTimeStatus.UNKNOWN,
+                    null, null, null, null, reason);
+        }
+
+        private static boolean validSourceClockId(String value) {
+            return value != null && value.length() <= 128
+                    && value.matches("[A-Za-z0-9][A-Za-z0-9._:-]*");
+        }
+
+        private static boolean validUnknownPresentationTimeReason(String value) {
+            if (value.codePointCount(0, value.length()) > 256) return false;
+            for (int index = 0; index < value.length(); index++) {
+                char current = value.charAt(index);
+                if (current == '\0') return false;
+                if (Character.isHighSurrogate(current)) {
+                    if (index + 1 >= value.length() || !Character.isLowSurrogate(value.charAt(index + 1))) return false;
+                    index++;
+                } else if (Character.isLowSurrogate(current)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
     public record StreamSession(
             String tenantId,
             String sessionId,
@@ -1997,7 +2056,8 @@ public final class MediaRuntimeContracts {
             Long inFlightSequence,
             String inFlightAttemptId,
             String sourceVersion,
-            Long sourceCursor) {
+            Long sourceCursor,
+            SourcePresentationTime sourcePresentationTime) {
         public StreamSession {
             tenantId = required(tenantId, "tenantId");
             sessionId = required(sessionId, "sessionId");
@@ -2019,6 +2079,10 @@ public final class MediaRuntimeContracts {
                             || sourceCursor == Long.MAX_VALUE)) {
                 throw new IllegalArgumentException("stream source checkpoint must contain a bounded version and nonnegative cursor");
             }
+            if (sourcePresentationTime != null
+                    && (streamKind != StreamKind.VIDEO || sourceVersion == null)) {
+                throw new IllegalArgumentException("source presentation time requires a source-bound VIDEO session");
+            }
             if ((!sequenceTokenHash.isEmpty() && !sequenceTokenHash.matches("[0-9a-f]{64}"))
                     || acknowledgementRevision < 0
                     || (inFlightSequence == null) != inFlightAttemptId.isEmpty()
@@ -2030,6 +2094,18 @@ public final class MediaRuntimeContracts {
                 throw new IllegalArgumentException("stream acknowledgement fields exceed bounds");
             }
             if (version < 1) throw new IllegalArgumentException("version must be positive");
+        }
+
+        public StreamSession(String tenantId, String sessionId, String principalId, StreamKind streamKind,
+                String providerId, StreamState state, long lastSequence, long bufferedBytes,
+                long maximumBufferedBytes, int reconnectCount, Instant leaseExpiresAt, Instant createdAt,
+                Instant updatedAt, Instant closedAt, Map<String, Object> metadata, long version,
+                String sequenceTokenHash, long acknowledgementRevision, StreamFinality finality,
+                Long inFlightSequence, String inFlightAttemptId, String sourceVersion, Long sourceCursor) {
+            this(tenantId, sessionId, principalId, streamKind, providerId, state, lastSequence, bufferedBytes,
+                    maximumBufferedBytes, reconnectCount, leaseExpiresAt, createdAt, updatedAt, closedAt,
+                    metadata, version, sequenceTokenHash, acknowledgementRevision, finality,
+                    inFlightSequence, inFlightAttemptId, sourceVersion, sourceCursor, null);
         }
 
         public StreamSession(String tenantId, String sessionId, String principalId, StreamKind streamKind,
@@ -2083,7 +2159,8 @@ public final class MediaRuntimeContracts {
             boolean endOfStream,
             Instant receivedAt,
             String sourceVersion,
-            Long sourceCursor) {
+            Long sourceCursor,
+            SourcePresentationTime sourcePresentationTime) {
         public StreamFrame {
             tenantId = required(tenantId, "tenantId");
             sessionId = required(sessionId, "sessionId");
@@ -2096,7 +2173,16 @@ public final class MediaRuntimeContracts {
                             || sourceCursor == Long.MAX_VALUE)) {
                 throw new IllegalArgumentException("stream frame source position must contain a bounded version and nonnegative cursor");
             }
+            if (sourcePresentationTime != null && sourceVersion == null) {
+                throw new IllegalArgumentException("source presentation time requires an exact source-bound frame");
+            }
             receivedAt = receivedAt == null ? Instant.now() : receivedAt;
+        }
+        public StreamFrame(String tenantId, String sessionId, String connectionToken, long sequence,
+                byte[] payload, boolean endOfStream, Instant receivedAt,
+                String sourceVersion, Long sourceCursor) {
+            this(tenantId, sessionId, connectionToken, sequence, payload, endOfStream, receivedAt,
+                    sourceVersion, sourceCursor, null);
         }
         public StreamFrame(String tenantId, String sessionId, String connectionToken, long sequence,
                 byte[] payload, boolean endOfStream, Instant receivedAt) {
@@ -2508,6 +2594,8 @@ public final class MediaRuntimeContracts {
             throw new UnsupportedOperationException("Durable stream frame reservation is unavailable");
         }
         StreamSession recordFrame(StreamSession expected, long sequence, long payloadBytes, boolean endOfStream);
+        /** Whether this store can preserve raw VIDEO source PTS with the frame ACK and EOS. */
+        default boolean supportsSourcePresentationTimeCheckpoint() { return false; }
         /** Commits an optional source-reported ordinal checkpoint in the same transaction as the Media ACK. */
         default StreamSession recordFrame(
                 StreamSession expected, long sequence, long payloadBytes, boolean endOfStream,
@@ -2516,6 +2604,16 @@ public final class MediaRuntimeContracts {
                 throw new UnsupportedOperationException("Durable source-position checkpoint is unavailable");
             }
             return recordFrame(expected, sequence, payloadBytes, endOfStream);
+        }
+        /** Commits an exact raw VIDEO source-time observation with its source pair and Media ACK. */
+        default StreamSession recordFrame(
+                StreamSession expected, long sequence, long payloadBytes, boolean endOfStream,
+                String sourceVersion, Long sourceCursor, SourcePresentationTime sourcePresentationTime) {
+            if (sourcePresentationTime != null) {
+                throw new UnsupportedOperationException(
+                        "Durable source presentation-time checkpoint is unavailable");
+            }
+            return recordFrame(expected, sequence, payloadBytes, endOfStream, sourceVersion, sourceCursor);
         }
         /** Records a provider timeout/crash/ambiguous acknowledgement and prevents blind replay. */
         default StreamSession markFrameOutcomeUnknown(StreamSession expected) {

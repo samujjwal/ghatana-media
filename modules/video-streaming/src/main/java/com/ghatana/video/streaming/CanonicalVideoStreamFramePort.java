@@ -10,9 +10,9 @@ import java.util.Optional;
  * <p>This module-local API deliberately owns no session state. Implementations must resolve
  * identity, consent, lease and durable ACK cursor from the canonical session owner and atomically
  * fence every offer by both {@code sessionRevision} and {@code storeVersion}. The timestamp in
- * {@link VideoStreamSession.DecodedFrame} is a legacy wire millisecond value; it is not source
- * PTS. Source timing remains unknown unless the caller separately supplies qualified timing
- * evidence to the owning runtime contract.</p>
+ * {@link VideoStreamSession.DecodedFrame} is a legacy transport millisecond value; it is not
+ * source PTS. Source-bound frames may carry an exact raw source PTS observation for persistence,
+ * but persistence does not qualify or authorize its use.</p>
  *
  * <p>A local reconciler or successful decode is not a canonical ACK. Missing adapters therefore
  * fail closed and cannot produce positive acceptance.</p>
@@ -30,7 +30,8 @@ public interface CanonicalVideoStreamFramePort {
             long lastAcknowledgedSequence,
             Instant leaseExpiresAt,
             String sourceVersion,
-            Long sourceCursor) {
+            Long sourceCursor,
+            VideoFrameTimebase.SourceTimestamp sourcePresentationTime) {
         public Binding {
             streamId = required(streamId, "streamId");
             tenantId = required(tenantId, "tenantId");
@@ -48,12 +49,22 @@ public interface CanonicalVideoStreamFramePort {
                             || lastAcknowledgedSequence < 0)) {
                 throw new IllegalArgumentException("canonical video source checkpoint is invalid");
             }
+            if (sourcePresentationTime != null && sourceVersion == null) {
+                throw new IllegalArgumentException("source PTS requires a source-bound video session");
+            }
+        }
+
+        public Binding(String streamId, String tenantId, String principalId, String purposeRef,
+                long sessionRevision, long storeVersion, long lastAcknowledgedSequence, Instant leaseExpiresAt,
+                String sourceVersion, Long sourceCursor) {
+            this(streamId, tenantId, principalId, purposeRef, sessionRevision, storeVersion,
+                    lastAcknowledgedSequence, leaseExpiresAt, sourceVersion, sourceCursor, null);
         }
 
         public Binding(String streamId, String tenantId, String principalId, String purposeRef,
                 long sessionRevision, long storeVersion, long lastAcknowledgedSequence, Instant leaseExpiresAt) {
             this(streamId, tenantId, principalId, purposeRef, sessionRevision, storeVersion,
-                    lastAcknowledgedSequence, leaseExpiresAt, null, null);
+                    lastAcknowledgedSequence, leaseExpiresAt, null, null, null);
         }
 
         private static String required(String value, String field) {

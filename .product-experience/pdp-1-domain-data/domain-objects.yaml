@@ -543,6 +543,7 @@ objects:
     identity: canonical-tuple-(tenantId,sessionId); principalId-and-authority-scope-are-separate-owner-guards
     lifecycle: session-versioned-state; sequence-space-and-closed-session-boundaries-are-explicit; frames-do-not-change-session-identity
     sourceProgress: Internal to Media source capture and canonical session persistence; it is not a new public API, gRPC, or SDK request field. The canonical session may retain the exact sourceVersion and nonnegative signed-64-bit sourceCursor observed for its last accepted source frame; Long.MAX_VALUE is reserved as exhaustion and is not an acceptable frame cursor. The pair is committed atomically with that frame's Media sequence ACK. sourceCursor is an opaque source ordinal, not a Media sequence or time coordinate; it advances exactly one for each contiguous source frame and is never inferred from transport time or PTS. A session without an established source pair cannot resume after unbound Media frames. Once bound, ordinary frames must continue the same source version and next cursor; EOS may preserve the last pair.
+    sourcePresentationTime: Internal VIDEO-only observation attached to a source-bound frame and retained as the session's last accepted source frame observation. KNOWN preserves signed 64-bit ticks, positive signed 64-bit rational timebase numerator/denominator, and an exact opaque ASCII clockId of at most 128 characters; UNKNOWN preserves only a bounded nonblank reason of at most 256 Unicode code points that contains no NUL or unpaired surrogate. A historical source-bound VIDEO session with no PTS observation remains absent; new source-bound frames require an observation. The exact tagged value commits atomically with sourceVersion/sourceCursor and the Media ACK, and EOS preserves it. No conversion, rescaling, inference from transportTimestampMillis, clock trust, source authentication, consent, or rights meaning is implied. AUDIO source progress has no source PTS. Not a public API/HTTP/gRPC/SDK request field and never exposed by stream inspection.
     scopeStatus: owner-defined-logical-identity; Java-runtime-and-canonical-TypeScript-SDK-state-vocabulary-bound; storage-and-installed-client-validation-separate
     implementationProjection:
       states: [OPEN, CONNECTED, DEGRADED, DRAINING, CLOSED, FAILED]
@@ -553,17 +554,21 @@ objects:
       - contracts/openapi/media.yaml#/components/schemas/StreamSession
       - providers/aws-postgresql/src/main/resources/db/media-runtime/V001__media_runtime_state.sql#media_stream_sessions
       - providers/aws-postgresql/src/main/resources/db/media-runtime/V044__media_stream_source_checkpoint.sql
+      - providers/aws-postgresql/src/main/resources/db/media-runtime-vendor/postgresql/V045__media_stream_source_presentation_time.sql
   - id: media.domain.stream-frame
     name: StreamFrame
     kind: immutable-session-sequence-message
     identity: canonical-tuple-(tenantId,sessionId,sequence); tenant-is-inherited-from-the-exact-parent-session
     lifecycle: immutable-frame-input-and-acknowledgement-observation; frame-acceptance-is-not-transcription-or-processing-finality
     sourcePosition: Internal source-capture frames may carry the paired sourceVersion and nonnegative signed-64-bit sourceCursor observed by the source adapter; this is not a public wire or caller-settable API field. Long.MAX_VALUE is reserved and rejected. This pair is distinct from the Media sequence and is persisted with the canonical session ACK; it has no clock or PTS meaning. Missing, mismatched, regressed, or noncontiguous positions do not advance the source checkpoint.
-    scopeStatus: owner-defined-logical-identity; frame-persistence-and-wire-equivalence-unverified; runtime-NOT_ADMITTED
+    sourcePresentationTime: A source-bound VIDEO frame must carry exactly one valid internal raw observation, either KNOWN signed ticks plus a positive rational timebase and bounded opaque clockId, or UNKNOWN with only a bounded nonblank reason of at most 256 Unicode code points excluding NUL and unpaired surrogates. Missing or malformed values reject before provider dispatch. Persist unchanged with that frame's sourceVersion/sourceCursor and Media ACK; do not convert, rescale, or infer from transport time. AUDIO has no source PTS. Legacy unbound video frames remain unchanged. Not public/caller-settable and not exposed through stream inspection; persistence proves no clock trust or authorization.
+    scopeStatus: owner-defined-logical-identity; synthetic-local-source-checkpoint-and-PTS-persistence-readback-verified; public-wire-unchanged; runtime-NOT_ADMITTED
     sourceRefs:
       - runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaRuntimeContracts.java#StreamFrame
       - modules/audio-streaming/src/main/java/com/ghatana/audio/streaming/GrpcAudioSourceCapture.java#SourceFrame
       - modules/video-streaming/src/main/java/com/ghatana/video/streaming/GrpcVideoSourceCapture.java#SourceFrame
+      - modules/video-streaming/src/main/java/com/ghatana/video/streaming/VideoFrameTimebase.java#SourceTimestamp
+      - providers/aws-postgresql/src/main/resources/db/media-runtime-vendor/postgresql/V045__media_stream_source_presentation_time.sql
       - modules/speech/stt-service/src/main/proto/stt_service.proto
       - modules/vision/vision-service/src/main/proto/vision_service.proto
   - id: media.domain.consent-record

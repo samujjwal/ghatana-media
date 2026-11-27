@@ -7,6 +7,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingJob;
 import com.ghatana.media.runtime.MediaRuntimeContracts.SttSubmissionSnapshot;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality;
+import com.ghatana.media.runtime.MediaRuntimeContracts.SourcePresentationTime;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
@@ -569,7 +570,12 @@ class MediaAwsPostgresqlRuntimeStateTest {
                     StreamSession sourceFirstPending = streams.beginFrame(
                             sourceConnected, 0, "attempt-source-frame-0");
                     assertThatThrownBy(() -> streams.recordFrame(
-                            sourceFirstPending, 0, 128, false, "source@v7", Long.MAX_VALUE))
+                            sourceFirstPending, 0, 128, false, "source@v7", 40L))
+                            .isInstanceOf(IllegalArgumentException.class)
+                            .hasMessageContaining("presentation-time observation");
+                    assertThatThrownBy(() -> streams.recordFrame(
+                            sourceFirstPending, 0, 128, false, "source@v7", Long.MAX_VALUE,
+                            SourcePresentationTime.known(100, 1, 90_000, "camera.clock.v1")))
                             .isInstanceOf(IllegalArgumentException.class)
                             .hasMessageContaining("source checkpoint");
                     StreamSession afterRejectedFirst = streams.find(
@@ -577,16 +583,20 @@ class MediaAwsPostgresqlRuntimeStateTest {
                     assertThat(afterRejectedFirst.lastSequence()).isEqualTo(-1);
                     assertThat(afterRejectedFirst.sourceVersion()).isNull();
                     assertThat(afterRejectedFirst.sourceCursor()).isNull();
+                    assertThat(afterRejectedFirst.sourcePresentationTime()).isNull();
                     StreamSession sourceFirst = streams.recordFrame(
-                            sourceFirstPending, 0, 128, false, "source@v7", 40L);
+                            sourceFirstPending, 0, 128, false, "source@v7", 40L,
+                            SourcePresentationTime.known(-9_007_199_254_740_993L, 1001, 30000, "camera.clock.v1"));
                     assertThat(sourceFirst.lastSequence()).isZero();
                     assertThat(sourceFirst.sourceVersion()).isEqualTo("source@v7");
                     assertThat(sourceFirst.sourceCursor()).isEqualTo(40L);
+                    assertThat(sourceFirst.sourcePresentationTime().ticks()).isEqualTo(-9_007_199_254_740_993L);
 
                     StreamSession sourceSecondPending = streams.beginFrame(
                             sourceFirst, 1, "attempt-source-frame-1");
                     assertThatThrownBy(() -> streams.recordFrame(
-                            sourceSecondPending, 1, 128, false, "source@v8", 41L))
+                            sourceSecondPending, 1, 128, false, "source@v8", 41L,
+                            SourcePresentationTime.known(101, 1, 90_000, "camera.clock.v1")))
                             .isInstanceOf(IllegalStateException.class)
                             .hasMessageContaining("exact next position");
                     StreamSession afterRejectedContinuation = streams.find(
@@ -595,7 +605,8 @@ class MediaAwsPostgresqlRuntimeStateTest {
                     assertThat(afterRejectedContinuation.sourceVersion()).isEqualTo("source@v7");
                     assertThat(afterRejectedContinuation.sourceCursor()).isEqualTo(40L);
                     StreamSession sourceSecond = streams.recordFrame(
-                            sourceSecondPending, 1, 128, false, "source@v7", 41L);
+                            sourceSecondPending, 1, 128, false, "source@v7", 41L,
+                            SourcePresentationTime.unknown("synthetic source PTS unknown"));
                     StreamSession sourceEosPending = streams.beginFrame(
                             sourceSecond, 2, "attempt-source-eos");
                     StreamSession sourceEos = streams.recordFrame(sourceEosPending, 2, 0, true);
@@ -603,6 +614,8 @@ class MediaAwsPostgresqlRuntimeStateTest {
                     assertThat(sourceEos.lastSequence()).isEqualTo(2);
                     assertThat(sourceEos.sourceVersion()).isEqualTo("source@v7");
                     assertThat(sourceEos.sourceCursor()).isEqualTo(41L);
+                    assertThat(sourceEos.sourcePresentationTime()).isEqualTo(
+                            SourcePresentationTime.unknown("synthetic source PTS unknown"));
                     try (PostgresqlMediaStreamSessionStore restartedStreams =
                                  new PostgresqlMediaStreamSessionStore()) {
                         StreamSession sourceReadback = restartedStreams
@@ -611,6 +624,8 @@ class MediaAwsPostgresqlRuntimeStateTest {
                         assertThat(sourceReadback.lastSequence()).isEqualTo(2);
                         assertThat(sourceReadback.sourceVersion()).isEqualTo("source@v7");
                         assertThat(sourceReadback.sourceCursor()).isEqualTo(41L);
+                        assertThat(sourceReadback.sourcePresentationTime()).isEqualTo(
+                                SourcePresentationTime.unknown("synthetic source PTS unknown"));
                     }
 
                     StreamSession closed = streams.transition(draining, StreamState.CLOSED);

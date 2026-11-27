@@ -114,7 +114,7 @@ public final class VideoStreamSession {
 
     public record DecodedFrame(
             int sequenceNumber, boolean keyFrame, long timestampMillis, byte[] payload,
-            String sourceVersion, Long sourceCursor) {
+            String sourceVersion, Long sourceCursor, VideoFrameTimebase.SourceTimestamp presentationPts) {
         public DecodedFrame {
             payload = payload == null ? null : payload.clone();
             if ((sourceVersion == null) != (sourceCursor == null)
@@ -124,8 +124,13 @@ public final class VideoStreamSession {
             }
         }
 
+        public DecodedFrame(int sequenceNumber, boolean keyFrame, long timestampMillis, byte[] payload,
+                String sourceVersion, Long sourceCursor) {
+            this(sequenceNumber, keyFrame, timestampMillis, payload, sourceVersion, sourceCursor, null);
+        }
+
         public DecodedFrame(int sequenceNumber, boolean keyFrame, long timestampMillis, byte[] payload) {
-            this(sequenceNumber, keyFrame, timestampMillis, payload, null, null);
+            this(sequenceNumber, keyFrame, timestampMillis, payload, null, null, null);
         }
 
         /** Returns a copy so callers cannot mutate bytes after frame validation. */

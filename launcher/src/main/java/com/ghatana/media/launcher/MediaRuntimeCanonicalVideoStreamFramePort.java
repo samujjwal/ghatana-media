@@ -3,9 +3,12 @@ package com.ghatana.media.launcher;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFrame;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
+import com.ghatana.media.runtime.MediaRuntimeContracts.SourcePresentationTime;
+import com.ghatana.media.runtime.MediaRuntimeContracts.SourcePresentationTimeStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import com.ghatana.video.streaming.CanonicalVideoStreamFramePort;
+import com.ghatana.video.streaming.VideoFrameTimebase;
 import com.ghatana.video.streaming.VideoStreamSession;
 import java.time.Instant;
 import java.util.Optional;
@@ -65,7 +68,7 @@ final class MediaRuntimeCanonicalVideoStreamFramePort implements CanonicalVideoS
         return Optional.of(new Binding(
                 session.sessionId(), session.tenantId(), session.principalId(), purposeRef,
                 session.reconnectCount(), session.version(), session.lastSequence(), session.leaseExpiresAt(),
-                session.sourceVersion(), session.sourceCursor()));
+                session.sourceVersion(), session.sourceCursor(), toVideoTimestamp(session.sourcePresentationTime())));
     }
 
     @Override
@@ -111,7 +114,7 @@ final class MediaRuntimeCanonicalVideoStreamFramePort implements CanonicalVideoS
                     Result.notAdmitted("video frame does not satisfy the bounded wire contract"));
         }
         return dispatch(expected, frame.sequenceNumber(), wireFrame, false,
-                frame.sourceVersion(), frame.sourceCursor());
+                frame.sourceVersion(), frame.sourceCursor(), frame.presentationPts());
     }
 
     @Override
@@ -139,16 +142,17 @@ final class MediaRuntimeCanonicalVideoStreamFramePort implements CanonicalVideoS
             return OfferFeedback.unavailable(
                     Result.notAdmitted("video end-of-stream marker violates the bounded wire contract"));
         }
-        return dispatch(expected, nextSequence, eosWireFrame, true, null, null);
+        return dispatch(expected, nextSequence, eosWireFrame, true, null, null, null);
     }
 
     private OfferFeedback dispatch(
             Binding expected, long sequence, byte[] payload, boolean endOfStream,
-            String sourceVersion, Long sourceCursor) {
+            String sourceVersion, Long sourceCursor, VideoFrameTimebase.SourceTimestamp presentationPts) {
         try {
             var acknowledgement = runtime.acceptFrameForBinding(
                     new StreamFrame(expected.tenantId(), expected.streamId(), connectionToken,
-                            sequence, payload, endOfStream, Instant.now(), sourceVersion, sourceCursor),
+                            sequence, payload, endOfStream, Instant.now(), sourceVersion, sourceCursor,
+                            toRuntimeSourcePresentationTime(presentationPts)),
                     Math.toIntExact(expected.sessionRevision()), expected.storeVersion(),
                     expected.lastAcknowledgedSequence(), expected.leaseExpiresAt());
             if (acknowledgement.acceptedSequence() != sequence) {
@@ -159,9 +163,12 @@ final class MediaRuntimeCanonicalVideoStreamFramePort implements CanonicalVideoS
                     .orElse(null);
             String acknowledgedSourceVersion = sourceVersion == null ? expected.sourceVersion() : sourceVersion;
             Long acknowledgedSourceCursor = sourceCursor == null ? expected.sourceCursor() : sourceCursor;
+            SourcePresentationTime acknowledgedPresentationTime = presentationPts == null
+                    ? toRuntimeSourcePresentationTime(expected.sourcePresentationTime())
+                    : toRuntimeSourcePresentationTime(presentationPts);
             if (!confirmsAcknowledgement(persisted, expected, sequence,
                     acknowledgement.bufferedBytes(), endOfStream,
-                    acknowledgedSourceVersion, acknowledgedSourceCursor)) {
+                    acknowledgedSourceVersion, acknowledgedSourceCursor, acknowledgedPresentationTime)) {
                 return OfferFeedback.unavailable(new Result(Disposition.OUTCOME_UNKNOWN, -1,
                         "canonical video stream acknowledgement was not confirmed by session-store readback"));
             }
@@ -186,7 +193,8 @@ final class MediaRuntimeCanonicalVideoStreamFramePort implements CanonicalVideoS
             long bufferedBytes,
             boolean endOfStream,
             String sourceVersion,
-            Long sourceCursor) {
+            Long sourceCursor,
+            SourcePresentationTime sourcePresentationTime) {
         if (persisted == null) return false;
         return persisted.tenantId().equals(expected.tenantId())
                 && persisted.sessionId().equals(expected.streamId())
@@ -200,10 +208,30 @@ final class MediaRuntimeCanonicalVideoStreamFramePort implements CanonicalVideoS
                 && persisted.inFlightAttemptId().isBlank()
                 && java.util.Objects.equals(persisted.sourceVersion(), sourceVersion)
                 && java.util.Objects.equals(persisted.sourceCursor(), sourceCursor)
+                && java.util.Objects.equals(persisted.sourcePresentationTime(), sourcePresentationTime)
                 && persisted.finality() == StreamFinality.NONE
                 && (endOfStream
                         ? persisted.state() == StreamState.DRAINING
                         : connected(persisted.state()));
+    }
+
+    private static SourcePresentationTime toRuntimeSourcePresentationTime(
+            VideoFrameTimebase.SourceTimestamp timestamp) {
+        if (timestamp == null) return null;
+        if (timestamp.status() == VideoFrameTimebase.Status.KNOWN) {
+            return SourcePresentationTime.known(timestamp.ticks(), timestamp.timebaseNumerator(),
+                    timestamp.timebaseDenominator(), timestamp.clockId());
+        }
+        return SourcePresentationTime.unknown(timestamp.unknownReason());
+    }
+
+    private static VideoFrameTimebase.SourceTimestamp toVideoTimestamp(SourcePresentationTime timestamp) {
+        if (timestamp == null) return null;
+        if (timestamp.status() == SourcePresentationTimeStatus.KNOWN) {
+            return VideoFrameTimebase.SourceTimestamp.known(timestamp.ticks(), timestamp.timebaseNumerator(),
+                    timestamp.timebaseDenominator(), timestamp.clockId());
+        }
+        return VideoFrameTimebase.SourceTimestamp.unknown(timestamp.unknownReason());
     }
 
     private Result bindingRejection(Binding expected) {
