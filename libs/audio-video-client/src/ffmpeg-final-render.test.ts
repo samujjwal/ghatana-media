@@ -72,6 +72,50 @@ describe("PinnedFfmpegFinalRenderMuxer", () => {
     }
   });
 
+  it("refuses variable-frame-rate requests before starting the CFR-only local codec", async () => {
+    const root = await mkdtemp(join(tmpdir(), "media-render-vfr-boundary-"));
+    try {
+      const source = join(root, "scene.mp4");
+      const invocationMarker = join(root, "codec-invoked");
+      await writeFile(source, new Uint8Array([1]));
+      const ffmpegStub = `#!/bin/sh\nprintf '%s\\n' invoked >> '${invocationMarker}'\nprintf '%s\\n' 'ffmpeg version ${expectedVersion}'\n`;
+      const ffprobeStub = `#!/bin/sh\nprintf '%s\\n' 'ffprobe version ${expectedVersion}'\n`;
+      const ffmpegStubPath = join(root, "ffmpeg-fixture");
+      const ffprobeStubPath = join(root, "ffprobe-fixture");
+      await writeFile(ffmpegStubPath, ffmpegStub, { mode: 0o700 });
+      await writeFile(ffprobeStubPath, ffprobeStub, { mode: 0o700 });
+
+      const plan = orchestrateScenario({ scenarioId: "vfr-boundary", revision: "v1", actors: [], scenes: [{
+        sceneId: "scene", sourceRef: { kind: "MEDIA_FILE", sourceIdentity: "fixture/scene",
+          purposeRef: "purpose/local-codec-fixture", exactRightsScope: "rights/synthetic-fixture/v1",
+          sourceVersionRef: "scene@v1", secretsRef: "secrets/none", frameClockRef: "clock/30fps" },
+        actorRefs: [], narration: [], captionRefs: [], durationMillis: 1000,
+      }] });
+      const request: FinalRenderRequest = {
+        renderId: "render/vfr-boundary/v1", plan,
+        frameRate: { numerator: 30, denominator: 1 }, variableFrameRate: true,
+        timeBase: { numerator: 1, denominator: 90_000 }, durationTicks: 90_000,
+        captions: [], creditRefs: [], fileName: "vfr.mp4", retention: "P1D", classification: "INTERNAL",
+      };
+      const muxer = new PinnedFfmpegFinalRenderMuxer({
+        ffmpegPath: ffmpegStubPath, ffmpegSha256: digest(ffmpegStub),
+        ffprobePath: ffprobeStubPath, ffprobeSha256: digest(ffprobeStub), expectedVersion,
+        sourceRoot: root,
+        resolver: {
+          resolveSceneSource: () => source,
+          resolveNarrationSource: () => source,
+          resolveCaptionText: () => "Unused caption",
+        },
+        developmentLicenseProfileRef: "fixture-only",
+      });
+
+      await expect(muxer.muxAndVerify(request)).rejects.toThrow("unsupported local render profile");
+      expect(existsSync(invocationMarker)).toBe(false);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   it("rejects 64 scenes plus a generated caption input before encode", async () => {
     const root = await mkdtemp(join(tmpdir(), "media-render-input-bound-"));
     try {

@@ -164,7 +164,7 @@ export class PinnedFfmpegFinalRenderMuxer implements FinalRenderMuxAndProbePort 
 
   public async muxAndVerify(request: FinalRenderRequest, signal?: AbortSignal): Promise<RenderedContainer> {
     if (signal?.aborted) throw codecAbortError();
-    if (!request.fileName.toLowerCase().endsWith(".mp4") || request.creditRefs.length > 0
+    if (!request.fileName.toLowerCase().endsWith(".mp4") || request.variableFrameRate || request.creditRefs.length > 0
       || request.timeBase.numerator !== 1 || request.plan.sceneRuns.length < 1
       || request.plan.sceneRuns.length > MAX_INPUTS) throw new Error("unsupported local render profile");
     const totalMillis = request.plan.sceneRuns.reduce((total, run) => total + run.durationMillis, 0);
