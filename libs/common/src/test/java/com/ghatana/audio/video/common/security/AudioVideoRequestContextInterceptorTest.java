@@ -16,6 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -213,6 +215,44 @@ class AudioVideoRequestContextInterceptorTest {
         }
 
         @Test
+        @DisplayName("all explicit-deny RPCs reject user and admin before backend dispatch")
+        void explicitDenyMatrixHasNoBackendEffects() throws InterruptedException {
+            Set<String> explicitDenials = AudioVideoMethodRbacRegistry.explicitlyDispositionedMethods().stream()
+                    .filter(method -> AudioVideoMethodRbacRegistry.methodDisposition(method)
+                            == AudioVideoMethodRbacRegistry.MethodDisposition.EXPLICIT_DENY)
+                    .collect(java.util.stream.Collectors.toUnmodifiableSet());
+            assertThat(explicitDenials).hasSize(29);
+
+            Set<String> coveredMethods = new HashSet<>();
+            for (String method : explicitDenials) {
+                for (String verifiedRole : Set.of("av:user", "av:admin")) {
+                    ServerCall<Object, Object> call = mockCall(method);
+                    ServerCallHandler<Object, Object> handler = mockHandler();
+                    // Caller-controlled role metadata deliberately disagrees with the verified token role.
+                    Metadata headers = rolesHeader("av:user".equals(verifiedRole) ? "av:admin" : "av:user");
+
+                    verifiedContext("verified-" + verifiedRole, "tenant-deny-matrix", Set.of(verifiedRole))
+                            .run(() -> interceptor.interceptCall(call, headers, handler));
+
+                    ArgumentCaptor<Status> status = ArgumentCaptor.forClass(Status.class);
+                    verify(call).close(status.capture(), any());
+                    assertThat(status.getValue().getCode()).as(method + " for " + verifiedRole)
+                            .isEqualTo(Status.Code.PERMISSION_DENIED);
+                    verify(handler, never()).startCall(any(), any());
+
+                    AuditRecord record = awaitRecord();
+                    assertThat(record.grpcMethod()).isEqualTo(method);
+                    assertThat(record.roles()).isEqualTo(verifiedRole);
+                    assertThat(record.tenantId()).isEqualTo("tenant-deny-matrix");
+                    assertThat(record.principal()).isEqualTo("verified-" + verifiedRole);
+                    assertThat(record.outcome()).isEqualTo(Outcome.DENIED_INSUFFICIENT_ROLE);
+                    coveredMethods.add(method);
+                }
+            }
+            assertThat(coveredMethods).hasSize(29).containsExactlyInAnyOrderElementsOf(explicitDenials);
+        }
+
+        @Test
         @DisplayName("rejects loadModel for av:user role (requires av:admin)")
         void rejectsLoadModelForUserRole() throws InterruptedException {
             ServerCall<Object, Object> call = mockCall("com.ghatana.audio.video.stt.grpc.STTService/LoadModel");
@@ -364,7 +404,12 @@ class AudioVideoRequestContextInterceptorTest {
 
     private static Context verifiedContext(String subject, String tenant) {
         return Context.current().withValue(JwtServerInterceptor.VERIFIED_IDENTITY,
-                new JwtServerInterceptor.VerifiedIdentity(subject, tenant));
+                new JwtServerInterceptor.VerifiedIdentity(subject, tenant, Set.of()));
+    }
+
+    private static Context verifiedContext(String subject, String tenant, Set<String> roles) {
+        return Context.current().withValue(JwtServerInterceptor.VERIFIED_IDENTITY,
+                new JwtServerInterceptor.VerifiedIdentity(subject, tenant, roles));
     }
 }
 
