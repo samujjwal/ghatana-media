@@ -686,7 +686,8 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
     return;
   }
   if (channel === 'production' && command === 'job list') {
-    // The legacy v1 list response lacks the owner-defined observedAt/readVersion result.
+    // The SDK now projects the owner-defined snapshot metadata, but CLI runtime admission
+    // remains closed until the host identity and qualification contract is current.
     writeError(
       'NOT_ADMITTED',
       'This production CLI operation is not admitted for the current runtime.',
