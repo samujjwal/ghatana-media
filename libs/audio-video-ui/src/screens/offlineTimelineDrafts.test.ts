@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { IDBFactory } from "fake-indexeddb";
 import { describe, expect, it, vi } from "vitest";
-import { MediaDevProjectTimelineError, type DevProjectRead } from "@audio-video/client/dev-project-timeline";
+import { MediaDevProjectTimelineError, type DevProjectRead, type DevRevisionRead } from "@audio-video/client/dev-project-timeline";
 import { OfflineDraftKeyCustody, OfflineDraftKeyCustodyError } from "./offlineDraftKeyCustody";
 import { OfflineTimelineDrafts, isConnectivityFailure, type OfflineDraftsPort } from "./offlineTimelineDrafts";
 
@@ -231,7 +231,7 @@ describe("offline timeline drafts", () => {
     expect(f.port.editTimeline).not.toHaveBeenCalled();
   });
 
-  it("OUTCOME_UNKNOWN is fenced, never auto-replayed, and retries the same requestId once the head proves no commit", async () => {
+  it("OUTCOME_UNKNOWN is fenced and a confirmed non-application retries the same requestId without claiming owner replay", async () => {
     const idb = new IDBFactory(); const f = fixture();
     f.port.editTimeline.mockRejectedValueOnce(new MediaDevProjectTimelineError("OUTCOME_UNKNOWN", 0, "lost response"));
     const drafts = await open(idb, f.port, f.newId);
@@ -248,10 +248,22 @@ describe("offline timeline drafts", () => {
     expect(rearmed[0]).toMatchObject({ editId: draft.editId, requestId: draft.requestId, baseRevisionId: "rev-1", state: "PENDING" });
     expect(f.port.editTimeline).toHaveBeenCalledTimes(1);
     const outcome = await drafts.replay(await drafts.review(draft.editId));
-    expect(outcome).toMatchObject({ kind: "REPLAYED", requestId: draft.requestId, revisionId: "rev-2" });
+    expect(outcome).toMatchObject({ kind: "APPLIED", requestId: draft.requestId, revisionId: "rev-2", httpStatus: 201 });
     expect(f.port.editTimeline).toHaveBeenCalledTimes(2);
     const { mock } = f.port.editTimeline;
     expect(mock.calls[0]).toEqual(mock.calls[1]); // identical CAS request on retry
+  });
+
+  it("labels REPLAYED only when the owner supplies replayed true", async () => {
+    for (const [replayed, expectedKind] of [[true, "REPLAYED"], [false, "APPLIED"], [undefined, "APPLIED"]] as const) {
+      const idb = new IDBFactory(); const f = fixture();
+      const response = revisionRead("rev-2", "rev-1") as unknown as DevRevisionRead;
+      f.port.editTimeline.mockResolvedValueOnce({ ...response, ...(replayed === undefined ? {} : { replayed }) } as never);
+      const drafts = await open(idb, f.port, f.newId);
+      const draft = await drafts.capture({ timelineId: "timeline-main", edits: [...EDITS], baseRevisionId: "rev-1" });
+      const outcome = await drafts.replay(await drafts.review(draft.editId));
+      expect(outcome.kind).toBe(expectedKind);
+    }
   });
 
   it("cannot re-arm an unknown draft when the head moved (possibly applied)", async () => {
@@ -320,7 +332,7 @@ describe("offline timeline drafts", () => {
     const mine = await drafts.rebase(review);
     expect(f.port.editTimeline).not.toHaveBeenCalled();
     expect(await drafts.replay(await drafts.review(mine.editId))).toMatchObject({ kind: "APPLIED", requestId: mine.requestId });
-    expect(f.calls.edit).toEqual([{ expectedHeadRevisionId: "rev-2", edits: EDITS }]);
+    expect(f.calls.edit).toEqual([{ expectedHeadRevisionId: "rev-2", edits: EDITS, requestId: mine.requestId }]);
     expect(await drafts.list()).toEqual([]);
   });
 

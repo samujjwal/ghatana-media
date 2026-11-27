@@ -53,7 +53,7 @@ describe("DevOfflineDraftsPanel", () => {
     expect(client.editTimeline).not.toHaveBeenCalled(); // review sends nothing
     await clickEnabled("Confirm replay");
     await waitFor(() => expect(client.editTimeline).toHaveBeenCalledTimes(1));
-    expect(client.editTimeline.mock.calls[0]![2]).toEqual({ expectedHeadRevisionId: "rev-1", edits: [{ type: "addScene", sceneId: "scene-offline", order: 0 }] });
+    expect(client.editTimeline.mock.calls[0]![2]).toEqual({ expectedHeadRevisionId: "rev-1", edits: [{ type: "addScene", sceneId: "scene-offline", order: 0 }], requestId: expect.any(String) });
     await screen.findByText(/APPLIED \(201\)/);
   });
 

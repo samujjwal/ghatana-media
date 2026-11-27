@@ -28,9 +28,9 @@ import { OfflineDraftKeyCustody, offlineDraftKeyId, type OfflineDraftKeyScope } 
  *
  * This module reuses the existing OfflineEditQueue / IndexedDbOfflineEditStore /
  * OfflineReconnectCoordinator. The draft's requestId is the queue idempotency
- * key (the durable local replay fence); the DEV_ONLY host edit route carries no
- * requestId on the wire and gets its at-most-once guarantee from the
- * expectedHeadRevisionId compare-and-set.
+ * key (the durable local replay fence); the DEV_ONLY host edit route receives
+ * that requestId but does not currently expose owner-confirmed replay status.
+ * Its source edit remains guarded by expectedHeadRevisionId compare-and-set.
  */
 
 export interface TimelineDraftPayload {
@@ -53,7 +53,7 @@ export interface TimelineDraft {
 
 export type OfflineDraftsPort = {
   getProject(projectId: string, signal?: AbortSignal): Promise<DevProjectRead>;
-  editTimeline(projectId: string, timelineId: string, request: EditDevTimelineRequest, signal?: AbortSignal): Promise<DevRevisionRead>;
+  editTimeline(projectId: string, timelineId: string, request: EditDevTimelineRequest, signal?: AbortSignal): Promise<DevRevisionRead & { readonly replayed?: boolean }>;
   /** Exact revision reads let a review show the other version and reconcile an unknown outcome. */
   getRevision?(projectId: string, revisionId: string, signal?: AbortSignal): Promise<DevRevisionRead>;
 };
@@ -89,7 +89,7 @@ export interface DraftReview {
 
 export type DraftReplayOutcome =
   | { readonly kind: "APPLIED"; readonly editId: string; readonly requestId: string; readonly revisionId: string; readonly httpStatus: 201 }
-  /** Same requestId re-sent after an unknown outcome and accepted. */
+  /** The owner confirms the exact request identity was already committed and returns its original receipt. */
   | { readonly kind: "REPLAYED"; readonly editId: string; readonly requestId: string; readonly revisionId: string }
   | { readonly kind: "REVISION_CONFLICT"; readonly editId: string; readonly baseRevisionId: string; readonly currentHeadRevisionId: string; readonly message: string }
   /** A typed host refusal. The draft is KEPT (never discarded by a refusal); the user decides what to do with it. */
@@ -132,7 +132,6 @@ export function isConnectivityFailure(error: unknown): boolean {
 }
 
 export class OfflineTimelineDrafts {
-  private readonly retried = new Set<string>();
   private readonly denials = new Map<string, Refusal>();
   private observedHead?: string;
   private conflictHead?: string;
@@ -283,7 +282,6 @@ export class OfflineTimelineDrafts {
       throw new Error("Only an unknown-outcome draft whose base head is still current can be re-armed.");
     }
     await this.rearmSame(review.draft);
-    this.retried.add(review.draft.editId);
   }
 
   private async rearmSame(draft: TimelineDraft): Promise<void> {
@@ -383,7 +381,10 @@ export class OfflineTimelineDrafts {
           const applied = await port.editTimeline(scope.projectId, edit.payload.timelineId,
             { expectedHeadRevisionId: edit.expectedVersion, edits: edit.payload.edits, requestId: edit.payload.requestId });
           this.observedHead = applied.revision.revisionId;
-          return { ...base, outcome: "APPLIED", receipt: applied.revision.revisionId };
+          const replayed: unknown = applied.replayed;
+          if (replayed !== undefined && typeof replayed !== "boolean") return { ...base, outcome: "OUTCOME_UNKNOWN" };
+          return { ...base, outcome: "APPLIED", receipt: applied.revision.revisionId,
+            ...(typeof replayed === "boolean" ? { replayed } : {}) };
         } catch (error) {
           if (error instanceof MediaDevProjectTimelineError && error.code === "REVISION_CONFLICT") {
             const head = error.details?.currentHeadRevisionId;
@@ -414,7 +415,7 @@ export class OfflineTimelineDrafts {
       case "APPLIED": {
         const revisionId = mine.receipt ?? "";
         await this.store.remove(scope, editId).catch(() => undefined);
-        if (this.retried.delete(editId)) return { kind: "REPLAYED", editId, requestId: review.draft.requestId, revisionId };
+        if (mine.replayed === true) return { kind: "REPLAYED", editId, requestId: review.draft.requestId, revisionId };
         return { kind: "APPLIED", editId, requestId: review.draft.requestId, revisionId, httpStatus: 201 };
       }
       case "CONFLICT":

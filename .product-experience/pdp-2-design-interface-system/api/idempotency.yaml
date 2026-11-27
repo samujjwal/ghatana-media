@@ -23,6 +23,7 @@ ownerDefinedOfflineReconnectResult:
   decisionRef: .product-experience/decision-log.md#PXD-243
   sourceAuthority: .product-experience/pdp-1-domain-data/offline-sync.yaml#ownerDefinedOfflineSemantics/idempotencyGuard
   appliesTo: libs/audio-video-client/src/offline-reconnect.ts#OfflineReconnectOperations.applyEdit
+  consumedBy: libs/audio-video-ui/src/screens/offlineTimelineDrafts.ts#OfflineTimelineDrafts.replay
   status: OWNER_DEFINED_CLIENT_RESULT_PROJECTION; host-route-and-runtime-admission-remain-NOT_ADMITTED
   resultRules:
     APPLIED:
@@ -55,6 +56,7 @@ ownerDefinedOfflineReconnectResult:
   - OUTCOME_UNKNOWN-with-receipt-or-replayed-claim
   - true-replayed-with-a-new-or-different-receipt
   - replay-flag-used-as-current-rights-or-authority-evidence
+  - UI-REPLAYED-label-derived-from-local-rearm-or-retry-history
   - malformed-or-mismatched-identity-echo
   runtimeAdmission: NOT_ADMITTED
 normativeRuleRecords:
