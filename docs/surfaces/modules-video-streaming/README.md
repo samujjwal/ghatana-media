@@ -24,8 +24,11 @@ is `NO_IMPLEMENTATION_ADMITTED` for video-specific transport.
 - `GrpcVideoSourceCapture` — bounded, source-free-tested adapter that
   requires trusted exact-version/cursor authorization readback, preserves
   rational source PTS (including explicit unknown), and delegates writes to
-  `CanonicalVideoStreamFramePort`. No concrete authenticated gRPC client is
-  wired; canonical ACK does not durably persist source cursor/version/PTS.
+  `CanonicalVideoStreamFramePort`. For source-bound VIDEO frames, the canonical
+  store now commits exact source version/cursor and raw PTS with the Media ACK
+  under the session fence (PXD-247/248). No concrete authenticated gRPC client
+  is wired; local persistence does not qualify source identity, clock, rights,
+  consent, or provider finality.
 Video Streaming owns transport and session frame semantics. It does not own
 artifact/version/PTS/ROI source-frame extraction. The public source-frame
 readback path is implemented by the Vision service, where the source-frame
