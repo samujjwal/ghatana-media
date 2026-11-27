@@ -184,6 +184,25 @@ class ReferenceGuidedScenePlannerTest {
     }
 
     @Test
+    void modelAdmissionUnavailableReturnsTypedUnavailableWithoutDispatch() {
+        AtomicInteger calls = new AtomicInteger();
+        ReferenceGuidedScenePlanner.ModelProvider provider = new ReferenceGuidedScenePlanner.ModelProvider() {
+            @Override public boolean admitted() { throw new IllegalStateException("admission unavailable"); }
+            @Override public ReferenceGuidedScenePlanner.ModelResult generate(ReferenceGuidedScenePlanner.Candidate candidate) {
+                calls.incrementAndGet();
+                return new ReferenceGuidedScenePlanner.ModelOutput("must-not-run", "v1", D1);
+            }
+        };
+        var planner = planner(new Authority(), provider);
+        var candidate = planner.prepare(ACTOR, request(List.of(source("reference-image", IMAGE_VERSION, D2)),
+                template(List.of(fact("wardrobe", "blue"))), continuity(List.of(fact("wardrobe", "blue")))));
+
+        assertThat(planner.generateWithModel(candidate))
+                .isEqualTo(new ReferenceGuidedScenePlanner.ModelUnavailable("PROVIDER_ADMISSION_UNAVAILABLE"));
+        assertThat(calls).hasValue(0);
+    }
+
+    @Test
     void admittedModelDispatchRechecksEveryExactSourceAndStopsAfterRightsRevocation() {
         Authority authority = new Authority();
         AtomicInteger calls = new AtomicInteger();
