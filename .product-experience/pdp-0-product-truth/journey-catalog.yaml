@@ -478,8 +478,24 @@ journeys:
       storedOutput: PostgreSQL/S3 Testcontainers result bytes with exact artifact digest, requestId, scenarioSha256, and trace verified after launcher restart and idempotent replay.
       evidenceClass: SIMULATED_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE
       productionEligible: false
+      readbackActionBinding:
+        decisionRef: PXD-264
+        actionRef: media.action.inspect-simulation-result
+        operationRef: media.operation.action.inspect-simulation-result
+        channelRef: media.channel.web
+        surfaceRef: media.surface.web
+        transportBindingRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedDevelopmentOnlyApiCandidate/routeSdkBindings
+        apiOperationId: media.dev.http.getSimulation
+        method: GET
+        path: /dev/v1/simulations/{simulationId}
+        selector: simulationId is the persisted result artifact identity returned for the same source-free DEV_ONLY run
+        observedOutcome: Persisted COMPLETED or ABSTAINED simulation output; no processing-job or scientific-validity state is inferred
+        authority: Per-run synthetic test tenant/principal and DEV_ONLY bearer token; production and external rights authority are not established
+        runtimeAdmission: NOT_ADMITTED
+        journeyAcceptance: OPEN
       evidenceRefs:
         - .product-experience/decision-log.md#PXD-244
+        - .product-experience/decision-log.md#PXD-264
         - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevSimulationIT.java
       exclusions: [real-source-authority, external-rights-currentness, empirical-measurement, independent-scientific-qualification, production-admission]
     validatorOnlySecondary:

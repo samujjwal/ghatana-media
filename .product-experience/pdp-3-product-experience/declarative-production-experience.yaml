@@ -128,6 +128,23 @@ sourceBoundScenarios:
       productionEligible: false
       independentScientificQualification: NOT_ESTABLISHED
       journeyAcceptance: OPEN
+      readbackActionBinding:
+        decisionRef: PXD-264
+        p0BindingSource: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-15/developmentOnlyExample/primaryHosted/readbackActionBinding
+        actionRef: media.action.inspect-simulation-result
+        operationRef: media.operation.action.inspect-simulation-result
+        channelRef: media.channel.web
+        transportBindingRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedDevelopmentOnlyApiCandidate/routeSdkBindings
+        apiOperationId: media.dev.http.getSimulation
+        route: GET /dev/v1/simulations/{simulationId}
+        explorerSource: apps/media-experience-explorer/src/dev-simulation-client.ts#reopen
+        exactResultSelector: simulationId=resultArtifact.artifactId for the same owner-scoped stored run
+        evidenceRefs:
+          - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerSimulationLiveIT.java
+          - apps/media-experience-explorer/test/dev-simulation-live-browser.mjs
+        p1MachineState: NONE; inspect-simulation-result is a read-only query and the DEV_ONLY outcome is not a job-state transition
+        channelBoundary: Local Explorer web flow with synthetic test identity only; channel equivalence and runtime admission remain UNBOUND and NOT_ADMITTED
+        journeyAcceptance: OPEN
   - id: media.declarative.p3.scenario.j20-durable-job-restart-recovery.v1
     journeyRef: J-20
     screenRef: media.view.job-status

@@ -133,8 +133,8 @@ export function verifyDeclarativeProductionDefinitions({ repoRoot = root, overri
       fail(row.id + ': falsely presenting scene rendering or source recording as an executed owner effect');
   }
   if (p3.denominators?.declarativeCases !== 61 || p3.denominators?.scopedTotal !== 145 ||
-      p3.sourceBoundScenarios?.length !== 8)
-    fail('PDP-3: scoped case, journey and 8 negative/positive scenario denominator drift');
+      p3.sourceBoundScenarios?.length !== 12)
+    fail('PDP-3: scoped case, journey and 12 source-bound scenario denominator drift');
   if (!sameSet(p1.existingCanonicalDomainRefs || [], domainIds) ||
       !domainIds.every(id => objectIds.has(id))) fail('PDP-1: canonical domain objects are missing, replaced or duplicated');
   const vals = p1.typedProductionValueDescriptors || [];
