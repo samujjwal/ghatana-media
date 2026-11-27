@@ -134,6 +134,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Current source decision and verification (2026-11-27):** PXD-246 maps only the source-defined V016 `media.job.accepted` event to the current Event Plane API: direct exact three-field payload; aggregate/version/classification in namespaced string headers; no submitting actor in `userId` or `X-Principal-Id`; verified workload authentication supplies transport identity. The Event Plane OpenAPI and service-contract hashes match the current P1 pins. `MediaLifecyclePublisherTest` passes 16/16 under JDK 27 / FULL `DEV_SOURCE_COMPOSITE`, including exact request/readback, lost-response reconciliation and malformed-payload rejection. This is local loopback coverage and one Media-side projection decision only. Live credentials/stream permissions, V011/V016 safe drain/cutover, event-owner acceptance, subscriber authorization and consumer-effect readback remain open; task remains OPEN.
 
 **`media.dev.rights-aware-cache`** · OPEN
+- **Coordinator regression (2026-11-27):** FULL `DEV_SOURCE_COMPOSITE` `AudioVideoCacheTest` passes 53/53. A pending protected cache hit crossing `validUntil` is rejected by the second authority check; no source fallback or cache write occurs. Synthetic test evidence only; owner-backed runtime authority and durable rights/retention invalidation remain open. Task remains OPEN.
 - **Coordinator source audit and verification (2026-11-10):** No additional cache change was justified: current code already binds source version, tenant/rights scope, transcript identity, persisted version and revocation epoch, and requires fresh typed `CURRENT` authority. Owner sources define expiry/revocation epoch but no extra TTL or replayable invalidation semantics. FULL cache unit suite passes 126/126; prior Redis integration evidence remains 11/11. Owner-backed runtime authority/caller and replayable invalidation remain open.
 - **Where:** `modules/infrastructure/cache`, `launcher`
 - **What:** Ensure caches cannot outlive source version, tenant rights or revocation.
@@ -816,6 +817,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Additional progress (2026-11-10):** 2026-11-10 Media sequence readback-bound increment: Audio and video `Grpc*SourceCapture.Readback` now reject a Media sequence above each canonical stream session’s MAX_FRAME_SEQUENCE bound, matching source offer/EOS limits. Adverse constructors reject MAX_FRAME_SEQUENCE + 1. Forced serial FULL DEV_SOURCE_COMPOSITE selectors pass `GrpcAudioSourceCaptureTest` 28/28 and `GrpcVideoSourceCaptureTest` 33/33, zero failures/errors/skips. Local readback DTO bounds only; durable source artifact/version/cursor/PTS/timebase, authenticated request/receipt and consent authority, qualified source-clock provenance, durable reconciliation/clear authority, authenticated transport and 1/16/64 client qualification remain open. Task stays OPEN.
 
 **`media.dev.camera-source-capture`** · OPEN
+- **Coordinator regression (2026-11-27):** A deferred camera frame read crossing the bounded session duration now fails with `FRAME_LIMIT` and closes the track; focused selector passes 1/1 (38 filtered). Synthetic track only; canonical stream/session, PTS, consent/rights, and physical-device qualification remain open. Task remains OPEN.
 - **Where:** `libs/audio-video-client/src/capture-adapters.ts`, `modules/video-streaming`, `libs/audio-video-client/src/camera-capture-adapter.ts`, `libs/audio-video-client/src/browser-camera-host.ts`
 - **What:** Implement camera source intake with permission and device-state handling.
 - **How:** Host camera permission and actual encoder with bounded buffers, camera/mic indicators, timestamps and hot unplug recovery.
@@ -1018,6 +1020,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Predecessors:** `media.dev.scientific-simulation-engine`
 
 **`media.dev.audio-repair-and-comparison`** · OPEN
+- **Coordinator regression (2026-11-27):** `AudioRepairComparisonTest` passes 21/21. A silent synthetic reference keeps SNR undefined when candidate samples differ. This verifies metric edge semantics only; real DSP quality, rights-cleared reference provenance, and durable A/B comparison remain open. Task remains OPEN.
 - **Where:** `modules/production/audio-mixing`, `modules/intelligence/speech/libs/speech-audio-rust`
 - **What:** Implement real bounded denoise/declip and source-preserving comparison.
 - **How:** Use selected DSP algorithms with transparent loss/quality metrics and immutable A/B revisions.

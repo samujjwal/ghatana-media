@@ -812,6 +812,34 @@ describe("CameraCaptureAdapter", () => {
     expect(track.stopCalls).toBe(1);
   });
 
+  it("discards a frame whose in-flight read crosses the bounded session duration", async () => {
+    let currentTime = now;
+    let markReadStarted: (() => void) | undefined;
+    let finishTrackRead: ((frame: Uint8Array) => void) | undefined;
+    const readStarted = new Promise<void>((resolve) => { markReadStarted = resolve; });
+    const track = frameTrack([]);
+    track.nextFrame = () => {
+      markReadStarted?.();
+      return new Promise<Uint8Array>((resolve) => { finishTrackRead = resolve; });
+    };
+    const h = harness({
+      tracks: [track],
+      clockNow: () => currentTime,
+      decide: (candidate, at) => permissionFor(candidate, { checkedAtEpochMillis: at }),
+    });
+    const session = await h.adapter.openSession(request);
+    const pendingFrame = session.nextFrame();
+    await readStarted;
+
+    currentTime = now + 10_000;
+    finishTrackRead?.(new Uint8Array([1]));
+    await expectCode(pendingFrame, "FRAME_LIMIT");
+
+    expect(track.stopCalls).toBe(1);
+    await session.close();
+    expect(track.stopCalls).toBe(1);
+  });
+
   it("rejects excess outstanding frame calls before they can queue or reach the track", async () => {
     let trackReadCalls = 0;
     let markReadStarted: (() => void) | undefined;

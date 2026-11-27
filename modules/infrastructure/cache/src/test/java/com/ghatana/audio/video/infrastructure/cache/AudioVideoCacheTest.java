@@ -565,6 +565,50 @@ class AudioVideoCacheTest {
     }
 
     @Test
+    void rightsExpiryDuringPendingCacheHitPreventsDisclosureAndSourceFallback() {
+        DistributedCacheService port = mock(DistributedCacheService.class);
+        Instant issuedAt = Instant.parse("2026-11-09T12:00:00Z");
+        Instant expiresAt = issuedAt.plusSeconds(5);
+        AtomicReference<Instant> now = new AtomicReference<>(issuedAt);
+        Clock clock = new Clock() {
+            @Override public ZoneId getZone() { return ZoneId.of("UTC"); }
+            @Override public Clock withZone(ZoneId zone) { return this; }
+            @Override public Instant instant() { return now.get(); }
+        };
+        var cache = new AudioVideoCache<String, String>(port, "protected-transcripts",
+                Duration.ofSeconds(1), clock);
+        var scope = new AudioVideoCache.CacheKeyScope("tenant-a", "principal-a", "rights-7",
+                "transcription", "CONFIDENTIAL", "artifact-a", "artifact-v4", "transcript-v9",
+                "sha256-source-9", "policy-epoch-12", "model-license-v1", 0L);
+        String key = cache.buildScopedKey(scope, "transcript-a");
+        CompletableFuture<Optional<String>> pendingRead = new CompletableFuture<>();
+        when(port.get(key)).thenReturn(AsyncOperation.from(pendingRead));
+        AtomicInteger sourceLoads = new AtomicInteger();
+
+        AsyncOperation<String> operation = cache.getOrLoadScopedWithAuthority(scope, "transcript-a",
+                requested -> AsyncOperation.success(AudioVideoCache.ScopedAuthorityResult.current(
+                        requested, expiresAt)),
+                ignored -> {
+                    sourceLoads.incrementAndGet();
+                    return AsyncOperation.success("must-not-load-on-cached-hit");
+                });
+
+        // The initial authority check passed, but the cached response is still pending.
+        verify(port, org.mockito.Mockito.timeout(1_000)).get(key);
+        // The lease expires after the cache lookup starts but before its value is
+        // delivered; the second authority check must reject the cached payload.
+        now.set(expiresAt);
+        pendingRead.complete(Optional.of("stale cached payload"));
+
+        assertThatThrownBy(() -> await(operation))
+                .hasRootCauseInstanceOf(SecurityException.class)
+                .hasRootCauseMessage("Current cache authority changed or became unavailable before disclosure");
+
+        assertThat(sourceLoads).hasValue(0);
+        verify(port, org.mockito.Mockito.never()).put(eq(key), any(), any(Duration.class));
+    }
+
+    @Test
     void legacyBooleanScopedLookupInvalidatesExactKeyWithoutCacheReadOrLoader() {
         DistributedCacheService port = mock(DistributedCacheService.class);
         var cache = new AudioVideoCache<String, String>(port, "protected-transcripts");

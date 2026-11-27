@@ -251,6 +251,19 @@ class AudioRepairComparisonTest {
     }
 
     @Test
+    void silentReferenceKeepsSnrUndefinedWhenCandidateDiffers() {
+        AudioData source = pcm(0, 0, 0, 0);
+        AudioData candidate = pcm(100, -100, 250, -250);
+        AudioData silentReference = pcm(0, 0, 0, 0);
+
+        AudioRepairComparison comparison = AudioRepairComparison.compare(source, candidate, silentReference);
+
+        assertThat(comparison.metrics().hasIndependentReference()).isTrue();
+        assertThat(comparison.metrics().changedSampleCount()).isEqualTo(4);
+        assertThat(comparison.metrics().snrDbVsReference()).isNaN();
+    }
+
+    @Test
     void multichannelPcmDoesNotExposeFirstTwoChannelsAsStereoCorrelation() {
         AudioData source = multichannelPcm(1_000, 1_000, -1_000, 2_000, -2_000, 2_000);
         AudioData repaired = multichannelPcm(1_000, -1_000, 1_000, 2_000, -2_000, 2_000);

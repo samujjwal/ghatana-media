@@ -759,6 +759,9 @@ export class CameraCaptureSession {
     } catch (error) {
       return this.closePreservingFailure(error);
     }
+    if (capturedAtEpochMillis - this.startedAt >= this.limits.maxSessionMillis) {
+      return this.closePreservingFailure(fail("FRAME_LIMIT", "camera session exceeded its bounded frame or duration limit"));
+    }
     const detached = Uint8Array.from(frameRead.bytes);
     this.lastPts = ptsNanos;
     this.frames += 1;
