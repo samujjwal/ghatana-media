@@ -566,7 +566,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
                     assertThat(streams.find("tenant-a", "stream-a")).contains(draining);
 
                     StreamSession sourceConnected = createConnectedStream(
-                            streams, "stream-source-checkpoint", tokenHash, now);
+                            streams, "stream-source-checkpoint", tokenHash, now, "camera.clock.v1");
                     StreamSession sourceFirstPending = streams.beginFrame(
                             sourceConnected, 0, "attempt-source-frame-0");
                     assertThatThrownBy(() -> streams.recordFrame(
@@ -584,6 +584,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
                     assertThat(afterRejectedFirst.sourceVersion()).isNull();
                     assertThat(afterRejectedFirst.sourceCursor()).isNull();
                     assertThat(afterRejectedFirst.sourcePresentationTime()).isNull();
+                    assertThat(afterRejectedFirst.clockDomainRef()).isEqualTo("camera.clock.v1");
                     StreamSession sourceFirst = streams.recordFrame(
                             sourceFirstPending, 0, 128, false, "source@v7", 40L,
                             SourcePresentationTime.known(-9_007_199_254_740_993L, 1001, 30000, "camera.clock.v1"));
@@ -626,6 +627,7 @@ class MediaAwsPostgresqlRuntimeStateTest {
                         assertThat(sourceReadback.sourceCursor()).isEqualTo(41L);
                         assertThat(sourceReadback.sourcePresentationTime()).isEqualTo(
                                 SourcePresentationTime.unknown("synthetic source PTS unknown"));
+                        assertThat(sourceReadback.clockDomainRef()).isEqualTo("camera.clock.v1");
                     }
 
                     StreamSession closed = streams.transition(draining, StreamState.CLOSED);
@@ -720,10 +722,17 @@ class MediaAwsPostgresqlRuntimeStateTest {
 
     private static StreamSession createConnectedStream(
             PostgresqlMediaStreamSessionStore streams, String sessionId, String tokenHash, Instant createdAt) {
+        return createConnectedStream(streams, sessionId, tokenHash, createdAt, null);
+    }
+
+    private static StreamSession createConnectedStream(
+            PostgresqlMediaStreamSessionStore streams, String sessionId, String tokenHash, Instant createdAt,
+            String clockDomainRef) {
         StreamSession opened = new StreamSession(
                 "tenant-a", sessionId, "principal-a", StreamKind.VIDEO,
                 "http-media-streaming", StreamState.OPEN, -1, 0, 1024, 0,
-                createdAt.plusSeconds(120), createdAt, createdAt, null, Map.of(), 1);
+                createdAt.plusSeconds(120), createdAt, createdAt, null, Map.of(), 1,
+                "", 0, StreamFinality.NONE, null, "", null, null, null, clockDomainRef);
         StreamSession created = streams.create(opened, tokenHash);
         return streams.connect(created, tokenHash, Instant.now().plusSeconds(120));
     }

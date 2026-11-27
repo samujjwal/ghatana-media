@@ -192,7 +192,8 @@ public final class MediaRuntimePostgresqlAudioStreamRestartWorker {
         try {
             var registration = runtime.openStream(new StreamSessionRequest(
                     tenantId, PRINCIPAL_VIDEO_ID, "video-restart-correlation", StreamKind.VIDEO,
-                    VIDEO_PROVIDER_ID, 128, Duration.ofMinutes(5), Map.of(), videoGovernance()));
+                    VIDEO_PROVIDER_ID, 128, Duration.ofMinutes(5), Map.of(), videoGovernance(),
+                    "camera.clock.v1"));
             runtime.connectStream(tenantId, PRINCIPAL_VIDEO_ID,
                     registration.session().sessionId(), registration.connectionToken());
             CanonicalVideoStreamFramePort port = runtime.videoStreamFramePort(
@@ -211,6 +212,8 @@ public final class MediaRuntimePostgresqlAudioStreamRestartWorker {
             require(SOURCE_VERSION.equals(stored.sourceVersion())
                             && stored.sourceCursor() == INITIAL_SOURCE_CURSOR,
                     "video source version and cursor must commit with frame-zero ACK");
+            require("camera.clock.v1".equals(stored.clockDomainRef()),
+                    "session clock-domain binding must persist with the frame-zero ACK");
             require(binding.sourcePresentationTime() == null,
                     "pre-ACK binding must not claim frame-zero source presentation time");
             require(sourcePresentationTimeMatches(stored.sourcePresentationTime(), INITIAL_VIDEO_PTS),
@@ -275,6 +278,8 @@ public final class MediaRuntimePostgresqlAudioStreamRestartWorker {
             require(INITIAL_VIDEO_PTS.equals(resumed.sourcePresentationTime())
                             && sourcePresentationTimeMatches(restored.sourcePresentationTime(), INITIAL_VIDEO_PTS),
                     "signed ticks, rational timebase, opaque clock ID and status must round-trip after restart");
+            require("camera.clock.v1".equals(restored.clockDomainRef()),
+                    "session clock-domain binding must remain exact across restart and reconnect");
 
             require(port.offer(preRestartBinding,
                             videoFrame(1, INITIAL_SOURCE_CURSOR + 1, NEXT_VIDEO_PTS)).disposition()

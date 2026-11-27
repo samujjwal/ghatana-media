@@ -30,6 +30,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.StreamContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.SourcePresentationTime;
+import com.ghatana.media.runtime.MediaRuntimeContracts.SourcePresentationTimeStatus;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
@@ -1140,7 +1141,8 @@ public final class LocalMediaRuntimeSupport {
                     session.bufferedBytes(), session.maximumBufferedBytes(), session.reconnectCount(),
                     session.leaseExpiresAt(), session.createdAt(), session.updatedAt(), session.closedAt(),
                     session.metadata(), session.version(), tokenHash, session.acknowledgementRevision(),
-                    session.finality(), session.inFlightSequence(), session.inFlightAttemptId(), null, null);
+                    session.finality(), session.inFlightSequence(), session.inFlightAttemptId(), null, null,
+                    null, session.clockDomainRef());
             if (sessions.putIfAbsent(key(session.tenantId(), session.sessionId()),
                     new StoredStream(session, tokenHash)) != null) {
                 throw new IllegalStateException("Media stream session already exists");
@@ -1196,7 +1198,8 @@ public final class LocalMediaRuntimeSupport {
                     expected.closedAt(), expected.metadata(), expected.version() + 1,
                     expected.sequenceTokenHash(), expected.acknowledgementRevision(), expected.finality(),
                     expected.inFlightSequence(), expected.inFlightAttemptId(),
-                    expected.sourceVersion(), expected.sourceCursor(), expected.sourcePresentationTime());
+                    expected.sourceVersion(), expected.sourceCursor(), expected.sourcePresentationTime(),
+                    expected.clockDomainRef());
             StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
             replace(expected, updated, current == null ? "" : current.tokenHash());
             return updated;
@@ -1254,7 +1257,7 @@ public final class LocalMediaRuntimeSupport {
                     expected.closedAt(), expected.metadata(), expected.version() + 1,
                     expected.sequenceTokenHash(), expected.acknowledgementRevision(), expected.finality(),
                     sequence, boundedAttemptId, expected.sourceVersion(), expected.sourceCursor(),
-                    expected.sourcePresentationTime());
+                    expected.sourcePresentationTime(), expected.clockDomainRef());
             StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
             replace(expected, updated, current == null ? "" : current.tokenHash());
             return updated;
@@ -1300,6 +1303,16 @@ public final class LocalMediaRuntimeSupport {
                         throw new IllegalArgumentException(
                                 "Source-bound VIDEO frame requires one source presentation-time observation");
                     }
+                    if (sourceVersion != null && expected.clockDomainRef() == null) {
+                        throw new IllegalArgumentException(
+                                "Source-bound VIDEO frame requires a clockDomainRef bound to its session");
+                    }
+                    if (sourcePresentationTime != null
+                            && sourcePresentationTime.status() == SourcePresentationTimeStatus.KNOWN
+                            && !expected.clockDomainRef().equals(sourcePresentationTime.clockId())) {
+                        throw new IllegalArgumentException(
+                                "Source presentation-time clockId does not match the session clockDomainRef");
+                    }
                 } else if (sourcePresentationTime != null) {
                     throw new IllegalArgumentException("AUDIO stream frames do not carry source presentation time");
                 }
@@ -1337,7 +1350,8 @@ public final class LocalMediaRuntimeSupport {
                     expected.maximumBufferedBytes(), expected.reconnectCount(), expected.leaseExpiresAt(),
                     expected.createdAt(), now, expected.closedAt(), expected.metadata(), expected.version() + 1,
                     expected.sequenceTokenHash(), expected.acknowledgementRevision() + 1, expected.finality(),
-                    null, "", committedSourceVersion, committedSourceCursor, committedPresentationTime);
+                    null, "", committedSourceVersion, committedSourceCursor, committedPresentationTime,
+                    expected.clockDomainRef());
             StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
             replace(expected, updated, current == null ? "" : current.tokenHash());
             return updated;
@@ -1357,7 +1371,8 @@ public final class LocalMediaRuntimeSupport {
                     expected.metadata(), expected.version() + 1, expected.sequenceTokenHash(),
                     expected.acknowledgementRevision() + 1, StreamFinality.UNKNOWN,
                     expected.inFlightSequence(), expected.inFlightAttemptId(),
-                    expected.sourceVersion(), expected.sourceCursor(), expected.sourcePresentationTime());
+                    expected.sourceVersion(), expected.sourceCursor(), expected.sourcePresentationTime(),
+                    expected.clockDomainRef());
             StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
             replace(expected, updated, current == null ? "" : current.tokenHash());
             return updated;
@@ -1409,7 +1424,8 @@ public final class LocalMediaRuntimeSupport {
                     (state == StreamState.CLOSED || state == StreamState.FAILED)
                             && (value.finality() == StreamFinality.NONE || value.inFlightSequence() != null)
                             ? StreamFinality.UNKNOWN : value.finality(), inFlightSequence, inFlightAttemptId,
-                    value.sourceVersion(), value.sourceCursor(), value.sourcePresentationTime());
+                    value.sourceVersion(), value.sourceCursor(), value.sourcePresentationTime(),
+                    value.clockDomainRef());
         }
         private static String requireAttemptId(String value) {
             if (value == null || value.isBlank() || value.length() > 128

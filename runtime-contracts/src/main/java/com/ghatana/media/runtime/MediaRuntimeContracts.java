@@ -1945,7 +1945,8 @@ public final class MediaRuntimeContracts {
             long maximumBufferedBytes,
             Duration leaseDuration,
             Map<String, Object> metadata,
-            MediaGovernanceContext governanceContext) {
+            MediaGovernanceContext governanceContext,
+            String clockDomainRef) {
         public StreamSessionRequest {
             tenantId = required(tenantId, "tenantId");
             principalId = required(principalId, "principalId");
@@ -1962,6 +1963,17 @@ public final class MediaRuntimeContracts {
             metadata = Map.copyOf(metadata == null ? Map.of() : metadata);
             governanceContext = governanceContext == null
                     ? MediaGovernanceContext.compatibilityDefault() : governanceContext;
+            if (clockDomainRef != null && !validStreamClockDomainRef(clockDomainRef)) {
+                throw new IllegalArgumentException("clockDomainRef must be a bounded opaque source-clock identifier");
+            }
+        }
+
+        public StreamSessionRequest(
+                String tenantId, String principalId, String correlationId, StreamKind streamKind,
+                String providerHint, long maximumBufferedBytes, Duration leaseDuration,
+                Map<String, Object> metadata, MediaGovernanceContext governanceContext) {
+            this(tenantId, principalId, correlationId, streamKind, providerHint,
+                    maximumBufferedBytes, leaseDuration, metadata, governanceContext, null);
         }
 
         public StreamSessionRequest(
@@ -1970,7 +1982,7 @@ public final class MediaRuntimeContracts {
                 Map<String, Object> metadata) {
             this(tenantId, principalId, correlationId, streamKind, providerHint,
                     maximumBufferedBytes, leaseDuration, metadata,
-                    MediaGovernanceContext.compatibilityDefault());
+                    MediaGovernanceContext.compatibilityDefault(), null);
         }
     }
 
@@ -2057,7 +2069,8 @@ public final class MediaRuntimeContracts {
             String inFlightAttemptId,
             String sourceVersion,
             Long sourceCursor,
-            SourcePresentationTime sourcePresentationTime) {
+            SourcePresentationTime sourcePresentationTime,
+            String clockDomainRef) {
         public StreamSession {
             tenantId = required(tenantId, "tenantId");
             sessionId = required(sessionId, "sessionId");
@@ -2083,6 +2096,15 @@ public final class MediaRuntimeContracts {
                     && (streamKind != StreamKind.VIDEO || sourceVersion == null)) {
                 throw new IllegalArgumentException("source presentation time requires a source-bound VIDEO session");
             }
+            if (clockDomainRef != null && !validStreamClockDomainRef(clockDomainRef)) {
+                throw new IllegalArgumentException("clockDomainRef must be a bounded opaque source-clock identifier");
+            }
+            if (clockDomainRef != null && sourcePresentationTime != null
+                    && sourcePresentationTime.status() == SourcePresentationTimeStatus.KNOWN
+                    && !clockDomainRef.equals(sourcePresentationTime.clockId())) {
+                throw new IllegalArgumentException(
+                        "source presentation-time clockId must match the session clockDomainRef");
+            }
             if ((!sequenceTokenHash.isEmpty() && !sequenceTokenHash.matches("[0-9a-f]{64}"))
                     || acknowledgementRevision < 0
                     || (inFlightSequence == null) != inFlightAttemptId.isEmpty()
@@ -2105,7 +2127,20 @@ public final class MediaRuntimeContracts {
             this(tenantId, sessionId, principalId, streamKind, providerId, state, lastSequence, bufferedBytes,
                     maximumBufferedBytes, reconnectCount, leaseExpiresAt, createdAt, updatedAt, closedAt,
                     metadata, version, sequenceTokenHash, acknowledgementRevision, finality,
-                    inFlightSequence, inFlightAttemptId, sourceVersion, sourceCursor, null);
+                    inFlightSequence, inFlightAttemptId, sourceVersion, sourceCursor, null, null);
+        }
+
+        public StreamSession(String tenantId, String sessionId, String principalId, StreamKind streamKind,
+                String providerId, StreamState state, long lastSequence, long bufferedBytes,
+                long maximumBufferedBytes, int reconnectCount, Instant leaseExpiresAt, Instant createdAt,
+                Instant updatedAt, Instant closedAt, Map<String, Object> metadata, long version,
+                String sequenceTokenHash, long acknowledgementRevision, StreamFinality finality,
+                Long inFlightSequence, String inFlightAttemptId, String sourceVersion, Long sourceCursor,
+                SourcePresentationTime sourcePresentationTime) {
+            this(tenantId, sessionId, principalId, streamKind, providerId, state, lastSequence, bufferedBytes,
+                    maximumBufferedBytes, reconnectCount, leaseExpiresAt, createdAt, updatedAt, closedAt,
+                    metadata, version, sequenceTokenHash, acknowledgementRevision, finality,
+                    inFlightSequence, inFlightAttemptId, sourceVersion, sourceCursor, sourcePresentationTime, null);
         }
 
         public StreamSession(String tenantId, String sessionId, String principalId, StreamKind streamKind,
@@ -2117,7 +2152,7 @@ public final class MediaRuntimeContracts {
             this(tenantId, sessionId, principalId, streamKind, providerId, state, lastSequence, bufferedBytes,
                     maximumBufferedBytes, reconnectCount, leaseExpiresAt, createdAt, updatedAt, closedAt,
                     metadata, version, sequenceTokenHash, acknowledgementRevision, finality,
-                    inFlightSequence, inFlightAttemptId, null, null);
+                    inFlightSequence, inFlightAttemptId, null, null, null, null);
         }
 
         public StreamSession(String tenantId, String sessionId, String principalId, StreamKind streamKind,
@@ -2197,6 +2232,11 @@ public final class MediaRuntimeContracts {
         int last = value.codePointBefore(value.length());
         return !(Character.isWhitespace(first) || Character.isSpaceChar(first)
                 || Character.isWhitespace(last) || Character.isSpaceChar(last));
+    }
+
+    private static boolean validStreamClockDomainRef(String value) {
+        return value != null && value.length() <= 128
+                && value.matches("[A-Za-z0-9][A-Za-z0-9._:-]*");
     }
 
     public record StreamAck(long acceptedSequence, long bufferedBytes, boolean backpressured) {

@@ -86,11 +86,18 @@ class MediaRuntimeCanonicalVideoStreamFramePortTest {
                     new VideoStreamSession.DecodedFrame(0, true, 987_654L, new byte[] {1}, "video@v3", 10L));
             assertThat(missingPts.result().disposition()).isEqualTo(CanonicalVideoStreamFramePort.Disposition.NOT_ADMITTED);
             assertThat(provider.calls()).isZero();
+            var mismatchedClock = port.offerWithFeedback(binding,
+                    new VideoStreamSession.DecodedFrame(0, true, 987_654L, new byte[] {1}, "video@v3", 10L,
+                            VideoFrameTimebase.SourceTimestamp.known(10, 1, 90_000, "other.camera.clock")));
+            assertThat(mismatchedClock.result().disposition())
+                    .isEqualTo(CanonicalVideoStreamFramePort.Disposition.NOT_ADMITTED);
+            assertThat(provider.calls()).as("a clock mismatch is rejected before provider dispatch").isZero();
             var untouched = runtime.stream("tenant-video", registration.session().sessionId()).orElseThrow();
             assertThat(untouched.lastSequence()).isEqualTo(-1);
             assertThat(untouched.sourceVersion()).isNull();
             assertThat(untouched.sourceCursor()).isNull();
             assertThat(untouched.sourcePresentationTime()).isNull();
+            assertThat(untouched.clockDomainRef()).isEqualTo("camera.clock.v1");
 
             var firstPts = VideoFrameTimebase.SourceTimestamp.known(-9_007_199_254_740_993L,
                     1001, 30000, "camera.clock.v1");
@@ -106,6 +113,7 @@ class MediaRuntimeCanonicalVideoStreamFramePortTest {
             assertThat(stored.sourcePresentationTime().timebaseNumerator()).isEqualTo(1001L);
             assertThat(stored.sourcePresentationTime().timebaseDenominator()).isEqualTo(30000L);
             assertThat(stored.sourcePresentationTime().clockId()).isEqualTo("camera.clock.v1");
+            assertThat(stored.clockDomainRef()).isEqualTo("camera.clock.v1");
 
             var nextBinding = port.currentBinding(
                     "tenant-video", registration.session().sessionId(), "principal-video").orElseThrow();
@@ -469,7 +477,8 @@ class MediaRuntimeCanonicalVideoStreamFramePortTest {
                 "tenant-video", "principal-video", correlationId, kind,
                 provider.providerId(), 512, Duration.ofSeconds(30), java.util.Map.of(),
                 new MediaGovernanceContext("consent-video", purpose,
-                        "local", Set.of("local"), false, false));
+                        "local", Set.of("local"), false, false),
+                kind == StreamKind.VIDEO ? "camera.clock.v1" : null);
     }
 
     private static String tokenHash(String token) throws Exception {

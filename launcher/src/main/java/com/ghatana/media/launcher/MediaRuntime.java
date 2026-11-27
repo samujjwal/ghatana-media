@@ -41,10 +41,12 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.RecoveryCursor;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamAck;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamContext;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFrame;
+import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRegistration;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSessionRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
+import com.ghatana.media.runtime.MediaRuntimeContracts.SourcePresentationTimeStatus;
 import com.ghatana.media.runtime.MediaStreamOutcomeUnknownException;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.UploadSession;
@@ -2396,7 +2398,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         StreamSession session = streamStore.create(new StreamSession(
                 authenticated.tenantId(), sessionId, authenticated.principalId(), request.streamKind(),
                 provider.providerId(), StreamState.OPEN, -1L, 0L, request.maximumBufferedBytes(), 0,
-                now.plus(request.leaseDuration()), now, now, null, metadata, 1), hash(token));
+                now.plus(request.leaseDuration()), now, now, null, metadata, 1,
+                "", 0, StreamFinality.NONE, null, "", null, null, null, request.clockDomainRef()), hash(token));
         activeStreams.put(streamKey(authenticated.tenantId(), sessionId),
                 new StreamControl(new Cancellation(), provider, request.governanceContext(), consent));
         audit.info("MEDIA_STREAM_OPENED tenantId={} sessionId={} kind={} provider={} maxBufferedBytes={} consentAuthority={}",
@@ -2502,6 +2505,16 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             if (hasSourcePosition != hasPresentationTime) {
                 throw new IllegalArgumentException(
                         "Source-bound VIDEO frame requires one source presentation-time observation");
+            }
+            if (hasSourcePosition && current.clockDomainRef() == null) {
+                throw new IllegalArgumentException(
+                        "Source-bound VIDEO frame requires a clockDomainRef bound to its session");
+            }
+            if (hasPresentationTime
+                    && frame.sourcePresentationTime().status() == SourcePresentationTimeStatus.KNOWN
+                    && !current.clockDomainRef().equals(frame.sourcePresentationTime().clockId())) {
+                throw new IllegalArgumentException(
+                        "Source presentation-time clockId does not match the session clockDomainRef");
             }
         } else if (hasPresentationTime) {
             throw new IllegalArgumentException("AUDIO stream frames do not carry source presentation time");

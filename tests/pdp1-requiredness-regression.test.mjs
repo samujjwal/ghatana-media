@@ -47,6 +47,19 @@ test("stream-session-open inline request inputs match their referenced typed inp
   const operation = p1.records.find(({ id }) => id === "media.operation.capability.media-stream-session-open");
   assert.ok(operation, "stream-session-open has its canonical operation");
 
+  const sessionInput = p1.inputPayloadSchemas.find(({ id }) => id === "media.typed-input.stream-session-request");
+  assert.ok(sessionInput, "canonical stream-session input schema exists");
+  assert.equal(sessionInput.decisionRef, ".product-experience/decision-log.md#PXD-258");
+  const clockDomain = sessionInput.schema.properties.payload.properties.clockDomainRef;
+  assert.equal(clockDomain.pattern, "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$");
+  assert.equal(clockDomain.maxLength, 128);
+
+  const reconnectInput = p1.inputPayloadSchemas.find(({ id }) => id === "media.typed-input.stream-session-reconnect-request");
+  assert.ok(reconnectInput, "canonical reconnect input schema exists");
+  assert.equal(reconnectInput.decisionRef, sessionInput.decisionRef);
+  assert.deepEqual(reconnectInput.schema.properties.payload.properties.clockDomainRef, clockDomain,
+    "reconnect preserves the exact immutable session clock-domain identity");
+
   for (const slotId of ["input1", "input2"]) {
     const slot = operation.inputSlots.find(({ slotId: candidate }) => candidate === slotId);
     assert.ok(slot?.payloadSchemaRef, `${slotId} declares a typed input schema reference`);

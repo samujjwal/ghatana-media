@@ -35945,6 +35945,8 @@ capabilityOperationContracts:
         the entire typed input means no continuation requested."
       hostContextOnly: false
     - id: media.typed-input.stream-session-request
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       artifactType: stream-session-request
       payloadKind: STREAM_SESSION
       schema:
@@ -35987,8 +35989,9 @@ capabilityOperationContracts:
               clockDomainRef:
                 type: string
                 format: opaque-reference
+                pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                 minLength: 1
-                maxLength: 256
+                maxLength: 128
             allOf:
               - if:
                   properties:
@@ -36010,11 +36013,15 @@ capabilityOperationContracts:
                     required:
                       - streamSessionId
       sourceTypeRef: capabilities.yaml#artifactType:stream-session-request
-      ownerDefinition: Stream intent always names exact source version, clock domain,
-        and start sequence. CREATE_NEW forbids a preexisting session ID;
-        RESUME_EXISTING requires the exact stream session. Reconnect
-        additionally uses its stricter reconnect-specific input schema with
-        current lease, fence, consent, and resolved frame outcomes.
+      ownerDefinition: >-
+        Stream intent always names exact source version, clock domain, and start
+        sequence. Under PXD-258, clockDomainRef is the immutable session clock ID
+        and exactly matches a KNOWN source VIDEO PTS clockId; it is a consistency
+        binding only, not clock qualification. CREATE_NEW forbids a preexisting
+        session ID; RESUME_EXISTING requires the exact stream session and cannot
+        replace its clock binding. Reconnect additionally uses its stricter
+        reconnect-specific input schema with current lease, fence, consent, and
+        resolved frame outcomes.
     - id: media.typed-input.consent-and-capability-context
       artifactType: consent-and-capability-context
       payloadKind: GOVERNED_POLICY_EVIDENCE
@@ -39822,6 +39829,8 @@ capabilityOperationContracts:
       ownerDefinition: Exact type discriminator plus closed typed payload; no
         free-form or untyped payload is accepted.
     - id: media.typed-input.stream-session-reconnect-request
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       artifactType: stream-session-request
       payloadKind: STREAM_SESSION_RECONNECT
       schema:
@@ -39864,8 +39873,9 @@ capabilityOperationContracts:
               clockDomainRef:
                 type: string
                 format: opaque-reference
+                pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                 minLength: 1
-                maxLength: 256
+                maxLength: 128
               expectedLeaseVersion:
                 type: string
                 format: opaque-version-id
@@ -39894,11 +39904,12 @@ capabilityOperationContracts:
                   minLength: 1
                   maxLength: 384
       sourceTypeRef: capabilities.yaml#artifactType:stream-session-request
-      ownerDefinition: Operation-specific exact closed payload contract for reconnect;
-        shares the stream-session-request or consent-and-capability-context
-        artifact discriminator but requires all fields needed to revalidate the
-        existing session, lease, sequence, resolved outcomes, and current
-        authority.
+      ownerDefinition: >-
+        Operation-specific exact closed payload contract for reconnect; shares
+        the stream-session-request or consent-and-capability-context artifact
+        discriminator but requires all fields needed to revalidate the existing
+        session, lease, sequence, resolved outcomes, current authority, and the
+        unchanged PXD-258 clockDomainRef.
     - id: media.typed-input.stream-reconnect-consent-context
       artifactType: consent-and-capability-context
       payloadKind: STREAM_SESSION_RECONNECT
@@ -72480,6 +72491,8 @@ capabilityOperationContracts:
       operationVersion: 1
       asyncSubmissionDisposition: NOT_SUBMITTABLE_QUERY
     - id: media.operation.capability.media-stream-session-open
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       recordKind: CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION
       capabilityRef: media.stream.session.open
       operationRefs:
@@ -72542,8 +72555,9 @@ capabilityOperationContracts:
                   clockDomainRef:
                     type: string
                     format: opaque-reference
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                     minLength: 1
-                    maxLength: 256
+                    maxLength: 128
                 allOf:
                   - if:
                       properties:
@@ -72938,6 +72952,8 @@ capabilityOperationContracts:
       operationVersion: 1
       asyncSubmissionDisposition: NOT_SUBMITTABLE_SESSION_CONTROL
     - id: media.operation.capability.media-stream-session-connect
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       recordKind: CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION
       capabilityRef: media.stream.session.connect
       operationRefs:
@@ -72990,8 +73006,9 @@ capabilityOperationContracts:
                   clockDomainRef:
                     type: string
                     format: opaque-reference
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                     minLength: 1
-                    maxLength: 256
+                    maxLength: 128
           input2:
             type: object
             additionalProperties: false
@@ -73364,6 +73381,8 @@ capabilityOperationContracts:
       operationVersion: 1
       asyncSubmissionDisposition: NOT_SUBMITTABLE_SESSION_CONTROL
     - id: media.operation.capability.media-stream-frame-submit
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       recordKind: CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION
       capabilityRef: media.stream.frame.submit
       operationRefs:
@@ -73416,8 +73435,9 @@ capabilityOperationContracts:
                   clockDomainRef:
                     type: string
                     format: opaque-reference
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                     minLength: 1
-                    maxLength: 256
+                    maxLength: 128
           input2:
             type: object
             additionalProperties: false
@@ -73780,6 +73800,8 @@ capabilityOperationContracts:
       operationVersion: 1
       asyncSubmissionDisposition: NOT_SUBMITTABLE_SESSION_CONTROL
     - id: media.operation.capability.media-stream-frame-acknowledge
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       recordKind: CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION
       capabilityRef: media.stream.frame.acknowledge
       operationRefs:
@@ -73832,8 +73854,9 @@ capabilityOperationContracts:
                   clockDomainRef:
                     type: string
                     format: opaque-reference
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                     minLength: 1
-                    maxLength: 256
+                    maxLength: 128
           input2:
             type: object
             additionalProperties: false
@@ -74207,6 +74230,8 @@ capabilityOperationContracts:
       operationVersion: 1
       asyncSubmissionDisposition: NOT_SUBMITTABLE_SESSION_CONTROL
     - id: media.operation.capability.media-stream-session-close
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       recordKind: CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION
       capabilityRef: media.stream.session.close
       operationRefs:
@@ -74259,8 +74284,9 @@ capabilityOperationContracts:
                   clockDomainRef:
                     type: string
                     format: opaque-reference
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                     minLength: 1
-                    maxLength: 256
+                    maxLength: 128
           input2:
             type: object
             additionalProperties: false
@@ -74633,6 +74659,8 @@ capabilityOperationContracts:
       operationVersion: 1
       asyncSubmissionDisposition: NOT_SUBMITTABLE_SESSION_CONTROL
     - id: media.operation.capability.media-stream-session-reconnect
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       recordKind: CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION
       capabilityRef: media.stream.session.reconnect
       operationRefs:
@@ -74694,8 +74722,9 @@ capabilityOperationContracts:
                   clockDomainRef:
                     type: string
                     format: opaque-reference
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                     minLength: 1
-                    maxLength: 256
+                    maxLength: 128
                   expectedLeaseVersion:
                     type: string
                     format: opaque-version-id
@@ -75220,6 +75249,8 @@ capabilityOperationContracts:
       operationVersion: 1
       asyncSubmissionDisposition: NOT_SUBMITTABLE_SESSION_CONTROL
     - id: media.operation.capability.media-stream-ordering-enforce
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       recordKind: CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION
       capabilityRef: media.stream.ordering.enforce
       operationRefs:
@@ -75272,8 +75303,9 @@ capabilityOperationContracts:
                   clockDomainRef:
                     type: string
                     format: opaque-reference
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                     minLength: 1
-                    maxLength: 256
+                    maxLength: 128
           input2:
             type: object
             additionalProperties: false
@@ -75646,6 +75678,8 @@ capabilityOperationContracts:
       operationVersion: 1
       asyncSubmissionDisposition: NOT_SUBMITTABLE_SESSION_CONTROL
     - id: media.operation.capability.media-stream-lease-renew
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       recordKind: CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION
       capabilityRef: media.stream.lease.renew
       operationRefs:
@@ -75698,8 +75732,9 @@ capabilityOperationContracts:
                   clockDomainRef:
                     type: string
                     format: opaque-reference
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                     minLength: 1
-                    maxLength: 256
+                    maxLength: 128
           input2:
             type: object
             additionalProperties: false
@@ -76073,6 +76108,8 @@ capabilityOperationContracts:
       operationVersion: 1
       asyncSubmissionDisposition: NOT_SUBMITTABLE_SESSION_CONTROL
     - id: media.operation.capability.media-stream-buffer-bound
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       recordKind: CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION
       capabilityRef: media.stream.buffer.bound
       operationRefs:
@@ -76125,8 +76162,9 @@ capabilityOperationContracts:
                   clockDomainRef:
                     type: string
                     format: opaque-reference
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                     minLength: 1
-                    maxLength: 256
+                    maxLength: 128
           input2:
             type: object
             additionalProperties: false
@@ -76499,6 +76537,8 @@ capabilityOperationContracts:
       operationVersion: 1
       asyncSubmissionDisposition: NOT_SUBMITTABLE_SESSION_CONTROL
     - id: media.operation.capability.media-stream-backpressure-apply
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       recordKind: CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION
       capabilityRef: media.stream.backpressure.apply
       operationRefs:
@@ -76551,8 +76591,9 @@ capabilityOperationContracts:
                   clockDomainRef:
                     type: string
                     format: opaque-reference
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                     minLength: 1
-                    maxLength: 256
+                    maxLength: 128
           input2:
             type: object
             additionalProperties: false
@@ -76926,6 +76967,8 @@ capabilityOperationContracts:
       operationVersion: 1
       asyncSubmissionDisposition: NOT_SUBMITTABLE_SESSION_CONTROL
     - id: media.operation.capability.media-stream-recording-integrate
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       recordKind: CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION
       capabilityRef: media.stream.recording.integrate
       operationRefs:
@@ -76980,7 +77023,7 @@ capabilityOperationContracts:
                           minLength: 1,
                           maxLength: 384
                         }
-                      clockDomainRef: { type: string, format: opaque-reference, minLength: 1, maxLength: 256 }
+                      clockDomainRef: { type: string, format: opaque-reference, minLength: 1, pattern: "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$", maxLength: 128 }
                       activeCueId: { type: string, format: opaque-id, minLength: 1, maxLength: 128 }
                     authorization: separately-authorized-versioned-script-and-explicit-cue-map
                   streamSessionId:
@@ -77000,8 +77043,9 @@ capabilityOperationContracts:
                   clockDomainRef:
                     type: string
                     format: opaque-reference
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                     minLength: 1
-                    maxLength: 256
+                    maxLength: 128
           input2:
             type: object
             additionalProperties: false
@@ -77415,6 +77459,8 @@ capabilityOperationContracts:
       operationVersion: 1
       asyncSubmissionDisposition: NOT_SUBMITTABLE_SESSION_CONTROL
     - id: media.operation.capability.media-stream-live-processing-integrate
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       recordKind: CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION
       capabilityRef: media.stream.live-processing.integrate
       operationRefs:
@@ -77467,8 +77513,9 @@ capabilityOperationContracts:
                   clockDomainRef:
                     type: string
                     format: opaque-reference
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                     minLength: 1
-                    maxLength: 256
+                    maxLength: 128
           input2:
             type: object
             additionalProperties: false
@@ -77830,6 +77877,8 @@ capabilityOperationContracts:
       operationVersion: 1
       asyncSubmissionDisposition: NOT_SUBMITTABLE_SESSION_CONTROL
     - id: media.operation.capability.media-stream-transport-webrtc
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       recordKind: CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION
       capabilityRef: media.stream.transport.webrtc
       operationRefs:
@@ -77882,8 +77931,9 @@ capabilityOperationContracts:
                   clockDomainRef:
                     type: string
                     format: opaque-reference
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                     minLength: 1
-                    maxLength: 256
+                    maxLength: 128
           input2:
             type: object
             additionalProperties: false
@@ -78246,6 +78296,8 @@ capabilityOperationContracts:
       operationVersion: 1
       asyncSubmissionDisposition: NOT_SUBMITTABLE_SESSION_CONTROL
     - id: media.operation.capability.media-stream-transport-adaptive-http
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       recordKind: CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION
       capabilityRef: media.stream.transport.adaptive-http
       operationRefs:
@@ -78298,8 +78350,9 @@ capabilityOperationContracts:
                   clockDomainRef:
                     type: string
                     format: opaque-reference
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                     minLength: 1
-                    maxLength: 256
+                    maxLength: 128
           input2:
             type: object
             additionalProperties: false
@@ -78662,6 +78715,8 @@ capabilityOperationContracts:
       operationVersion: 1
       asyncSubmissionDisposition: NOT_SUBMITTABLE_SESSION_CONTROL
     - id: media.operation.capability.media-stream-transport-hls
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       recordKind: CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION
       capabilityRef: media.stream.transport.hls
       operationRefs:
@@ -78714,8 +78769,9 @@ capabilityOperationContracts:
                   clockDomainRef:
                     type: string
                     format: opaque-reference
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                     minLength: 1
-                    maxLength: 256
+                    maxLength: 128
           input2:
             type: object
             additionalProperties: false
@@ -79078,6 +79134,8 @@ capabilityOperationContracts:
       operationVersion: 1
       asyncSubmissionDisposition: NOT_SUBMITTABLE_SESSION_CONTROL
     - id: media.operation.capability.media-stream-transport-dash
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       recordKind: CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION
       capabilityRef: media.stream.transport.dash
       operationRefs:
@@ -79130,8 +79188,9 @@ capabilityOperationContracts:
                   clockDomainRef:
                     type: string
                     format: opaque-reference
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                     minLength: 1
-                    maxLength: 256
+                    maxLength: 128
           input2:
             type: object
             additionalProperties: false
@@ -79494,6 +79553,8 @@ capabilityOperationContracts:
       operationVersion: 1
       asyncSubmissionDisposition: NOT_SUBMITTABLE_SESSION_CONTROL
     - id: media.operation.capability.media-stream-caption-live
+      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionAuthority: user-delegated-Media-technical-product-owner
       recordKind: CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION
       capabilityRef: media.stream.caption.live
       operationRefs:
@@ -79546,8 +79607,9 @@ capabilityOperationContracts:
                   clockDomainRef:
                     type: string
                     format: opaque-reference
+                    pattern: ^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$
                     minLength: 1
-                    maxLength: 256
+                    maxLength: 128
           input2:
             type: object
             additionalProperties: false
