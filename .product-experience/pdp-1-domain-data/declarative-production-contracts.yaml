@@ -755,6 +755,7 @@ $defs:
           reason: {type: string, minLength: 1, maxLength: 512, pattern: '\S'}
 scientificReferenceOracles:
   - id: media.declarative.oracle.force-motion.v1
+    ownerDecisionRef: .product-experience/decision-log.md#PXD-252
     assumptions: constant-net-force constant-mass 1D zero-initial-position zero-initial-velocity no-friction
     testInputs: {massKg: 2, forceN: 6, durationS: 2, initialVelocityMPerS: 0}
     expected: {accelerationMPerS2: 3, finalVelocityMPerS: 6, displacementM: 6}

@@ -1507,7 +1507,8 @@ requiredScenarioBehaviors:
   criticalNonhappyIntent: Invalid units, outside-validity input, unstable solver,
     missing domain owner approval, or visual output mistaken for validated
     science.
-scenarioRefs: []
+scenarioRefs:
+  - .product-experience/pdp-3-product-experience/declarative-production-experience.yaml#sourceBoundScenarios/@id=media.declarative.p3.scenario.newton-constant-force.v1
 unresolvedProductDecisions:
   - Bind each view transition to an owner-approved action, state, and finality
     contract; no action identifier or state transition is inferred by this

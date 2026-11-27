@@ -367,8 +367,9 @@ journeys:
   viewRefs: [M-SCENE, M-SIMULATION, M-QUALITY, M-RENDER]
   conditionalHandoffRefs: [tutorputor-domain-scene]
   handoffCondition: Only when the model/experience is TutorPutor-owned; other domain owners require their own admitted references.
-  preconditions: Domain owner/model, equations, unit-bearing conditions, validity range, solver envelope, and fidelity tier
-    are referenced.
+  preconditions: The one Media-owned source-free development seed uses the exact Newton constant-force analytic oracle
+    selected by PXD-252; all other domain simulations still require their owning domain/model reference, equations,
+    unit-bearing conditions, validity range, solver envelope, and fidelity tier.
   completion: Measurements/passes and any animation/render remain traceable to domain model and declared fidelity.
   criticalNonhappy: Invalid units, outside-validity input, unstable solver, missing domain owner approval, or visual output
     mistaken for validated science.

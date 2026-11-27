@@ -1633,7 +1633,8 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** J-14 — Unit-correct dynamics and instrument values; solver negatives.
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
-- **Progress:** 2026-11-25 J-14 request budget negative: added the max-iteration ceiling assertion; task remains OPEN. Next: validate only against an owner-defined scientific reference input and attributable numeric output/provenance.
+- **Progress (2026-11-27):** PXD-252 binds one source-free Media-owned Newton constant-force example (2 kg, 6 N, 2 s) to the existing P1 analytic oracle, P3 J-14 scenario and DEV_ONLY durable test. The oracle remains `ANALYTICAL_ORACLE_DECLARED_ONLY_NO_SOLVER_QUALIFICATION`; compatible S3 result/digest evidence is reused. Task remains OPEN for other domain models, independent scientific review, authenticated journey bindings and full J-14 acceptance.
+- **Prior local increment (2026-11-25):** Added the max-iteration ceiling assertion in `ScenarioFaultTest.requestBudgetsAreCeilingsNotSolverOutcomes`; the exact offline selector passes. This verifies a local request limit only.
 - **Predecessors:** `media.dev.scientific-simulation-engine`
 
 
