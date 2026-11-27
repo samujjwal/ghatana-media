@@ -75,7 +75,7 @@ const req = { documentId: 'd1', version: 1, tenantId: 't1', checksum: { algorith
 const att = await provider.scan(req);
 out.scanClean = att.status === 'CLEAN' && verifyCleanAttestation(att, [signer], { tenantId: 't1', checksum: req.checksum, now: clock() }).ok === true;
 
-const svc = new ScannerHttpService({ provider, engine: new ClamdEngine({ endpoint: { kind: 'tcp', host: '127.0.0.1', port: ${clamd.port} }, maxBytes: 1 << 20, maxAttempts: 1 }),
+const svc = new ScannerHttpService({ jobDatabasePath: ':memory:', provider, engine: new ClamdEngine({ endpoint: { kind: 'tcp', host: '127.0.0.1', port: ${clamd.port} }, maxBytes: 1 << 20, maxAttempts: 1 }),
   pinnedEngineVersions: ['ClamAV 1.4.2'], maxDefinitionsAgeMs: 3 * 86_400_000, now: clock,
   authenticate: bearerTokenAuthenticator([{ token: 'c'.repeat(40), principalId: 'p', tenantIds: ['t1'] }]) });
 const addr = await svc.listen(0);

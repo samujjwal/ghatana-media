@@ -75,13 +75,35 @@ fails closed) exposes the provider over typed JSON. Authentication is mandatory 
 
 | Route | Behaviour |
 | --- | --- |
-| `POST /v1/scans` | `{tenantId, documentId, version, objectRef, checksum:{SHA-256,hex}, sizeBytes, mimeType, scopeRef?}` -> `202 {scanId,state}`. `objectRef` names a quarantined object resolved by the host `QuarantineSource` (`FilesystemQuarantineSource`: `<root>/<tenant>/<ref>`, no traversal/symlinks) |
-| `GET /v1/scans/{id}` | `QUEUED/RUNNING/COMPLETED/CANCELLED`; COMPLETED carries the signed attestation + `attestationBinding` (`attestationRef, algorithm, keyId, signature, payloadSha256`) matching Java `ScanAttestationBinding` |
+| `POST /v1/scans` | `{tenantId, documentId, version, objectRef, checksum:{SHA-256,hex}, sizeBytes, mimeType, idempotencyKey, scopeRef?}` -> `202 {scanId,state}`. `objectRef` names a quarantined object resolved by the host `QuarantineSource` (`FilesystemQuarantineSource`: `<root>/<tenant>/<ref>`, no traversal/symlinks) |
+| `GET /v1/scans/{id}` | `QUEUED/RUNNING/COMPLETED/CANCELLED/UNKNOWN/EXPIRED`; COMPLETED carries the signed attestation + `attestationBinding` (`attestationRef, algorithm, keyId, signature, payloadSha256`) matching Java `ScanAttestationBinding` |
 | `DELETE /v1/scans/{id}` | cancel (idempotent, aborts clamd I/O, result discarded; `409` after completion) |
 | `GET /v1/health` | authenticated: engine + definitions version, pinned/fresh, `admissionState: NOT_ADMITTED`, `productionEligible: false`; `503` DEGRADED when engine unreachable/unpinned/stale |
 | `GET /healthz` | unauthenticated liveness only |
 
 `FilesystemQuarantineSource` resolves tenant/object names relative to open directory descriptors and rejects symlink substitutions. It uses `/proc/self/fd` on Linux and `/dev/fd` on Darwin, FreeBSD, OpenBSD, and NetBSD; unsupported platforms fail closed. Hosts without those descriptor paths must provide another confinement-safe `QuarantineSource` implementation.
+
+The deployable service requires `SCANNER_JOB_DATABASE_PATH` (absolute path to a private SQLite file,
+in a host-owned private local directory, on a filesystem supporting SQLite WAL locking).
+Every scanner process for the same service identity must use that same database; independent files
+are independent authorities and must not sit behind one logical endpoint. Back up and restore the
+database together with the service identity; do not delete the file to clear capacity.
+A submission requires a stable safe identifier in `idempotencyKey` (maximum 128 characters).
+It is scoped to the authenticated service principal and tenant. A repeated normalized payload
+returns the original scan ID and current state; a changed payload under that key returns 409
+`IDEMPOTENCY_CONFLICT`. The response is sent only after the intent commits. Old servers reject the
+new field, and new servers reject missing keys before allocating work. Authenticated health
+advertises `replayContract: scanner-replay-v1`.
+
+Queued work and expired worker claims are recoverable after restart; a claim token and lease fence
+every result write. Cancellation durably prevents result publication, and local worker I/O is
+aborted (a remote worker observes the fence on renewal). An unexpected failure without a signed
+attestation is UNKNOWN, not cancellation. Finished results are retained for the configured time
+and count; expired rows become EXPIRED with no attestation but keep their replay identity and
+payload hash. The ledger rejects new work at its configured replay-entry capacity (default
+100,000) instead of silently forgetting keys. A new request requires a new key. Credential
+rotation must preserve the authenticated service principal; a new principal is a new scope.
+`jobDatabasePath: ':memory:'` is reserved for explicit test composition, not the deployable entrypoint.
 
 Bounds: 16 KiB request body, strict field allow-list and identifier patterns, max active scans (429), bounded retained
 results with TTL, header/request timeouts, principal-to-tenant allow-list (other principals see 404). No TLS termination,

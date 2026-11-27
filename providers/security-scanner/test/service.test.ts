@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -38,7 +38,7 @@ describe('scanner HTTP service (fake clamd)', () => {
     return { status: res.status, body: (await res.json()) as any };
   };
   const submitBody = (content: Uint8Array, over: Record<string, unknown> = {}) => ({
-    tenantId: 'tenant-a', documentId: 'doc-1', version: 1, objectRef: 'obj-1',
+    tenantId: 'tenant-a', documentId: 'doc-1', version: 1, objectRef: 'obj-1', idempotencyKey: randomUUID(),
     checksum: { algorithm: 'SHA-256', value: sha(content) }, sizeBytes: content.byteLength, mimeType: 'application/pdf', ...over,
   });
   const poll = async (id: string, token = TOKEN_A) => {
@@ -50,9 +50,7 @@ describe('scanner HTTP service (fake clamd)', () => {
     throw new Error('scan did not finish');
   };
 
-  beforeEach(async () => {
-    clamd = await startFakeClamd();
-    root = mkdtempSync(path.join(tmpdir(), 'scanner-svc-'));
+  const startService = async () => {
     const engine = new ClamdEngine({ endpoint: clamd.endpoint, maxBytes: 1 << 20, commandTimeoutMs: 400, connectTimeoutMs: 400, maxAttempts: 1 });
     const provider = new SecurityScannerProvider({
       engine, source: new FilesystemQuarantineSource(root), signer, scannerRef: 'svc-scanner',
@@ -60,7 +58,7 @@ describe('scanner HTTP service (fake clamd)', () => {
       attestationTtlMs: 60_000, now: () => clock, scanTimeoutMs: 2_000,
     });
     service = new ScannerHttpService({
-      provider, engine, pinnedEngineVersions: ['ClamAV 1.4.2'], maxDefinitionsAgeMs: 3 * 86_400_000, now: () => clock,
+      jobDatabasePath: path.join(root, 'jobs.sqlite'), provider, engine, pinnedEngineVersions: ['ClamAV 1.4.2'], maxDefinitionsAgeMs: 3 * 86_400_000, now: () => clock,
       maxRequestBodyBytes: 2048, maxActiveScans: 2, healthTimeoutMs: 400,
       authenticate: bearerTokenAuthenticator([
         { token: TOKEN_A, principalId: 'kernel-a', tenantIds: ['tenant-a'] },
@@ -69,6 +67,11 @@ describe('scanner HTTP service (fake clamd)', () => {
     });
     const { host, port } = await service.listen(0);
     base = `http://${host}:${port}`;
+  };
+  beforeEach(async () => {
+    clamd = await startFakeClamd();
+    root = mkdtempSync(path.join(tmpdir(), 'scanner-svc-'));
+    await startService();
   });
   afterEach(async () => {
     await service.close();
@@ -108,6 +111,34 @@ describe('scanner HTTP service (fake clamd)', () => {
     assert.equal(b.keyId, 'svc-key');
     assert.equal(b.attestationRef, att.attestationRef);
     assert.match(b.payloadSha256, /^[a-f0-9]{64}$/);
+  });
+
+  it('atomically deduplicates concurrent submissions and rejects changed payloads', async () => {
+    const content = pdf('replay');
+    put('tenant-a', 'obj-1', content);
+    const body = submitBody(content);
+    const duplicates = await Promise.all(Array.from({ length: 8 }, () => call('POST', '/v1/scans', { body })));
+    assert.ok(duplicates.every((r) => r.status === 202));
+    const ids = new Set(duplicates.map((r) => r.body.scanId));
+    assert.equal(ids.size, 1);
+    assert.equal((await call('POST', '/v1/scans', { body: { ...body, objectRef: 'obj-2' } })).status, 409);
+    assert.equal((await poll(duplicates[0]!.body.scanId)).body.state, 'COMPLETED');
+    assert.equal((await call('POST', '/v1/scans', { body: { ...body, idempotencyKey: undefined } })).status, 400);
+  });
+
+  it('recovers the original job and exact signed result after service restart', async () => {
+    const content = pdf('restart');
+    put('tenant-a', 'obj-1', content);
+    const body = submitBody(content);
+    const first = await call('POST', '/v1/scans', { body });
+    const original = await poll(first.body.scanId);
+    await service.close();
+    await startService();
+    const replay = await call('POST', '/v1/scans', { body });
+    assert.equal(replay.status, 202);
+    assert.equal(replay.body.scanId, first.body.scanId);
+    assert.deepEqual(replay.body.attestation, original.body.attestation);
+    assert.deepEqual(replay.body.attestationBinding, original.body.attestationBinding);
   });
 
   it('reports INFECTED for EICAR and UNKNOWN (not CLEAN) on digest mismatch or missing object', async () => {
