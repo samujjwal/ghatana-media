@@ -566,6 +566,33 @@ journeys:
     operation.
   contextAndReturn: Keep request key, plan fingerprint, last acknowledged status, output refs, and cancellation certainty.
   accessibility: media.a11y.baseline
+  developmentOnlyExample:
+    decisionRef: PXD-256
+    status: DEV_ONLY_SOURCE_FREE_JOB_RESTART_FIXTURE
+    identity: Per-run synthetic tenant/principal with a DEV-only HMAC token; foreign tenant/principal reads return indistinguishable NOT_FOUND. This fixture is not production authentication or rights authority.
+    source:
+      generator: Test-authored one-second mono 16 kHz PCM16 sine WAV from sineWav(seed); uploaded bytes are bound by their SHA-256.
+      clockMetadata: fixture-clock and fixture-clock-evidence with 16000 ticks/second and 16000 duration ticks; placeholders only, not trusted source-clock evidence.
+      inputDisposition: CONFIDENTIAL with synthetic test retention fields; no external source, rights, or consent authority is established.
+    job:
+      operation: TRANSCODE
+      provider: local-ffmpeg-transcode using real local FFmpeg/FFprobe in the DEV_ONLY test process
+      parameters: FLAC, 8000 Hz, mono
+      identity: Per-run exact requestId, returned jobId, tenant/principal, source artifact version/digest, and single attempt are read back after restart.
+    recoveryCases:
+      - kill-before-effect: RESTART_NO_EFFECT_PROVEN; no output, partial output, or receipt
+      - kill-after-ffmpeg-before-commit: RESTART_NO_EFFECT_PROVEN; no output, partial output, or receipt
+      - kill-after-output-commit-before-job-record: exact committed receipt reconciles to COMPLETED with the same output digest and no rerun when the provider is available
+      - lost-installed-CLI-submit-ack: report OUTCOME_UNKNOWN; after restart the same requestId replays the same job and one effect
+      - provider-unavailable-after-commit: remain OUTCOME_UNKNOWN even after provider returns; preserve receipt and do not redispatch
+      - cancellation-before-commit: CANCELLED with no output receipt; cancellation-after-commit remains unconfirmed while provider success finalizes COMPLETED
+    observers:
+      persistence: PostgreSQL 16 and LocalStack S3 Testcontainers only
+      client: real launcher process, installed CLI, and Chromium Explorer watcher in the selected tests
+    evidenceRefs:
+      - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevJobRestartRecoveryIT.java
+      - integration-tests/src/test/java/com/ghatana/media/integration/MediaLauncherProcessFixtures.java
+    exclusions: [production-authentication, current-real-rights-or-consent, trusted-source-clock, external-provider-finality, production-admission, release-qualification, full-journey-acceptance]
   intentRefs:
   - media.intent.resolve-job
 - id: J-21

@@ -105,6 +105,25 @@ sourceBoundScenarios:
       productionEligible: false
       independentScientificQualification: NOT_ESTABLISHED
       journeyAcceptance: OPEN
+  - id: media.declarative.p3.scenario.j20-durable-job-restart-recovery.v1
+    journeyRef: J-20
+    screenRef: media.view.job-status
+    given: a per-run synthetic source and exact TRANSCODE request are observed through the DEV_ONLY launcher, CLI, and Explorer watcher
+    then: keep the same requestId, jobId, attempt and source/output digests across process restart; surface COMPLETED only from the committed provider receipt and exact readback
+    denial: absent provider evidence remains OUTCOME_UNKNOWN without redispatch; proven no-effect boundaries remain FAILED; foreign tenant/principal reads reveal no job detail; cancellation never fabricates a terminal state
+    evidence: DEV_ONLY_REAL_LAUNCHER_POSTGRESQL_LOCALSTACK_FFMPEG_CLI_CHROMIUM; NO_PRODUCTION_AUTHORITY_OR_EXTERNAL_FINALITY
+    developmentOnlyExample:
+      decisionRef: PXD-256
+      p0BindingSource: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-20/developmentOnlyExample
+      evidenceRefs:
+        - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevJobRestartRecoveryIT.java
+        - integration-tests/src/test/java/com/ghatana/media/integration/MediaLauncherProcessFixtures.java
+      testSelector: MediaDevJobRestartRecoveryIT; 3 tests
+      durableStores: POSTGRESQL_16_AND_LOCALSTACK_S3_TESTCONTAINERS
+      provider: LOCAL_FFMPEG_TRANSCODE_ONLY
+      identityAndRights: SYNTHETIC_TEST_FIXTURE_ONLY
+      channelAdmission: UNCHANGED; DEV_ONLY_TESTS_DO_NOT_ADMIT_PRODUCTION_HTTP_CLI_OR_WEB
+      journeyAcceptance: OPEN
   - id: media.declarative.p3.scenario.solver-divergence-and-unit-mismatch.v1
     journeyRef: J-14
     screenRef: media.view.explore-simulation
