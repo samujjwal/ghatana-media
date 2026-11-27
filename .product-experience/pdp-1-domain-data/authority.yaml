@@ -34,6 +34,26 @@ consentAndIdentity:
   - consent-record-contract-contains-purpose-region-grant-expiry-revocation-and-version-fields
   - external-runtime-check-requires-ready-authority-and-active-decision-with-matching-consent-id
   - consent-authority-provider-is-an-spi-and-runtime-composition-checks-readiness-and-production-eligibility
+  sharedVerifiedJwtProjection:
+    decisionRef: .product-experience/decision-log.md#pxd-249
+    producerRef: ../ghatana/platform/java/launcher-support/src/main/java/com/ghatana/launcher/security/JwtAuthenticationVerifier.java#VerifiedJwt
+    verifiedFields: [issuer, audience, subject, tenantId, expiresAt, permissions]
+    requiredVerifierChecks: [configured-hmac-signature, exact-issuer, exact-audience, subject, tenant_id, expiry]
+    optionalVerifierChecksWhenPresent: [nbf, iat]
+    mediaProjection:
+      contract: runtime-contracts/src/main/java/com/ghatana/media/runtime/MediaVerifiedIdentityContracts.java#VerifiedIdentity
+      issuer: VerifiedJwt.issuer
+      subject: VerifiedJwt.subject
+      tenantId: VerifiedJwt.tenantId
+      assurance: SHARED_SECRET_JWT
+      authenticatedAt: server-verification-time
+      principalId: existing-VerifiedIdentity-principalId-projection
+    permissionUse: exact-method-level-RBAC-only; not resource rights, workspace membership, consent, delegation, or approval
+    authorityRef: not-present-in-Shared-VerifiedJwt; resolve required Media authority references from current Media policy/evidence authority
+    workspaceRef: not-present-in-Shared-VerifiedJwt; requires a separate current membership and revision resolver
+    freshness: request-bound-token-verification-only; does not extend identity beyond expiresAt or authorize session continuation
+    callerHints: compare-only; never widen host-attested tenant or principal scope
+    runtimeStatus: NOT_ADMITTED; applies only at a Media ingress explicitly wired to this Shared verifier
   unresolvedOwners:
     identityAuthenticationAndDelegation: deployed-identity-and-delegation-provider-binding-not-established
     consentAuthority: deployed-consent-authority-implementation-and-durable-record-owner-not-established

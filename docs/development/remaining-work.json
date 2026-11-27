@@ -559,7 +559,7 @@
       ],
       "startApproval": "AUTHORIZED_ORDINARY_MEDIA_ENGINEERING",
       "externalRightsAndQualifiedEffectsNotImplied": true,
-      "progress": "2026-11-26: PXD-238/PXD-239/PXD-240 bind the cross-modal request, typed provenance/uncertainty result, and artifact metadata assertions; PXD-241 now binds the Agent Tool experience to J-25 via media.channel.agent. The exact profile/configuration and result-content semantics are source-defined, but reference/rights/workspace/delegation resolvers and durable canonical submit/result readback are absent. The handler remains MULTIMODAL_NOT_ADMITTED. Task remains OPEN."
+      "progress": "2026-11-27 PXD-249 resolves the bounded Shared identity projection: Shared VerifiedJwt issuer/subject/tenant and server verification time map to Media VerifiedIdentity with SHARED_SECRET_JWT assurance for the current request; Shared exposes no authorityRef or workspace/delegation/rights revision. The handler remains MULTIMODAL_NOT_ADMITTED until current workspace/delegation/resource resolution, profile/rights checks, and durable canonical submit/result readback are wired. Task remains OPEN."
     },
     {
       "id": "media.dev.optional-data-cloud-adapter",
