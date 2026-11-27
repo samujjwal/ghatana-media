@@ -351,12 +351,34 @@ class FfmpegMultitrackRendererTest {
         // captions: sidecar and embedded cues share timing
         String vtt = Files.readString(r.captionsSidecarPath());
         assertThat(vtt).contains("00:00:00.100 --> 00:00:00.250\nHello", "00:00:00.350 --> 00:00:00.550\nA &amp; B");
-        String subs = ffprobeText(r.outputPath(), "stream=index,codec_type:packet=stream_index,pts_time,size");
-        List<String> cueStarts = subs.lines().filter(l -> l.startsWith("packet|stream_index=2|"))
-                .filter(l -> !l.endsWith("size=2")).map(l -> l.split("pts_time=")[1].split("\\|")[0]).toList();
-        assertThat(cueStarts).hasSize(2);
+        String subs = ffprobeText(r.outputPath(), "stream=index,codec_type:packet=stream_index,pts_time,duration_time,size");
+        List<String> cuePackets = subs.lines().filter(l -> l.startsWith("packet|stream_index=2|"))
+                .filter(l -> !l.endsWith("size=2")).toList();
+        assertThat(cuePackets).hasSize(2);
+        List<String> cueStarts = cuePackets.stream().map(l -> l.split("pts_time=")[1].split("\\|")[0]).toList();
         assertThat(Double.parseDouble(cueStarts.get(0))).isEqualTo(0.1, org.assertj.core.data.Offset.offset(0.002));
         assertThat(Double.parseDouble(cueStarts.get(1))).isEqualTo(0.35, org.assertj.core.data.Offset.offset(0.002));
+        List<String> cueDurations = cuePackets.stream().map(l -> l.split("duration_time=")[1].split("\\|")[0]).toList();
+        assertThat(Double.parseDouble(cueDurations.get(0))).isEqualTo(0.15, org.assertj.core.data.Offset.offset(0.002));
+        assertThat(Double.parseDouble(cueDurations.get(1))).isEqualTo(0.20, org.assertj.core.data.Offset.offset(0.002));
+    }
+
+    @Test
+    void rejectsSubtitleCueDurationMismatchBeforePublication() throws Exception {
+        requireTools();
+        Fixture f = standard(false, true);
+        Path corruptedPacketMarker = tmp.resolve("subtitle-cue-duration-corrupted");
+        Path corruptingProbe = corruptSubtitleDurationFfprobe(corruptedPacketMarker);
+        FfmpegMultitrackRenderer renderer = new FfmpegMultitrackRenderer(new Config(ffmpeg, corruptingProbe, root(), ENV,
+                Duration.ofSeconds(30), Duration.ofSeconds(120), true));
+
+        var result = renderer.render(f.plan(), f, out(), null);
+
+        assertThat(Files.exists(corruptedPacketMarker)).as("the probe wrapper altered a subtitle cue packet").isTrue();
+        assertThat(result.outcome()).as(result.toString()).isEqualTo(Outcome.FAILED);
+        assertThat(result.reason()).isEqualTo(Reason.VERIFICATION_FAILED);
+        assertThat(out()).isEmptyDirectory();
+        assertTempEmpty();
     }
 
     @Test
@@ -487,6 +509,23 @@ class FfmpegMultitrackRendererTest {
                 + ": > \"" + reached + "\"\n"
                 + "while [ ! -e \"" + release + "\" ]; do sleep 0.01; done\n"
                 + "exec \"" + ffprobe + "\" \"$@\"\n");
+        Files.setPosixFilePermissions(script, PosixFilePermissions.fromString("rwx------"));
+        return script;
+    }
+
+    /** Changes one embedded caption packet duration in verification output while preserving real ffprobe data. */
+    private Path corruptSubtitleDurationFfprobe(Path corruptedPacketMarker) throws IOException {
+        Path script = tmp.resolve("corrupt-subtitle-duration-ffprobe-" + System.nanoTime() + ".sh");
+        Files.writeString(script, "#!/bin/sh\n"
+                + "if [ \"$1\" = \"-version\" ]; then exec \"" + ffprobe + "\" \"$@\"; fi\n"
+                + "output=$(\"" + ffprobe + "\" \"$@\") || exit $?\n"
+                + "case \"$*\" in *packet=stream_index,pts,duration,size*)\n"
+                + "  printf '%s\\n' \"$output\" | awk 'BEGIN { changed = 0 } "
+                + "/^packet\\|stream_index=1\\|/ && $0 !~ /\\|size=2$/ && !changed { sub(/\\|duration=[^|]*/, \"|duration=999999\"); changed = 1 } "
+                + "{ print } END { if (changed) system(\"touch " + corruptedPacketMarker + "\") }'\n"
+                + "  ;;\n"
+                + "*) printf '%s\\n' \"$output\" ;;\n"
+                + "esac\n");
         Files.setPosixFilePermissions(script, PosixFilePermissions.fromString("rwx------"));
         return script;
     }

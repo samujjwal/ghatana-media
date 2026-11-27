@@ -415,12 +415,14 @@ public final class FfmpegMultitrackRenderer implements MultitrackRenderPlanner.C
         VerificationFailure(String message) { super(message); this.reason = Reason.VERIFICATION_FAILED; }
     }
 
+    private record SubtitlePacketTiming(BigInteger pts, BigInteger duration) { }
+
     private Verification verify(Path file, Analysis a, WavInfo wav, int width, int height, CancellationToken token)
             throws VerificationFailure, IOException {
         BoundedProcessRunner.Result probe = BoundedProcessRunner.run(List.of(config.ffprobe().toString(), "-v", "error",
                 "-of", "compact", "-show_entries",
                 "stream=index,codec_name,codec_type,width,height,pix_fmt,sample_rate,channels,duration,time_base,start_time"
-                        + ":packet=stream_index,pts,size:format=format_name,duration,size,nb_streams",
+                        + ":packet=stream_index,pts,duration,size:format=format_name,duration,size,nb_streams",
                 file.toString()), file.getParent(), config.environment(), config.probeTimeout(), MAX_STDOUT_BYTES,
                 MAX_STDERR_BYTES, token, null, 0);
         if (!probe.succeeded()) throw new VerificationFailure("ffprobe could not decode the output");
@@ -428,6 +430,7 @@ public final class FfmpegMultitrackRenderer implements MultitrackRenderPlanner.C
         List<long[]> videoPts = new ArrayList<>();
         Map<Integer, Integer> packets = new TreeMap<>();
         int subtitleCues = 0;
+        List<SubtitlePacketTiming> subtitleTimings = new ArrayList<>();
         Map<String, String> format = Map.of();
         Map<Integer, String> types = new TreeMap<>();
         List<Object[]> rawPackets = new ArrayList<>();
@@ -446,7 +449,7 @@ public final class FfmpegMultitrackRenderer implements MultitrackRenderPlanner.C
                     types.put(idx, kv.get("codec_type"));
                 }
                 case "packet" -> rawPackets.add(new Object[] {Integer.parseInt(kv.get("stream_index")),
-                        kv.get("pts"), kv.get("size")});
+                        kv.get("pts"), kv.get("duration"), kv.get("size")});
                 case "format" -> format = kv;
                 default -> { }
             }
@@ -488,8 +491,17 @@ public final class FfmpegMultitrackRenderer implements MultitrackRenderPlanner.C
             if (si == videoIdx) {
                 if ("N/A".equals(p[1]) || p[1] == null) throw new VerificationFailure("video packet without PTS");
                 videoPts.add(new long[] {Long.parseLong((String) p[1])});
-            } else if (si == subIdx && p[2] != null && Integer.parseInt((String) p[2]) > 2) {
+            } else if (si == subIdx && p[3] != null && Integer.parseInt((String) p[3]) > 2) {
                 subtitleCues++;
+                if (p[1] == null || p[2] == null || "N/A".equals(p[1]) || "N/A".equals(p[2])) {
+                    throw new VerificationFailure("subtitle packet timing unavailable");
+                }
+                try {
+                    subtitleTimings.add(new SubtitlePacketTiming(new BigInteger((String) p[1]),
+                            new BigInteger((String) p[2])));
+                } catch (NumberFormatException invalidTiming) {
+                    throw new VerificationFailure("subtitle packet timing invalid");
+                }
             }
         }
         videoPts.sort(Comparator.comparingLong(x -> x[0]));
@@ -505,6 +517,33 @@ public final class FfmpegMultitrackRenderer implements MultitrackRenderPlanner.C
         }
         if (!exact) throw new VerificationFailure("video frame PTS differs from the plan");
         if (subtitleCues != a.captions.size()) throw new VerificationFailure("caption cue count differs from the plan");
+        if (sub != null) {
+            String subtitleTimeBase = sub.get("time_base");
+            if (subtitleTimeBase == null) throw new VerificationFailure("subtitle time base unavailable");
+            String[] subtitleTb = subtitleTimeBase.split("/");
+            if (subtitleTb.length != 2) throw new VerificationFailure("subtitle time base unavailable");
+            BigInteger subtitleTbN;
+            BigInteger subtitleTbD;
+            try {
+                subtitleTbN = new BigInteger(subtitleTb[0]);
+                subtitleTbD = new BigInteger(subtitleTb[1]);
+                if (subtitleTbN.signum() <= 0 || subtitleTbD.signum() <= 0) {
+                    throw new NumberFormatException("non-positive time base");
+                }
+            } catch (NumberFormatException invalidTimeBase) {
+                throw new VerificationFailure("subtitle time base invalid");
+            }
+            subtitleTimings.sort(Comparator.comparing(SubtitlePacketTiming::pts));
+            for (int i = 0; i < subtitleTimings.size(); i++) {
+                SubtitlePacketTiming actual = subtitleTimings.get(i);
+                CaptionCue expected = a.captions.get(i);
+                if (!exactPacketTime(actual.pts(), subtitleTbN, subtitleTbD, expected.start())
+                        || !exactPacketTime(actual.duration(), subtitleTbN, subtitleTbD,
+                                expected.end().minus(expected.start()))) {
+                    throw new VerificationFailure("subtitle cue timing differs from the plan");
+                }
+            }
+        }
 
         double expectedDuration = toDouble(a.duration);
         double longestFrame = a.out.stream().map(OutFrame::duration).mapToDouble(FfmpegMultitrackRenderer::toDouble).max().orElse(0);
@@ -532,6 +571,13 @@ public final class FfmpegMultitrackRenderer implements MultitrackRenderPlanner.C
         return new Verification(streams.size(), video.get("codec_name"), audio == null ? null : audio.get("codec_name"),
                 sub == null ? null : sub.get("codec_name"), videoPts.size(), width, height, subtitleCues,
                 containerDuration, expectedDuration, tolerance, true);
+    }
+
+    private static boolean exactPacketTime(BigInteger ticks, BigInteger timeBaseNumerator,
+            BigInteger timeBaseDenominator, Time expected) {
+        BigInteger lhs = ticks.multiply(timeBaseNumerator).multiply(BigInteger.valueOf(expected.denominator()));
+        BigInteger rhs = BigInteger.valueOf(expected.numerator()).multiply(timeBaseDenominator);
+        return lhs.equals(rhs);
     }
 
     // ------------------------------------------------------------------------------- tool probing
