@@ -82,6 +82,18 @@ describe("ArtifactInspectionScreen canonical read", () => {
     expect(screen.queryByText("opaque-ref")).toBeNull();
   });
 
+  it("rejects a response for a different principal in the trusted tenant", async () => {
+    const reader: CanonicalArtifactReadClient = { getArtifact: vi.fn(async () => ({
+      ...snapshot("artifact-17"),
+      principalId: "principal-other",
+    })) };
+    render(React.createElement(ArtifactInspectionScreen, { ...baseProps, canonicalArtifactReadClient: reader }));
+    fireEvent.click(screen.getByRole("button", { name: "Refresh artifact metadata" }));
+    expect(await screen.findByText("Artifact metadata is unavailable or invalid. No availability or rights conclusion was made.")).toBeTruthy();
+    expect(screen.queryByText("clip.mp4")).toBeNull();
+    expect(screen.queryByText("opaque-ref")).toBeNull();
+  });
+
   it("does not dispatch a reader without trusted host identity", () => {
     const reader: CanonicalArtifactReadClient = { getArtifact: vi.fn(async (id) => snapshot(id)) };
     render(React.createElement(ArtifactInspectionScreen, { ...baseProps, authenticatedHostContext: undefined,
