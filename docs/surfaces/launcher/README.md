@@ -177,11 +177,14 @@ and stable terminal reads — **no second writer**.
   `Range` support as the artifact content route, no query) to the owner or an assigned, unexpired reviewer, so a reviewer who does not own the
   artifact can play exactly what they decide on; revoked or expired reviewers get `403`. The uploader cannot decide
   (`403 REVIEWER_NOT_ASSIGNED`); a principal with no assignment or another tenant gets `404 REVIEW_CASE_NOT_FOUND`.
-  **Delivery gate.** With `MEDIA_DEV_REVIEW_REQUIRED_FOR_DELIVERY=true` (requires review and delivery) every export, retry and
-  reconcile of an exact version needs the case's latest decision to be an `ACCEPT` within the `APPROVAL` scope from an assigned
-  reviewer, current on the lineage head; otherwise `409 EXPORT_REVIEW_REQUIRED`, `EXPORT_REVIEW_SUPERSEDED`,
-  `EXPORT_REVIEW_STALE`, `EXPORT_REVIEW_NOT_ACCEPTED` or `EXPORT_REVIEW_APPROVAL_SCOPE_REQUIRED`, and nothing is exported. The
-  gate is in addition to the rights gate and is never an approval (`establishesApproval=false`). Retention: erasure of a version
+  **Delivery gate.** Every new or unresolved export requires a configured exact-version review authority and a case whose latest
+  decision is an `ACCEPT` within the `APPROVAL` scope from an assigned reviewer, current on the lineage head. The launcher wires
+  the gate whenever DEV review is configured; if it is absent, export returns `409 EXPORT_REVIEW_AUTHORITY_UNAVAILABLE` before
+  operation insertion or destination write. The former `MEDIA_DEV_REVIEW_REQUIRED_FOR_DELIVERY` opt-in flag no longer disables
+  this requirement. With review configured, a missing or ineligible decision returns `409 EXPORT_REVIEW_REQUIRED`,
+  `EXPORT_REVIEW_SUPERSEDED`, `EXPORT_REVIEW_STALE`, `EXPORT_REVIEW_NOT_ACCEPTED` or
+  `EXPORT_REVIEW_APPROVAL_SCOPE_REQUIRED`, and nothing is exported. A confirmed replay remains read-only. The gate is in addition
+  to the rights gate and is never an approval (`establishesApproval=false`). Retention: erasure of a version
   (J-26) deletes its case, comments, decisions and assignments and removes it from the lineage. Erasing the head restores the previous
   version as head; its own ACCEPT is then `CURRENT` again only because it was a decision on that exact, unchanged digest, and the
   revival is never silent: the lineage read carries `headChangedBy: "ERASURE"` and `headChange` (erased version number, artifact
@@ -239,8 +242,9 @@ and stable terminal reads — **no second writer**.
   permitted to use is `403 DESTINATION_NOT_PERMITTED`; an unregistered one stays `404 DESTINATION_NOT_FOUND`
   (existing client contract). A destination whose credential is refused before any write is a terminal
   `UNAVAILABLE`/`NOT_DELIVERED` for that request id. Rights revocation mid-export stops the next part. Erasure of
-  copies already delivered to an external receiver is not performed by this host. The review lane is not consulted:
-  the second-person-confirmed EXTERNAL_DELIVERY attestation is the only release gate.
+  copies already delivered to an external receiver is not performed by this host. The exact-version review gate and
+  second-person-confirmed `EXTERNAL_DELIVERY` attestation both apply before new or resumed delivery. A verified loopback receiver
+  receipt remains DEV_ONLY and does not establish an owner-issued production destination acknowledgment.
 - The DEV_ONLY artifact intake host reads `GET /dev/v1/artifact-upload-policy`
   using a signed DEV_ONLY identity with `media:artifact:create`. The exact
   response is `{schemaVersion:"media.dev.artifact-upload-policy.v1",

@@ -115,6 +115,26 @@ class MediaDevDeliveryHttpTest {
     }
 
     @Test
+    void missingReviewAuthorityRefusesBeforeOperationInsertionOrDestinationWrite() throws Exception {
+        Fixture fixture = new Fixture(null, null, true, false);
+        try {
+            MediaArtifact artifact = fixture.upload("review-authority-unavailable.bin", bytes(2_000, 41), "review-authority");
+
+            HttpResponse<String> response = fixture.export("review-authority-unavailable", artifact, DESTINATION,
+                    PRINCIPAL, EXPORT_PERMISSIONS);
+
+            assertThat(response.statusCode()).as(response.body()).isEqualTo(409);
+            assertThat(response.body()).contains("EXPORT_REVIEW_AUTHORITY_UNAVAILABLE")
+                    .contains("\"establishesApproval\":false");
+            assertThat(fixture.store.find(TENANT, "review-authority-unavailable")).isEmpty();
+            assertThat(fixture.destinationCalls.get()).isZero();
+            assertThat(Files.exists(fixture.objectPath("review-authority-unavailable"))).isFalse();
+        } finally {
+            fixture.close();
+        }
+    }
+
+    @Test
     void operationReadsBackAfterRestartWithoutASecondEffect() throws Exception {
         Fixture fixture = new Fixture(null);
         try {
@@ -585,6 +605,17 @@ class MediaDevDeliveryHttpTest {
         @Override public boolean update(Operation operation, DispatchClaim claim) { return delegate.update(operation, claim); }
     }
 
+    /** Synthetic fixture admission only; this gate never represents human approval. */
+    private static MediaDevReviewRuntime.DeliveryAdmission testOnlyReviewAdmission(
+            String tenantId, String principalId, String artifactId, String versionId) {
+        assertThat(tenantId).isEqualTo(TENANT);
+        assertThat(principalId).isEqualTo(PRINCIPAL);
+        assertThat(artifactId).isNotBlank();
+        assertThat(versionId).isNotBlank();
+        return new MediaDevReviewRuntime.DeliveryAdmission(true, "TEST_ONLY_SYNTHETIC_REVIEW_GATE",
+                "Synthetic test fixture gate; does not establish approval", null);
+    }
+
     private static final class Fixture {
         final Path destinationRoot;
         final MediaRuntime runtime;
@@ -594,6 +625,7 @@ class MediaDevDeliveryHttpTest {
                 new com.ghatana.media.runtime.InMemoryMediaRightsAttestationStore();
         MediaDevRightsRuntime rights;
         boolean rightsConfigured = true;
+        boolean reviewAuthorityConfigured = true;
         boolean autoGrantDelivery = true;
         final java.util.concurrent.atomic.AtomicInteger destinationCalls = new java.util.concurrent.atomic.AtomicInteger();
         MediaDevDeliveryRuntime delivery;
@@ -610,13 +642,21 @@ class MediaDevDeliveryHttpTest {
 
         Fixture(UnaryOperator<MediaDeliveryEngine.FencedDestinationPort> wrapper,
                 MediaDevDeliveryRuntime preset, boolean rightsConfigured) throws Exception {
+            this(wrapper, preset, rightsConfigured, true);
+        }
+
+        Fixture(UnaryOperator<MediaDeliveryEngine.FencedDestinationPort> wrapper,
+                MediaDevDeliveryRuntime preset, boolean rightsConfigured, boolean reviewAuthorityConfigured)
+                throws Exception {
             this.rightsConfigured = rightsConfigured;
+            this.reviewAuthorityConfigured = reviewAuthorityConfigured;
             Path root = Files.createTempDirectory("media-dev-delivery-http-");
             this.destinationRoot = Files.createDirectory(root.resolve("destination")).toRealPath();
             this.runtime = runtime(Files.createDirectory(root.resolve("artifacts")));
             this.rights = new MediaDevRightsRuntime(runtime, rightsStore, CLOCK);
             if (preset != null) {
                 this.delivery = preset;
+                configureReviewGate(this.delivery);
                 start();
             } else {
                 restart(wrapper);
@@ -646,7 +686,12 @@ class MediaDevDeliveryHttpTest {
             };
             delivery = new MediaDevDeliveryRuntime(runtime, store, destinationRoot, Instant::now,
                     rightsConfigured ? rights.resolver() : null, counting);
+            configureReviewGate(delivery);
             start();
+        }
+
+        private void configureReviewGate(MediaDevDeliveryRuntime target) {
+            if (reviewAuthorityConfigured) target.requireReview(MediaDevDeliveryHttpTest::testOnlyReviewAdmission);
         }
 
         private void start() throws Exception {

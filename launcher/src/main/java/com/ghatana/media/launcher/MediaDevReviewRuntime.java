@@ -46,7 +46,11 @@ import java.util.function.Supplier;
  */
 public final class MediaDevReviewRuntime implements AutoCloseable {
     public static final String ENABLED = "MEDIA_DEV_REVIEW_ENABLED";
-    /** When true (and delivery and review are enabled) export of an exact version needs a current accepted review. */
+    /**
+     * @deprecated Delivery always requires the exact-version review gate; this legacy flag cannot disable it.
+     * Retained for configuration compatibility while hosts migrate to unconditional enforcement.
+     */
+    @Deprecated
     public static final String DELIVERY_REVIEW_REQUIRED_ENV = "MEDIA_DEV_REVIEW_REQUIRED_FOR_DELIVERY";
     public static final String AUTHORITY_VERSION = "dev-only.synthetic-owner.v1";
     public static final String ASSIGNED_AUTHORITY_PREFIX = "dev-only.assigned-reviewer.v1:";

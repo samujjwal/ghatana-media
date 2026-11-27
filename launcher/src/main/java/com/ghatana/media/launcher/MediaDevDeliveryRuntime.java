@@ -71,7 +71,7 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
         Resolution resolution() { return resolution; }
     }
 
-    /** Review has not admitted delivery of the exact version (no case, not accepted, stale or superseded). */
+    /** Review authority is absent or has not admitted delivery of the exact version. */
     static final class ReviewNotAdmittedException extends RuntimeException {
         private final MediaDevReviewRuntime.DeliveryAdmission admission;
 
@@ -83,7 +83,7 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
         MediaDevReviewRuntime.DeliveryAdmission admission() { return admission; }
     }
 
-    /** Optional review gate: delivery of an exact version needs a current assigned-reviewer APPROVAL-scope ACCEPT. */
+    /** Exact-version review gate required before a new or unresolved delivery may proceed. */
     @FunctionalInterface
     interface ReviewGate {
         MediaDevReviewRuntime.DeliveryAdmission check(String tenantId, String principalId, String artifactId,
@@ -208,11 +208,16 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
                 .orElse(false);
         if (!alreadyConfirmed) {
             ReviewGate gate = reviewGate.get();
-            if (gate != null) {
-                var admission = gate.check(tenantId, principalId, exportRequest.artifact().artifactId(),
+            if (gate == null) throw reviewAuthorityUnavailable();
+            MediaDevReviewRuntime.DeliveryAdmission admission;
+            try {
+                admission = gate.check(tenantId, principalId, exportRequest.artifact().artifactId(),
                         exportRequest.artifact().versionRef());
-                if (!admission.admitted()) throw new ReviewNotAdmittedException(admission);
+            } catch (RuntimeException unavailable) {
+                throw reviewAuthorityUnavailable();
             }
+            if (admission == null) throw reviewAuthorityUnavailable();
+            if (!admission.admitted()) throw new ReviewNotAdmittedException(admission);
             Resolution resolution = externalDelivery(rights, tenantId, exportRequest.artifact().artifactId(),
                     exportRequest.artifact().versionRef(), exportRequest.artifact().digest());
             if (!resolution.admitted()) throw new RightsNotAdmittedException(resolution);
@@ -225,6 +230,13 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
             result = engine.reconcileAndResume(exportRequest);
         }
         return new Outcome(result, replayed);
+    }
+
+    private static ReviewNotAdmittedException reviewAuthorityUnavailable() {
+        return new ReviewNotAdmittedException(new MediaDevReviewRuntime.DeliveryAdmission(false,
+                "REVIEW_AUTHORITY_UNAVAILABLE",
+                "A configured exact-version review authority is required before delivery; nothing was exported",
+                null));
     }
 
     /** Owner-scoped durable readback of one operation; another principal's operation is absent. */
@@ -326,8 +338,11 @@ final class MediaDevDeliveryRuntime implements AutoCloseable {
             implements MediaDeliveryEngine.AuthorizationPort {
         private boolean reviewAdmits(String tenantId, String principalId, String artifactId, String versionId) {
             ReviewGate gate = reviewGate.get();
-            if (gate == null) return true;
-            try { return gate.check(tenantId, principalId, artifactId, versionId).admitted(); }
+            if (gate == null) return false;
+            try {
+                MediaDevReviewRuntime.DeliveryAdmission admission = gate.check(tenantId, principalId, artifactId, versionId);
+                return admission != null && admission.admitted();
+            }
             catch (RuntimeException unavailable) { return false; }
         }
 
