@@ -1807,6 +1807,35 @@ class TtsGrpcServiceTest {
     }
 
     @Test
+    void rejectsStreamWhoseFirstChunkDoesNotStartAtZero() throws Exception {
+        TtsGrpcService admitted = admittedService(() -> true, () -> true);
+        AtomicBoolean sessionCancelled = new AtomicBoolean();
+        CountDownLatch errorReceived = new CountDownLatch(1);
+        AtomicReference<Throwable> error = new AtomicReference<>();
+        when(engine.startStreaming(anyString(), any(), any())).thenAnswer(invocation -> {
+            TtsStreamSink sink = invocation.getArgument(2);
+            sink.onAudioFormat(monoPcm16Format());
+            sink.onChunk(new com.ghatana.media.common.AudioChunk(new byte[] {1, 2}, 1, true, 0));
+            return TtsStreamingSession.create(sessionCancelled, new CompletableFuture<>());
+        });
+        @SuppressWarnings("unchecked")
+        StreamObserver<com.ghatana.tts.core.grpc.proto.AudioChunk> observer = mock(StreamObserver.class);
+        doAnswer(invocation -> {
+            error.set(invocation.getArgument(0));
+            errorReceived.countDown();
+            return null;
+        }).when(observer).onError(any());
+
+        admitted.streamSynthesize(SynthesizeRequest.newBuilder().setText("hello").build(), observer);
+
+        assertThat(errorReceived.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(Status.fromThrowable(error.get()).getCode()).isEqualTo(Status.Code.FAILED_PRECONDITION);
+        verify(observer, never()).onNext(any());
+        verify(observer, never()).onCompleted();
+        assertThat(sessionCancelled).isTrue();
+    }
+
+    @Test
     void admittedStreamRejectsSequenceGapAfterPreservingOnlyPriorPartialChunk() {
         TtsGrpcService admitted = admittedService(() -> true, () -> true);
         AtomicBoolean sessionCancelled = new AtomicBoolean();
