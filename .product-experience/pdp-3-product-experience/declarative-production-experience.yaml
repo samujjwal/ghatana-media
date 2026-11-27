@@ -312,6 +312,24 @@ caseExperiences:
       authoritativeReceipt: NOT_ESTABLISHED
       rightsAndRuntimeAuthority: NOT_ESTABLISHED
       independentCoordinateQualification: NOT_ESTABLISHED
+      productionEligible: false
+      verifiedDownloadReadbackBinding:
+        decisionRef: PXD-267
+        p0BindingSource: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-13/developmentOnlyExample/verifiedDownloadReadbackBinding"
+        actionRef: media.action.inspect-output-preview-and-version
+        operationRef: media.operation.action.inspect-output-preview-and-version
+        channelRef: media.channel.web
+        apiOperationId: media.dev.http.getCreativeOutput
+        metadataRoute: GET /dev/v1/creative-outputs/{outputId}
+        contentRoute: GET /dev/v1/artifacts/{artifactId}/content
+        selector: outputId returned by the same PXD-253 local GLB export; reopened artifactId must equal that outputId
+        exactVersion: If-Match uses the immutable sha256 artifactVersionId returned by the reopened output metadata
+        consumer: Verified GLB download/readback after checking registered byte count, Content-Type, and SHA-256
+        hostScope: authenticated DEV_ONLY host tenant and principal
+        p1MachineState: NONE; read-only query
+        scopeBoundary: No GLB geometry rendering, scene viewing, viewer parity, or coordinate qualification
+        runtimeAdmission: NOT_ADMITTED
+        journeyAcceptance: OPEN
       journeyAcceptance: OPEN
   - id: media.declarative.p3.case.004.v1
     pdp0CaseId: MEDIA-DECL-P0-AC-004

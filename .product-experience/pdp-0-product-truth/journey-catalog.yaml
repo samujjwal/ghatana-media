@@ -439,6 +439,23 @@ journeys:
       sourceVersionRef: tenant-j13/rig-source/rig-source:v3
       sourceProjectRevisionRef: project:j13:revision-7
       outputDigest: SHA-256 over the exact local GLB candidate bytes; integrity only, not an authoritative artifact receipt.
+    verifiedDownloadReadbackBinding:
+      decisionRef: PXD-267
+      purpose: EXACT_PXD_253_LOCAL_GLB_OUTPUT_BYTES
+      actionRef: media.action.inspect-output-preview-and-version
+      operationRef: media.operation.action.inspect-output-preview-and-version
+      channelRef: media.channel.web
+      apiOperationId: media.dev.http.getCreativeOutput
+      metadataRoute: GET /dev/v1/creative-outputs/{outputId}
+      contentRoute: GET /dev/v1/artifacts/{artifactId}/content
+      selector: outputId returned by the same PXD-253 local GLB export; reopened artifactId must equal that outputId
+      exactVersion: If-Match uses the immutable sha256 artifactVersionId returned by the reopened output metadata
+      consumer: Verified GLB download/readback after checking registered byte count, Content-Type, and SHA-256
+      hostScope: authenticated DEV_ONLY host tenant and principal
+      p1MachineState: NONE; read-only query
+      productionEligible: false
+      runtimeAdmission: NOT_ADMITTED
+      journeyAcceptance: OPEN
     evidenceRefs:
       - modules/production/spatial/src/main/java/com/ghatana/media/production/spatial/SpatialRigEngine.java
       - modules/production/spatial/src/test/java/com/ghatana/media/production/spatial/AnimationJ13LocalScenarioSliceTest.java
