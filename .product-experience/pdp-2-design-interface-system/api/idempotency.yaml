@@ -1,7 +1,7 @@
 schemaVersion: media.api-idempotency.v1
 owner: ghatana-media-product-api
 authority: Media mutation contracts own effect identity and replay semantics
-sourceRefs: [.product-experience/pdp-2-design-interface-system/api/conventions.yaml, .product-experience/pdp-2-design-interface-system/api/async-operations.yaml, .product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml, .product-experience/pdp-0-product-truth/state-models.yaml]
+sourceRefs: [.product-experience/pdp-2-design-interface-system/api/conventions.yaml, .product-experience/pdp-2-design-interface-system/api/async-operations.yaml, .product-experience/pdp-2-design-interface-system/api/retry-timeout-unknown-outcome.yaml, .product-experience/pdp-0-product-truth/state-models.yaml, .product-experience/pdp-1-domain-data/offline-sync.yaml#ownerDefinedOfflineSemantics/idempotencyGuard]
 scopeStatus: proposal; operation-specific retention and persistence await runtime design
 acceptance: {criteria: [each mutation declares whether idempotency is supported; supported mutations define scope and any actual retention, key reuse with different input is rejected or otherwise explicitly resolved, replay behavior is documented], status: pending-runtime-owner-review}
 verification: {method: For operations claiming idempotency, inject duplicate and concurrent submissions including response loss and verify effect identity and the actually implemented persistence/retention boundary, status: not-run}
@@ -18,8 +18,51 @@ ownerDefinedIdempotencySemantics:
     - key retention and persistence are claimed only when the exact implementation/source boundary establishes them; this rule creates no durable store, replay window, or automatic retry
     - an operation may declare idempotency unsupported, in which case callers must not automatically retry its mutation
   runtimeAdmission: NOT_ADMITTED
+ownerDefinedOfflineReconnectResult:
+  id: media.p2.idempotency.offline-reconnect-result.v1
+  decisionRef: .product-experience/decision-log.md#PXD-243
+  sourceAuthority: .product-experience/pdp-1-domain-data/offline-sync.yaml#ownerDefinedOfflineSemantics/idempotencyGuard
+  appliesTo: libs/audio-video-client/src/offline-reconnect.ts#OfflineReconnectOperations.applyEdit
+  status: OWNER_DEFINED_CLIENT_RESULT_PROJECTION; host-route-and-runtime-admission-remain-NOT_ADMITTED
+  resultRules:
+    APPLIED:
+      requiredFields: [outcome, receipt]
+      optionalFields: [replayed]
+      receipt: nonempty durable owner receipt for the exact trusted scope, request identity, and server-computed canonical payload digest
+      replayed:
+        false: owner confirms this exact identity and digest created the durable effect and receipt for the first time
+        true: owner confirms this exact identity and digest already had a durable effect and returns that same receipt without a second effect
+      absent: preserve APPLIED from the exact durable receipt and omit replay metadata; do not infer either boolean
+      result: replayed is descriptive response metadata and does not replace or enlarge receipt finality
+    CONFLICT:
+      requiredFields: [outcome]
+      prohibitedFields: [receipt, replayed]
+      meaning: exact request identity was reused with a different canonical payload digest; no mutation or effect
+    OUTCOME_UNKNOWN:
+      requiredFields: [outcome]
+      prohibitedFields: [receipt, replayed]
+      meaning: owner cannot establish current finality; preserve the same identity and reconcile before retry
+  clientMapping:
+    identityEcho: [tenantId, projectId, editId, idempotencyKey, expectedVersion]
+    replayedRead: snapshot-once; accept-a-boolean-on-APPLIED-when-present
+    malformedPresentValue: map-to-OUTCOME_UNKNOWN-without-a-new-request-or-blind-replay
+    persistence: replayed-is-transient-response-metadata; the encrypted queue persists the APPLIED state and receipt, not a claim about which process created it
+  negativeCases:
+  - APPLIED-without-nonempty-durable-receipt
+  - replayed-inferred-when-the-host-omits-it
+  - replayed-inferred-from-request-key-or-receipt-presence
+  - CONFLICT-with-receipt-or-replayed-claim
+  - OUTCOME_UNKNOWN-with-receipt-or-replayed-claim
+  - true-replayed-with-a-new-or-different-receipt
+  - replay-flag-used-as-current-rights-or-authority-evidence
+  - malformed-or-mismatched-identity-echo
+  runtimeAdmission: NOT_ADMITTED
 normativeRuleRecords:
   - id: media.p2.rule.api-idempotency-identity.v1
     ruleRef: .product-experience/pdp-2-design-interface-system/api/idempotency.yaml#ownerDefinedIdempotencySemantics
     sourceAuthority: .product-experience/pdp-2-design-interface-system/api/idempotency.yaml#rules
+    acceptanceEffect: none
+  - id: media.p2.rule.offline-reconnect-replay-result.v1
+    ruleRef: .product-experience/pdp-2-design-interface-system/api/idempotency.yaml#ownerDefinedOfflineReconnectResult
+    sourceAuthority: .product-experience/pdp-1-domain-data/offline-sync.yaml#ownerDefinedOfflineSemantics/idempotencyGuard
     acceptanceEffect: none

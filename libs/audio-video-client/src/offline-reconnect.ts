@@ -17,13 +17,16 @@ export interface ScopedProjectVersionRead extends OfflineEditScope {
   readonly version?: string;
 }
 
-export interface ScopedEditApplyResult extends OfflineEditScope {
+interface ScopedEditApplyResultBase extends OfflineEditScope {
   readonly editId: string;
   readonly idempotencyKey: string;
   readonly expectedVersion: string;
-  readonly outcome: "APPLIED" | "CONFLICT" | "OUTCOME_UNKNOWN";
-  readonly receipt?: string;
 }
+
+export type ScopedEditApplyResult = ScopedEditApplyResultBase & (
+  | { readonly outcome: "APPLIED"; readonly receipt: string; readonly replayed?: boolean }
+  | { readonly outcome: "CONFLICT" | "OUTCOME_UNKNOWN"; readonly receipt?: never; readonly replayed?: never }
+);
 
 /** The host returns the exact queue readback it presented for review. */
 export interface OfflineReconnectOptions<T = unknown> {
@@ -42,11 +45,11 @@ export type OfflineReconnectResult<R = unknown> =
   | { readonly status: "UNAVAILABLE"; readonly reason: "OFFLINE_EDIT_STORE_UNAVAILABLE"; readonly dirty: true }
   | { readonly status: "REVIEW_REQUIRED"; readonly dirty: true }
   | { readonly status: "UNAVAILABLE"; readonly reason: "OFFLINE_STORE_CAS_UNAVAILABLE"; readonly dirty: boolean; readonly results: readonly {
-      readonly editId: string; readonly state: OfflineEditReplayState; readonly receipt?: R;
+      readonly editId: string; readonly state: OfflineEditReplayState; readonly receipt?: R; readonly replayed?: boolean;
     }[] }
   | { readonly status: "OFFLINE"; readonly dirty: boolean }
   | { readonly status: "RECONNECTED"; readonly dirty: boolean; readonly results: readonly {
-      readonly editId: string; readonly state: OfflineEditReplayState; readonly receipt?: R;
+      readonly editId: string; readonly state: OfflineEditReplayState; readonly receipt?: R; readonly replayed?: boolean;
     }[] };
 
 /** Coordinates reconnect through the existing encrypted queue; it never owns storage or retries unknown effects. */
@@ -85,6 +88,7 @@ export class OfflineReconnectCoordinator<T = unknown, R = string> {
     if (dirty && options.reviewedQueue === undefined) {
       return { status: "REVIEW_REQUIRED", dirty: true };
     }
+    const replayedByEditId = new Map<string, boolean>();
     const adapter: OfflineEditReplayAdapter<T, R> = {
       reauthorize: async (edit) => {
         if (!sameScope(edit, this.scope)) return { authorized: false, disposition: "UNKNOWN" };
@@ -133,18 +137,24 @@ export class OfflineReconnectCoordinator<T = unknown, R = string> {
         const responseExpectedVersion = response.expectedVersion;
         const outcome = response.outcome;
         const receipt = response.receipt;
+        const replayed = response.replayed;
         if (responseTenantId !== this.scope.tenantId || responseProjectId !== this.scope.projectId
           || responseEditId !== edit.editId || responseIdempotencyKey !== edit.idempotencyKey
           || responseExpectedVersion !== edit.expectedVersion) {
           return { outcome: "OUTCOME_UNKNOWN" };
         }
         if (outcome === "APPLIED") {
-          if (typeof receipt !== "string" || !receipt.trim()) {
+          if (typeof receipt !== "string" || !receipt.trim()
+            || (replayed !== undefined && typeof replayed !== "boolean")) {
             return { outcome: "OUTCOME_UNKNOWN" };
           }
+          if (typeof replayed === "boolean") replayedByEditId.set(edit.editId, replayed);
           return { outcome: "APPLIED", receipt: receipt as R };
         }
-        if (outcome === "CONFLICT" || outcome === "OUTCOME_UNKNOWN") return { outcome };
+        if (outcome === "CONFLICT" || outcome === "OUTCOME_UNKNOWN") {
+          if (receipt !== undefined || replayed !== undefined) return { outcome: "OUTCOME_UNKNOWN" };
+          return { outcome };
+        }
         return { outcome: "OUTCOME_UNKNOWN" };
       },
     };
@@ -157,6 +167,9 @@ export class OfflineReconnectCoordinator<T = unknown, R = string> {
       }
       throw error;
     }
+    const mappedResults = results.map((result) => result.state === "APPLIED" && replayedByEditId.has(result.editId)
+      ? { ...result, replayed: replayedByEditId.get(result.editId)! }
+      : result);
     let stillDirty: boolean;
     try {
       stillDirty = await this.queue.hasDirtyEdits(this.scope);
@@ -167,9 +180,9 @@ export class OfflineReconnectCoordinator<T = unknown, R = string> {
       return { status: "UNAVAILABLE", reason: "OFFLINE_EDIT_STORE_UNAVAILABLE", dirty: true };
     }
     if (results.some((result) => result.state === "STORE_CAS_UNAVAILABLE")) {
-      return { status: "UNAVAILABLE", reason: "OFFLINE_STORE_CAS_UNAVAILABLE", dirty: stillDirty, results };
+      return { status: "UNAVAILABLE", reason: "OFFLINE_STORE_CAS_UNAVAILABLE", dirty: stillDirty, results: mappedResults };
     }
-    return { status: "RECONNECTED", dirty: stillDirty, results };
+    return { status: "RECONNECTED", dirty: stillDirty, results: mappedResults };
   }
 }
 

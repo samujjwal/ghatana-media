@@ -62,7 +62,7 @@ describe("OfflineReconnectCoordinator", () => {
       reauthorize: async (queued) => ({ ...scope, disposition: "AUTHORIZED" }),
       readProjectVersion: async () => ({ ...scope, disposition: "CURRENT", version: "revision-7" }),
       applyEdit: async (queued) => ({ ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
-        expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: `receipt:${queued.idempotencyKey}` }),
+        expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: `receipt:${queued.idempotencyKey}`, replayed: false }),
       ...overrides,
     };
   }
@@ -96,7 +96,7 @@ describe("OfflineReconnectCoordinator", () => {
       applyEdit: async (queued) => {
         applyCalls++;
         return { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
-          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "unexpected" };
+          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "unexpected", replayed: false };
       },
     }));
 
@@ -133,7 +133,7 @@ describe("OfflineReconnectCoordinator", () => {
       applyEdit: async (queued) => {
         applyCalls++;
         return { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
-          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "persisted-receipt" };
+          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "persisted-receipt", replayed: false };
       },
     }));
 
@@ -172,7 +172,7 @@ describe("OfflineReconnectCoordinator", () => {
       reauthorize: async () => { authorizationReads++; return { ...scope, disposition: "AUTHORIZED" }; },
       applyEdit: async () => { applyCalls++; return { ...scope, editId: edit.editId,
         idempotencyKey: edit.idempotencyKey, expectedVersion: edit.expectedVersion,
-        outcome: "APPLIED", receipt: "fixture-receipt" }; },
+        outcome: "APPLIED", receipt: "fixture-receipt", replayed: false }; },
     }));
 
     await expect(coordinator.reconnect(true)).resolves.toEqual({ status: "REVIEW_REQUIRED", dirty: true });
@@ -203,7 +203,7 @@ describe("OfflineReconnectCoordinator", () => {
       applyEdit: async (queued) => {
         applyCalls++;
         return { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
-          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "fixture-receipt" };
+          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "fixture-receipt", replayed: false };
       },
     }));
 
@@ -234,7 +234,7 @@ describe("OfflineReconnectCoordinator", () => {
       applyEdit: async (queued) => {
         observedScopes.push({ tenantId: queued.tenantId, projectId: queued.projectId });
         return { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
-          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "receipt" };
+          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "receipt", replayed: false };
       },
     }));
 
@@ -723,7 +723,7 @@ describe("OfflineReconnectCoordinator", () => {
       applyEdit: async (queued) => {
         applyCount++;
         return { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
-          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "  " };
+          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "  ", replayed: false };
       },
     })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
 
@@ -752,7 +752,7 @@ describe("OfflineReconnectCoordinator", () => {
       applyEdit: async (queued) => {
         applyCount++;
         return { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
-          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: 42 } as never;
+          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: 42, replayed: false } as never;
       },
     });
 
@@ -774,27 +774,87 @@ describe("OfflineReconnectCoordinator", () => {
     expect((await recreatedQueue.readEdits(scope))[0]?.state).toBe("OUTCOME_UNKNOWN");
   });
 
-  it("validates and persists the same single read of an apply receipt", async () => {
+  it("preserves receipt-backed APPLIED when the host omits replay metadata without inferring it", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    let applyCount = 0;
+    const first = await new OfflineReconnectCoordinator(q, scope, operations({
+      applyEdit: async (queued) => {
+        applyCount++;
+        return { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
+          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "receipt" } as never;
+      },
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
+
+    expect(first).toMatchObject({ status: "RECONNECTED", dirty: false,
+      results: [{ editId: edit.editId, state: "APPLIED", receipt: "receipt" }] });
+    if (first.status === "RECONNECTED") expect(first.results[0]).not.toHaveProperty("replayed");
+    expect((await q.readEdits(scope))[0]?.state).toBe("APPLIED");
+
+    const restartedQueue = await queue();
+    const afterRestart = await new OfflineReconnectCoordinator(restartedQueue, scope, operations({
+      applyEdit: async () => { applyCount++; return operations().applyEdit({ ...edit }); },
+    })).reconnect(true, { reviewedQueue: await restartedQueue.readEdits(scope) });
+    expect(afterRestart).toEqual({ status: "RECONNECTED", dirty: false, results: [] });
+    expect(applyCount).toBe(1);
+  });
+
+  it("treats a present non-boolean replay flag as unknown", async () => {
+    const q = await queue();
+    await q.enqueue(edit);
+    const result = await new OfflineReconnectCoordinator(q, scope, operations({
+      applyEdit: async (queued) => ({ ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
+        expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "receipt", replayed: "yes" } as never),
+    })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
+
+    expect(result).toMatchObject({ status: "RECONNECTED", dirty: true,
+      results: [{ editId: edit.editId, state: "OUTCOME_UNKNOWN" }] });
+    expect((await q.readEdits(scope))[0]?.state).toBe("OUTCOME_UNKNOWN");
+  });
+
+  it("treats replay claims on CONFLICT or OUTCOME_UNKNOWN as ambiguous", async () => {
+    for (const outcome of ["CONFLICT", "OUTCOME_UNKNOWN"] as const) {
+      store = new MemoryStore();
+      const q = await queue();
+      await q.enqueue(edit);
+      const result = await new OfflineReconnectCoordinator(q, scope, operations({
+        applyEdit: async (queued) => ({ ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
+          expectedVersion: queued.expectedVersion, outcome, replayed: false } as never),
+      })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
+
+      expect(result).toMatchObject({ status: "RECONNECTED", dirty: true,
+        results: [{ editId: edit.editId, state: "OUTCOME_UNKNOWN" }] });
+      expect((await q.readEdits(scope))[0]?.state).toBe("OUTCOME_UNKNOWN");
+    }
+  });
+
+  it("validates and persists the same single reads of receipt and replay metadata", async () => {
     const q = await queue();
     await q.enqueue(edit);
     let receiptReads = 0;
-    const changingReceipt = operations({
+    let replayedReads = 0;
+    const changingFinalityMetadata = operations({
       applyEdit: async (queued) => {
         const response = { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
-          expectedVersion: queued.expectedVersion, outcome: "APPLIED" as const };
+          expectedVersion: queued.expectedVersion, outcome: "APPLIED" as const, receipt: "receipt:placeholder", replayed: false };
         Object.defineProperty(response, "receipt", {
           get: () => ++receiptReads === 1 ? "receipt:exact" : 42,
+        });
+        Object.defineProperty(response, "replayed", {
+          get: () => ++replayedReads === 1 ? true : "invalid",
         });
         return response;
       },
     });
 
-    const result = await new OfflineReconnectCoordinator(q, scope, changingReceipt).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
+    const result = await new OfflineReconnectCoordinator(q, scope, changingFinalityMetadata).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
 
     expect(receiptReads).toBe(1);
+    expect(replayedReads).toBe(1);
     expect(result).toMatchObject({ status: "RECONNECTED", dirty: false,
-      results: [{ editId: edit.editId, state: "APPLIED", receipt: "receipt:exact" }] });
+      results: [{ editId: edit.editId, state: "APPLIED", receipt: "receipt:exact", replayed: true }] });
     expect((await q.readEdits(scope))[0]?.state).toBe("APPLIED");
+    expect((await q.readEdits(scope))[0]).not.toHaveProperty("replayed");
   });
 
   it("resumes a still-pending encrypted edit after restart with the same idempotency key", async () => {
@@ -822,7 +882,7 @@ describe("OfflineReconnectCoordinator", () => {
       applyEdit: async (queued) => {
         applyCount++;
         return { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
-          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "receipt" };
+          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "receipt", replayed: false };
       },
     })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
     expect(applyCount).toBe(1);
@@ -831,7 +891,7 @@ describe("OfflineReconnectCoordinator", () => {
     await q.enqueue({ ...edit, editId: "edit-b", idempotencyKey: "idem-b" });
     const mismatch = await new OfflineReconnectCoordinator(q, scope, operations({
       applyEdit: async (queued) => ({ tenantId: "tenant-other", projectId: scope.projectId, editId: queued.editId,
-        idempotencyKey: queued.idempotencyKey, expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "wrong" }),
+        idempotencyKey: queued.idempotencyKey, expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "wrong", replayed: false }),
     })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
     expect(mismatch.status).toBe("RECONNECTED");
     if (mismatch.status === "RECONNECTED") expect(mismatch.results.find((item) => item.editId === "edit-b")?.state).toBe("OUTCOME_UNKNOWN");
@@ -847,7 +907,7 @@ describe("OfflineReconnectCoordinator", () => {
       applyEdit: async (queued) => {
         capture(queued);
         return { ...scope, editId: queued.editId, idempotencyKey: queued.idempotencyKey,
-          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "receipt" };
+          expectedVersion: queued.expectedVersion, outcome: "APPLIED", receipt: "receipt", replayed: false };
       },
     })).reconnect(true, { reviewedQueue: await q.readEdits(scope) });
 
