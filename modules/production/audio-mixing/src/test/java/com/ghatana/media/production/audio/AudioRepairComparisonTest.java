@@ -35,6 +35,41 @@ class AudioRepairComparisonTest {
     }
 
     @Test
+    void repairClippedSourceReturnsSourcePreservingAbComparisonWithOptionalReference() {
+        AudioData source = pcm(10_000, 32_767, 32_767, 10_000);
+        AudioData syntheticReference = pcm(10_000, 15_000, 15_000, 10_000);
+        byte[] sourceBefore = source.data();
+
+        AudioRepairComparison comparison = AudioRepairComparison.repairClippedSource(
+                source, 0.8, 2, syntheticReference);
+
+        assertThat(source.data()).containsExactly(sourceBefore);
+        assertThat(comparison.source().data()).containsExactly(sourceBefore);
+        assertThat(samples(comparison.repaired().data())).containsExactly(10_000, 10_000, 10_000, 10_000);
+        assertThat(comparison.sourceSha256()).isNotEqualTo(comparison.repairedSha256());
+        assertThat(comparison.undo().data()).containsExactly(sourceBefore);
+        assertThat(comparison.metrics().hasIndependentReference()).isTrue();
+        assertThat(comparison.metrics().snrDbVsReference()).isFinite();
+        assertThat(comparison.metrics().sourceNearClipSampleCount()).isEqualTo(2);
+        assertThat(comparison.metrics().repairedNearClipSampleCount()).isZero();
+    }
+
+    @Test
+    void repairClippedSourceKeepsReferenceOptionalAndPropagatesRepairRefusal() {
+        AudioData source = pcm(10_000, 32_767, 32_767, 32_767);
+        byte[] sourceBefore = source.data();
+
+        assertThatIllegalArgumentException().isThrownBy(() ->
+                AudioRepairComparison.repairClippedSource(source, 0.8, 2));
+        assertThat(source.data()).containsExactly(sourceBefore);
+
+        AudioRepairComparison comparison = AudioRepairComparison.repairClippedSource(
+                pcm(10_000, 20_000, 10_000), 0.8, 2);
+        assertThat(comparison.metrics().hasIndependentReference()).isFalse();
+        assertThat(comparison.metrics().snrDbVsReference()).isNaN();
+    }
+
+    @Test
     void reportsInfiniteSnrWhenCandidateExactlyMatchesIndependentReference() {
         AudioData source = pcm(100, -100, 50, -50);
         AudioData repaired = pcm(10, -10, 5, -5);
@@ -268,6 +303,14 @@ class AudioRepairComparisonTest {
         }
         return new AudioData(bytes, 8_000, 1, 16,
                 Duration.ofNanos((long) samples.length * 1_000_000_000L / 8_000), AudioFormat.PCM);
+    }
+
+    private static int[] samples(byte[] bytes) {
+        int[] result = new int[bytes.length / 2];
+        for (int index = 0; index < result.length; index++) {
+            result[index] = (short) ((bytes[index * 2] & 0xff) | (bytes[index * 2 + 1] << 8));
+        }
+        return result;
     }
 
     private static AudioData stereo(int... samples) {

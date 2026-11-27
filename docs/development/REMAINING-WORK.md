@@ -1007,7 +1007,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **What:** Implement real bounded denoise/declip and source-preserving comparison.
 - **How:** Use selected DSP algorithms with transparent loss/quality metrics and immutable A/B revisions.
 - **Test/exit:** SNR/clip/phase/reference tests, silence, drift, checksum and undo.
-- **Progress:** 2026-11-26 local preview increment: the persisted pre-clip sine oracle now supports source/candidate SNR and delta diagnostics. Focused test passes 7/7; no independent-reference or quality claim is made. Next: owner-defined repair/preservation profile, lawful independent reference, and durable A/B/undo. Task remains OPEN. Rust repair module 17/17 also passes, including no-mutation sample-rate mismatch rejection; no quality claim is made.
+- **Progress:** 2026-11-27 bounded local increment: `AudioRepairComparison.repairClippedSource` composes the explicit-threshold declipper with immutable A/B hashes, clip metrics, optional-reference diagnostics and exact undo; focused `AudioRepairComparisonTest` passes 19/19. Synthetic PCM only; no independent reference, qualified processing profile, durable project A/B/undo, or product admission. Task remains OPEN. Prior 7/7 preview and 17/17 Rust evidence remain compatible.
 - **Predecessors:** `media.dev.native-media-dsp`, `media.dev.project-timeline-engine`
 
 **`media.dev.video-restoration-and-comparison`** · OPEN

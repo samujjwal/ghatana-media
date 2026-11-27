@@ -17,6 +17,11 @@ change as an explicit phase/polarity proxy; this is not a spectral phase or
 perceptual-quality score, and it is omitted for mono or silent stereo channels.
 Exact format, frame count, duration and bounded
 payload checks reject drift rather than trimming or padding either revision.
+`AudioRepairComparison.repairClippedSource` composes the existing bounded
+linear-interpolation candidate with this immutable A/B snapshot. The caller
+must supply the clipping threshold and maximum run length; this local method
+does not choose a qualified processing profile or treat a supplied reference
+as independently validated.
 
 The deterministic waveform repair primitives live in the adjacent
 `speech-audio-rust` crate: a noise-profile block gate and bounded linear
