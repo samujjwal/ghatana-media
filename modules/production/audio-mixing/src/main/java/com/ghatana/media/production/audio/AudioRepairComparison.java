@@ -36,6 +36,28 @@ public final class AudioRepairComparison {
     }
 
     /**
+     * Build and compare a bounded linear-interpolation declip candidate.
+     * Threshold and maximum clipped-run length are explicit caller inputs;
+     * this local preview does not select a qualified product profile.
+     */
+    public static AudioRepairComparison repairClippedSource(
+            AudioData source, double threshold, int maxRunFrames) {
+        return repairClippedSource(source, threshold, maxRunFrames, null);
+    }
+
+    /**
+     * Build and compare a bounded declip candidate, optionally against a
+     * separately supplied reference. A reference diagnostic does not establish
+     * independent quality unless its provenance is independently established.
+     */
+    public static AudioRepairComparison repairClippedSource(
+            AudioData source, double threshold, int maxRunFrames, AudioData reference) {
+        Objects.requireNonNull(source, "source");
+        AudioData candidate = BoundedPcmDeclipper.repair(source, threshold, maxRunFrames);
+        return compare(source, candidate, reference);
+    }
+
+    /**
      * Compare exact-shape signed PCM revisions. SNR is computed only against
      * an independently supplied reference and never inferred from the source.
      */
