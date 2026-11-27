@@ -185,3 +185,40 @@ async def test_shared_outcome_store_fences_duplicate_and_late_replica_results(tm
     assert await second.publish_success(takeover, response) is True
     replay = await first.get_outcome("same-operation", generation)
     assert replay is not None and replay.response == response
+
+
+@pytest.mark.asyncio
+async def test_outcome_identity_payload_and_cross_replica_cancel(tmp_path: Path):
+    first = OperationRegistry(outcome_store=FileOutcomeStore(tmp_path / "outcomes"), owner_id="first")
+    second = OperationRegistry(outcome_store=FileOutcomeStore(tmp_path / "outcomes"), owner_id="second")
+    generation = "c" * 32
+    job = await first.begin("op", "provider", 1000, generation, "request-a")
+    with pytest.raises(WorkerError) as conflict:
+        await second.begin("op", "provider", 1000, generation, "request-b")
+    assert conflict.value.code == "INVALID_REQUEST"
+    assert await second.cancel("op", generation)
+    assert not await first.publish_success(job, {"operationId": "op", "secret": "must-not-escape"})
+    outcome = await second.get_outcome("op", generation, "request-a")
+    assert outcome is not None and outcome.status == "CANCELLED"
+    assert "secret" not in outcome.response
+    assert await first.get_outcome("op", None) is None
+    with pytest.raises(WorkerError):
+        await first.get_outcome("op", generation, "request-b")
+
+
+@pytest.mark.asyncio
+async def test_committed_payload_conflict_and_losing_writer_do_not_return_success(tmp_path: Path):
+    store = FileOutcomeStore(tmp_path / "outcomes", claim_ttl_seconds=0.01)
+    first = OperationRegistry(outcome_store=store, owner_id="first")
+    second = OperationRegistry(outcome_store=store, owner_id="second")
+    generation = "d" * 32
+    old = await first.begin("op", "provider", 1000, generation, "same-request")
+    await asyncio.sleep(0.02)
+    store.claim_ttl_seconds = 10
+    current = await second.begin("op", "provider", 1000, generation, "same-request")
+    assert await second.publish_success(current, {"winner": True})
+    assert not await first.publish_success(old, {"winner": False})
+    actual = await first.get_outcome("op", generation, "same-request")
+    assert actual is not None and actual.response == {"winner": True}
+    with pytest.raises(WorkerError):
+        await first.get_outcome("op", generation, "different-request")
