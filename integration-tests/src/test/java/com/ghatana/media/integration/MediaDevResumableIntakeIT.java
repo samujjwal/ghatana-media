@@ -126,9 +126,33 @@ class MediaDevResumableIntakeIT {
             byte[] real = slice(mp4, resumeFrom);
             byte[] corrupt = real.clone();
             corrupt[corrupt.length / 2] ^= 0x5A;
+            int artifactsBeforeCorruptChunk = countRows(tenant, "media_artifacts", "principal_id", owner);
+            int jobsBeforeCorruptChunk = countRows(tenant, "media_processing_jobs", "tenant_id", tenant);
+            int attemptsBeforeCorruptChunk = countRows(tenant, "media_processing_attempts", "tenant_id", tenant);
             HttpResponse<String> corrupted = putRaw(port, tenant, token, uploadId, resumeFrom, corrupt, sha256(real));
             assertThat(corrupted.statusCode()).as(corrupted.body()).isEqualTo(422);
             assertThat(code(corrupted)).isEqualTo("CHUNK_CHECKSUM_MISMATCH");
+            assertProgress(port, tenant, token, uploadId, resumeFrom, (long) resumeFrom * CHUNK);
+            assertThat(countRows(tenant, "media_artifacts", "principal_id", owner)).isEqualTo(artifactsBeforeCorruptChunk);
+            assertThat(countRows(tenant, "media_processing_jobs", "tenant_id", tenant)).isEqualTo(jobsBeforeCorruptChunk);
+            assertThat(countRows(tenant, "media_processing_attempts", "tenant_id", tenant)).isEqualTo(attemptsBeforeCorruptChunk);
+
+            // Restart after the rejected chunk: retrying that same invalid payload cannot advance the durable offset
+            // or create an artifact, processing job, or provider attempt.
+            launcher.destroyForcibly();
+            assertThat(launcher.waitFor(15, TimeUnit.SECONDS)).isTrue();
+            launcher = startLauncher(classpath, environment, log);
+            awaitReady(launcher, port);
+            token = issueDevToken(tenant, owner);
+            HttpResponse<String> corruptedAfterRestart = putRaw(
+                    port, tenant, token, uploadId, resumeFrom, corrupt, sha256(real));
+            assertThat(corruptedAfterRestart.statusCode()).as(corruptedAfterRestart.body()).isEqualTo(422);
+            assertThat(code(corruptedAfterRestart)).isEqualTo("CHUNK_CHECKSUM_MISMATCH");
+            assertProgress(port, tenant, token, uploadId, resumeFrom, (long) resumeFrom * CHUNK);
+            assertThat(countRows(tenant, "media_artifacts", "principal_id", owner)).isEqualTo(artifactsBeforeCorruptChunk);
+            assertThat(countRows(tenant, "media_processing_jobs", "tenant_id", tenant)).isEqualTo(jobsBeforeCorruptChunk);
+            assertThat(countRows(tenant, "media_processing_attempts", "tenant_id", tenant)).isEqualTo(attemptsBeforeCorruptChunk);
+
             assertThat(code(putRaw(port, tenant, token, uploadId, resumeFrom, real, "ZZ"))).isEqualTo("CHUNK_CHECKSUM_INVALID");
             assertProgress(port, tenant, token, uploadId, resumeFrom, (long) resumeFrom * CHUNK);
             // out of order (a gap) and a negative index

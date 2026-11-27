@@ -239,12 +239,16 @@ class MediaDevOidcFirstUseJourneyIT {
                 }
                 HttpResponse<String> foreignWrite = send(port, ownerTenant, otherToken, "POST",
                         "/dev/v1/projects/" + projectId + "/timelines", JSON.writeValueAsString(Map.of(
-                                "expectedHeadRevisionId", headRevisionId, "timelineId", "intruder")));
+                                "expectedHeadRevisionId", headRevisionId, "timelineId", "intruder",
+                                "requestId", "foreign-timeline-write-" + run)));
                 assertThat(foreignWrite.statusCode()).as(foreignWrite.body()).isEqualTo(404);
                 HttpResponse<String> foreignCreate = send(port, ownerTenant, otherToken, "POST", "/dev/v1/projects", createJson);
                 assertThat(foreignCreate.statusCode()).as("tenant A's workspace id must not be usable by tenant B: "
                         + foreignCreate.body()).isIn(400, 403, 404, 409);
                 assertThat(foreignCreate.body()).doesNotContain(projectId, headRevisionId);
+                assertThat(projectRows(schema, ownerTenant, title))
+                        .as("spoofing tenant A's header cannot create a second tenant-A project")
+                        .isEqualTo(1);
                 assertThat(projectRows(schema, otherTenant, title)).as("nothing was created for tenant B").isZero();
                 // The same request id from tenant B's own context is a different receipt: it creates B's project.
                 String otherWorkspace = JSON.readTree(send(port, "x", otherToken, "GET", "/dev/v1/context", null).body())
@@ -252,6 +256,7 @@ class MediaDevOidcFirstUseJourneyIT {
                 assertThat(otherWorkspace).isNotEqualTo(workspaceId);
                 ObjectNode own = ((ObjectNode) createBody.deepCopy());
                 own.put("selectedAuthorizedWorkspaceId", otherWorkspace);
+                own.put("title", "Tenant B own project");
                 HttpResponse<String> ownCreate = send(port, "x", otherToken, "POST", "/dev/v1/projects", JSON.writeValueAsString(own));
                 assertThat(ownCreate.statusCode()).as(ownCreate.body()).isEqualTo(201);
                 assertThat(JSON.readTree(ownCreate.body()).path("project").path("projectId").asString()).isNotEqualTo(projectId);

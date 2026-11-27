@@ -149,7 +149,8 @@ function observe(page) {
   page.on("pageerror", (error) => seen.pageErrors.push(error.message));
   page.on("request", (request) => {
     if (request.url().includes("/dev/v1/")) {
-      seen.apiRequests.push({ method: request.method(), url: request.url(), body: request.postData() });
+      seen.apiRequests.push({ method: request.method(), url: request.url(), body: request.postData(),
+        authorizationPresent: Boolean(request.headers().authorization), observedAt: Date.now() });
       seen.authorizationHeaders.push(request.headers().authorization ?? null);
     }
   });
@@ -246,6 +247,7 @@ try {
 
   // Sign out: the in-memory token is dropped and no further call carries it.
   const callsBeforeSignOut = seen.apiRequests.length;
+  const signOutClickAt = Date.now();
   await page.getByRole("button", { name: "Forget token and disconnect" }).click();
   await page.getByText(/Disconnected\. The in-memory token and current project context were cleared\./u).waitFor();
   assert.equal(await page.getByRole("button", { name: "Create project", exact: true }).isDisabled(), true);
@@ -253,7 +255,11 @@ try {
   assert.equal(await page.locator("#timeline-workspace-panel").isHidden(), true);
   assert.equal(await page.locator("#context-fields").isHidden(), true);
   await page.waitForTimeout(500);
-  assert.equal(seen.apiRequests.length, callsBeforeSignOut, "no host call may follow sign-out");
+  const callsAfterSignOut = seen.apiRequests.slice(callsBeforeSignOut)
+    .map(({ method, url, authorizationPresent, observedAt }) => ({ method, url, authorizationPresent, observedAt,
+      afterSignOutClick: observedAt > signOutClickAt }));
+  assert.equal(seen.apiRequests.length, callsBeforeSignOut,
+    `no host call may follow sign-out; observed=${JSON.stringify(callsAfterSignOut)}`);
   const afterBlob = await page.evaluate(() => JSON.stringify({ ...window.sessionStorage }) + JSON.stringify({ ...window.localStorage }));
   assert.ok(!/eyJ[A-Za-z0-9_-]{10,}/u.test(afterBlob));
   await page.reload();
