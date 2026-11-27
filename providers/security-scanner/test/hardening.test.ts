@@ -1,7 +1,7 @@
 // MED-06 hardening: key-rotation-capable async signer (KMS external), test-only key labelling, decompression limits,
 // per-principal rate limit, and "no release on outage" through the HTTP service.
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -80,7 +80,7 @@ describe('service: rate limit and no release on outage', () => {
   let clamd: FakeClamd, root: string, service: ScannerHttpService, base: string;
   const content = pdf('svc');
   const body = { tenantId: 'tenant-a', documentId: 'doc', version: 1, objectRef: 'obj-1', checksum: { algorithm: 'SHA-256', value: sha(content) }, sizeBytes: content.length, mimeType: 'application/pdf' };
-  const post = async () => { const r = await fetch(`${base}/v1/scans`, { method: 'POST', headers: { authorization: `Bearer ${TOKEN}`, 'content-type': 'application/json' }, body: JSON.stringify(body) }); return { status: r.status, body: (await r.json()) as any }; };
+  const post = async () => { const r = await fetch(`${base}/v1/scans`, { method: 'POST', headers: { authorization: `Bearer ${TOKEN}`, 'content-type': 'application/json' }, body: JSON.stringify({ ...body, idempotencyKey: randomUUID() }) }); return { status: r.status, body: (await r.json()) as any }; };
   const done = async (id: string) => { for (let i = 0; i < 100; i++) { const r = await (await fetch(`${base}/v1/scans/${id}`, { headers: { authorization: `Bearer ${TOKEN}` } })).json() as any; if (r.state === 'COMPLETED' || r.state === 'CANCELLED') return r; await new Promise((x) => setTimeout(x, 20)); } throw new Error('timeout'); };
   beforeEach(async () => {
     clamd = await startFakeClamd(); root = mkdtempSync(path.join(tmpdir(), 'scanner-hard-'));
@@ -88,7 +88,7 @@ describe('service: rate limit and no release on outage', () => {
     const engine = new ClamdEngine({ endpoint: clamd.endpoint, maxBytes: 1 << 20, commandTimeoutMs: 300, connectTimeoutMs: 300, maxAttempts: 1 });
     const provider = new SecurityScannerProvider({ engine, source: new FilesystemQuarantineSource(root), signer: hmacSha256Signer('k', Buffer.alloc(32, 3)), scannerRef: 's',
       pinnedEngineVersions: ['ClamAV 1.4.2'], maxBytes: 1 << 20, maxDefinitionsAgeMs: 86_400_000 * 3, attestationTtlMs: 60_000, now: () => t('2025-11-12T12:00:00Z') });
-    service = new ScannerHttpService({ provider, engine, pinnedEngineVersions: ['ClamAV 1.4.2'], maxDefinitionsAgeMs: 86_400_000 * 3, now: () => t('2025-11-12T12:00:00Z'),
+    service = new ScannerHttpService({ jobDatabasePath: path.join(root, 'jobs.sqlite'), provider, engine, pinnedEngineVersions: ['ClamAV 1.4.2'], maxDefinitionsAgeMs: 86_400_000 * 3, now: () => t('2025-11-12T12:00:00Z'),
       maxSubmitsPerWindow: 3, rateWindowMs: 60_000, authenticate: bearerTokenAuthenticator([{ token: TOKEN, principalId: 'p', tenantIds: ['tenant-a'] }]) });
     const { host, port } = await service.listen(0); base = `http://${host}:${port}`;
   });

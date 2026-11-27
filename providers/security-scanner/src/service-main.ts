@@ -3,6 +3,7 @@
 // is defaulted for credentials. Fails closed (exit 2) on any missing/invalid setting.
 import { createPrivateKey } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import { isAbsolute } from 'node:path';
 import { ed25519Signer, hmacSha256Signer } from './attestation.ts';
 import type { AttestationSigner } from './attestation.ts';
 import { ClamdEngine } from './clamd-engine.ts';
@@ -48,7 +49,10 @@ async function main(): Promise<void> {
   });
   // JSON file: [{ "token": "<>=32 chars>", "principalId": "...", "tenantIds": ["..."] }]
   const tokens = JSON.parse(readFileSync(need('SCANNER_BEARER_TOKENS_FILE'), 'utf8'));
+  const jobDatabasePath = need('SCANNER_JOB_DATABASE_PATH');
+  if (!isAbsolute(jobDatabasePath)) throw new Error('SCANNER_JOB_DATABASE_PATH must be an absolute private file path');
   const service = new ScannerHttpService({
+    jobDatabasePath,
     provider, engine, pinnedEngineVersions: pinned, maxDefinitionsAgeMs,
     authenticate: bearerTokenAuthenticator(tokens),
   });

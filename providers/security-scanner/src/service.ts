@@ -1,4 +1,4 @@
-import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
+import { createHash, timingSafeEqual } from 'node:crypto';
 import http from 'node:http';
 import https from 'node:https';
 import type { IncomingMessage, ServerResponse } from 'node:http';
@@ -8,6 +8,9 @@ import type { UnsignedAttestation } from './attestation.ts';
 import type { DocumentContentScanInput, SignedScanAttestation } from './contract.ts';
 import type { EngineIdentity, ScanEngine } from './engine.ts';
 import type { SecurityScannerProvider } from './provider.ts';
+import { ScannerJobLedger } from './job-ledger.ts';
+import type { ScanJob } from './job-ledger.ts';
+export type { ScanJobState } from './job-ledger.ts';
 
 /**
  * Minimal, language-neutral HTTP/JSON entrypoint for the scanner provider (node:http only).
@@ -37,6 +40,10 @@ export type ServiceAuthenticator = (ctx: AuthRequestContext) => ServicePrincipal
 
 export interface ScannerHttpServiceOptions {
   readonly provider: SecurityScannerProvider;
+  /** Private local SQLite database; all service processes must share it. */
+  readonly jobDatabasePath: string;
+  readonly maxReplayEntries?: number; // default 100000; never evict replay identities
+  readonly claimLeaseMs?: number; // default 30000
   readonly engine: ScanEngine;
   readonly authenticate: ServiceAuthenticator;
   readonly pinnedEngineVersions: readonly string[];
@@ -54,8 +61,6 @@ export interface ScannerHttpServiceOptions {
   readonly now?: () => Date;
 }
 
-export type ScanJobState = 'QUEUED' | 'RUNNING' | 'COMPLETED' | 'CANCELLED';
-
 export interface AttestationBinding {
   readonly attestationRef: string;
   readonly algorithm: string;
@@ -65,20 +70,9 @@ export interface AttestationBinding {
   readonly payloadSha256: string;
 }
 
-interface Job {
-  readonly id: string;
-  readonly tenantId: string;
-  readonly principalId: string;
-  state: ScanJobState;
-  readonly createdAt: number;
-  finishedAt?: number;
-  attestation?: SignedScanAttestation;
-  readonly controller: AbortController;
-}
-
 const ID_RE = /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/u;
 const SHA_RE = /^[a-f0-9]{64}$/u;
-const SUBMIT_KEYS = new Set(['tenantId', 'documentId', 'version', 'checksum', 'sizeBytes', 'mimeType', 'objectRef', 'scopeRef']);
+const SUBMIT_KEYS = new Set(['tenantId', 'documentId', 'version', 'checksum', 'sizeBytes', 'mimeType', 'objectRef', 'scopeRef', 'idempotencyKey']);
 
 export function attestationBinding(att: SignedScanAttestation): AttestationBinding {
   const { attestation, ...unsigned } = att;
@@ -115,14 +109,29 @@ export function bearerTokenAuthenticator(
 
 export class ScannerHttpService {
   readonly #o: ScannerHttpServiceOptions;
-  readonly #jobs = new Map<string, Job>();
+  readonly #ledger: ScannerJobLedger;
+  readonly #active = new Map<string, { token: string; controller: AbortController }>();
+  #timer: ReturnType<typeof setInterval> | undefined;
+  #stopping = false;
   readonly #server: http.Server | https.Server;
   readonly #maxBody: number;
 
   constructor(options: ScannerHttpServiceOptions) {
     if (typeof options.authenticate !== 'function') throw new TypeError('authenticate hook is required (bearer or mTLS); the service never runs unauthenticated');
     if (!(options.maxDefinitionsAgeMs > 0)) throw new RangeError('maxDefinitionsAgeMs must be positive');
+    for (const [name, value] of [
+      ['maxActiveScans', options.maxActiveScans ?? 64],
+      ['maxRetainedScans', options.maxRetainedScans ?? 1024],
+      ['retentionMs', options.retentionMs ?? 600_000],
+      ['maxReplayEntries', options.maxReplayEntries ?? 100_000],
+      ['claimLeaseMs', options.claimLeaseMs ?? 30_000],
+    ] as const) {
+      if (!Number.isSafeInteger(value) || value < (name === 'claimLeaseMs' ? 300 : 1)) {
+        throw new RangeError(name + ' must be a positive bounded integer');
+      }
+    }
     this.#o = options;
+    this.#ledger = new ScannerJobLedger(options.jobDatabasePath);
     this.#maxBody = options.maxRequestBodyBytes ?? 16 * 1024;
     const handler = (req: IncomingMessage, res: ServerResponse) => {
       this.#handle(req, res).catch(() => {
@@ -145,17 +154,27 @@ export class ScannerHttpService {
       this.#server.once('error', reject);
       this.#server.listen(port, host, () => {
         this.#server.off('error', reject);
+        this.#timer = setInterval(() => this.#pump(), Math.min(500, Math.floor((this.#o.claimLeaseMs ?? 30_000) / 3)));
+        this.#pump();
         resolve({ host, port: (this.#server.address() as { port: number }).port });
       });
     });
   }
 
   async close(): Promise<void> {
-    for (const job of this.#jobs.values()) if (job.state === 'QUEUED' || job.state === 'RUNNING') job.controller.abort();
+    this.#stopping = true;
+    if (this.#timer !== undefined) clearInterval(this.#timer);
+    // Shutdown is not cancellation. Preserve the durable intent; revoke each local claim
+    // before closing so a fresh process can resume it without a second logical job.
+    for (const [id, active] of this.#active) {
+      active.controller.abort();
+      try { this.#ledger.abandon(id, active.token); } catch { /* lease expiry permits recovery */ }
+    }
     await new Promise<void>((resolve) => {
       this.#server.close(() => resolve());
       this.#server.closeAllConnections();
     });
+    this.#ledger.close();
   }
 
   async #handle(req: IncomingMessage, res: ServerResponse): Promise<void> {
@@ -173,19 +192,18 @@ export class ScannerHttpService {
     if (req.method === 'POST' && path === '/v1/scans') return void (await this.#submit(req, res, principal));
     const m = /^\/v1\/scans\/([A-Za-z0-9-]{1,64})$/u.exec(path);
     if (m && (req.method === 'GET' || req.method === 'DELETE')) {
-      const job = this.#jobs.get(m[1]!);
+      this.#prune();
+      const job = this.#ledger.read(m[1]!);
       // Other principals/tenants cannot distinguish "not yours" from "unknown".
       if (!job || job.principalId !== principal.principalId || !principal.tenantIds.includes(job.tenantId)) {
         return void send(res, 404, err('NOT_FOUND', 'scan not found'));
       }
       if (req.method === 'GET') return void send(res, 200, view(job));
-      if (job.state === 'COMPLETED') return void send(res, 409, { ...err('ALREADY_COMPLETED', 'scan already completed'), ...view(job) });
-      if (job.state !== 'CANCELLED') {
-        job.state = 'CANCELLED';
-        job.finishedAt = Date.now();
-        job.controller.abort();
-      }
-      return void send(res, 200, view(job));
+      const current = this.#ledger.cancel(job.id, Date.now())!;
+      if (current.state === 'COMPLETED') return void send(res, 409, { ...err('ALREADY_COMPLETED', 'scan already completed'), ...view(current) });
+      if (current.state !== 'CANCELLED') return void send(res, 409, { ...err('NOT_CANCELLABLE', 'scan has no cancellable outcome'), ...view(current) });
+      this.#active.get(job.id)?.controller.abort();
+      return void send(res, 200, view(current));
     }
     if (path === '/v1/health' || path === '/v1/scans' || m) {
       res.setHeader('allow', path === '/v1/scans' ? 'POST' : m ? 'GET, DELETE' : 'GET');
@@ -215,12 +233,7 @@ export class ScannerHttpService {
     }
     const now = (o.now ?? (() => new Date()))().getTime();
     const defs = identity?.definitionsDate?.getTime();
-    const counts = { queued: 0, running: 0, retained: 0 };
-    for (const j of this.#jobs.values()) {
-      if (j.state === 'QUEUED') counts.queued++;
-      else if (j.state === 'RUNNING') counts.running++;
-      else counts.retained++;
-    }
+    const counts = this.#ledger.counts();
     const pinned = identity ? o.pinnedEngineVersions.includes(identity.version) : false;
     const fresh = defs !== undefined && now - defs <= o.maxDefinitionsAgeMs && defs - now < 5 * 60_000;
     const ready = Boolean(identity) && pinned && fresh;
@@ -243,6 +256,7 @@ export class ScannerHttpService {
         admissionState: 'NOT_ADMITTED',
         productionEligible: false,
         jobs: counts,
+        replayContract: 'scanner-replay-v1',
       },
     ];
   }
@@ -265,21 +279,22 @@ export class ScannerHttpService {
       res.setHeader('retry-after', '10');
       return void send(res, 429, err('RATE_LIMITED', 'principal exceeded its submit rate'));
     }
+    if (this.#stopping) return void send(res, 503, err('UNAVAILABLE', 'scanner is stopping'));
     this.#prune();
-    let active = 0;
-    for (const j of this.#jobs.values()) if (j.state === 'QUEUED' || j.state === 'RUNNING') active++;
-    if (active >= (this.#o.maxActiveScans ?? 64)) {
+    // parseSubmit constructs fields in fixed order; the hash binds the validated semantic payload.
+    const fingerprint = createHash('sha256').update(JSON.stringify(parsed.input)).digest('hex');
+    const reservation = this.#ledger.reserve(parsed.tenantId, principal.principalId, parsed.idempotencyKey,
+      fingerprint, parsed.input, Date.now(), this.#o.maxActiveScans ?? 64, this.#o.maxReplayEntries ?? 100_000);
+    if (reservation.kind === 'conflict') return void send(res, 409, err('IDEMPOTENCY_CONFLICT', 'replay key binds a different request'));
+    if (reservation.kind === 'busy') {
       res.setHeader('retry-after', '5');
       return void send(res, 429, err('SCANNER_BUSY', 'too many active scans'));
     }
-    const job: Job = {
-      id: randomUUID(), tenantId: parsed.tenantId, principalId: principal.principalId,
-      state: 'QUEUED', createdAt: Date.now(), controller: new AbortController(),
-    };
-    this.#jobs.set(job.id, job);
-    void this.#run(job, parsed.input);
-    res.setHeader('location', `/v1/scans/${job.id}`);
+    if (reservation.kind !== 'accepted') return void send(res, 503, err('REPLAY_LEDGER_FULL', 'scanner replay ledger is full'));
+    const job = reservation.job;
+    res.setHeader('location', '/v1/scans/' + job.id);
     send(res, 202, view(job));
+    this.#pump();
   }
 
   readonly #rate = new Map<string, { windowStart: number; count: number }>();
@@ -297,51 +312,61 @@ export class ScannerHttpService {
     return cur.count <= max;
   }
 
-  async #run(job: Job, input: DocumentContentScanInput): Promise<void> {
-    job.state = 'RUNNING';
+  #pump(): void {
+    if (this.#stopping) return;
     try {
-      const att = await this.#o.provider.scanSigned(input, { signal: job.controller.signal });
-      if (stateOf(job) === 'CANCELLED') return; // result of a cancelled scan is discarded, never reported
-      job.attestation = att;
-      job.state = 'COMPLETED';
+      const lease = this.#o.claimLeaseMs ?? 30_000;
+      for (const [id, active] of this.#active) {
+        if (!this.#ledger.renew(id, active.token, Date.now(), lease)) active.controller.abort();
+      }
+      while (this.#active.size < (this.#o.maxActiveScans ?? 64)) {
+        const job = this.#ledger.claim(Date.now(), lease, [...this.#active.keys()]);
+        if (!job) break;
+        const token = job.claimToken!;
+        const controller = new AbortController();
+        this.#active.set(job.id, { token, controller });
+        void this.#run(job, token, controller);
+      }
     } catch {
-      job.state = 'CANCELLED'; // provider never throws for scan problems; treat as aborted
+      // No effect can be admitted without a committed claim. On storage failure the lease
+      // expires; health/readback fail closed and a later tick can recover the original job.
+    }
+  }
+
+  async #run(job: ScanJob, token: string, controller: AbortController): Promise<void> {
+    try {
+      let attestation: SignedScanAttestation | undefined;
+      try {
+        const input = JSON.parse(job.input!) as DocumentContentScanInput;
+        attestation = await this.#o.provider.scanSigned(input, { signal: controller.signal });
+      } catch { /* failure without a signed result is UNKNOWN, never CANCELLED or CLEAN */ }
+      if (!this.#stopping && !controller.signal.aborted) {
+        this.#ledger.finish(job.id, token, Date.now(), attestation);
+      }
+    } catch {
+      // A failed write is not a final outcome. The durable lease permits recovery.
     } finally {
-      job.finishedAt = Date.now();
+      this.#active.delete(job.id);
     }
   }
 
   #prune(): void {
-    const now = Date.now();
-    const keep = this.#o.retentionMs ?? 10 * 60_000;
-    const finished: Job[] = [];
-    for (const j of this.#jobs.values()) {
-      if (j.finishedAt === undefined) continue;
-      if (now - j.finishedAt > keep) this.#jobs.delete(j.id);
-      else finished.push(j);
-    }
-    const cap = this.#o.maxRetainedScans ?? 1024;
-    if (finished.length > cap) {
-      finished.sort((a, b) => a.finishedAt! - b.finishedAt!);
-      for (const j of finished.slice(0, finished.length - cap)) this.#jobs.delete(j.id);
-    }
+    this.#ledger.prune(Date.now(), this.#o.retentionMs ?? 10 * 60_000, this.#o.maxRetainedScans ?? 1024);
   }
 }
 
-const stateOf = (job: Job): ScanJobState => job.state;
-
-function view(job: Job): Record<string, unknown> {
+function view(job: ScanJob): Record<string, unknown> {
+  const attestation = job.state === 'COMPLETED' && job.attestation
+    ? JSON.parse(job.attestation) as SignedScanAttestation : undefined;
   return {
     scanId: job.id,
     state: job.state,
     tenantId: job.tenantId,
-    ...(job.state === 'COMPLETED' && job.attestation
-      ? { attestation: job.attestation, attestationBinding: attestationBinding(job.attestation) }
-      : {}),
+    ...(attestation ? { attestation, attestationBinding: attestationBinding(attestation) } : {}),
   };
 }
 
-function parseSubmit(raw: string): string | { tenantId: string; input: DocumentContentScanInput } {
+function parseSubmit(raw: string): string | { tenantId: string; idempotencyKey: string; input: DocumentContentScanInput } {
   let v: unknown;
   try {
     v = JSON.parse(raw);
@@ -354,12 +379,14 @@ function parseSubmit(raw: string): string | { tenantId: string; input: DocumentC
   const str = (k: string, re = ID_RE) => (typeof o[k] === 'string' && re.test(o[k] as string) ? (o[k] as string) : undefined);
   const tenantId = str('tenantId');
   const documentId = str('documentId');
+  const idempotencyKey = str('idempotencyKey');
   const objectRef = str('objectRef');
   const scopeRef = o.scopeRef === undefined ? undefined : str('scopeRef');
   const mimeType = str('mimeType', /^[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]{0,126}\/[A-Za-z0-9][A-Za-z0-9!#$&^_.+-]{0,126}$/u);
   const checksum = o.checksum as { algorithm?: unknown; value?: unknown } | undefined;
   if (!tenantId) return 'tenantId is required (safe identifier)';
   if (!documentId) return 'documentId is required (safe identifier)';
+  if (!idempotencyKey) return 'idempotencyKey is required (safe identifier)';
   if (!objectRef) return 'objectRef is required (safe identifier of a quarantined object)';
   if (o.scopeRef !== undefined && !scopeRef) return 'scopeRef must be a safe identifier';
   if (!mimeType) return 'mimeType is required';
@@ -369,7 +396,7 @@ function parseSubmit(raw: string): string | { tenantId: string; input: DocumentC
     return 'checksum must be {algorithm:"SHA-256", value:<64 lowercase hex>}';
   }
   return {
-    tenantId,
+    tenantId, idempotencyKey,
     input: {
       documentId, version: o.version, checksum: { algorithm: 'SHA-256', value: checksum.value }, sizeBytes: o.sizeBytes,
       mimeType, tenantRef: tenantId, sourceRef: objectRef, ...(scopeRef ? { scopeRef } : {}),
