@@ -36,6 +36,29 @@ tutorPutorLearnerExperience:
   alternative: unavailable solvers/graphics yield static accessible table/diagram with truthful provenance
   authority: All Model IR, pedagogy, scientific validity, learner state, content and release belong to TutorPutor
 sourceBoundScenarios:
+  - id: media.declarative.p3.scenario.j02-resumable-artifact-intake.v1
+    journeyRef: J-02
+    screenRef: media.view.import-media
+    given: one DEV_ONLY FFmpeg-generated MP4 is uploaded in 512 KiB chunks under a per-run TEST identity
+    then: after launcher SIGKILL and restart, observe the same OPEN upload at nextChunkIndex 3 and 1,572,864 acknowledged bytes; append only remaining chunks; finalize to the same immutable artifact and verify exact stored bytes, SHA-256, size, and ffprobe metadata
+    denial: corrupt or malformed chunk digest, gap, negative index, conflicting overlap, oversize, incomplete finalization, or foreign tenant/principal cannot mutate progress or expose the session; exact persisted prior-chunk receipt replay returns the existing progress only
+    evidence: DEV_ONLY_POSTGRESQL_LOCALSTACK_FFMPEG_TESTCONTAINERS; NOT_PRODUCTION_STORAGE_OR_RIGHTS_QUALIFICATION
+    developmentOnlyExample:
+      decisionRef: PXD-257
+      p0BindingSource: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-02/developmentOnlyExample
+      p1BeginOperation: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.begin-upload
+      p1ChunkOperation: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.append-upload-chunk
+      p1CompleteOperation: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.complete-upload
+      recoveryAuthority: .product-experience/decision-log.md#PXD-046
+      evidenceRefs:
+        - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevResumableIntakeIT.java
+        - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerResumableUploadLiveIT.java
+        - integration-tests/src/test/java/com/ghatana/media/integration/MediaLauncherArtifactIntakeRestartIT.java#authenticatedUploadResumesAcknowledgedPrefixAfterLauncherProcessRestart
+      identityAndRights: SYNTHETIC_TEST_ONLY
+      sourceClock: FIXTURE_METADATA_ONLY
+      durableStorage: POSTGRESQL_LOCALSTACK_TESTCONTAINERS_ONLY
+      runtimeAdmission: UNCHANGED; P1_UPLOAD_OPERATIONS_REMAIN_NOT_ADMITTED
+      journeyAcceptance: OPEN
   - id: media.declarative.p3.scenario.newton-constant-force.v1
     journeyRef: J-14
     screenRef: media.view.explore-simulation
