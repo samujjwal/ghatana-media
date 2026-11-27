@@ -213,6 +213,32 @@ class GrpcVideoSourceCaptureTest {
     }
 
     @Test
+    void sourcePayloadBytesAndPresentationTimeReachCanonicalPortExactly() {
+        byte[] transportBytes = new byte[] {0, (byte) 0xff, 0x23, (byte) 0x80, 0x7f};
+        byte[] expectedBytes = transportBytes.clone();
+        var presentationPts = VideoFrameTimebase.SourceTimestamp.known(91_827, 1, 90_000, "source-clock");
+        var sourceFrame = new GrpcVideoSourceCapture.SourceFrame(
+                "video@v3", 10, 0, true, 987654L, presentationPts, transportBytes);
+        // The capture adapter must keep the received transport bytes stable while it
+        // validates and sends the frame to the canonical writer.
+        java.util.Arrays.fill(transportBytes, (byte) 0);
+        FakePort port = new FakePort();
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(sourceFrame), false));
+
+        var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
+
+        assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.ACCEPTED);
+        assertThat(port.offeredFrames).singleElement().satisfies(delivered -> {
+            assertThat(delivered.payload()).containsExactly(expectedBytes);
+            assertThat(delivered.presentationPts()).isEqualTo(presentationPts);
+            assertThat(delivered.timestampMillis()).isEqualTo(987654L);
+            byte[] exposed = delivered.payload();
+            java.util.Arrays.fill(exposed, (byte) 1);
+            assertThat(delivered.payload()).containsExactly(expectedBytes);
+        });
+    }
+
+    @Test
     void reconnectStartsAtDurableNextSourceCursorAndRejectsUnboundLegacyAck() {
         FakePort bound = new FakePort();
         bound.lastAck = 4;
