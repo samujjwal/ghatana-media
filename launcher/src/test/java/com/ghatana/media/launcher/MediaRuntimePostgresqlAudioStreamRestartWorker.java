@@ -34,6 +34,8 @@ public final class MediaRuntimePostgresqlAudioStreamRestartWorker {
     private static final String VIDEO_PROVIDER_ID = "fixture-video-streaming-provider";
     private static final String PURPOSE = "media.stream.audio.capture";
     private static final String VIDEO_PURPOSE = "media.stream.video.capture";
+    private static final String SOURCE_VERSION = "source@v1";
+    private static final long INITIAL_SOURCE_CURSOR = 900L;
 
     private record RuntimeFixture(MediaRuntime runtime, CountingLocalStreamingProvider provider) { }
 
@@ -69,10 +71,15 @@ public final class MediaRuntimePostgresqlAudioStreamRestartWorker {
             CanonicalStreamFramePort.Binding binding = port.currentBinding(
                     tenantId, registration.session().sessionId(), PRINCIPAL_ID).orElseThrow();
             require(binding.lastAcknowledgedSequence() == -1, "new audio session must start before frame zero");
-            require(port.offer(binding, frame(0)).equals(CanonicalStreamFramePort.Result.acknowledged(0)),
+            require(port.offer(binding, frame(0, INITIAL_SOURCE_CURSOR))
+                            .equals(CanonicalStreamFramePort.Result.acknowledged(0)),
                     "seed frame zero must be acknowledged by the canonical store");
-            require(runtime.stream(tenantId, binding.streamId()).orElseThrow().lastSequence() == 0,
+            var stored = runtime.stream(tenantId, binding.streamId()).orElseThrow();
+            require(stored.lastSequence() == 0,
                     "frame zero cursor must be durable before process termination");
+            require(SOURCE_VERSION.equals(stored.sourceVersion())
+                            && stored.sourceCursor() == INITIAL_SOURCE_CURSOR,
+                    "synthetic source checkpoint must commit with the frame-zero ACK before process termination");
 
             Properties properties = new Properties();
             properties.setProperty("tenantId", binding.tenantId());
@@ -126,24 +133,43 @@ public final class MediaRuntimePostgresqlAudioStreamRestartWorker {
                     "reconnect generation must advance after restart");
             require(resumed.lastAcknowledgedSequence() == 0,
                     "frame zero ACK cursor must be restored from PostgreSQL");
+            var restored = runtime.stream(tenantId, resumed.streamId()).orElseThrow();
+            require(SOURCE_VERSION.equals(restored.sourceVersion())
+                            && restored.sourceCursor() == INITIAL_SOURCE_CURSOR,
+                    "exact synthetic source checkpoint must be restored from PostgreSQL after process restart");
 
             // Old generation and duplicate sequence are refused before any provider invocation.
-            require(port.offer(preRestartBinding, frame(1)).disposition()
+            require(port.offer(preRestartBinding, frame(1, INITIAL_SOURCE_CURSOR + 1)).disposition()
                             == CanonicalStreamFramePort.Disposition.NOT_ADMITTED,
                     "pre-restart binding must not submit into the new connection generation");
-            require(port.offer(resumed, frame(0)).disposition()
+            require(port.offer(resumed, frame(0, INITIAL_SOURCE_CURSOR)).disposition()
                             == CanonicalStreamFramePort.Disposition.NOT_ADMITTED,
                     "durably acknowledged frame zero must not be replayed");
             require(fixture.provider().calls() == 0,
                     "stale and duplicate frames must not invoke the provider");
 
-            require(port.offer(resumed, frame(1)).equals(CanonicalStreamFramePort.Result.acknowledged(1)),
+            require(port.offer(resumed, frame(1, INITIAL_SOURCE_CURSOR + 2)).disposition()
+                            == CanonicalStreamFramePort.Disposition.NOT_ADMITTED,
+                    "a skipped source cursor must be rejected before provider dispatch");
+            var afterRejectedSourceCursor = runtime.stream(tenantId, resumed.streamId()).orElseThrow();
+            require(afterRejectedSourceCursor.lastSequence() == 0
+                            && SOURCE_VERSION.equals(afterRejectedSourceCursor.sourceVersion())
+                            && afterRejectedSourceCursor.sourceCursor() == INITIAL_SOURCE_CURSOR,
+                    "rejected source cursor must not advance the ACK or durable source checkpoint");
+            require(fixture.provider().calls() == 0,
+                    "rejected source cursor must not invoke the provider");
+
+            require(port.offer(resumed, frame(1, INITIAL_SOURCE_CURSOR + 1))
+                            .equals(CanonicalStreamFramePort.Result.acknowledged(1)),
                     "frame one must be the next accepted sequence after restart");
             require(fixture.provider().calls() == 1, "only the new frame may invoke the provider");
             var durable = runtime.stream(tenantId, resumed.streamId()).orElseThrow();
             require(durable.lastSequence() == 1, "next frame ACK must be durable after process restart");
+            require(SOURCE_VERSION.equals(durable.sourceVersion())
+                            && durable.sourceCursor() == INITIAL_SOURCE_CURSOR + 1,
+                    "accepted frame must atomically advance the durable source checkpoint with its ACK");
             require(durable.reconnectCount() == 2, "durable reconnect generation must be two");
-            write(marker, "DURABLE_CURSOR_AND_REPLAY_FENCE_VERIFIED");
+            write(marker, "SOURCE_CHECKPOINT_DURABLE_CURSOR_AND_REPLAY_FENCE_VERIFIED");
         } finally {
             runtime.close();
         }
@@ -275,8 +301,9 @@ public final class MediaRuntimePostgresqlAudioStreamRestartWorker {
                 false, false);
     }
 
-    private static AudioStreamSession.DecodedFrame frame(int sequence) {
-        return new AudioStreamSession.DecodedFrame(sequence, sequence * 20L, new byte[] {1, 2, 3});
+    private static AudioStreamSession.DecodedFrame frame(int sequence, long sourceCursor) {
+        return new AudioStreamSession.DecodedFrame(
+                sequence, sequence * 20L, new byte[] {1, 2, 3}, SOURCE_VERSION, sourceCursor);
     }
 
     private static VideoStreamSession.DecodedFrame videoFrame(int sequence) {

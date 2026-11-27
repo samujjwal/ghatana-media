@@ -70,7 +70,8 @@ class MediaRuntimePostgresqlAudioStreamRestartTest {
         Process recovery = startWorker(
                 environment, "recover", bindingFile, recoveryMarker, tenantId, recoveryLog);
         try {
-            awaitMarker(recovery, recoveryMarker, "DURABLE_CURSOR_AND_REPLAY_FENCE_VERIFIED", recoveryLog);
+            awaitMarker(recovery, recoveryMarker,
+                    "SOURCE_CHECKPOINT_DURABLE_CURSOR_AND_REPLAY_FENCE_VERIFIED", recoveryLog);
             assertThat(recovery.waitFor(15, TimeUnit.SECONDS)).isTrue();
             assertThat(recovery.exitValue()).isZero();
         } finally {
