@@ -67,6 +67,30 @@ sourceBoundScenarios:
     then: show a 3 m/s2, v 6 m/s and displacement 6 m from model data with independently checked tolerances; animation only depicts observed state
     denial: solver-missing-unit-invalid-or-scientific-qualification-not-established-displays-not-admitted
     evidence: ANALYTICAL_REFERENCE_ONLY
+    developmentOnlyExample:
+      decisionRef: PXD-252
+      p0BindingSource: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-14/developmentOnlyExample
+      p1OracleSource: .product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#scientificReferenceOracles/@id=media.declarative.oracle.force-motion.v1
+      evidenceRefs:
+        - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevSimulationIT.java
+        - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerSimulationLiveIT.java
+      resultClass: DETERMINISTIC_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE
+      independentScientificQualification: NOT_ESTABLISHED
+      productionEligible: false
+      readbackActionBinding:
+        decisionRef: PXD-266
+        p0BindingSource: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-14/developmentOnlyExample/readbackActionBinding
+        actionRef: media.action.inspect-simulation-result
+        operationRef: media.operation.action.inspect-simulation-result
+        channelRef: media.channel.web
+        transportBindingRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedDevelopmentOnlyApiCandidate/routeSdkBindings
+        apiOperationId: media.dev.http.getSimulation
+        route: GET /dev/v1/simulations/{simulationId}
+        exactResultSelector: simulationId=resultArtifact.artifactId for the same PXD-252 source-free run
+        p1MachineState: NONE; this query inspects a stored result and is not a processing-job state transition
+        identityAndRights: Synthetic TEST tenant/principal and DEV_ONLY token only; external currentness is not established
+        channelBoundary: Local Explorer web readback only; channel equivalence and runtime admission remain UNBOUND and NOT_ADMITTED
+        journeyAcceptance: OPEN
   - id: media.declarative.p3.scenario.story-pause-does-not-step-physics.v1
     journeyRef: J-14
     screenRef: media.view.explore-simulation

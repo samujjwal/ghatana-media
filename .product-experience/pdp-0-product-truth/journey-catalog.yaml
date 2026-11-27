@@ -468,6 +468,35 @@ journeys:
   recovery: Reject or abstain from quantitative claim; preserve inputs and report required expert/domain-owner review.
   contextAndReturn: Preserve model reference, parameters, solver/version, t_sim, checkpoints, observables, and scene binding.
   accessibility: media.a11y.baseline
+  developmentOnlyExample:
+    decisionRef: PXD-252
+    status: DEV_ONLY_SOURCE_FREE_ANALYTIC_SIMULATION
+    scenario: One-dimensional constant net force; mass=2kg; force=6N; zero initial position and velocity; duration=2s.
+    analyticOracleRef: .product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#scientificReferenceOracles/@id=media.declarative.oracle.force-motion.v1
+    expectedModelOutput: acceleration=3m/s2; velocity=6m/s; position=6m
+    solverEnvelope: Existing MediaDevSimulationIT adaptive envelope only; not a general solver-fidelity claim.
+    resultEvidence: Exact stored PostgreSQL/S3 result bytes, artifact digest, request identity, scenario digest, and trace readback.
+    evidenceClass: DETERMINISTIC_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE
+    currentness: Per-run synthetic TEST tenant/principal and DEV_ONLY token; no source rights or external currentness is established.
+    productionEligible: false
+    readbackActionBinding:
+      decisionRef: PXD-266
+      actionRef: media.action.inspect-simulation-result
+      operationRef: media.operation.action.inspect-simulation-result
+      channelRef: media.channel.web
+      transportBindingRef: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedDevelopmentOnlyApiCandidate/routeSdkBindings
+      apiOperationId: media.dev.http.getSimulation
+      method: GET
+      path: /dev/v1/simulations/{simulationId}
+      selector: simulationId is the exact resultArtifact.artifactId returned for the same PXD-252 run
+      observedOutcome: Stored COMPLETED or ABSTAINED deterministic model output; no scientific-validity or job-state transition is inferred
+      runtimeAdmission: NOT_ADMITTED
+      journeyAcceptance: OPEN
+    evidenceRefs:
+      - .product-experience/decision-log.md#PXD-252
+      - .product-experience/decision-log.md#PXD-266
+      - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevSimulationIT.java
+    exclusions: [empirical-measurement, independent-scientific-qualification, authenticated-production-authority, production-admission, full-J-14-acceptance]
 - id: J-15
   scopeStatus: TARGET
   title: Simulation/procedural passes with protected semantic validation
