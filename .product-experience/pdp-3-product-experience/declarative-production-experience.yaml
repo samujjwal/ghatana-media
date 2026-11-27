@@ -240,6 +240,23 @@ caseExperiences:
       durableProductionLineage: NOT_ESTABLISHED
       externalDeliveryReceipt: NOT_ESTABLISHED
       productionRendererQualification: NOT_ESTABLISHED
+      previewReadbackActionBinding:
+        decisionRef: PXD-265
+        p0BindingSource: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-12/developmentOnlyExample/previewReadbackActionBinding
+        p2TransportSource: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedDevelopmentOnlyApiCandidate/excludedSupportingRoutes/@path=/dev/v1/artifacts/{artifactId}/content/ownerDefinedConsumerBindings/@id=media.dev.http-support.j12-animation-preview.v1
+        actionRef: media.action.inspect-output-preview-and-version
+        operationRef: media.operation.action.inspect-output-preview-and-version
+        channelRef: media.channel.web
+        method: GET
+        path: /dev/v1/artifacts/{artifactId}/content
+        explorerAction: Load the video (verify bytes first)
+        clientSource: apps/media-experience-explorer/src/dev-animation-client.ts#readArtifactContent
+        hostSource: launcher/src/main/java/com/ghatana/media/launcher/MediaDevArtifactContentRoutes.java
+        exactVersion: If-Match=registered video artifactVersionId from the same render response
+        acceptanceEvidence: MediaDevExplorerAnimationLiveIT decodes the <video> only after byte verification
+        pxd232RoutePairCount: unchanged; supporting exact-version byte read, not a new candidate pair
+        runtimeAdmission: NOT_ADMITTED
+        journeyAcceptance: OPEN
       journeyAcceptance: OPEN
   - id: media.declarative.p3.case.003.v1
     pdp0CaseId: MEDIA-DECL-P0-AC-003

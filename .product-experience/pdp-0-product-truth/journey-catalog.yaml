@@ -388,9 +388,25 @@ journeys:
       rights: synthetic TEST attestation for a test-generated image; not a legal or owner rights determination
       output: local launcher returns a stored MP4 and per-frame manifest whose digests are checked against stored bytes
       persistence: PostgreSQL and S3 Testcontainers only
+    previewReadbackActionBinding:
+      decisionRef: PXD-265
+      actionRef: media.action.inspect-output-preview-and-version
+      operationRef: media.operation.action.inspect-output-preview-and-version
+      channelRef: media.channel.web
+      transportSource: .product-experience/pdp-2-design-interface-system/api/conventions.yaml#ownerDefinedDevelopmentOnlyApiCandidate/excludedSupportingRoutes/@path=/dev/v1/artifacts/{artifactId}/content/ownerDefinedConsumerBindings/@id=media.dev.http-support.j12-animation-preview.v1
+      method: GET
+      path: /dev/v1/artifacts/{artifactId}/content
+      exactVersionBinding: Registered artifactVersionId is sent as If-Match; no latest-version substitution
+      userAction: Load the video (verify bytes first)
+      readEffect: Return bytes for the exact stored video version; create the playback object URL only after local SHA-256, size, and content-type verification
+      identity: Authenticated per-run synthetic TEST tenant/principal; no owner or external rights authority
+      pxd232RoutePairCount: unchanged; this is a supporting content read outside the seven selected route/SDK pairs
+      runtimeAdmission: NOT_ADMITTED
+      journeyAcceptance: OPEN
     evidenceRefs:
       - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevAnimationIT.java
       - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerAnimationLiveIT.java
+      - .product-experience/decision-log.md#PXD-265
       - modules/production/animation/src/test/java/com/ghatana/media/production/animation/AnimationJ12LocalPreviewSliceTest.java
       - modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/AnimationJ12ScenarioIntegrationTest.java
     exclusions: [real-source-rights, owner-approved-scenario, canonical-project-job-authority, durable-production-lineage, external-delivery-receipt, production-renderer-qualification, full-journey-acceptance]

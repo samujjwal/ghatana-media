@@ -243,6 +243,25 @@ ownerDefinedDevelopmentOnlyApiCandidate:
   excludedSupportingRoutes:
     - path: /dev/v1/artifacts/{artifactId}/content
       disposition: supporting exact-version byte-read used by content helper methods; not one of PXD-232's seven operations
+      ownerDefinedConsumerBindings:
+        - id: media.dev.http-support.j12-animation-preview.v1
+          decisionRef: .product-experience/decision-log.md#PXD-265
+          journeyRef: J-12
+          actionRef: media.action.inspect-output-preview-and-version
+          operationRef: media.operation.action.inspect-output-preview-and-version
+          method: GET
+          path: /dev/v1/artifacts/{artifactId}/content
+          request:
+            artifactId: exact artifactId returned by the same DEV_ONLY animation render
+            ifMatch: exact sha256 artifactVersionId returned by the same render
+            trustedScope: authenticated DEV_ONLY host tenant and principal; no caller identity headers or body fields
+          response:
+            content: exact immutable artifact bytes and registered Content-Type
+            consumerVerification: verify returned byte count, Content-Type and SHA-256 against the exact registered artifact before creating a playback URL
+          refusal: missing or mismatched exact version, foreign tenant/principal, unavailable bytes, integrity failure, or size ceiling prevents content release or playback
+          scope: J-12 local animation preview consumer only; this does not add an operation to PXD-232's seven route/SDK pairs
+          runtimeAdmission: NOT_ADMITTED
+          journeyAcceptance: OPEN
     - path: /dev/v1/simulations
       disposition: simulation creation route; excluded from PXD-232's seven operations
     - path: /dev/v1/creative-outputs/{audio-repairs,simulations,spatial-glb}
