@@ -342,6 +342,33 @@ journeys:
     choice.
   contextAndReturn: Retain timeline position, keyframe/curve edits, reduced-motion choice, and export settings.
   accessibility: media.a11y.baseline
+  developmentOnlyExample:
+    decisionRef: PXD-254
+    status: DEV_ONLY_SOURCE_FREE_SYNTHETIC_FIXTURE
+    scope: One deterministic local scene and generated raster asset; random tenant, principal, asset, and request identifiers are test-run values.
+    sceneProfile:
+      width: 320
+      height: 180
+      background: "#101828"
+      frameRate: "24/1"
+      frameCount: 48
+      shapes: [keyframed-red-rectangle, keyframed-green-ellipse, fading-white-rectangle, generated-checkerboard-raster]
+      rasterAsset:
+        dimensions: "16x16"
+        sourceVersion: SHA-256 of the exact generated PNG bytes
+        colors: ["#FFFFD000", "#FF2060FF"]
+      exportProfile: [H.264, yuv420p, CRF-14]
+    localAuthorityAndLineage:
+      identity: ephemeral TEST principal scoped to a per-run synthetic tenant
+      rights: synthetic TEST attestation for a test-generated image; not a legal or owner rights determination
+      output: local launcher returns a stored MP4 and per-frame manifest whose digests are checked against stored bytes
+      persistence: PostgreSQL and S3 Testcontainers only
+    evidenceRefs:
+      - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevAnimationIT.java
+      - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerAnimationLiveIT.java
+      - modules/production/animation/src/test/java/com/ghatana/media/production/animation/AnimationJ12LocalPreviewSliceTest.java
+      - modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/AnimationJ12ScenarioIntegrationTest.java
+    exclusions: [real-source-rights, owner-approved-scenario, canonical-project-job-authority, durable-production-lineage, external-delivery-receipt, production-renderer-qualification, full-journey-acceptance]
 - id: J-13
   scopeStatus: TARGET
   title: 3D character, rig, path, or control animation
@@ -352,6 +379,30 @@ journeys:
   conditionalHandoffRefs: [tutorputor-domain-scene]
   handoffCondition: Only when an owner-approved TutorPutor domain/scene integration is selected.
   preconditions: Scene/rig assets, coordinate convention, rights, and supported interchange subset are identified.
+  developmentOnlyExample:
+    decisionRef: PXD-253
+    status: DEV_ONLY_SOURCE_FREE_SYNTHETIC_FIXTURE
+    scope: One local fixture with no imported source asset or external rights assertion; fixture identifiers below are test-authored values.
+    coordinateProfile:
+      frameRef: urn:media:frame:glb
+      frameVersionRef: v1
+      handedness: RIGHT_HANDED
+      axisDirections: [POS_X, POS_Y, POS_Z]
+      positionUnitRef: urn:media:spatial:unit:metre:v1
+      orientationUnitRef: urn:media:spatial:orientation:unit-quaternion-xyzw:v1
+      orientationRepresentation: UNIT_QUATERNION_XYZW
+      interchangeFormat: glTF-2.0-GLB-binary
+      timeEncoding: FLOAT32_SECONDS
+      lossDisposition: FLOAT32_APPROXIMATION
+    fixtureLineage:
+      sourceVersionRef: tenant-j13/rig-source/rig-source:v3
+      sourceProjectRevisionRef: project:j13:revision-7
+      outputDigest: SHA-256 over the exact local GLB candidate bytes; integrity only, not an authoritative artifact receipt.
+    evidenceRefs:
+      - modules/production/spatial/src/main/java/com/ghatana/media/production/spatial/SpatialRigEngine.java
+      - modules/production/spatial/src/test/java/com/ghatana/media/production/spatial/AnimationJ13LocalScenarioSliceTest.java
+      - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevRigRenderIT.java
+    exclusions: [external-viewer-parity, durable-project-job-lineage, authoritative-receipt, current-real-source-rights, independent-coordinate-qualification, real-world-accuracy, production-admission]
   completion: Render/export binds animation to a declared rig/scene version and reports conversion loss.
   criticalNonhappy: Skeleton mapping failure, coordinate mismatch, rights failure, or unsupported scene feature.
   recovery: Preserve source rig/scene and reject or isolate unsupported mappings; do not silently retarget.
@@ -388,6 +439,48 @@ journeys:
   handoffCondition: TutorPutor applies only for TutorPutor-owned truth; AI Inference only for an admitted generative refinement
     operation.
   preconditions: Domain truth and protected semantic properties are identified before any generative refinement.
+  developmentOnlyExample:
+    primaryHosted:
+      decisionRef: PXD-244
+      status: DEV_ONLY_SOURCE_FREE_HOSTED_SIMULATION
+      scenario: Undamped spring; mass=0.5kg; springConstant=200N/m; damping=0kg/s; initialPosition=0.1m; initialVelocity=0.3m/s; duration=2s.
+      analyticSpringOracleRef: .product-experience/decision-log.md#PXD-244
+      analyticExpectedSpringEnergy: 1.0225 J
+      analyticSpringOracleImplementation: MediaDevSimulationIT.spring(...) in integration-tests/src/test/java/com/ghatana/media/integration/MediaDevSimulationIT.java
+      positiveConstraints: [maximumAmplitude<=0.2m, finalTotalEnergy>=0.01J]
+      negativeFixture: maximumAmplitude<=0.01m -> ABSTAINED/CONSTRAINT_VIOLATED with no trace or plot.
+      testCurrentness: Per-run synthetic tenant/principal and DEV_ONLY test token; no owner or external rights currentness is established.
+      storedOutput: PostgreSQL/S3 Testcontainers result bytes with exact artifact digest, requestId, scenarioSha256, and trace verified after launcher restart and idempotent replay.
+      evidenceClass: SIMULATED_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE
+      productionEligible: false
+      evidenceRefs:
+        - .product-experience/decision-log.md#PXD-244
+        - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevSimulationIT.java
+      exclusions: [real-source-authority, external-rights-currentness, empirical-measurement, independent-scientific-qualification, production-admission]
+    validatorOnlySecondary:
+      decisionRef: PXD-255
+      status: DEV_ONLY_IN_MEMORY_VALIDATOR_UNIT_CASE
+      p1OracleRef: .product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#scientificReferenceOracles/@id=media.declarative.oracle.force-motion.v1
+      scenario: Constant net force with 2 kg mass, 6 N force, zero initial position/velocity, and 2 s duration.
+      solverEnvelope: maxStep=0.25s; minStep=0.00001s; absolutePositionTolerance=0.00000001m; absoluteVelocityTolerance=0.00000001m/s; maxAcceptedSteps=100; maxIterations=1000.
+      terminalInvariants:
+        - id: terminal-position
+          expected: 6 m
+          absoluteTolerance: 0.00000001 m
+        - id: terminal-velocity
+          expected: 6 m/s
+          absoluteTolerance: 0.00000001 m/s
+        - id: terminal-total-energy
+          expected: 0 J
+          absoluteTolerance: 0.00000001 J
+      energyConvention: Test-local kinetic energy plus constant-force potential (-F*x); the terminal value is 0 J at x=6m and v=6m/s. This is separate from PXD-244 spring energy (1.0225 J).
+      negativeFixtures: [terminal-position-plus-1m-rejected, terminal-total-energy-plus-1J-rejected, stale-or-unknown-input-abstains, wrong-run-horizon-abstains]
+      inputReferences: Test-authored identities/versions with repeated-character digest-shaped placeholders; they are not content hashes or owner-resolvable references. Test verifier reports CURRENT synthetically.
+      effect: In-memory VALID/REJECTED/ABSTAIN only; no durable output persistence is exercised.
+      evidenceRefs:
+        - modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/ValidatedSimulationPassIntegrationTest.java
+        - modules/production/simulation/src/main/java/com/ghatana/media/production/simulation/SimulationSemanticValidator.java
+      exclusions: [measurement-evidence, owner-resolved-current-inputs, durable-persisted-candidate, independent-scientific-solver-qualification, production-admission]
   completion: Refinement preserves accepted domain measurements or reports the exact failed validation and fidelity consequence.
   criticalNonhappy: A visually plausible result violates model truth, validation abstains, or generation changes a protected
     property.

@@ -65,6 +65,46 @@ sourceBoundScenarios:
     then: maintain visible simulated-fixture versus model-solver-run source labels
     denial: never-label-generated-or-fixture-picture-as-physical-or-product-evidence
     evidence: SOURCE_REUSE_CONTRACT_ONLY
+  - id: media.declarative.p3.scenario.validated-simulation-pass-seed.v1
+    journeyRef: J-15
+    screenRef: media.view.explore-simulation
+    given: one secondary in-memory constant-force validator case, distinct from the primary hosted undamped-spring run, against the existing P1 force-motion oracle
+    then: keep every result labelled DETERMINISTIC_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE; return VALID only when exact references are current and all declared terminal residuals are within their test-local tolerances
+    denial: reject the +1m terminal-position and +1J total-energy fixtures; abstain on stale-or-unknown inputs or a mismatched horizon
+    evidence: DEVELOPMENT_ONLY_VALIDATOR_TEST; NOT_DURABLE_OUTPUT_OR_SOLVER_QUALIFICATION
+    developmentOnlyExample:
+      decisionRef: PXD-255
+      p0BindingSource: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-15/developmentOnlyExample/validatorOnlySecondary
+      p1OracleSource: .product-experience/pdp-1-domain-data/declarative-production-contracts.yaml#scientificReferenceOracles/@id=media.declarative.oracle.force-motion.v1
+      energyConvention: TEST_LOCAL_KINETIC_PLUS_CONSTANT_FORCE_POTENTIAL; distinct from PXD-244 spring energy
+      evidenceRefs:
+        - modules/integration-tests/src/test/java/com/ghatana/audio/video/integration/ValidatedSimulationPassIntegrationTest.java
+        - modules/production/simulation/src/main/java/com/ghatana/media/production/simulation/SimulationSemanticValidator.java
+      persistence: NOT_EXERCISED
+      inputCurrentness: SYNTHETIC_TEST_CALLBACK_ONLY
+      scientificQualification: NOT_ESTABLISHED
+      journeyAcceptance: OPEN
+  - id: media.declarative.p3.scenario.j15-hosted-simulation-output.v1
+    journeyRef: J-15
+    screenRef: media.view.explore-simulation
+    given: the exact DEV_ONLY undamped-spring run selected by PXD-244 with a closed-form analytic reference
+    then: expose the exact test-scenario-bound stored model trace, simulation-only label, false production eligibility, constraint result, and digest/readback after host restart
+    denial: the 0.01m maximum-amplitude constraint abstains as CONSTRAINT_VIOLATED with no trace or plot; no fixture or solver output is labelled a measurement
+    evidence: DEV_ONLY_REAL_LAUNCHER_POSTGRESQL_S3_TEST; NOT_INDEPENDENT_SCIENTIFIC_QUALIFICATION
+    developmentOnlyExample:
+      decisionRef: PXD-244
+      p0BindingSource: .product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-15/developmentOnlyExample/primaryHosted
+      springOracleSource: .product-experience/decision-log.md#PXD-244
+      analyticExpectedSpringEnergy: 1.0225 J
+      springOracleImplementation: MediaDevSimulationIT.spring(...) in the referenced integration test
+      evidenceRefs:
+        - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevSimulationIT.java
+      currentness: SYNTHETIC_TEST_TENANT_PRINCIPAL_AND_DEV_TOKEN_ONLY
+      storedOutputAndRestart: POSTGRESQL_S3_TESTCONTAINERS_DIGEST_SCENARIO_REQUEST_TRACE_REOPEN_AND_IDEMPOTENT_REPLAY
+      evidenceClass: SIMULATED_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE
+      productionEligible: false
+      independentScientificQualification: NOT_ESTABLISHED
+      journeyAcceptance: OPEN
   - id: media.declarative.p3.scenario.solver-divergence-and-unit-mismatch.v1
     journeyRef: J-14
     screenRef: media.view.explore-simulation
@@ -130,6 +170,18 @@ caseExperiences:
     negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
     recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
     channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+    developmentOnlyExample:
+      p0BindingSource: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-12/developmentOnlyExample"
+      evidenceRefs:
+        - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevAnimationIT.java
+        - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevExplorerAnimationLiveIT.java
+      observedCandidate: stored-local-MP4-and-frame-manifest-with-exact-byte-digests
+      sourceRightsAuthority: SYNTHETIC_TEST_ATTESTATION_ONLY
+      canonicalProjectJobAuthority: NOT_ESTABLISHED
+      durableProductionLineage: NOT_ESTABLISHED
+      externalDeliveryReceipt: NOT_ESTABLISHED
+      productionRendererQualification: NOT_ESTABLISHED
+      journeyAcceptance: OPEN
   - id: media.declarative.p3.case.003.v1
     pdp0CaseId: MEDIA-DECL-P0-AC-003
     pdp1OperationRef: media.operation.capability.media-animation-3d
@@ -148,6 +200,19 @@ caseExperiences:
     negativeObservation: typed-denial-conflict-abstention-unknown-result-or-unavailable-with-safe-next-action
     recovery: preserve-exact-request-version-manual-locks-and-model-state-with-no-blind-retry
     channelAdmission: SOURCE_ONLY_EXACT_TRANSPORT_NOT_VERIFIED
+    developmentOnlyExample:
+      p0BindingSource: ".product-experience/pdp-0-product-truth/journey-catalog.yaml#journeys/@id=J-13/developmentOnlyExample"
+      p1CoordinateContractSource: ".product-experience/pdp-1-domain-data/value-objects.yaml#spatialTransformDeclarationContract"
+      evidenceRefs:
+        - modules/production/spatial/src/test/java/com/ghatana/media/production/spatial/AnimationJ13LocalScenarioSliceTest.java
+        - integration-tests/src/test/java/com/ghatana/media/integration/MediaDevRigRenderIT.java
+      observedCandidate: local-GLB-bytes-with-SHA-256-and-synthetic-fixture-lineage-only
+      supportedViewerParity: NOT_ESTABLISHED
+      durableProjectJobLineage: NOT_ESTABLISHED
+      authoritativeReceipt: NOT_ESTABLISHED
+      rightsAndRuntimeAuthority: NOT_ESTABLISHED
+      independentCoordinateQualification: NOT_ESTABLISHED
+      journeyAcceptance: OPEN
   - id: media.declarative.p3.case.004.v1
     pdp0CaseId: MEDIA-DECL-P0-AC-004
     pdp1OperationRef: media.operation.capability.media-compose-exact-typography-logo-brand
