@@ -153,7 +153,64 @@ class GrpcAudioSourceCaptureTest {
 
         assertThat(result.disposition()).isEqualTo(GrpcAudioSourceCapture.Disposition.ACCEPTED);
         assertThat(port.offeredSequences).containsExactly(0, 1);
+        assertThat(port.offeredFrames).extracting(AudioStreamSession.DecodedFrame::sourceVersion)
+                .containsExactly("source@v7", "source@v7");
+        assertThat(port.offeredFrames).extracting(AudioStreamSession.DecodedFrame::sourceCursor)
+                .containsExactly(10L, 11L);
         assertThat(result.acknowledgedFrames()).isEqualTo(2);
+    }
+
+    @Test
+    void reconnectStartsAtDurableNextSourceCursorAndRejectsUnboundLegacyAck() {
+        FakePort bound = new FakePort();
+        bound.lastAck = 4;
+        bound.sourceVersion = "source@v7";
+        bound.sourceCursor = 19L;
+        FakeSource next = new FakeSource(new GrpcAudioSourceCapture.Batch(
+                List.of(frame(20, 5, "source@v7")), false));
+
+        var resumed = new GrpcAudioSourceCapture(bound, next).capture(REQUEST);
+
+        assertThat(resumed.disposition()).isEqualTo(GrpcAudioSourceCapture.Disposition.ACCEPTED);
+        assertThat(next.requestedSourceCursors).containsExactly(20L, 20L);
+        assertThat(bound.offeredFrames).singleElement().satisfies(frame -> {
+            assertThat(frame.sourceVersion()).isEqualTo("source@v7");
+            assertThat(frame.sourceCursor()).isEqualTo(20L);
+        });
+
+        FakePort unbound = new FakePort();
+        unbound.lastAck = 4;
+        FakeSource unavailable = new FakeSource(new GrpcAudioSourceCapture.Batch(
+                List.of(frame(20, 5, "source@v7")), false));
+        var blocked = new GrpcAudioSourceCapture(unbound, unavailable).capture(REQUEST);
+        assertThat(blocked.disposition()).isEqualTo(GrpcAudioSourceCapture.Disposition.UNKNOWN);
+        assertThat(unavailable.batchReads).isZero();
+        assertThat(unbound.offeredSequences).isEmpty();
+    }
+
+    @Test
+    void sourceVersionMismatchAndCursorExhaustionDoNotReadOrOfferFrames() {
+        FakePort changedVersion = new FakePort();
+        changedVersion.lastAck = 3;
+        changedVersion.sourceVersion = "source@v6";
+        changedVersion.sourceCursor = 8L;
+        FakeSource source = new FakeSource(new GrpcAudioSourceCapture.Batch(List.of(frame(9, 4, "source@v7")), false));
+
+        var mismatch = new GrpcAudioSourceCapture(changedVersion, source).capture(REQUEST);
+
+        assertThat(mismatch.disposition()).isEqualTo(GrpcAudioSourceCapture.Disposition.UNKNOWN);
+        assertThat(source.readbackCalls).isZero();
+        assertThat(source.batchReads).isZero();
+
+        FakePort exhausted = new FakePort();
+        exhausted.lastAck = 2;
+        exhausted.sourceVersion = "source@v7";
+        exhausted.sourceCursor = Long.MAX_VALUE - 1;
+        FakeSource noRead = new FakeSource(new GrpcAudioSourceCapture.Batch(List.of(frame(3, 3, "source@v7")), false));
+        var exhaustedResult = new GrpcAudioSourceCapture(exhausted, noRead).capture(REQUEST);
+        assertThat(exhaustedResult.disposition()).isEqualTo(GrpcAudioSourceCapture.Disposition.UNKNOWN);
+        assertThat(noRead.readbackCalls).isZero();
+        assertThat(exhausted.offeredSequences).isEmpty();
     }
 
     @Test
@@ -390,7 +447,7 @@ class GrpcAudioSourceCaptureTest {
     }
 
     @Test
-    void highestLegalFrameDoesNotDispatchEosOutsideCanonicalSequenceRange() {
+    void sourceCaptureCannotResumeUnboundSessionAtHighestMediaSequence() {
         FakePort port = new FakePort();
         port.lastAck = AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER - 1L;
         FakeSource source = new FakeSource(new GrpcAudioSourceCapture.Batch(List.of(
@@ -399,8 +456,9 @@ class GrpcAudioSourceCaptureTest {
         var result = new GrpcAudioSourceCapture(port, source).capture(REQUEST);
 
         assertThat(result.disposition()).isEqualTo(GrpcAudioSourceCapture.Disposition.UNKNOWN);
-        assertThat(result.acknowledgedFrames()).isEqualTo(1);
-        assertThat(port.offeredSequences).containsExactly(AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER);
+        assertThat(result.acknowledgedFrames()).isZero();
+        assertThat(source.batchReads).isZero();
+        assertThat(port.offeredSequences).isEmpty();
         assertThat(port.eosCalls).isZero();
     }
 
@@ -455,12 +513,14 @@ class GrpcAudioSourceCaptureTest {
         private boolean throwBatchRead;
         private int readbackCalls;
         private int batchReads;
+        private final List<Long> requestedSourceCursors = new ArrayList<>();
 
         private FakeSource(GrpcAudioSourceCapture.Batch batch) { this.batch = batch; }
 
         @Override public GrpcAudioSourceCapture.Readback readback(
                 GrpcAudioSourceCapture.Request request, long cursor, long mediaSequence) {
             readbackCalls++;
+            requestedSourceCursors.add(cursor);
             if (readbackCalls == throwReadbackCall) throw new IllegalStateException("readback unavailable");
             var status = readbackCalls == denyReadbackCall ? GrpcAudioSourceCapture.Authorization.REVOKED : authorization;
             return new GrpcAudioSourceCapture.Readback(status,
@@ -482,7 +542,10 @@ class GrpcAudioSourceCaptureTest {
 
     private static final class FakePort implements CanonicalStreamFramePort {
         private final List<Integer> offeredSequences = new java.util.ArrayList<>();
+        private final List<AudioStreamSession.DecodedFrame> offeredFrames = new java.util.ArrayList<>();
         private long lastAck = -1;
+        private String sourceVersion;
+        private Long sourceCursor;
         private int offerCalls;
         private int eosCalls;
         private int bindingCalls;
@@ -502,14 +565,19 @@ class GrpcAudioSourceCaptureTest {
             Instant leaseExpiry = bindingCalls == expireLeaseOnBindingCall
                     ? Instant.EPOCH : Instant.now().plusSeconds(30);
             return Optional.of(new Binding(streamId, tenantId, principalId, "purpose-1", generation, 1,
-                    acknowledgedSequence, leaseExpiry));
+                    acknowledgedSequence, leaseExpiry, sourceVersion, sourceCursor));
         }
 
         @Override public Result offer(Binding expected, AudioStreamSession.DecodedFrame frame) {
             offerCalls++;
             offeredSequences.add(frame.sequenceNumber());
+            offeredFrames.add(frame);
             if (offerResult != null) return offerResult;
             lastAck = frame.sequenceNumber();
+            if (frame.sourceVersion() != null) {
+                sourceVersion = frame.sourceVersion();
+                sourceCursor = frame.sourceCursor();
+            }
             return Result.acknowledged(lastAck);
         }
 

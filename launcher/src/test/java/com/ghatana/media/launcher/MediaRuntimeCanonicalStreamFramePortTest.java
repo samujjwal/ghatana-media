@@ -146,6 +146,64 @@ class MediaRuntimeCanonicalStreamFramePortTest {
     }
 
     @Test
+    void sourceCheckpointCommitsWithAckAndMismatchOrMissingPositionStopsBeforeProvider() throws Exception {
+        var root = Files.createTempDirectory("media-canonical-audio-source-checkpoint-");
+        var provider = new LocalStreamingProvider();
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 1, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()), List.of(provider));
+
+        try {
+            var registration = runtime.openStream(request(provider, "source-checkpoint"));
+            runtime.connectStream("tenant-a", registration.session().sessionId(), registration.connectionToken());
+            var port = runtime.audioStreamFramePort(
+                    "tenant-a", "principal-a", registration.session().sessionId(), registration.connectionToken());
+            var binding = port.currentBinding(
+                    "tenant-a", registration.session().sessionId(), "principal-a").orElseThrow();
+
+            var first = port.offerWithFeedback(binding,
+                    new AudioStreamSession.DecodedFrame(0, 987_654L, new byte[] {1}, "source@v7", 10L));
+
+            assertThat(first.result()).isEqualTo(CanonicalStreamFramePort.Result.acknowledged(0));
+            var stored = runtime.stream("tenant-a", registration.session().sessionId()).orElseThrow();
+            assertThat(stored.lastSequence()).isZero();
+            assertThat(stored.sourceVersion()).isEqualTo("source@v7");
+            assertThat(stored.sourceCursor()).isEqualTo(10L);
+            var nextBinding = port.currentBinding(
+                    "tenant-a", registration.session().sessionId(), "principal-a").orElseThrow();
+
+            var changedVersion = port.offerWithFeedback(nextBinding,
+                    new AudioStreamSession.DecodedFrame(1, 987_655L, new byte[] {2}, "source@v8", 11L));
+            assertThat(changedVersion.result().disposition()).isEqualTo(CanonicalStreamFramePort.Disposition.NOT_ADMITTED);
+            var missingPosition = port.offerWithFeedback(nextBinding,
+                    new AudioStreamSession.DecodedFrame(1, 987_655L, new byte[] {2}));
+            assertThat(missingPosition.result().disposition()).isEqualTo(CanonicalStreamFramePort.Disposition.NOT_ADMITTED);
+            assertThat(provider.calls()).isEqualTo(1);
+            assertThat(runtime.stream("tenant-a", registration.session().sessionId()).orElseThrow())
+                    .satisfies(current -> {
+                        assertThat(current.lastSequence()).isZero();
+                        assertThat(current.sourceVersion()).isEqualTo("source@v7");
+                        assertThat(current.sourceCursor()).isEqualTo(10L);
+                    });
+
+            var second = port.offerWithFeedback(nextBinding,
+                    new AudioStreamSession.DecodedFrame(1, 987_656L, new byte[] {3}, "source@v7", 11L));
+            assertThat(second.result()).isEqualTo(CanonicalStreamFramePort.Result.acknowledged(1));
+            var advanced = runtime.stream("tenant-a", registration.session().sessionId()).orElseThrow();
+            assertThat(advanced.lastSequence()).isEqualTo(1);
+            assertThat(advanced.sourceVersion()).isEqualTo("source@v7");
+            assertThat(advanced.sourceCursor()).isEqualTo(11L);
+            assertThat(provider.calls()).isEqualTo(2);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void frameAckRequiresExactCanonicalStoreReadbackAndCannotBeRetriedBlindly() throws Exception {
         var root = Files.createTempDirectory("media-canonical-audio-stream-readback-");
         var provider = new LocalStreamingProvider();

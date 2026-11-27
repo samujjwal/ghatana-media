@@ -15,8 +15,9 @@ import java.util.Set;
  *
  * <p>The source readback is a trusted transport/rights boundary and is re-read immediately before
  * each canonical offer. Missing, unknown, denied, or stale readback produces no frame offer. A
- * source frame's cursor/version are retained in the result as observed provenance; the current
- * canonical port does not durably persist those values alongside its Media sequence ACK.</p>
+ * source frame's cursor/version are sent with its offer so the canonical Media session can commit
+ * the source ordinal atomically with its Media sequence ACK. This record alone does not prove that
+ * the source adapter was authenticated or qualified.</p>
  */
 public final class GrpcAudioSourceCapture {
 
@@ -127,15 +128,27 @@ public final class GrpcAudioSourceCapture {
         if (nextMedia > AudioStreamSession.MAX_FRAME_SEQUENCE_NUMBER) {
             return new Result(Disposition.UNKNOWN, 0, -1, "canonical stream sequence is exhausted");
         }
-        Readback admitted = readback(request, -1, nextMedia);
-        if (!admitted(admitted, request, -1, nextMedia)) return blocked(admitted);
+        if ((binding.sourceVersion() == null && binding.lastAcknowledgedSequence() != -1)
+                || (binding.sourceVersion() != null
+                        && !request.sourceVersion().equals(binding.sourceVersion()))) {
+            return new Result(Disposition.UNKNOWN, 0, -1,
+                    "canonical source checkpoint does not bind this source version and cursor");
+        }
+        if (binding.sourceCursor() != null && binding.sourceCursor() == Long.MAX_VALUE - 1) {
+            return new Result(Disposition.UNKNOWN, 0, -1, "canonical source cursor is exhausted");
+        }
+        long requestedSourceCursor = binding.sourceCursor() == null ? -1 : binding.sourceCursor() + 1;
+        Readback admitted = readback(request, requestedSourceCursor, nextMedia);
+        if (!admitted(admitted, request, requestedSourceCursor, nextMedia)) return blocked(admitted);
 
         // The source readback may take time. Reconfirm that the same canonical
         // session generation and ACK cursor still authorize this capture before
         // fetching source bytes; offers are checked again individually below.
         Optional<CanonicalStreamFramePort.Binding> beforeRead = binding(request);
         if (beforeRead.isEmpty() || !sameGeneration(binding, beforeRead.get())
-                || beforeRead.get().lastAcknowledgedSequence() != binding.lastAcknowledgedSequence()) {
+                || beforeRead.get().lastAcknowledgedSequence() != binding.lastAcknowledgedSequence()
+                || !Objects.equals(beforeRead.get().sourceVersion(), binding.sourceVersion())
+                || !Objects.equals(beforeRead.get().sourceCursor(), binding.sourceCursor())) {
             return new Result(Disposition.UNKNOWN, 0, -1, "canonical cursor changed before source read");
         }
         if (!beforeRead.get().leaseExpiresAt().isAfter(Instant.now())) {
@@ -189,7 +202,8 @@ public final class GrpcAudioSourceCapture {
                 return new Result(Disposition.UNKNOWN, accepted, lastCursor, "canonical cursor changed");
             }
             AudioStreamSession.DecodedFrame decoded = new AudioStreamSession.DecodedFrame(
-                    frame.mediaSequence(), frame.transportTimestampMillis(), frame.payload());
+                    frame.mediaSequence(), frame.transportTimestampMillis(), frame.payload(),
+                    frame.sourceVersion(), frame.sourceCursor());
             CanonicalStreamFramePort.OfferFeedback offered;
             try {
                 offered = canonical.offerWithFeedback(refreshed.get(), decoded);
@@ -353,7 +367,7 @@ public final class GrpcAudioSourceCapture {
         return Character.isWhitespace(codePoint) || Character.isSpaceChar(codePoint);
     }
 
-    /** Result does not claim source provenance was durably recorded by the current session port. */
+    /** Result records canonical ACKs and observed source cursors; it does not qualify source identity or clock authority. */
     public record Result(Disposition disposition, int acknowledgedFrames, long lastSourceCursor, String reason) {
         public Result {
             Objects.requireNonNull(disposition, "disposition");

@@ -563,6 +563,56 @@ class MediaAwsPostgresqlRuntimeStateTest {
                             .isInstanceOf(UnsupportedOperationException.class)
                             .hasMessageContaining("unavailable");
                     assertThat(streams.find("tenant-a", "stream-a")).contains(draining);
+
+                    StreamSession sourceConnected = createConnectedStream(
+                            streams, "stream-source-checkpoint", tokenHash, now);
+                    StreamSession sourceFirstPending = streams.beginFrame(
+                            sourceConnected, 0, "attempt-source-frame-0");
+                    assertThatThrownBy(() -> streams.recordFrame(
+                            sourceFirstPending, 0, 128, false, "source@v7", Long.MAX_VALUE))
+                            .isInstanceOf(IllegalArgumentException.class)
+                            .hasMessageContaining("source checkpoint");
+                    StreamSession afterRejectedFirst = streams.find(
+                            "tenant-a", "stream-source-checkpoint").orElseThrow();
+                    assertThat(afterRejectedFirst.lastSequence()).isEqualTo(-1);
+                    assertThat(afterRejectedFirst.sourceVersion()).isNull();
+                    assertThat(afterRejectedFirst.sourceCursor()).isNull();
+                    StreamSession sourceFirst = streams.recordFrame(
+                            sourceFirstPending, 0, 128, false, "source@v7", 40L);
+                    assertThat(sourceFirst.lastSequence()).isZero();
+                    assertThat(sourceFirst.sourceVersion()).isEqualTo("source@v7");
+                    assertThat(sourceFirst.sourceCursor()).isEqualTo(40L);
+
+                    StreamSession sourceSecondPending = streams.beginFrame(
+                            sourceFirst, 1, "attempt-source-frame-1");
+                    assertThatThrownBy(() -> streams.recordFrame(
+                            sourceSecondPending, 1, 128, false, "source@v8", 41L))
+                            .isInstanceOf(IllegalStateException.class)
+                            .hasMessageContaining("exact next position");
+                    StreamSession afterRejectedContinuation = streams.find(
+                            "tenant-a", "stream-source-checkpoint").orElseThrow();
+                    assertThat(afterRejectedContinuation.lastSequence()).isZero();
+                    assertThat(afterRejectedContinuation.sourceVersion()).isEqualTo("source@v7");
+                    assertThat(afterRejectedContinuation.sourceCursor()).isEqualTo(40L);
+                    StreamSession sourceSecond = streams.recordFrame(
+                            sourceSecondPending, 1, 128, false, "source@v7", 41L);
+                    StreamSession sourceEosPending = streams.beginFrame(
+                            sourceSecond, 2, "attempt-source-eos");
+                    StreamSession sourceEos = streams.recordFrame(sourceEosPending, 2, 0, true);
+                    assertThat(sourceEos.state()).isEqualTo(StreamState.DRAINING);
+                    assertThat(sourceEos.lastSequence()).isEqualTo(2);
+                    assertThat(sourceEos.sourceVersion()).isEqualTo("source@v7");
+                    assertThat(sourceEos.sourceCursor()).isEqualTo(41L);
+                    try (PostgresqlMediaStreamSessionStore restartedStreams =
+                                 new PostgresqlMediaStreamSessionStore()) {
+                        StreamSession sourceReadback = restartedStreams
+                                .find("tenant-a", "stream-source-checkpoint").orElseThrow();
+                        assertThat(sourceReadback).isEqualTo(sourceEos);
+                        assertThat(sourceReadback.lastSequence()).isEqualTo(2);
+                        assertThat(sourceReadback.sourceVersion()).isEqualTo("source@v7");
+                        assertThat(sourceReadback.sourceCursor()).isEqualTo(41L);
+                    }
+
                     StreamSession closed = streams.transition(draining, StreamState.CLOSED);
                     assertThat(closed.closedAt()).isNotNull();
                     assertThat(closed.finality()).isEqualTo(StreamFinality.UNKNOWN);

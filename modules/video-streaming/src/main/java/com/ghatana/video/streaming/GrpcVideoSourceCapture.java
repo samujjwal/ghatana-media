@@ -16,8 +16,9 @@ import java.util.Set;
  * <p>Source version, cursor, and rational PTS remain immutable per-frame capture provenance. A
  * missing source PTS must be represented as {@link VideoFrameTimebase.SourceTimestamp#unknown(String)};
  * the legacy wire timestamp is passed through unchanged and is never used to manufacture PTS.
- * The current canonical port does not durably persist source cursor/version/PTS beside its Media
- * sequence ACK, so an ACK from that port does not claim durable source-provenance acceptance.</p>
+ * The canonical Media port persists the exact source version and ordinal cursor with its Media
+ * sequence ACK; rational PTS remains separate and is not part of this cursor checkpoint. An ACK
+ * from a local port does not prove that the source adapter was authenticated or qualified.</p>
  */
 public final class GrpcVideoSourceCapture {
 
@@ -136,15 +137,27 @@ public final class GrpcVideoSourceCapture {
         if (nextMedia > VideoStreamSession.MAX_FRAME_SEQUENCE) {
             return new Result(Disposition.UNKNOWN, 0, -1, "canonical video sequence is exhausted");
         }
-        Readback admitted = readback(request, -1, nextMedia);
-        if (!admitted(admitted, request, -1, nextMedia)) return blocked(admitted);
+        if ((binding.sourceVersion() == null && binding.lastAcknowledgedSequence() != -1)
+                || (binding.sourceVersion() != null
+                        && !request.sourceVersion().equals(binding.sourceVersion()))) {
+            return new Result(Disposition.UNKNOWN, 0, -1,
+                    "canonical source checkpoint does not bind this source version and cursor");
+        }
+        if (binding.sourceCursor() != null && binding.sourceCursor() == Long.MAX_VALUE - 1) {
+            return new Result(Disposition.UNKNOWN, 0, -1, "canonical source cursor is exhausted");
+        }
+        long requestedSourceCursor = binding.sourceCursor() == null ? -1 : binding.sourceCursor() + 1;
+        Readback admitted = readback(request, requestedSourceCursor, nextMedia);
+        if (!admitted(admitted, request, requestedSourceCursor, nextMedia)) return blocked(admitted);
 
         // Source authorization can take time. Confirm the canonical session
         // generation and ACK cursor again before fetching source bytes; each
         // canonical offer is fenced independently below as well.
         Optional<CanonicalVideoStreamFramePort.Binding> beforeRead = binding(request);
         if (beforeRead.isEmpty() || !sameGeneration(binding, beforeRead.get())
-                || beforeRead.get().lastAcknowledgedSequence() != binding.lastAcknowledgedSequence()) {
+                || beforeRead.get().lastAcknowledgedSequence() != binding.lastAcknowledgedSequence()
+                || !Objects.equals(beforeRead.get().sourceVersion(), binding.sourceVersion())
+                || !Objects.equals(beforeRead.get().sourceCursor(), binding.sourceCursor())) {
             return new Result(Disposition.UNKNOWN, 0, -1, "canonical cursor changed before source read");
         }
         if (!beforeRead.get().leaseExpiresAt().isAfter(Instant.now())) {
@@ -202,7 +215,8 @@ public final class GrpcVideoSourceCapture {
                 return new Result(Disposition.UNKNOWN, accepted, lastCursor, "canonical cursor changed");
             }
             VideoStreamSession.DecodedFrame decoded = new VideoStreamSession.DecodedFrame(
-                    frame.mediaSequence(), frame.keyFrame(), frame.transportTimestampMillis(), frame.payload());
+                    frame.mediaSequence(), frame.keyFrame(), frame.transportTimestampMillis(), frame.payload(),
+                    frame.sourceVersion(), frame.sourceCursor());
             CanonicalVideoStreamFramePort.OfferFeedback offered;
             try {
                 offered = canonical.offerWithFeedback(refreshed.get(), decoded);
@@ -392,7 +406,7 @@ public final class GrpcVideoSourceCapture {
         return Character.isWhitespace(codePoint) || Character.isSpaceChar(codePoint);
     }
 
-    /** Result does not claim source provenance was durably recorded by the current session port. */
+    /** Result records canonical ACKs and observed source cursors; it does not qualify source identity or clock authority. */
     public record Result(Disposition disposition, int acknowledgedFrames, long lastSourceCursor, String reason) {
         public Result {
             Objects.requireNonNull(disposition, "disposition");

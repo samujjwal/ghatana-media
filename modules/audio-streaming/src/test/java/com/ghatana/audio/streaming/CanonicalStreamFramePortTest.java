@@ -2,6 +2,8 @@ package com.ghatana.audio.streaming;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 
 class CanonicalStreamFramePortTest {
@@ -29,6 +31,26 @@ class CanonicalStreamFramePortTest {
                 });
         assertThat(port.endOfStreamWithFeedback(binding()).result().disposition())
                 .isEqualTo(CanonicalStreamFramePort.Disposition.NOT_ADMITTED);
+    }
+
+    @Test
+    void legacyAdapterCannotAcknowledgeFrameWhileIgnoringItsSourcePosition() {
+        AtomicInteger legacyOffers = new AtomicInteger();
+        CanonicalStreamFramePort legacy = new CanonicalStreamFramePort() {
+            @Override public Optional<Binding> currentBinding(String tenantId, String streamId, String principalId) {
+                return Optional.of(binding());
+            }
+            @Override public Result offer(Binding expected, AudioStreamSession.DecodedFrame frame) {
+                legacyOffers.incrementAndGet();
+                return Result.acknowledged(frame.sequenceNumber());
+            }
+        };
+
+        CanonicalStreamFramePort.OfferFeedback result = legacy.offerWithFeedback(binding(),
+                new AudioStreamSession.DecodedFrame(0, 1L, new byte[] {1}, "source@v7", 10L));
+
+        assertThat(result.result().disposition()).isEqualTo(CanonicalStreamFramePort.Disposition.NOT_ADMITTED);
+        assertThat(legacyOffers).hasValue(0);
     }
 
     @Test

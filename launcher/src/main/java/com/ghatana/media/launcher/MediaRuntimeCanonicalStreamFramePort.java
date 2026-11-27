@@ -59,7 +59,8 @@ final class MediaRuntimeCanonicalStreamFramePort implements CanonicalStreamFrame
         }
         return Optional.of(new Binding(
                 session.sessionId(), session.tenantId(), session.principalId(), purposeRef,
-                session.reconnectCount(), session.version(), session.lastSequence(), session.leaseExpiresAt()));
+                session.reconnectCount(), session.version(), session.lastSequence(), session.leaseExpiresAt(),
+                session.sourceVersion(), session.sourceCursor()));
     }
 
     @Override
@@ -91,7 +92,8 @@ final class MediaRuntimeCanonicalStreamFramePort implements CanonicalStreamFrame
             return OfferFeedback.unavailable(Result.notAdmitted(
                     "canonical stream reconnect generation exceeds the supported range"));
         }
-        return dispatch(expected, frame.sequenceNumber(), payload, false);
+        return dispatch(expected, frame.sequenceNumber(), payload, false,
+                frame.sourceVersion(), frame.sourceCursor());
     }
 
     @Override
@@ -109,14 +111,16 @@ final class MediaRuntimeCanonicalStreamFramePort implements CanonicalStreamFrame
             return OfferFeedback.unavailable(Result.notAdmitted(
                     "canonical stream reconnect generation exceeds the supported range"));
         }
-        return dispatch(expected, expected.lastAcknowledgedSequence() + 1, new byte[0], true);
+        return dispatch(expected, expected.lastAcknowledgedSequence() + 1, new byte[0], true, null, null);
     }
 
-    private OfferFeedback dispatch(Binding expected, long sequence, byte[] payload, boolean endOfStream) {
+    private OfferFeedback dispatch(
+            Binding expected, long sequence, byte[] payload, boolean endOfStream,
+            String sourceVersion, Long sourceCursor) {
         try {
             var acknowledgement = runtime.acceptFrameForBinding(
                     new StreamFrame(expected.tenantId(), expected.streamId(), connectionToken,
-                            sequence, payload, endOfStream, Instant.now()),
+                            sequence, payload, endOfStream, Instant.now(), sourceVersion, sourceCursor),
                     Math.toIntExact(expected.sessionRevision()), expected.storeVersion(),
                     expected.lastAcknowledgedSequence(), expected.leaseExpiresAt());
             if (acknowledgement.acceptedSequence() != sequence) {
@@ -125,7 +129,10 @@ final class MediaRuntimeCanonicalStreamFramePort implements CanonicalStreamFrame
             }
             StreamSession persisted = runtime.stream(expected.tenantId(), expected.principalId(), expected.streamId())
                     .orElse(null);
-            if (!confirmsAcknowledgement(persisted, expected, sequence, acknowledgement.bufferedBytes(), endOfStream)) {
+            String acknowledgedSourceVersion = sourceVersion == null ? expected.sourceVersion() : sourceVersion;
+            Long acknowledgedSourceCursor = sourceCursor == null ? expected.sourceCursor() : sourceCursor;
+            if (!confirmsAcknowledgement(persisted, expected, sequence, acknowledgement.bufferedBytes(),
+                    endOfStream, acknowledgedSourceVersion, acknowledgedSourceCursor)) {
                 return OfferFeedback.unavailable(new Result(Disposition.OUTCOME_UNKNOWN, -1,
                         "canonical stream acknowledgement was not confirmed by session-store readback"));
             }
@@ -147,7 +154,9 @@ final class MediaRuntimeCanonicalStreamFramePort implements CanonicalStreamFrame
             Binding expected,
             long sequence,
             long bufferedBytes,
-            boolean endOfStream) {
+            boolean endOfStream,
+            String sourceVersion,
+            Long sourceCursor) {
         if (persisted == null) return false;
         return persisted.tenantId().equals(expected.tenantId())
                 && persisted.sessionId().equals(expected.streamId())
@@ -159,6 +168,8 @@ final class MediaRuntimeCanonicalStreamFramePort implements CanonicalStreamFrame
                 && persisted.bufferedBytes() == bufferedBytes
                 && persisted.inFlightSequence() == null
                 && persisted.inFlightAttemptId().isBlank()
+                && java.util.Objects.equals(persisted.sourceVersion(), sourceVersion)
+                && java.util.Objects.equals(persisted.sourceCursor(), sourceCursor)
                 && persisted.finality() == StreamFinality.NONE
                 && (endOfStream
                         ? persisted.state() == StreamState.DRAINING

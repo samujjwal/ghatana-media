@@ -1124,6 +1124,9 @@ public final class LocalMediaRuntimeSupport {
             if (session.finality() != StreamFinality.NONE || session.inFlightSequence() != null) {
                 throw new IllegalArgumentException("New Media stream sessions cannot contain provider outcome state");
             }
+            if (session.sourceVersion() != null) {
+                throw new IllegalArgumentException("New Media stream sessions cannot contain a source checkpoint");
+            }
             if (session.leaseExpiresAt() == null) {
                 throw new IllegalArgumentException("New Media stream sessions require a connection lease");
             }
@@ -1132,7 +1135,7 @@ public final class LocalMediaRuntimeSupport {
                     session.bufferedBytes(), session.maximumBufferedBytes(), session.reconnectCount(),
                     session.leaseExpiresAt(), session.createdAt(), session.updatedAt(), session.closedAt(),
                     session.metadata(), session.version(), tokenHash, session.acknowledgementRevision(),
-                    session.finality(), session.inFlightSequence(), session.inFlightAttemptId());
+                    session.finality(), session.inFlightSequence(), session.inFlightAttemptId(), null, null);
             if (sessions.putIfAbsent(key(session.tenantId(), session.sessionId()),
                     new StoredStream(session, tokenHash)) != null) {
                 throw new IllegalStateException("Media stream session already exists");
@@ -1187,7 +1190,8 @@ public final class LocalMediaRuntimeSupport {
                     expected.reconnectCount(), persistedLeaseExpiry, expected.createdAt(), now,
                     expected.closedAt(), expected.metadata(), expected.version() + 1,
                     expected.sequenceTokenHash(), expected.acknowledgementRevision(), expected.finality(),
-                    expected.inFlightSequence(), expected.inFlightAttemptId());
+                    expected.inFlightSequence(), expected.inFlightAttemptId(),
+                    expected.sourceVersion(), expected.sourceCursor());
             StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
             replace(expected, updated, current == null ? "" : current.tokenHash());
             return updated;
@@ -1244,12 +1248,17 @@ public final class LocalMediaRuntimeSupport {
                     expected.reconnectCount(), expected.leaseExpiresAt(), expected.createdAt(), Instant.now(),
                     expected.closedAt(), expected.metadata(), expected.version() + 1,
                     expected.sequenceTokenHash(), expected.acknowledgementRevision(), expected.finality(),
-                    sequence, boundedAttemptId);
+                    sequence, boundedAttemptId, expected.sourceVersion(), expected.sourceCursor());
             StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
             replace(expected, updated, current == null ? "" : current.tokenHash());
             return updated;
         }
         @Override public StreamSession recordFrame(StreamSession expected, long sequence, long buffered, boolean end) {
+            return recordFrame(expected, sequence, buffered, end, null, null);
+        }
+        @Override public StreamSession recordFrame(
+                StreamSession expected, long sequence, long buffered, boolean end,
+                String sourceVersion, Long sourceCursor) {
             if (expected.state() != StreamState.CONNECTED && expected.state() != StreamState.DEGRADED) {
                 throw new IllegalStateException("Media stream must be connected before accepting frames");
             }
@@ -1267,9 +1276,40 @@ public final class LocalMediaRuntimeSupport {
             if (buffered < 0 || buffered > expected.maximumBufferedBytes()) {
                 throw new IllegalStateException("Stream buffer limit exceeded");
             }
-            StreamSession updated = copy(expected, end ? StreamState.DRAINING : expected.state(), sequence,
-                    buffered, expected.reconnectCount(), expected.leaseExpiresAt(), expected.version() + 1,
-                    null, "");
+            String committedSourceVersion = expected.sourceVersion();
+            Long committedSourceCursor = expected.sourceCursor();
+            if (end) {
+                if (sourceVersion != null || sourceCursor != null) {
+                    throw new IllegalArgumentException("Media stream EOS cannot advance the source checkpoint");
+                }
+            } else if (sourceVersion != null || sourceCursor != null) {
+                if (sourceVersion == null || sourceCursor == null || sourceCursor < 0
+                        || sourceCursor == Long.MAX_VALUE || sourceVersion.isBlank()
+                        || sourceVersion.codePointCount(0, sourceVersion.length()) > 384) {
+                    throw new IllegalArgumentException("Media stream source checkpoint is invalid");
+                }
+                if (expected.sourceVersion() == null) {
+                    if (expected.lastSequence() != -1) {
+                        throw new IllegalStateException("Media stream cannot begin source binding after unbound frames");
+                    }
+                } else if (!expected.sourceVersion().equals(sourceVersion)
+                        || expected.sourceCursor() == Long.MAX_VALUE - 1
+                        || sourceCursor != expected.sourceCursor() + 1) {
+                    throw new IllegalStateException("Media stream source checkpoint is not the exact next position");
+                }
+                committedSourceVersion = sourceVersion;
+                committedSourceCursor = sourceCursor;
+            } else if (expected.sourceVersion() != null && !end) {
+                throw new IllegalStateException("Source-bound Media stream frame requires its next source position");
+            }
+            Instant now = Instant.now();
+            StreamSession updated = new StreamSession(expected.tenantId(), expected.sessionId(),
+                    expected.principalId(), expected.streamKind(), expected.providerId(),
+                    end ? StreamState.DRAINING : expected.state(), sequence, buffered,
+                    expected.maximumBufferedBytes(), expected.reconnectCount(), expected.leaseExpiresAt(),
+                    expected.createdAt(), now, expected.closedAt(), expected.metadata(), expected.version() + 1,
+                    expected.sequenceTokenHash(), expected.acknowledgementRevision() + 1, expected.finality(),
+                    null, "", committedSourceVersion, committedSourceCursor);
             StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
             replace(expected, updated, current == null ? "" : current.tokenHash());
             return updated;
@@ -1288,7 +1328,8 @@ public final class LocalMediaRuntimeSupport {
                     expected.reconnectCount(), expected.leaseExpiresAt(), expected.createdAt(), now, now,
                     expected.metadata(), expected.version() + 1, expected.sequenceTokenHash(),
                     expected.acknowledgementRevision() + 1, StreamFinality.UNKNOWN,
-                    expected.inFlightSequence(), expected.inFlightAttemptId());
+                    expected.inFlightSequence(), expected.inFlightAttemptId(),
+                    expected.sourceVersion(), expected.sourceCursor());
             StoredStream current = sessions.get(key(expected.tenantId(), expected.sessionId()));
             replace(expected, updated, current == null ? "" : current.tokenHash());
             return updated;
@@ -1339,7 +1380,8 @@ public final class LocalMediaRuntimeSupport {
                     value.metadata(), version, value.sequenceTokenHash(), value.acknowledgementRevision() + 1,
                     (state == StreamState.CLOSED || state == StreamState.FAILED)
                             && (value.finality() == StreamFinality.NONE || value.inFlightSequence() != null)
-                            ? StreamFinality.UNKNOWN : value.finality(), inFlightSequence, inFlightAttemptId);
+                            ? StreamFinality.UNKNOWN : value.finality(), inFlightSequence, inFlightAttemptId,
+                    value.sourceVersion(), value.sourceCursor());
         }
         private static String requireAttemptId(String value) {
             if (value == null || value.isBlank() || value.length() > 128

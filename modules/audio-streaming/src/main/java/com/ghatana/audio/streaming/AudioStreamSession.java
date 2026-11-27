@@ -156,9 +156,19 @@ public final class AudioStreamSession {
         return new ArrayList<>(ordered);
     }
 
-    public record DecodedFrame(int sequenceNumber, long timestampMillis, byte[] payload) {
+    public record DecodedFrame(
+            int sequenceNumber, long timestampMillis, byte[] payload, String sourceVersion, Long sourceCursor) {
         public DecodedFrame {
             payload = payload == null ? null : payload.clone();
+            if ((sourceVersion == null) != (sourceCursor == null)
+                    || sourceVersion != null && (sourceVersion.isBlank() || sourceVersion.length() > 384
+                            || sourceCursor < 0 || sourceCursor == Long.MAX_VALUE)) {
+                throw new IllegalArgumentException("audio source position is invalid");
+            }
+        }
+
+        public DecodedFrame(int sequenceNumber, long timestampMillis, byte[] payload) {
+            this(sequenceNumber, timestampMillis, payload, null, null);
         }
 
         /** Returns a copy so callers cannot mutate bytes after frame validation. */

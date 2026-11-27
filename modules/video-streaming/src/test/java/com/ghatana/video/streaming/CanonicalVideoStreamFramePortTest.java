@@ -1,6 +1,8 @@
 package com.ghatana.video.streaming;
 
 import java.time.Instant;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +32,26 @@ class CanonicalVideoStreamFramePortTest {
                 });
         assertThat(port.endOfStreamWithFeedback(binding()).result().disposition())
                 .isEqualTo(CanonicalVideoStreamFramePort.Disposition.NOT_ADMITTED);
+    }
+
+    @Test
+    void legacyAdapterCannotAcknowledgeFrameWhileIgnoringItsSourcePosition() {
+        AtomicInteger legacyOffers = new AtomicInteger();
+        CanonicalVideoStreamFramePort legacy = new CanonicalVideoStreamFramePort() {
+            @Override public Optional<Binding> currentBinding(String tenantId, String streamId, String principalId) {
+                return Optional.of(binding());
+            }
+            @Override public Result offer(Binding expected, VideoStreamSession.DecodedFrame frame) {
+                legacyOffers.incrementAndGet();
+                return Result.acknowledged(frame.sequenceNumber());
+            }
+        };
+
+        CanonicalVideoStreamFramePort.OfferFeedback result = legacy.offerWithFeedback(binding(),
+                new VideoStreamSession.DecodedFrame(0, true, 1L, new byte[] {1}, "video@v3", 10L));
+
+        assertThat(result.result().disposition()).isEqualTo(CanonicalVideoStreamFramePort.Disposition.NOT_ADMITTED);
+        assertThat(legacyOffers).hasValue(0);
     }
 
     @Test

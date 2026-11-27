@@ -1995,7 +1995,9 @@ public final class MediaRuntimeContracts {
             long acknowledgementRevision,
             StreamFinality finality,
             Long inFlightSequence,
-            String inFlightAttemptId) {
+            String inFlightAttemptId,
+            String sourceVersion,
+            Long sourceCursor) {
         public StreamSession {
             tenantId = required(tenantId, "tenantId");
             sessionId = required(sessionId, "sessionId");
@@ -2012,6 +2014,11 @@ public final class MediaRuntimeContracts {
             sequenceTokenHash = optional(sequenceTokenHash);
             finality = finality == null ? StreamFinality.NONE : finality;
             inFlightAttemptId = optional(inFlightAttemptId);
+            if ((sourceVersion == null) != (sourceCursor == null)
+                    || sourceVersion != null && (!validSourceVersion(sourceVersion) || sourceCursor < 0
+                            || sourceCursor == Long.MAX_VALUE)) {
+                throw new IllegalArgumentException("stream source checkpoint must contain a bounded version and nonnegative cursor");
+            }
             if ((!sequenceTokenHash.isEmpty() && !sequenceTokenHash.matches("[0-9a-f]{64}"))
                     || acknowledgementRevision < 0
                     || (inFlightSequence == null) != inFlightAttemptId.isEmpty()
@@ -2023,6 +2030,18 @@ public final class MediaRuntimeContracts {
                 throw new IllegalArgumentException("stream acknowledgement fields exceed bounds");
             }
             if (version < 1) throw new IllegalArgumentException("version must be positive");
+        }
+
+        public StreamSession(String tenantId, String sessionId, String principalId, StreamKind streamKind,
+                String providerId, StreamState state, long lastSequence, long bufferedBytes,
+                long maximumBufferedBytes, int reconnectCount, Instant leaseExpiresAt, Instant createdAt,
+                Instant updatedAt, Instant closedAt, Map<String, Object> metadata, long version,
+                String sequenceTokenHash, long acknowledgementRevision, StreamFinality finality,
+                Long inFlightSequence, String inFlightAttemptId) {
+            this(tenantId, sessionId, principalId, streamKind, providerId, state, lastSequence, bufferedBytes,
+                    maximumBufferedBytes, reconnectCount, leaseExpiresAt, createdAt, updatedAt, closedAt,
+                    metadata, version, sequenceTokenHash, acknowledgementRevision, finality,
+                    inFlightSequence, inFlightAttemptId, null, null);
         }
 
         public StreamSession(String tenantId, String sessionId, String principalId, StreamKind streamKind,
@@ -2062,7 +2081,9 @@ public final class MediaRuntimeContracts {
             long sequence,
             byte[] payload,
             boolean endOfStream,
-            Instant receivedAt) {
+            Instant receivedAt,
+            String sourceVersion,
+            Long sourceCursor) {
         public StreamFrame {
             tenantId = required(tenantId, "tenantId");
             sessionId = required(sessionId, "sessionId");
@@ -2070,9 +2091,26 @@ public final class MediaRuntimeContracts {
             if (sequence < 0) throw new IllegalArgumentException("sequence must not be negative");
             payload = payload == null ? new byte[0] : payload.clone();
             if (payload.length == 0 && !endOfStream) throw new IllegalArgumentException("non-terminal stream frame requires payload");
+            if ((sourceVersion == null) != (sourceCursor == null)
+                    || sourceVersion != null && (!validSourceVersion(sourceVersion) || sourceCursor < 0
+                            || sourceCursor == Long.MAX_VALUE)) {
+                throw new IllegalArgumentException("stream frame source position must contain a bounded version and nonnegative cursor");
+            }
             receivedAt = receivedAt == null ? Instant.now() : receivedAt;
         }
+        public StreamFrame(String tenantId, String sessionId, String connectionToken, long sequence,
+                byte[] payload, boolean endOfStream, Instant receivedAt) {
+            this(tenantId, sessionId, connectionToken, sequence, payload, endOfStream, receivedAt, null, null);
+        }
         @Override public byte[] payload() { return payload.clone(); }
+    }
+
+    private static boolean validSourceVersion(String value) {
+        if (value.isBlank() || value.codePointCount(0, value.length()) > 384) return false;
+        int first = value.codePointAt(0);
+        int last = value.codePointBefore(value.length());
+        return !(Character.isWhitespace(first) || Character.isSpaceChar(first)
+                || Character.isWhitespace(last) || Character.isSpaceChar(last));
     }
 
     public record StreamAck(long acceptedSequence, long bufferedBytes, boolean backpressured) {
@@ -2470,6 +2508,15 @@ public final class MediaRuntimeContracts {
             throw new UnsupportedOperationException("Durable stream frame reservation is unavailable");
         }
         StreamSession recordFrame(StreamSession expected, long sequence, long payloadBytes, boolean endOfStream);
+        /** Commits an optional source-reported ordinal checkpoint in the same transaction as the Media ACK. */
+        default StreamSession recordFrame(
+                StreamSession expected, long sequence, long payloadBytes, boolean endOfStream,
+                String sourceVersion, Long sourceCursor) {
+            if (sourceVersion != null || sourceCursor != null) {
+                throw new UnsupportedOperationException("Durable source-position checkpoint is unavailable");
+            }
+            return recordFrame(expected, sequence, payloadBytes, endOfStream);
+        }
         /** Records a provider timeout/crash/ambiguous acknowledgement and prevents blind replay. */
         default StreamSession markFrameOutcomeUnknown(StreamSession expected) {
             throw new UnsupportedOperationException("Durable unknown stream outcome is unavailable");

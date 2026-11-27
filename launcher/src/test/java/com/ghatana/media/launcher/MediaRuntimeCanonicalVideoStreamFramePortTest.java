@@ -68,6 +68,51 @@ class MediaRuntimeCanonicalVideoStreamFramePortTest {
     }
 
     @Test
+    void videoSourceCheckpointCommitsWithAckAndInvalidContinuationNeverReachesProvider() throws Exception {
+        var root = Files.createTempDirectory("media-canonical-video-source-checkpoint-");
+        var provider = new VideoStreamingProvider();
+        var runtime = runtime(root, provider, Duration.ofSeconds(2));
+
+        try {
+            var registration = runtime.openStream(request(provider, StreamKind.VIDEO));
+            runtime.connectStream("tenant-video", registration.session().sessionId(), registration.connectionToken());
+            var port = runtime.videoStreamFramePort(
+                    "tenant-video", "principal-video", registration.session().sessionId(), registration.connectionToken());
+            var binding = port.currentBinding(
+                    "tenant-video", registration.session().sessionId(), "principal-video").orElseThrow();
+
+            var first = port.offerWithFeedback(binding,
+                    new VideoStreamSession.DecodedFrame(0, true, 987_654L, new byte[] {1}, "video@v3", 10L));
+            assertThat(first.result()).isEqualTo(CanonicalVideoStreamFramePort.Result.acknowledged(0));
+            var stored = runtime.stream("tenant-video", registration.session().sessionId()).orElseThrow();
+            assertThat(stored.lastSequence()).isZero();
+            assertThat(stored.sourceVersion()).isEqualTo("video@v3");
+            assertThat(stored.sourceCursor()).isEqualTo(10L);
+
+            var nextBinding = port.currentBinding(
+                    "tenant-video", registration.session().sessionId(), "principal-video").orElseThrow();
+            var gap = port.offerWithFeedback(nextBinding,
+                    new VideoStreamSession.DecodedFrame(1, false, 987_655L, new byte[] {2}, "video@v3", 12L));
+            assertThat(gap.result().disposition()).isEqualTo(CanonicalVideoStreamFramePort.Disposition.NOT_ADMITTED);
+            var changedVersion = port.offerWithFeedback(nextBinding,
+                    new VideoStreamSession.DecodedFrame(1, false, 987_655L, new byte[] {2}, "video@v4", 11L));
+            assertThat(changedVersion.result().disposition()).isEqualTo(CanonicalVideoStreamFramePort.Disposition.NOT_ADMITTED);
+            assertThat(provider.calls()).isEqualTo(1);
+
+            var second = port.offerWithFeedback(nextBinding,
+                    new VideoStreamSession.DecodedFrame(1, false, 987_656L, new byte[] {3}, "video@v3", 11L));
+            assertThat(second.result()).isEqualTo(CanonicalVideoStreamFramePort.Result.acknowledged(1));
+            var advanced = runtime.stream("tenant-video", registration.session().sessionId()).orElseThrow();
+            assertThat(advanced.lastSequence()).isEqualTo(1);
+            assertThat(advanced.sourceVersion()).isEqualTo("video@v3");
+            assertThat(advanced.sourceCursor()).isEqualTo(11L);
+            assertThat(provider.calls()).isEqualTo(2);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
     void duplicateAndStaleVideoBindingsNeverRedispatch() throws Exception {
         var root = Files.createTempDirectory("media-canonical-video-stream-duplicate-");
         var provider = new VideoStreamingProvider();

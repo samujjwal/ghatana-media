@@ -2489,6 +2489,30 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         return acceptFrameLocked(frame, expectedReconnectCount, null, null, null);
     }
 
+    private static void validateStreamSourcePosition(StreamSession current, StreamFrame frame) {
+        boolean hasSourcePosition = frame.sourceVersion() != null;
+        if (frame.endOfStream()) {
+            if (hasSourcePosition) {
+                throw new IllegalArgumentException("Media stream EOS cannot advance the source checkpoint");
+            }
+            return;
+        }
+        if (current.sourceVersion() == null) {
+            if (hasSourcePosition && current.lastSequence() != -1) {
+                throw new IllegalStateException("Media stream cannot begin source binding after unbound frames");
+            }
+            return;
+        }
+        if (!hasSourcePosition) {
+            throw new IllegalArgumentException("Source-bound Media stream frame requires its next source position");
+        }
+        if (!current.sourceVersion().equals(frame.sourceVersion())
+                || current.sourceCursor() == Long.MAX_VALUE - 1
+                || frame.sourceCursor() != current.sourceCursor() + 1) {
+            throw new IllegalArgumentException("Media stream source position is not the exact next source frame");
+        }
+    }
+
     private StreamAck acceptFrameLocked(
             StreamFrame frame,
             Integer expectedReconnectCount,
@@ -2513,6 +2537,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         if (current.leaseExpiresAt() == null || !current.leaseExpiresAt().isAfter(Instant.now())) {
             throw new IllegalStateException("Media stream connection lease expired");
         }
+        validateStreamSourcePosition(current, frame);
         StreamControl control = activeStreams.computeIfAbsent(
                 streamKey(frame.tenantId(), frame.sessionId()),
                 ignored -> streamControlFor(current));
@@ -2550,7 +2575,8 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             if (ack.bufferedBytes() > current.maximumBufferedBytes()) {
                 throw new IllegalStateException("Media streaming provider exceeded the session buffer limit");
             }
-            streamStore.recordFrame(reserved, frame.sequence(), ack.bufferedBytes(), frame.endOfStream());
+            streamStore.recordFrame(reserved, frame.sequence(), ack.bufferedBytes(), frame.endOfStream(),
+                    frame.sourceVersion(), frame.sourceCursor());
             frameAcknowledgementPersisted = true;
             workflowMetrics.recordCaptureFrame(captureMetricKind(current.streamKind()),
                     MediaWorkflowMetrics.Outcome.SUCCESS);

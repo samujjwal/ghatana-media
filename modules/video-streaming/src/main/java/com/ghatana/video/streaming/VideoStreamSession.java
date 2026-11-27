@@ -112,9 +112,20 @@ public final class VideoStreamSession {
         return new ArrayList<>(ordered);
     }
 
-    public record DecodedFrame(int sequenceNumber, boolean keyFrame, long timestampMillis, byte[] payload) {
+    public record DecodedFrame(
+            int sequenceNumber, boolean keyFrame, long timestampMillis, byte[] payload,
+            String sourceVersion, Long sourceCursor) {
         public DecodedFrame {
             payload = payload == null ? null : payload.clone();
+            if ((sourceVersion == null) != (sourceCursor == null)
+                    || sourceVersion != null && (sourceVersion.isBlank() || sourceVersion.length() > 384
+                            || sourceCursor < 0 || sourceCursor == Long.MAX_VALUE)) {
+                throw new IllegalArgumentException("video source position is invalid");
+            }
+        }
+
+        public DecodedFrame(int sequenceNumber, boolean keyFrame, long timestampMillis, byte[] payload) {
+            this(sequenceNumber, keyFrame, timestampMillis, payload, null, null);
         }
 
         /** Returns a copy so callers cannot mutate bytes after frame validation. */

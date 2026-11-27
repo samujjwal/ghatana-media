@@ -28,7 +28,9 @@ public interface CanonicalVideoStreamFramePort {
             long sessionRevision,
             long storeVersion,
             long lastAcknowledgedSequence,
-            Instant leaseExpiresAt) {
+            Instant leaseExpiresAt,
+            String sourceVersion,
+            Long sourceCursor) {
         public Binding {
             streamId = required(streamId, "streamId");
             tenantId = required(tenantId, "tenantId");
@@ -40,6 +42,18 @@ public interface CanonicalVideoStreamFramePort {
                 throw new IllegalArgumentException("canonical video stream revision or ACK cursor is invalid");
             }
             leaseExpiresAt = Objects.requireNonNull(leaseExpiresAt, "leaseExpiresAt");
+            if ((sourceVersion == null) != (sourceCursor == null)
+                    || sourceVersion != null && (sourceVersion.isBlank() || sourceVersion.length() > 384
+                            || sourceCursor < 0 || sourceCursor == Long.MAX_VALUE
+                            || lastAcknowledgedSequence < 0)) {
+                throw new IllegalArgumentException("canonical video source checkpoint is invalid");
+            }
+        }
+
+        public Binding(String streamId, String tenantId, String principalId, String purposeRef,
+                long sessionRevision, long storeVersion, long lastAcknowledgedSequence, Instant leaseExpiresAt) {
+            this(streamId, tenantId, principalId, purposeRef, sessionRevision, storeVersion,
+                    lastAcknowledgedSequence, leaseExpiresAt, null, null);
         }
 
         private static String required(String value, String field) {
@@ -113,6 +127,10 @@ public interface CanonicalVideoStreamFramePort {
 
     /** Offers one frame and preserves provider backpressure feedback when the runtime exposes it. */
     default OfferFeedback offerWithFeedback(Binding expected, VideoStreamSession.DecodedFrame frame) {
+        if (frame != null && frame.sourceVersion() != null) {
+            return OfferFeedback.unavailable(Result.notAdmitted(
+                    "canonical video adapter does not persist source-position checkpoints"));
+        }
         return OfferFeedback.unavailable(offer(expected, frame));
     }
 

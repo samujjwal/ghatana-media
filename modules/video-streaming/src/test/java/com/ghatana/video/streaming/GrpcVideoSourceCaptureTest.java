@@ -192,6 +192,65 @@ class GrpcVideoSourceCaptureTest {
 
         assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.ACCEPTED);
         assertThat(port.offeredSequences).containsExactly(0, 1);
+        assertThat(port.offeredFrames).extracting(VideoStreamSession.DecodedFrame::sourceVersion)
+                .containsExactly("video@v3", "video@v3");
+        assertThat(port.offeredFrames).extracting(VideoStreamSession.DecodedFrame::sourceCursor)
+                .containsExactly(10L, 11L);
+    }
+
+    @Test
+    void reconnectStartsAtDurableNextSourceCursorAndRejectsUnboundLegacyAck() {
+        FakePort bound = new FakePort();
+        bound.lastAck = 4;
+        bound.sourceVersion = "video@v3";
+        bound.sourceCursor = 19L;
+        FakeSource next = new FakeSource(new GrpcVideoSourceCapture.Batch(
+                List.of(frame(20, 5, "video@v3", 40)), false));
+
+        var resumed = new GrpcVideoSourceCapture(bound, next).capture(REQUEST);
+
+        assertThat(resumed.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.ACCEPTED);
+        assertThat(next.requestedSourceCursors).containsExactly(20L, 20L);
+        assertThat(bound.offeredFrames).singleElement().satisfies(frame -> {
+            assertThat(frame.sourceVersion()).isEqualTo("video@v3");
+            assertThat(frame.sourceCursor()).isEqualTo(20L);
+        });
+
+        FakePort unbound = new FakePort();
+        unbound.lastAck = 4;
+        FakeSource unavailable = new FakeSource(new GrpcVideoSourceCapture.Batch(
+                List.of(frame(20, 5, "video@v3", 40)), false));
+        var blocked = new GrpcVideoSourceCapture(unbound, unavailable).capture(REQUEST);
+        assertThat(blocked.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.UNKNOWN);
+        assertThat(unavailable.batchReads).isZero();
+        assertThat(unbound.offeredSequences).isEmpty();
+    }
+
+    @Test
+    void sourceVersionMismatchAndCursorExhaustionDoNotReadOrOfferFrames() {
+        FakePort changedVersion = new FakePort();
+        changedVersion.lastAck = 3;
+        changedVersion.sourceVersion = "video@v2";
+        changedVersion.sourceCursor = 8L;
+        FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(
+                List.of(frame(9, 4, "video@v3", 40)), false));
+
+        var mismatch = new GrpcVideoSourceCapture(changedVersion, source).capture(REQUEST);
+
+        assertThat(mismatch.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.UNKNOWN);
+        assertThat(source.readbackCalls).isZero();
+        assertThat(source.batchReads).isZero();
+
+        FakePort exhausted = new FakePort();
+        exhausted.lastAck = 2;
+        exhausted.sourceVersion = "video@v3";
+        exhausted.sourceCursor = Long.MAX_VALUE - 1;
+        FakeSource noRead = new FakeSource(new GrpcVideoSourceCapture.Batch(
+                List.of(frame(Long.MAX_VALUE, 3, "video@v3", 40)), false));
+        var exhaustedResult = new GrpcVideoSourceCapture(exhausted, noRead).capture(REQUEST);
+        assertThat(exhaustedResult.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.UNKNOWN);
+        assertThat(noRead.readbackCalls).isZero();
+        assertThat(exhausted.offeredSequences).isEmpty();
     }
 
     @Test
@@ -412,7 +471,7 @@ class GrpcVideoSourceCaptureTest {
     }
 
     @Test
-    void highestLegalFrameDoesNotDispatchEosOutsideCanonicalSequenceRange() {
+    void sourceCaptureCannotResumeUnboundSessionAtHighestMediaSequence() {
         FakePort port = new FakePort();
         port.lastAck = VideoStreamSession.MAX_FRAME_SEQUENCE - 1L;
         FakeSource source = new FakeSource(new GrpcVideoSourceCapture.Batch(List.of(
@@ -421,8 +480,9 @@ class GrpcVideoSourceCaptureTest {
         var result = new GrpcVideoSourceCapture(port, source).capture(REQUEST);
 
         assertThat(result.disposition()).isEqualTo(GrpcVideoSourceCapture.Disposition.UNKNOWN);
-        assertThat(result.acknowledgedFrames()).isEqualTo(1);
-        assertThat(port.offeredSequences).containsExactly(VideoStreamSession.MAX_FRAME_SEQUENCE);
+        assertThat(result.acknowledgedFrames()).isZero();
+        assertThat(source.batchReads).isZero();
+        assertThat(port.offeredSequences).isEmpty();
         assertThat(port.eosCalls).isZero();
     }
 
@@ -550,6 +610,7 @@ class GrpcVideoSourceCaptureTest {
         private int denyReadbackCall = -1;
         private int readbackCalls;
         private int batchReads;
+        private final List<Long> requestedSourceCursors = new ArrayList<>();
         private RuntimeException batchFailure;
 
         private FakeSource(GrpcVideoSourceCapture.Batch batch) { this.batch = batch; }
@@ -557,6 +618,7 @@ class GrpcVideoSourceCaptureTest {
         @Override public GrpcVideoSourceCapture.Readback readback(
                 GrpcVideoSourceCapture.Request request, long cursor, long mediaSequence) {
             readbackCalls++;
+            requestedSourceCursors.add(cursor);
             var status = readbackCalls == denyReadbackCall ? GrpcVideoSourceCapture.Authorization.REVOKED : authorization;
             return new GrpcVideoSourceCapture.Readback(status,
                     status == GrpcVideoSourceCapture.Authorization.AUTHORIZED ? request.sourceVersion() : null,
@@ -578,6 +640,8 @@ class GrpcVideoSourceCaptureTest {
         private final List<Integer> offeredSequences = new ArrayList<>();
         private final List<VideoStreamSession.DecodedFrame> offeredFrames = new ArrayList<>();
         private long lastAck = -1;
+        private String sourceVersion;
+        private Long sourceCursor;
         private int offerCalls;
         private int eosCalls;
         private int bindingCalls;
@@ -597,7 +661,7 @@ class GrpcVideoSourceCaptureTest {
             Instant leaseExpiry = bindingCalls == expireLeaseOnBindingCall
                     ? Instant.EPOCH : Instant.now().plusSeconds(30);
             return Optional.of(new Binding(streamId, tenantId, principalId, "purpose-1", generation, 1, acknowledged,
-                    leaseExpiry));
+                    leaseExpiry, sourceVersion, sourceCursor));
         }
 
         @Override public Result offer(Binding expected, VideoStreamSession.DecodedFrame frame) {
@@ -606,6 +670,10 @@ class GrpcVideoSourceCaptureTest {
             offeredFrames.add(frame);
             if (offerResult != null) return offerResult;
             lastAck = frame.sequenceNumber();
+            if (frame.sourceVersion() != null) {
+                sourceVersion = frame.sourceVersion();
+                sourceCursor = frame.sourceCursor();
+            }
             return Result.acknowledged(lastAck);
         }
 
