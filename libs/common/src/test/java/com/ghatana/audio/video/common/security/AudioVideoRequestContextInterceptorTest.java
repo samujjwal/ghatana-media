@@ -253,6 +253,36 @@ class AudioVideoRequestContextInterceptorTest {
         }
 
         @Test
+        @DisplayName("unmapped RPCs reject user and admin before backend dispatch")
+        void unmappedMethodsNeverReachBackend() throws InterruptedException {
+            String method = "com.ghatana.audio.video.unknown.grpc.UnknownService/DoWork";
+            assertThat(AudioVideoMethodRbacRegistry.methodDisposition(method))
+                    .isEqualTo(AudioVideoMethodRbacRegistry.MethodDisposition.UNMAPPED);
+
+            for (String verifiedRole : Set.of("av:user", "av:admin")) {
+                ServerCall<Object, Object> call = mockCall(method);
+                ServerCallHandler<Object, Object> handler = mockHandler();
+                Metadata headers = rolesHeader("av:user".equals(verifiedRole) ? "av:admin" : "av:user");
+
+                verifiedContext("verified-" + verifiedRole, "tenant-unmapped", Set.of(verifiedRole))
+                        .run(() -> interceptor.interceptCall(call, headers, handler));
+
+                ArgumentCaptor<Status> status = ArgumentCaptor.forClass(Status.class);
+                verify(call).close(status.capture(), any());
+                assertThat(status.getValue().getCode()).as(method + " for " + verifiedRole)
+                        .isEqualTo(Status.Code.PERMISSION_DENIED);
+                verify(handler, never()).startCall(any(), any());
+
+                AuditRecord record = awaitRecord();
+                assertThat(record.grpcMethod()).isEqualTo(method);
+                assertThat(record.roles()).isEqualTo(verifiedRole);
+                assertThat(record.tenantId()).isEqualTo("tenant-unmapped");
+                assertThat(record.principal()).isEqualTo("verified-" + verifiedRole);
+                assertThat(record.outcome()).isEqualTo(Outcome.DENIED_INSUFFICIENT_ROLE);
+            }
+        }
+
+        @Test
         @DisplayName("rejects loadModel for av:user role (requires av:admin)")
         void rejectsLoadModelForUserRole() throws InterruptedException {
             ServerCall<Object, Object> call = mockCall("com.ghatana.audio.video.stt.grpc.STTService/LoadModel");
