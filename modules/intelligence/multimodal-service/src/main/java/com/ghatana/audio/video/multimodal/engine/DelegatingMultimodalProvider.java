@@ -505,12 +505,17 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
     }
 
     private static Map<String, Object> immutableJsonMap(Map<String, Object> source) {
-        Map<String, Object> copy = new LinkedHashMap<>();
-        source.forEach((key, value) -> copy.put(key, immutableJsonValue(value)));
-        return java.util.Collections.unmodifiableMap(copy);
+        Object snapshot = immutableJsonValue(source, new java.util.IdentityHashMap<>(), 0);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> copy = (Map<String, Object>) snapshot;
+        return copy;
     }
 
-    private static Object immutableJsonValue(Object value) {
+    private static Object immutableJsonValue(
+            Object value, java.util.IdentityHashMap<Object, Boolean> active, int depth) {
+        if (depth > 64) {
+            throw new IllegalArgumentException("child result exceeds maximum JSON nesting");
+        }
         if (value == null || value instanceof String || value instanceof Boolean) {
             return value;
         }
@@ -529,28 +534,37 @@ public final class DelegatingMultimodalProvider implements MediaProcessingProvid
             }
             return number;
         }
-        if (value instanceof Map<?, ?> map) {
-            Map<String, Object> copy = new LinkedHashMap<>();
-            map.forEach((key, item) -> {
-                if (!(key instanceof String stringKey)) {
-                    throw new IllegalArgumentException("child result map keys must be strings");
-                }
-                copy.put(stringKey, immutableJsonValue(item));
-            });
-            return java.util.Collections.unmodifiableMap(copy);
+        if (active.put(value, Boolean.TRUE) != null) {
+            throw new IllegalArgumentException("child result cannot contain cyclic values");
         }
-        if (value instanceof List<?> list) {
-            return list.stream().map(DelegatingMultimodalProvider::immutableJsonValue).toList();
-        }
-        if (value.getClass().isArray()) {
-            int length = java.lang.reflect.Array.getLength(value);
-            List<Object> copy = new ArrayList<>(length);
-            for (int index = 0; index < length; index++) {
-                copy.add(immutableJsonValue(java.lang.reflect.Array.get(value, index)));
+        try {
+            if (value instanceof Map<?, ?> map) {
+                Map<String, Object> copy = new LinkedHashMap<>();
+                map.forEach((key, item) -> {
+                    if (!(key instanceof String stringKey)) {
+                        throw new IllegalArgumentException("child result map keys must be strings");
+                    }
+                    copy.put(stringKey, immutableJsonValue(item, active, depth + 1));
+                });
+                return java.util.Collections.unmodifiableMap(copy);
             }
-            return java.util.Collections.unmodifiableList(copy);
+            if (value instanceof List<?> list) {
+                List<Object> copy = new ArrayList<>(list.size());
+                for (Object item : list) copy.add(immutableJsonValue(item, active, depth + 1));
+                return java.util.Collections.unmodifiableList(copy);
+            }
+            if (value.getClass().isArray()) {
+                int length = java.lang.reflect.Array.getLength(value);
+                List<Object> copy = new ArrayList<>(length);
+                for (int index = 0; index < length; index++) {
+                    copy.add(immutableJsonValue(java.lang.reflect.Array.get(value, index), active, depth + 1));
+                }
+                return java.util.Collections.unmodifiableList(copy);
+            }
+            throw new IllegalArgumentException("child result contains a non-JSON value");
+        } finally {
+            active.remove(value);
         }
-        throw new IllegalArgumentException("child result contains a non-JSON value");
     }
 
     private static final class ChildBindingMismatchException extends RuntimeException {

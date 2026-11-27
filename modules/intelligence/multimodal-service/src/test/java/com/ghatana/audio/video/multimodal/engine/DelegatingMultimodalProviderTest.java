@@ -241,6 +241,48 @@ class DelegatingMultimodalProviderTest {
     }
 
     @Test
+    void cyclicChildResultPreservesUnknownWithoutStrandingOperationFuture() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            var cyclic = new java.util.LinkedHashMap<String, Object>();
+            cyclic.put("self", cyclic);
+            var dispatcher = new FixtureDispatcher().with(JobStatus.COMPLETED, cyclic);
+
+            var submission = provider.processAttempt(context(dispatcher), attempt())
+                    .get(5, TimeUnit.SECONDS);
+
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
+            assertThat(dispatcher.submits).hasValue(1);
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
+    void overDeepChildResultPreservesUnknownWithoutStrandingOperationFuture() throws Exception {
+        var scheduler = Executors.newSingleThreadScheduledExecutor();
+        try {
+            var provider = DelegatingMultimodalProvider.forTesting(
+                    scheduler, Duration.ofSeconds(5), Duration.ofMillis(10));
+            Map<String, Object> nested = Map.of("leaf", "value");
+            for (int i = 0; i < 65; i++) nested = Map.of("nested", nested);
+            var dispatcher = new FixtureDispatcher().with(JobStatus.COMPLETED, nested);
+
+            var submission = provider.processAttempt(context(dispatcher), attempt())
+                    .get(5, TimeUnit.SECONDS);
+
+            assertThat(submission.finality()).isEqualTo(AttemptFinality.UNKNOWN);
+            assertThat(submission.result()).isEmpty();
+            assertThat(dispatcher.submits).hasValue(1);
+        } finally {
+            scheduler.shutdownNow();
+        }
+    }
+
+    @Test
     void failedChildProducesFailedNotPartialSuccess() throws Exception {
         var scheduler = Executors.newSingleThreadScheduledExecutor();
         try {

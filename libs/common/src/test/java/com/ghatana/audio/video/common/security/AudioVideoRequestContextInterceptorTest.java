@@ -309,6 +309,28 @@ class AudioVideoRequestContextInterceptorTest {
     class AllowedCalls {
 
         @Test
+        @DisplayName("dispatches a source-granted method using the verified role")
+        @SuppressWarnings("unchecked")
+        void verifiedRoleAllowsGrantedMethodAndAuditsDecision() throws InterruptedException {
+            ServerCall<Object, Object> call = mockCall(TRANSCRIBE_METHOD);
+            Metadata headers = rolesHeader("av:admin");
+            ServerCallHandler<Object, Object> handler = mockHandler();
+            when(handler.startCall(any(), any())).thenReturn(mock(ServerCall.Listener.class));
+
+            verifiedContext("verified-transcriber", "tenant-transcribe", Set.of("av:user"))
+                    .run(() -> interceptor.interceptCall(call, headers, handler));
+
+            verify(call, never()).close(any(), any());
+            verify(handler).startCall(any(), any());
+            AuditRecord record = awaitRecord();
+            assertThat(record.grpcMethod()).isEqualTo(TRANSCRIBE_METHOD);
+            assertThat(record.tenantId()).isEqualTo("tenant-transcribe");
+            assertThat(record.principal()).isEqualTo("verified-transcriber");
+            assertThat(record.roles()).isEqualTo("av:user");
+            assertThat(record.outcome()).isEqualTo(Outcome.ALLOWED);
+        }
+
+        @Test
         @DisplayName("denies an authenticated user even when caller metadata claims av:user")
         void callerUserRoleCannotAuthorize() throws InterruptedException {
             ServerCall<Object, Object> call = mockCall(TRANSCRIBE_METHOD);
