@@ -70,7 +70,7 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                 session.createdAt(), session.updatedAt(), session.closedAt(), session.metadata(),
                 session.version(), connectionTokenHash, session.acknowledgementRevision(), session.finality(),
                 session.inFlightSequence(), session.inFlightAttemptId(), null, null, null,
-                session.clockDomainRef()));
+                session.clockDomainRef(), session.sourceRef(), session.sequenceStart()));
         try (Connection connection = state.connection();
              PreparedStatement statement = connection.prepareStatement(
                      "INSERT INTO media_stream_sessions "
@@ -80,8 +80,8 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                              + "sequence_token_hash,acknowledgement_revision,finality,in_flight_sequence,"
                              + "in_flight_attempt_id,source_version,source_cursor,clock_domain_ref,source_pts_status,source_pts_ticks,"
                              + "source_pts_timebase_numerator,source_pts_timebase_denominator,source_pts_clock_id,"
-                             + "source_pts_unknown_reason) "
-                             + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
+                             + "source_pts_unknown_reason,source_ref,sequence_start) "
+                             + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")) {
             bindInsert(statement, persistable, connectionTokenHash);
             statement.executeUpdate();
             return persistable;
@@ -166,7 +166,7 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                         expected.createdAt(), now, null, expected.metadata(), expected.version() + 1,
                         expected.sequenceTokenHash(), expected.acknowledgementRevision() + 1, expected.finality(),
                         null, "", expected.sourceVersion(), expected.sourceCursor(),
-                        expected.sourcePresentationTime(), expected.clockDomainRef()));
+                        expected.sourcePresentationTime(), expected.clockDomainRef(), expected.sourceRef(), expected.sequenceStart()));
                 update(connection, expected, updated, "connection_token_hash=?",
                         statement -> statement.setString(1, tokenHash), true, now,
                         "Media stream connection lease is absent or expired");
@@ -240,7 +240,7 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                         expected.sequenceTokenHash(), expected.acknowledgementRevision(), expected.finality(),
                         expected.inFlightSequence(), expected.inFlightAttemptId(),
                         expected.sourceVersion(), expected.sourceCursor(), expected.sourcePresentationTime(),
-                        expected.clockDomainRef()));
+                        expected.clockDomainRef(), expected.sourceRef(), expected.sequenceStart()));
                 update(connection, expected, renewedSession, null, null, true, now,
                         "Expired Media stream lease cannot be renewed");
                 StreamRow renewed = read(connection, expected.tenantId(), expected.sessionId(), false);
@@ -339,7 +339,7 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                 expected.createdAt(), Instant.now(), expected.closedAt(), expected.metadata(),
                 expected.version() + 1, expected.sequenceTokenHash(), expected.acknowledgementRevision(),
                 expected.finality(), sequence, boundedAttemptId, expected.sourceVersion(), expected.sourceCursor(),
-                expected.sourcePresentationTime(), expected.clockDomainRef()));
+                expected.sourcePresentationTime(), expected.clockDomainRef(), expected.sourceRef(), expected.sequenceStart()));
         updateWithLeaseFence(expected, updated);
         return updated;
     }
@@ -417,7 +417,7 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                 throw new IllegalArgumentException("Media stream source checkpoint is invalid");
             }
             if (expected.sourceVersion() == null) {
-                if (expected.lastSequence() != -1) {
+                if (expected.lastSequence() != expected.sequenceStart() - 1) {
                     throw new IllegalStateException("Media stream cannot begin source binding after unbound frames");
                 }
             } else if (!expected.sourceVersion().equals(sourceVersion)
@@ -439,7 +439,7 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                 expected.closedAt(), expected.metadata(), expected.version() + 1,
                 expected.sequenceTokenHash(), expected.acknowledgementRevision() + 1, expected.finality(),
                 null, "", committedSourceVersion, committedSourceCursor, committedPresentationTime,
-                expected.clockDomainRef()));
+                expected.clockDomainRef(), expected.sourceRef(), expected.sequenceStart()));
         updateWithLeaseFence(expected, updated);
         return updated;
     }
@@ -463,7 +463,7 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                 expected.sequenceTokenHash(), expected.acknowledgementRevision() + 1,
                 StreamFinality.UNKNOWN, expected.inFlightSequence(), expected.inFlightAttemptId(),
                 expected.sourceVersion(), expected.sourceCursor(), expected.sourcePresentationTime(),
-                expected.clockDomainRef()));
+                expected.clockDomainRef(), expected.sourceRef(), expected.sequenceStart()));
         update(expected, updated, null, null);
         return updated;
     }
@@ -491,7 +491,7 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                         ? StreamFinality.UNKNOWN : expected.finality(),
                 expected.inFlightSequence(), expected.inFlightAttemptId(),
                 expected.sourceVersion(), expected.sourceCursor(), expected.sourcePresentationTime(),
-                expected.clockDomainRef()));
+                expected.clockDomainRef(), expected.sourceRef(), expected.sequenceStart()));
         update(expected, updated, null, null);
         return updated;
     }
@@ -602,6 +602,10 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
             boolean databaseClockLeaseFence,
             Instant applicationClockFallback,
             String noRowsMessage) throws SQLException {
+        if (!java.util.Objects.equals(expected.sourceRef(), updated.sourceRef())
+                || expected.sequenceStart() != updated.sequenceStart()) {
+            throw new IllegalArgumentException("Media stream source binding is immutable");
+        }
         if (databaseClockLeaseFence) {
             java.util.Objects.requireNonNull(applicationClockFallback, "applicationClockFallback");
         }
@@ -661,7 +665,7 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                 + "closed_at,metadata_json,version,sequence_token_hash,acknowledgement_revision,finality,"
                 + "in_flight_sequence,in_flight_attempt_id,source_version,source_cursor,clock_domain_ref,source_pts_status,"
                 + "source_pts_ticks,source_pts_timebase_numerator,source_pts_timebase_denominator,"
-                + "source_pts_clock_id,source_pts_unknown_reason "
+                + "source_pts_clock_id,source_pts_unknown_reason,source_ref,sequence_start "
                 + "FROM media_stream_sessions "
                 + "WHERE tenant_id=? AND session_id=?" + (lock ? " FOR UPDATE" : "");
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -688,7 +692,8 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                                 StreamFinality.valueOf(result.getString("finality")),
                                 nullable(result, "in_flight_sequence"), result.getString("in_flight_attempt_id"),
                                 result.getString("source_version"), nullable(result, "source_cursor"),
-                                readSourcePresentationTime(result), result.getString("clock_domain_ref")),
+                                readSourcePresentationTime(result), result.getString("clock_domain_ref"),
+                                result.getString("source_ref"), result.getLong("sequence_start")),
                         result.getString("connection_token_hash"));
             }
         }
@@ -723,6 +728,8 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
         nullableLongValue(statement, 25, session.sourceCursor());
         statement.setString(26, session.clockDomainRef());
         bindSourcePresentationTime(statement, 27, session.sourcePresentationTime());
+        statement.setString(33, session.sourceRef());
+        statement.setLong(34, session.sequenceStart());
     }
 
     private static boolean allowed(StreamState current, StreamState target) {
@@ -766,7 +773,8 @@ public final class PostgresqlMediaStreamSessionStore implements MediaStreamSessi
                 session.metadata(), session.version(), session.sequenceTokenHash(),
                 session.acknowledgementRevision(), session.finality(),
                 session.inFlightSequence(), session.inFlightAttemptId(), session.sourceVersion(), session.sourceCursor(),
-                session.sourcePresentationTime(), session.clockDomainRef());
+                session.sourcePresentationTime(), session.clockDomainRef(),
+                session.sourceRef(), session.sequenceStart());
     }
 
     private static void bindSourcePresentationTime(

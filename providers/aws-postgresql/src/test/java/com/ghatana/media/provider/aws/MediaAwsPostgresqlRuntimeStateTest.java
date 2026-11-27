@@ -414,6 +414,8 @@ class MediaAwsPostgresqlRuntimeStateTest {
                             .hasMessageContaining("cannot contain provider outcome state");
                     StreamSession created = streams.create(opened, tokenHash);
                     assertThat(created.sequenceTokenHash()).isEqualTo(tokenHash);
+                    assertThat(created.sourceRef()).isNull();
+                    assertThat(created.sequenceStart()).isZero();
                     assertThat(streams.find("tenant-b", "stream-a")).isEmpty();
                     assertThatThrownBy(() -> streams.connect(
                             created, "0".repeat(64), Instant.now().plusSeconds(60)))
@@ -564,6 +566,45 @@ class MediaAwsPostgresqlRuntimeStateTest {
                             .isInstanceOf(UnsupportedOperationException.class)
                             .hasMessageContaining("unavailable");
                     assertThat(streams.find("tenant-a", "stream-a")).contains(draining);
+
+                    String exactSourceRef = "capture://camera-17/source@v2";
+                    StreamSession boundOpened = new StreamSession(
+                            "tenant-a", "stream-bound-source-sequence", "principal-a", StreamKind.AUDIO,
+                            "http-media-streaming", StreamState.OPEN, 8, 0, 1024, 0,
+                            now.plusSeconds(120), now, now, null, Map.of(), 1,
+                            "", 0, StreamFinality.NONE, null, "", null, null, null, "camera-clock-v3",
+                            exactSourceRef, 9);
+                    StreamSession boundCreated = streams.create(boundOpened, tokenHash);
+                    assertThat(boundCreated.lastSequence()).isEqualTo(8);
+                    assertThat(boundCreated.sourceRef()).isEqualTo(exactSourceRef);
+                    assertThat(boundCreated.sequenceStart()).isEqualTo(9);
+                    StreamSession boundConnected = streams.connect(
+                            boundCreated, tokenHash, Instant.now().plusSeconds(60));
+                    assertThatThrownBy(() -> streams.beginFrame(boundConnected, 8, "attempt-bound-gap"))
+                            .isInstanceOf(IllegalArgumentException.class)
+                            .hasMessageContaining("not contiguous");
+                    StreamSession boundPending = streams.beginFrame(boundConnected, 9, "attempt-bound-frame");
+                    StreamSession boundAccepted = streams.recordFrame(
+                            boundPending, 9, 64, false, "artifact-source@v9", 37L);
+                    assertThat(boundAccepted.lastSequence()).isEqualTo(9);
+                    assertThat(boundAccepted.sourceRef()).isEqualTo(exactSourceRef);
+                    assertThat(boundAccepted.sequenceStart()).isEqualTo(9);
+                    assertThat(boundAccepted.sourceVersion()).isEqualTo("artifact-source@v9");
+                    assertThat(boundAccepted.sourceCursor()).isEqualTo(37L);
+                    StreamSession boundReconnected = streams.connect(
+                            boundAccepted, tokenHash, Instant.now().plusSeconds(60));
+                    try (PostgresqlMediaStreamSessionStore restartedStreams =
+                                 new PostgresqlMediaStreamSessionStore()) {
+                        StreamSession boundReadback = restartedStreams.find(
+                                "tenant-a", "stream-bound-source-sequence").orElseThrow();
+                        assertThat(boundReadback).isEqualTo(boundReconnected);
+                        assertThat(boundReadback.sourceRef()).isEqualTo(exactSourceRef);
+                        assertThat(boundReadback.sequenceStart()).isEqualTo(9);
+                        assertThat(boundReadback.lastSequence()).isEqualTo(9);
+                        assertThat(boundReadback.sourceVersion()).isEqualTo("artifact-source@v9");
+                        assertThat(boundReadback.sourceCursor()).isEqualTo(37L);
+                        assertThat(boundReadback.clockDomainRef()).isEqualTo("camera-clock-v3");
+                    }
 
                     StreamSession sourceConnected = createConnectedStream(
                             streams, "stream-source-checkpoint", tokenHash, now, "camera.clock.v1");

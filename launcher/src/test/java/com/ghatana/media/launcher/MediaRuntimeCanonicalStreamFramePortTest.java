@@ -1,11 +1,13 @@
 package com.ghatana.media.launcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.ghatana.audio.streaming.AudioStreamSession;
 import com.ghatana.audio.streaming.CanonicalStreamFramePort;
 import com.ghatana.audio.streaming.StreamFrameReconciler;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaGovernanceContext;
+import com.ghatana.media.runtime.MediaRuntimeContracts.CanonicalStreamSessionOpenRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaStreamSessionStore;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaStreamingProvider;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
@@ -55,6 +57,8 @@ class MediaRuntimeCanonicalStreamFramePortTest {
 
         try {
             var registration = runtime.openStream(request(provider, "correlation-payload"));
+            assertThat(registration.session().sourceRef()).isNull();
+            assertThat(registration.session().sequenceStart()).isZero();
             runtime.connectStream("tenant-a", registration.session().sessionId(), registration.connectionToken());
             var port = runtime.audioStreamFramePort(
                     "tenant-a", "principal-a", registration.session().sessionId(), registration.connectionToken());
@@ -76,6 +80,96 @@ class MediaRuntimeCanonicalStreamFramePortTest {
         } finally {
             runtime.close();
         }
+    }
+
+    @Test
+    void canonicalSessionBindsExactSourceAndSequenceAcrossFramesReconnectAndTransition() throws Exception {
+        var root = Files.createTempDirectory("media-canonical-audio-source-binding-");
+        var provider = new LocalStreamingProvider();
+        var streamStore = new LocalMediaRuntimeSupport.StreamStore();
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 1, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                streamStore, null,
+                List.of(new LocalMediaRuntimeSupport.DiagnosticProcessor()), List.of(provider));
+        String sourceRef = "capture://camera-7/stream@v4";
+        try {
+            var legacyRequest = request(provider, "canonical-source-binding");
+            var canonicalRequest = new CanonicalStreamSessionOpenRequest(
+                    new StreamSessionRequest(legacyRequest.tenantId(), legacyRequest.principalId(),
+                            legacyRequest.correlationId(), legacyRequest.streamKind(), legacyRequest.providerHint(),
+                            legacyRequest.maximumBufferedBytes(), legacyRequest.leaseDuration(), legacyRequest.metadata(),
+                            legacyRequest.governanceContext(), "camera-clock-v3"),
+                    sourceRef, 7);
+            var authenticated = new com.ghatana.media.runtime.MediaSourceAuthorizationContracts.AuthenticatedPrincipal(
+                    "tenant-a", "principal-a", Instant.now());
+            var registration = runtime.openCanonicalStreamSession(canonicalRequest, authenticated);
+
+            assertThat(registration.session().sourceRef()).isEqualTo(sourceRef);
+            assertThat(registration.session().sequenceStart()).isEqualTo(7);
+            assertThat(registration.session().lastSequence()).isEqualTo(6);
+            assertThat(registration.session().sourceVersion()).isNull();
+            assertThat(registration.session().sourceCursor()).isNull();
+            runtime.connectStream("tenant-a", registration.session().sessionId(), registration.connectionToken());
+            var port = runtime.audioStreamFramePort(
+                    "tenant-a", "principal-a", registration.session().sessionId(), registration.connectionToken());
+            var binding = port.currentBinding(
+                    "tenant-a", registration.session().sessionId(), "principal-a").orElseThrow();
+            assertThat(binding.lastAcknowledgedSequence()).isEqualTo(6);
+            assertThat(port.offer(binding, new AudioStreamSession.DecodedFrame(6, 120L, new byte[] {1}))
+                    .disposition()).isEqualTo(CanonicalStreamFramePort.Disposition.NOT_ADMITTED);
+            assertThat(provider.calls()).isZero();
+
+            var accepted = port.offerWithFeedback(binding,
+                    new AudioStreamSession.DecodedFrame(7, 140L, new byte[] {2}, "artifact-source@v9", 37L));
+            assertThat(accepted.result()).isEqualTo(CanonicalStreamFramePort.Result.acknowledged(7));
+            var afterFrame = runtime.stream("tenant-a", registration.session().sessionId()).orElseThrow();
+            assertThat(afterFrame.lastSequence()).isEqualTo(7);
+            assertThat(afterFrame.sourceRef()).isEqualTo(sourceRef);
+            assertThat(afterFrame.sequenceStart()).isEqualTo(7);
+            assertThat(afterFrame.sourceVersion()).isEqualTo("artifact-source@v9");
+            assertThat(afterFrame.sourceCursor()).isEqualTo(37L);
+            var transitioned = streamStore.transition(afterFrame, StreamState.DEGRADED);
+            assertThat(transitioned.sourceRef()).isEqualTo(sourceRef);
+            assertThat(transitioned.sequenceStart()).isEqualTo(7);
+
+            var reconnected = runtime.connectStream(
+                    "tenant-a", registration.session().sessionId(), registration.connectionToken());
+            assertThat(reconnected.sourceRef()).isEqualTo(sourceRef);
+            assertThat(reconnected.sequenceStart()).isEqualTo(7);
+            assertThat(reconnected.lastSequence()).isEqualTo(7);
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void canonicalSessionRequestValidatesSequenceAndOpaqueReferenceBoundsWithoutNormalizing() {
+        var provider = new LocalStreamingProvider();
+        var legacyRequest = request(provider, "canonical-source-bounds");
+        var requestWithClock = new StreamSessionRequest(legacyRequest.tenantId(), legacyRequest.principalId(),
+                legacyRequest.correlationId(), legacyRequest.streamKind(), legacyRequest.providerHint(),
+                legacyRequest.maximumBufferedBytes(), legacyRequest.leaseDuration(), legacyRequest.metadata(),
+                legacyRequest.governanceContext(), "camera-clock-v3");
+        String exactRef = "source:camera-7@v4";
+        assertThat(new CanonicalStreamSessionOpenRequest(requestWithClock, exactRef, 0).sourceRef())
+                .isEqualTo(exactRef);
+        assertThat(new CanonicalStreamSessionOpenRequest(requestWithClock, exactRef, 9_007_199_254_740_991L)
+                .sequenceStart()).isEqualTo(9_007_199_254_740_991L);
+        assertThatThrownBy(() -> new CanonicalStreamSessionOpenRequest(requestWithClock, exactRef, -1))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new CanonicalStreamSessionOpenRequest(requestWithClock, exactRef,
+                9_007_199_254_740_992L)).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new CanonicalStreamSessionOpenRequest(requestWithClock, " source@v4", 0))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new CanonicalStreamSessionOpenRequest(requestWithClock, "source@v4" + (char) 1, 0))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new CanonicalStreamSessionOpenRequest(requestWithClock, "x".repeat(385), 0))
+                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> new CanonicalStreamSessionOpenRequest(requestWithClock, null, 0))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

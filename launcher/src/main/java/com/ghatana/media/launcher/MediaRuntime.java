@@ -26,6 +26,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.JobListSnapshot;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobFinalizationDeadlineExceededException;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaProcessingProvider;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaStreamSessionStore;
+import com.ghatana.media.runtime.MediaRuntimeContracts.CanonicalStreamSessionOpenRequest;
 import com.ghatana.media.runtime.MediaRuntimeContracts.MediaStreamingProvider;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingBoundary;
 import com.ghatana.media.runtime.MediaRuntimeContracts.ProcessingContext;
@@ -2383,10 +2384,35 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         return openStream(request, authenticated, selectStreamingProvider(request));
     }
 
+    /** Opens a new source-bound canonical session without changing the legacy HTTP request shape. */
+    public StreamSessionRegistration openCanonicalStreamSession(
+            CanonicalStreamSessionOpenRequest canonicalRequest,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated) {
+        ensureOpen();
+        java.util.Objects.requireNonNull(canonicalRequest, "canonicalRequest");
+        java.util.Objects.requireNonNull(authenticated, "authenticated");
+        StreamSessionRequest request = canonicalRequest.sessionRequest();
+        if (!authenticated.tenantId().equals(request.tenantId())
+                || !authenticated.principalId().equals(request.principalId())) {
+            throw new SecurityException("Media stream request does not match the authenticated principal");
+        }
+        return openStream(request, authenticated, selectStreamingProvider(request),
+                canonicalRequest.sourceRef(), canonicalRequest.sequenceStart());
+    }
+
     private StreamSessionRegistration openStream(
             StreamSessionRequest request,
             MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated,
             MediaStreamingProvider provider) {
+        return openStream(request, authenticated, provider, null, 0);
+    }
+
+    private StreamSessionRegistration openStream(
+            StreamSessionRequest request,
+            MediaSourceAuthorizationContracts.AuthenticatedPrincipal authenticated,
+            MediaStreamingProvider provider,
+            String sourceRef,
+            long sequenceStart) {
         ConsentDecision consent = verifiedStreamConsent(
                 authenticated.tenantId(), authenticated.principalId(), request.governanceContext(),
                 "stream:" + request.streamKind().name(), provider);
@@ -2397,9 +2423,10 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
         Map<String, Object> metadata = governedStreamMetadata(request.metadata(), request.governanceContext(), consent);
         StreamSession session = streamStore.create(new StreamSession(
                 authenticated.tenantId(), sessionId, authenticated.principalId(), request.streamKind(),
-                provider.providerId(), StreamState.OPEN, -1L, 0L, request.maximumBufferedBytes(), 0,
+                provider.providerId(), StreamState.OPEN, sequenceStart - 1, 0L, request.maximumBufferedBytes(), 0,
                 now.plus(request.leaseDuration()), now, now, null, metadata, 1,
-                "", 0, StreamFinality.NONE, null, "", null, null, null, request.clockDomainRef()), hash(token));
+                "", 0, StreamFinality.NONE, null, "", null, null, null, request.clockDomainRef(),
+                sourceRef, sequenceStart), hash(token));
         activeStreams.put(streamKey(authenticated.tenantId(), sessionId),
                 new StreamControl(new Cancellation(), provider, request.governanceContext(), consent));
         audit.info("MEDIA_STREAM_OPENED tenantId={} sessionId={} kind={} provider={} maxBufferedBytes={} consentAuthority={}",
@@ -2520,7 +2547,7 @@ public final class MediaRuntime implements AutoCloseable, MediaProcessingRuntime
             throw new IllegalArgumentException("AUDIO stream frames do not carry source presentation time");
         }
         if (current.sourceVersion() == null) {
-            if (hasSourcePosition && current.lastSequence() != -1) {
+            if (hasSourcePosition && current.lastSequence() != current.sequenceStart() - 1) {
                 throw new IllegalStateException("Media stream cannot begin source binding after unbound frames");
             }
             return;

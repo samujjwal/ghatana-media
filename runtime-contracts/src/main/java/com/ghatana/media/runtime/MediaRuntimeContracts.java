@@ -1986,6 +1986,25 @@ public final class MediaRuntimeContracts {
         }
     }
 
+    /** Internal CREATE_NEW input; deliberately absent from legacy REST and SDK request shapes. */
+    public record CanonicalStreamSessionOpenRequest(
+            StreamSessionRequest sessionRequest,
+            String sourceRef,
+            long sequenceStart) {
+        public CanonicalStreamSessionOpenRequest {
+            sessionRequest = java.util.Objects.requireNonNull(sessionRequest, "sessionRequest");
+            if (!validOpaqueVersionedReference(sourceRef)) {
+                throw new IllegalArgumentException("sourceRef must be a bounded opaque versioned reference");
+            }
+            if (sequenceStart < 0 || sequenceStart > 9_007_199_254_740_991L) {
+                throw new IllegalArgumentException("sequenceStart must be between 0 and 9007199254740991");
+            }
+            if (sessionRequest.clockDomainRef() == null) {
+                throw new IllegalArgumentException("canonical stream session requires a clockDomainRef binding");
+            }
+        }
+    }
+
     public enum SourcePresentationTimeStatus { KNOWN, UNKNOWN }
 
     /** Exact internal source-reported video presentation-time observation; carries no trust decision. */
@@ -2070,7 +2089,9 @@ public final class MediaRuntimeContracts {
             String sourceVersion,
             Long sourceCursor,
             SourcePresentationTime sourcePresentationTime,
-            String clockDomainRef) {
+            String clockDomainRef,
+            String sourceRef,
+            long sequenceStart) {
         public StreamSession {
             tenantId = required(tenantId, "tenantId");
             sessionId = required(sessionId, "sessionId");
@@ -2080,6 +2101,12 @@ public final class MediaRuntimeContracts {
             state = java.util.Objects.requireNonNull(state, "state");
             if (lastSequence < -1 || bufferedBytes < 0 || maximumBufferedBytes < 1 || reconnectCount < 0) {
                 throw new IllegalArgumentException("stream counters are invalid");
+            }
+            if (sequenceStart < 0 || sequenceStart > 9_007_199_254_740_991L
+                    || (sourceRef == null && sequenceStart != 0)
+                    || (sourceRef != null && !validOpaqueVersionedReference(sourceRef))
+                    || lastSequence < sequenceStart - 1) {
+                throw new IllegalArgumentException("stream source binding or initial sequence is invalid");
             }
             createdAt = createdAt == null ? Instant.now() : createdAt;
             updatedAt = updatedAt == null ? createdAt : updatedAt;
@@ -2116,6 +2143,20 @@ public final class MediaRuntimeContracts {
                 throw new IllegalArgumentException("stream acknowledgement fields exceed bounds");
             }
             if (version < 1) throw new IllegalArgumentException("version must be positive");
+        }
+
+        public StreamSession(String tenantId, String sessionId, String principalId, StreamKind streamKind,
+                String providerId, StreamState state, long lastSequence, long bufferedBytes,
+                long maximumBufferedBytes, int reconnectCount, Instant leaseExpiresAt, Instant createdAt,
+                Instant updatedAt, Instant closedAt, Map<String, Object> metadata, long version,
+                String sequenceTokenHash, long acknowledgementRevision, StreamFinality finality,
+                Long inFlightSequence, String inFlightAttemptId, String sourceVersion, Long sourceCursor,
+                SourcePresentationTime sourcePresentationTime, String clockDomainRef) {
+            this(tenantId, sessionId, principalId, streamKind, providerId, state, lastSequence, bufferedBytes,
+                    maximumBufferedBytes, reconnectCount, leaseExpiresAt, createdAt, updatedAt, closedAt,
+                    metadata, version, sequenceTokenHash, acknowledgementRevision, finality,
+                    inFlightSequence, inFlightAttemptId, sourceVersion, sourceCursor,
+                    sourcePresentationTime, clockDomainRef, null, 0);
         }
 
         public StreamSession(String tenantId, String sessionId, String principalId, StreamKind streamKind,
@@ -2232,6 +2273,25 @@ public final class MediaRuntimeContracts {
         int last = value.codePointBefore(value.length());
         return !(Character.isWhitespace(first) || Character.isSpaceChar(first)
                 || Character.isWhitespace(last) || Character.isSpaceChar(last));
+    }
+
+    private static boolean validOpaqueVersionedReference(String value) {
+        if (value == null || value.isEmpty() || value.codePointCount(0, value.length()) > 384) return false;
+        int first = value.codePointAt(0);
+        int last = value.codePointBefore(value.length());
+        if (Character.isWhitespace(first) || Character.isSpaceChar(first)
+                || Character.isWhitespace(last) || Character.isSpaceChar(last)) return false;
+        for (int index = 0; index < value.length(); index++) {
+            char current = value.charAt(index);
+            if (Character.isISOControl(current)) return false;
+            if (Character.isHighSurrogate(current)) {
+                if (index + 1 >= value.length() || !Character.isLowSurrogate(value.charAt(index + 1))) return false;
+                index++;
+            } else if (Character.isLowSurrogate(current)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static boolean validStreamClockDomainRef(String value) {
