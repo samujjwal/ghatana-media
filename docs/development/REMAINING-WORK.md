@@ -661,6 +661,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 
 **`media.dev.vision-model-and-geometry`** · OPEN
 - **Where:** `modules/vision/vision-service`, `libs/java/common/src/main/java/com/ghatana/media/vision`
+- **Coordinator regression (2026-11-27):** `VisionDetector.BoundingBox` enforces its explicit normalized `[0,1]` extents; `VisionDetectorBoundingBoxTest` passes 6/6, including inclusive full-image bounds. No image-origin, model, mAP, source binding, or provider qualification claim is made. Task remains OPEN.
 - **What:** Select legally usable pinned detector and finish real image/video geometry, tracking and OCI isolation.
 - **How:** Reuse YOLOX/OCI broker and verify RGB/BGR, EXIF, rotation, inverse letterbox, frame/ROI/version/PTS; remove any synthetic provider fallback.
 - **Test/exit:** Real bbox/classes, mAP/reference, VFR, multi-object tracking and worker OOM/PID/deadline/cancel tests.
@@ -699,6 +700,8 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **Coordinator verification (2026-11-26):** Removed Media-owned Florence OCR execution. The local engine/provider and HTTP/ROI routes reject generic OCR before sidecar/source/rights effects; engine/provider tests pass 17/17, HTTP/ROI OCR boundary methods 2/2, and the job-submission test confirms OCR cannot reach the Media Vision provider (1/1). This is local refusal evidence only; no DI request ran and execution remains NOT_ADMITTED.
 - **Next action:** Bind the qualified client to authenticated egress, current source consent/rights, provider admission, and durable readback. Existing Media OCR-only and fail-closed tests remain reusable; keep execution NOT_ADMITTED.
 - **Where:** `modules/vision/vision-service/src/main/java/com/ghatana/audio/video/vision/scenetext`, `libs/audio-video-client/src/authorized-scene-text.ts`
+- **Coordinator source decision (2026-11-27):** The DI-owned TypeScript client source exists, but its package README says the package remains source-only; the published client and `0.1.0-SNAPSHOT` peer contract are not locked/qualified. Keep Media OCR `NOT_ADMITTED`; use only the DI-owned client after a source-free package/peer lock and current Media authority/provider evidence. Do not add a duplicate OCR/HTTP client. No external request or protected image processing occurred. Task remains OPEN.
+- **Workspace reproducibility check (2026-11-27):** The offline client dependency add stopped before file mutation on missing `js-tokens` lock metadata, and the service client build could not find local `tsc`. No dependency or code change was made. Stop rather than introduce a non-reproducible workspace link; preserve `NOT_ADMITTED` until the client/peer are reproducibly published and the authority/provider gates pass.
 - **What:** Keep OCR inference exclusively in Ghatana Document Intelligence.
 - **How:** Preserve Media time/ROI and rights; send the authorized crop/source digest through the DI public contract and validate returned version/region.
 - **Test/exit:** Live supported DI client positive where available; negative, timeout, and source-change tests; no Media OCR engine.

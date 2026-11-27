@@ -192,6 +192,9 @@ public interface VisionDetector {
             if (!Double.isFinite(width * height)) {
                 throw new IllegalArgumentException("Bounding box area must be finite");
             }
+            if (x < 0 || y < 0 || x + width > 1 || y + height > 1) {
+                throw new IllegalArgumentException("Normalized bounding box must be within [0, 1]");
+            }
             this.x = x;
             this.y = y;
             this.width = width;
