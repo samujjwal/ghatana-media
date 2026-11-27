@@ -12,6 +12,7 @@ import com.ghatana.media.runtime.MediaRuntimeContracts.MediaJobListUnavailableEx
 import com.ghatana.media.runtime.MediaSourceAuthorizationContracts;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
+import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -35,6 +36,7 @@ import static org.mockito.Mockito.when;
 
 /** Verifies exact request identity matching on the tenant/principal-scoped job read path. */
 class MediaJobReconciliationReadTest {
+    private static final JsonMapper JSON = JsonMapper.builder().build();
 
     @Test
     void exactRequestIdMatchesAndDifferentRequestIdFailsClosed() {
@@ -222,6 +224,31 @@ class MediaJobReconciliationReadTest {
                     "\"observedAt\":\"")
                     .contains("\"requestId\":\"request-owned-latest\"", "\"principalId\":\"principal-a\"")
                     .doesNotContain("foreign-latest", "owned-older");
+        } finally {
+            runtime.close();
+        }
+    }
+
+    @Test
+    void emptyJobListReturnsStoreSnapshotMetadata() throws Exception {
+        var root = Files.createTempDirectory("media-job-list-empty-snapshot-");
+        var runtime = new MediaRuntime(
+                new MediaRuntimeConfig(true, "local", 8093, 1_024, 64, 1_024,
+                        Duration.ofSeconds(2), 2, "", "", true, false, root),
+                new LocalMediaRuntimeSupport.FileArtifactStore(root),
+                new LocalMediaRuntimeSupport.JobStore(),
+                new LocalMediaRuntimeSupport.StreamStore(), null,
+                List.of(processingProvider(new AtomicInteger())),
+                List.of(new LocalMediaRuntimeSupport.DiagnosticStreamingProvider()));
+        try {
+            ExchangeResult response = request(new MediaHttpHandler(runtime), "/api/v1/jobs");
+
+            assertThat(response.status()).isEqualTo(200);
+            var result = JSON.readTree(response.body());
+            assertThat(result.path("jobs").isArray()).isTrue();
+            assertThat(result.path("jobs").size()).isZero();
+            assertThat(result.path("readVersion").asString()).isNotBlank();
+            assertThat(result.path("observedAt").asString()).isNotBlank();
         } finally {
             runtime.close();
         }
