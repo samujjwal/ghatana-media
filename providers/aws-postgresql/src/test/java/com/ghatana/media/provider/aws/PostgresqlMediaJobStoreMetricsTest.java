@@ -100,6 +100,8 @@ class PostgresqlMediaJobStoreMetricsTest {
         try (AutoCloseable ignored = MediaAwsPostgresqlRuntimeState.installForTesting(integrationEnvironment(bucket));
              PostgresqlMediaJobStore store = new PostgresqlMediaJobStore()) {
             String tenant = "tenant-list-" + suffix;
+            store.create(job("foreign-tenant-latest-" + suffix, "foreign-tenant-request-" + suffix,
+                    "tenant-other-" + suffix, "principal-a", Instant.ofEpochMilli(5_000)));
             store.create(job("foreign-latest-" + suffix, "foreign-request-" + suffix, tenant, "principal-b",
                     Instant.ofEpochMilli(3_000)));
             store.create(job("owned-latest-" + suffix, "owned-request-latest-" + suffix, tenant, "principal-a",
