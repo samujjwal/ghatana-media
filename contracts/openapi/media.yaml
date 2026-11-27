@@ -646,7 +646,6 @@ paths:
                   }
         "503": { $ref: "#/components/responses/Error" }
         "401": { $ref: "#/components/responses/Error" }
-        "503": { $ref: "#/components/responses/Error" }
       x-ghatana-routeId: GET /api/v1/jobs
       x-ghatana-operationId: listMediaJobs
       x-ghatana-security:

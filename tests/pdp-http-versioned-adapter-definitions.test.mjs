@@ -17,6 +17,7 @@ const addFormats = require("ajv-formats");
 const readYaml = (path) => parse(readFileSync(resolve(root, path), "utf8"));
 const adaptersPath = ".product-experience/pdp-2-design-interface-system/api/http-canonical-adapters.yaml";
 const adapters = readYaml(adaptersPath);
+const authority = readYaml(".product-experience/pdp-1-domain-data/authority.yaml");
 const apiConventions = readYaml(".product-experience/pdp-2-design-interface-system/api/conventions.yaml");
 const parity = readYaml(".product-experience/interface-parity/operation-parity.yaml");
 const operations = readYaml(".product-experience/pdp-1-domain-data/operations.yaml");
@@ -336,7 +337,15 @@ function validateAdapterSet(records) {
     }
     assert.ok((record.rejectBeforeEffect ?? record.rejectBeforeRead)?.length > 0, `${record.identity}: missing fail-closed projection rules`);
     assert.ok(record.legacyResultProjection?.disposition);
-    assert.ok(record.legacyResultProjection?.canonicalRequiredButUnrepresentable?.length > 0);
+    const unrepresentable = record.legacyResultProjection?.canonicalRequiredButUnrepresentable;
+    assert.ok(Array.isArray(unrepresentable));
+    if (record.identity === "listMediaJobs" && unrepresentable.length === 0) {
+      assert.equal(record.legacyResultProjection.disposition, "OWNER_PROJECTION_IMPLEMENTED_AND_LOCALLY_VERIFIED");
+      assert.deepEqual(record.legacyResultProjection.sourceFields, ["jobs", "observedAt", "readVersion"]);
+      assert.equal(record.routeDisposition, "V1_CANONICAL_PARITY_NOT_ADMITTED");
+    } else {
+      assert.ok(unrepresentable.length > 0, `${record.identity}: canonicalRequiredButUnrepresentable must name missing result fields`);
+    }
     const ownerOutcomeValues = [...finitePropertyValues(resultSchema, "outcome")];
     if (ownerOutcomeValues.length) {
       assert.equal(record.resultOutcomeBinding?.ownerOutcomeField, "outcome", `${record.identity}: owner outcome requires an explicit mapping`);
@@ -370,6 +379,30 @@ test("all 13 observed HTTP routes have exact versioned canonical schemas and sou
   const rule = apiConventions.ownerDefinedProjectionRules.find(({ id }) => id === "media.api.http-v2-canonical-adapter-boundary.v1");
   assert.ok(rule?.rule.includes("missing authority, request identity, version, currentness, or finality rejects"));
   assert.match(rule?.scopeStatus ?? "", /endpoint activation, legacy adapter implementation, runtime parity, and independent acceptance remain open/u);
+});
+
+test("HTTP authorityRef maps to current policy evidence without creating route admission", () => {
+  const mapping = authority.consentAndIdentity.sharedVerifiedJwtProjection.authorityRefMapping;
+  const mappingRef = ".product-experience/pdp-1-domain-data/authority.yaml#consentAndIdentity/sharedVerifiedJwtProjection/authorityRefMapping";
+  assert.equal(mapping.referenceValue, "decisionId");
+  assert.equal(mapping.requiredOutcome, "ALLOW");
+  assert.equal(mapping.unavailableOrMismatched, "DENY_BEFORE_LOOKUP_OR_EFFECT");
+  assert.ok(mapping.requiredPolicyDecisionFacts.includes("policy-refs-applied-include-the-exact-current-media-policy-for-the-operation"));
+  assert.ok(mapping.requiredPolicyDecisionFacts.includes("trusted-context-exactly-matches-host-verified-tenant-and-principal"));
+  assert.ok(mapping.requiredPolicyDecisionFacts.includes("context-attributes-bind-the-canonical-media-operation"));
+  assert.ok(mapping.notEquivalentTo.includes("workspace-membership"));
+  assert.equal(adapters.canonicalEnvelope.hostContextAssembly.authorityRefMappingRef, mappingRef);
+  assert.equal(adapters.canonicalEnvelope.resultAuthorityRefBinding.resultRef, "canonicalEnvelope.result.authorityRef");
+  assert.match(adapters.canonicalEnvelope.resultAuthorityRefBinding.rule, /same-current-policy-decision-reference/u);
+  assert.equal(adapters.runtimeAdmission, "NOT_ADMITTED");
+  assert.equal(adapters.independentAcceptance, "OPEN");
+
+  const decisionRecord = readFileSync(resolve(root, mapping.decisionRecord), "utf8");
+  const decisionContract = readFileSync(resolve(root, mapping.decisionContract), "utf8");
+  assert.match(decisionRecord, /record PolicyDecisionRecord/u);
+  assert.match(decisionRecord, /String decisionId/u);
+  assert.match(decisionContract, /default boolean isAuthoritative\(\)/u);
+  assert.match(decisionContract, /policyVersion\(\)/u);
 });
 
 test("adapter validation rejects invented operation bindings, route admission, and lost material rejection rules", () => {

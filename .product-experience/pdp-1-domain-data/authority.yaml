@@ -49,7 +49,22 @@ consentAndIdentity:
       authenticatedAt: server-verification-time
       principalId: existing-VerifiedIdentity-principalId-projection
     permissionUse: exact-method-level-RBAC-only; not resource rights, workspace membership, consent, delegation, or approval
-    authorityRef: not-present-in-Shared-VerifiedJwt; resolve required Media authority references from current Media policy/evidence authority
+    authorityRef: not-present-in-Shared-VerifiedJwt; use the current Media policy/evidence decision as defined below
+    authorityRefMapping:
+      decisionRef: .product-experience/decision-log.md#pxd-261
+      decisionRecord: ../ghatana-shared/platform/java/governance/src/main/java/com/ghatana/governance/PolicyDecisionRecord.java
+      decisionContract: ../ghatana-shared/platform/java/governance/src/main/java/com/ghatana/governance/PolicyDecision.java
+      referenceValue: decisionId
+      requiredOutcome: ALLOW
+      requiredPolicyDecisionFacts:
+      - authoritative-with-current-policy-version-and-matched-rule
+      - policy-refs-applied-include-the-exact-current-media-policy-for-the-operation
+      - trusted-context-exactly-matches-host-verified-tenant-and-principal
+      - context-attributes-bind-the-canonical-media-operation
+      - context-target-matches-the-server-resolved-resource-or-declared-read-scope
+      - decision-is-current-and-unexpired-at-each-privileged-effect-boundary
+      unavailableOrMismatched: DENY_BEFORE_LOOKUP_OR_EFFECT
+      notEquivalentTo: [identity, role, workspace-membership, membership-revision, source-rights, consent, delegation, human-approval, durable-grant]
     workspaceRef: not-present-in-Shared-VerifiedJwt; requires a separate current membership and revision resolver
     freshness: request-bound-token-verification-only; does not extend identity beyond expiresAt or authorize session continuation
     callerHints: compare-only; never widen host-attested tenant or principal scope

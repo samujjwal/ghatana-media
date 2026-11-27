@@ -43,7 +43,12 @@ canonicalEnvelope:
     source: host-authentication-and-authorization-context
     callerBodyField: forbidden
     assertedEnvelopeField: trustedContext
-    behavior: assemble from independently host-attested tenantId/principalId/authorityRef; compare any caller assertions and reject mismatch before read or effect
+    authorityRefMappingRef: .product-experience/pdp-1-domain-data/authority.yaml#consentAndIdentity/sharedVerifiedJwtProjection/authorityRefMapping
+    behavior: assemble tenantId and principalId from verified host identity and authorityRef from the current authoritative Media policy decision required by authorityRefMappingRef; compare caller assertions and reject mismatches before read or effect
+  resultAuthorityRefBinding:
+    requestRef: canonicalEnvelope.request.trustedContext.authorityRef
+    resultRef: canonicalEnvelope.result.authorityRef
+    rule: echo-the-same-current-policy-decision-reference-for-the-exact-request; never mint-a-result-reference
   result:
     $schema: http://json-schema.org/draft-07/schema#
     $id: urn:media:http-canonical-result:v2
