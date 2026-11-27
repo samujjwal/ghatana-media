@@ -328,9 +328,34 @@ class MediaDevSimulationIT {
             Map<String, Object> satisfied = spring(0.5, 200, 0);
             satisfied.put("constraints", List.of(m("id", "amplitude", "observable", "POSITION_X", "aggregate", "MAX", "op", "LE", "limit", q(0.2, "m")),
                     m("id", "energy", "observable", "TOTAL_ENERGY", "aggregate", "FINAL", "op", "GE", "limit", q(0.01, "J"))));
-            JsonNode passed15 = solve("validated-" + run, satisfied, 201);
+            String passed15RequestId = "validated-" + run;
+            JsonNode passed15 = solve(passed15RequestId, satisfied, 201);
             assertThat(passed15.path("outcome").asString()).isEqualTo("COMPLETED");
-            for (JsonNode c : stored(passed15).path("verification").path("constraints")) assertThat(c.path("satisfied").asBoolean()).isTrue();
+            String passed15SimulationId = passed15.path("simulationId").asString();
+            String passed15ArtifactSha = passed15.path("resultArtifact").path("sha256").asString();
+            JsonNode passed15Doc = stored(passed15);
+            assertThat(passed15Doc.path("scope").asString()).isEqualTo("DEV_ONLY");
+            assertThat(passed15Doc.path("evidenceClass").asString()).isEqualTo("SIMULATED_MODEL_OUTPUT_NOT_MEASUREMENT_EVIDENCE");
+            assertThat(passed15Doc.path("productionEligible").asBoolean()).isFalse();
+            assertThat(passed15Doc.path("requestId").asString()).isEqualTo(passed15RequestId);
+            String passed15ScenarioSha = passed15Doc.path("scenarioSha256").asString();
+            assertThat(passed15ScenarioSha).matches("[a-f0-9]{64}");
+            JsonNode passed15Final = lastRow(passed15Doc);
+            double[] passed15Truth = spring(0.5, 200, 0, 0.1, 0.3, 2.0);
+            assertThat(passed15Final.get(0).asDouble()).isEqualTo(2.0);
+            // Whole-run envelopes are the existing checked errors for this solver's declared 1e-9 m / 1e-9 m/s adaptive tolerances.
+            double xErrorBound = 2e-7, vErrorBound = 2e-6;
+            assertThat(passed15Final.get(1).asDouble()).as("stored final spring position at 2 s")
+                    .isCloseTo(passed15Truth[0], within(xErrorBound));
+            assertThat(passed15Final.get(3).asDouble()).as("stored final spring velocity at 2 s")
+                    .isCloseTo(passed15Truth[1], within(vErrorBound));
+            double expectedEnergy = 0.5 * 0.5 * passed15Truth[1] * passed15Truth[1]
+                    + 0.5 * 200 * passed15Truth[0] * passed15Truth[0];
+            double energyErrorBound = 0.5 * 0.5 * (2 * Math.abs(passed15Truth[1]) * vErrorBound + vErrorBound * vErrorBound)
+                    + 0.5 * 200 * (2 * Math.abs(passed15Truth[0]) * xErrorBound + xErrorBound * xErrorBound);
+            assertThat(passed15Final.get(8).asDouble()).as("stored final total energy within propagated position/velocity envelope")
+                    .isCloseTo(expectedEnergy, within(energyErrorBound));
+            for (JsonNode c : passed15Doc.path("verification").path("constraints")) assertThat(c.path("satisfied").asBoolean()).isTrue();
 
             // ---------------------------------------------------------------- tenancy, idempotent replay and a changed scenario
             String simId = newton.path("simulationId").asString();
@@ -407,6 +432,17 @@ class MediaDevSimulationIT {
                 assertThat(reopened.path("resultArtifact").path("sha256").asString())
                         .isEqualTo(sha256(artifactBytes(reopened.path("resultArtifact").path("artifactId").asString())));
             }
+            JsonNode passed15Reopened = get(port, tenant, token, SIMS + "/" + passed15SimulationId, 200);
+            assertThat(passed15Reopened.path("outcome").asString()).isEqualTo("COMPLETED");
+            assertThat(passed15Reopened.path("replayed").asBoolean()).isTrue();
+            assertThat(passed15Reopened.path("resultArtifact").path("sha256").asString()).isEqualTo(passed15ArtifactSha);
+            JsonNode passed15ReopenedDoc = stored(passed15Reopened);
+            assertThat(passed15ReopenedDoc.path("requestId").asString()).isEqualTo(passed15RequestId);
+            assertThat(passed15ReopenedDoc.path("scenarioSha256").asString()).isEqualTo(passed15ScenarioSha);
+            assertThat(passed15ReopenedDoc.path("trace").toString()).isEqualTo(passed15Doc.path("trace").toString());
+            JsonNode passed15RequestReplay = solve(passed15RequestId, satisfied, 200);
+            assertThat(passed15RequestReplay.path("simulationId").asString()).isEqualTo(passed15SimulationId);
+            assertThat(passed15RequestReplay.path("resultArtifact").path("sha256").asString()).isEqualTo(passed15ArtifactSha);
             JsonNode newtonAfter = get(port, tenant, token, SIMS + "/" + simId, 200);
             assertThat(newtonAfter.path("result").path("trace").toString()).isEqualTo(newton.path("result").path("trace").toString());
             for (Map.Entry<String, String> entry : abstainedIds.entrySet()) {
