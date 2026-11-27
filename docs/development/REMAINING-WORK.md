@@ -1063,6 +1063,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 
 - **Coordinator scoped Luna audit (2026-11-25):** Reuse the bounded temporal restoration path; its 3-frame minimum matches the selected temporal-median profile, and no source promises one-frame support for spatial filters. Existing tests cover frame order/PTS/timebase/ROI, exact source digest/version, outside-ROI preservation, and no quality-improvement claim. The synthetic decoder integration and admission evidence were reused without rerunning suites. Lawful real source/reference evidence, qualified codec/host execution, durable canonical output and J-08 acceptance remain open; task remains OPEN.
 
+- **Additional progress (2026-11-27):** The local admission scenario now covers an out-of-frame ROI rejected during decoded-frame construction; the runtime reports UNAVAILABLE/SOURCE_READ_UNAVAILABLE, emits no candidate, performs one decoder call, and preserves source identity/digest. Focused selector passes 1/1. This is malformed decoded-input handling after the source read only; lawful source/reference, qualified codec/host, canonical output registration, independent quality, and J-08 acceptance remain open.
 **`media.dev.reference-guided-generation`** · OPEN
 - **Where:** `modules/production/timeline`, `modules/production/rendering`
 - **What:** Generate source-conditioned scenes only with rights and real model or deterministic authored templates.

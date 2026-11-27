@@ -106,6 +106,32 @@ class VideoEnhancementAdmissionIntegrationTest {
     }
 
     @Test
+    void decoderFrameWithOutOfBoundsRoiReturnsUnavailableWithoutCandidateOrSourceMutation() {
+        ArtifactBinding originalBinding = SOURCE;
+        AtomicInteger decoderCalls = new AtomicInteger();
+        Result malformedRoi = TemporalVideoRestoration.restore(
+                new RestorationRequest("request-j08-decoder-out-of-bounds-roi", SOURCE,
+                        FilterParameters.temporalMedian()),
+                (binding, operation) -> new AuthorityDecision(AuthorityStatus.ALLOWED, "source-allow-j08"),
+                binding -> {
+                    decoderCalls.incrementAndGet();
+                    return new DecodedFrameSequence(SOURCE.artifactId(), SOURCE.versionId(), SOURCE.sha256(),
+                            new TimeBase(1, 30), List.of(
+                                    new Frame(0, 0, 1, 1, new Roi(1, 0, 1, 1), new byte[] {1, 2, 3})));
+                },
+                Optional.empty(),
+                null,
+                null);
+
+        assertThat(malformedRoi.outcome()).isEqualTo(Outcome.UNAVAILABLE);
+        assertThat(malformedRoi.reason()).contains(Reason.SOURCE_READ_UNAVAILABLE);
+        assertThat(malformedRoi.candidate()).isEmpty();
+        assertThat(decoderCalls).hasValue(1);
+        assertThat(SOURCE).isSameAs(originalBinding);
+        assertThat(SOURCE.sha256()).isEqualTo("d".repeat(64));
+    }
+
+    @Test
     void decoderReturningNoFrameSequenceIsUnavailableWithoutCandidateOrSourceMutation() {
         ArtifactBinding originalBinding = SOURCE;
         AtomicInteger decoderCalls = new AtomicInteger();
