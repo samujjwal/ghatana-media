@@ -93,6 +93,14 @@ class ScenarioFaultTest {
     }
 
     @Test
+    void unsupportedModelTypeIsRejectedAtModelTypePath() {
+        Map<String, Object> unsupported = scenario(
+                m("type", "UNSUPPORTED_MODEL", "mass", q(1, "kg"), "force", q(1, "N")),
+                m("position", q(1, "m"), "velocity", q(0, "m/s")), goodSolver());
+        refused(unsupported, Kind.INVALID, "$.model.type");
+    }
+
+    @Test
     void requestBudgetsAreCeilingsNotSolverOutcomes() {
         Map<String, Object> steps = spring(1, 1, 0, goodSolver());
         ((Map<String, Object>) steps.get("solver")).put("maxAcceptedSteps", 10_001);

@@ -1645,6 +1645,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 
 
 
+- **Additional progress (2026-11-27):** ScenarioFaultTest.unsupportedModelTypeIsRejectedAtModelTypePath verifies an unsupported model type returns Kind.INVALID at $.model.type. The focused selector passes 1/1. This is parser validation only; no solver or scientific qualification is implied. J-14 remains OPEN for owner-attributable inputs, independent scientific review, authenticated journey bindings, and full acceptance.
 **`media.dev.outcome-validated-simulation-pass`** · OPEN
 - **Where:** `integration-tests`, `modules/integration-tests`, `libs/audio-video-ui`, `modules/production/simulation`
 - **What:** J-15 — Executable constrained pass with semantic validity and abstention.
