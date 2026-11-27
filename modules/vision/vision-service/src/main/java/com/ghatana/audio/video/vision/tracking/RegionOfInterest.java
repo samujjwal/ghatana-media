@@ -17,6 +17,10 @@ package com.ghatana.audio.video.vision.tracking;
  */
 public record RegionOfInterest(int x, int y, int width, int height) {
 
+    public RegionOfInterest {
+        requireValidCoordinates(x, y, width, height);
+    }
+
     /** Typed ROI refusal; {@link #code()} is stable and surfaced to callers. */
     public static final class RoiRefusedException extends IllegalArgumentException {
         private final String code;
@@ -27,12 +31,28 @@ public record RegionOfInterest(int x, int y, int width, int height) {
     /** Structural validation of raw JSON numbers (so a fractional or non-numeric value is refused, never rounded). */
     public static RegionOfInterest of(Object x, Object y, Object width, Object height) {
         long[] v = {integer(x, "x"), integer(y, "y"), integer(width, "width"), integer(height, "height")};
-        if (v[0] < 0 || v[1] < 0) throw new RoiRefusedException("ROI_NEGATIVE", "roi x and y must not be negative");
-        if (v[2] < 1 || v[3] < 1) throw new RoiRefusedException("ROI_ZERO_SIZE", "roi width and height must be positive");
-        if (v[0] + v[2] > Integer.MAX_VALUE || v[1] + v[3] > Integer.MAX_VALUE) {
+        requireValidCoordinates(v[0], v[1], v[2], v[3]);
+        return new RegionOfInterest((int) v[0], (int) v[1], (int) v[2], (int) v[3]);
+    }
+
+    private static void requireValidCoordinates(long x, long y, long width, long height) {
+        if (x < 0 || y < 0) throw new RoiRefusedException("ROI_NEGATIVE", "roi x and y must not be negative");
+        if (width < 1 || height < 1) {
+            throw new RoiRefusedException("ROI_ZERO_SIZE", "roi width and height must be positive");
+        }
+        final long right;
+        final long bottom;
+        try {
+            right = Math.addExact(x, width);
+            bottom = Math.addExact(y, height);
+        } catch (ArithmeticException overflow) {
             throw new RoiRefusedException("ROI_MALFORMED", "roi extent overflows");
         }
-        return new RegionOfInterest((int) v[0], (int) v[1], (int) v[2], (int) v[3]);
+        if (x > Integer.MAX_VALUE || y > Integer.MAX_VALUE
+                || width > Integer.MAX_VALUE || height > Integer.MAX_VALUE
+                || right > Integer.MAX_VALUE || bottom > Integer.MAX_VALUE) {
+            throw new RoiRefusedException("ROI_MALFORMED", "roi extent overflows");
+        }
     }
 
     private static long integer(Object value, String field) {

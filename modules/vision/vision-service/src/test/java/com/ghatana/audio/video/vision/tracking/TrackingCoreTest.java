@@ -179,6 +179,16 @@ class TrackingCoreTest {
                 e -> assertThat(e.code()).isEqualTo("ROI_MALFORMED"));
         assertThatThrownBy(() -> RegionOfInterest.of(Integer.MAX_VALUE, 0, 1, 1))
                 .isInstanceOfSatisfying(RoiRefusedException.class, e -> assertThat(e.code()).isEqualTo("ROI_MALFORMED"));
+        assertThatThrownBy(() -> RegionOfInterest.of(Long.MAX_VALUE, 0, 1, 1))
+                .isInstanceOfSatisfying(RoiRefusedException.class, e -> assertThat(e.code()).isEqualTo("ROI_MALFORMED"));
+        assertThatThrownBy(() -> RegionOfInterest.of(0, Long.MAX_VALUE, 1, 1))
+                .isInstanceOfSatisfying(RoiRefusedException.class, e -> assertThat(e.code()).isEqualTo("ROI_MALFORMED"));
+        assertThatThrownBy(() -> RegionOfInterest.of(Long.MAX_VALUE, 0, Long.MAX_VALUE, 1))
+                .isInstanceOfSatisfying(RoiRefusedException.class, e -> assertThat(e.code()).isEqualTo("ROI_MALFORMED"));
+        assertThatThrownBy(() -> new RegionOfInterest(-1, 0, 1, 1))
+                .isInstanceOfSatisfying(RoiRefusedException.class, e -> assertThat(e.code()).isEqualTo("ROI_NEGATIVE"));
+        assertThatThrownBy(() -> new RegionOfInterest(0, 0, 0, 1))
+                .isInstanceOfSatisfying(RoiRefusedException.class, e -> assertThat(e.code()).isEqualTo("ROI_ZERO_SIZE"));
         RegionOfInterest roi = new RegionOfInterest(600, 300, 40, 60);
         roi.requireWithin(640, 360);
         assertThatThrownBy(() -> new RegionOfInterest(600, 300, 41, 60).requireWithin(640, 360))

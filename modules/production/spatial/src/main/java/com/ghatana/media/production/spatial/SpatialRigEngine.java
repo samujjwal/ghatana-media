@@ -807,6 +807,11 @@ public final class SpatialRigEngine {
         if (declaredLength > binary.length() || binary.length() - declaredLength > 3) {
             throw invalidGlbBufferData();
         }
+        for (int index = declaredLength; index < binary.length(); index++) {
+            if (bytes[binary.offset() + index] != 0) {
+                throw new IllegalArgumentException("GLB binary buffer padding must contain zero bytes");
+            }
+        }
     }
 
     private static IllegalArgumentException invalidGlbBufferData() {

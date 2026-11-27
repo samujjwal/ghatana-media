@@ -483,6 +483,39 @@ class SpatialRigEngineTest {
     }
 
     @Test
+    void publicGlbArtifactRejectsNonZeroBinaryBufferPadding() throws Exception {
+        var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
+        var rig = new SpatialRigEngine.Rig("rig-bin-padding", glbFrame(), "UNIT_QUATERNION_XYZW", List.of(source),
+                List.of(bone("root", null, SpatialRigEngine.LocalTransform.identity(), Math.PI)),
+                Map.of("root", List.of(
+                        key(0, 1, SpatialRigEngine.Vec3.ZERO, SpatialRigEngine.Quaternion.IDENTITY),
+                        key(1, 1, new SpatialRigEngine.Vec3(1, 0, 0), SpatialRigEngine.Quaternion.IDENTITY))),
+                "project:edit:revision-8");
+        var artifact = engine.exportGlb(rig, ignored -> SpatialRigEngine.RightsOutcome.ELIGIBLE);
+        byte[] png = pngFixture();
+        assertThat(png.length % 4).isNotZero();
+        int imageOffset = glbDeclaredBufferLength(artifact.bytes());
+        var padded = withEmbeddedImageResource(artifact, png, imageOffset, png.length, 0, "image/png");
+
+        byte[] malformed = padded.bytes();
+        ByteBuffer input = ByteBuffer.wrap(malformed).order(ByteOrder.LITTLE_ENDIAN);
+        int jsonLength = input.getInt(12);
+        int binaryHeader = 20 + jsonLength;
+        int binaryLength = input.getInt(binaryHeader);
+        int binaryOffset = binaryHeader + 8;
+        int declaredLength = glbDeclaredBufferLength(malformed);
+        assertThat(binaryLength - declaredLength).isBetween(1, 3);
+        malformed[binaryOffset + binaryLength - 1] = 0x01;
+        String digest = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(malformed));
+
+        assertThatIllegalArgumentException().isThrownBy(() -> new SpatialRigEngine.GlbArtifact(
+                padded.rigId(), padded.sourceProjectRevisionRef(), padded.frameRef(), padded.frameVersionRef(),
+                padded.sourceVersions(), padded.mimeType(), padded.timeEncoding(), padded.lossDisposition(),
+                digest, malformed))
+                .withMessageContaining("padding must contain zero bytes");
+    }
+
+    @Test
     void publicGlbArtifactRejectsDuplicateLineageJsonKeys() throws Exception {
         var source = new SpatialRigEngine.SourceVersionRef("tenant-a", "artifact-rig", "version-4");
         var rig = new SpatialRigEngine.Rig("rig-duplicate", glbFrame(), "UNIT_QUATERNION_XYZW", List.of(source),
