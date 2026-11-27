@@ -41,6 +41,33 @@ export interface BrowserCameraCaptureAdapterOptions extends BrowserCameraHostOpt
   readonly maxSessionMillis?: number;
 }
 
+export type BrowserCameraIndicatorDevice = "camera" | "microphone";
+
+/** Detached host observation shaped for the read-only MediaCaptureIndicator props. */
+export type BrowserCameraIndicatorTrackObservation =
+  | {
+    readonly status: "observed";
+    readonly selectedTrack: { readonly kind: "audio" | "video"; readonly readyState: "live" | "ended" } | null;
+    readonly streamClosed?: boolean;
+  }
+  | { readonly status: "unknown" };
+
+export interface BrowserCameraIndicatorObservation {
+  readonly device: BrowserCameraIndicatorDevice;
+  readonly permission: CameraHostPermissionDisposition;
+  readonly trackObservation: BrowserCameraIndicatorTrackObservation;
+}
+
+/** Read-only browser host observation. Reading it never requests permission or opens a device. */
+export interface BrowserCameraIndicatorReadbackPort {
+  readIndicator(device: BrowserCameraIndicatorDevice): Promise<BrowserCameraIndicatorObservation>;
+}
+
+export interface BrowserCameraCaptureHost {
+  readonly adapter: CameraCaptureAdapter;
+  readonly indicator: BrowserCameraIndicatorReadbackPort;
+}
+
 interface SizedBrowserCameraDevice extends BrowserCameraDevice { readonly width?: number; readonly height?: number }
 
 type BrowserPermissionStatus = { state: PermissionState; addEventListener(type: "change", listener: () => void): void;
@@ -75,7 +102,9 @@ function stopAllStreamTracks(stream: Pick<MediaStream, "getTracks">, knownTrack?
 }
 
 /** Builds a fail-closed browser port. Permission `prompt` is UNKNOWN; this adapter never prompts. */
-export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOptions): BrowserCameraMediaDevicePort {
+export function createBrowserCameraMediaDevicePort(
+  options: BrowserCameraHostOptions,
+): BrowserCameraMediaDevicePort & BrowserCameraIndicatorReadbackPort {
   const media = options.browser?.mediaDevices ?? (typeof navigator === "undefined" ? undefined : navigator.mediaDevices);
   const permissionApi = options.browser?.permissions ?? (typeof navigator === "undefined" ? undefined : navigator.permissions);
   const documentApi = options.browser?.document ?? (typeof document === "undefined" ? undefined : document);
@@ -89,14 +118,44 @@ export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOpt
     if (!Number.isSafeInteger(value) || value <= 0) throw new RangeError(`${name} must be a positive safe integer`);
   }
 
-  const permission: CameraHostPermissionPort = {
-    async check(): Promise<CameraHostPermissionDisposition> {
-      if (!permissionApi?.query) return "UNKNOWN";
+  let selectedTrack: MediaStreamTrack | null = null;
+  let selectedTrackStream: MediaStream | null = null;
+  let trackObservationKnown = true;
+  let selectionGeneration = 0;
+
+  const readSelectedTrackObservation = (): BrowserCameraIndicatorTrackObservation => {
+    if (!trackObservationKnown) return { status: "unknown" };
+    if (!selectedTrack) return { status: "observed", selectedTrack: null };
+    try {
+      const kind = selectedTrack.kind;
+      const readyState = selectedTrack.readyState;
+      if ((kind !== "audio" && kind !== "video") || (readyState !== "live" && readyState !== "ended")) {
+        return { status: "unknown" };
+      }
+      let streamClosed: boolean | undefined;
       try {
-        const status = await permissionApi.query({ name: "camera" as PermissionName });
-        return status.state === "granted" ? "GRANTED" : status.state === "denied" ? "DENIED" : "UNKNOWN";
-      } catch { return "UNKNOWN"; }
-    },
+        if (typeof selectedTrackStream?.active === "boolean") streamClosed = !selectedTrackStream.active;
+      } catch { /* a valid track readback remains usable if stream activity is unavailable */ }
+      return {
+        status: "observed",
+        selectedTrack: { kind, readyState },
+        ...(streamClosed === undefined ? {} : { streamClosed }),
+      };
+    } catch {
+      return { status: "unknown" };
+    }
+  };
+
+  const readCameraPermission = async (): Promise<CameraHostPermissionDisposition> => {
+    if (!permissionApi?.query) return "UNKNOWN";
+    try {
+      const status = await permissionApi.query({ name: "camera" as PermissionName });
+      return status.state === "granted" ? "GRANTED" : status.state === "denied" ? "DENIED" : "UNKNOWN";
+    } catch { return "UNKNOWN"; }
+  };
+
+  const permission: CameraHostPermissionPort = {
+    async check(): Promise<CameraHostPermissionDisposition> { return readCameraPermission(); },
     subscribe(_request, listener) {
       if (!permissionApi?.query) return () => undefined;
       let status: BrowserPermissionStatus | undefined;
@@ -138,6 +197,10 @@ export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOpt
 
   const devices: BrowserCameraDevicePort = {
     async openExact(request: CaptureRequest, signal: AbortSignal): Promise<BrowserCameraDevice> {
+      const generation = ++selectionGeneration;
+      trackObservationKnown = false;
+      selectedTrack = null;
+      selectedTrackStream = null;
       const deviceId = deviceIdOf(request.sourceIdentity);
       if (!media?.getUserMedia || !documentApi || !deviceId || options.sourceVersionRef(deviceId) !== request.sourceVersionRef) {
         throw new Error("requested browser camera source is unavailable or has a different revision");
@@ -279,6 +342,11 @@ export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOpt
         },
         stop: stopWithListenerCleanup,
       };
+      if (generation === selectionGeneration) {
+        selectedTrack = track;
+        selectedTrackStream = stream;
+        trackObservationKnown = true;
+      }
       return browserDevice;
     },
   };
@@ -304,7 +372,21 @@ export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOpt
       }, close() {} };
     },
   };
-  return new BrowserCameraMediaDevicePort(permission, devices, codecs);
+  const mediaDevicePort = new BrowserCameraMediaDevicePort(permission, devices, codecs);
+  return Object.assign(mediaDevicePort, {
+    async readIndicator(device: BrowserCameraIndicatorDevice): Promise<BrowserCameraIndicatorObservation> {
+      if (device === "microphone") {
+        // This host observes camera tracks and camera permission only. It has no
+        // microphone readback, so never reuse camera data for the microphone UI.
+        return { device, permission: "UNKNOWN", trackObservation: { status: "unknown" } };
+      }
+      const [permissionState, trackObservation] = await Promise.all([
+        readCameraPermission(),
+        Promise.resolve(readSelectedTrackObservation()),
+      ]);
+      return { device: "camera", permission: permissionState, trackObservation };
+    },
+  });
 }
 
 /**
@@ -312,7 +394,7 @@ export function createBrowserCameraMediaDevicePort(options: BrowserCameraHostOpt
  * The caller still supplies trusted Media consent and the host capture clock;
  * the browser Permissions API remains the authority for browser permission.
  */
-export function createBrowserCameraCaptureAdapter(options: BrowserCameraCaptureAdapterOptions): CameraCaptureAdapter {
+export function createBrowserCameraCaptureHost(options: BrowserCameraCaptureAdapterOptions): BrowserCameraCaptureHost {
   if (!options || typeof options !== "object"
     || typeof options.consent?.checkFresh !== "function"
     || typeof options.consent?.subscribe !== "function"
@@ -322,12 +404,25 @@ export function createBrowserCameraCaptureAdapter(options: BrowserCameraCaptureA
     throw new TypeError("trusted camera consent and host frame-clock ports are required");
   }
   const { consent, frameClock, maxConsentAgeMillis, maxFrames, maxSessionMillis, ...hostOptions } = options;
-  return new CameraCaptureAdapter({
-    mediaDevices: createBrowserCameraMediaDevicePort(hostOptions),
-    consent,
-    frameClock,
-    maxConsentAgeMillis,
-    maxFrames,
-    maxSessionMillis,
-  });
+  const mediaDevices = createBrowserCameraMediaDevicePort(hostOptions);
+  return {
+    adapter: new CameraCaptureAdapter({
+      mediaDevices,
+      consent,
+      frameClock,
+      maxConsentAgeMillis,
+      maxFrames,
+      maxSessionMillis,
+    }),
+    indicator: mediaDevices,
+  };
+}
+
+/**
+ * Compose the concrete browser host with the governed camera capture adapter.
+ * The caller still supplies trusted Media consent and the host capture clock;
+ * the browser Permissions API remains the authority for browser permission.
+ */
+export function createBrowserCameraCaptureAdapter(options: BrowserCameraCaptureAdapterOptions): CameraCaptureAdapter {
+  return createBrowserCameraCaptureHost(options).adapter;
 }

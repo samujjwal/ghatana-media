@@ -55,8 +55,8 @@ public final class TemporalVideoRestoration {
         public ArtifactBinding {
             tenantId = exactText(tenantId, "tenantId", 255);
             principalId = exactText(principalId, "principalId", 255);
-            artifactId = opaqueId(artifactId, "artifactId", 128);
-            versionId = opaqueId(versionId, "versionId", 128);
+            artifactId = exactOpaqueId(artifactId, "artifactId", 128);
+            versionId = exactOpaqueId(versionId, "versionId", 128);
             sha256 = exactText(sha256, "sha256", 64).toLowerCase(java.util.Locale.ROOT);
             if (!sha256.matches(SHA256)) throw invalid("sha256 must be a 64-character SHA-256 hex digest");
             purposeRef = exactText(purposeRef, "purposeRef", 256);
@@ -278,9 +278,10 @@ public final class TemporalVideoRestoration {
             TimeBase timeBase,
             List<Frame> frames) {
         public DecodedFrameSequence {
-            artifactId = opaqueId(artifactId, "sequence.artifactId", 128);
-            versionId = opaqueId(versionId, "sequence.versionId", 128);
-            artifactSha256 = requiredText(artifactSha256, "sequence.artifactSha256", 64).toLowerCase(java.util.Locale.ROOT);
+            artifactId = exactOpaqueId(artifactId, "sequence.artifactId", 128);
+            versionId = exactOpaqueId(versionId, "sequence.versionId", 128);
+            artifactSha256 = exactText(artifactSha256, "sequence.artifactSha256", 64)
+                    .toLowerCase(java.util.Locale.ROOT);
             if (!artifactSha256.matches(SHA256)) throw invalid("sequence artifact SHA-256 is invalid");
             Objects.requireNonNull(timeBase, "timeBase");
             Objects.requireNonNull(frames, "frames");
@@ -347,10 +348,10 @@ public final class TemporalVideoRestoration {
             }
             methodVersion = requiredText(methodVersion, "methodVersion", 64);
             requestId = opaqueId(requestId, "requestId", 128);
-            sourceArtifactId = opaqueId(sourceArtifactId, "sourceArtifactId", 128);
-            sourceVersionId = opaqueId(sourceVersionId, "sourceVersionId", 128);
-            sourceSha256 = requiredText(sourceSha256, "sourceSha256", 64).toLowerCase(java.util.Locale.ROOT);
-            sourceRightsDecisionId = requiredText(sourceRightsDecisionId, "sourceRightsDecisionId", 256);
+            sourceArtifactId = exactOpaqueId(sourceArtifactId, "sourceArtifactId", 128);
+            sourceVersionId = exactOpaqueId(sourceVersionId, "sourceVersionId", 128);
+            sourceSha256 = exactText(sourceSha256, "sourceSha256", 64).toLowerCase(java.util.Locale.ROOT);
+            sourceRightsDecisionId = exactText(sourceRightsDecisionId, "sourceRightsDecisionId", 256);
             parameterVersion = opaqueId(parameterVersion, "parameterVersion", 128);
             parameterSha256 = requiredText(parameterSha256, "parameterSha256", 64).toLowerCase(java.util.Locale.ROOT);
             candidateSha256 = requiredText(candidateSha256, "candidateSha256", 64).toLowerCase(java.util.Locale.ROOT);

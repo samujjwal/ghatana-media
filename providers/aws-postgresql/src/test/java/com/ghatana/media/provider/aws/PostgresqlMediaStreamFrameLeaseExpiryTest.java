@@ -1,6 +1,7 @@
 package com.ghatana.media.provider.aws;
 
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamKind;
+import com.ghatana.media.runtime.MediaRuntimeContracts.StreamFinality;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamSession;
 import com.ghatana.media.runtime.MediaRuntimeContracts.StreamState;
 import org.junit.jupiter.api.Test;
@@ -129,6 +130,45 @@ class PostgresqlMediaStreamFrameLeaseExpiryTest {
                     .hasMessageContaining("sequence is not contiguous");
             assertThat(streams.find(connectedOrdinary.tenantId(), connectedOrdinary.sessionId()))
                     .contains(connectedOrdinary);
+        }
+    }
+
+    @Test
+    void persistsCanonicalSourceRefAndSequenceStartAcrossFrameAndReconnect() throws Exception {
+        String bucket = "media-stream-source-binding-" + UUID.randomUUID().toString().replace("-", "");
+        createBucket(bucket);
+        try (AutoCloseable installed = MediaAwsPostgresqlRuntimeState.installForTesting(environment(bucket));
+             PostgresqlMediaStreamSessionStore streams = new PostgresqlMediaStreamSessionStore()) {
+            Instant createdAt = Instant.now();
+            String tenantId = "tenant-source-binding";
+            String sessionId = "stream-source-binding-" + UUID.randomUUID();
+            String sourceRef = "capture://microphone-7/source@v4";
+            long sequenceStart = 7;
+            StreamSession opened = streams.create(new StreamSession(
+                    tenantId, sessionId, "principal-source-binding", StreamKind.AUDIO,
+                    "provider-source-binding", StreamState.OPEN, sequenceStart - 1, 0, 1024, 0,
+                    createdAt.plusSeconds(120), createdAt, createdAt, null, Map.of(), 1,
+                    "", 0, StreamFinality.NONE,
+                    null, "", null, null, null, null, sourceRef, sequenceStart), TOKEN_HASH);
+
+            assertThat(opened.sourceRef()).isEqualTo(sourceRef);
+            assertThat(opened.sequenceStart()).isEqualTo(sequenceStart);
+            StreamSession connected = streams.connect(opened, TOKEN_HASH, Instant.now().plusSeconds(60));
+            assertThatThrownBy(() -> streams.beginFrame(connected, sequenceStart - 1, "pre-start"))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("not contiguous");
+            StreamSession pending = streams.beginFrame(connected, sequenceStart, "first-bound-frame");
+            StreamSession accepted = streams.recordFrame(pending, sequenceStart, 64, false);
+            StreamSession reconnected = streams.connect(accepted, TOKEN_HASH, Instant.now().plusSeconds(60));
+
+            try (PostgresqlMediaStreamSessionStore restarted = new PostgresqlMediaStreamSessionStore()) {
+                StreamSession readback = restarted.find(tenantId, sessionId).orElseThrow();
+                assertThat(readback).isEqualTo(reconnected);
+                assertThat(readback.sourceRef()).isEqualTo(sourceRef);
+                assertThat(readback.sequenceStart()).isEqualTo(sequenceStart);
+                assertThat(readback.lastSequence()).isEqualTo(sequenceStart);
+                assertThat(readback.clockDomainRef()).isNull();
+            }
         }
     }
 

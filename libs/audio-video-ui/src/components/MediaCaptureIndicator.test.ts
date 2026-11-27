@@ -1,6 +1,7 @@
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { createBrowserCameraMediaDevicePort } from "@audio-video/client";
 import {
   deriveCaptureIndicatorState,
   MediaCaptureIndicator,
@@ -34,6 +35,24 @@ describe("deriveCaptureIndicatorState", () => {
 });
 
 describe("MediaCaptureIndicator", () => {
+  it("projects camera host readback and leaves unsupported microphone observation unresolved", async () => {
+    let deviceOpens = 0;
+    const host = createBrowserCameraMediaDevicePort({
+      sourceVersionRef: () => undefined,
+      browser: {
+        mediaDevices: { getUserMedia: async () => { deviceOpens++; throw new Error("indicator must not open a device"); } },
+        permissions: { query: async () => ({ state: "granted" as PermissionState }) },
+      } as never,
+    });
+
+    const camera = await host.readIndicator("camera");
+    const microphone = await host.readIndicator("microphone");
+
+    expect(deriveCaptureIndicatorState(camera.device, camera.permission, camera.trackObservation)).toBe("off");
+    expect(deriveCaptureIndicatorState(microphone.device, microphone.permission, microphone.trackObservation)).toBe("awaiting-permission");
+    expect(deviceOpens).toBe(0);
+  });
+
   it("announces the camera activity state and states its evidence limits accessibly", () => {
     const html = renderToStaticMarkup(React.createElement(MediaCaptureIndicator, {
       device: "camera",

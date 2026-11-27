@@ -104,7 +104,7 @@ export {
   CameraCaptureError,
   CameraCaptureSession,
 } from './camera-capture-adapter.js';
-export { createBrowserCameraCaptureAdapter, createBrowserCameraMediaDevicePort } from './browser-camera-host.js';
+export { createBrowserCameraCaptureAdapter, createBrowserCameraCaptureHost, createBrowserCameraMediaDevicePort } from './browser-camera-host.js';
 export { BrowserCaptureAdapter, BrowserCaptureError } from './browser-capture-adapter.js';
 export type {
   BrowserCaptureAdapterOptions,
@@ -112,7 +112,15 @@ export type {
   BrowserOriginPermission,
   BrowserVisibility,
 } from './browser-capture-adapter.js';
-export type { BrowserCameraCaptureAdapterOptions, BrowserCameraHostOptions } from './browser-camera-host.js';
+export type {
+  BrowserCameraCaptureAdapterOptions,
+  BrowserCameraCaptureHost,
+  BrowserCameraHostOptions,
+  BrowserCameraIndicatorDevice,
+  BrowserCameraIndicatorObservation,
+  BrowserCameraIndicatorReadbackPort,
+  BrowserCameraIndicatorTrackObservation,
+} from './browser-camera-host.js';
 export type {
   CameraCaptureAdapterOptions,
   CameraCaptureErrorCode,

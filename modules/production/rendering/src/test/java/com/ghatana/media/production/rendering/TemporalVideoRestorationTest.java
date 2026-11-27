@@ -41,6 +41,12 @@ class TemporalVideoRestorationTest {
         assertThatThrownBy(() -> new ArtifactBinding(" tenant-a", "principal-a", "source", "v3", SOURCE_SHA,
                 "purpose:preserve-video", List.of("rights:video"), "policy:source:v3"))
                 .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("tenantId");
+        assertThatThrownBy(() -> new ArtifactBinding("tenant-a", "principal-a", " source", "v3", SOURCE_SHA,
+                "purpose:preserve-video", List.of("rights:video"), "policy:source:v3"))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("artifactId");
+        assertThatThrownBy(() -> new ArtifactBinding("tenant-a", "principal-a", "source", "v3 ", SOURCE_SHA,
+                "purpose:preserve-video", List.of("rights:video"), "policy:source:v3"))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("versionId");
         assertThatThrownBy(() -> new ArtifactBinding("tenant-a", "principal-a ", "source", "v3", SOURCE_SHA,
                 "purpose:preserve-video", List.of("rights:video"), "policy:source:v3"))
                 .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("principalId");
@@ -62,6 +68,52 @@ class TemporalVideoRestorationTest {
         assertThatThrownBy(() -> new ArtifactBinding("\u2003tenant-a", "principal-a", "source", "v3", SOURCE_SHA,
                 "purpose:preserve-video", List.of("rights:video"), "policy:source:v3"))
                 .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("tenantId");
+    }
+
+    @Test
+    void paddedDecodedSourceIdentityCannotPassTheExactSourceBinding() {
+        Roi roi = new Roi(0, 0, 1, 1);
+        for (String[] identity : List.of(
+                new String[] {" source", "v3", SOURCE_SHA},
+                new String[] {"source", "v3 ", SOURCE_SHA},
+                new String[] {"source", "v3", " " + SOURCE_SHA})) {
+            AtomicInteger sourceReads = new AtomicInteger();
+            Result result = TemporalVideoRestoration.restore(request(),
+                    (binding, operation) -> allowed("source-decision-v3"),
+                    binding -> {
+                        sourceReads.incrementAndGet();
+                        return sequence(identity[2], stableFrames(), roi, identity[0], identity[1]);
+                    }, Optional.empty(), null, null);
+
+            assertThat(result.outcome()).isEqualTo(Outcome.UNAVAILABLE);
+            assertThat(result.reason()).contains(Reason.SOURCE_READ_UNAVAILABLE);
+            assertThat(result.candidate()).isEmpty();
+            assertThat(sourceReads).hasValue(1);
+        }
+    }
+
+    @Test
+    void candidateLineageRejectsPaddedSourceRevisionAndRightsDecisionIdentity() {
+        CandidateLineage lineage = TemporalVideoRestoration.restore(request(),
+                (binding, operation) -> allowed("source-decision-v3"),
+                binding -> sequence(SOURCE_SHA, stableFrames(), new Roi(0, 0, 1, 1)),
+                Optional.empty(), null, null).candidate().orElseThrow().lineage();
+
+        assertThatThrownBy(() -> new CandidateLineage(lineage.operationId(), lineage.profileId(),
+                lineage.methodVersion(), lineage.requestId(), " source", lineage.sourceVersionId(),
+                lineage.sourceSha256(), lineage.sourceRightsDecisionId(), lineage.parameterVersion(),
+                lineage.parameterSha256(), lineage.candidateSha256(), lineage.outputDisclosure()))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("sourceArtifactId");
+        assertThatThrownBy(() -> new CandidateLineage(lineage.operationId(), lineage.profileId(),
+                lineage.methodVersion(), lineage.requestId(), lineage.sourceArtifactId(), "v3 ",
+                lineage.sourceSha256(), lineage.sourceRightsDecisionId(), lineage.parameterVersion(),
+                lineage.parameterSha256(), lineage.candidateSha256(), lineage.outputDisclosure()))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("sourceVersionId");
+        assertThatThrownBy(() -> new CandidateLineage(lineage.operationId(), lineage.profileId(),
+                lineage.methodVersion(), lineage.requestId(), lineage.sourceArtifactId(), lineage.sourceVersionId(),
+                lineage.sourceSha256(), " source-decision-v3 ", lineage.parameterVersion(),
+                lineage.parameterSha256(), lineage.candidateSha256(), lineage.outputDisclosure()))
+                .isInstanceOf(InvalidRestorationInputException.class).hasMessageContaining("sourceRightsDecisionId");
     }
 
     @Test

@@ -24,7 +24,7 @@ function setup(state: PermissionState = "granted", options: { available?: boolea
   let finishOpen!: () => void; let finishPlay!: () => void; let revoke!: () => void;
   const trackListeners: Array<() => void> = [];
   const width = options.videoWidth ?? 2; const height = options.videoHeight ?? 2;
-  const track = { readyState: "live", getSettings: () => ({ deviceId: options.deviceId ?? "device-A", width, height }),
+  const track = { kind: "video", readyState: "live", getSettings: () => ({ deviceId: options.deviceId ?? "device-A", width, height }),
     addEventListener: (_: string, listener: () => void) => trackListeners.push(listener),
     removeEventListener: (_: string, listener: () => void) => {
       if (options.listenerRemovalFailure) throw new Error("synthetic listener cleanup failure");
@@ -105,6 +105,28 @@ async function expectCode(promise: Promise<unknown>, code: string) {
 }
 
 describe("concrete browser camera host", () => {
+  it("returns camera-only indicator readback without opening a device or inferring microphone state", async () => {
+    const h = setup("granted");
+
+    const camera = await h.port.readIndicator("camera");
+    const microphone = await h.port.readIndicator("microphone");
+
+    expect(camera).toEqual({ device: "camera", permission: "GRANTED",
+      trackObservation: { status: "observed", selectedTrack: null } });
+    expect(microphone).toEqual({ device: "microphone", permission: "UNKNOWN", trackObservation: { status: "unknown" } });
+    expect(h.counts()).toEqual({ opens: 0, stops: 0, reads: 0, draws: 0 });
+  });
+
+  it("reads selected camera kind and readyState without exposing browser identifiers", async () => {
+    const h = setup();
+    const session = await h.adapter.openSession(request);
+
+    expect(await h.port.readIndicator("camera")).toEqual({ device: "camera", permission: "GRANTED",
+      trackObservation: { status: "observed", selectedTrack: { kind: "video", readyState: "live" } } });
+
+    await session.close();
+  });
+
   it("routes an admitted browser camera through the recorder capture SPI and closes its host stream", async () => {
     const now = 1_800_000_000_000;
     const permissionListeners = new Set<() => void>();
