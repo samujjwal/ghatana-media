@@ -454,6 +454,7 @@ impl AudioComparison {
 pub struct NoiseSuppressionComparison {
     comparison: AudioComparison,
     noise_range: NoiseOnlyFrameRange,
+    noise_profile: NoiseProfile,
 }
 
 impl NoiseSuppressionComparison {
@@ -465,6 +466,11 @@ impl NoiseSuppressionComparison {
     /// The caller-designated half-open noise-only frame range.
     pub fn noise_range(&self) -> NoiseOnlyFrameRange {
         self.noise_range
+    }
+
+    /// Borrow the exact profile estimated from the caller-designated range.
+    pub fn noise_profile(&self) -> &NoiseProfile {
+        &self.noise_profile
     }
 
     pub fn source(&self) -> &AudioBuffer {
@@ -508,6 +514,7 @@ pub fn suppress_noise(
     Ok(NoiseSuppressionComparison {
         comparison,
         noise_range,
+        noise_profile: profile,
     })
 }
 

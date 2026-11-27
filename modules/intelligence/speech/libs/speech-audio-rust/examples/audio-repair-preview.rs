@@ -10,8 +10,9 @@ use std::path::{Path, PathBuf};
 use serde_json::{json, Value};
 use sha2::{Digest, Sha256};
 use speech_audio_rust::{
-    compare_audio, declip_bounded, denoise, load_audio_buffer_bounded, write_wav, AudioBuffer,
-    DecodeLimits, DenoiseOptions, NoiseProfile, RepairLimits, Result, SpeechAudioError,
+    compare_audio, declip_bounded, load_audio_buffer_bounded, suppress_noise, write_wav,
+    AudioBuffer, DecodeLimits, DenoiseOptions, NoiseOnlyFrameRange, NoiseProfile, RepairLimits,
+    Result, SpeechAudioError,
 };
 
 const SOURCE_NAME: &str = "source-original";
@@ -63,6 +64,7 @@ fn run_preview(
     noise_start: usize,
     noise_end: usize,
 ) -> Result<()> {
+    let noise_range = NoiseOnlyFrameRange::new(noise_start, noise_end)?;
     fs::create_dir_all(output_dir)?;
     let input = input.canonicalize()?;
     let output_dir = output_dir.canonicalize()?;
@@ -107,7 +109,7 @@ fn run_preview(
             }
         }
     }
-    let result = run_reserved(&input, &paths, noise_start, noise_end, reservations);
+    let result = run_reserved(&input, &paths, noise_range, reservations);
     if result.is_err() {
         for path in [
             &paths.source,
@@ -141,8 +143,7 @@ fn ensure_safe_destinations<const N: usize>(input: &Path, outputs: [&PathBuf; N]
 fn run_reserved(
     input: &Path,
     paths: &OutputPaths,
-    noise_start: usize,
-    noise_end: usize,
+    noise_range: NoiseOnlyFrameRange,
     mut reservations: Vec<(PathBuf, File)>,
 ) -> Result<()> {
     let source_file = reservations
@@ -156,12 +157,11 @@ fn run_reserved(
     let decode_limits = preview_decode_limits();
     let source = load_audio_buffer_bounded(&paths.source, decode_limits)?;
     validate_preview_source(&source)?;
-    let profile = NoiseProfile::estimate(&source, noise_start, noise_end)?;
+    let denoise_candidate = suppress_noise(&source, noise_range, None)?;
     let denoise_options = DenoiseOptions::DEFAULT;
-    let denoised = denoise(&source, &profile, denoise_options)?;
     let repair_limits = RepairLimits::DEFAULT;
     let declipped = declip_bounded(&source, DECLIP_THRESHOLD, repair_limits)?;
-    write_wav(&paths.denoised, &denoised)?;
+    write_wav(&paths.denoised, denoise_candidate.candidate())?;
     write_wav(&paths.declipped, &declipped)?;
 
     let denoised_readback = load_audio_buffer_bounded(&paths.denoised, decode_limits)?;
@@ -183,12 +183,12 @@ fn run_reserved(
         &declipped_digest,
         &denoised_comparison,
         &declipped_comparison,
-        noise_start,
-        noise_end,
+        noise_range,
+        denoise_candidate.profile_ref(),
         &source,
         &denoised_readback,
         &declipped_readback,
-        &profile,
+        denoise_candidate.noise_profile(),
         denoise_options,
         repair_limits,
     )?;
@@ -268,8 +268,8 @@ fn manifest_json(
     declipped_digest: &str,
     denoised: &speech_audio_rust::AudioComparison,
     declipped: &speech_audio_rust::AudioComparison,
-    noise_start: usize,
-    noise_end: usize,
+    noise_range: NoiseOnlyFrameRange,
+    profile_ref: &str,
     source_buffer: &AudioBuffer,
     denoised_buffer: &AudioBuffer,
     declipped_buffer: &AudioBuffer,
@@ -278,13 +278,14 @@ fn manifest_json(
     repair_limits: RepairLimits,
 ) -> Result<String> {
     let denoise_parameters = json!({
+        "profileRef": profile_ref,
         "algorithm": "block-rms-noise-gate-with-interpolated-gain",
         "thresholdMultiple": denoise_options.threshold_multiple,
         "floorGain": denoise_options.floor_gain,
         "blockFrames": denoise_options.block_frames,
         "noiseProfile": {
-            "startInclusive": noise_start,
-            "endExclusive": noise_end,
+            "startInclusive": noise_range.start_frame(),
+            "endExclusive": noise_range.end_frame(),
             "frames": profile.profile_frames,
             "rmsByChannel": &profile.rms_by_channel,
         },
@@ -555,6 +556,10 @@ mod tests {
         assert_eq!(denoise_candidate["operation"], "denoise");
         assert_eq!(denoise_candidate["pipelineOrder"], Value::Null);
         assert_eq!(denoise_candidate["audioFormat"], source_format);
+        assert_eq!(
+            denoise_candidate["parameters"]["profileRef"],
+            "RMS_BLOCK_GATE_V1"
+        );
         assert_eq!(
             denoise_candidate["parameters"]["algorithm"],
             "block-rms-noise-gate-with-interpolated-gain"
