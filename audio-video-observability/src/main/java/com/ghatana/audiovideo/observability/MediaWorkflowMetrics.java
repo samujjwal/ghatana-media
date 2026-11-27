@@ -8,6 +8,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.ThreadMXBean;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -895,9 +896,21 @@ public final class MediaWorkflowMetrics {
         OutageOutcome(String label) { this.label = label; }
     }
 
-    private final ConcurrentMap<LocalProvider, EnumMap<LocalProviderState, AtomicReference<Double>>> localProviderStates =
-            new ConcurrentHashMap<>();
-    private final ConcurrentMap<LocalProvider, AtomicReference<Double>> localProviderCheckedAt =
+    private static final class LocalProviderGauges {
+        private final EnumMap<LocalProviderState, AtomicReference<Double>> states =
+                new EnumMap<>(LocalProviderState.class);
+        private final EnumSet<LocalProviderState> registeredStates = EnumSet.noneOf(LocalProviderState.class);
+        private final AtomicReference<Double> checkedAt = new AtomicReference<>(Double.NaN);
+        private boolean checkedAtRegistered;
+
+        private LocalProviderGauges() {
+            for (LocalProviderState state : LocalProviderState.values()) {
+                states.put(state, new AtomicReference<>(Double.NaN));
+            }
+        }
+    }
+
+    private final ConcurrentMap<LocalProvider, LocalProviderGauges> localProviderGauges =
             new ConcurrentHashMap<>();
 
     /**
@@ -908,35 +921,34 @@ public final class MediaWorkflowMetrics {
      */
     public void recordLocalProviderState(LocalProvider provider, LocalProviderState state, Instant checkedAt) {
         if (provider == null || state == null || checkedAt == null) return;
+        LocalProviderGauges gauges = localProviderGauges.computeIfAbsent(
+                provider, ignored -> new LocalProviderGauges());
         try {
-            EnumMap<LocalProviderState, AtomicReference<Double>> perState = localProviderStates.computeIfAbsent(
-                    provider, ignored -> {
-                        EnumMap<LocalProviderState, AtomicReference<Double>> created = new EnumMap<>(LocalProviderState.class);
-                        for (LocalProviderState each : LocalProviderState.values()) {
-                            AtomicReference<Double> cell = new AtomicReference<>(Double.NaN);
-                            Gauge.builder("media.dev.provider.state", cell, AtomicReference::get)
-                                    .description("1 when the DEV local provider is in this observed state, 0 otherwise; NaN before the first probe")
-                                    .tag("service", safeService).tag("provider", provider.label())
-                                    .tag("state", each.name().toLowerCase(java.util.Locale.ROOT))
-                                    .tag("contract_version", CONTRACT_VERSION).register(registry);
-                            created.put(each, cell);
-                        }
-                        return created;
-                    });
-            AtomicReference<Double> checkedAtGauge = localProviderCheckedAt.computeIfAbsent(provider, ignored -> {
-                AtomicReference<Double> cell = new AtomicReference<>(Double.NaN);
-                Gauge.builder("media.dev.provider.checked_at_seconds", cell, AtomicReference::get)
-                        .description("Unix timestamp of the latest DEV local provider verification or probe")
-                        .tag("service", safeService).tag("provider", provider.label())
-                        .tag("contract_version", CONTRACT_VERSION).register(registry);
-                return cell;
-            });
-            // Publish readiness only after both the state family and its check timestamp
-            // are registered. A partial registry failure must not leave a success-looking
-            // one-hot state with no timestamp to establish when it was observed.
-            checkedAtGauge.set(epochSeconds(checkedAt));
-            for (LocalProviderState each : LocalProviderState.values()) {
-                perState.get(each).set(each == state ? 1.0 : 0.0);
+            synchronized (gauges) {
+                for (LocalProviderState each : LocalProviderState.values()) {
+                    if (!gauges.registeredStates.contains(each)) {
+                        Gauge.builder("media.dev.provider.state", gauges.states.get(each), AtomicReference::get)
+                                .description("1 when the DEV local provider is in this observed state, 0 otherwise; NaN before the first probe")
+                                .tag("service", safeService).tag("provider", provider.label())
+                                .tag("state", each.name().toLowerCase(java.util.Locale.ROOT))
+                                .tag("contract_version", CONTRACT_VERSION).register(registry);
+                        gauges.registeredStates.add(each);
+                    }
+                }
+                if (!gauges.checkedAtRegistered) {
+                    Gauge.builder("media.dev.provider.checked_at_seconds", gauges.checkedAt, AtomicReference::get)
+                            .description("Unix timestamp of the latest DEV local provider verification or probe")
+                            .tag("service", safeService).tag("provider", provider.label())
+                            .tag("contract_version", CONTRACT_VERSION).register(registry);
+                    gauges.checkedAtRegistered = true;
+                }
+                // Publish readiness only after both the state family and its check timestamp
+                // are registered. The stable family object retains cells from successful
+                // registrations so a later retry can complete a partially registered family.
+                gauges.checkedAt.set(epochSeconds(checkedAt));
+                for (LocalProviderState each : LocalProviderState.values()) {
+                    gauges.states.get(each).set(each == state ? 1.0 : 0.0);
+                }
             }
         } catch (RuntimeException registryFailure) {
             // Observational only: a registry failure must not alter the catalog or a lane result.

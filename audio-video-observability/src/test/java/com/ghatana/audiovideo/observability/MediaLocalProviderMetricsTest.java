@@ -32,6 +32,21 @@ class MediaLocalProviderMetricsTest {
         }
     }
 
+    private static final class ThirdStateGaugeFailureRegistry extends SimpleMeterRegistry {
+        private int stateGaugeRegistrations;
+        private boolean failThirdStateGauge = true;
+
+        @Override
+        protected <T> Gauge newGauge(Meter.Id id, T obj, ToDoubleFunction<T> valueFunction) {
+            if (id.getName().equals("media.dev.provider.state")
+                    && ++stateGaugeRegistrations == 3 && failThirdStateGauge) {
+                failThirdStateGauge = false;
+                throw new IllegalStateException("fixture third state gauge failure");
+            }
+            return super.newGauge(id, obj, valueFunction);
+        }
+    }
+
     @Test
     void readinessIsOneHotPerProviderAndReplacedByTheNextObservation() {
         SimpleMeterRegistry registry = new SimpleMeterRegistry();
@@ -109,6 +124,33 @@ class MediaLocalProviderMetricsTest {
 
         assertThat(state(registry, "florence", "ready")).isEqualTo(1.0);
         assertThat(state(registry, "florence", "unavailable")).isEqualTo(0.0);
+        assertThat(registry.find("media.dev.provider.checked_at_seconds").tag("provider", "florence").gauge().value())
+                .isEqualTo((double) CHECKED.plusSeconds(1).getEpochSecond());
+    }
+
+    @Test
+    void partialStateGaugeRegistrationRetriesWithOneStableGaugeFamily() {
+        ThirdStateGaugeFailureRegistry registry = new ThirdStateGaugeFailureRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "launcher");
+
+        metrics.recordLocalProviderState(MediaWorkflowMetrics.LocalProvider.FLORENCE,
+                MediaWorkflowMetrics.LocalProviderState.READY, CHECKED);
+
+        assertThat(registry.find("media.dev.provider.state").gauges())
+                .hasSize(2)
+                .allSatisfy(gauge -> assertThat(gauge.value()).isNaN());
+        assertThat(registry.find("media.dev.provider.checked_at_seconds").gauges()).isEmpty();
+
+        metrics.recordLocalProviderState(MediaWorkflowMetrics.LocalProvider.FLORENCE,
+                MediaWorkflowMetrics.LocalProviderState.READY, CHECKED.plusSeconds(1));
+
+        assertThat(registry.find("media.dev.provider.state").gauges()).hasSize(5);
+        assertThat(state(registry, "florence", "ready")).isEqualTo(1.0);
+        for (MediaWorkflowMetrics.LocalProviderState each : MediaWorkflowMetrics.LocalProviderState.values()) {
+            if (each != MediaWorkflowMetrics.LocalProviderState.READY) {
+                assertThat(state(registry, "florence", each.name().toLowerCase())).isEqualTo(0.0);
+            }
+        }
         assertThat(registry.find("media.dev.provider.checked_at_seconds").tag("provider", "florence").gauge().value())
                 .isEqualTo((double) CHECKED.plusSeconds(1).getEpochSecond());
     }
