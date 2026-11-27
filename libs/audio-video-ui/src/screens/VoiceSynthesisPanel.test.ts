@@ -120,6 +120,8 @@ describe("VoiceSynthesisPanel", () => {
     type("The quick brown fox.");
     fireEvent.click(screen.getByRole("button", { name: "Synthesize" }));
     await waitFor(() => expect(document.querySelector("[data-synthesis-result]")).toBeTruthy());
+    // This fake-host DEV_ONLY response checks the local focus transition, not real synthesis or playback qualification.
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("heading", { name: "Synthesized clip" })));
     expect(port.synthesize).toHaveBeenCalledWith({ requestId: "voice-req-1", text: "The quick brown fox.", voice: "am_michael", locale: "en", speakingRate: 1 });
     expect(document.querySelector("[data-result-voice]")!.textContent).toBe("am_michael");
     expect(document.querySelector("[data-result-duration]")!.textContent).toBe("2.50 s");
