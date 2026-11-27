@@ -491,11 +491,57 @@ public final class GuardedVideoStreamSession {
                     .put((byte) (frame.keyFrame() ? 1 : 0))
                     .putLong(frame.timestampMillis())
                     .array());
-            digest.update(validateFramePayload(frame));
+            updateStringDigest(digest, frame.sourceVersion());
+            if (frame.sourceCursor() == null) {
+                digest.update((byte) 0);
+            } else {
+                digest.update((byte) 1);
+                digest.update(ByteBuffer.allocate(Long.BYTES).putLong(frame.sourceCursor()).array());
+            }
+            updatePresentationTimeDigest(digest, frame.presentationPts());
+            byte[] payload = validateFramePayload(frame);
+            digest.update(ByteBuffer.allocate(Integer.BYTES).putInt(payload.length).array());
+            digest.update(payload);
             return digest.digest();
         } catch (NoSuchAlgorithmException impossible) {
             throw new IllegalStateException("SHA-256 is unavailable", impossible);
         }
+    }
+
+    private static void updatePresentationTimeDigest(
+            MessageDigest digest, VideoFrameTimebase.SourceTimestamp presentationPts) {
+        if (presentationPts == null) {
+            digest.update((byte) 0);
+            return;
+        }
+        digest.update((byte) 1);
+        if (presentationPts.status() == VideoFrameTimebase.Status.KNOWN) {
+            digest.update((byte) 1);
+            digest.update(ByteBuffer.allocate(3 * Long.BYTES)
+                    .putLong(presentationPts.ticks())
+                    .putLong(presentationPts.timebaseNumerator())
+                    .putLong(presentationPts.timebaseDenominator())
+                    .array());
+            updateStringDigest(digest, presentationPts.clockId());
+        } else {
+            digest.update((byte) 2);
+            updateStringDigest(digest, presentationPts.unknownReason());
+        }
+    }
+
+    /** Encodes exact UTF-16 code units with an explicit null marker and length. */
+    private static void updateStringDigest(MessageDigest digest, String value) {
+        if (value == null) {
+            digest.update((byte) 0);
+            return;
+        }
+        digest.update((byte) 1);
+        digest.update(ByteBuffer.allocate(Integer.BYTES).putInt(value.length()).array());
+        ByteBuffer encoded = ByteBuffer.allocate(value.length() * Character.BYTES);
+        for (int index = 0; index < value.length(); index++) {
+            encoded.putChar(value.charAt(index));
+        }
+        digest.update(encoded.array());
     }
 
     private static byte[] validateFramePayload(VideoStreamSession.DecodedFrame frame) {
@@ -511,7 +557,8 @@ public final class GuardedVideoStreamSession {
             VideoStreamSession.DecodedFrame frame) {
         byte[] payload = validateFramePayload(frame);
         return new VideoStreamSession.DecodedFrame(
-                frame.sequenceNumber(), frame.keyFrame(), frame.timestampMillis(), payload.clone());
+                frame.sequenceNumber(), frame.keyFrame(), frame.timestampMillis(), payload.clone(),
+                frame.sourceVersion(), frame.sourceCursor(), frame.presentationPts());
     }
 
     private void requireAttached(String transition) {

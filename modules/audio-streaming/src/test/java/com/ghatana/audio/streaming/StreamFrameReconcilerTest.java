@@ -120,6 +120,30 @@ class StreamFrameReconcilerTest {
     }
 
     @Test
+    @DisplayName("held source-bound frames preserve exact source position and reject changed-position replay")
+    void heldSourcePositionIsPreservedAndReplayBound() {
+        StreamFrameReconciler rec = StreamFrameReconciler.open(identity("t1"));
+        AudioStreamSession.DecodedFrame held = new AudioStreamSession.DecodedFrame(
+                1, 1_000L, new byte[]{1, 2}, "source@v7", 41L);
+
+        assertThat(rec.offer(held)).isEqualTo(Disposition.HELD);
+        assertThat(rec.offer(new AudioStreamSession.DecodedFrame(
+                1, 1_000L, new byte[]{1, 2}, "source@v8", 41L)))
+                .isEqualTo(Disposition.CONFLICTING_REPLAY);
+        assertThat(rec.offer(new AudioStreamSession.DecodedFrame(
+                1, 1_000L, new byte[]{1, 2}, "source@v7", 42L)))
+                .isEqualTo(Disposition.CONFLICTING_REPLAY);
+        assertThat(rec.offer(new AudioStreamSession.DecodedFrame(
+                1, 1_000L, new byte[]{1, 2})))
+                .isEqualTo(Disposition.CONFLICTING_REPLAY);
+
+        assertThat(rec.offer(frame(0))).isEqualTo(Disposition.DELIVERED);
+        AudioStreamSession.DecodedFrame released = rec.takeDelivered();
+        assertThat(released.sourceVersion()).isEqualTo("source@v7");
+        assertThat(released.sourceCursor()).isEqualTo(41L);
+    }
+
+    @Test
     @DisplayName("a duplicate of a held frame is deduplicated, not held twice")
     void heldDuplicateDedup() {
         StreamFrameReconciler rec = StreamFrameReconciler.open(identity("t1"));

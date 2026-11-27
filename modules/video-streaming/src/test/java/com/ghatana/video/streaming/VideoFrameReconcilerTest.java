@@ -233,6 +233,35 @@ class VideoFrameReconcilerTest {
     }
 
     @Test
+    @DisplayName("held replay binds exact source checkpoint and raw timestamp observation")
+    void heldReplayMustMatchExactSourceObservation() {
+        VideoFrameReconciler rec = VideoFrameReconciler.open(identity("t1"));
+        assertThat(rec.offer(frame(0, true, 0))).isEqualTo(Disposition.DELIVERED);
+        var sourceTime = VideoFrameTimebase.SourceTimestamp.unknown("SOURCE_PTS_NOT_SUPPLIED");
+        var held = new VideoStreamSession.DecodedFrame(
+                2, false, 66, new byte[]{1, 2}, "video@v3", 19L, sourceTime);
+        assertThat(rec.offer(held)).isEqualTo(Disposition.HELD);
+
+        assertThat(rec.offer(new VideoStreamSession.DecodedFrame(
+                2, false, 66, new byte[]{1, 2}, "video@v3", 19L, sourceTime)))
+                .isEqualTo(Disposition.DUPLICATE);
+        assertThat(rec.offer(new VideoStreamSession.DecodedFrame(
+                2, false, 66, new byte[]{1, 2}, "video@v4", 19L, sourceTime)))
+                .isEqualTo(Disposition.CONFLICTING_REPLAY);
+        assertThat(rec.offer(new VideoStreamSession.DecodedFrame(
+                2, false, 66, new byte[]{1, 2}, "video@v3", 20L, sourceTime)))
+                .isEqualTo(Disposition.CONFLICTING_REPLAY);
+        assertThat(rec.offer(new VideoStreamSession.DecodedFrame(
+                2, false, 66, new byte[]{1, 2}, "video@v3", 19L,
+                VideoFrameTimebase.SourceTimestamp.unknown("PTS_UNAVAILABLE"))))
+                .isEqualTo(Disposition.CONFLICTING_REPLAY);
+
+        assertThat(rec.offer(frame(1, false, 33))).isEqualTo(Disposition.DELIVERED);
+        assertThat(rec.takeDelivered()).isSameAs(held);
+        assertThat(rec.nextAck()).isEqualTo(2);
+    }
+
+    @Test
     @DisplayName("resume honors durable ACK/keyframe position; cross-tenant denied")
     void resumeHonorsDurableAndDeniesCrossTenant() {
         SessionIdentity durable = identity("t1");

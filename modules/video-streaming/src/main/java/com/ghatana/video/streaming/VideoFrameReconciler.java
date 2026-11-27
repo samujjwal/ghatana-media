@@ -183,6 +183,9 @@ public final class VideoFrameReconciler {
             VideoStreamSession.DecodedFrame left, VideoStreamSession.DecodedFrame right) {
         return left.keyFrame() == right.keyFrame()
                 && left.timestampMillis() == right.timestampMillis()
+                && Objects.equals(left.sourceVersion(), right.sourceVersion())
+                && Objects.equals(left.sourceCursor(), right.sourceCursor())
+                && Objects.equals(left.presentationPts(), right.presentationPts())
                 && java.util.Arrays.equals(left.payload(), right.payload());
     }
 

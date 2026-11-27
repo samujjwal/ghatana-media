@@ -80,6 +80,36 @@ class GuardedAudioStreamSessionTest {
     }
 
     @Test
+    @DisplayName("provider candidate snapshots and binds the exact source position")
+    void providerCandidatePreservesAndBindsSourcePosition() {
+        GuardedAudioStreamSession session = GuardedAudioStreamSession.connect(identity(), consent(Decision.ADMITTED));
+        AudioStreamSession.DecodedFrame source = new AudioStreamSession.DecodedFrame(
+                0, 0L, new byte[]{1, 2}, "source@v7", 41L);
+        assertThat(session.submitFrame(source)).isEqualTo(Disposition.DELIVERED);
+
+        AtomicInteger providerEffects = new AtomicInteger();
+        AtomicReference<AudioStreamSession.DecodedFrame> dispatched = new AtomicReference<>();
+        assertThatThrownBy(() -> session.dispatchToProvider(
+                new AudioStreamSession.DecodedFrame(0, 0L, new byte[]{1, 2}, "source@v8", 41L),
+                frame -> providerEffects.incrementAndGet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not delivered by this session");
+        assertThatThrownBy(() -> session.dispatchToProvider(
+                new AudioStreamSession.DecodedFrame(0, 0L, new byte[]{1, 2}),
+                frame -> providerEffects.incrementAndGet()))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("not delivered by this session");
+
+        session.dispatchToProvider(source, frame -> {
+            providerEffects.incrementAndGet();
+            dispatched.set(frame);
+        });
+        assertThat(providerEffects.get()).isEqualTo(1);
+        assertThat(dispatched.get().sourceVersion()).isEqualTo("source@v7");
+        assertThat(dispatched.get().sourceCursor()).isEqualTo(41L);
+    }
+
+    @Test
     @DisplayName("revoked dispatch and expired reconnect remain denied without effects or state advance")
     void revokedDispatchAndExpiredReconnectFailClosed() {
         for (Decision denied : new Decision[]{Decision.DENIED, Decision.EXPIRED}) {

@@ -117,6 +117,45 @@ class GuardedVideoStreamSessionTest {
     }
 
     @Test
+    @DisplayName("source checkpoint and raw PTS survive snapshots and bind egress candidates")
+    void sourceObservationSurvivesSnapshotsAndBindsEgressCandidate() {
+        GuardedVideoStreamSession session = GuardedVideoStreamSession.open(
+                identity("t1"), consent(ConsentDecision.ADMITTED), "worker-a");
+        var sourceTime = VideoFrameTimebase.SourceTimestamp.known(1234, 1, 90_000, "source-clock");
+        assertThat(session.submitFrame("worker-a", 1L, frame(0, true)))
+                .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+        var held = new VideoStreamSession.DecodedFrame(
+                2, false, 66L, new byte[]{0x2}, "video@v3", 19L, sourceTime);
+        assertThat(session.submitFrame("worker-a", 1L, held)).isEqualTo(FrameVerdict.HELD);
+        assertThat(session.submitFrame("worker-a", 1L, frame(1, false)))
+                .isEqualTo(FrameVerdict.DELIVERED_DECODABLE);
+        var admitted = session.takeDelivered("worker-a", 1L);
+        assertThat(admitted.sequenceNumber()).isEqualTo(2);
+
+        session.detach("worker-a", 1L);
+        session.resume("worker-a", 1L, identity("t1"), 2, 0, Long.MIN_VALUE);
+
+        var wrongVersion = new VideoStreamSession.DecodedFrame(
+                2, false, 66L, new byte[]{0x2}, "video@v4", 19L, sourceTime);
+        var wrongCursor = new VideoStreamSession.DecodedFrame(
+                2, false, 66L, new byte[]{0x2}, "video@v3", 20L, sourceTime);
+        var wrongPts = new VideoStreamSession.DecodedFrame(
+                2, false, 66L, new byte[]{0x2}, "video@v3", 19L,
+                VideoFrameTimebase.SourceTimestamp.known(1235, 1, 90_000, "source-clock"));
+        for (var forged : new VideoStreamSession.DecodedFrame[]{wrongVersion, wrongCursor, wrongPts}) {
+            assertThatThrownBy(() -> session.egress("worker-a", 1L, forged, ignored -> { }))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessageContaining("not delivered");
+        }
+
+        AtomicReference<VideoStreamSession.DecodedFrame> delivered = new AtomicReference<>();
+        session.egress("worker-a", 1L, admitted, delivered::set);
+        assertThat(delivered.get().sourceVersion()).isEqualTo("video@v3");
+        assertThat(delivered.get().sourceCursor()).isEqualTo(19L);
+        assertThat(delivered.get().presentationPts()).isEqualTo(sourceTime);
+    }
+
+    @Test
     @DisplayName("a claim replayed at an equal-or-older token is stale, never a takeover")
     void claimMonotonicFencing() {
         GuardedVideoStreamSession session = GuardedVideoStreamSession.open(

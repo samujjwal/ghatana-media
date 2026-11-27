@@ -161,7 +161,7 @@ public final class StreamFrameReconciler {
         // DecodedFrame carries a mutable byte array. The reorder buffer must own
         // the held bytes so callers cannot change content after acceptance.
         AudioStreamSession.DecodedFrame snapshot = new AudioStreamSession.DecodedFrame(
-                sequence, frame.timestampMillis(), payload.clone());
+                sequence, frame.timestampMillis(), payload.clone(), frame.sourceVersion(), frame.sourceCursor());
         pending.put(sequence, snapshot);
         pendingBytes += payload.length;
         return Disposition.HELD;
@@ -225,6 +225,8 @@ public final class StreamFrameReconciler {
     private static boolean sameFrame(
             AudioStreamSession.DecodedFrame left, AudioStreamSession.DecodedFrame right) {
         return left.timestampMillis() == right.timestampMillis()
-                && java.util.Arrays.equals(left.payload(), right.payload());
+                && java.util.Arrays.equals(left.payload(), right.payload())
+                && Objects.equals(left.sourceVersion(), right.sourceVersion())
+                && Objects.equals(left.sourceCursor(), right.sourceCursor());
     }
 }

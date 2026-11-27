@@ -1,6 +1,7 @@
 package com.ghatana.audio.streaming;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -372,17 +373,29 @@ public final class GuardedAudioStreamSession {
             throw new IllegalArgumentException("audio stream frame payload is outside the bounded size");
         }
         return new AudioStreamSession.DecodedFrame(
-                frame.sequenceNumber(), frame.timestampMillis(), payload.clone());
+                frame.sequenceNumber(), frame.timestampMillis(), payload.clone(),
+                frame.sourceVersion(), frame.sourceCursor());
     }
 
     private static byte[] frameDigest(AudioStreamSession.DecodedFrame frame) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            digest.update(ByteBuffer.allocate(Integer.BYTES + Long.BYTES)
+            digest.update(ByteBuffer.allocate(Integer.BYTES + Long.BYTES + 1)
                     .putInt(frame.sequenceNumber())
                     .putLong(frame.timestampMillis())
+                    .put((byte) (frame.sourceVersion() == null ? 0 : 1))
                     .array());
-            digest.update(frame.payload());
+            if (frame.sourceVersion() != null) {
+                byte[] sourceVersion = frame.sourceVersion().getBytes(StandardCharsets.UTF_8);
+                digest.update(ByteBuffer.allocate(Integer.BYTES + Long.BYTES)
+                        .putInt(sourceVersion.length)
+                        .putLong(frame.sourceCursor())
+                        .array());
+                digest.update(sourceVersion);
+            }
+            byte[] payload = frame.payload();
+            digest.update(ByteBuffer.allocate(Integer.BYTES).putInt(payload.length).array());
+            digest.update(payload);
             return digest.digest();
         } catch (NoSuchAlgorithmException impossible) {
             throw new IllegalStateException("SHA-256 is unavailable", impossible);

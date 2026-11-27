@@ -8,6 +8,7 @@ import { MediaTaskFlow } from "../components/MediaTaskFlow";
 import { mediaActionFeedbackElement, mediaActionFeedbackForResult } from "../components/MediaActionFeedback";
 import { ArtifactIntakeScreen } from "./ArtifactIntakeScreen";
 import { ArtifactInspectionScreen } from "./ArtifactInspectionScreen";
+import type { CanonicalArtifactReadClient } from "./ArtifactInspectionScreen";
 import { FirstUseProjectScreen } from "./FirstUseProjectScreen";
 import { JobRecoveryScreen } from "./JobRecoveryScreen";
 import { TranscriptCaptionScreen } from "./TranscriptCaptionScreen";
@@ -240,6 +241,43 @@ describe("MediaProductRenderer", () => {
     expect(element.type).toBe(JobRecoveryScreen);
     expect((element.props as { canonicalJobReadClient?: unknown }).canonicalJobReadClient).toBe(canonicalJobReadClient);
     expect(MEDIA_PRODUCT_RENDERER_ROUTE_DISPOSITIONS["job-recovery"].productRoute).toBe("NOT_ADMITTED");
+  });
+
+  it("forwards the bounded artifact metadata reader and trusted host scope without admitting the route", async () => {
+    const canonicalArtifactReadClient: CanonicalArtifactReadClient = {
+      getArtifact: vi.fn(async (artifactId) => ({
+        tenantId: "tenant-1",
+        principalId: "principal-1",
+        artifactId,
+        fileName: "clip.mp4",
+        contentType: "video/mp4",
+        sizeBytes: 128,
+        sha256: "a".repeat(64),
+        objectReference: "opaque-ref",
+        classification: "INTERNAL",
+        createdAt: "2026-11-01T12:00:00Z",
+        expiresAt: "2026-12-01T12:00:00Z",
+        metadata: {},
+      })),
+    };
+    const props: MediaProductRendererProps = {
+      kind: "artifact-inspection",
+      ...common,
+      artifactId: "artifact-7",
+      canonicalArtifactReadClient,
+      authenticatedHostContext: { tenantId: "tenant-1", principalId: "principal-1" },
+    };
+
+    render(React.createElement(MediaProductRenderer, props));
+    fireEvent.click(screen.getByRole("button", { name: "Refresh artifact metadata" }));
+
+    expect(await screen.findByText(
+      "Metadata observed for artifact-7. This does not establish current availability or processing rights.",
+    )).toBeTruthy();
+    expect(canonicalArtifactReadClient.getArtifact).toHaveBeenCalledWith("artifact-7", expect.any(AbortSignal));
+    expect(screen.getByText("opaque-ref").tagName).toBe("CODE");
+    expect(screen.queryByRole("link")).toBeNull();
+    expect(MEDIA_PRODUCT_RENDERER_ROUTE_DISPOSITIONS["artifact-inspection"].productRoute).toBe("NOT_ADMITTED");
   });
 
   it("uses CSP-compatible native progress for measured operation progress", () => {

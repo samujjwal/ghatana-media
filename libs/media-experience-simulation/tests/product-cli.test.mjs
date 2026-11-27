@@ -174,6 +174,31 @@ test("parses quoted caption text and exact source-clock tick ranges", () => {
   });
 });
 
+test("rejects whitespace-only source-clock ticks as invalid CLI input", async () => {
+  const state = createFixtureState("media.scenario.alignment-required");
+  const parsed = parseMediaCommand(state, [
+    "media-experience-command-simulator", "caption", "align-timing",
+    "--artifact-version", "caption-draft-v1", "--segment", "segment-002",
+    "--start-tick", " ", "--end-tick", "1",
+  ]);
+  assert.equal(parsed.kind, "error");
+  assert.match(parsed.message, /Missing required option.*--start-tick/u);
+
+  const result = await execFileAsync(process.execPath, [
+    new URL("../bin/media-experience-command-simulator.mjs", import.meta.url).pathname,
+    "--scenario", "media.scenario.alignment-required",
+    "caption", "align-timing", "--artifact-version", "caption-draft-v1",
+    "--segment", "segment-002", "--start-tick", " ", "--end-tick", "1",
+    "--format", "json",
+  ]).then(() => null, (error) => error);
+  assert.equal(result.code, 2);
+  assert.equal(result.stderr, "");
+  const report = JSON.parse(result.stdout);
+  assert.equal(report.schemaVersion, "media.cli-error.v1");
+  assert.equal(report.code, "INVALID_ARGUMENT");
+  assert.match(report.message, /Missing required option.*--start-tick/u);
+});
+
 test("accepts flag-shaped caption text through inline option values", () => {
   const state = createFixtureState("media.scenario.alignment-required");
   const parsed = parseMediaCommand(state, [

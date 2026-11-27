@@ -16,6 +16,22 @@ import java.util.function.ToDoubleFunction;
 class MediaLocalProviderMetricsTest {
     private static final Instant CHECKED = Instant.parse("2026-11-14T12:00:00Z");
 
+    private static final class CheckedAtFailureRegistry extends SimpleMeterRegistry {
+        private boolean failCheckedAt = true;
+
+        @Override
+        protected <T> Gauge newGauge(Meter.Id id, T obj, ToDoubleFunction<T> valueFunction) {
+            if (failCheckedAt && id.getName().equals("media.dev.provider.checked_at_seconds")) {
+                throw new IllegalStateException("fixture timestamp gauge failure");
+            }
+            return super.newGauge(id, obj, valueFunction);
+        }
+
+        private void allowCheckedAt() {
+            failCheckedAt = false;
+        }
+    }
+
     @Test
     void readinessIsOneHotPerProviderAndReplacedByTheNextObservation() {
         SimpleMeterRegistry registry = new SimpleMeterRegistry();
@@ -71,6 +87,30 @@ class MediaLocalProviderMetricsTest {
         metrics.recordLocalProviderState(MediaWorkflowMetrics.LocalProvider.FFMPEG,
                 MediaWorkflowMetrics.LocalProviderState.READY, CHECKED);
         assertThat(registry.find("media.dev.provider.state").gauges()).isEmpty();
+    }
+
+    @Test
+    void checkedAtRegistrationFailureDoesNotPublishPartialReadinessAndRecovers() {
+        CheckedAtFailureRegistry registry = new CheckedAtFailureRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "launcher");
+
+        metrics.recordLocalProviderState(MediaWorkflowMetrics.LocalProvider.FLORENCE,
+                MediaWorkflowMetrics.LocalProviderState.READY, CHECKED);
+
+        assertThat(registry.find("media.dev.provider.state").gauges())
+                .hasSize(MediaWorkflowMetrics.LocalProviderState.values().length)
+                .allSatisfy(gauge -> assertThat(gauge.value()).isNaN());
+        assertThat(registry.find("media.dev.provider.checked_at_seconds").gauges()).isEmpty();
+
+        registry.allowCheckedAt();
+
+        metrics.recordLocalProviderState(MediaWorkflowMetrics.LocalProvider.FLORENCE,
+                MediaWorkflowMetrics.LocalProviderState.READY, CHECKED.plusSeconds(1));
+
+        assertThat(state(registry, "florence", "ready")).isEqualTo(1.0);
+        assertThat(state(registry, "florence", "unavailable")).isEqualTo(0.0);
+        assertThat(registry.find("media.dev.provider.checked_at_seconds").tag("provider", "florence").gauge().value())
+                .isEqualTo((double) CHECKED.plusSeconds(1).getEpochSecond());
     }
 
     private static double state(SimpleMeterRegistry registry, String provider, String state) {

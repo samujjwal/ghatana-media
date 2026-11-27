@@ -904,7 +904,7 @@ public final class MediaWorkflowMetrics {
      * Export one-hot readiness for a local provider: {@code media.dev.provider.state{provider,state}} is 1 for the
      * observed state and 0 for the other four (bounded 5x5 series), and
      * {@code media.dev.provider.checked_at_seconds{provider}} is the probe time. Labels carry no path, endpoint,
-     * digest, tenant or secret. A registry failure leaves the series unreported and never escapes.
+     * digest, tenant or secret. A registry failure leaves readiness UNKNOWN and never escapes.
      */
     public void recordLocalProviderState(LocalProvider provider, LocalProviderState state, Instant checkedAt) {
         if (provider == null || state == null || checkedAt == null) return;
@@ -923,17 +923,21 @@ public final class MediaWorkflowMetrics {
                         }
                         return created;
                     });
-            for (LocalProviderState each : LocalProviderState.values()) {
-                perState.get(each).set(each == state ? 1.0 : 0.0);
-            }
-            localProviderCheckedAt.computeIfAbsent(provider, ignored -> {
+            AtomicReference<Double> checkedAtGauge = localProviderCheckedAt.computeIfAbsent(provider, ignored -> {
                 AtomicReference<Double> cell = new AtomicReference<>(Double.NaN);
                 Gauge.builder("media.dev.provider.checked_at_seconds", cell, AtomicReference::get)
                         .description("Unix timestamp of the latest DEV local provider verification or probe")
                         .tag("service", safeService).tag("provider", provider.label())
                         .tag("contract_version", CONTRACT_VERSION).register(registry);
                 return cell;
-            }).set(epochSeconds(checkedAt));
+            });
+            // Publish readiness only after both the state family and its check timestamp
+            // are registered. A partial registry failure must not leave a success-looking
+            // one-hot state with no timestamp to establish when it was observed.
+            checkedAtGauge.set(epochSeconds(checkedAt));
+            for (LocalProviderState each : LocalProviderState.values()) {
+                perState.get(each).set(each == state ? 1.0 : 0.0);
+            }
         } catch (RuntimeException registryFailure) {
             // Observational only: a registry failure must not alter the catalog or a lane result.
         }
