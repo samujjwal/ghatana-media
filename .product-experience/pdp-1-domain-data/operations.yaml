@@ -72491,7 +72491,7 @@ capabilityOperationContracts:
       operationVersion: 1
       asyncSubmissionDisposition: NOT_SUBMITTABLE_QUERY
     - id: media.operation.capability.media-stream-session-open
-      decisionRef: .product-experience/decision-log.md#PXD-258
+      decisionRef: .product-experience/decision-log.md#PXD-260
       decisionAuthority: user-delegated-Media-technical-product-owner
       recordKind: CANONICAL_OWNER_DEFINED_CAPABILITY_OPERATION
       capabilityRef: media.stream.session.open
