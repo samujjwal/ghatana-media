@@ -39,10 +39,12 @@ globalThis.fetch = async (input, init = {}) => {
 
 afterAll(async () => { await rm(directory, { recursive: true, force: true }); });
 
-function invoke() {
+function invoke(options: { endpoint?: string; confirmation?: string } = {}) {
   return new Promise<{ status: number | null; stdout: string; stderr: string }>((resolve, reject) => {
-    const child = spawn(process.execPath, ['--import', preload, devBin, 'batch', 'run', '--endpoint', endpoint,
-      '--tenant', 'tenant-a', '--principal', 'principal-a', '--file', missingBatchPath], {
+    const args = ['--import', preload, devBin, 'batch', 'run', '--endpoint', options.endpoint ?? endpoint,
+      '--tenant', 'tenant-a', '--principal', 'principal-a', '--file', missingBatchPath];
+    if (options.confirmation !== undefined) args.push('--confirm-sha256', options.confirmation);
+    const child = spawn(process.execPath, args, {
       env: { ...process.env, GHATANA_MEDIA_BEARER_TOKEN: token, FIXTURE_LOG: logPath },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -66,6 +68,23 @@ describe('ghatanamedia-api-dev batch command confirmation boundary', () => {
     });
     expect(JSON.parse(result.stderr).message).toContain('--confirm-sha256');
     expect(result.stderr).not.toContain(token);
+    await expect(readFile(logPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
+  });
+
+  it('rejects a non-loopback endpoint before reading the plan or dispatching', async () => {
+    const result = await invoke({
+      endpoint: 'https://media.example.test',
+      confirmation: `sha256:${'0'.repeat(64)}`,
+    });
+    expect(result.status).toBe(3);
+    expect(result.stdout).toBe('');
+    expect(JSON.parse(result.stderr)).toMatchObject({
+      schemaVersion: 'media.cli-error.v1',
+      commandId: 'media.cli.local-development.batch.run',
+      code: 'LOCAL_DEV_ENDPOINT_REQUIRED',
+    });
+    expect(result.stderr).not.toContain(token);
+    expect(result.stderr).not.toContain('BATCH_FILE_INVALID');
     await expect(readFile(logPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
   });
 });
