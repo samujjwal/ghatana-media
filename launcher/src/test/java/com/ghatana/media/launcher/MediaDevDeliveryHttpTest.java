@@ -135,6 +135,42 @@ class MediaDevDeliveryHttpTest {
     }
 
     @Test
+    void confirmedReplayRemainsReadOnlyWhenReviewAuthorityIsUnavailable() throws Exception {
+        Fixture fixture = new Fixture(null);
+        try {
+            MediaArtifact artifact = fixture.upload("confirmed-replay-review.bin", bytes(2_000, 42), "confirmed-replay-review");
+            HttpResponse<String> first = fixture.export("confirmed-replay-review", artifact, DESTINATION,
+                    PRINCIPAL, EXPORT_PERMISSIONS);
+            assertThat(first.statusCode()).as(first.body()).isEqualTo(201);
+            Map<String, Object> firstView = read(first.body());
+            String receipt = (String) firstView.get("destinationReceiptRef");
+            int destinationCalls = fixture.destinationCalls.get();
+            Path object = fixture.objectPath("confirmed-replay-review");
+            long modified = Files.getLastModifiedTime(object).toMillis();
+
+            var reviewCalls = new java.util.concurrent.atomic.AtomicInteger();
+            fixture.delivery.requireReview((tenantId, principalId, artifactId, versionId) -> {
+                reviewCalls.incrementAndGet();
+                throw new IllegalStateException("review authority unavailable");
+            });
+
+            HttpResponse<String> replay = fixture.export("confirmed-replay-review", artifact, DESTINATION,
+                    PRINCIPAL, EXPORT_PERMISSIONS);
+
+            assertThat(replay.statusCode()).as(replay.body()).isEqualTo(200);
+            assertThat(read(replay.body())).containsEntry("status", "DESTINATION_CONFIRMED")
+                    .containsEntry("destinationConfirmed", true).containsEntry("replayed", true)
+                    .containsEntry("destinationReceiptRef", receipt);
+            assertThat(reviewCalls).hasValue(0);
+            assertThat(fixture.destinationCalls.get()).isEqualTo(destinationCalls);
+            assertThat(Files.getLastModifiedTime(object).toMillis()).isEqualTo(modified);
+            assertThat(Files.readAllBytes(object)).isEqualTo(fixture.artifactBytes(artifact));
+        } finally {
+            fixture.close();
+        }
+    }
+
+    @Test
     void operationReadsBackAfterRestartWithoutASecondEffect() throws Exception {
         Fixture fixture = new Fixture(null);
         try {
