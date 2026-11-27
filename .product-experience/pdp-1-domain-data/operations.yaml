@@ -29141,9 +29141,13 @@ ownerDefinedOperationContracts:
       implementationState: UNKNOWN
       qualificationState: NOT_EVALUATED
       executionAdmission: NOT_ADMITTED
-      sourceAdapterBoundary: Existing HTTP list response and ProcessingJob schema do
-        not establish a complete closed stored projection, readVersion, or
-        observedAt; transport mapping remains NOT_ADMITTED.
+      sourceAdapterBoundary: Current OpenAPI and handler source expose jobs,
+        observedAt, and readVersion for the bounded store snapshot. The SDK now
+        validates tenant/principal scope and projects each broader ProcessingJob
+        into the exact closed five-field owner record; local unit, installed
+        consumer, handler, and PostgreSQL snapshot evidence pass. The v1 route
+        remains NOT_ADMITTED for canonical production use pending qualified host
+        identity and independent runtime acceptance.
       scopeStatus: OWNER_DEFINED_DEFINITION_ONLY; no status-name normalization;
         transport-and-runtime-NOT_ADMITTED
     - id: media.operation.stream-session.inspect.v1

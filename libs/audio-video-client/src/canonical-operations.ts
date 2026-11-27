@@ -68,6 +68,24 @@ export interface CanonicalProcessingJob {
   readonly requestFingerprint: string;
 }
 
+/** Closed PDP-1 job-list row; host scope is checked before this projection is returned. */
+export interface CanonicalJobListItem {
+  readonly jobId: string;
+  readonly requestId: string;
+  /** The source status spelling is preserved verbatim. */
+  readonly status: CanonicalJobStatus;
+  readonly createdAt: string;
+  readonly version: number;
+}
+
+/** One coherent, bounded, host-scoped PDP-1 job-list observation. */
+export interface CanonicalJobListResult {
+  readonly jobs: readonly CanonicalJobListItem[];
+  readonly observedAt: string;
+  /** Opaque store-issued read identity; never interpreted by the client. */
+  readonly readVersion: string;
+}
+
 /** Exact runtime StreamSession projection (additionalProperties: false). */
 export interface CanonicalStreamSession {
   readonly tenantId: string;
@@ -298,6 +316,67 @@ function asRecord(input: unknown, dto: string): Record<string, unknown> {
     throw new TypeError(`${dto} must be an object.`);
   }
   return input as Record<string, unknown>;
+}
+
+function requiredBoundedText(
+  value: Record<string, unknown>,
+  key: string,
+  dto: string,
+  maximumLength: number,
+): string {
+  const field = requiredText(value, key, dto);
+  if (field.length > maximumLength) {
+    throw new TypeError(`${dto} ${key} exceeds the ${maximumLength}-character contract bound.`);
+  }
+  return field;
+}
+
+function parseCanonicalJobListItem(
+  input: unknown,
+  tenantId: string,
+  principalId: string,
+): CanonicalJobListItem {
+  const value = asRecord(input, "Canonical Media job-list item");
+  const observedTenantId = requiredText(value, "tenantId", "Canonical Media job-list item");
+  const observedPrincipalId = requiredText(value, "principalId", "Canonical Media job-list item");
+  if (observedTenantId !== tenantId || observedPrincipalId !== principalId) {
+    throw new TypeError("Canonical Media job-list response is outside the caller's tenant and principal scope.");
+  }
+
+  const status = requiredBoundedText(value, "status", "Canonical Media job-list item", 32);
+  if (!JOB_STATUSES.has(status)) {
+    throw new TypeError("Canonical Media job-list item status is outside the runtime enum.");
+  }
+  return {
+    jobId: requiredBoundedText(value, "jobId", "Canonical Media job-list item", 128),
+    requestId: requiredBoundedText(value, "requestId", "Canonical Media job-list item", 128),
+    status: status as CanonicalJobStatus,
+    createdAt: requiredDateTime(value.createdAt, "createdAt"),
+    version: requiredInt(value, "version", 1, "Canonical Media job-list item", Number.MAX_SAFE_INTEGER),
+  };
+}
+
+function parseCanonicalJobListResult(
+  input: unknown,
+  tenantId: string,
+  principalId: string,
+  limit: number,
+): CanonicalJobListResult {
+  const value = asRecord(input, "Canonical Media job list");
+  const resultFields = new Set(["jobs", "observedAt", "readVersion"]);
+  if (Object.keys(value).some((key) => !resultFields.has(key))
+    || [...resultFields].some((key) => !Object.hasOwn(value, key))) {
+    throw new TypeError("Canonical Media job-list result fields do not match the PDP-1 contract.");
+  }
+  if (!Array.isArray(value.jobs) || value.jobs.length > 1000 || value.jobs.length > limit) {
+    throw new TypeError("Canonical Media job-list result jobs must fit the requested bounded limit.");
+  }
+
+  // Validate every raw row's host scope before dropping transport-only fields.
+  const jobs = value.jobs.map((job) => parseCanonicalJobListItem(job, tenantId, principalId));
+  const observedAt = requiredDateTime(value.observedAt, "observedAt");
+  const readVersion = requiredBoundedText(value, "readVersion", "Canonical Media job list", 256);
+  return { jobs, observedAt, readVersion };
 }
 
 /** Runtime ProcessingJob: required fields exact, unknown properties tolerated. */
@@ -619,26 +698,17 @@ export class MediaCanonicalClient {
    */
   public async listJobs(
     options: { readonly limit?: number; readonly signal?: AbortSignal } = {},
-  ): Promise<readonly CanonicalProcessingJob[]> {
+  ): Promise<CanonicalJobListResult> {
     const principalId = this.requirePrincipalId("job lists");
     const limit = options.limit ?? 100;
     if (!Number.isSafeInteger(limit) || limit < 1 || limit > 1000) {
       throw new Error("listJobs limit must be a safe integer in 1..1000 per the contract.");
     }
-    const parser: RuntimeParser<readonly CanonicalProcessingJob[]> = {
-      parse: (input: unknown) => {
-        const value = asRecord(input, "Canonical Media job list");
-        const jobs = value.jobs;
-        if (!Array.isArray(jobs)) {
-          throw new TypeError("Canonical Media job list jobs must be an array.");
-        }
-        return jobs.map(parseCanonicalProcessingJob);
-      },
-    };
-    const jobs = await this.transport.request(
-      "GET", `${canonicalMediaHttpRoutes.listJobs}?limit=${limit}`, undefined, parser, options.signal,
+    return this.transport.request(
+      "GET", `${canonicalMediaHttpRoutes.listJobs}?limit=${limit}`, undefined,
+      { parse: (input: unknown) => parseCanonicalJobListResult(input, this.tenantId, principalId, limit) },
+      options.signal,
     );
-    return jobs.map((job) => this.assertJobScope(job, principalId));
   }
 
   /** POST /api/v1/jobs/{jobId}/cancel — durable request; finality remains on the job. */

@@ -299,9 +299,9 @@ records:
       selection: { disposition: PRINCIPAL_AND_TENANT_SCOPED_COLLECTION, pagination: NOT_SUPPORTED_BY_V1 }
     rejectBeforeRead: [host-identity-unavailable, unsupported-filter-or-pagination-request, unauthorized-scope]
     legacyResultProjection:
-      disposition: LEGACY_OBSERVATION_ONLY
-      sourceFields: [jobs]
-      canonicalRequiredButUnrepresentable: [observedAt, readVersion, stable-pagination-cursor]
+      disposition: OWNER_PROJECTION_IMPLEMENTED_AND_LOCALLY_VERIFIED
+      sourceFields: [jobs, observedAt, readVersion]
+      canonicalRequiredButUnrepresentable: []
       rule: Preserve source status spelling and ordering as observations; do not infer completeness, finality, or canonical state from collection membership.
     routeDisposition: V1_CANONICAL_PARITY_NOT_ADMITTED
 

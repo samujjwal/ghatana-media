@@ -270,9 +270,13 @@ try {
       defaultHeaders: { 'X-Principal-Id': 'fixture-principal' },
       getAccessToken: () => 'installed-read-fixture-token',
       fetchImpl: async (input, init) => {
-        requests.push({ url: new URL(String(input)).pathname, method: init?.method,
+        const url = new URL(String(input));
+        requests.push({ url: url.pathname + url.search, method: init?.method,
           headers: Object.fromEntries(new Headers(init?.headers).entries()) });
-        return new Response(JSON.stringify(fixtureJob), {
+        const body = url.pathname === '/api/v1/jobs'
+          ? { jobs: [fixtureJob], observedAt: timestamp, readVersion: 'opaque-installed-snapshot-v1' }
+          : fixtureJob;
+        return new Response(JSON.stringify(body), {
           status: 200, headers: { 'Content-Type': 'application/json' },
         });
       },
@@ -285,6 +289,21 @@ try {
     assert.equal(requests[0].headers['x-tenant-id'], 'fixture-tenant');
     assert.equal(requests[0].headers['x-principal-id'], 'fixture-principal');
     assert.deepEqual(readJob, fixtureJob, 'installed canonical getJob must parse the synthetic HTTP response');
+    const listedJobs = await readClient.listJobs({ limit: 1 });
+    assert.deepEqual(listedJobs, {
+      jobs: [{
+        jobId: fixtureJob.jobId,
+        requestId: fixtureJob.requestId,
+        status: fixtureJob.status,
+        createdAt: fixtureJob.createdAt,
+        version: fixtureJob.version,
+      }],
+      observedAt: timestamp,
+      readVersion: 'opaque-installed-snapshot-v1',
+    }, 'installed canonical listJobs must return the exact scoped PDP-1 projection');
+    assert.equal(requests[1].url, '/api/v1/jobs?limit=1');
+    assert.equal(requests[1].headers['x-tenant-id'], 'fixture-tenant');
+    assert.equal(requests[1].headers['x-principal-id'], 'fixture-principal');
 
     const wrongScopeClient = canonical.createMediaCanonicalClient({
       baseUrl: 'https://media.example.test', tenantId: 'fixture-tenant',
@@ -492,6 +511,11 @@ try {
     const devProjectContext: DevProjectContext | undefined = undefined;
     const publicExportTypes: [typeof main, typeof operations, typeof routes, typeof canonical,
       typeof http, typeof capture, typeof recorder, typeof productionExports] = null!;
+    const jobListResult: canonical.CanonicalJobListResult = {
+      jobs: [{ jobId: 'job-1', requestId: 'request-1', status: 'OUTCOME_UNKNOWN',
+        createdAt: '2026-10-30T12:00:00.000Z', version: 1 }],
+      observedAt: '2026-10-30T12:00:00.000Z', readVersion: 'opaque-store-version',
+    };
     const fingerprint: typeof requestFingerprint = requestFingerprint;
     const captionVersionExports: typeof captionVersion = null!;
     const kind = MediaArtifactKindSchema.parse('AUDIO');
@@ -509,7 +533,7 @@ try {
     const diVocabularyIsExhaustive: MissingDiErrorCode extends never ? true : never = true;
     void [create, compile, kind, resolver, publicExportTypes, offlineStoreConstructor,
       offlineStoreOptions, devProjectClient, devProjectOptions, devProjectRequest, devProjectContext,
-      diVocabularyIsExhaustive, fingerprint, captionVersionExports, browserAdapter, checkpointStore,
+      diVocabularyIsExhaustive, fingerprint, captionVersionExports, jobListResult, browserAdapter, checkpointStore,
       resumeCheckpoint, checkpoint, resumeResult, ffmpegMuxer, ffmpegOptions, renderResolver];
   `);
   run(process.execPath, [tsc, '--noEmit', '--strict', '--skipLibCheck', '--target', 'ES2022',

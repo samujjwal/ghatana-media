@@ -13,9 +13,11 @@ the capture adapter SPI. Package: `@audio-video/client`
 - Provide the `ghatanamedia-api` CLI with source-bound definitions for
   `artifact inspect`, `job get`, and `job list`. `job list` binds to the P1
   owner operation `media.operation.job-list.v1` and its closed bounded request,
-  but the production command stays `NOT_ADMITTED`: the current v1 response lacks
-  the required server `observedAt` and coherent-snapshot `readVersion`, so the
-  CLI rejects before parsing, bearer authentication, or network dispatch.
+  and the SDK projects the v1 response's `jobs`, `observedAt`, and opaque
+  `readVersion` into the exact closed owner result after validating row scope.
+  The production command remains `NOT_ADMITTED` because canonical route and
+  production-host identity/qualification are still open; it rejects before
+  parsing, bearer authentication, or network dispatch.
   Valid `job submit` and `job cancel` invocations retain stable command IDs but
   return structured `NOT_ADMITTED` after argument validation and before bearer
   authentication or network dispatch. Other undeclared command identities

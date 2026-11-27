@@ -1771,7 +1771,7 @@ typedHttpCanonicalAdapterAssessments:
     - identity: listMediaJobs
       sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs/get
       requestFields: [ tenant-header, principal-header, limit ]
-      responseFields: [ "jobs[]" ]
+      responseFields: [ "jobs[]", observedAt, readVersion ]
       canonicalOperationRef: media.operation.job-list.v1
       disposition: ADAPTER_REQUIRED
       missingSemantics:
@@ -1779,8 +1779,7 @@ typedHttpCanonicalAdapterAssessments:
           finite-query-filter-schema,
           stable-order-and-pagination-cursor,
           exact-tenant-principal-scope,
-          authorization-safe-empty-versus-unavailable,
-          observedAt-and-readVersion-required-by-owner-query-are-absent-from-http-job-list-response
+          authorization-safe-empty-versus-unavailable
         ]
       boundary: collection enumeration cannot be inferred from the single-job inspect
         operation

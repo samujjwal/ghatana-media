@@ -126,7 +126,7 @@ describe('MediaCanonicalClient over real HTTP', () => {
       if (path === '/api/v1/jobs' && request.method === 'POST') {
         json(job(), 202);
       } else if (path === '/api/v1/jobs' && request.method === 'GET') {
-        json({ jobs: [job()] });
+        json({ jobs: [job()], observedAt: timestamp, readVersion: 'opaque-store-snapshot-v1' });
       } else if (request.url === '/api/v1/jobs/job-1' && request.method === 'GET') {
         json(job({ status: 'RUNNING' }));
       } else if (request.url === '/api/v1/jobs/job-1/cancel' && request.method === 'POST') {
@@ -156,7 +156,13 @@ describe('MediaCanonicalClient over real HTTP', () => {
       });
       expect(submitted.status).toBe('ACCEPTED');
       expect((await client.getJob('job-1')).status).toBe('RUNNING');
-      expect(await client.listJobs({ limit: 10 })).toHaveLength(1);
+      expect(await client.listJobs({ limit: 10 })).toEqual({
+        jobs: [{
+          jobId: 'job-1', requestId: 'req-1', status: 'ACCEPTED', createdAt: timestamp, version: 1,
+        }],
+        observedAt: timestamp,
+        readVersion: 'opaque-store-snapshot-v1',
+      });
       const cancellation = await client.cancelJob('job-1', {
         requestId: 'cancel-1', expectedJobVersion: 1,
       }).catch((error: unknown) => error);

@@ -77,14 +77,14 @@ commands:
     sourceRef: contracts/openapi/media.yaml#/paths/~1api~1v1~1jobs/get
     operationRef: .product-experience/pdp-1-domain-data/operations.yaml#ownerDefinedOperationContracts/records/@id=media.operation.job-list.v1
     ownerDecisionRefs: [.product-experience/decision-log.md#PXD-242]
-    operationDisposition: SOURCE_BOUND_TO_OWNER_DEFINED_QUERY; OBSERVED_V1_WIRE_IS_NOT_A_CONFORMING_ADAPTER
+    operationDisposition: SOURCE_BOUND_TO_OWNER_DEFINED_QUERY; V1_SDK_PROJECTS_SNAPSHOT_METADATA; HOST_QUALIFICATION_OPEN
     options: [--endpoint, --tenant, --principal, --request-json]
     credentialSource: GHATANA_MEDIA_BEARER_TOKEN-environment-only
     request: exact-owner-defined-media.operation.job-list.v1-limit-object
     output: exact-owner-defined-media.operation.job-list.v1-jobs-observedAt-readVersion-in-media.cli-result.v1-JSON-envelope
     readSemantics: host-attested-tenant-and-owning-principal-scoped-bounded-observation; preserve-raw-status; no-finality-or-global-absence
-    runtimeAdmission: NOT_ADMITTED; observed-v1-wire-misses-observedAt-and-readVersion; host-identity-and-qualification-open
-    status: source-bound-definition-only; legacy-wire-not-admitted
+    runtimeAdmission: NOT_ADMITTED; SDK_OWNER_PROJECTION_LOCALLY_VERIFIED; host-identity-and-qualification-open
+    status: source-bound-SDK-projection-locally-verified; production-runtime-not-admitted
   - id: media.cli.job.cancel
     canonicalCommand: ghatanamedia-api job cancel
     package: libs/audio-video-client/package.json#bin.ghatanamedia-api

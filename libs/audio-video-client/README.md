@@ -87,7 +87,7 @@ consumer identities recorded in
 | `artifact inspect` | `MediaOperationClient.getArtifact()` | Source-bound scoped read | Host identity and production qualification remain open |
 | `job get` | `MediaCanonicalClient.getJob()` | Source-bound scoped read | Host identity and production qualification remain open |
 | `job submit` | `MediaCanonicalClient.submitJob()` | A 202 response is only a submission receipt | Runtime/provider execution is not admitted |
-| `job list` | `MediaCanonicalClient.listJobs()` | PDP-1 scoped query is defined; transport mapping is not admitted | Runtime and production host remain unqualified |
+| `job list` | `MediaCanonicalClient.listJobs()` | Projects the bounded v1 snapshot to the exact PDP-1 result after scope validation | Canonical route and production host remain not admitted/unqualified |
 | `job cancel` | `MediaCanonicalClient.cancelJob()` | Durable cancellation request, not proof of stop | Runtime/provider stop is not admitted |
 
 This is an implementation/source observation, not admission of a user-facing
@@ -117,11 +117,12 @@ not establish product admission. In particular, `job submit` and `job cancel`
 remain `NOT_ADMITTED`. PDP-1 defines the scoped `job list` operation and its
 closed bounded result. `readVersion` is an opaque store-issued token for the
 same coherent tenant/principal query snapshot as `jobs` and `observedAt`; it is
-not a cursor, timestamp, response digest, or max row version. The current HTTP
-projection omits those result fields, so the command returns `NOT_ADMITTED`
-before parsing, credentials, or network dispatch. The 11 Explorer fixture
-commands remain a separate synthetic population. Local client tests do not
-qualify a production host or release.
+not a cursor, timestamp, response digest, or max row version. The SDK now
+projects the v1 response into that result, but the production CLI still returns
+`NOT_ADMITTED` before parsing, credentials, or network dispatch because the
+canonical route and production host remain unqualified. The 11 Explorer fixture
+commands remain a separate synthetic population. Local client and handler tests
+do not qualify a production host or release.
 
 ```sh
 GHATANA_MEDIA_BEARER_TOKEN="$MEDIA_TOKEN" ghatanamedia-api artifact inspect \

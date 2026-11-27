@@ -401,15 +401,46 @@ describe("MediaCanonicalClient job operations", () => {
     expect(calls).toHaveLength(1);
   });
 
-  it("listJobs honors the bounded limit and binds every job to scope", async () => {
-    const { fetchImpl, calls } = recordedFetch(() =>
-      jsonResponse({ jobs: [job(), job({ jobId: "job-2", requestId: "req-2" })] }));
+  it("listJobs returns the bounded PDP-1 snapshot and projects only its closed job fields", async () => {
+    const { fetchImpl, calls } = recordedFetch(() => jsonResponse({
+      jobs: [job({ status: "OUTCOME_UNKNOWN" }), job({ jobId: "job-2", requestId: "req-2" })],
+      observedAt: timestamp,
+      readVersion: "opaque-store-snapshot-v1",
+    }));
     const client = clientWith(fetchImpl);
-    const jobs = await client.listJobs({ limit: 25 });
-    expect(jobs).toHaveLength(2);
+    const result = await client.listJobs({ limit: 25 });
+    expect(result).toEqual({
+      jobs: [
+        { jobId: "job-1", requestId: "req-1", status: "OUTCOME_UNKNOWN", createdAt: timestamp, version: 3 },
+        { jobId: "job-2", requestId: "req-2", status: "RUNNING", createdAt: timestamp, version: 3 },
+      ],
+      observedAt: timestamp,
+      readVersion: "opaque-store-snapshot-v1",
+    });
+    expect(Object.keys(result.jobs[0]!).sort()).toEqual(["createdAt", "jobId", "requestId", "status", "version"]);
     expect(calls[0]!.url).toBe("https://media.example.test/api/v1/jobs?limit=25");
     await expect(client.listJobs({ limit: 0 })).rejects.toThrow(/limit/u);
     await expect(client.listJobs({ limit: 1001 })).rejects.toThrow(/limit/u);
+    expect(calls).toHaveLength(1);
+  });
+
+  it.each([
+    ["missing observedAt", { jobs: [job()], readVersion: "snapshot-1" }],
+    ["missing readVersion", { jobs: [job()], observedAt: timestamp }],
+    ["invalid observedAt", { jobs: [job()], observedAt: "not-a-date", readVersion: "snapshot-1" }],
+    ["empty readVersion", { jobs: [job()], observedAt: timestamp, readVersion: "" }],
+    ["oversized readVersion", { jobs: [job()], observedAt: timestamp, readVersion: "v".repeat(257) }],
+    ["oversized requested page", { jobs: [job(), job({ jobId: "job-2" })], observedAt: timestamp, readVersion: "snapshot-1" }],
+    ["unknown envelope property", { jobs: [job()], observedAt: timestamp, readVersion: "snapshot-1", cursor: "invented" }],
+    ["foreign tenant row", { jobs: [job({ tenantId: "tenant-other" })], observedAt: timestamp, readVersion: "snapshot-1" }],
+    ["foreign principal row", { jobs: [job({ principalId: "principal-other" })], observedAt: timestamp, readVersion: "snapshot-1" }],
+    ["unsupported raw status", { jobs: [job({ status: "completed" })], observedAt: timestamp, readVersion: "snapshot-1" }],
+    ["unsafe version", { jobs: [job({ version: Number.MAX_SAFE_INTEGER + 1 })], observedAt: timestamp, readVersion: "snapshot-1" }],
+    ["missing summary field", { jobs: [job({ requestId: undefined })], observedAt: timestamp, readVersion: "snapshot-1" }],
+  ])("listJobs rejects %s before returning a partial projection", async (_label, body) => {
+    const { fetchImpl } = recordedFetch(() => jsonResponse(body));
+    const client = clientWith(fetchImpl);
+    await expect(client.listJobs({ limit: 1 })).rejects.toThrow();
   });
 
   it("does not invent a route for the seven-dimension status read", async () => {
