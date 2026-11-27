@@ -902,6 +902,9 @@ public final class MediaWorkflowMetrics {
         private final EnumSet<LocalProviderState> registeredStates = EnumSet.noneOf(LocalProviderState.class);
         private final AtomicReference<Double> checkedAt = new AtomicReference<>(Double.NaN);
         private boolean checkedAtRegistered;
+        private Instant observedAt;
+        private LocalProviderState observedState;
+        private boolean conflictingEqualTimeObservation;
 
         private LocalProviderGauges() {
             for (LocalProviderState state : LocalProviderState.values()) {
@@ -925,6 +928,19 @@ public final class MediaWorkflowMetrics {
                 provider, ignored -> new LocalProviderGauges());
         try {
             synchronized (gauges) {
+                if (gauges.observedAt != null) {
+                    int timeOrder = checkedAt.compareTo(gauges.observedAt);
+                    if (timeOrder < 0 || (timeOrder == 0 && gauges.conflictingEqualTimeObservation)) return;
+                    if (timeOrder == 0) {
+                        if (gauges.observedState == state) return;
+                        // The poll timestamps cannot order these contradictory observations. Keep every
+                        // state unknown until a strictly newer poll resolves the ambiguity.
+                        gauges.conflictingEqualTimeObservation = true;
+                        gauges.observedState = null;
+                        for (AtomicReference<Double> value : gauges.states.values()) value.set(Double.NaN);
+                        return;
+                    }
+                }
                 for (LocalProviderState each : LocalProviderState.values()) {
                     if (!gauges.registeredStates.contains(each)) {
                         Gauge.builder("media.dev.provider.state", gauges.states.get(each), AtomicReference::get)
@@ -949,6 +965,9 @@ public final class MediaWorkflowMetrics {
                 for (LocalProviderState each : LocalProviderState.values()) {
                     gauges.states.get(each).set(each == state ? 1.0 : 0.0);
                 }
+                gauges.observedAt = checkedAt;
+                gauges.observedState = state;
+                gauges.conflictingEqualTimeObservation = false;
             }
         } catch (RuntimeException registryFailure) {
             // Observational only: a registry failure must not alter the catalog or a lane result.

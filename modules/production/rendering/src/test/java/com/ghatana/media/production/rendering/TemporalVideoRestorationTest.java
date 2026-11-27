@@ -272,6 +272,7 @@ class TemporalVideoRestorationTest {
 
     @Test
     void deterministicImpulseNoiseReferencePreservesVariablePtsAndRationalTimebase() {
+        // PXD-262 binds this synthetic fixture only; its digest, rights, and authority labels are placeholders.
         Roi roi = new Roi(0, 0, 1, 1);
         TimeBase sourceTimeBase = new TimeBase(1_001, 30_000);
         byte[][] sourcePixels = {
@@ -297,17 +298,27 @@ class TemporalVideoRestorationTest {
         DecodedFrameSequence reference = new DecodedFrameSequence("reference", "v7", REF_SHA,
                 sourceTimeBase, referenceFrames);
 
-        Candidate candidate = TemporalVideoRestoration.restore(request(),
+        Candidate candidate = TemporalVideoRestoration.restore(request(FilterParameters.temporalMedian()),
                 (binding, operation) -> allowed("source-decision-v3"), binding -> source,
                 Optional.of(referenceRequest()), binding -> reference,
                 (binding, purpose) -> allowed("reference-decision-v2")).candidate().orElseThrow();
 
+        assertThat(candidate.lineage().profileId()).isEqualTo(PROFILE_ID);
+        assertThat(candidate.lineage().methodVersion()).isEqualTo("1");
+        assertThat(candidate.lineage().sourceVersionId()).isEqualTo("v3");
         assertThat(candidate.timeBase()).isEqualTo(sourceTimeBase);
         assertThat(candidate.frames()).extracting(CandidateFrame::frameIndex).containsExactly(0, 1, 2);
         assertThat(candidate.frames()).extracting(CandidateFrame::presentationTicks).containsExactly(0L, 1_001L, 3_003L);
-        assertThat(candidate.frames()).allSatisfy(frame ->
-                assertThat(frame.rgb()).contains((byte) 32, (byte) 64, (byte) 96));
+        assertThat(candidate.frames()).allSatisfy(frame -> {
+            assertThat(frame.width()).isEqualTo(2);
+            assertThat(frame.height()).isEqualTo(1);
+        });
+        assertThat(candidate.frames().get(0).rgb()).containsExactly((byte) 32, (byte) 64, (byte) 96, 101, 102, 103);
         assertThat(candidate.frames().get(1).rgb()).containsExactly((byte) 32, (byte) 64, (byte) 96, 111, 112, 113);
+        assertThat(candidate.frames().get(2).rgb()).containsExactly((byte) 32, (byte) 64, (byte) 96, 121, 122, 123);
+        assertThat(candidate.dimensionsPreserved()).isTrue();
+        assertThat(candidate.timingPreserved()).isTrue();
+        assertThat(candidate.sourcePixelsPreservedOutsideRoi()).isTrue();
         assertThat(candidate.referenceMetrics().status()).isEqualTo(MetricStatus.EXACT_REFERENCE_MATCH);
         assertThat(candidate.referenceMetrics().psnr().finiteDb()).isEmpty();
         assertThat(candidate.referenceMetrics().globalLumaSsim().orElseThrow()).isEqualTo(1.0);

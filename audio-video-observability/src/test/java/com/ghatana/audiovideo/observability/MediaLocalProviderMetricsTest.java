@@ -48,7 +48,7 @@ class MediaLocalProviderMetricsTest {
     }
 
     @Test
-    void readinessIsOneHotPerProviderAndReplacedByTheNextObservation() {
+    void readinessIsOneHotPerProviderAndRejectsStaleObservations() {
         SimpleMeterRegistry registry = new SimpleMeterRegistry();
         MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "launcher");
         metrics.recordLocalProviderState(MediaWorkflowMetrics.LocalProvider.KOKORO,
@@ -61,9 +61,43 @@ class MediaLocalProviderMetricsTest {
         assertThat(state(registry, "kokoro", "unavailable")).isEqualTo(1.0);
         assertThat(registry.find("media.dev.provider.checked_at_seconds").tag("provider", "kokoro").gauge().value())
                 .isEqualTo((double) CHECKED.plusSeconds(5).getEpochSecond());
+        metrics.recordLocalProviderState(MediaWorkflowMetrics.LocalProvider.KOKORO,
+                MediaWorkflowMetrics.LocalProviderState.READY, CHECKED.plusSeconds(4));
+        assertThat(state(registry, "kokoro", "ready")).isEqualTo(0.0);
+        assertThat(state(registry, "kokoro", "unavailable")).isEqualTo(1.0);
+        assertThat(registry.find("media.dev.provider.checked_at_seconds").tag("provider", "kokoro").gauge().value())
+                .isEqualTo((double) CHECKED.plusSeconds(5).getEpochSecond());
         // Five states for the one observed provider; nothing is exported for a provider never probed.
         assertThat(registry.find("media.dev.provider.state").gauges()).hasSize(5);
         assertThat(registry.find("media.dev.provider.state").tag("provider", "whisper").gauges()).isEmpty();
+    }
+
+    @Test
+    void conflictingEqualTimeReadinessStaysUnknownUntilANewerObservation() {
+        SimpleMeterRegistry registry = new SimpleMeterRegistry();
+        MediaWorkflowMetrics metrics = new MediaWorkflowMetrics(registry, "launcher");
+        metrics.recordLocalProviderState(MediaWorkflowMetrics.LocalProvider.FLORENCE,
+                MediaWorkflowMetrics.LocalProviderState.READY, CHECKED);
+
+        metrics.recordLocalProviderState(MediaWorkflowMetrics.LocalProvider.FLORENCE,
+                MediaWorkflowMetrics.LocalProviderState.UNAVAILABLE, CHECKED);
+
+        assertThat(registry.find("media.dev.provider.state").tag("provider", "florence").gauges())
+                .hasSize(MediaWorkflowMetrics.LocalProviderState.values().length)
+                .allSatisfy(gauge -> assertThat(gauge.value()).isNaN());
+        assertThat(registry.find("media.dev.provider.checked_at_seconds").tag("provider", "florence").gauge().value())
+                .isEqualTo((double) CHECKED.getEpochSecond());
+
+        metrics.recordLocalProviderState(MediaWorkflowMetrics.LocalProvider.FLORENCE,
+                MediaWorkflowMetrics.LocalProviderState.READY, CHECKED);
+        assertThat(registry.find("media.dev.provider.state").tag("provider", "florence").gauges())
+                .allSatisfy(gauge -> assertThat(gauge.value()).isNaN());
+
+        metrics.recordLocalProviderState(MediaWorkflowMetrics.LocalProvider.FLORENCE,
+                MediaWorkflowMetrics.LocalProviderState.DEGRADED, CHECKED.plusSeconds(1));
+        assertThat(state(registry, "florence", "degraded")).isEqualTo(1.0);
+        assertThat(state(registry, "florence", "ready")).isEqualTo(0.0);
+        assertThat(state(registry, "florence", "unavailable")).isEqualTo(0.0);
     }
 
     @Test
