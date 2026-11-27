@@ -105,6 +105,75 @@ final class MediaDevAudioWav {
     }
 
     /**
+     * Reads the exact WAVEFORMATEXTENSIBLE IEEE-float32 output emitted by speech-audio-rust's bounded preview CLI,
+     * then quantizes it into this lane's canonical PCM16 representation. This is intentionally separate from
+     * {@link #parse(byte[])} so float caller inputs do not widen the accepted source format.
+     */
+    static Pcm parseRustFloat32Candidate(byte[] bytes) {
+        if (bytes.length < 68) throw new WavException("AUDIO_NOT_WAV", "the float candidate is too small to be a WAV file");
+        ByteBuffer buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+        if (buffer.getInt(0) != 0x46464952 || buffer.getInt(8) != 0x45564157
+                || Integer.toUnsignedLong(buffer.getInt(4)) + 8L != bytes.length) {
+            throw new WavException("AUDIO_NOT_WAV", "the float candidate is not a complete RIFF/WAVE file");
+        }
+        final byte[] floatGuid = {3, 0, 0, 0, 0, 0, 16, 0, (byte) 128, 0, 0, (byte) 170, 0, 56, (byte) 155, 113};
+        int position = 12;
+        int channels = -1;
+        int rate = -1;
+        int dataStart = -1;
+        long dataSize = -1;
+        boolean fmtSeen = false;
+        while (position + 8 <= bytes.length) {
+            int id = buffer.getInt(position);
+            long size = Integer.toUnsignedLong(buffer.getInt(position + 4));
+            int body = position + 8;
+            long next = (long) body + size + (size & 1);
+            if (next > bytes.length) throw new WavException("AUDIO_PARTIAL_FRAMES", "the float candidate has a truncated WAV chunk");
+            if (id == 0x20746d66) { // fmt
+                if (fmtSeen || size != 40) throw new WavException("AUDIO_FORMAT_NOT_SUPPORTED", "the Rust float fmt chunk is not canonical");
+                int tag = Short.toUnsignedInt(buffer.getShort(body));
+                channels = Short.toUnsignedInt(buffer.getShort(body + 2));
+                rate = buffer.getInt(body + 4);
+                int byteRate = buffer.getInt(body + 8);
+                int blockAlign = Short.toUnsignedInt(buffer.getShort(body + 12));
+                int bits = Short.toUnsignedInt(buffer.getShort(body + 14));
+                int extensionBytes = Short.toUnsignedInt(buffer.getShort(body + 16));
+                int validBits = Short.toUnsignedInt(buffer.getShort(body + 18));
+                long channelMask = Integer.toUnsignedLong(buffer.getInt(body + 20));
+                if (tag != 0xfffe || (channels != 1 && channels != 2) || rate < MIN_RATE || rate > MAX_RATE
+                        || bits != 32 || extensionBytes != 22 || validBits != 32 || blockAlign != channels * 4
+                        || byteRate != rate * blockAlign || channelMask != (channels == 1 ? 1L : 3L)
+                        || !Arrays.equals(floatGuid, Arrays.copyOfRange(bytes, body + 24, body + 40))) {
+                    throw new WavException("AUDIO_FORMAT_NOT_SUPPORTED", "the Rust float candidate format is not supported");
+                }
+                fmtSeen = true;
+            } else if (id == 0x61746164) { // data
+                if (!fmtSeen || dataStart >= 0) throw new WavException("AUDIO_NOT_WAV", "the float candidate has an invalid data chunk");
+                dataStart = body;
+                dataSize = size;
+                if (next != bytes.length) throw new WavException("AUDIO_PARTIAL_FRAMES", "the float candidate has trailing data");
+            }
+            position = (int) next;
+        }
+        int frameBytes = channels * 4;
+        if (dataStart < 0 || dataSize <= 0 || dataSize % frameBytes != 0 || dataSize != bytes.length - (long) dataStart) {
+            throw new WavException("AUDIO_PARTIAL_FRAMES", "the float candidate data is empty or not whole interleaved frames");
+        }
+        long sampleCount = dataSize / 4;
+        if (sampleCount > 4_000_000) throw new WavException("AUDIO_LIMIT_EXCEEDED", "the float candidate exceeds the decoded sample cap");
+        short[] samples = new short[(int) sampleCount];
+        for (int i = 0; i < samples.length; i++) {
+            float sample = buffer.getFloat(dataStart + i * 4);
+            if (!Float.isFinite(sample) || sample < -1.000001f || sample > 1.000001f) {
+                throw new WavException("AUDIO_FORMAT_NOT_SUPPORTED", "the Rust float candidate contains a non-finite or out-of-range sample");
+            }
+            long quantized = Math.round(sample * 32768.0d);
+            samples[i] = (short) Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, quantized));
+        }
+        return new Pcm(rate, channels, samples);
+    }
+
+    /**
      * Canonical 44-byte-header PCM16 WAV followed by one RIFF {@code LIST/INFO ICMT} comment chunk. The data chunk is
      * unchanged and still starts at byte 44; the comment (ASCII, at most 255 bytes) makes the bytes owner-specific, because
      * the artifact store keeps one artifact per (tenant, digest, size) across owners.

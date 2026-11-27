@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -90,14 +91,24 @@ final class MediaDevAudioRoutes {
             }
             Map<String, Object> body = body(exchange, maxBody);
             // Everything below parses and validates the request fully before the runtime is called.
+            boolean capabilityRequest = false;
             if (RESTORATIONS.equals(path)) {
-                requireKeys(body, Set.of("requestId", "artifactId", "artifactVersionId", "operations"), Set.of(),
-                        "restoration request");
-                var request = new MediaDevAudioRestorationRuntime.RestoreRequest(
-                        string(body.get("requestId"), "requestId"), string(body.get("artifactId"), "artifactId"),
-                        string(body.get("artifactVersionId"), "artifactVersionId"), operations(body.get("operations")));
-                var result = audio.restore(tenantId, principalId, request);
-                out.json(exchange, result.replayed() ? 200 : 201, view(result));
+                MediaDevAudioRestorationRuntime.AudioOutput result;
+                if (body.containsKey("input1") || body.containsKey("input2") || body.containsKey("parameters")) {
+                    capabilityRequest = true;
+                    requireKeys(body, Set.of("requestId", "input1", "input2", "parameters"), Set.of(),
+                            "noise-suppression request");
+                    result = audio.suppressNoise(tenantId, principalId, noiseSuppressionRequest(body));
+                } else {
+                    requireKeys(body, Set.of("requestId", "artifactId", "artifactVersionId", "operations"), Set.of(),
+                            "restoration request");
+                    var request = new MediaDevAudioRestorationRuntime.RestoreRequest(
+                            string(body.get("requestId"), "requestId"), string(body.get("artifactId"), "artifactId"),
+                            string(body.get("artifactVersionId"), "artifactVersionId"), operations(body.get("operations")));
+                    result = audio.restore(tenantId, principalId, request);
+                }
+                out.json(exchange, result.replayed() ? 200 : 201,
+                        capabilityRequest ? operationResultView(result) : view(result));
             } else {
                 requireKeys(body, Set.of("requestId", "source", "restored"), Set.of("reference", "transcript"),
                         "comparison request");
@@ -154,6 +165,26 @@ final class MediaDevAudioRoutes {
         return view;
     }
 
+    private static Map<String, Object> operationResultView(MediaDevAudioRestorationRuntime.AudioOutput result) {
+        MediaArtifact artifact = result.artifact();
+        Map<?, ?> provenance = (Map<?, ?>) result.lineage().get("provenance");
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("artifactId", artifact.artifactId());
+        payload.put("versionId", artifact.version().value());
+        payload.put("declaredMediaType", artifact.contentType());
+        payload.put("declaredByteLength", artifact.sizeBytes());
+        Object input1 = result.lineage().get("input1");
+        if (input1 instanceof Map<?, ?> input && input.get("payload") instanceof Map<?, ?> sourcePayload
+                && sourcePayload.get("sourceRef") instanceof String sourceRef) {
+            payload.put("sourceRef", sourceRef);
+        }
+        return Map.of("outcome", "SUCCEEDED", "observedAt", provenance.get("observedAt"),
+                "outputs", List.of(Map.of("artifactType",
+                        "derived-audio-candidate-with-source-preserved-and-measurements", "payload", payload)),
+                "provenance", provenance, "implementationState", "UNKNOWN", "qualificationState", "NOT_EVALUATED",
+                "runtimeAvailability", "UNKNOWN");
+    }
+
     // ---- strict body parsing ----
 
     private static Map<String, Object> body(HttpExchange exchange, int maxBody) throws IOException {
@@ -207,6 +238,62 @@ final class MediaDevAudioRoutes {
         return new MediaDevAudioRestorationRuntime.Operations(declip, dehum, denoise, normalize);
     }
 
+    private static MediaDevAudioRestorationRuntime.NoiseSuppressionRequest noiseSuppressionRequest(Map<String, Object> body) {
+        Map<String, Object> input1 = object(body.get("input1"), "input1");
+        requireKeys(input1, Set.of("artifactType", "payload"), Set.of(), "input1");
+        if (!"audio-artifact".equals(string(input1.get("artifactType"), "input1.artifactType"))) {
+            throw new IllegalArgumentException("input1.artifactType must be audio-artifact");
+        }
+        Map<String, Object> audio = object(input1.get("payload"), "input1.payload");
+        requireKeys(audio, Set.of("artifactId", "versionId"),
+                Set.of("sourceRef", "declaredMediaType", "declaredByteLength"), "input1.payload");
+        var input = new MediaDevAudioRestorationRuntime.NoiseInput(
+                string(audio.get("artifactId"), "input1.payload.artifactId"),
+                string(audio.get("versionId"), "input1.payload.versionId"),
+                audio.containsKey("sourceRef") ? string(audio.get("sourceRef"), "input1.payload.sourceRef") : null,
+                audio.containsKey("declaredMediaType")
+                        ? string(audio.get("declaredMediaType"), "input1.payload.declaredMediaType") : null,
+                audio.containsKey("declaredByteLength")
+                        ? nonNegativeLong(audio.get("declaredByteLength"), "input1.payload.declaredByteLength") : null);
+
+        Map<String, Object> input2 = object(body.get("input2"), "input2");
+        requireKeys(input2, Set.of("artifactType", "payload"), Set.of(), "input2");
+        if (!"preservation-and-enhancement-policy".equals(string(input2.get("artifactType"), "input2.artifactType"))) {
+            throw new IllegalArgumentException("input2.artifactType must be preservation-and-enhancement-policy");
+        }
+        Map<String, Object> policy = object(input2.get("payload"), "input2.payload");
+        requireKeys(policy, Set.of(), Set.of("purposeRef", "rightsEvidenceRefs", "consentRef", "retentionPolicyRef",
+                "policyDecisionRef"), "input2.payload");
+        List<String> evidenceRefs = new java.util.ArrayList<>();
+        if (policy.containsKey("rightsEvidenceRefs")) {
+            Object value = policy.get("rightsEvidenceRefs");
+            if (!(value instanceof List<?> values) || values.isEmpty() || values.size() > 32) {
+                throw new IllegalArgumentException("input2.payload.rightsEvidenceRefs must contain 1-32 references");
+            }
+            for (Object ref : values) evidenceRefs.add(string(ref, "input2.payload.rightsEvidenceRefs[]"));
+        }
+        var policyInput = new MediaDevAudioRestorationRuntime.NoisePolicy(
+                policy.containsKey("purposeRef") ? string(policy.get("purposeRef"), "input2.payload.purposeRef") : null,
+                evidenceRefs,
+                policy.containsKey("consentRef") ? string(policy.get("consentRef"), "input2.payload.consentRef") : null,
+                policy.containsKey("retentionPolicyRef")
+                        ? string(policy.get("retentionPolicyRef"), "input2.payload.retentionPolicyRef") : null,
+                policy.containsKey("policyDecisionRef")
+                        ? string(policy.get("policyDecisionRef"), "input2.payload.policyDecisionRef") : null);
+
+        Map<String, Object> parameters = object(body.get("parameters"), "parameters");
+        requireKeys(parameters, Set.of("noiseOnlyFrameRange", "profileRef"), Set.of(), "parameters");
+        Map<String, Object> range = object(parameters.get("noiseOnlyFrameRange"), "parameters.noiseOnlyFrameRange");
+        requireKeys(range, Set.of("startFrame", "endFrame"), Set.of(), "parameters.noiseOnlyFrameRange");
+        var noiseRange = new MediaDevAudioRestorationRuntime.NoiseRange(
+                nonNegativeLong(range.get("startFrame"), "parameters.noiseOnlyFrameRange.startFrame"),
+                nonNegativeLong(range.get("endFrame"), "parameters.noiseOnlyFrameRange.endFrame"));
+        var noiseParameters = new MediaDevAudioRestorationRuntime.NoiseParameters(noiseRange,
+                string(parameters.get("profileRef"), "parameters.profileRef"));
+        return new MediaDevAudioRestorationRuntime.NoiseSuppressionRequest(
+                string(body.get("requestId"), "requestId"), input, policyInput, noiseParameters);
+    }
+
     private static MediaDevAudioRestorationRuntime.VersionRef versionRef(Object value, String field) {
         Map<String, Object> map = object(value, field);
         requireKeys(map, Set.of("artifactId", "artifactVersionId"), Set.of(), field);
@@ -241,6 +328,15 @@ final class MediaDevAudioRoutes {
         long v = ((Number) value).longValue();
         if (v < Integer.MIN_VALUE || v > Integer.MAX_VALUE) throw new IllegalArgumentException(field + " is out of range");
         return (int) v;
+    }
+
+    private static long nonNegativeLong(Object value, String field) {
+        if (!(value instanceof Integer || value instanceof Long || value instanceof Short)) {
+            throw new IllegalArgumentException(field + " must be an integer");
+        }
+        long number = ((Number) value).longValue();
+        if (number < 0 || number > 2_147_483_648L) throw new IllegalArgumentException(field + " is out of range");
+        return number;
     }
 
     private static double number(Object value, String field) {

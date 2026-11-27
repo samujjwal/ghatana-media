@@ -18,10 +18,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.security.MessageDigest;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Comparator;
 import java.util.HexFormat;
 import java.util.LinkedHashMap;
@@ -63,7 +65,11 @@ public final class MediaDevAudioRestorationRuntime {
     public static final String KIND_RESTORED = "LOCAL_AUDIO_RESTORED";
     public static final String KIND_COMPARISON = "LOCAL_AUDIO_COMPARISON";
     public static final String ENV_TIMEOUT = "MEDIA_DEV_AUDIO_RESTORE_TIMEOUT_SECONDS";
+    public static final String ENV_RMS_GATE = "MEDIA_DEV_AUDIO_RMS_BLOCK_GATE_BIN";
+    public static final String OP_RMS_NOISE_SUPPRESSION = "media.operation.capability.media-enhance-audio-noise-suppression";
+    public static final String PROFILE_RMS_BLOCK_GATE_V1 = "RMS_BLOCK_GATE_V1";
     static final String LANE_RESTORE = "audio.restore";
+    static final String LANE_NOISE_SUPPRESSION = "audio.noise-suppression";
     static final String LANE_COMPARE = "audio.compare";
     static final int MAX_SOURCE_BYTES = 8 * 1024 * 1024;
     static final int MAX_COMPARISON_DOCUMENT_BYTES = 256 * 1024;
@@ -73,7 +79,8 @@ public final class MediaDevAudioRestorationRuntime {
     private static final tools.jackson.databind.ObjectMapper JSON = tools.jackson.databind.json.JsonMapper.builder().build();
     private static final List<String> LINEAGE_KEYS = List.of("restorationSchema", "comparisonSchema", "scope", "kind",
             "requestId", "source", "restored", "reference", "operations", "filterGraph", "engine", "format",
-            "rightsDecision", "transcript", "note");
+            "rightsDecision", "transcript", "note", "operationRef", "input1", "input2", "profile",
+            "input2AuthorityState", "noiseOnlyFrameRange", "measurements", "provenance");
 
     // ---- typed operation set ----
 
@@ -196,6 +203,96 @@ public final class MediaDevAudioRestorationRuntime {
         }
     }
 
+    public record NoiseInput(String artifactId, String versionId, String sourceRef, String declaredMediaType,
+                             Long declaredByteLength) {
+        public NoiseInput {
+            artifactId = boundedId(artifactId, "input1.payload.artifactId");
+            if (versionId == null || !versionId.matches("[A-Za-z0-9][A-Za-z0-9._:+-]{0,127}")) {
+                throw invalid("input1.payload.versionId must be a 1-128 character opaque version id");
+            }
+            if (sourceRef != null && (sourceRef.isBlank() || sourceRef.length() > 384)) {
+                throw invalid("input1.payload.sourceRef must be 1-384 characters");
+            }
+            if (declaredMediaType != null && (declaredMediaType.length() > 127
+                    || !declaredMediaType.matches("[A-Za-z0-9!#$&^_.+-]+/[A-Za-z0-9!#$&^_.+-]+"))) {
+                throw invalid("input1.payload.declaredMediaType must be an IANA media type");
+            }
+            if (declaredByteLength != null && (declaredByteLength < 0 || declaredByteLength > 2_147_483_648L)) {
+                throw invalid("input1.payload.declaredByteLength is outside [0, 2147483648]");
+            }
+        }
+
+        Map<String, Object> view() {
+            Map<String, Object> payload = new LinkedHashMap<>();
+            payload.put("artifactId", artifactId);
+            payload.put("versionId", versionId);
+            if (sourceRef != null) payload.put("sourceRef", sourceRef);
+            if (declaredMediaType != null) payload.put("declaredMediaType", declaredMediaType);
+            if (declaredByteLength != null) payload.put("declaredByteLength", declaredByteLength);
+            Map<String, Object> result = new LinkedHashMap<>();
+            result.put("artifactType", "audio-artifact");
+            result.put("payload", payload);
+            return result;
+        }
+    }
+
+    public record NoisePolicy(String purposeRef, List<String> rightsEvidenceRefs, String consentRef,
+                              String retentionPolicyRef, String policyDecisionRef) {
+        public NoisePolicy {
+            rightsEvidenceRefs = List.copyOf(rightsEvidenceRefs == null ? List.of() : rightsEvidenceRefs);
+            if (rightsEvidenceRefs.size() > 32) throw invalid("input2.payload.rightsEvidenceRefs allows at most 32 references");
+            checkRef(purposeRef, 256, "purposeRef");
+            for (String ref : rightsEvidenceRefs) checkRef(ref, 256, "rightsEvidenceRefs[]");
+            checkRef(consentRef, 384, "consentRef");
+            checkRef(retentionPolicyRef, 384, "retentionPolicyRef");
+            checkRef(policyDecisionRef, 384, "policyDecisionRef");
+        }
+
+        Map<String, Object> view() {
+            Map<String, Object> payload = new LinkedHashMap<>();
+            if (purposeRef != null) payload.put("purposeRef", purposeRef);
+            if (!rightsEvidenceRefs.isEmpty()) payload.put("rightsEvidenceRefs", rightsEvidenceRefs);
+            if (consentRef != null) payload.put("consentRef", consentRef);
+            if (retentionPolicyRef != null) payload.put("retentionPolicyRef", retentionPolicyRef);
+            if (policyDecisionRef != null) payload.put("policyDecisionRef", policyDecisionRef);
+            Map<String, Object> result = new LinkedHashMap<>();
+            result.put("artifactType", "preservation-and-enhancement-policy");
+            result.put("payload", payload);
+            return result;
+        }
+        String canonical() { return JSON.writeValueAsString(view()); }
+    }
+
+    public record NoiseRange(long startFrame, long endFrame) {
+        public NoiseRange {
+            if (startFrame < 0 || endFrame <= startFrame || endFrame > 6_000_000L
+                    || endFrame - startFrame > 2_000_000L) {
+                throw invalid("noiseOnlyFrameRange must be a non-empty half-open span of at most 2,000,000 frames");
+            }
+        }
+        Map<String, Object> view() { return Map.of("startFrame", startFrame, "endFrame", endFrame); }
+    }
+
+    public record NoiseParameters(NoiseRange noiseOnlyFrameRange, String profileRef) {
+        public NoiseParameters {
+            Objects.requireNonNull(noiseOnlyFrameRange, "noiseOnlyFrameRange");
+            if (!PROFILE_RMS_BLOCK_GATE_V1.equals(profileRef)) throw invalid("profileRef must be RMS_BLOCK_GATE_V1");
+        }
+        Map<String, Object> view() {
+            return Map.of("noiseOnlyFrameRange", noiseOnlyFrameRange.view(), "profileRef", profileRef);
+        }
+    }
+
+    public record NoiseSuppressionRequest(String requestId, NoiseInput input1, NoisePolicy input2,
+                                         NoiseParameters parameters) {
+        public NoiseSuppressionRequest {
+            requestId = boundedId(requestId, "requestId");
+            Objects.requireNonNull(input1, "input1");
+            Objects.requireNonNull(input2, "input2");
+            Objects.requireNonNull(parameters, "parameters");
+        }
+    }
+
     public record VersionRef(String artifactId, String artifactVersionId) {
         public VersionRef {
             artifactId = boundedId(artifactId, "artifactId");
@@ -274,12 +371,14 @@ public final class MediaDevAudioRestorationRuntime {
     private final MediaDevRequestLedger ledger;
     private final LocalWhisperCppSttProvider stt;
     private final Path ffmpeg;
+    private final Path rmsBlockGateBinary;
     private final Duration timeout;
     private volatile Map<String, Object> engineIdentity;
+    private volatile Map<String, Object> rmsBlockGateIdentity;
 
     MediaDevAudioRestorationRuntime(MediaRuntime runtime, MediaDevProjectRenderRuntime.OutputRegistrar registrar,
                                     RightsConsentResolver rights, MediaDevRequestLedger ledger,
-                                    LocalWhisperCppSttProvider stt, Path ffmpeg, Duration timeout) {
+                                    LocalWhisperCppSttProvider stt, Path ffmpeg, Path rmsBlockGateBinary, Duration timeout) {
         this.runtime = Objects.requireNonNull(runtime, "runtime");
         this.registrar = Objects.requireNonNull(registrar, "registrar");
         this.rights = rights == null ? RightsConsentResolver.unavailable() : rights;
@@ -287,6 +386,10 @@ public final class MediaDevAudioRestorationRuntime {
         this.stt = stt;
         if (ffmpeg != null && !ffmpeg.isAbsolute()) throw new IllegalArgumentException("ffmpeg path must be absolute");
         this.ffmpeg = ffmpeg;
+        if (rmsBlockGateBinary != null && !rmsBlockGateBinary.isAbsolute()) {
+            throw new IllegalArgumentException("RMS block-gate binary path must be absolute");
+        }
+        this.rmsBlockGateBinary = rmsBlockGateBinary;
         this.timeout = Objects.requireNonNull(timeout, "timeout");
     }
 
@@ -294,6 +397,8 @@ public final class MediaDevAudioRestorationRuntime {
                                                    RightsConsentResolver rights, MediaDevRequestLedger ledger) {
         String configured = environment.get(MediaDevProjectRenderRuntime.FFMPEG_ENV);
         Path ffmpeg = configured == null || configured.isBlank() ? null : Path.of(configured);
+        String gateConfigured = environment.get(ENV_RMS_GATE);
+        Path rmsBlockGateBinary = gateConfigured == null || gateConfigured.isBlank() ? null : Path.of(gateConfigured);
         long seconds = 60;
         String raw = environment.get(ENV_TIMEOUT);
         if (raw != null && !raw.isBlank()) {
@@ -305,7 +410,8 @@ public final class MediaDevAudioRestorationRuntime {
             if (seconds < 2 || seconds > 300) throw new IllegalArgumentException(ENV_TIMEOUT + " must be an integer within [2, 300]");
         }
         return new MediaDevAudioRestorationRuntime(runtime, MediaDevProjectRenderRuntime.canonicalRegistrar(runtime),
-                rights, ledger, LocalWhisperCppSttProvider.fromEnvironment(environment), ffmpeg, Duration.ofSeconds(seconds));
+                rights, ledger, LocalWhisperCppSttProvider.fromEnvironment(environment), ffmpeg, rmsBlockGateBinary,
+                Duration.ofSeconds(seconds));
     }
 
     // ---- status ----
@@ -328,7 +434,40 @@ public final class MediaDevAudioRestorationRuntime {
                 "declip", Map.of("threshold", List.of(1, 100)),
                 "dehum", Map.of("frequencyHz", List.of(50, 60)),
                 "normalize", Map.of("targetLufs", List.of(-30, -10), "default", "OFF")));
+        Map<String, Object> rmsGate = new LinkedHashMap<>();
+        rmsGate.put("configured", rmsBlockGateBinary != null);
+        Map<String, Object> rmsIdentity = rmsBlockGateIdentity();
+        rmsGate.put("ready", rmsIdentity != null);
+        rmsGate.put("profileRef", PROFILE_RMS_BLOCK_GATE_V1);
+        rmsGate.put("thresholdMultiple", 2.0);
+        rmsGate.put("floorGain", 0.08);
+        rmsGate.put("blockFrames", 256);
+        if (rmsIdentity != null) rmsGate.putAll(rmsIdentity);
+        view.put("noiseSuppression", Map.copyOf(rmsGate));
         return view;
+    }
+
+    private Map<String, Object> rmsBlockGateIdentity() {
+        Map<String, Object> cached = rmsBlockGateIdentity;
+        if (cached != null) return cached;
+        synchronized (this) {
+            if (rmsBlockGateIdentity != null) return rmsBlockGateIdentity;
+            if (rmsBlockGateBinary == null || !Files.isRegularFile(rmsBlockGateBinary) || !Files.isExecutable(rmsBlockGateBinary)) {
+                return null;
+            }
+            try {
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                try (InputStream in = Files.newInputStream(rmsBlockGateBinary)) {
+                    byte[] buffer = new byte[64 * 1024];
+                    for (int read; (read = in.read(buffer)) > 0; ) digest.update(buffer, 0, read);
+                }
+                rmsBlockGateIdentity = Map.of("name", "speech-audio-rust/audio-repair-preview",
+                        "binarySha256", HexFormat.of().formatHex(digest.digest()));
+                return rmsBlockGateIdentity;
+            } catch (IOException | java.security.GeneralSecurityException unavailable) {
+                return null;
+            }
+        }
     }
 
     /** Engine name, version line and binary digest; null when the engine cannot report its version. */
@@ -363,6 +502,286 @@ public final class MediaDevAudioRestorationRuntime {
     }
 
     // ---- restore ----
+
+    /** Executes the PXD-250 fixed RMS gate through the existing artifact, rights and durable-ledger path. */
+    public AudioOutput suppressNoise(String tenantId, String principalId, NoiseSuppressionRequest request) {
+        Objects.requireNonNull(request, "request");
+        return runtime.devAdmission().run(MediaDevRenderAdmission.LANE_CREATIVE, "audio_noise_suppression", tenantId,
+                () -> suppressNoiseAdmitted(tenantId, principalId, request));
+    }
+
+    private AudioOutput suppressNoiseAdmitted(String tenantId, String principalId, NoiseSuppressionRequest request) {
+        Map<String, Object> engine = rmsBlockGateIdentity();
+        if (engine == null) {
+            throw new AudioRefusedException(503, "AUDIO_ENGINE_UNAVAILABLE",
+                    "no executable prebuilt speech-audio-rust audio-repair-preview binary is configured for DEV_ONLY noise suppression",
+                    Map.of("profileRef", PROFILE_RMS_BLOCK_GATE_V1));
+        }
+        NoiseInput input = request.input1();
+        MediaArtifact source = exactVersion(tenantId, principalId, input.artifactId(), input.versionId());
+        if (input.declaredMediaType() != null && !input.declaredMediaType().equalsIgnoreCase(source.contentType())) {
+            throw invalid("input1.payload.declaredMediaType does not match the exact source artifact version");
+        }
+        if (input.declaredByteLength() != null && input.declaredByteLength() != source.sizeBytes()) {
+            throw invalid("input1.payload.declaredByteLength does not match the exact source artifact version");
+        }
+        String rightsEvidence = requireRights(tenantId, source);
+        byte[] sourceBytes = readContent(tenantId, principalId, source);
+        MediaDevAudioWav.Pcm pcm = decode(source, sourceBytes);
+        NoiseRange range = request.parameters().noiseOnlyFrameRange();
+        if (range.endFrame() > pcm.frames()) {
+            throw new AudioRefusedException(422, "AUDIO_RANGE_OUT_OF_BOUNDS",
+                    "noiseOnlyFrameRange must be within decoded PCM frames of the exact input1 version", Map.of("sourceFrames", pcm.frames()));
+        }
+        String fingerprint = MediaDevRequestLedger.fingerprint("media.dev.audio.noise-suppression.v1",
+                OP_RMS_NOISE_SUPPRESSION, source.artifactId(), source.version().value(), source.sha256(),
+                input.sourceRef(), input.declaredMediaType(), input.declaredByteLength(), request.input2().canonical(),
+                range.startFrame(), range.endFrame(), request.parameters().profileRef());
+        Map<String, Object> lineage = new LinkedHashMap<>();
+        lineage.put("restorationSchema", SCHEMA_RESTORATION);
+        lineage.put("scope", "DEV_ONLY");
+        lineage.put("kind", KIND_RESTORED);
+        lineage.put("requestId", request.requestId());
+        lineage.put("source", sourceRef(source));
+        lineage.put("input1", request.input1().view());
+        lineage.put("input2", request.input2().view());
+        lineage.put("input2AuthorityState", "NOT_EVALUATED; references are retained as request context only");
+        lineage.put("operationRef", OP_RMS_NOISE_SUPPRESSION);
+        lineage.put("operations", Map.of("noiseSuppression", request.parameters().view()));
+        lineage.put("filterGraph", "speech-audio-rust deterministic block RMS gate");
+        lineage.put("engine", engine);
+        lineage.put("profile", Map.of("profileRef", PROFILE_RMS_BLOCK_GATE_V1, "thresholdMultiple", 2.0,
+                "floorGain", 0.08, "blockFrames", 256));
+        lineage.put("noiseOnlyFrameRange", range.view());
+        lineage.put("format", Map.of("sampleRate", pcm.sampleRate(), "channels", pcm.channels(), "bitsPerSample", 16,
+                "frames", pcm.frames()));
+        lineage.put("rightsDecision", rightsEvidence);
+        lineage.put("note", "DEV_ONLY deterministic local candidate from the exact source version. Only the host PROCESSING rights resolver admits the source; "
+                + "optional input2 references are context and NOT_EVALUATED by this adapter. Caller-designated frame span was not inferred. "
+                + "Measurements are signal diagnostics only and do not establish perceived improvement or quality.");
+        return ledger.run(tenantId, principalId, LANE_NOISE_SUPPRESSION, request.requestId(), fingerprint,
+                outputs -> replay(tenantId, principalId, outputs, LANE_NOISE_SUPPRESSION),
+                () -> produceNoiseSuppression(tenantId, principalId, request, source, sourceBytes, pcm, engine, lineage),
+                output -> List.of(new OutputRef("candidate", output.artifact().artifactId(), output.artifact().version().value())),
+                () -> new AudioRequestReusedException());
+    }
+
+    private AudioOutput produceNoiseSuppression(String tenantId, String principalId, NoiseSuppressionRequest request,
+                                                MediaArtifact source, byte[] sourceBytes, MediaDevAudioWav.Pcm sourcePcm,
+                                                Map<String, Object> engine, Map<String, Object> baseLineage) {
+        NoiseCandidate candidate = runRmsBlockGate(sourceBytes, source, sourcePcm, request.parameters());
+        String comment = "ghatana-media DEV_ONLY RMS_BLOCK_GATE_V1 requestId=" + request.requestId()
+                + " source=sha256:" + source.sha256();
+        byte[] registeredBytes = MediaDevAudioWav.write(candidate.pcm(), comment);
+        String outputSha = MediaDevProjectRenderRuntime.sha256Hex(registeredBytes);
+        Map<String, Object> lineage = new LinkedHashMap<>(baseLineage);
+        lineage.put("measurements", candidate.measurements());
+        Map<String, Object> provenance = new LinkedHashMap<>();
+        provenance.put("operationRef", OP_RMS_NOISE_SUPPRESSION);
+        provenance.put("observedAt", Instant.now().toString());
+        provenance.put("sourceRefs", List.of(source.artifactId() + ":" + source.version().value()));
+        provenance.put("inputDigest", "sha256:" + source.sha256());
+        provenance.put("outputDigest", "sha256:" + outputSha);
+        provenance.put("profileRef", PROFILE_RMS_BLOCK_GATE_V1);
+        lineage.put("provenance", provenance);
+        Map<String, Object> metadata = new LinkedHashMap<>(lineage);
+        metadata.put("purpose", "audio-restoration");
+        String fileName = "noise-suppressed-" + safeName(source.artifactId()) + ".wav";
+        UploadRequest upload = new UploadRequest(tenantId, principalId, fileName, "audio/wav", registeredBytes.length,
+                outputSha, source.classification(), Duration.ofDays(30), metadata);
+        MediaArtifact artifact = register(tenantId, principalId, upload, "noise-suppression", request.requestId(),
+                registeredBytes, outputSha);
+        return new AudioOutput("RESTORATION", artifact, lineage, null, false);
+    }
+
+    private record NoiseCandidate(MediaDevAudioWav.Pcm pcm, Map<String, Object> measurements, String rustCandidateSha256) { }
+
+    private NoiseCandidate runRmsBlockGate(byte[] sourceBytes, MediaArtifact source, MediaDevAudioWav.Pcm sourcePcm,
+                                           NoiseParameters parameters) {
+        Path dir = null;
+        try {
+            dir = Files.createTempDirectory("media-dev-rms-gate-",
+                    PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
+            Path input = dir.resolve("input.wav");
+            Path preview = dir.resolve("preview");
+            Path sourceCopy = preview.resolve("source-original.wav");
+            Path candidate = preview.resolve("candidate-denoised.wav");
+            Path manifest = preview.resolve("audio-repair-preview.json");
+            Files.write(input, sourceBytes);
+            Files.createDirectory(preview);
+            long candidateCeiling = Math.min(Integer.MAX_VALUE, source.sizeBytes() * 2L + 64 * 1024L);
+            BoundedProcessRunner.Result result = BoundedProcessRunner.run(
+                    List.of(rmsBlockGateBinary.toString(), input.toString(), preview.toString(),
+                            Long.toString(parameters.noiseOnlyFrameRange().startFrame()),
+                            Long.toString(parameters.noiseOnlyFrameRange().endFrame())),
+                    dir, Map.of(), timeout, 1024, 8192, BoundedProcessRunner.CancellationToken.NEVER,
+                    candidate, candidateCeiling);
+            boolean signalled = result.exitCode() > 128 && result.exitCode() <= 192 || result.exitCode() < 0;
+            if (result.end() != BoundedProcessRunner.End.EXITED || signalled) {
+                throw new AudioOutcomeUnknownException(result.end() == BoundedProcessRunner.End.EXITED
+                        ? "ENGINE_SIGNALLED" : result.end().name());
+            }
+            if (!result.succeeded()) {
+                throw new AudioRefusedException(502, "AUDIO_NOISE_SUPPRESSION_FAILED",
+                        "the fixed RMS gate rejected the source; nothing was registered", Map.of());
+            }
+            if (!regularFile(sourceCopy, source.sizeBytes()) || !regularFile(candidate, candidateCeiling)
+                    || !regularFile(manifest, MAX_COMPARISON_DOCUMENT_BYTES)) {
+                throw new AudioRefusedException(502, "AUDIO_NOISE_SUPPRESSION_OUTPUT_INVALID",
+                        "the Rust gate did not produce bounded source, candidate and manifest files", Map.of());
+            }
+            byte[] copiedSource = Files.readAllBytes(sourceCopy);
+            if (!MediaDevProjectRenderRuntime.sha256Hex(copiedSource).equals(source.sha256())) {
+                throw new AudioRefusedException(502, "AUDIO_NOISE_SUPPRESSION_OUTPUT_INVALID",
+                        "the Rust gate source copy does not match the exact input version", Map.of());
+            }
+            byte[] candidateBytes = Files.readAllBytes(candidate);
+            String candidateSha = MediaDevProjectRenderRuntime.sha256Hex(candidateBytes);
+            MediaDevAudioWav.Pcm candidatePcm;
+            try {
+                candidatePcm = MediaDevAudioWav.parseRustFloat32Candidate(candidateBytes);
+            } catch (MediaDevAudioWav.WavException invalid) {
+                throw new AudioRefusedException(502, "AUDIO_NOISE_SUPPRESSION_OUTPUT_INVALID",
+                        "the Rust gate output is not a bounded float WAV candidate", Map.of("reason", invalid.code()));
+            }
+            if (candidatePcm.sampleRate() != sourcePcm.sampleRate() || candidatePcm.channels() != sourcePcm.channels()
+                    || candidatePcm.frames() != sourcePcm.frames()) {
+                throw new AudioRefusedException(502, "AUDIO_NOISE_SUPPRESSION_OUTPUT_INVALID",
+                        "the Rust gate candidate does not preserve source shape", Map.of());
+            }
+            Map<String, Object> metrics = validateRmsManifest(Files.readAllBytes(manifest), input, sourceCopy, source,
+                    sourcePcm, candidate, candidateSha, parameters);
+            Map<String, Object> measurements = new LinkedHashMap<>();
+            measurements.put("basis", "speech-audio-rust float32 candidate before canonical PCM16 artifact serialization");
+            measurements.put("rustCandidateSha256", candidateSha);
+            measurements.put("metrics", metrics);
+            return new NoiseCandidate(candidatePcm, measurements, candidateSha);
+        } catch (IOException failure) {
+            throw new AudioOutcomeUnknownException("ENGINE_IO");
+        } finally {
+            if (dir != null) {
+                try (Stream<Path> walk = Files.walk(dir)) {
+                    walk.sorted(Comparator.reverseOrder()).forEach(path -> path.toFile().delete());
+                } catch (IOException ignored) { }
+            }
+        }
+    }
+
+    private static boolean regularFile(Path path, long maxBytes) throws IOException {
+        return Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS) && Files.size(path) > 0 && Files.size(path) <= maxBytes;
+    }
+
+    private Map<String, Object> validateRmsManifest(byte[] bytes, Path inputPath, Path sourceCopyPath,
+                                                     MediaArtifact source, MediaDevAudioWav.Pcm sourcePcm,
+                                                     Path candidatePath, String candidateSha,
+                                                     NoiseParameters parameters) {
+        if (bytes.length > MAX_COMPARISON_DOCUMENT_BYTES) {
+            throw new AudioRefusedException(502, "AUDIO_NOISE_SUPPRESSION_OUTPUT_INVALID", "the Rust manifest exceeds its byte ceiling", Map.of());
+        }
+        try {
+            Map<String, Object> manifest = JSON.readValue(bytes, new tools.jackson.core.type.TypeReference<>() { });
+            Map<String, Object> sourceView = mapValue(manifest.get("source"), "source");
+            if (!inputPath.toString().equals(stringValue(manifest.get("input"), "input"))
+                    || !sourceCopyPath.toString().equals(stringValue(sourceView.get("path"), "source.path"))
+                    || !source.sha256().equals(stringValue(sourceView.get("sha256"), "source.sha256"))
+                    || !Boolean.TRUE.equals(sourceView.get("exactInputCopy"))) {
+                throw badManifest("the Rust manifest does not bind an exact source copy");
+            }
+            validateRustAudioFormat(mapValue(sourceView.get("audioFormat"), "source.audioFormat"), sourcePcm, "source");
+            if (manifest.get("reference") != null || manifest.get("qualityClaim") != null) {
+                throw badManifest("the PXD-250 request has no reference or quality claim");
+            }
+            Object rawCandidates = manifest.get("candidates");
+            if (!(rawCandidates instanceof List<?> candidates) || candidates.size() != 2) {
+                throw badManifest("the Rust preview must report exactly its denoise and declip candidates");
+            }
+            Map<String, Object> denoise = null;
+            int denoiseCount = 0;
+            int declipCount = 0;
+            for (Object value : candidates) {
+                Map<String, Object> candidate = mapValue(value, "candidate");
+                if ("denoise".equals(candidate.get("operation"))) { denoise = candidate; denoiseCount++; }
+                if ("declip".equals(candidate.get("operation"))) declipCount++;
+            }
+            if (denoiseCount != 1 || declipCount != 1 || denoise == null
+                    || !candidatePath.toString().equals(stringValue(denoise.get("path"), "candidate.path"))
+                    || !candidateSha.equals(stringValue(denoise.get("sha256"), "candidate.sha256"))) {
+                throw badManifest("the Rust manifest candidate path or digest does not match the exact output file");
+            }
+            validateRustAudioFormat(mapValue(denoise.get("audioFormat"), "candidate.audioFormat"), sourcePcm, "candidate");
+            Map<String, Object> candidateParameters = mapValue(denoise.get("parameters"), "candidate.parameters");
+            if (!PROFILE_RMS_BLOCK_GATE_V1.equals(candidateParameters.get("profileRef"))
+                    || !"block-rms-noise-gate-with-interpolated-gain".equals(candidateParameters.get("algorithm"))
+                    || numberValue(candidateParameters.get("thresholdMultiple"), "thresholdMultiple") != 2.0d
+                    || Math.abs(numberValue(candidateParameters.get("floorGain"), "floorGain") - 0.08d) > 1e-6d
+                    || wholeValue(candidateParameters.get("blockFrames"), "blockFrames") != 256) {
+                throw badManifest("the Rust candidate does not use the fixed RMS_BLOCK_GATE_V1 profile");
+            }
+            Map<String, Object> noiseProfile = mapValue(candidateParameters.get("noiseProfile"), "noiseProfile");
+            NoiseRange expected = parameters.noiseOnlyFrameRange();
+            if (wholeValue(noiseProfile.get("startInclusive"), "noiseProfile.startInclusive") != expected.startFrame()
+                    || wholeValue(noiseProfile.get("endExclusive"), "noiseProfile.endExclusive") != expected.endFrame()
+                    || wholeValue(noiseProfile.get("frames"), "noiseProfile.frames") != expected.endFrame() - expected.startFrame()) {
+                throw badManifest("the Rust noise profile is not bound to the caller's exact half-open frame span");
+            }
+            Object rawRms = noiseProfile.get("rmsByChannel");
+            if (!(rawRms instanceof List<?> rms) || rms.size() != sourcePcm.channels()
+                    || rms.stream().anyMatch(value -> !(value instanceof Number number)
+                    || !Double.isFinite(number.doubleValue()) || number.doubleValue() < 0)) {
+                throw badManifest("the Rust noise profile measurements are invalid");
+            }
+            Map<String, Object> metrics = mapValue(denoise.get("metrics"), "candidate.metrics");
+            if (metrics.get("sourceSnrDbVsReference") != null || metrics.get("snrDbVsReference") != null) {
+                throw badManifest("reference SNR must remain absent because input2 contains no independent reference");
+            }
+            Map<String, Object> measured = new LinkedHashMap<>(metrics);
+            measured.put("noiseProfile", Map.of("startInclusive", expected.startFrame(),
+                    "endExclusive", expected.endFrame(), "frames", expected.endFrame() - expected.startFrame(),
+                    "rmsByChannel", rms));
+            return measured;
+        } catch (RuntimeException failure) {
+            if (failure instanceof AudioRefusedException refused) throw refused;
+            throw badManifest("the Rust manifest is malformed");
+        }
+    }
+
+    private static void validateRustAudioFormat(Map<String, Object> format, MediaDevAudioWav.Pcm sourcePcm, String field) {
+        if (wholeValue(format.get("sampleRateHz"), field + ".sampleRateHz") != sourcePcm.sampleRate()
+                || wholeValue(format.get("channels"), field + ".channels") != sourcePcm.channels()
+                || wholeValue(format.get("frames"), field + ".frames") != sourcePcm.frames()
+                || !"f32".equals(format.get("sampleFormat"))) {
+            throw badManifest("the Rust " + field + " audio format does not match the source PCM shape");
+        }
+    }
+
+    private static AudioRefusedException badManifest(String message) {
+        return new AudioRefusedException(502, "AUDIO_NOISE_SUPPRESSION_OUTPUT_INVALID", message, Map.of());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> mapValue(Object value, String field) {
+        if (!(value instanceof Map<?, ?> map)) throw new IllegalArgumentException(field + " must be an object");
+        return (Map<String, Object>) map;
+    }
+
+    private static String stringValue(Object value, String field) {
+        if (!(value instanceof String text)) throw new IllegalArgumentException(field + " must be a string");
+        return text;
+    }
+
+    private static long wholeValue(Object value, String field) {
+        if (!(value instanceof Number number) || number.doubleValue() != number.longValue()) {
+            throw new IllegalArgumentException(field + " must be an integer");
+        }
+        return number.longValue();
+    }
+
+    private static double numberValue(Object value, String field) {
+        if (!(value instanceof Number number) || !Double.isFinite(number.doubleValue())) {
+            throw new IllegalArgumentException(field + " must be finite numeric data");
+        }
+        return number.doubleValue();
+    }
 
     public AudioOutput restore(String tenantId, String principalId, RestoreRequest request) {
         Objects.requireNonNull(request, "request");
@@ -787,6 +1206,10 @@ public final class MediaDevAudioRestorationRuntime {
     }
 
     private MediaDevAudioWav.Pcm decode(String tenantId, String principalId, MediaArtifact artifact) {
+        return decode(artifact, readContent(tenantId, principalId, artifact));
+    }
+
+    private MediaDevAudioWav.Pcm decode(MediaArtifact artifact, byte[] bytes) {
         if (!WAV_TYPES.contains(artifact.contentType().toLowerCase(Locale.ROOT))) {
             throw new AudioRefusedException(422, "SOURCE_FORMAT_NOT_SUPPORTED",
                     "audio restoration requires an audio/wav (PCM16) artifact version", Map.of());
@@ -795,7 +1218,6 @@ public final class MediaDevAudioRestorationRuntime {
             throw new AudioRefusedException(422, "AUDIO_LIMIT_EXCEEDED", "the audio exceeds the byte ceiling",
                     Map.of("maxBytes", MAX_SOURCE_BYTES));
         }
-        byte[] bytes = readContent(tenantId, principalId, artifact);
         if (!MediaDevProjectRenderRuntime.sha256Hex(bytes).equals(artifact.sha256())) {
             throw new AudioRefusedException(502, "SOURCE_CONTENT_DIGEST_MISMATCH",
                     "the stored bytes do not match the registered digest; nothing was processed", Map.of());
@@ -903,5 +1325,11 @@ public final class MediaDevAudioRestorationRuntime {
             throw new IllegalArgumentException(name + " must be a 1-128 character opaque id");
         }
         return value;
+    }
+
+    private static void checkRef(String value, int max, String name) {
+        if (value != null && (value.isBlank() || value.length() > max)) {
+            throw invalid("input2.payload." + name + " must be 1-" + max + " characters");
+        }
     }
 }

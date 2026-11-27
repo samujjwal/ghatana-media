@@ -8,6 +8,8 @@ import com.ghatana.media.launcher.MediaDevAudioRestorationRuntime.Normalize;
 import com.ghatana.media.launcher.MediaDevAudioRestorationRuntime.Operations;
 import org.junit.jupiter.api.Test;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -94,6 +96,53 @@ class MediaDevAudioRestorationUnitTest {
         assertThatThrownBy(() -> MediaDevAudioWav.parse(new byte[100])).isInstanceOf(MediaDevAudioWav.WavException.class);
         byte[] lowRate = MediaDevAudioWav.write(new MediaDevAudioWav.Pcm(4000, 1, new short[100]));
         assertThatThrownBy(() -> MediaDevAudioWav.parse(lowRate)).isInstanceOf(MediaDevAudioWav.WavException.class);
+    }
+
+    @Test
+    void rustFloatCandidateIsStrictlyQuantizedToTheExistingPcm16ComparisonFormat() {
+        byte[] floatWav = rustFloatWav(16_000, 1, new float[] {-1.0f, -0.5f, 0.0f, 0.5f, 1.0f});
+        MediaDevAudioWav.Pcm pcm = MediaDevAudioWav.parseRustFloat32Candidate(floatWav);
+        assertThat(pcm.sampleRate()).isEqualTo(16_000);
+        assertThat(pcm.channels()).isEqualTo(1);
+        assertThat(pcm.samples()).containsExactly(Short.MIN_VALUE, -16_384, 0, 16_384, Short.MAX_VALUE);
+        byte[] wrongSubtype = floatWav.clone();
+        wrongSubtype[44] ^= 1;
+        assertThatThrownBy(() -> MediaDevAudioWav.parseRustFloat32Candidate(wrongSubtype))
+                .isInstanceOf(MediaDevAudioWav.WavException.class)
+                .extracting(e -> ((MediaDevAudioWav.WavException) e).code()).isEqualTo("AUDIO_FORMAT_NOT_SUPPORTED");
+        assertThatThrownBy(() -> MediaDevAudioWav.parseRustFloat32Candidate(
+                java.util.Arrays.copyOf(floatWav, floatWav.length - 1))).isInstanceOf(MediaDevAudioWav.WavException.class);
+    }
+
+    @Test
+    void rmsGateRangeAndProfileAreFixedAndPolicyFingerprintEncodingIsUnambiguous() {
+        assertThat(new MediaDevAudioRestorationRuntime.NoiseRange(0, 2_000_000).endFrame()).isEqualTo(2_000_000);
+        for (long[] invalid : new long[][] {{0, 0}, {3, 2}, {0, 2_000_001}, {-1, 3}}) {
+            assertThatThrownBy(() -> new MediaDevAudioRestorationRuntime.NoiseRange(invalid[0], invalid[1]))
+                    .isInstanceOf(MediaDevAudioRestorationRuntime.AudioRefusedException.class)
+                    .extracting(e -> ((MediaDevAudioRestorationRuntime.AudioRefusedException) e).code())
+                    .isEqualTo("AUDIO_PARAMETERS_INVALID");
+        }
+        assertThatThrownBy(() -> new MediaDevAudioRestorationRuntime.NoiseParameters(
+                new MediaDevAudioRestorationRuntime.NoiseRange(0, 1), "OTHER_PROFILE"))
+                .isInstanceOf(MediaDevAudioRestorationRuntime.AudioRefusedException.class);
+        var policyA = new MediaDevAudioRestorationRuntime.NoisePolicy(null, java.util.List.of("a,b", "c"), null, null, null);
+        var policyB = new MediaDevAudioRestorationRuntime.NoisePolicy(null, java.util.List.of("a", "b,c"), null, null, null);
+        assertThat(policyA.canonical()).isNotEqualTo(policyB.canonical());
+    }
+
+    private static byte[] rustFloatWav(int sampleRate, int channels, float[] samples) {
+        int length = 68 + samples.length * Float.BYTES;
+        ByteBuffer out = ByteBuffer.allocate(length).order(ByteOrder.LITTLE_ENDIAN);
+        out.putInt(0x46464952).putInt(length - 8).putInt(0x45564157);
+        out.putInt(0x20746d66).putInt(40).putShort((short) 0xfffe).putShort((short) channels)
+                .putInt(sampleRate).putInt(sampleRate * channels * Float.BYTES)
+                .putShort((short) (channels * Float.BYTES)).putShort((short) 32).putShort((short) 22)
+                .putShort((short) 32).putInt(channels == 1 ? 1 : 3)
+                .put(new byte[] {3, 0, 0, 0, 0, 0, 16, 0, (byte) 128, 0, 0, (byte) 170, 0, 56, (byte) 155, 113});
+        out.putInt(0x61746164).putInt(samples.length * Float.BYTES);
+        for (float sample : samples) out.putFloat(sample);
+        return out.array();
     }
 
     // ---- metrics ----

@@ -219,6 +219,76 @@ class MediaDevMasterIT {
             JsonNode reopened = get(port, tenant, token, MASTERS + "/" + master.path("masterId").asString(), 200);
             assertThat(reopened.path("report").path("measurement").path("integratedLufs").asDouble()).isEqualTo(hostLufs);
 
+            // ---- bind the exact master WAV to a project timeline, then undo by restoring its prior revision ----
+            Map<String, byte[]> sourceBytesBeforeRestart = new LinkedHashMap<>();
+            for (JsonNode sourceStem : List.of(tone, kick, step, whoosh, chord)) {
+                String sourceId = id(sourceStem);
+                byte[] sourceBytes = s3Bytes(LOCALSTACK, bucket, storedArtifact(POSTGRES, tenant, principal, sourceId));
+                assertThat(sha256(sourceBytes)).isEqualTo(sha(sourceStem));
+                sourceBytesBeforeRestart.put(sourceId, sourceBytes);
+            }
+            String masterWavId = master.path("wav").path("artifactId").asString();
+            String masterWavVersion = master.path("wav").path("artifactVersionId").asString();
+            assertThat(masterWavVersion).isEqualTo("sha256:" + sha256(wav));
+            long masterFrames = report.path("format").path("frames").asLong();
+            assertThat(masterFrames).isPositive();
+
+            String workspaceId = get(port, tenant, token, "/dev/v1/context", 200)
+                    .path("selectedAuthorizedWorkspaceId").asString();
+            JsonNode project = post(port, tenant, token, "/dev/v1/projects", Map.of(
+                    "selectedAuthorizedWorkspaceId", workspaceId,
+                    "title", "J-17 master timeline " + run,
+                    "requestId", "master-project-" + run), 201);
+            String projectId = project.path("project").path("projectId").asString();
+            String head = project.path("initialRevision").path("revisionId").asString();
+            JsonNode timeline = post(port, tenant, token, "/dev/v1/projects/" + projectId + "/timelines", Map.of(
+                    "expectedHeadRevisionId", head, "timelineId", "timeline-main",
+                    "requestId", "master-timeline-" + run), 201);
+            head = timeline.path("revision").path("revisionId").asString();
+            String editsPath = "/dev/v1/projects/" + projectId + "/timelines/timeline-main/edits";
+            JsonNode scaffold = post(port, tenant, token, editsPath, Map.of(
+                    "expectedHeadRevisionId", head,
+                    "requestId", "master-audio-track-" + run,
+                    "edits", List.of(
+                            Map.of("type", "addScene", "sceneId", "scene-main", "order", 0),
+                            Map.of("type", "addTrack", "trackId", "audio-main", "sceneId", "scene-main",
+                                    "trackKind", "AUDIO", "order", 0))), 201);
+            String baselineRevisionId = scaffold.path("revision").path("revisionId").asString();
+            JsonNode baselineHistory = get(port, tenant, token,
+                    "/dev/v1/projects/" + projectId + "/revisions/" + baselineRevisionId, 200);
+            assertThat(baselineHistory.path("revision").path("timelines").get(0).path("graph").path("clips")).isEmpty();
+
+            JsonNode attached = post(port, tenant, token, editsPath, Map.of(
+                    "expectedHeadRevisionId", baselineRevisionId,
+                    "requestId", "attach-master-" + run,
+                    "edits", List.of(Map.of("type", "putClip", "clip", Map.of(
+                            "clipId", "clip-master", "sceneId", "scene-main", "trackId", "audio-main",
+                            "source", Map.of("artifactId", masterWavId, "artifactVersionId", masterWavVersion),
+                            "sourceIn", audioTime(0, "SOURCE_PRESENTATION"),
+                            "sourceOut", audioTime(masterFrames, "SOURCE_PRESENTATION"),
+                            "storyStart", audioTime(0, "STORY"),
+                            "storyDuration", audioTime(masterFrames, "STORY"))))), 201);
+            String masterRevisionId = attached.path("revision").path("revisionId").asString();
+            JsonNode currentWithMaster = get(port, tenant, token, "/dev/v1/projects/" + projectId, 200);
+            assertThat(currentWithMaster.path("currentRevision").path("revisionId").asString()).isEqualTo(masterRevisionId);
+            JsonNode masterClip = currentWithMaster.path("currentRevision").path("timelines").get(0)
+                    .path("graph").path("clips").get(0);
+            assertThat(masterClip.path("clipId").asString()).isEqualTo("clip-master");
+            assertThat(masterClip.path("source").path("artifactId").asString()).isEqualTo(masterWavId);
+            assertThat(masterClip.path("source").path("artifactVersionId").asString()).isEqualTo(masterWavVersion);
+
+            JsonNode undone = post(port, tenant, token, "/dev/v1/projects/" + projectId + "/restore", Map.of(
+                    "expectedHeadRevisionId", masterRevisionId,
+                    "targetRevisionId", baselineRevisionId,
+                    "requestId", "undo-master-" + run), 201);
+            String undoRevisionId = undone.path("revision").path("revisionId").asString();
+            JsonNode currentAfterUndo = get(port, tenant, token, "/dev/v1/projects/" + projectId, 200);
+            assertThat(currentAfterUndo.path("currentRevision").path("revisionId").asString()).isEqualTo(undoRevisionId);
+            assertThat(currentAfterUndo.path("currentRevision").path("timelines").get(0).path("graph").path("clips")).isEmpty();
+            assertThat(get(port, tenant, token, "/dev/v1/projects/" + projectId + "/revisions/" + masterRevisionId, 200)
+                    .path("revision").path("timelines").get(0).path("graph").path("clips").get(0)
+                    .path("source").path("artifactVersionId").asString()).isEqualTo(masterWavVersion);
+
             // the limiter is exercised by a hot target: it either reaches -10 LUFS under -1.0 dBTP (limiting measured) or abstains
             HttpResponse<String> hot = send(port, tenant, token, "POST", MASTERS, masterJson("hot-" + run, placements, null, -10.0, -1.0));
             if (hot.statusCode() == 201) {
@@ -403,6 +473,28 @@ class MediaDevMasterIT {
             assertThat(sha(newSeed)).isEqualTo(sha(kick));
             JsonNode footstepAfterRestart = stem(port, tenant, token, "step-restart-" + run, new LinkedHashMap<>(Map.of("kind", "FOLEY", "foley", "FOOTSTEP", "durationMs", 400, "seed", 5, "channels", 2)), 201);
             assertThat(sha(footstepAfterRestart)).isEqualTo(sha(step));
+
+            JsonNode projectAfterRestart = get(port, tenant, token, "/dev/v1/projects/" + projectId, 200);
+            assertThat(projectAfterRestart.path("currentRevision").path("revisionId").asString()).isEqualTo(undoRevisionId);
+            assertThat(projectAfterRestart.path("currentRevision").path("timelines").get(0).path("graph").path("clips")).isEmpty();
+            JsonNode historicalMaster = get(port, tenant, token,
+                    "/dev/v1/projects/" + projectId + "/revisions/" + masterRevisionId, 200);
+            JsonNode historicalMasterClip = historicalMaster.path("revision").path("timelines").get(0)
+                    .path("graph").path("clips").get(0);
+            assertThat(historicalMasterClip.path("source").path("artifactId").asString()).isEqualTo(masterWavId);
+            assertThat(historicalMasterClip.path("source").path("artifactVersionId").asString()).isEqualTo(masterWavVersion);
+            assertThat(get(port, tenant, token, "/dev/v1/projects/" + projectId + "/revisions/" + baselineRevisionId, 200)
+                    .path("revision").path("timelines").get(0).path("graph").path("clips")).isEmpty();
+            assertThat(s3Bytes(LOCALSTACK, bucket, storedArtifact(POSTGRES, tenant, principal, masterWavId)))
+                    .as("the timeline reference and undo do not mutate the registered master")
+                    .isEqualTo(wav);
+            for (Map.Entry<String, byte[]> source : sourceBytesBeforeRestart.entrySet()) {
+                assertThat(s3Bytes(LOCALSTACK, bucket,
+                        storedArtifact(POSTGRES, tenant, principal, source.getKey())))
+                        .as("source stem remains byte-identical across restart: " + source.getKey())
+                        .isEqualTo(source.getValue());
+            }
+
             // a master of the same content under a new requestId after the restart is byte-identical to the first
             JsonNode again = master(port, tenant, token, "master-again-" + run, placements, null, -16.0, -1.0, 201);
             assertThat(again.path("wav").path("sha256").asString()).isEqualTo(master.path("wav").path("sha256").asString());
@@ -511,6 +603,10 @@ class MediaDevMasterIT {
     private static String id(JsonNode stem) { return stem.path("artifact").path("artifactId").asString(); }
 
     private static String sha(JsonNode stem) { return stem.path("artifact").path("sha256").asString(); }
+
+    private static Map<String, Object> audioTime(long ticks, String clock) {
+        return Map.of("ticks", Long.toString(ticks), "rateNumerator", "48000", "rateDenominator", "1", "clock", clock);
+    }
 
     // ---------------------------------------------------------------------------------------------- audio
 
