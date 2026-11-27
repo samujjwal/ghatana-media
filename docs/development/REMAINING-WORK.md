@@ -1661,6 +1661,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
 - **Progress:** 2026-11-25 J-16 locale guard negative: added a constructor regression for canonical-equivalent source and target locales; task remains OPEN. Next: continue only when lip-sync timing semantics and owner/rights-authorized output bindings are defined.
+- **Additional progress (2026-11-27):** The scenario now rejects both an aligned start one tick before and end one tick after the exact source transcript interval; both return OUTCOME_UNKNOWN with no dubbed segments. The focused selector passes 1/1. The interval is a structural bound only, not a numeric lip-sync tolerance or quality claim. Task remains OPEN for rights-cleared source/voice, admitted translation/alignment, actual decoded video output, and human-reviewed quality.
 - **Predecessors:** `media.dev.dubbing-and-translation`
 
 **`media.dev.outcome-music-effects-master`** · OPEN
