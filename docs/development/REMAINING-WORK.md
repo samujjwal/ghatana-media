@@ -1592,6 +1592,7 @@ Every task has one source owner and no second source of truth. Follow its `where
 - **How:** Drive the authored scenario via a source-free client or real hosted UI using existing physical surfaces; bind immutable source/tenant/rights/job and exact observable effect; inject denial, cancellation, ambiguity and restart.
 - **Test/exit:** Reproducible genuine terminal result and fault suite; fixture-only simulation never counts.
 - **Progress:** 2026-11-26 J-12 raster asset identity guard: current exact-method JUnit result passes 1/1 and rejects a missing asset ID before rendering; the source/test hashes match the current Gradle inputs. Local constructor validation only. Task remains OPEN. Next: admitted source/result binding and durable output/restart validation against owner-bound design and assets.
+- **Focused integration evidence (2026-11-27):** The current-hash DEV_SOURCE_COMPOSITE `MediaDevAnimationIT.realLauncherRendersDecodableMp4WithGoldenFramesAndCurvesAndSurvivesTheFaultSuite` passes 1/1 using real FFmpeg/FFprobe, launcher, PostgreSQL and LocalStack; it verifies decodable output, golden frames/curves, rights-denial behavior, and fault survival. The captured console output is retained in the machine-readable register; its JUnit report was subsequently removed by another Gradle selector. This is local DEV_ONLY evidence only. The Explorer selector, admitted source/result/job/project semantics, complete J-12 acceptance, and production renderer qualification remain open.
 - **Predecessors:** `media.dev.animation-2d-renderer`
 
 
