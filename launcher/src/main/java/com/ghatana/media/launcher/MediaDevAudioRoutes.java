@@ -11,6 +11,7 @@ import tools.jackson.databind.json.JsonMapper;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,16 @@ final class MediaDevAudioRoutes {
     private final MediaDevAudioRestorationRuntime audio;
     private final MediaRuntime runtime;
 
+    private static final class OperationOutcomeFailure extends RuntimeException {
+        private final int status;
+        private final String outcome;
+        OperationOutcomeFailure(int status, String outcome) {
+            super(null, null, false, false);
+            this.status = status;
+            this.outcome = outcome;
+        }
+    }
+
     MediaDevAudioRoutes(MediaDevAudioRestorationRuntime audio, MediaRuntime runtime) {
         this.audio = audio;
         this.runtime = runtime;
@@ -47,6 +58,8 @@ final class MediaDevAudioRoutes {
                 int maxBody, MediaDevCreativeOutputRoutes.Responder out) throws IOException {
         try {
             dispatch(exchange, path, method, tenantId, principalId, maxBody, out);
+        } catch (OperationOutcomeFailure failure) {
+            out.json(exchange, failure.status, operationOutcomeView(failure.outcome));
         } catch (MediaDevRenderAdmission.CapacityExhaustedException failure) {
             out.error(exchange, 429, MediaDevRenderAdmission.CAPACITY_CODE,
                     "DEV_ONLY audio capacity is exhausted; retry the same requestId after the Retry-After delay",
@@ -96,9 +109,19 @@ final class MediaDevAudioRoutes {
                 MediaDevAudioRestorationRuntime.AudioOutput result;
                 if (body.containsKey("input1") || body.containsKey("input2") || body.containsKey("parameters")) {
                     capabilityRequest = true;
-                    requireKeys(body, Set.of("requestId", "input1", "input2", "parameters"), Set.of(),
-                            "noise-suppression request");
-                    result = audio.suppressNoise(tenantId, principalId, noiseSuppressionRequest(body));
+                    MediaDevAudioRestorationRuntime.NoiseSuppressionRequest request;
+                    try {
+                        requireKeys(body, Set.of("requestId", "input1", "input2", "parameters"), Set.of(),
+                                "noise-suppression request");
+                        request = noiseSuppressionRequest(body);
+                    } catch (RuntimeException invalid) {
+                        throw operationRejected(invalid);
+                    }
+                    try {
+                        result = audio.suppressNoise(tenantId, principalId, request);
+                    } catch (RuntimeException failure) {
+                        throw operationFailure(failure);
+                    }
                 } else {
                     requireKeys(body, Set.of("requestId", "artifactId", "artifactVersionId", "operations"), Set.of(),
                             "restoration request");
@@ -183,6 +206,48 @@ final class MediaDevAudioRoutes {
                         "derived-audio-candidate-with-source-preserved-and-measurements", "payload", payload)),
                 "provenance", provenance, "implementationState", "UNKNOWN", "qualificationState", "NOT_EVALUATED",
                 "runtimeAvailability", "UNKNOWN");
+    }
+
+    private static Map<String, Object> operationOutcomeView(String outcome) {
+        String observedAt = Instant.now().toString();
+        Map<String, Object> provenance = new LinkedHashMap<>();
+        provenance.put("operationRef", MediaDevAudioRestorationRuntime.OP_RMS_NOISE_SUPPRESSION);
+        provenance.put("observedAt", observedAt);
+        provenance.put("sourceRefs", List.of());
+        return Map.of("outcome", outcome, "observedAt", observedAt, "outputs", List.of(), "provenance", provenance,
+                "implementationState", "UNKNOWN", "qualificationState", "NOT_EVALUATED", "runtimeAvailability", "UNKNOWN");
+    }
+
+    private static OperationOutcomeFailure operationRejected(RuntimeException failure) {
+        int status = failure instanceof MediaDevAudioRestorationRuntime.AudioRefusedException refused
+                ? refused.status() : 400;
+        return new OperationOutcomeFailure(status, "REJECTED");
+    }
+
+    private static OperationOutcomeFailure operationFailure(RuntimeException failure) {
+        if (failure instanceof MediaDevAudioRestorationRuntime.AudioOutcomeUnknownException
+                || failure instanceof MediaDevAudioRestorationRuntime.AudioRegistrationFailedException) {
+            return new OperationOutcomeFailure(503, "UNKNOWN_OUTCOME");
+        }
+        if (failure instanceof MediaDevRequestLedger.LedgerRefusedException refused) {
+            return refused.status() >= 500
+                    ? new OperationOutcomeFailure(503, "UNKNOWN_OUTCOME")
+                    : new OperationOutcomeFailure(refused.status(), "REJECTED");
+        }
+        if (failure instanceof MediaDevAudioRestorationRuntime.AudioRequestReusedException) {
+            return new OperationOutcomeFailure(409, "REJECTED");
+        }
+        if (failure instanceof MediaDevAudioRestorationRuntime.AudioRefusedException refused) {
+            return new OperationOutcomeFailure(refused.status(), "REJECTED");
+        }
+        if (failure instanceof MediaDevProjectRenderRuntime.SourceVersionUnavailableException) {
+            return new OperationOutcomeFailure(404, "REJECTED");
+        }
+        if (failure instanceof MediaDevRenderAdmission.CapacityExhaustedException) {
+            return new OperationOutcomeFailure(429, "REJECTED");
+        }
+        // An unexpected runtime failure after entering the operation path may follow processing or registration.
+        return new OperationOutcomeFailure(503, "UNKNOWN_OUTCOME");
     }
 
     // ---- strict body parsing ----
