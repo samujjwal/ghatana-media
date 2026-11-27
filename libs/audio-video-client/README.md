@@ -152,8 +152,9 @@ not qualify a production host or release.
 
 The package also exposes `ghatanamedia-api-dev` as a separate, loopback-only
 development executable. Its source registry defines `artifact upload`,
-`artifact inspect`, `job get`, and `job cancel`, all bound to local-development
-operations. The commands require an explicitly supplied `localhost`,
+`artifact inspect`, `job get`, `job submit`, and `job cancel`, all bound to
+local-development operations. J-24 `batch run` composes the existing `job submit`
+command under the separate bounded plan contract below. The commands require an explicitly supplied `localhost`,
 `127.0.0.1`, or `[::1]` endpoint and a short-lived `DEV_ONLY` token minted for
 the exact `dev` profile, tenant, principal, and command permissions. The CLI
 checks the token claim profile before their dispatch; the Media host verifies
@@ -191,32 +192,41 @@ LOCAL provider, and replays the same request without a second dispatch.
 Responses distinguish confirmation, unconfirmed request, unknown outcome,
 unsupported cancellation, terminal state, and terminal race. A cancellation
 request never implies provider finality; reuse the same request ID to reconcile
-an ambiguous result. Production admission remains `OPEN`, and the production
-binary continues to expose only `artifact inspect`.
+an ambiguous result. Production admission remains `OPEN`: the production CLI
+has source-bound artifact inspection and scoped job reads; job submit/cancel
+remain `NOT_ADMITTED` before authentication or network dispatch.
 
-### DEV_ONLY structured batch (`batch run --file`) and finality
+### DEV_ONLY structured batch (`batch run --confirm-sha256`)
 
-`ghatanamedia-api-dev batch run --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH [--continue-on-error]`
-runs `{"schemaVersion":"media.dev.batch.v1","items":[{"id","command","options"}]}`
-(1 to 25 items, 256 KiB) and prints one `media.cli-batch-result.v1` document. It is
-NON-atomic. Besides the single-command set it accepts `job submit` (`artifact`,
-`request-id`, optional `job-type`, `provider-hint`, `await-finality-ms`) and
-`await-finality-ms` on `job get`, which re-reads the same job until it is
-COMPLETED, FAILED or CANCELLED. An option may be late-bound from an earlier item:
-`{"$ref":{"item":"u1","path":"artifact.artifactId","prefix":"sha256:"}}` (never for
-identity options or `file`; the referenced item must come earlier).
+`ghatanamedia-api-dev batch run --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH --confirm-sha256 sha256:HEX`
+accepts one strict `media.dev.batch.v1` JSON plan with exactly `schemaVersion`
+and `items`. It contains 1–16 independent items, each with exactly `id`,
+`command`, and `options`; the command is only `job submit`, and its options are
+exactly `artifact`, `request-id`, `job-type`, and `await-finality-ms`. It does
+not accept provider hints, caller authority, cross-item references, or
+continuation flags. The confirmation must equal the SHA-256 of the exact file
+bytes read by the CLI; it confirms that plan only and cannot grant authority.
 
-Every item carries `finality`: `COMPLETED`, `FAILED`, `CANCELLED` or `UNKNOWN`
-(`null` for NOT_RUN). Only COMPLETED is success; an ACCEPTED/RUNNING job, an
-unanswered request or an unconfirmed export is UNKNOWN and carries a `resume`
-handle. Re-running the same file replays each item with its own request identity,
-so completed effects are not repeated. A server 401/403 is typed
-`UNAUTHENTICATED`/`FORBIDDEN` (with `serverCode`); a token lacking the command's
-scope is refused locally (`LOCAL_DEV_IDENTITY_REJECTED`) before any request. A
-schema error exits 2 with `jsonPath` before any request. Exit codes: 0 all
-COMPLETED, 1 typed failure or unknown outcome, 2 invalid invocation or schema,
-3 identity or endpoint refused, 4 export not confirmed, 5 final FAILED/CANCELLED
-job, 6 job not final. The batch exits with the worst item exit code.
+The CLI validates the full bounded plan and every existing job-submit argument
+before any item dispatch. It then submits sequentially and stops at the first
+item not observed as terminal `COMPLETED`; later items are `NOT_RUN`. Each item
+is independently checked by the local DEV_ONLY host for current identity,
+permission, policy and artifact access. The versioned
+`media.cli-batch-result.v1` response uses item statuses `SUCCESS`, `ERROR`,
+`OUTCOME_UNKNOWN`, and `NOT_RUN`. `SUCCESS` requires exact tenant, principal,
+artifact, job type, request ID and terminal `COMPLETED` readback. Typed command
+errors without an exact terminal job record have null job finality; exact
+terminal `FAILED`/`CANCELLED` readbacks remain typed errors. `ACCEPTED`,
+`RUNNING`, timeout, interruption, malformed or mismatched responses remain
+`OUTCOME_UNKNOWN` with the original request ID for same-payload reconciliation.
+SIGINT stops local observation only and never cancels the submitted job.
+
+Exit codes are 0 when every item is `SUCCESS`, 7 for terminal job failure, 8
+for terminal cancellation, 10 for unknown outcome, and 130 when observation is
+interrupted; other definitive command failures preserve the existing command
+exit code. This local DEV_ONLY composition does not verify output contents,
+provider finality, rights approval, delivery, production admission, or complete
+J-24 acceptance. The full J-24 verified-output journey remains OPEN.
 
 ## DEV_ONLY project and timeline client
 

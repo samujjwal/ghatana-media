@@ -50,13 +50,11 @@ import static org.testcontainers.containers.localstack.LocalStackContainer.Servi
 /**
  * J-24 {@code media.dev.outcome-structured-command-batch}: the BUILT DEV_ONLY CLI binary
  * ({@code libs/audio-video-client/dist/cli-dev.js}, run as a separate node process, no sources, no ts-node)
- * executes JSON command batches against a real launcher process (PostgreSQL + S3 + a real destination
- * directory) with a DEV identity token. Covers: a genuine terminal result (upload, job to COMPLETED, export
- * to destination-confirmed), a schema error that has no effect, forbidden operations (token scope), an
- * unanswered request (CLI timeout) that is UNKNOWN with a resumable handle, a launcher killed mid-batch, and
- * a re-run of the same batch that converges without duplicate effects. The only test-owned component in the
- * path is a loopback TCP-level HTTP forwarder that stalls or cuts a real response; it never answers for the
- * launcher.
+ * executes source-free JSON batches of independent job submissions against a real launcher process
+ * (PostgreSQL + S3) with a DEV identity token. Covers exact plan confirmation, schema rejection before dispatch,
+ * token-scope denial, genuine terminal job readback, an unanswered request reported UNKNOWN, and same-file
+ * replay after launcher restart without duplicate jobs. The only test-owned component in the path is a loopback
+ * TCP-level HTTP forwarder that stalls or cuts a real response; it never answers for the launcher.
  */
 @Testcontainers(disabledWithoutDocker = true)
 @Tag("integration")
@@ -64,8 +62,7 @@ class MediaDevStructuredCliBatchIT {
     private static final ObjectMapper JSON = new ObjectMapper();
     private static final String DEV_SECRET = "media-dev-structured-cli-batch-secret";
     private static final List<String> FULL = List.of("media:job:create", "media:job:read", "media:artifact:create",
-            "media:artifact:write", "media:artifact:read", "media:delivery:dev:export", "media:delivery:dev:read",
-            "media:project:dev:read", "media:project:dev:write");
+            "media:artifact:write", "media:artifact:read");
 
     @Container
     private static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
@@ -84,12 +81,10 @@ class MediaDevStructuredCliBatchIT {
         try (var socket = new java.net.ServerSocket(0)) { port = socket.getLocalPort(); }
         Path work = Files.createTempDirectory("media-dev-cli-batch-");
         Path services = work.resolve("services");
-        Path destination = Files.createDirectory(work.resolve("destination")).toRealPath();
         Path log = work.resolve("launcher.log");
         Path source = work.resolve("source.png");
         byte[] content = noisePng();
         Files.write(source, content);
-        String digest = sha256(content);
         Process[] launcher = new Process[1];
         Forwarder forwarder = null;
         try {
@@ -98,137 +93,104 @@ class MediaDevStructuredCliBatchIT {
             String childClasspath = System.getProperty("media.child.classpath", "");
             assertThat(childClasspath).as("Gradle-resolved child runtime classpath").isNotBlank();
             String classpath = services + java.io.File.pathSeparator + childClasspath;
-            Map<String, String> environment = environment(bucket, port, destination);
+            Map<String, String> environment = environment(bucket, port);
             launcher[0] = startLauncher(classpath, environment, log);
             awaitReady(launcher[0], port);
             forwarder = new Forwarder(port);
             int cliPort = forwarder.port();
+            String ownerToken = token(tenant, principal, FULL);
 
-            // ---- 1. Schema error: exits 2 with a JSON path before any request or effect. ----
-            Path invalid = batchFile(work, "invalid", List.of(
-                    upload("u1", source, "up-" + run),
-                    Map.of("id", "bad", "command", "artifact inspect",
-                            "options", Map.of("artifact", "x", "unexpected", "y"))));
-            Cli schemaError = cli(work, cliPort, tenant, principal, token(tenant, principal, FULL), invalid, false, 20_000);
+            // Seed one real, durable artifact through the installed DEV_ONLY binary. Batch items are
+            // deliberately limited to the source-bound job-submit operation; upload is a separate call.
+            Cli uploaded = cliCommand(work, cliPort, tenant, principal, ownerToken,
+                    "artifact", "upload", "--file", source.toString(), "--content-type", "image/png",
+                    "--classification", "INTERNAL", "--retention", "P30D", "--idempotency-key", "up-" + run);
+            assertThat(uploaded.exit).as(uploaded.toString()).isZero();
+            String artifactId = uploaded.stdoutJson().path("artifact").path("artifactId").asString();
+            assertThat(artifactId).as(uploaded.toString()).isNotBlank();
+            assertThat(count("SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=?", tenant)).isEqualTo(1);
+
+            // ---- 1. Closed-schema error and wrong exact-plan confirmation send no job request. ----
+            long requestsBeforePreflight = forwarder.requests().size();
+            Path invalid = batchFile(work, "invalid", List.of(Map.of("id", "bad", "command", "job submit",
+                    "options", Map.of("artifact", artifactId, "request-id", "invalid-" + run,
+                            "job-type", "TRANSCODE", "await-finality-ms", 10_000, "provider-hint", "local-diagnostic"))));
+            Cli schemaError = cli(work, cliPort, tenant, principal, ownerToken, invalid, 20_000);
             assertThat(schemaError.exit).as(schemaError.toString()).isEqualTo(2);
             assertThat(schemaError.stdout).isEmpty();
             assertThat(schemaError.stderrJson().path("code").asString()).isEqualTo("BATCH_SCHEMA_INVALID");
-            assertThat(schemaError.stderrJson().path("jsonPath").asString()).isEqualTo("items[1].options");
-            assertThat(forwarder.requests()).as("a rejected batch sends nothing").isEmpty();
-            assertThat(count("SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=?", tenant)).isZero();
+            assertThat(forwarder.requests()).as("a rejected batch sends no item request")
+                    .hasSize((int) requestsBeforePreflight);
+            assertThat(count("SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=?", tenant)).isZero();
 
-            // ---- 2. Forbidden for the token's scopes: typed, no effect after the denied item. ----
-            Path pipeline = batchFile(work, "pipeline", pipeline(source, run, destination));
-            List<String> noDelivery = FULL.stream().filter(p -> !p.startsWith("media:delivery:")).toList();
-            Cli denied = cli(work, cliPort, tenant, principal, token(tenant, principal, noDelivery), pipeline, false, 20_000);
-            assertThat(denied.exit).as(denied.toString()).isEqualTo(3);
-            JsonNode deniedItems = denied.stdoutJson().path("items");
-            assertThat(statuses(deniedItems)).containsExactly("SUCCESS", "SUCCESS", "SUCCESS", "SUCCESS", "ERROR", "NOT_RUN");
-            assertThat(deniedItems.get(4).path("error").path("code").asString()).isEqualTo("LOCAL_DEV_IDENTITY_REJECTED");
-            assertThat(deniedItems.get(4).path("finality").asString()).isEqualTo("FAILED");
-            assertThat(denied.stdoutJson().path("summary").path("success").asBoolean()).isFalse();
-            String artifactId = deniedItems.get(0).path("result").path("artifact").path("artifactId").asString();
-            String jobId = deniedItems.get(1).path("result").path("job").path("jobId").asString();
-            assertThat(artifactId).isNotBlank();
-            assertThat(deniedItems.get(1).path("finality").asString()).isEqualTo("COMPLETED");
-            assertThat(deniedItems.get(1).path("result").path("job").path("status").asString()).isEqualTo("COMPLETED");
-            assertThat(count("SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=?", tenant)).isEqualTo(1);
-            assertThat(count("SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=?", tenant)).isEqualTo(1);
+            Path hashProbe = batchFile(work, "hash-probe", List.of(submit("h1", artifactId, "hash-" + run, 5_000)));
+            Cli badConfirmation = cliWithConfirmation(work, cliPort, tenant, principal, ownerToken, hashProbe,
+                    "sha256:" + "0".repeat(64), 20_000);
+            assertThat(badConfirmation.exit).as(badConfirmation.toString()).isEqualTo(2);
+            assertThat(badConfirmation.stdout).isEmpty();
+            assertThat(badConfirmation.stderrJson().path("code").asString()).isEqualTo("BATCH_PLAN_CONFIRMATION_INVALID");
+            assertThat(forwarder.requests()).as("a mismatched plan hash sends no item request")
+                    .hasSize((int) requestsBeforePreflight);
+            assertThat(count("SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=?", tenant)).isZero();
 
-            // A server-side refusal (not just the CLI preflight): another principal of the same tenant submits a job
-            // for the owner's artifact and the owner's token cannot be replayed under another principal.
-            String intruder = principal + "-intruder";
-            Path intrusion = batchFile(work, "intrusion", List.of(Map.of("id", "j", "command", "job submit",
-                    "options", Map.of("artifact", artifactId, "request-id", "intruder-" + run,
-                            "provider-hint", "local-diagnostic", "await-finality-ms", 3000))));
-            Cli intruded = cli(work, cliPort, tenant, intruder, token(tenant, intruder, FULL), intrusion, false, 20_000);
-            JsonNode intrudedItem = intruded.stdoutJson().path("items").get(0);
-            assertThat(intrudedItem.path("status").asString()).as(intruded.toString()).isEqualTo("ERROR");
-            assertThat(intrudedItem.path("finality").asString()).isEqualTo("FAILED");
-            assertThat(intrudedItem.path("error").path("statusCode").asInt()).as(intruded.toString()).isIn(403, 404);
-            assertThat(intrudedItem.path("result").isMissingNode()).isTrue();
-            assertThat(count("SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=?", tenant)).isEqualTo(1);
+            // ---- 2. The batch cannot expand a DEV_ONLY token's job-submit permissions. ----
+            Path deniedPlan = batchFile(work, "denied", List.of(submit("d1", artifactId, "denied-" + run, 10_000)));
+            long requestsBeforeDenied = forwarder.requests().size();
+            Cli denied = cli(work, cliPort, tenant, principal, token(tenant, principal, List.of("media:job:read")),
+                    deniedPlan, 20_000);
+            assertThat(denied.exit).as(denied.toString()).isNotZero();
+            JsonNode deniedItem = denied.stdoutJson().path("items").get(0);
+            assertThat(deniedItem.path("status").asString()).as(denied.toString()).isEqualTo("ERROR");
+            assertThat(deniedItem.path("finality").isNull()).isTrue();
+            assertThat(deniedItem.path("error").path("code").asString()).isEqualTo("LOCAL_DEV_IDENTITY_REJECTED");
+            assertThat(forwarder.requests()).as("permission refusal is rejected before the job endpoint")
+                    .hasSize((int) requestsBeforeDenied);
+            assertThat(count("SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=?", tenant)).isZero();
 
-            // ---- 3. Export without rights is a typed refusal; after a (test-principal) attestation the SAME batch
-            //         converges: upload/job replay without new effects, the export now reaches the destination. ----
-            Cli noRights = cli(work, cliPort, tenant, principal, token(tenant, principal, FULL), pipeline, false, 20_000);
-            JsonNode noRightsItems = noRights.stdoutJson().path("items");
-            assertThat(noRights.exit).as(noRights.toString()).isNotZero();
-            assertThat(statuses(noRightsItems).subList(0, 4)).containsOnly("SUCCESS");
-            assertThat(noRightsItems.get(4).path("status").asString()).isEqualTo("ERROR");
-            assertThat(noRightsItems.get(4).path("finality").asString()).isEqualTo("FAILED");
-            assertThat(noRightsItems.get(4).path("error").path("code").asString()).isNotBlank();
-            assertThat(noRightsItems.get(0).path("result").path("artifact").path("artifactId").asString()).isEqualTo(artifactId);
-            assertThat(noRightsItems.get(1).path("result").path("job").path("jobId").asString()).isEqualTo(jobId);
-            assertThat(count("SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=?", tenant)).isEqualTo(1);
-            assertThat(count("SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=?", tenant)).isEqualTo(1);
-            assertThat(destinationFiles(destination)).isEmpty();
+            // ---- 3. A successful item requires a terminal COMPLETED owner readback. ----
+            Path completedPlan = batchFile(work, "completed", List.of(
+                    submit("c1", artifactId, "job-complete-a-" + run, 20_000),
+                    submit("c2", artifactId, "job-complete-b-" + run, 20_000)));
+            Cli completed = cli(work, cliPort, tenant, principal, ownerToken, completedPlan, 20_000);
+            assertThat(completed.exit).as(completed.toString()).isZero();
+            JsonNode completedOut = completed.stdoutJson();
+            assertThat(completedOut.path("items").size()).isEqualTo(2);
+            assertThat(statuses(completedOut.path("items"))).containsExactly("SUCCESS", "SUCCESS");
+            for (JsonNode item : completedOut.path("items")) {
+                assertThat(item.path("finality").asString()).isEqualTo("COMPLETED");
+                assertThat(item.path("result").path("job").path("status").asString()).isEqualTo("COMPLETED");
+                assertThat(item.path("result").path("job").path("jobId").asString()).isNotBlank();
+            }
+            assertThat(completedOut.path("summary").path("success").asBoolean()).isTrue();
+            assertThat(count("SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=?", tenant)).isEqualTo(2);
 
-            String versionId = "sha256:" + digest;
-            // Rights: the uploader states EXTERNAL_DELIVERY for the exact version; a clearly synthetic TEST principal
-            // confirms it. This is test scaffolding, not a real rights approval.
-            String attestationId = JSON.readTree(http(port, tenant, token(tenant, principal, FULL), "POST",
-                    "/dev/v1/rights/attestations", JSON.writeValueAsString(Map.of("artifactId", artifactId,
-                            "artifactVersionId", versionId, "statementKind", "MEDIA_RIGHTS",
-                            "scopes", List.of("EXTERNAL_DELIVERY"),
-                            "basis", "TEST: synthetic noise image generated by the test"))).body())
-                    .path("attestationId").asString();
-            assertThat(attestationId).isNotBlank();
-            HttpResponse<String> confirmed = http(port, tenant, token(tenant, "test-principal-confirmer-" + run, FULL),
-                    "POST", "/dev/v1/rights/attestations/" + attestationId + "/confirm", "{}");
-            assertThat(confirmed.statusCode()).as(confirmed.body()).isEqualTo(200);
-
-            Cli converged = cli(work, cliPort, tenant, principal, token(tenant, principal, FULL), pipeline, false, 20_000);
-            assertThat(converged.exit).as(converged.toString()).isZero();
-            JsonNode convergedOut = converged.stdoutJson();
-            assertThat(convergedOut.path("summary").path("success").asBoolean()).isTrue();
-            assertThat(convergedOut.path("summary").path("finality").path("completed").asInt()).isEqualTo(6);
-            assertThat(statuses(convergedOut.path("items"))).as(converged.toString()).containsOnly("SUCCESS");
-            JsonNode exported = convergedOut.path("items").get(4).path("result").path("export");
-            assertThat(exported.path("status").asString()).isEqualTo("DESTINATION_CONFIRMED");
-            assertThat(exported.path("destinationConfirmed").asBoolean()).isTrue();
-            assertThat(convergedOut.path("items").get(5).path("result").path("export").path("destinationReceiptRef").asString())
-                    .isEqualTo(exported.path("destinationReceiptRef").asString());
-            assertThat(destinationFiles(destination)).hasSize(1);
-            assertThat(Files.readAllBytes(destinationFiles(destination).get(0))).isEqualTo(content);
-            assertThat(count("SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=?", tenant)).isEqualTo(1);
-            assertThat(count("SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=?", tenant)).isEqualTo(1);
-            assertThat(converged.stdout).doesNotContain(token(tenant, principal, FULL).substring(0, 40));
-
-            // ---- 4. Unanswered request: the launcher executes, the response never arrives, the CLI times out. ----
+            // ---- 4. Lost submit response is UNKNOWN; replaying the unchanged file reconciles the same request. ----
             String stalledRequest = "job-stalled-" + run;
-            Path stalled = batchFile(work, "stalled", List.of(
-                    submit("s1", artifactId, stalledRequest, 10_000),
-                    Map.of("id", "after", "command", "artifact inspect", "options", Map.of("artifact", artifactId))));
+            Path stalled = batchFile(work, "stalled", List.of(submit("s1", artifactId, stalledRequest, 10_000)));
             forwarder.stallResponseAfterForward(request -> request.startsWith("POST /api/v1/jobs"), Duration.ofSeconds(8));
-            Cli timedOut = cli(work, cliPort, tenant, principal, token(tenant, principal, FULL), stalled, false, 1_500);
+            Cli timedOut = cli(work, cliPort, tenant, principal, ownerToken, stalled, 1_500);
             forwarder.clearFault();
-            assertThat(timedOut.exit).as(timedOut.toString()).isEqualTo(1);
-            JsonNode timedOutItems = timedOut.stdoutJson().path("items");
-            assertThat(statuses(timedOutItems)).containsExactly("OUTCOME_UNKNOWN", "NOT_RUN");
-            assertThat(timedOutItems.get(0).path("finality").asString()).isEqualTo("UNKNOWN");
-            assertThat(timedOutItems.get(0).path("error").path("code").asString()).isEqualTo("OUTCOME_UNKNOWN");
-            assertThat(timedOutItems.get(0).path("error").path("requestId").asString()).isEqualTo(stalledRequest);
-            assertThat(timedOutItems.get(0).path("resume").path("identity").path("value").asString()).isEqualTo(stalledRequest);
-            assertThat(timedOut.stdoutJson().path("summary").path("success").asBoolean()).isFalse();
-            // The effect really happened on the host even though the CLI never saw an answer.
+            assertThat(timedOut.exit).as(timedOut.toString()).isNotZero();
+            JsonNode timedOutItem = timedOut.stdoutJson().path("items").get(0);
+            assertThat(timedOutItem.path("status").asString()).isEqualTo("OUTCOME_UNKNOWN");
+            assertThat(timedOutItem.path("finality").asString()).isEqualTo("UNKNOWN");
+            assertThat(timedOutItem.path("error").path("requestId").asString()).isEqualTo(stalledRequest);
+            assertThat(timedOutItem.path("resume").path("requestId").asString()).isEqualTo(stalledRequest);
             assertThat(awaitCount("SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=? AND request_id='"
                     + stalledRequest + "'", tenant, 1)).isEqualTo(1);
-            Cli resumed = cli(work, cliPort, tenant, principal, token(tenant, principal, FULL), stalled, false, 20_000);
+            Cli resumed = cli(work, cliPort, tenant, principal, ownerToken, stalled, 20_000);
             assertThat(resumed.exit).as(resumed.toString()).isZero();
-            JsonNode resumedItems = resumed.stdoutJson().path("items");
-            assertThat(statuses(resumedItems)).containsOnly("SUCCESS");
-            assertThat(resumedItems.get(0).path("finality").asString()).isEqualTo("COMPLETED");
+            assertThat(resumed.stdoutJson().path("items").get(0).path("finality").asString()).isEqualTo("COMPLETED");
             assertThat(count("SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=? AND request_id='"
                     + stalledRequest + "'", tenant)).isEqualTo(1);
 
-            // ---- 5. Launcher killed in the middle of a batch; re-running the same file converges. ----
+            // ---- 5. Kill the real launcher before the second submit; same-file replay after restart converges. ----
             String firstRequest = "job-kill-a-" + run;
             String secondRequest = "job-kill-b-" + run;
             Path killed = batchFile(work, "killed", List.of(
                     submit("k1", artifactId, firstRequest, 10_000),
                     submit("k2", artifactId, secondRequest, 10_000),
-                    Map.of("id", "after", "command", "artifact inspect", "options", Map.of("artifact", artifactId))));
+                    submit("k3", artifactId, "job-kill-c-" + run, 10_000)));
             final Forwarder live = forwarder;
             long submitsBefore = forwarder.requestsMatching("POST /api/v1/jobs");
             forwarder.killBeforeForward(request -> request.startsWith("POST /api/v1/jobs")
@@ -236,7 +198,7 @@ class MediaDevStructuredCliBatchIT {
                         launcher[0].destroyForcibly();
                         launcher[0].waitFor(15, TimeUnit.SECONDS);
                     });
-            Cli cut = cli(work, cliPort, tenant, principal, token(tenant, principal, FULL), killed, false, 4_000);
+            Cli cut = cli(work, cliPort, tenant, principal, ownerToken, killed, 4_000);
             forwarder.clearFault();
             assertThat(launcher[0].isAlive()).isFalse();
             assertThat(cut.exit).as(cut.toString()).isNotZero();
@@ -244,40 +206,25 @@ class MediaDevStructuredCliBatchIT {
             assertThat(statuses(cutItems)).containsExactly("SUCCESS", "OUTCOME_UNKNOWN", "NOT_RUN");
             assertThat(cutItems.get(0).path("finality").asString()).isEqualTo("COMPLETED");
             assertThat(cutItems.get(1).path("finality").asString()).isEqualTo("UNKNOWN");
-            assertThat(cutItems.get(1).path("resume").path("identity").path("value").asString()).isEqualTo(secondRequest);
+            assertThat(cutItems.get(2).path("exitCode").isNull()).isTrue();
+            assertThat(count("SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=? AND request_id='job-kill-c-"
+                    + run + "'", tenant)).isZero();
+            assertThat(cutItems.get(1).path("resume").path("requestId").asString()).isEqualTo(secondRequest);
             assertThat(cut.stdoutJson().path("summary").path("success").asBoolean()).isFalse();
+            assertThat(count("SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=? AND request_id='"
+                    + firstRequest + "'", tenant)).isEqualTo(1);
 
             launcher[0] = startLauncher(classpath, environment, log);
             awaitReady(launcher[0], port);
-            Cli rerun = cli(work, cliPort, tenant, principal, token(tenant, principal, FULL), killed, false, 20_000);
+            Cli rerun = cli(work, cliPort, tenant, principal, ownerToken, killed, 20_000);
             assertThat(rerun.exit).as(rerun.toString()).isZero();
             assertThat(statuses(rerun.stdoutJson().path("items"))).containsOnly("SUCCESS");
             assertThat(rerun.stdoutJson().path("items").get(0).path("result").path("job").path("jobId").asString())
                     .isEqualTo(cutItems.get(0).path("result").path("job").path("jobId").asString());
-            for (String request : List.of(firstRequest, secondRequest)) {
+            for (String request : List.of(firstRequest, secondRequest, "job-kill-c-" + run)) {
                 assertThat(count("SELECT COUNT(*) FROM media_processing_jobs WHERE tenant_id=? AND request_id='"
                         + request + "'", tenant)).isEqualTo(1);
             }
-            // The whole earlier pipeline also converges after the restart: everything replays, no new artifact/export.
-            Cli afterRestart = cli(work, cliPort, tenant, principal, token(tenant, principal, FULL), pipeline, false, 20_000);
-            assertThat(afterRestart.exit).as(afterRestart.toString()).isZero();
-            assertThat(afterRestart.stdoutJson().path("items").get(4).path("result").path("export").path("destinationReceiptRef").asString())
-                    .isEqualTo(exported.path("destinationReceiptRef").asString());
-            assertThat(count("SELECT COUNT(*) FROM media_artifacts WHERE tenant_id=?", tenant)).isEqualTo(1);
-            assertThat(destinationFiles(destination)).hasSize(1);
-
-            // ---- 6. A typed refusal is never success; the declared policy decides whether the batch goes on. ----
-            Path typed = batchFile(work, "typed", List.of(
-                    Map.of("id", "t1", "command", "artifact inspect", "options", Map.of("artifact", "missing-" + run)),
-                    Map.of("id", "t2", "command", "artifact inspect", "options", Map.of("artifact", artifactId))));
-            Cli typedStop = cli(work, cliPort, tenant, principal, token(tenant, principal, FULL), typed, false, 20_000);
-            assertThat(typedStop.exit).isEqualTo(1);
-            assertThat(statuses(typedStop.stdoutJson().path("items"))).as(typedStop.toString()).containsExactly("ERROR", "NOT_RUN");
-            assertThat(typedStop.stdoutJson().path("items").get(0).path("error").path("code").asString()).isEqualTo("ARTIFACT_NOT_FOUND");
-            assertThat(typedStop.stdoutJson().path("items").get(0).path("finality").asString()).isEqualTo("FAILED");
-            Cli typedContinue = cli(work, cliPort, tenant, principal, token(tenant, principal, FULL), typed, true, 20_000);
-            assertThat(statuses(typedContinue.stdoutJson().path("items"))).containsExactly("ERROR", "SUCCESS");
-            assertThat(typedContinue.stdoutJson().path("summary").path("success").asBoolean()).isFalse();
         } finally {
             if (forwarder != null) forwarder.close();
             if (launcher[0] != null && launcher[0].isAlive()) stopLauncher(launcher[0]);
@@ -288,31 +235,9 @@ class MediaDevStructuredCliBatchIT {
 
     // ------------------------------------------------------------------ batch documents
 
-    private static List<Map<String, Object>> pipeline(Path source, String run, Path destination) {
-        Map<String, Object> artifactRef = Map.of("$ref", Map.of("item", "u1", "path", "artifact.artifactId"));
-        return List.of(
-                upload("u1", source, "up-" + run),
-                Map.of("id", "s1", "command", "job submit", "options", Map.of("artifact", artifactRef,
-                        "request-id", "job-" + run, "provider-hint", "local-diagnostic", "await-finality-ms", 20_000)),
-                Map.of("id", "g1", "command", "job get", "options", Map.of(
-                        "job", Map.of("$ref", Map.of("item", "s1", "path", "job.jobId")),
-                        "request-id", "job-" + run, "await-finality-ms", 5_000)),
-                Map.of("id", "a1", "command", "artifact inspect", "options", Map.of("artifact", artifactRef)),
-                Map.of("id", "e1", "command", "export create", "options", Map.of("request-id", "exp-" + run,
-                        "artifact-id", artifactRef,
-                        "artifact-version-id", Map.of("$ref", Map.of("item", "u1", "path", "artifact.sha256", "prefix", "sha256:")),
-                        "destination-id", "dev-local-directory")),
-                Map.of("id", "x1", "command", "export get", "options", Map.of("request-id", "exp-" + run)));
-    }
-
-    private static Map<String, Object> upload(String id, Path file, String key) {
-        return Map.of("id", id, "command", "artifact upload", "options", Map.of("file", file.toString(),
-                "content-type", "image/png", "classification", "INTERNAL", "retention", "P30D", "idempotency-key", key));
-    }
-
     private static Map<String, Object> submit(String id, String artifactId, String requestId, int awaitMs) {
         return Map.of("id", id, "command", "job submit", "options", Map.of("artifact", artifactId,
-                "request-id", requestId, "provider-hint", "local-diagnostic", "await-finality-ms", awaitMs));
+                "request-id", requestId, "job-type", "TRANSCODE", "await-finality-ms", awaitMs));
     }
 
     private static Path batchFile(Path dir, String name, List<Map<String, Object>> items) throws Exception {
@@ -342,7 +267,13 @@ class MediaDevStructuredCliBatchIT {
     }
 
     private static Cli cli(Path work, int port, String tenant, String principal, String token, Path batch,
-            boolean continueOnError, int requestTimeoutMs) throws Exception {
+            int requestTimeoutMs) throws Exception {
+        return cliWithConfirmation(work, port, tenant, principal, token, batch,
+                "sha256:" + sha256(Files.readAllBytes(batch)), requestTimeoutMs);
+    }
+
+    private static Cli cliWithConfirmation(Path work, int port, String tenant, String principal, String token,
+            Path batch, String confirmation, int requestTimeoutMs) throws Exception {
         Path repoRoot = repoRoot();
         Path packageJson = repoRoot.resolve("libs/audio-video-client/package.json");
         String entrypoint = JSON.readTree(Files.readString(packageJson)).path("bin").path("ghatanamedia-api-dev").asString();
@@ -351,8 +282,25 @@ class MediaDevStructuredCliBatchIT {
         assertThat(Files.isRegularFile(cli)).as("build @audio-video/client before running this DEV_ONLY IT").isTrue();
         List<String> command = new ArrayList<>(List.of("node", cli.toString(), "batch", "run",
                 "--endpoint", "http://127.0.0.1:" + port, "--tenant", tenant, "--principal", principal,
-                "--file", batch.toString()));
-        if (continueOnError) command.add("--continue-on-error");
+                "--file", batch.toString(), "--confirm-sha256", confirmation));
+        return invokeCli(work, command, token, requestTimeoutMs);
+    }
+
+    private static Cli cliCommand(Path work, int port, String tenant, String principal, String token,
+            String... args) throws Exception {
+        Path repoRoot = repoRoot();
+        Path packageJson = repoRoot.resolve("libs/audio-video-client/package.json");
+        String entrypoint = JSON.readTree(Files.readString(packageJson)).path("bin").path("ghatanamedia-api-dev").asString();
+        assertThat(entrypoint).isEqualTo("./dist/cli-dev.js");
+        Path cli = packageJson.getParent().resolve(entrypoint).normalize();
+        assertThat(Files.isRegularFile(cli)).as("build @audio-video/client before running this DEV_ONLY IT").isTrue();
+        List<String> command = new ArrayList<>(List.of("node", cli.toString(), args[0], args[1],
+                "--endpoint", "http://127.0.0.1:" + port, "--tenant", tenant, "--principal", principal));
+        for (int index = 2; index < args.length; index++) command.add(args[index]);
+        return invokeCli(work, command, token, 20_000);
+    }
+
+    private static Cli invokeCli(Path work, List<String> command, String token, int requestTimeoutMs) throws Exception {
         Path out = Files.createTempFile(work, "cli-out-", ".capture");
         Path err = Files.createTempFile(work, "cli-err-", ".capture");
         ProcessBuilder builder = new ProcessBuilder(command);
@@ -364,7 +312,7 @@ class MediaDevStructuredCliBatchIT {
         Process process = builder.start();
         if (!process.waitFor(120, TimeUnit.SECONDS)) {
             process.destroyForcibly();
-            throw new AssertionError("CLI batch exceeded 120 seconds");
+            throw new AssertionError("CLI command exceeded 120 seconds");
         }
         String stdout = Files.readString(out, StandardCharsets.UTF_8);
         String stderr = Files.readString(err, StandardCharsets.UTF_8);
@@ -498,19 +446,6 @@ class MediaDevStructuredCliBatchIT {
         return value;
     }
 
-    private static List<Path> destinationFiles(Path destination) throws IOException {
-        try (var files = Files.list(destination)) { return files.filter(Files::isRegularFile).toList(); }
-    }
-
-    private static HttpResponse<String> http(int port, String tenant, String token, String method, String path, String body)
-            throws Exception {
-        HttpRequest.Builder request = HttpRequest.newBuilder(URI.create("http://127.0.0.1:" + port + path))
-                .header("Authorization", "Bearer " + token).header("X-Tenant-Id", tenant)
-                .header("Content-Type", "application/json")
-                .method(method, HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8));
-        return HttpClient.newHttpClient().send(request.build(), HttpResponse.BodyHandlers.ofString());
-    }
-
     private static byte[] noisePng() throws Exception {
         var image = new java.awt.image.BufferedImage(200, 150, java.awt.image.BufferedImage.TYPE_INT_RGB);
         Random random = new Random(24);
@@ -524,7 +459,7 @@ class MediaDevStructuredCliBatchIT {
         return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(bytes));
     }
 
-    private static Map<String, String> environment(String bucket, int port, Path destination) {
+    private static Map<String, String> environment(String bucket, int port) {
         Map<String, String> env = new HashMap<>();
         env.put("MEDIA_RUNTIME_ENABLED", "true");
         env.put("MEDIA_RUNTIME_ENVIRONMENT", "dev");
@@ -548,9 +483,6 @@ class MediaDevStructuredCliBatchIT {
         env.put("MEDIA_S3_SECRET_KEY_REFERENCE", "secret:env:MEDIA_LAUNCHER_SECRET");
         env.put("MEDIA_LAUNCHER_ACCESS", LOCALSTACK.getAccessKey());
         env.put("MEDIA_LAUNCHER_SECRET", LOCALSTACK.getSecretKey());
-        env.put("MEDIA_RIGHTS_DEV_ENABLED", "true");
-        env.put("MEDIA_DELIVERY_DEV_ENABLED", "true");
-        env.put("MEDIA_DELIVERY_DEV_DESTINATION_DIR", destination.toString());
         return env;
     }
 

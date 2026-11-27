@@ -26,9 +26,9 @@ the capture adapter SPI. Package: `@audio-video/client`
   maintained Explorer CLI remains fixture-only.
 - Provide a separate `ghatanamedia-api-dev` executable with an explicit
   loopback-only local-development registry for `artifact upload`,
-  `artifact inspect`, `job get`, and `job cancel`. The first three definitions
-  bind to existing scoped HTTP operations. `job cancel` binds only to the
-  signed DEV_ONLY loopback route, requires a stable request ID, and uses its
+  `artifact inspect`, `job get`, `job submit`, and `job cancel`. The first four
+  definitions use existing scoped local-development operations. `job cancel`
+  binds only to the signed DEV_ONLY loopback route, requires a stable request ID, and uses its
   durable reservation/replay behavior; its outcomes never imply provider
   finality. This local-development binding does not admit the production
   operation or host. The production command identities remain source-only;
@@ -44,8 +44,19 @@ the capture adapter SPI. Package: `@audio-video/client`
   the caller retries with the same ID. An export is reported on stdout and exit
   `0` only when the host confirms the destination with a receipt; a `202` or
   unconfirmed readback exits `4` as `EXPORT_NOT_CONFIRMED` on stderr with no
-  success output. No batch command exists and `job batch` stays rejected; the
-  production CLI rejects all four commands as `INVALID_INVOCATION`.
+  success output. The production CLI rejects these four commands as
+  `INVALID_INVOCATION`.
+- The same local-development registry defines `batch run` for J-24 as a bounded
+  composition of existing `job submit` calls. It accepts a strict 1–16 item JSON
+  plan and a SHA-256 confirmation of the exact file bytes, validates the full
+  plan before dispatch, and runs sequentially with fail-stop behavior. It reports
+  `SUCCESS` only for an exact local DEV_ONLY job readback at terminal
+  `COMPLETED`; typed command errors have no job finality, and ambiguous results
+  remain `OUTCOME_UNKNOWN` with the original request ID for replay. SIGINT stops
+  local observation without cancelling remote work. This is a local development
+  composition only: verified-output review, full J-24 acceptance, provider and
+  rights qualification, production CLI admission, and HTTP batch remain open.
+  The production CLI rejects `batch run` as `INVALID_INVOCATION`.
 - Validate local-development upload `contentType` with the same PDP-1 media-type
   predicate as the SDK during argument parsing, before credentials, source-file
   access, or host requests. Invalid invocation must return `INVALID_INVOCATION`

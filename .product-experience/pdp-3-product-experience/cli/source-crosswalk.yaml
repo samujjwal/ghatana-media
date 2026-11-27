@@ -1,6 +1,6 @@
 schemaVersion: media.cli-source-crosswalk.v1
 productId: media
-status: bounded-local-development-definitions-and-five-production-commands; historical-cli-identities-unresolved
+status: bounded-six-local-development-definitions-and-five-production-commands; historical-cli-identities-unresolved
 populations:
   explorerFixtureCommands:
     source: .product-experience/pdp-3-product-experience/cli/command-registry.yaml
@@ -67,7 +67,7 @@ populations:
     entrypoint: libs/audio-video-client/src/cli-dev.ts
     implementation: libs/audio-video-client/src/cli.ts#runLocalDevelopmentCli
     binary: libs/audio-video-client/package.json#bin.ghatanamedia-api-dev
-    count: 5
+    count: 6
     meaning: explicitly-loopback-only-development-command-definitions
     productionAdmission: OPEN
     identities:
@@ -94,6 +94,29 @@ populations:
         semantics: 202-receipt-only; explicit-requestId-and-same-payload-fingerprint; exact-replay-does-not-redispatch; changed-payload-conflicts
         unknownOutcome: retain-requestId-key-and-payload; no-new-identity; no-read-by-requestId-without-known-jobId; otherwise-remain-UNKNOWN
         productionAdmission: OPEN
+      - commandId: media.cli.local-development.batch.run
+        journeyRefs: [J-24]
+        ownerDecisionRefs: [PXD-245]
+        compositionContractRef: .product-experience/pdp-2-design-interface-system/cli-language.yaml#ownerDefinedLocalDevelopmentCommandCompositions/contracts/@id=media.cli.local-development.batch.run.v1
+        composedCommandIds: [media.cli.local-development.job.submit]
+        operationRefs: [media.operation-slice.submit-job]
+        runtimeBinding: IMPLEMENTED_DEV_ONLY_LOCAL_COMPOSITION
+        runtimeImplementationRef: libs/audio-video-client/src/cli.ts#runBatchCommand
+        runtimeVerificationRef: integration-tests/src/test/java/com/ghatana/media/integration/MediaDevStructuredCliBatchIT.java#builtCliBatchHasTrueFinalityTypedFailuresAndConvergesAcrossLauncherKill
+        channel: media.channel.cli
+        endpointConstraint: HTTP-or-HTTPS-loopback-only
+        planSchemaVersion: media.dev.batch.v1
+        planConfirmation: exact-file-byte-sha256; grants-no-identity-or-authority
+        itemLimit: {min: 1, max: 16}
+        scenarioScope: bounded-local-job-submit-finality-and-restart-reconciliation; full-J-24-verified-output-experience-remains-open
+        dispatchSemantics: full-preflight; sequential; fail-stop; later-items-NOT_RUN
+        outcomeSemantics: SUCCESS-ERROR-OUTCOME_UNKNOWN-or-NOT_RUN; definitive-command-error-without-terminal-job-record-has-null-finality
+        finalitySemantics: local-DEV_ONLY-terminal-job-record-only; ambiguous-or-unresolved-is-UNKNOWN
+        httpOperations: []
+        productionAdmission: NOT_ADMITTED
+        productionEvidence: NONE
+        executionAdmission: DEV_ONLY_LOCAL_VERIFICATION_ONLY; privileged-and-production-effects-NOT_ADMITTED
+        runtimeState: LOCAL_DEV_ONLY_INTEGRATION_TESTED; production-runtime-NOT_EVALUATED
       - commandId: media.cli.local-development.job.cancel
         operationRefCandidate: media.operation-slice.cancel-job
         observedHostRoute: POST-/dev/v1/jobs/{jobId}/cancel

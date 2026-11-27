@@ -5,7 +5,7 @@ sourceDisposition:
   decisionRef: .product-experience/decision-log.md#PXD-051
   scope: explicit-local-development-source-contract-extension
   supersedesPlanConflict: true
-  clarification: PXD-051's no-upload-CLI-command exclusion predates this explicit local-development disposition; this registry defines the five listed local-development command identities only and does not amend the production CLI registry.
+  clarification: PXD-051's no-upload-CLI-command exclusion predates this explicit local-development disposition; this registry defines the six listed local-development command identities only and does not amend the production CLI registry.
   productionAdmission: OPEN
 executionScope:
   binary: libs/audio-video-client/package.json#bin.ghatanamedia-api-dev
@@ -80,6 +80,39 @@ commands:
     unknownOutcome: preserve-the-original-requestId-idempotencyKey-and-payload; no-automatic-retry-or-new-identity; same-key-replay-only-under-the-owner-fingerprint-contract; job-readback-requires-a-known-jobId; without-it-remain-UNKNOWN
     exclusions: [no-rights-or-consent-proof, no-provider-qualification, no-production-host-admission, no-jobId-from-requestId-inference]
     productionAdmission: OPEN
+  - id: media.cli.local-development.batch.run
+    canonicalCommand: ghatanamedia-api-dev batch run
+    ownerDecisionRefs: [.product-experience/decision-log.md#PXD-245]
+    journeyRefs: [J-24]
+    compositionContractRef: .product-experience/pdp-2-design-interface-system/cli-language.yaml#ownerDefinedLocalDevelopmentCommandCompositions/contracts/@id=media.cli.local-development.batch.run.v1
+    composedCommandIds: [media.cli.local-development.job.submit]
+    operationRefs: [media.operation-slice.submit-job]
+    runtimeBinding: IMPLEMENTED_DEV_ONLY_LOCAL_COMPOSITION
+    runtimeImplementationRef: libs/audio-video-client/src/cli.ts#runBatchCommand
+    runtimeVerificationRef: integration-tests/src/test/java/com/ghatana/media/integration/MediaDevStructuredCliBatchIT.java#builtCliBatchHasTrueFinalityTypedFailuresAndConvergesAcrossLauncherKill
+    requiredOptions: [--endpoint, --tenant, --principal, --file, --confirm-sha256]
+    channel: media.channel.cli
+    endpointConstraint: HTTP-or-HTTPS-loopback-only
+    planSchemaVersion: media.dev.batch.v1
+    itemLimit: {min: 1, max: 16}
+    itemCommand: job-submit-only
+    itemRequiredFields: [id, command, options.artifact, options.request-id, options.job-type, options.await-finality-ms]
+    planConfirmation: exact-file-byte-sha256; confirmation-grants-no-identity-authority-rights-or-policy
+    action: validate-the-confirmed-plan-and-run-existing-local-job-submit-sequentially
+    scenarioScope: bounded-local-job-submit-finality-and-restart-reconciliation; full-J-24-verified-output-experience-remains-open
+    dispatchSemantics: validate-entire-plan-before-effects; sequential; fail-stop-on-first-non-COMPLETED; remaining-items-NOT_RUN
+    itemOutcome: SUCCESS-ERROR-OUTCOME_UNKNOWN-or-NOT_RUN; ERROR-without-an-exact-terminal-job-record-has-null-finality
+    itemFinality: local-DEV_ONLY-terminal-job-record-only; ACCEPTED-RUNNING-timeout-interruption-or-ambiguous-readback-is-UNKNOWN
+    replaySemantics: same-tenant-request-id-and-unchanged-payload-only; changed-payload-conflicts; no-blind-retry-or-new-key
+    cancellationSemantics: no-automatic-cancellation; timeout-or-SIGINT-stops-local-observation-only
+    resultSchemaVersion: media.cli-batch-result.v1
+    resultBoundary: job-reference-and-local-job-status-only; no-provider-finality-rights-approval-delivery-or-output-content
+    httpOperations: []
+    productionAdmission: NOT_ADMITTED
+    productionEvidence: NONE
+    executionAdmission: DEV_ONLY_LOCAL_VERIFICATION_ONLY; privileged-and-production-effects-NOT_ADMITTED
+    runtimeState: LOCAL_DEV_ONLY_INTEGRATION_TESTED; production-runtime-NOT_EVALUATED
+    p3ActionStateScenarioChannelBinding: BOUNDED_LOCAL_DEVELOPMENT_SUBSET_SOURCE_DEFINED; FULL_J24_ACCEPTANCE_PENDING
   - id: media.cli.local-development.job.cancel
     canonicalCommand: ghatanamedia-api-dev job cancel
     commandDefinition: local-development-only; requires---job-and---request-id

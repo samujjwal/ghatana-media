@@ -56,15 +56,15 @@ function invoke() {
   });
 }
 
-describe('ghatanamedia-api-dev unbound batch command', () => {
-  it('rejects batch run before reading its file or dispatching any item', async () => {
+describe('ghatanamedia-api-dev batch command confirmation boundary', () => {
+  it('requires exact-file confirmation before reading the plan or dispatching an item', async () => {
     const result = await invoke();
     expect(result.status).toBe(2);
     expect(result.stdout).toBe('');
     expect(JSON.parse(result.stderr)).toMatchObject({
-      schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.invocation', code: 'INVALID_INVOCATION',
+      schemaVersion: 'media.cli-error.v1', commandId: 'media.cli.local-development.batch.run', code: 'INVALID_INVOCATION',
     });
-    expect(JSON.parse(result.stderr).message).not.toContain('batch run');
+    expect(JSON.parse(result.stderr).message).toContain('--confirm-sha256');
     expect(result.stderr).not.toContain(token);
     await expect(readFile(logPath, 'utf8')).rejects.toMatchObject({ code: 'ENOENT' });
   });

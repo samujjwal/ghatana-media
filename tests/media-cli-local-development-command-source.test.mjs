@@ -16,27 +16,31 @@ const productionIds = [
   'media.cli.job.cancel',
 ];
 
-test('five local-development CLI definitions stay separate from fixture and production populations', () => {
+test('six local-development CLI definitions stay separate from fixture and production populations', () => {
   const source = readYaml('.product-experience/pdp-3-product-experience/cli/local-development-command-registry.yaml');
   const crosswalk = readYaml('.product-experience/pdp-3-product-experience/cli/source-crosswalk.yaml');
+  const p2 = readYaml('.product-experience/pdp-2-design-interface-system/cli-language.yaml');
   const production = readYaml('.product-experience/pdp-3-product-experience/cli/production-command-registry.yaml');
   const fixture = readYaml('.product-experience/pdp-3-product-experience/cli/command-registry.yaml');
   const parity = readYaml('.product-experience/interface-parity/operation-parity.yaml');
   const packageJson = JSON.parse(readFileSync(resolve(root, 'libs/audio-video-client/package.json'), 'utf8'));
+  const packageReadme = readFileSync(resolve(root, 'libs/audio-video-client/README.md'), 'utf8');
   const cliSource = readFileSync(resolve(root, 'libs/audio-video-client/src/cli.ts'), 'utf8');
   const expectedIds = [
     'media.cli.local-development.artifact.upload',
     'media.cli.local-development.artifact.inspect',
     'media.cli.local-development.job.get',
     'media.cli.local-development.job.submit',
+    'media.cli.local-development.batch.run',
     'media.cli.local-development.job.cancel',
   ];
+  const implementedIds = expectedIds.filter(id => id !== 'media.cli.local-development.batch.run');
 
   assert.deepEqual(source.commands.map(command => command.id), expectedIds);
   assert.equal(source.sourceDisposition.scope, 'explicit-local-development-source-contract-extension');
   assert.equal(source.sourceDisposition.decisionRef, '.product-experience/decision-log.md#PXD-051');
   assert.equal(source.sourceDisposition.supersedesPlanConflict, true);
-  assert.match(source.sourceDisposition.clarification, /five listed local-development command identities only/u);
+  assert.match(source.sourceDisposition.clarification, /six listed local-development command identities only/u);
   assert.equal(source.sourceDisposition.productionAdmission, 'OPEN');
   assert.equal(source.executionScope.binary, 'libs/audio-video-client/package.json#bin.ghatanamedia-api-dev');
   assert.equal(source.executionScope.runtimeProfile, 'MEDIA_PROFILE-exactly-dev');
@@ -49,7 +53,7 @@ test('five local-development CLI definitions stay separate from fixture and prod
   assert.equal(source.productionAdmission.productionIdentityCount, productionIds.length);
   assert.deepEqual(source.productionAdmission.productionIdentities, productionIds);
 
-  assert.equal(crosswalk.populations.localDevelopmentCommandDefinitions.count, 5);
+  assert.equal(crosswalk.populations.localDevelopmentCommandDefinitions.count, 6);
   assert.equal(crosswalk.populations.localDevelopmentCommandDefinitions.entrypoint, 'libs/audio-video-client/src/cli-dev.ts');
   assert.equal(crosswalk.populations.localDevelopmentCommandDefinitions.implementation,
     'libs/audio-video-client/src/cli.ts#runLocalDevelopmentCli');
@@ -60,6 +64,54 @@ test('five local-development CLI definitions stay separate from fixture and prod
   assert.deepEqual(production.commands.map(command => command.id), productionIds);
   assert.equal(fixture.commands.length, 11);
   assert.equal(packageJson.bin['ghatanamedia-api-dev'], './dist/cli-dev.js');
+
+  const batch = source.commands.find(command => command.id === 'media.cli.local-development.batch.run');
+  const batchContract = p2.ownerDefinedLocalDevelopmentCommandCompositions.contracts
+    .find(contract => contract.id === 'media.cli.local-development.batch.run.v1');
+  assert.equal(batch.canonicalCommand, 'ghatanamedia-api-dev batch run');
+  assert.equal(batch.ownerDecisionRefs[0], '.product-experience/decision-log.md#PXD-245');
+  assert.deepEqual(batch.journeyRefs, ['J-24']);
+  assert.deepEqual(batch.operationRefs, ['media.operation-slice.submit-job']);
+  assert.equal(batch.compositionContractRef,
+    '.product-experience/pdp-2-design-interface-system/cli-language.yaml#ownerDefinedLocalDevelopmentCommandCompositions/contracts/@id=media.cli.local-development.batch.run.v1');
+  assert.equal(batch.runtimeBinding, 'IMPLEMENTED_DEV_ONLY_LOCAL_COMPOSITION');
+  assert.equal(batch.runtimeImplementationRef, 'libs/audio-video-client/src/cli.ts#runBatchCommand');
+  assert.match(batch.runtimeVerificationRef, /MediaDevStructuredCliBatchIT\.java/u);
+  assert.equal(batch.productionAdmission, 'NOT_ADMITTED');
+  assert.equal(batch.productionEvidence, 'NONE');
+  assert.equal(batch.executionAdmission,
+    'DEV_ONLY_LOCAL_VERIFICATION_ONLY; privileged-and-production-effects-NOT_ADMITTED');
+  assert.equal(batch.runtimeState,
+    'LOCAL_DEV_ONLY_INTEGRATION_TESTED; production-runtime-NOT_EVALUATED');
+  assert.deepEqual(batch.composedCommandIds, ['media.cli.local-development.job.submit']);
+  assert.deepEqual(batch.operationRefs, ['media.operation-slice.submit-job']);
+  assert.deepEqual(batch.httpOperations, []);
+  assert.equal(batch.p3ActionStateScenarioChannelBinding,
+    'BOUNDED_LOCAL_DEVELOPMENT_SUBSET_SOURCE_DEFINED; FULL_J24_ACCEPTANCE_PENDING');
+  assert.match(batch.scenarioScope, /full-J-24-verified-output-experience-remains-open/u);
+  const crosswalkBatch = crosswalk.populations.localDevelopmentCommandDefinitions.identities
+    .find(item => item.commandId === batch.id);
+  assert.equal(crosswalkBatch.runtimeBinding, 'IMPLEMENTED_DEV_ONLY_LOCAL_COMPOSITION');
+  assert.equal(crosswalkBatch.runtimeImplementationRef, batch.runtimeImplementationRef);
+  assert.equal(crosswalkBatch.runtimeVerificationRef, batch.runtimeVerificationRef);
+  assert.deepEqual(crosswalkBatch.httpOperations, []);
+  assert.equal(crosswalkBatch.productionAdmission, 'NOT_ADMITTED');
+  assert.equal(crosswalkBatch.productionEvidence, 'NONE');
+  assert.equal(batchContract.ownerDecisionRef, '.product-experience/decision-log.md#PXD-245');
+  assert.deepEqual(batchContract.requiredOptions, ['--endpoint', '--tenant', '--principal', '--file', '--confirm-sha256']);
+  assert.equal(batchContract.planConfirmation.digestInput, 'exact-file-bytes-read-by-the-cli');
+  assert.deepEqual(batchContract.planFile.items.exactItemKeys, ['id', 'command', 'options']);
+  assert.deepEqual(batchContract.planFile.items.options.exactKeys,
+    ['artifact', 'request-id', 'job-type', 'await-finality-ms']);
+  assert.equal(batchContract.planFile.items.maxItems, 16);
+  assert.equal(batchContract.executionAdmission,
+    'DEV_ONLY_LOCAL_VERIFICATION_ONLY; privileged-and-production-effects-NOT_ADMITTED');
+  assert.equal(batchContract.productionAdmission, 'NOT_ADMITTED');
+  assert.equal(batchContract.independentPdp3Acceptance, 'OPEN');
+  assert.match(packageReadme, /--confirm-sha256/u);
+  assert.match(packageReadme, /1–16 independent items/u);
+  assert.match(packageReadme, /command is only `job submit`/u);
+  assert.doesNotMatch(packageReadme, /--continue-on-error|\$ref|1 to 25 items/u);
 
   const localDispatch = cliSource.match(/const LOCAL_DEVELOPMENT_COMMAND_IDS: Readonly<Record<string, string>> = \{([\s\S]*?)\n\};/u);
   assert.ok(localDispatch, 'local-development identities are implemented in the documented dispatcher');
@@ -75,6 +127,7 @@ test('five local-development CLI definitions stay separate from fixture and prod
       'job cancel:media.cli.local-development.job.cancel',
     ],
   );
+  assert.match(cliSource, /command === 'batch run'/u);
   const productionDispatch = cliSource.match(/const PRODUCTION_COMMAND_IDS: Readonly<Record<string, string>> = \{([\s\S]*?)\n\};/u);
   assert.ok(productionDispatch, 'production command identities remain separately declared');
   assert.deepEqual(
@@ -90,8 +143,8 @@ test('five local-development CLI definitions stay separate from fixture and prod
 
   const localParity = parity.surfaces.find(surface => surface.surface === 'CLI local-development command definitions');
   const productionParity = parity.surfaces.find(surface => surface.surface === 'CLI host-configured runtime consumers');
-  assert.equal(localParity.denominator, 5);
-  assert.deepEqual(localParity.identities, expectedIds);
+  assert.equal(localParity.denominator, implementedIds.length);
+  assert.deepEqual(localParity.identities, implementedIds);
   assert.deepEqual(productionParity.identities, productionIds);
   assert.equal(localParity.productionAdmission, 'OPEN');
 });
@@ -124,7 +177,7 @@ test('local-dev bindings are exact and cancellation stays isolated from producti
     assert.equal(openapi.paths[route][method.toLowerCase()].operationId, operationId);
   }
 
-  for (const command of source.commands.filter(item => !item.id.endsWith('.job.cancel'))) {
+  for (const command of source.commands.filter(item => !item.id.endsWith('.job.cancel') && !item.id.endsWith('.batch.run'))) {
     for (const [index, operationRef] of command.operationRefs.entries()) {
       const row = operationRows.get(operationRef);
       assert.ok(row, `${command.id} references current owner operation ${operationRef}`);

@@ -2100,6 +2100,130 @@ identityAndFinality:
     finality: reports-whether-the-effect-is-confirmed-pending-or-unknown; never-infer-it-from-state
   relatedEntities: retain-jobId-and-uploadId-as-separate-fields-when-both-are-present
   status: proposed-semantic-binding; owner-and-P0-010-review-pending
+
+ownerDefinedLocalDevelopmentCommandCompositions:
+  status: OWNER_DEFINED_DEV_ONLY_INTERFACE_DEFINITION; bounded-implementation-may-be-locally-verified-under-the-loopback-DEV_ONLY-boundary; privileged-runtime-and-production-admission-remain-NOT_ADMITTED
+  contracts:
+    - id: media.cli.local-development.batch.run.v1
+      argvPrefix: [batch, run]
+      commandId: media.cli.local-development.batch.run
+      ownerDecisionRef: .product-experience/decision-log.md#PXD-245
+      journeyRef: J-24
+      scope: local-development-cli-only; loopback-endpoint-only; production-and-http-batch-not-admitted
+      composedCommandId: media.cli.local-development.job.submit
+      operationRef: .product-experience/pdp-1-domain-data/operations.yaml#individualOperationContracts/records/@id=media.operation-slice.submit-job
+      requiredOptions: [--endpoint, --tenant, --principal, --file, --confirm-sha256]
+      credentialSource: GHATANA_MEDIA_BEARER_TOKEN-environment-only
+      callerAuthorityBoundary: >-
+        Endpoint, tenant and principal invocation values must match the current DEV_ONLY identity;
+        the Media host remains authoritative for identity, tenant, current policy, rights and item authorization.
+        Neither the plan nor its confirmation supplies or widens authority.
+      planConfirmation:
+        option: --confirm-sha256
+        format: sha256:<64-lowercase-hex>
+        digestInput: exact-file-bytes-read-by-the-cli
+        meaning: explicit-confirmation-of-the-exact-plan-only
+        mismatchDisposition: reject-before-any-item-dispatch
+      planFile:
+        schemaVersion: media.dev.batch.v1
+        exactTopLevelKeys: [schemaVersion, items]
+        items:
+          type: array
+          minItems: 1
+          maxItems: 16
+          exactItemKeys: [id, command, options]
+          uniqueBy: id
+          command:
+            enum: [job submit]
+            meaning: one-existing-artifact-submission-per-independent-item
+            crossItemReferences: REJECT
+          id:
+            type: string
+            pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$'
+            unique: true
+          options:
+            exactKeys: [artifact, request-id, job-type, await-finality-ms]
+            artifact:
+              type: string
+              pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$'
+              meaning: existing-artifact-id; resolved-and-authorized-by-the-loopback-dev-host
+            request-id:
+              type: string
+              pattern: '^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$'
+              required: true
+              identityScope: authenticated-tenant-and-request-id
+            job-type:
+              type: string
+              required: true
+              enum: [TRANSCODE, SPEECH_TO_TEXT, TEXT_TO_SPEECH, VISION, MULTIMODAL]
+            await-finality-ms:
+              type: integer
+              minimum: 1
+              maximum: 300000
+              required: true
+              meaning: client-observation-budget-only; not-a-server-execution-deadline
+        additionalProperties: REJECT
+        preflight: read-and-validate-the-complete-file-and-exact-hash-before-any-item-dispatch
+      dispatch:
+        order: sequential-input-order
+        atomic: false
+        stop: first-item-not-observed-as-terminal-COMPLETED
+        laterItems: NOT_RUN
+        itemAuthorization: re-evaluate-current-DEV_ONLY-identity-policy-and-artifact-access-for-every-item
+        replay: same-tenant-request-id-and-unchanged-payload-resolves-to-the-same-logical-job; changed-payload-conflicts
+      result:
+        schemaVersion: media.cli-batch-result.v1
+        stdout: exactly-one-versioned-json-document
+        topLevelKeys: [schemaVersion, commandId, batchId, planFingerprint, items, summary]
+        planFingerprint: sha256:<digest-of-exact-plan-file-bytes>
+        batchId: exactly-equal-to-planFingerprint
+        itemRequiredKeys: [id, command, requestId, status, finality, exitCode]
+        itemOptionalKeys: [jobId, result, error, resume]
+        itemStatus: [SUCCESS, ERROR, OUTCOME_UNKNOWN, NOT_RUN]
+        itemJobId: include-only-when-returned-by-the-exact-owner-operation; never-infer-from-requestId
+        itemError:
+          requiredFor: [ERROR, OUTCOME_UNKNOWN]
+          meaning: exact-typed-owner-or-existing-cli-error; no-invented-reason-code
+          omittedFor: [SUCCESS, NOT_RUN]
+        itemResume: present-only-for-UNKNOWN; repeats-the-original-requestId-and-unchanged-plan-instruction
+        finalityValues: [COMPLETED, FAILED, CANCELLED, UNKNOWN, null]
+        summaryKeys: [total, succeeded, failed, outcomeUnknown, notRun, finality, stoppedAt, atomic, success]
+        summaryFinalityKeys: [completed, failed, cancelled, unknown]
+        summaryAtomic: false
+        summarySuccess: true-only-if-every-item-status-is-SUCCESS
+        finality:
+          COMPLETED: exact-local-DEV_ONLY-job-identity-is-read-back-as-terminal-COMPLETED-within-its-budget
+          FAILED: exact-local-job-record-is-terminal-FAILED
+          CANCELLED: exact-local-job-record-is-terminal-CANCELLED
+          UNKNOWN: ACCEPTED-or-RUNNING-after-budget; timeout; interruption; missing-or-mismatched-readback; malformed-or-ambiguous-response
+          null: NOT_RUN-or-definitive-command-error-without-an-exact-terminal-job-record
+          NOT_RUN: item-after-the-first-non-success-item
+        exitCode:
+          allCompleted: 0
+          unknown: 10
+          interruptedObservation: 130
+          otherFailures: existing-P2-CLI-exit-taxonomy-for-the-exact-first-failure
+      recovery:
+        restart: same-exact-file-bytes-confirmation-request-ids-and-unchanged-item-payloads
+        unknown: reconcile-the-same-tenant-request-id-and-payload; never-create-a-new-request-id
+        interruption: stop-local-observation-only; do-not-cancel-the-remote-job
+        cancellation: requires-a-separate-explicit-command-and-result
+      outputBoundary: job-reference-and-job-state-only; no-provider-finality-rights-approval-delivery-or-output-content-is-inferred
+      negativeCases:
+        - unknown-top-level-or-item-property
+        - duplicate-item-id-or-request-id
+        - unsupported-command-or-cross-item-reference
+        - missing-or-mismatched-plan-confirmation
+        - invalid-artifact-job-type-or-wait-budget
+        - non-loopback-endpoint-or-non-DEV_ONLY-identity
+        - accepted-or-running-reported-as-completed
+        - timeout-or-SIGINT-reported-as-failure-or-cancellation
+        - blind-replay-with-new-request-id-or-changed-payload
+        - caller-selected-tenant-principal-authority-policy-or-provider
+      executionAdmission: DEV_ONLY_LOCAL_VERIFICATION_ONLY; privileged-and-production-effects-NOT_ADMITTED
+      productionAdmission: NOT_ADMITTED
+      independentPdp3Acceptance: OPEN
+      runtimeState: LOCAL_DEV_ONLY_INTEGRATION_TESTED; production-runtime-NOT_EVALUATED
 terminalFixtures:
   widths: [80, 120, 160]
   include: [tty, non-tty, color-disabled, narrow-wrap, unicode-name, error, progress, json, jsonl]

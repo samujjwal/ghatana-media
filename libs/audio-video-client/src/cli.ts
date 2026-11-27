@@ -20,6 +20,15 @@ import { MediaDevOnlyRenderExportClient } from './dev-render-export.js';
 import type { DevExportResult, DevRenderFormat } from './dev-render-export.js';
 import { sameMediaRetention } from './retention-duration.js';
 import { isCanonicalMediaContentType } from './upload-validation.js';
+import {
+  BATCH_COMMAND_ID,
+  BatchValidationError,
+  decodeBatchFile,
+  parseBatch,
+  readBatchFileBytes,
+  runBatch,
+} from './dev-batch.js';
+import type { BatchItem, BatchItemOutcome } from './dev-batch.js';
 
 const PRODUCTION_COMMAND_IDS: Readonly<Record<string, string>> = {
   'artifact inspect': 'media.cli.artifact.inspect',
@@ -34,6 +43,7 @@ const LOCAL_DEVELOPMENT_COMMAND_IDS: Readonly<Record<string, string>> = {
   'job get': 'media.cli.local-development.job.get',
   'job submit': 'media.cli.local-development.job.submit',
   'job cancel': 'media.cli.local-development.job.cancel',
+  'batch run': BATCH_COMMAND_ID,
 };
 const DEV_RENDER_EXPORT_COMMANDS: ReadonlySet<string> = new Set(['project render', 'project render-get', 'export create', 'export get']);
 const DEV_MUTATING_COMMANDS: ReadonlySet<string> = new Set(['project render', 'export create', 'job submit']);
@@ -51,7 +61,7 @@ const DEV_TYPED_ERROR_CODES: Readonly<Record<number, ReadonlySet<string>>> = {
 };
 const DEV_TYPED_422_PATTERN = /^(?:RENDER|EXPORT|TIMELINE|TRACK|SOURCE)_[A-Z0-9_]{1,56}$/u;
 const PRODUCTION_USAGE = 'Usage: ghatanamedia-api artifact inspect --endpoint URL --tenant ID --principal ID --artifact ID | job get --endpoint URL --tenant ID --principal ID --job ID [--request-id ID] | job submit --endpoint URL --tenant ID --principal ID --artifact ID --request-id ID [--job-type TYPE] [--provider-hint ID] | job cancel --endpoint URL --tenant ID --principal ID --job ID --request-id ID --expected-version N [--reason USER_REQUEST|POLICY_CHANGE|ADMINISTRATIVE_STOP]';
-const LOCAL_DEVELOPMENT_USAGE = 'Usage: ghatanamedia-api-dev artifact upload --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH --content-type TYPE --classification CLASS --retention PERIOD --idempotency-key KEY | artifact inspect --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID | job get --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID [--request-id ID] [--await-finality-ms N] | job submit --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID --request-id ID [--job-type TYPE] [--provider-hint ID] [--await-finality-ms N] | job cancel --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID --request-id ID [--expected-version N]';
+const LOCAL_DEVELOPMENT_USAGE = 'Usage: ghatanamedia-api-dev artifact upload --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH --content-type TYPE --classification CLASS --retention PERIOD --idempotency-key KEY | artifact inspect --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID | job get --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID [--request-id ID] [--await-finality-ms N] | job submit --endpoint LOOPBACK_URL --tenant ID --principal ID --artifact ID --request-id ID [--job-type TYPE] [--provider-hint ID] [--await-finality-ms N] | job cancel --endpoint LOOPBACK_URL --tenant ID --principal ID --job ID --request-id ID [--expected-version N] | batch run --endpoint LOOPBACK_URL --tenant ID --principal ID --file PATH --confirm-sha256 sha256:HEX';
 const DEFAULT_REQUEST_TIMEOUT_MS = 30_000;
 const MAX_REQUEST_TIMEOUT_MS = 300_000;
 const MAX_ENDPOINT_URL_CHARS = 8_192;
@@ -286,6 +296,9 @@ function hasLocalDevelopmentIdentityClaims(
       'job get': ['media:job:read'],
       'job submit': ['media:job:create'],
       'job cancel': ['media:job:cancel'],
+      // Batch identity is checked here; the existing job-submit path checks the
+      // operation-specific permission before each item's first host request.
+      'batch run': [],
       'project render': ['media:project:dev:write', 'media:artifact:read', 'media:artifact:create'],
       'project render-get': ['media:project:dev:read'],
       'export create': ['media:delivery:dev:export', 'media:artifact:read'],
@@ -676,10 +689,182 @@ async function uploadArtifact(
   }
 }
 
-async function run(argv: readonly string[], token: string | undefined, channel: CliChannel): Promise<void> {
+async function dispatchBatchItem(
+  item: BatchItem,
+  common: readonly string[],
+  token: string,
+  signal: AbortSignal,
+): Promise<BatchItemOutcome> {
+  const realOut = process.stdout.write;
+  const realErr = process.stderr.write;
+  const priorExit = process.exitCode;
+  let stdout = '';
+  let stderr = '';
+  process.exitCode = undefined;
+  process.stdout.write = ((chunk: unknown) => { stdout += String(chunk); return true; }) as typeof process.stdout.write;
+  process.stderr.write = ((chunk: unknown) => { stderr += String(chunk); return true; }) as typeof process.stderr.write;
+  try {
+    await run([...item.command.split(' '), ...common, ...item.flags], token, 'local-development', signal);
+    return { exitCode: Number(process.exitCode ?? 0), stdout, stderr };
+  } finally {
+    process.stdout.write = realOut;
+    process.stderr.write = realErr;
+    process.exitCode = priorExit;
+  }
+}
+
+interface BatchInvocation {
+  readonly endpoint: string;
+  readonly tenant: string;
+  readonly principal: string;
+  readonly file: string;
+  readonly confirmation: string;
+}
+
+function parseBatchInvocation(argv: readonly string[]): BatchInvocation {
+  const allowed = new Set(['--endpoint', '--tenant', '--principal', '--file', '--confirm-sha256']);
+  const values = new Map<string, string>();
+  for (let index = 2; index < argv.length; index += 2) {
+    const option = argv[index];
+    const value = argv[index + 1];
+    if (!allowed.has(option) || value === undefined || value.startsWith('--') || values.has(option)) {
+      throw new Error('Invalid or unknown command option.');
+    }
+    values.set(option, value);
+  }
+  for (const required of ['--endpoint', '--tenant', '--principal', '--file', '--confirm-sha256']) {
+    if (!values.has(required)) throw new Error(`Missing required option ${required}.`);
+  }
+  for (const option of ['--tenant', '--principal']) {
+    if (!OPAQUE_ID_PATTERN.test(values.get(option)!)) {
+      throw new Error(`${option.slice(2)} must be a PDP-1 opaque ID of 1 to 128 characters.`);
+    }
+  }
+  return {
+    endpoint: values.get('--endpoint')!,
+    tenant: values.get('--tenant')!,
+    principal: values.get('--principal')!,
+    file: values.get('--file')!,
+    confirmation: values.get('--confirm-sha256')!,
+  };
+}
+
+async function runBatchCommand(argv: readonly string[], token: string | undefined): Promise<void> {
+  const commandIds = { 'batch run': BATCH_COMMAND_ID };
+  const command = 'batch run';
+  let invocation: BatchInvocation;
+  try {
+    invocation = parseBatchInvocation(argv);
+  } catch (error) {
+    writeError('INVALID_INVOCATION', `${error instanceof Error ? error.message : 'Invalid invocation'} ${LOCAL_DEVELOPMENT_USAGE}`,
+      {}, 2, command, commandIds);
+    return;
+  }
+
+  const bearerToken = token?.trim();
+  if (!bearerToken) {
+    writeError('MISSING_AUTH_TOKEN', 'Set GHATANA_MEDIA_BEARER_TOKEN in the environment; credentials are never accepted as command arguments.', {}, 2, command, commandIds);
+    return;
+  }
+  if (/[\u0000-\u001f\u007f]/u.test(bearerToken) || !/^[A-Za-z0-9._~+/_-]+=*$/u.test(bearerToken)) {
+    writeError('INVALID_CONFIGURATION', 'GHATANA_MEDIA_BEARER_TOKEN is not a valid bearer credential.', {}, 2, command, commandIds);
+    return;
+  }
+  if (!hasLocalDevelopmentIdentityClaims(bearerToken, invocation.tenant, invocation.principal, command)) {
+    writeError('LOCAL_DEV_IDENTITY_REJECTED',
+      'The local-development CLI requires a current DEV_ONLY identity with matching tenant, principal, issuer and audience.',
+      {}, 3, command, commandIds);
+    return;
+  }
+  try {
+    parseRequestTimeout(process.env.GHATANA_MEDIA_REQUEST_TIMEOUT_MS);
+  } catch (error) {
+    writeError('INVALID_CONFIGURATION', error instanceof Error ? error.message : 'Request timeout configuration is invalid.', {}, 2, command, commandIds);
+    return;
+  }
+
+  let endpoint: string;
+  try {
+    endpoint = validateLocalDevelopmentEndpoint(invocation.endpoint);
+  } catch {
+    writeError('LOCAL_DEV_ENDPOINT_REQUIRED', 'The local-development CLI only accepts a valid loopback Media endpoint.', {}, 3, command, commandIds);
+    return;
+  }
+  if (!/^sha256:[0-9a-f]{64}$/u.test(invocation.confirmation)) {
+    writeError('BATCH_PLAN_CONFIRMATION_INVALID', 'Confirmation must be sha256 followed by 64 lowercase hexadecimal characters.', {}, 2, command, commandIds);
+    return;
+  }
+
+  let fileBytes: Buffer;
+  try {
+    fileBytes = await readBatchFileBytes(invocation.file);
+  } catch (error) {
+    if (error instanceof BatchValidationError) {
+      writeError(error.code, error.message, { jsonPath: error.path }, 2, command, commandIds);
+    } else {
+      writeError('BATCH_FILE_INVALID', 'Batch file could not be safely read.', {}, 2, command, commandIds);
+    }
+    return;
+  }
+  const planFingerprint = `sha256:${createHash('sha256').update(fileBytes).digest('hex')}`;
+  if (planFingerprint !== invocation.confirmation) {
+    writeError('BATCH_PLAN_CONFIRMATION_INVALID', 'Confirmation does not match the exact batch file bytes.', {}, 2, command, commandIds);
+    return;
+  }
+  let items: readonly BatchItem[];
+  try {
+    items = parseBatch(decodeBatchFile(fileBytes));
+    const common = ['--endpoint', endpoint, '--tenant', invocation.tenant, '--principal', invocation.principal];
+    // Validate every command through the existing single-command parser before any item is dispatched.
+    for (const [index, item] of items.entries()) {
+      try {
+        parseArguments([...item.command.split(' '), ...common, ...item.flags], 'local-development');
+      } catch (error) {
+        throw new BatchValidationError('BATCH_SCHEMA_INVALID',
+          `items[${index}].options failed job-submit validation: ${error instanceof Error ? error.message : 'invalid item'}`,
+          `items[${index}].options`);
+      }
+    }
+  } catch (error) {
+    if (error instanceof BatchValidationError) {
+      writeError(error.code, error.message, { jsonPath: error.path }, 2, command, commandIds);
+    } else {
+      writeError('BATCH_SCHEMA_INVALID', 'Batch file could not be safely read and validated.', {}, 2, command, commandIds);
+    }
+    return;
+  }
+
+  const common = ['--endpoint', endpoint, '--tenant', invocation.tenant, '--principal', invocation.principal];
+  const controller = new AbortController();
+  const onInterrupt = () => controller.abort();
+  process.on('SIGINT', onInterrupt);
+  try {
+    const report = await runBatch(items, {
+      planFingerprint,
+      tenantId: invocation.tenant,
+      principalId: invocation.principal,
+      signal: controller.signal,
+      dispatch: item => dispatchBatchItem(item, common, bearerToken, controller.signal),
+    });
+    if (containsCredential(report.document, bearerToken)) {
+      writeError('INVALID_MEDIA_RESPONSE', 'Batch output contained credential material and was withheld.', {}, 1, command, commandIds);
+      return;
+    }
+    process.stdout.write(`${JSON.stringify(report.document)}\n`);
+    process.exitCode = controller.signal.aborted ? 130 : report.exitCode;
+  } finally {
+    process.removeListener('SIGINT', onInterrupt);
+  }
+}
+
+async function run(argv: readonly string[], token: string | undefined, channel: CliChannel, signal?: AbortSignal): Promise<void> {
+  const command = `${argv[0] ?? ''} ${argv[1] ?? ''}`;
+  if (channel === 'local-development' && command === 'batch run') {
+    await runBatchCommand(argv, token);
+    return;
+  }
   const commandIds = channel === 'production' ? PRODUCTION_COMMAND_IDS : LOCAL_DEVELOPMENT_COMMAND_IDS;
   const usage = channel === 'production' ? PRODUCTION_USAGE : LOCAL_DEVELOPMENT_USAGE;
-  const command = `${argv[0] ?? ''} ${argv[1] ?? ''}`;
   // The finite command-ID map is the admission boundary for every dispatch path.
   if (!Object.hasOwn(commandIds, command)) {
     writeError('INVALID_INVOCATION', `Unknown command. ${usage}`, {}, 2, command, commandIds);
@@ -920,8 +1105,8 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
     }
     const awaitMs = Number(args.values['--await-finality-ms'] ?? 0);
     const readJob = (jobId: string) => args.values['--request-id'] === undefined || args.command === 'job submit'
-      ? canonical.getJob(jobId)
-      : canonical.getJobByRequest(jobId, args.values['--request-id']);
+      ? canonical.getJob(jobId, signal)
+      : canonical.getJobByRequest(jobId, args.values['--request-id'], signal);
     let job = args.command === 'job submit'
       ? await canonical.submitJob({
         requestId: args.values['--request-id']!, correlationId: `cli-${args.values['--request-id']!}`.slice(0, 128),
@@ -929,7 +1114,7 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
         jobType: (args.values['--job-type'] ?? 'TRANSCODE') as 'TRANSCODE',
         ...(args.values['--provider-hint'] === undefined ? {} : { providerHint: args.values['--provider-hint'] }),
         idempotencyKey: args.values['--request-id']!,
-      })
+      }, signal)
       : await readJob(args.values['--job']!);
     // A 202/ACCEPTED/RUNNING observation is never finality. With --await-finality-ms the same read is
     // repeated until the job is COMPLETED, FAILED or CANCELLED or the bound elapses (then JOB_NOT_FINAL).
@@ -957,6 +1142,12 @@ async function run(argv: readonly string[], token: string | undefined, channel: 
       process.exitCode = JOB_NOT_FINAL_EXIT_CODE;
     }
   } catch (error) {
+    if (signal?.aborted && args.command === 'job submit') {
+      writeError('OUTCOME_UNKNOWN',
+        'Local observation was interrupted. Reconcile this exact request ID; the interruption did not cancel the job.',
+        { requestId: args.values['--request-id']!, finality: 'UNKNOWN' }, 10, args.command, commandIds);
+      return;
+    }
     if (error instanceof MediaOperationAmbiguousError) {
       if (DEV_MUTATING_COMMANDS.has(args.command)) {
         writeError('OUTCOME_UNKNOWN', 'The operation may have taken effect. Reconcile with the same request ID and idempotency key; do not submit a new request identity.',
