@@ -66,6 +66,60 @@ class AudioRepairPreviewTest {
     }
 
     @Test
+    void persistsStereoPhaseProxyOnlyForDecodedAlignedWavBranches() throws Exception {
+        Path input = tempDir.resolve("synthetic-stereo-clipped.wav");
+        Path output = tempDir.resolve("stereo-output");
+        byte[] sourcePcm = pcm(new short[] {
+                1_000, -1_000,
+                16_000, -16_000,
+                Short.MAX_VALUE, -Short.MAX_VALUE,
+                Short.MAX_VALUE, -Short.MAX_VALUE,
+                16_000, -16_000,
+                1_000, -1_000,
+                -1_000, 1_000,
+                -16_000, 16_000
+        });
+        writeWav(input, sourcePcm, 2, 16);
+        byte[] originalWav = Files.readAllBytes(input);
+
+        AudioRepairPreview.run(input, output);
+
+        assertEquals(sha256(originalWav), sha256(Files.readAllBytes(input)),
+                "caller WAV remains byte-identical");
+        Path sourceWav = output.resolve("source.wav");
+        Path candidateWav = output.resolve("repaired-candidate.wav");
+        assertWavFormat(sourceWav, 1_000, 2, 16, 8);
+        assertWavFormat(candidateWav, 1_000, 2, 16, 8);
+        byte[] decodedSource = readWav(sourceWav);
+        byte[] decodedCandidate = readWav(candidateWav);
+        assertEquals(sha256(sourcePcm), sha256(decodedSource), "source WAV decodes to exact original PCM");
+        assertEquals(sourcePcm.length, decodedCandidate.length, "candidate frame/sample count is aligned");
+        assertFalse(java.util.Arrays.equals(decodedSource, decodedCandidate));
+
+        var manifest = new ObjectMapper().readTree(Files.readString(output.resolve("audio-repair-manifest.json")));
+        assertEquals(sha256(originalWav), manifest.path("input").path("wavSha256").asString());
+        assertEquals(sha256(sourcePcm), manifest.path("input").path("pcmSha256").asString());
+        assertEquals(8, manifest.path("format").path("frameCount").asInt());
+        assertEquals(8_000_000L, manifest.path("format").path("durationNanosRounded").asLong());
+        var comparison = manifest.path("comparison");
+        assertEquals(4, comparison.path("sourceNearClipSampleCount").asInt());
+        assertEquals(0, comparison.path("repairedNearClipSampleCount").asInt());
+        var phaseProxy = comparison.path("stereoPhasePolarityProxy");
+        assertEquals("zero-lag normalized left/right channel correlation; phase/polarity proxy only, not a phase angle",
+                phaseProxy.path("semantics").asString());
+        assertEquals(-1.0, phaseProxy.path("sourceCorrelation").asDouble());
+        assertEquals(-1.0, phaseProxy.path("repairedCandidateCorrelation").asDouble());
+        assertEquals(0.0, phaseProxy.path("absoluteCorrelationDelta").asDouble());
+        assertTrue(comparison.path("snrDbVsReference").isNull());
+        assertFalse(comparison.path("hasIndependentReference").asBoolean());
+        assertFalse(comparison.path("qualityClaim").asBoolean());
+        assertEquals(sha256(Files.readAllBytes(sourceWav)),
+                manifest.path("outputs").path("source").path("wavSha256").asString());
+        assertEquals(sha256(Files.readAllBytes(candidateWav)),
+                manifest.path("outputs").path("repairedCandidate").path("wavSha256").asString());
+    }
+
+    @Test
     void writesCallerWavABBranchesAndDigestBoundManifestWithoutChangingInput() throws Exception {
         Path input = tempDir.resolve("caller-source.wav");
         Path output = tempDir.resolve("output");
@@ -107,6 +161,10 @@ class AudioRepairPreviewTest {
         assertTrue(manifest.contains("\"hasIndependentReference\": false"));
         assertTrue(manifest.contains("\"snrDbVsReference\": null"));
         assertTrue(manifest.contains("\"qualityClaim\": false"));
+        var stereoPhaseProxy = manifestTree.path("comparison").path("stereoPhasePolarityProxy");
+        assertTrue(stereoPhaseProxy.path("sourceCorrelation").isNull());
+        assertTrue(stereoPhaseProxy.path("repairedCandidateCorrelation").isNull());
+        assertTrue(stereoPhaseProxy.path("absoluteCorrelationDelta").isNull());
         assertTrue(manifest.contains("\"changedSampleCount\": 2"));
         assertTrue(manifest.contains(sha256(sourceBranch)));
         assertTrue(manifest.contains(sha256(repairedBranch)));
@@ -309,15 +367,20 @@ class AudioRepairPreviewTest {
     }
 
     private static void writeWav(Path path, byte[] pcm) throws Exception {
-        writeWav(path, pcm, 16);
+        writeWav(path, pcm, 1, 16);
     }
 
     private static void writeWav(Path path, byte[] pcm, int bits) throws Exception {
+        writeWav(path, pcm, 1, bits);
+    }
+
+    private static void writeWav(Path path, byte[] pcm, int channels, int bits) throws Exception {
         int sampleBytes = bits / 8;
         javax.sound.sampled.AudioFormat format = new javax.sound.sampled.AudioFormat(
-                javax.sound.sampled.AudioFormat.Encoding.PCM_SIGNED, 1_000, bits, 1, sampleBytes, 1_000, false);
+                javax.sound.sampled.AudioFormat.Encoding.PCM_SIGNED, 1_000, bits, channels,
+                sampleBytes * channels, 1_000, false);
         try (AudioInputStream audio = new AudioInputStream(new ByteArrayInputStream(pcm), format,
-                pcm.length / sampleBytes)) {
+                pcm.length / (sampleBytes * channels))) {
             AudioSystem.write(audio, AudioFileFormat.Type.WAVE, path.toFile());
         }
     }

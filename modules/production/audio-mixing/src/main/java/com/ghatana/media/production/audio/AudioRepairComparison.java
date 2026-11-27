@@ -165,6 +165,12 @@ public final class AudioRepairComparison {
                 : 20.0 * Math.log10(repairedRms / sourceRms);
         Double sourceStereoCorrelation = stereoCorrelation(original, source);
         Double repairedStereoCorrelation = stereoCorrelation(output, repaired);
+        // This proxy is comparative: omit both values unless each branch has
+        // non-silent stereo channels so the delta cannot imply an undefined phase.
+        if (sourceStereoCorrelation == null || repairedStereoCorrelation == null) {
+            sourceStereoCorrelation = null;
+            repairedStereoCorrelation = null;
+        }
         Double stereoCorrelationDelta = sourceStereoCorrelation == null || repairedStereoCorrelation == null ? null
                 : Math.abs(sourceStereoCorrelation - repairedStereoCorrelation);
         return new Metrics(sourceRms, repairedRms, sourcePeak, repairedPeak,

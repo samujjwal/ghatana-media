@@ -114,6 +114,19 @@ class AudioRepairComparisonTest {
     }
 
     @Test
+    void omitsStereoPhaseProxyWhenEitherAlignedBranchIsSilent() {
+        AudioData source = stereo(12_000, -12_000, 0, 0);
+        AudioData silentCandidate = stereo(0, 0, 0, 0);
+
+        AudioRepairComparison comparison = AudioRepairComparison.compare(source, silentCandidate);
+
+        assertThat(comparison.metrics().sourceStereoCorrelation()).isNull();
+        assertThat(comparison.metrics().repairedStereoCorrelation()).isNull();
+        assertThat(comparison.metrics().stereoCorrelationDelta()).isNull();
+        assertThat(comparison.metrics().snrDbVsReference()).isNaN();
+    }
+
+    @Test
     void omitsSnrWithoutIndependentReferenceAndRejectsCorruptOrDriftingComparisons() {
         AudioRepairComparison comparison = AudioRepairComparison.compare(pcm(1, 2), pcm(1, 3));
         assertThat(comparison.metrics().hasIndependentReference()).isFalse();

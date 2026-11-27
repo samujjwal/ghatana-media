@@ -361,7 +361,7 @@ public final class AudioRepairPreview {
                   "input": {"filename": %s, "wavSha256": "%s", "pcmSha256": "%s"},
                   "format": {"encoding": "signed PCM little-endian", "sampleRateHz": %d, "channels": %d, "bitsPerSample": %d, "frameCount": %d, "durationNanosRounded": %d},
                   "repair": {"algorithm": "BoundedPcmDeclipper.linear-interpolation", "threshold": 0.94, "maxRunFrames": 64},
-                  "comparison": {"sourcePcmSha256": "%s", "repairedPcmSha256": "%s", "changedSampleCount": %d, "peakSemantics": "maximum absolute decoded signed sample-code magnitude across all channels; sample peak, not true peak", "positiveFullScaleCode": %d, "sourceSamplePeakCodeMagnitude": %d, "repairedSamplePeakCodeMagnitude": %d, "sourceNearClipSampleCount": %d, "repairedNearClipSampleCount": %d, "sourceRmsSampleCodeUnits": %s, "repairedRmsSampleCodeUnits": %s, "hasIndependentReference": false, "snrDbVsReference": null, "qualityClaim": false},
+                  "comparison": {"sourcePcmSha256": "%s", "repairedPcmSha256": "%s", "changedSampleCount": %d, "peakSemantics": "maximum absolute decoded signed sample-code magnitude across all channels; sample peak, not true peak", "positiveFullScaleCode": %d, "sourceSamplePeakCodeMagnitude": %d, "repairedSamplePeakCodeMagnitude": %d, "sourceNearClipSampleCount": %d, "repairedNearClipSampleCount": %d, "sourceRmsSampleCodeUnits": %s, "repairedRmsSampleCodeUnits": %s, "stereoPhasePolarityProxy": {"semantics": "zero-lag normalized left/right channel correlation; phase/polarity proxy only, not a phase angle", "sourceCorrelation": %s, "repairedCandidateCorrelation": %s, "absoluteCorrelationDelta": %s}, "hasIndependentReference": false, "snrDbVsReference": null, "qualityClaim": false},
                   "outputs": {"source": {"filename": %s, "wavSha256": "%s"}, "repairedCandidate": {"filename": %s, "wavSha256": "%s"}},
                   "limitations": ["caller must determine rights and suitability of the input", "near-full-scale samples are only a clipping heuristic", "linear interpolation estimates missing samples and does not recover source truth", "no independent reference, perceptual-quality claim, durable project revision, or hosted job is supplied"]
                 }
@@ -371,8 +371,15 @@ public final class AudioRepairPreview {
                 comparison.sourceSha256(), comparison.repairedSha256(), metrics.changedSampleCount(),
                 (1L << (source.bitsPerSample() - 1)) - 1L, metrics.sourcePeak(), metrics.repairedPeak(), metrics.sourceNearClipSampleCount(),
                 metrics.repairedNearClipSampleCount(), metrics.sourceRms(), metrics.repairedRms(),
+                jsonNullableNumber(metrics.sourceStereoCorrelation()),
+                jsonNullableNumber(metrics.repairedStereoCorrelation()),
+                jsonNullableNumber(metrics.stereoCorrelationDelta()),
                 json(sourceWav.getFileName().toString()), sha256(sourceWavBytes),
                 json(repairedWav.getFileName().toString()), sha256(repairedWavBytes));
+    }
+
+    private static String jsonNullableNumber(Double value) {
+        return value == null || !Double.isFinite(value) ? "null" : Double.toString(value);
     }
 
     private static String json(String value) {
